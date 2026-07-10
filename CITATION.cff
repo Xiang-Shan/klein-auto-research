@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use Klein Auto Research in your work, please cite it as below."
+type: software
+title: "Klein Auto Research"
+abstract: >-
+  An agentic, visualization-first ML research framework for actuaries and data
+  scientists: a six-stage study lifecycle (consult, data gate, method gate,
+  ledgered experiment loop, insight synthesis, teaching tutorial) that turns
+  hours of disciplined experiments on your own data into honest verdicts about
+  where a modeling method pays.
+authors:
+  - family-names: "Shan"
+    given-names: "Xiang"
+license: MIT
+version: 0.1.0
+date-released: "2026-07-10"
+url: "https://github.com/Xiang-Shan/klein-auto-research"
+repository-code: "https://github.com/Xiang-Shan/klein-auto-research"
+keywords:
+  - machine learning
+  - actuarial science
+  - research framework
+  - agentic workflows
+  - experiment tracking
+references:
+  - type: software
+    title: "autoresearch"
+    authors:
+      - family-names: "Karpathy"
+        given-names: "Andrej"
+    url: "https://github.com/karpathy/autoresearch"
+    notes: "The original program.md lab-notebook + edit-train-run experiment loop."
+  - type: software
+    title: "agent-smith"
+    authors:
+      - name: "elan-elan"
+    url: "https://github.com/elan-elan/agent-smith"
+    notes: "Turned the autoresearch loop into a portable skill; Klein's direct ancestor."
