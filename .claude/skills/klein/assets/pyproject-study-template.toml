@@ -1,0 +1,33 @@
+# pyproject for a Klein study living in a FOREIGN repo (outside klein-auto-research).
+# In THIS repo you do not need it — the root pyproject + kleinlib are already set up.
+# Copy this when bootstrapping a study elsewhere, fill the placeholders, then `uv sync`.
+
+[project]
+name = "{{STUDY_ID}}"                          # the NN-slug study id
+version = "0.1.0"
+description = "Klein study: {{GOAL}}"          # one-line goal
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2",
+    "scikit-learn>=1.5",
+    "matplotlib>=3.9",
+    "scipy>=1.13",
+    "pyyaml>=6",
+    "joblib>=1.4",
+    # kleinlib — the Klein engine. Pick ONE (pin a tag: an unpinned engine can
+    # drift under a running study, breaking seed-for-seed reproducibility):
+    #   uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v0.1.0"
+    #   or clone the repo next to this study and add it as a path dependency:
+    #   uv add --editable ../klein-auto-research
+    # NOTE: the git install ships the kleinlib package ONLY — bundled datasets/
+    # stay in the repo clone, so hub-style data needs $DATA_HUB or csv:<path>.
+]
+
+[project.optional-dependencies]
+gbdt = ["lightgbm>=4.3", "xgboost>=2.0", "catboost>=1.2"]   # uv sync --extra gbdt
+deep = ["torch>=2.3"]                                        # uv sync --extra deep (MPS-safe patterns)
+dev  = ["pytest>=8"]                                         # uv sync --extra dev
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

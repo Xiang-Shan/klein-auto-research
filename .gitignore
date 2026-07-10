@@ -1,0 +1,24 @@
+# Raw & prepared data — studies fetch/build these via prepare.py; never commit datasets
+data/
+**/data/prepared/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Run artifacts
+run.log
+catboost_info/
+optuna_studies/*.db
+
+# Model payloads — manifest.tsv IS tracked; pickles are not
+*.pkl
+
+# macOS
+.DS_Store
+
+# Claude Code agent worktrees (never track)
+.claude/worktrees/
+*.npz

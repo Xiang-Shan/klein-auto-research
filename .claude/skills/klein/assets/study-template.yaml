@@ -1,0 +1,59 @@
+# study.yaml — the machine-readable contract for a Klein study.
+# new_study.py fills what the CLI flags give; the CONSULT gate fills the rest.
+# The results-schema is NOT here — it lives ONLY in kleinlib/schema.py.
+# Every placeholder value is quoted so an unfilled stub stays valid YAML.
+
+goal: "{{GOAL}}"            # one sentence: what question does this study answer?
+domain: "{{DOMAIN}}"        # e.g. insurance, credit, energy, general
+target: "{{TARGET}}"        # prediction target column (or "synthetic" for known-truth labs)
+
+metric:
+  name: "{{METRIC_NAME}}"   # the ONE primary metric, e.g. val_auc, val_rmse, premium_error_pct
+  goal: "{{METRIC_GOAL}}"   # higher | lower
+
+family: "{{FAMILY}}"        # model family under study: glm | sklearn | gbdt | deep | mixed | simulation
+
+data:
+  source: "{{DATA_SOURCE}}" # data_hub:<name> | kaggle:<handle> | csv:<path> | synthetic:<generator>
+  path: "{{DATA_PATH}}"     # prepared-data path prepare.py writes/reads (fill after prepare)
+  split:
+    kind: stratified        # stratified | random | group | time | none (none for synthetic labs)
+    seed: 42                # canonical seed — changing it breaks cross-experiment comparability
+    test_size: 0.2
+    stratify: true          # stratify on target (classification); false for regression/simulation
+
+# Phases gate the loop. At every phase boundary the loop STOPS for user ack.
+# min/max_experiments = COUNT bounds (stop rule). experiments = the planned
+# experiment-ID range (fill at CONSULT when the ladder is pre-registered);
+# telemetry attributes wall-clock by this ID range, never by the count bounds.
+phases:
+  - id: 0
+    desc: "split-identity anchors — reproduce a known baseline EXACTLY before exploring"
+    min_experiments: 1
+    max_experiments: 4
+    experiments: {min: 1, max: 4}
+    budget_h: 1
+  # - id: 1                        # uncomment / add phases at CONSULT
+  #   desc: "{{PHASE_1_DESC}}"
+  #   min_experiments: 1
+  #   max_experiments: 8
+  #   experiments: {min: 5, max: 12}
+  #   budget_h: 2
+
+# Falsifiable questions the study exists to answer. One verdict per RQ in findings.md.
+research_questions:
+  - id: RQ1
+    q: "{{RQ1_QUESTION}}"       # e.g. does method X beat baseline B on this data?
+    prior: "{{RQ1_PRIOR}}"      # your HONEST expectation before running (e.g. "no lift over 0.67")
+
+# Levers you predict will move the metric, and by how much. findings.md fills observed + verdict.
+predictions_to_falsify:
+  - lever: "{{LEVER_1}}"           # e.g. "swap-noise rate 0.15 vs 0.25"
+    predicted_delta: "{{DELTA_1}}" # signed, with units, e.g. "+0.001 val_auc" or "no change"
+
+deliverables:
+  - findings.md                    # 7-section synthesis (ALWAYS)
+  - report/index.html              # self-contained tutorial (ALWAYS)
+  # - docs/<name>.md               # optional extra write-ups
+
+stop_rule: "keep running until the user says stop, or the phase max_experiments is hit"

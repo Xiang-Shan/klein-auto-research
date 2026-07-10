@@ -1,0 +1,105 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Reference interpreter = 3.13 everywhere: the committed .python-version pins
+      # local first-clone `uv sync`, and this input pins every later `uv` call here
+      # (temp-copy steps included). 3.13 is the interpreter the shipped study ledgers
+      # were produced under.
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+
+      # --locked: a stale uv.lock (pyproject drifted without `uv lock`) fails loudly
+      # here instead of being silently rewritten and tripping the byte-clean gates.
+      - name: Sync core + dev deps only (no gbdt/deep extras — this job never touches torch/lightgbm/xgboost/catboost)
+        run: uv sync --locked --extra dev
+
+      # preflight.py fails any check run on a protected branch (main/master); checkout
+      # leaves the runner on a detached HEAD, but branching explicitly removes all doubt.
+      - name: Move off main
+        run: git checkout -b ci-smoke
+
+      # One combined invocation: shared test helpers live in _helpers.py modules (never
+      # imported from conftest.py), so multiple bare conftest files coexist in one
+      # collection without clobbering each other in sys.modules.
+      - name: Unit tests (kleinlib, klein skill scripts, study 02 — excludes studies/01, which needs the torch/lightgbm extras this job doesn't install)
+        run: MPLBACKEND=Agg uv run pytest kleinlib/tests .claude/skills/klein/scripts/tests studies/02-rqls-pv-severity/tests -q
+
+      # Every step below runs against a $RUNNER_TEMP copy, never the checked-out study dir —
+      # train.py/prepare.py write aux_metrics.tsv/models/ via cwd-relative paths, and those
+      # files are committed ledgers (see kleinlib/schema.py); a sample-data run must not
+      # touch them. `uv --project` keeps the repo's synced venv while cwd stays in the copy.
+      - name: Study 00 sample dry-run (prepare --sample + train, temp copy)
+        run: |
+          set -euo pipefail
+          copy="$RUNNER_TEMP/ci_copy/studies/00-glm-claims-quickstart"
+          mkdir -p "$(dirname "$copy")"
+          cp -r studies/00-glm-claims-quickstart "$copy"
+          cd "$copy"
+          uv --project "$GITHUB_WORKSPACE" run python prepare.py --sample
+          uv --project "$GITHUB_WORKSPACE" run python train.py | tee "$RUNNER_TEMP/study00_train.log"
+          grep -q "^primary_metric:" "$RUNNER_TEMP/study00_train.log"  # canonical block landed; value NOT asserted (2k sample != anchor)
+
+      - name: Study 00 preflight (temp copy has the prepared data this needs)
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/ci_copy"
+          uv --project "$GITHUB_WORKSPACE" run python "$GITHUB_WORKSPACE/.claude/skills/klein/scripts/preflight.py" --study studies/00-glm-claims-quickstart
+
+      - name: Study 00 summarize (temp copy)
+        run: |
+          set -euo pipefail
+          copy="$RUNNER_TEMP/ci_copy/studies/00-glm-claims-quickstart"
+          uv --project "$GITHUB_WORKSPACE" run python "$GITHUB_WORKSPACE/.claude/skills/klein/scripts/summarize_results.py" "$copy/results.tsv"
+          test -s "$copy/results_summary.md"
+          test -s "$copy/progress.svg"
+
+      # The bundled-dataset promise, proven on every push: with no $DATA_HUB, prepare.py
+      # must resolve the repo-bundled datasets/insurance-claims copy (never a private
+      # hub), and the committed train.py (exp 6 sweep winner) must regenerate its own
+      # ledger row within the study's ±0.001 gate — ubuntu evidence that a stranger's
+      # clone reproduces the shipped numbers.
+      - name: Study 00 bundled full-data anchor (no --sample, DATA_HUB unset, ±0.001 vs ledger 0.664322)
+        run: |
+          set -euo pipefail
+          copy="$RUNNER_TEMP/ci_full/studies/00-glm-claims-quickstart"
+          mkdir -p "$(dirname "$copy")"
+          cp -r studies/00-glm-claims-quickstart "$copy"
+          cd "$copy"
+          unset DATA_HUB
+          uv --project "$GITHUB_WORKSPACE" run python prepare.py | tee "$RUNNER_TEMP/study00_prepare_full.log"
+          grep -q "data source: bundled" "$RUNNER_TEMP/study00_prepare_full.log"
+          uv --project "$GITHUB_WORKSPACE" run python train.py | tee "$RUNNER_TEMP/study00_train_full.log"
+          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-0.664322; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study00_train_full.log"
+
+      - name: Checked-out tree still byte-clean after the study 00 temp-copy steps
+        run: test -z "$(git status --porcelain)"
+
+      # Study 02's committed train.py is its FINAL experiment state (the exp-7
+      # reported-cell snapshot — a deterministic seeded Monte-Carlo, n=2000 × 500 reps,
+      # ~15s scipy-only). Like the study-00 anchor above, CI asserts the committed state
+      # regenerates its own ledger value on ubuntu.
+      - name: Study 02 committed-state anchor (exp-7 snapshot, deterministic MC, ±0.01 vs ledger 18.783886)
+        run: |
+          set -euo pipefail
+          copy="$RUNNER_TEMP/ci_copy/studies/02-rqls-pv-severity"
+          mkdir -p "$(dirname "$copy")"
+          cp -r studies/02-rqls-pv-severity "$copy"
+          cd "$copy"
+          uv --project "$GITHUB_WORKSPACE" run python train.py | tee "$RUNNER_TEMP/study02_train.log"
+          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-18.783886; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.01)?0:1}' "$RUNNER_TEMP/study02_train.log"
+
+      - name: Checked-out tree still byte-clean after the study 02 temp-copy step
+        run: test -z "$(git status --porcelain)"
