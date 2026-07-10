@@ -1,0 +1,108 @@
+<h2>Findings &amp; Insights</h2>
+
+<p>All four research questions closed with verdicts, and all eight pre-registered
+predictions got graded. The full synthesis, with every number traced to
+<code>results.tsv</code> / <code>aux_metrics.tsv</code>, is in <code>findings.md</code>;
+here are the load-bearing conclusions.</p>
+
+<h3>The RQ scorecard</h3>
+
+<ul>
+  <li><strong>RQ1 (DAE reps &rarr; LGBM vs tuned GBDT 0.6701): NO.</strong> E3 scored
+  0.668271 — &minus;0.0018 vs the GBDT and &minus;0.0023 vs E2's plain MLP on the
+  identical encoding. The honest inductive DAE does not pay for the headline at 58k
+  rows, exactly as the method card predicted.</li>
+  <li><strong>RQ2 (DAE + raw concat): NO — and it regresses.</strong> E6 landed 0.660653,
+  0.0076 <em>below</em> reps-only. Redundant dimensions dilute the split budget
+  (best iteration 107 &rarr; 55) and trigger earlier overfit. Sharper than the
+  predicted "no lift."</li>
+  <li><strong>RQ3 (linear probe vs raw-LR floor): YES.</strong> E4's logistic regression
+  on frozen reps scored 0.658019 — +0.0326 over 0.6255, closing ~72% of the LR&rarr;GBDT
+  gap linearly. The DAE genuinely linearized nonlinear structure.</li>
+  <li><strong>RQ4a (imputer vs median under MCAR): YES — at the cell level.</strong>
+  E7: numeric RMSE 1.02 vs 3.42 (3.4&times;), categorical accuracy 90.1% vs 33.4%;
+  downstream rank gain only +0.0013&ndash;0.0015.</li>
+  <li><strong>RQ4b (recon-error anomaly ranker): NO.</strong> E8: lift@10 = 0.934 &lt;
+  1.0, ranker AUC 0.4805 — mildly inverted. Unusual &ne; risky on this book.</li>
+</ul>
+
+<figure>
+  <img data-fig="figures/plot_when_it_pays.png" alt="Horizontal bar chart of validation AUC per pipeline arm; the supervised MLP bar is highlighted and reaches the tuned-GBDT reference line; no DAE arm does">
+  <figcaption>The study in one picture. Every arm's <code>val_auc</code> (bars start at
+  0.5 = chance, so length = skill above chance) against the campaign reference lines
+  (tuned GBDT 0.6701 dashed, soft-vote 0.6715 dotted). The green bar — a plain
+  supervised MLP on the raw encoding — is the only arm that reaches the GBDT line. No
+  DAE arm beats plain supervised learning.</figcaption>
+</figure>
+
+<h3>The predictions table, graded</h3>
+
+<p>Eight predictions were written down before any run: 4 held, 2 falsified, 1 split, 1
+falsified <em>upward</em>. The falsifications are where the learning is.</p>
+
+<table>
+  <thead>
+    <tr><th>Lever</th><th>Predicted</th><th>Observed</th><th>Verdict</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>E1</strong> split-identity anchor</td><td>0.6255 &plusmn; 0.001 (GATE)</td><td>0.625462 (|&Delta;| = 0.000038)</td><td><strong>HELD</strong> — gate pass</td></tr>
+    <tr><td><strong>E2</strong> supervised MLP "floor"</td><td>0.63&ndash;0.65, &lt; GBDT</td><td><strong>0.670616</strong> — ties the 0.6701 GBDT</td><td><strong>FALSIFIED, missed high — the surprise</strong></td></tr>
+    <tr><td><strong>E3</strong> frozen DAE &rarr; LGBM</td><td>0.66&ndash;0.67, &Delta; &le; 0 vs 0.6701</td><td>0.668271 (&minus;0.0018)</td><td><strong>HELD</strong></td></tr>
+    <tr><td><strong>E4</strong> linear probe</td><td>0.63&ndash;0.66, above raw LR</td><td>0.658019 (+0.0326)</td><td><strong>HELD</strong></td></tr>
+    <tr><td><strong>E5</strong> swap-rate sweep</td><td>|&Delta;| &le; 0.002 across rates</td><td>0.10: 0.661953 (&minus;0.0063); 0.25: 0.664123 (&minus;0.0041)</td><td><strong>FALSIFIED</strong> — swap rate is a real lever; 0.15 is a local optimum</td></tr>
+    <tr><td><strong>E6</strong> DAE + raw concat</td><td>&Delta; &le; +0.001 (likely discard)</td><td>&minus;0.0094 vs bar; &minus;0.0076 vs reps-only</td><td><strong>HELD</strong>, sharper — a regression, not a null</td></tr>
+    <tr><td><strong>E7</strong> DAE-imputer vs median</td><td>&Delta; &ge; 0, <em>growing</em> with rate</td><td>+0.0015 @10%, +0.0013 @30% — flat</td><td><strong>SPLIT</strong> — sign held, growth clause falsified</td></tr>
+    <tr><td><strong>E8</strong> recon-error anomaly</td><td>lift@10 &gt; 1.0</td><td>lift@10 = 0.9341; AUC 0.4805</td><td><strong>FALSIFIED</strong> — mildly inverted</td></tr>
+  </tbody>
+</table>
+
+<h3>Surprise 1 — the meta-finding that outranks the official question</h3>
+
+<p>A plain 3&times;256 MLP — RankGauss + one-hot inputs, no class weighting, early
+stopping on validation AUC, 12.5 seconds on a laptop — <strong>ties the tuned GBDT</strong>
+(0.670616 vs 0.6701) and lands within 0.0009 of the campaign's cross-family soft-vote
+global best. Put that against the ancestor campaign's Phase 4, which spent 25 TabNet
+configs (best 0.6633) and 15 FT-Transformer configs (best 0.6695) to conclude "deep
+learning sits below the GBDT trio": <strong>the cheapest architecture beats both fancy
+ones — and the campaign never tried it</strong>. The nuance matters for anyone budgeting
+"deep learning for tabular": the value was never in the architecture; it is in the
+encoding (RankGauss), the capacity control (task-metric early stopping at epoch 15), and
+the calibration discipline (E2 also posts the study's best Brier, 0.0587). E2 does not
+overturn "trees win on medium tabular" — it ties, not beats — but it relocates where the
+DL money should go.</p>
+
+<h3>Surprise 2 — self-supervision <em>subtracted</em> value on this data</h3>
+
+<p>The clean comparison the study was engineered for: same 94-dim encoding, supervised
+MLP 0.6706 (E2) vs DAE&rarr;LGBM 0.6683 (E3) vs DAE&rarr;linear-probe 0.6580 (E4). The
+representations are real (E4 proves structure was learned) — but every pipeline that
+routed learning through the unsupervised pretext lost to direct supervised training, at
+3&times; the compute. With all 46,873 training rows labeled and nothing else to learn
+from, the pretext task can only approximate what the label already teaches directly.
+SSL's regime — label scarcity, big unlabeled pools, multi-modality — is precisely what
+this dataset lacks, and the experiment quantifies the cost of ignoring that:
+&minus;0.0023 AUC and 25 wasted seconds per run.</p>
+
+<h3>Surprise 3 — the dragon below Python</h3>
+
+<p>The study's operational lesson: torch and LightGBM cannot share a process on macOS
+arm64 (dual bundled <code>libomp</code> &rarr; SIGSEGV with no traceback; import order
+only picks the victim). Every guard the framework had — prediction-collapse checks,
+budget timeouts, status honesty — watches <em>Python</em>; this failure was below it.
+The durable fixes: two-stage process isolation (Section 6), <code>set -o pipefail</code>,
+<code>PYTHONUNBUFFERED=1</code>, and a bit-exact rerun as the determinism proof. Promoted
+to the framework's war-story canon as story #5.</p>
+
+<h3>What it is worth, in actuarial terms</h3>
+
+<p>Honestly: <strong>no pricing-metric lift</strong>. Nothing DAE-based improved rank,
+lift, or calibration over supervised baselines, so no rate filing or triage queue moves
+on these results. The bankable outputs are (1) the <strong>imputer</strong> — 3.4&times;
+better numeric recovery and 90% vs 33% categorical accuracy is real value in
+data-quality workflows (report extracts, ratemaking feature completion, pre-audit
+reconstruction) where the cell <em>value</em> is the product; (2) the
+<strong>meta-finding</strong>, which re-prices the "should we invest in DL for claims?"
+conversation from architecture procurement down to encoding-plus-discipline; and (3) the
+<strong>quantified NO itself</strong> — eight pre-registered verdicts for ~a minute of
+compute, versus the weeks of ad-hoc exploration the same question costs a team without a
+harness. A disciplined no is cheap; an undisciplined maybe is expensive.</p>

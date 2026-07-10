@@ -1,0 +1,105 @@
+<h2>The Method</h2>
+
+<p>The workhorse here is <strong>logistic regression</strong> — and if you price with
+GLMs, you already know it. It is the same machinery as your Poisson-frequency or
+Gamma-severity models, just with a Bernoulli response and a logit link, aimed at
+<em>P(claim)</em> instead of a count or an amount. No new mathematics; the skill is in how
+you feed it.</p>
+
+<h3>The linear predictor, and why it is both blessing and curse</h3>
+
+<p>The model scores each policy on the log-odds scale with a plain weighted sum:</p>
+
+<pre><code>&eta; = &beta;&#8320; + &beta;&#8321;&middot;x&#8321; + &beta;&#8322;&middot;x&#8322; + &hellip; + &beta;&#8342;&middot;x&#8342;      (the linear predictor)
+P(claim) = 1 / (1 + e^(&minus;&eta;))                (the logit link squashes it into [0,1])</code></pre>
+
+<p>Each coefficient <code>&beta;&#8323;</code> is a <strong>log odds-ratio</strong>: holding
+everything else fixed, a one-unit move in <code>x&#8323;</code> multiplies the odds of a claim
+by <code>e^&beta;&#8323;</code>. An underwriter — or a regulator — can read the coefficient
+table straight off. That transparency is the GLM's blessing.</p>
+
+<p>The curse is the flip side of the same coin. Because the score is a straight sum, the
+model is <strong>monotone and additive by construction</strong>: it literally cannot see a
+U-shape, a threshold, or an interaction between two features <em>unless you build that
+shape into the design matrix yourself</em>. A boosted tree discovers curvature and
+interactions on its own; a GLM never will.</p>
+
+<h3>Why splines — the model's only path to a curve</h3>
+
+<p>So we hand the model its non-linearity. The standard tool is a <strong>spline
+basis</strong>: instead of feeding <code>customer_age</code> as one column, you expand it
+into a handful of smooth basis functions, and the GLM fits a separate weight to each. The
+sum of those weighted pieces is a smooth curve in age — risk that rises, plateaus, and
+falls — which a single linear term could never express. Splines on the two or three most
+important continuous features are <em>mandatory</em> feature engineering for a linear model
+on this data (worth about +0.026 AUC in this study; see the journey). This is the exact
+opposite of the rule for trees, where hand-built features mostly just add noise.</p>
+
+<p>Two details decide whether splines actually pay off, and neither is captured by the
+phrase &ldquo;5 knots&rdquo; — they are the traps this study fell into and climbed out of
+(Section 6):</p>
+<ul>
+  <li><strong>Where you place the knots.</strong> <code>knots="quantile"</code> puts them
+  where the data actually lives; the sklearn default <code>"uniform"</code> spaces them
+  evenly and wastes resolution on empty ranges.</li>
+  <li><strong>Whether you include a bias column.</strong> <code>include_bias=False</code>,
+  because the regression already has its own intercept — the default duplicates it and
+  quietly degrades the fit.</li>
+</ul>
+
+<h3>Why calibration comes first on a 6.4%-positive target</h3>
+
+<p>Here is the idea that trips up most newcomers: <strong>ranking and calibration are not
+the same thing.</strong> AUC only asks &ldquo;did the model put riskier policies above
+safer ones?&rdquo; A model can rank acceptably and still be badly <em>biased</em> in the
+actual probability it reports — and for pricing, the probability <em>is</em> the product.</p>
+
+<p>The instinct on an imbalanced target is to re-weight the loss so the rare positives
+&ldquo;count more&rdquo; (<code>class_weight="balanced"</code>). Do not. Re-weighting barely
+moves AUC and it <strong>systematically inflates the predicted probabilities</strong> —
+the model now thinks claims are far more common than 6.4%. The campaign found this across
+every re-weighting trick it tried, and this study reproduces it live (Section 5). The right
+recipe:</p>
+
+<ol>
+  <li>Train on the natural distribution: <code>class_weight=None</code>. Don't lie to the
+  model about the base rate.</li>
+  <li>Fix the probabilities <em>afterward</em> with <strong>isotonic regression</strong>
+  (<code>CalibratedClassifierCV(method="isotonic", cv=5)</code>) — a monotone step function
+  that re-maps raw scores onto the observed claim frequencies. It preserves the ranking and
+  repairs the bias. This is the actuarially load-bearing step.</li>
+  <li>Tune the decision threshold last, for whatever operating point the business needs.</li>
+</ol>
+
+<p>Put together, the whole model is a short pipeline — the encoder, spline, and calibration
+choices <em>are</em> the experiment; everything else is library:</p>
+
+<pre><code>from sklearn.preprocessing import OneHotEncoder, SplineTransformer
+from sklearn.linear_model import LogisticRegression
+from sklearn.calibration import CalibratedClassifierCV
+
+# OHE is non-negotiable for nominal categories in a linear model (never ordinal):
+#   OHE 0.6255  vs  ordinal 0.4039  -- a wrong encoder makes LR unusable.
+pre = ColumnTransformer([
+    ("cat", OneHotEncoder(min_frequency=20, handle_unknown="infrequent_if_exist"), cat_cols),
+    ("num", SplineTransformer(n_knots=5, degree=3, knots="quantile", include_bias=False), spline_cols),
+])
+glm = Pipeline([("pre", pre), ("lr", LogisticRegression(C=1.0, class_weight=None, max_iter=2000))])
+model = CalibratedClassifierCV(glm, method="isotonic", cv=5).fit(X_tr, y_tr)</code></pre>
+
+<p>One honest caveat, so you set expectations correctly: the signal in this dataset is
+<em>weak</em>. The score histograms for the two classes overlap almost completely — the
+best any linear model reaches is <code>val_auc &asymp; 0.65</code>, and a tuned boosted tree
+only gets to ~0.66. There is no configuration that makes this an easy separation problem;
+the GLM's job is a transparent, well-calibrated <em>anchor</em>, not a leaderboard win.</p>
+
+<figure>
+  <img data-fig="figures/plot_score_hist_by_class.png" alt="Predicted-score histograms for claim vs no-claim policies, showing heavy overlap">
+  <figcaption>Held-out predicted scores by true class (E4's calibrated LR). The two
+  distributions overlap heavily — this is what &ldquo;weak signal, AUC caps ~0.65&rdquo;
+  looks like. The claim class is thin because only 6.4% of policies claim.</figcaption>
+</figure>
+
+<p>Full pedagogy for the method lives in the study's <code>method_card.md</code> and the
+knowledge base's <code>method_cards/glm-pricing.md</code>; this section is the working
+actuary's version.</p>

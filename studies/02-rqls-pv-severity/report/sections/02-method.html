@@ -1,0 +1,124 @@
+<h2>The Method</h2>
+
+<p>If you have ever eyeballed a loss table and said "the median claim is about $8k and the
+95th percentile about $100k, so a lognormal with those two percentiles fits" &mdash; you
+have already done a special case of QLS. That is <em>percentile matching</em>: pick the
+parameters that make the model's quantiles line up with the data's. <strong>Quantile
+Least Squares is percentile matching grown up</strong>: instead of matching two hand-picked
+percentiles exactly, fit the parameters so the model's quantile <em>curve</em> passes as
+close as possible to a whole <em>grid</em> of empirical quantiles, in a least-squares
+sense. It is, almost literally, ordinary least squares run on the quantile scale instead
+of the mean.</p>
+
+<h3>Why an actuary should care &mdash; three ways real loss data breaks</h3>
+
+<ul>
+  <li><strong>One bad record moves the MLE's premium; it barely moves a quantile you can
+  see.</strong> The maximum-likelihood fit is a weighted average over <em>every</em> point,
+  so a single fat-fingered "$5,000,000" drags the fitted &sigma; &mdash; and therefore the
+  tail, the TVaR, the premium &mdash; with it. An empirical quantile in the <em>middle</em>
+  of the data does not budge when the largest point gets larger. QLS fits the quantiles you
+  can trust and ignores the extremes by simply not putting grid points there.</li>
+  <li><strong>A deductible is a left-truncation; a limit is a right-censoring.</strong>
+  Below-deductible losses are never filed (truncated, not merely missing); above-limit
+  losses are recorded <em>at</em> the limit (censored). QLS handles both by fitting only on
+  the <em>observable window</em> and using the fact that d and u are <em>known
+  numbers</em>.</li>
+  <li><strong>Data errors are contamination.</strong> Real severity data is a clean model
+  plus a small fraction of gross errors. QLS is built to have a <em>bounded</em> response
+  to that fraction; the MLE is not.</li>
+</ul>
+
+<h3>The closed form &mdash; the whole estimator in three lines</h3>
+
+<p>A lognormal is location&ndash;scale <em>in log space</em>: with Z = log X ~
+Normal(&mu;, &sigma;), the quantile is <strong>linear</strong> in the standard-normal
+quantile z<sub>p</sub> = &Phi;<sup>&minus;1</sup>(p):</p>
+
+<pre><code>Q_Z(p) = &mu; + &sigma;&middot;z_p          (z_p = &Phi;&#8315;&#185;(p), the standard-normal quantile)</code></pre>
+
+<p>So QLS on the log-losses is just <em>ordinary linear regression of the empirical
+log-quantiles on z<sub>p</sub></em>: regress q&#770;(p<sub>i</sub>) on z<sub>p_i</sub>,
+and the <strong>slope is &sigma;&#770;, the intercept is &mu;&#770;</strong>. No
+likelihood, no iteration &mdash; that is the entire estimator on clean, complete data:</p>
+
+<pre><code>z    = np.log(obs)                      # log-losses inside the window
+qhat = np.quantile(z, p_grid)          # empirical quantiles on the grid
+slope, intercept = np.polyfit(norm.ppf(p_grid), qhat, 1)
+mu, sigma = intercept, abs(slope)      # intercept = &mu;&#770;, slope = &sigma;&#770;</code></pre>
+
+<h3>The observable window &mdash; how the known d and u earn their keep</h3>
+
+<p>Under a deductible d and limit u you observe X | d &lt; X &lt; u. The empirical
+quantiles of that sample estimate the <strong>conditional</strong> (truncated) quantiles,
+not the unconditional ones &mdash; fit them naively and you fit the wrong curve. But d and
+u are <em>known</em>, so the conditional model quantile can be written down exactly (log
+space, a = log d, b = log u):</p>
+
+<pre><code>Q_cond(p; &mu;,&sigma;) = &mu; + &sigma;&middot;&Phi;&#8315;&#185;( &Phi;((a&minus;&mu;)/&sigma;) + p&middot;[&Phi;((b&minus;&mu;)/&sigma;) &minus; &Phi;((a&minus;&mu;)/&sigma;)] )</code></pre>
+
+<p>Fitting q&#770;(p<sub>i</sub>) &asymp; Q_cond(p<sub>i</sub>; &mu;,&sigma;) over the
+window <strong>identifies (&mu;, &sigma;) from the middle alone</strong> &mdash; the known
+truncation points do the rest. As d &rarr; 0 and u &rarr; &infin; it collapses back to the
+simple &mu; + &sigma;&middot;z<sub>p</sub>. This is exactly what lets window-QLS recover
+the truth where a naive full-sample MLE, which pretends the truncated data is complete, is
+biased (Section 4, experiment E4).</p>
+
+<h3>GLS weights &mdash; and why the plug-in version disappointed</h3>
+
+<p>The efficient weights come from the joint asymptotic covariance of the sample quantiles
+(Adjieteh &amp; Brazauskas 2025): for p<sub>i</sub> &le; p<sub>j</sub>,
+&Sigma;<sub>ij</sub> = p<sub>i</sub>(1&minus;p<sub>j</sub>) / [f(Q<sub>i</sub>)
+f(Q<sub>j</sub>) n]. The generalized-least-squares fit solves min (q&#770; &minus;
+Q<sub>&theta;</sub>)<sup>T</sup> &Sigma;<sup>&minus;1</sup> (q&#770; &minus;
+Q<sub>&theta;</sub>). In principle GLS beats OLS. In practice, the study's implementation
+uses the stable diagonal inverse-variance form (w<sub>i</sub> = f(Q<sub>i</sub>)<sup>2</sup>
+n / [p<sub>i</sub>(1&minus;p<sub>i</sub>)] from a first-stage OLS fit) &mdash; and it
+<strong>disappointed</strong>: on clean data it was <em>less</em> efficient than plain OLS
+(1.123&times; the MLE error vs OLS's 1.083&times;, E2). The first-stage plug-in of f and Q
+injects noise the 19-point grid cannot absorb; the full off-diagonal
+&Sigma;<sup>&minus;1</sup> is the efficiency ceiling but ill-conditions on fine grids. The
+lesson lands in Section 6: reach for OLS, not the diagonal plug-in.</p>
+
+<h3>Robustness &mdash; trim the grid (but carefully)</h3>
+
+<p>Because each grid point is a <em>middle</em> order statistic, dropping the extreme
+p<sub>i</sub> makes the estimator ignore the tails where gross errors live &mdash;
+robustness by <em>construction</em>, not by down-weighting. Keep p &isin; [0.15, 0.85] and
+you have a bounded-influence fit. The catch this study discovers (E5): blind trimming also
+deletes <em>real</em> signal when the upper tail carries genuine risk &mdash; a hail
+shoulder is not contamination. The principled robustifier turns out to be the observable
+<em>window</em>, not the trim.</p>
+
+<h3>From parameters to the decision &mdash; the premium</h3>
+
+<p>Everything is scored through the layer payout Y = (min(X, u) &minus; d)<sub>+</sub>.
+Truth and every fitted model are pushed through the <em>same</em> functionals, computed by
+1-D integration of the survival function S (a finite interval, so finite even under a
+heavy tail):</p>
+
+<pre><code>E[Y]      = &#8747;_d^u S(x) dx                              (the stop-loss / layer identity)
+VaR_p(Y)  = min(Q(p), u) &minus; d
+TVaR_p(Y) = VaR_p + 1/(1&minus;p) &middot; &#8747;_{d+VaR_p}^u S(x) dx
+premium   = E[Y] + 0.10 &middot; (TVaR&#8329;&#8329;(Y) &minus; E[Y])       &larr; a 10% load on the TVaR&#8329;&#8329; margin</code></pre>
+
+<p>The <strong>MTM cousin</strong> (Brazauskas, Jones &amp; Zitikis 2009) trims
+<em>moments</em> instead of a quantile grid: symmetric-trim a fraction from each tail, then
+match the trimmed sample moments to the family's theoretical trimmed moments (closed form
+in log space for lognormal). QLS and MTM are siblings &mdash; both throw away the tails to
+bound influence; QLS works on the quantile scale and, via the window trick, handles
+truncation/censoring cleanly.</p>
+
+<p>The efficiency side of the trade, measured (E2): QLS-OLS keeps ~85% of the MLE's
+premium efficiency; the diagonal plug-in GLS adds none; MTM's double trim costs the
+most.</p>
+
+<figure>
+  <img data-fig="figures/efficiency_cost.png" alt="Bar chart of relative efficiency versus the MLE at epsilon=0 for QLS-OLS, QLS-GLS and MTM; QLS-OLS keeps about 0.85 of premium efficiency, GLS less, MTM least">
+  <figcaption>The price of robustness on clean data (E2: &epsilon;=0, single family, 1,000
+  MC reps). Relative efficiency vs the MLE (MSE<sub>MLE</sub> / MSE, so 1.0 = the MLE
+  ceiling). QLS-OLS keeps ~0.85 of the MLE's premium efficiency (error ratio 1.083&times;);
+  the diagonal plug-in GLS keeps <em>less</em> (1.123&times;) &mdash; weights that were
+  supposed to help; MTM's 10% double trim costs the most (0.653, 1.219&times;). Full
+  pedagogy in <code>method_card.md</code>.</figcaption>
+</figure>

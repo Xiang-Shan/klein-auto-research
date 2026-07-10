@@ -1,0 +1,65 @@
+# study.yaml — the machine-readable contract for a Klein study.
+# new_study.py fills what the CLI flags give; the CONSULT gate fills the rest.
+# The results-schema is NOT here — it lives ONLY in kleinlib/schema.py.
+# Every placeholder value is quoted so an unfilled stub stays valid YAML.
+
+goal: "Reproduce the 215-exp campaign's GLM/HGBT anchors to prove split identity and onboard the framework"            # one sentence: what question does this study answer?
+domain: "insurance"        # e.g. insurance, credit, energy, general
+target: "claim_status"        # prediction target column (or "synthetic" for known-truth labs)
+
+metric:
+  name: "val_auc"   # the ONE primary metric, e.g. val_auc, val_rmse, premium_error_pct
+  goal: "higher"   # higher | lower
+
+family: "glm"        # model family under study: glm | sklearn | gbdt | deep | mixed | simulation
+
+data:
+  source: "data_hub:insurance-claims" # data_hub:<name> | kaggle:<handle> | csv:<path> | synthetic:<generator>
+  path: "data/prepared/insurance_claims_prepared.csv"     # prepared-data path prepare.py writes/reads (fill after prepare)
+  split:
+    kind: stratified        # stratified | random | group | time | none (none for synthetic labs)
+    seed: 42                # canonical seed — changing it breaks cross-experiment comparability
+    test_size: 0.2
+    stratify: true          # stratify on target (classification); false for regression/simulation
+
+# Phases gate the loop. At every phase boundary the loop STOPS for user ack.
+phases:
+  - id: 0
+    desc: "anchors — reproduce the campaign's GLM/HGBT recipes EXACTLY (split-identity gate + calibration doctrine smoke)"
+    min_experiments: 1
+    max_experiments: 4
+    experiments: {min: 1, max: 4}   # ID range for telemetry attribution
+    budget_h: 1
+  - id: 1
+    desc: "post-study extensions — E2-redux recipe recovery (exp 5) + SweepRunner demo (exp 6)"
+    min_experiments: 1
+    max_experiments: 2
+    experiments: {min: 5, max: 6}
+    budget_h: 1
+
+# Falsifiable questions the study exists to answer. One verdict per RQ in findings.md.
+research_questions:
+  - id: RQ1
+    q: "does prepare.py + the fixed split reproduce the campaign's anchors exactly?"
+    prior: "yes if preprocessing matches — the split-identity gate exists precisely to catch a preprocessing diff before it poisons every later comparison"
+  - id: RQ2
+    q: "does the calibration-first doctrine (class_weight=None + isotonic beats class_weight=balanced for probability quality) hold on these anchor configs?"
+    prior: "class_weight=balanced boosts AUC negligibly-to-not-at-all but wrecks brier/logloss vs class_weight=None + isotonic calibration"
+
+# Levers you predict will move the metric, and by how much. findings.md fills observed + verdict.
+predictions_to_falsify:
+  - lever: "E1 split-identity anchor: LR+OHE(min_freq=20)+class_weight=balanced, campaign Phase-0 baseline"
+    predicted_delta: "val_auc = 0.6255 +/- 0.001 (GATE: STOP everything if outside tolerance)"
+  - lever: "E2: campaign's winning Phase-1 LR recipe — splines(5knots,deg3) + log1p + 2 interactions + isotonic calibration"
+    predicted_delta: "val_auc = 0.6528 +/- 0.003"
+  - lever: "E3: campaign Phase-0 HGBT recipe — OHE + 7 deterministic-model-derivative column drops + shrinkage (lr=0.05, max_iter=500, early_stopping)"
+    predicted_delta: "val_auc = 0.6629 +/- 0.003"
+  - lever: "E4: E1's LR config with class_weight=None + isotonic calibration (CalibratedClassifierCV cv=3) instead of class_weight=balanced"
+    predicted_delta: "val_auc within +/- 0.003 of E1, but reliability curve near-diagonal (brier/logloss much improved vs E1's class_weight=balanced)"
+
+deliverables:
+  - findings.md                    # 7-section synthesis (ALWAYS)
+  - report/index.html              # self-contained tutorial (ALWAYS)
+  # - docs/<name>.md               # optional extra write-ups
+
+stop_rule: "keep running until the user says stop, or the phase max_experiments is hit"

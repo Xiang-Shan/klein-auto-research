@@ -1,0 +1,64 @@
+<h2>Findings &amp; Insights</h2>
+
+<p>Both research questions closed with a verdict. The full synthesis, with every number
+traced to <code>results.tsv</code> and <code>aux_metrics.tsv</code>, is in
+<code>findings.md</code>; here are the load-bearing conclusions.</p>
+
+<h3>The verdicts</h3>
+
+<ul>
+  <li><strong>RQ1 (split identity): CONFIRMED</strong> — wherever the exact recipe is
+  recoverable. Two anchors landed bit-exact (E1 off by <code>0.000038</code>, E3 off by
+  <code>0.000003</code>), and the third (E2) reproduced to within <code>0.0011</code> once
+  E5 recovered it from git rather than prose. The framework port is faithful; the lone miss
+  was about recoverability, not correctness.</li>
+  <li><strong>RQ2 (calibration-first doctrine): CONFIRMED.</strong> E4's single-lever A/B
+  bought a <strong>~4&times; Brier improvement</strong> (0.240153 &rarr; 0.059279) for a
+  <strong>&minus;0.0026 AUC cost</strong>, and E5 independently produced the study's best
+  Brier of all six runs (0.058960) on a calibrated LR. Re-weighting the loss is calibration
+  poison; train on the natural rate and calibrate afterward.</li>
+</ul>
+
+<p>The reliability diagram is the doctrine made visible. A well-calibrated model tracks the
+diagonal — when it says &ldquo;8% risk,&rdquo; about 8% of those policies actually claim.</p>
+
+<figure>
+  <img data-fig="figures/plot_reliability.png" alt="Reliability diagram for the calibrated logistic model, tracking close to the diagonal in the low-probability region">
+  <figcaption>Reliability curve for E4 (LR, <code>class_weight=None</code> + isotonic).
+  Predicted probability vs observed claim frequency, hugging the diagonal in the
+  low-probability region where a 6.4%-positive book lives. E1's re-weighted model, by
+  contrast, is badly biased upward (Brier 0.240 vs 0.059).</figcaption>
+</figure>
+
+<h3>Surprise 1 — the compressed-description trap (a framework lesson)</h3>
+
+<p>The headline finding is not about insurance at all; it is about <em>how research
+records itself</em>. E2 reproduced the campaign recipe perfectly at the <strong>lever</strong>
+level and still missed by 0.027, because a one-line ledger entry —
+&ldquo;<code>splines(5 knots, deg 3) + log1p + interactions + isotonic</code>&rdquo; — names
+the levers but not the <strong>dozen constructor kwargs</strong> that decide whether a lever
+delivers +0.025 or +0.0025. Three of them were the whole story:</p>
+
+<ol>
+  <li><code>knots="quantile"</code> — not sklearn's default <code>"uniform"</code>;</li>
+  <li><code>include_bias=False</code> — the default duplicates the model's intercept;</li>
+  <li><code>CalibratedClassifierCV(cv=5)</code> — not <code>cv=3</code>.</li>
+</ol>
+
+<p>The mechanism, and the rule that falls out of it: a <code>git show</code> of a
+<code>keep</code> commit recovers <em>every</em> choice exactly and for free (that is why E1
+and E3 were trivial); prose cannot. <strong>Keep-chain commits are the real configuration
+record — descriptions compress, and the compression is lossy precisely on the non-default
+kwargs that move the number.</strong> The cheapest fix in the whole framework is to spend
+two extra words in a ledger description on the non-default kwargs
+(<code>splines(quantile knots, no bias)</code>); those two words would have made E2 exact on
+the first try.</p>
+
+<h3>Surprise 2 — the best-AUC model is not the best-calibrated model</h3>
+
+<p>E6 has the study's top AUC (0.664322) but a Brier of 0.222681 —
+<strong>3.8&times; worse</strong> than E5's calibrated 0.058960 — because every HGBT run here
+is uncalibrated. Ranking and calibration trade off, so &ldquo;best model&rdquo; is
+<em>use-dependent</em>: E6 for pure ranking, E5 for a number you can put in a rate. (No run
+tripped the prediction-collapse guard; the calibrated LRs' low score-spread is isotonic
+compressing toward the 6.4% base rate, which is correct, not a failure.)</p>

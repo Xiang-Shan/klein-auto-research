@@ -1,0 +1,70 @@
+<h2>The Data</h2>
+
+<p>The "data" in this study <em>is code</em>: <code>generator.py</code>'s
+<code>PVLossGenerator</code>, a known-truth photovoltaic loss-severity lab. There is no
+external dataset and no download &mdash; because the whole point is a lab where the exact
+answer is known, so the DATA gate's usual go/no-go question ("is the data trustworthy?")
+becomes a sharper one: <em>is the generator validated against its own ground truth?</em>
+One sample is one loss year of a PV portfolio: n = 2,000 observed claims per replication,
+200&ndash;1,000 Monte-Carlo replications per experiment, fully deterministic per seed.</p>
+
+<h3>The generative truth &mdash; what every estimator must recover</h3>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Specification</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Severity body</td><td>lognormal &mu;=9.0, &sigma;=1.1 (median loss &asymp; $8.1k)</td></tr>
+    <tr><td>Peril mix</td><td>inverter 45% &middot; storm 20% &middot; degradation 15% &middot; fire 12% &middot; <strong>hail 8%</strong></td></tr>
+    <tr><td>Peril adjustments</td><td>hail: <strong>&times;8 location shift</strong> (low-frequency, high-severity) &middot; fire: GPD tail &xi;=0.4 spliced above $250k when <code>tail_mode</code> is on</td></tr>
+    <tr><td>Incompleteness</td><td><strong>left-truncation</strong> at deductible d = $5,000 (below-deductible losses UNOBSERVED) &middot; <strong>right-censoring</strong> at limit u = $2,000,000 (recorded as u, flagged)</td></tr>
+    <tr><td>Contamination &epsilon;</td><td>{0, 1, 2, 5, 10}% of records replaced by gross errors (&times;10&ndash;100) or unit typos (&times;0.01)</td></tr>
+    <tr><td>Premium</td><td>premium = E[Y] + 0.10&middot;(TVaR<sub>99</sub>(Y) &minus; E[Y]) on the layer Y = (min(X,u) &minus; d)<sub>+</sub></td></tr>
+    <tr><td>Truth premiums</td><td>single-family cell <strong>$25,341</strong> &middot; realistic mixture cell <strong>$62,346</strong></td></tr>
+  </tbody>
+</table>
+
+<p>The hail row is the story in miniature: 8% of claims, but severity shifted &times;8 &mdash;
+a small share of claims driving a large share of dollars. That loss-concentration shape is
+industry-reported context (pv-magazine 2025), stylized here, <em>not</em> calibrated to any
+real book. The study's claims are about estimator behaviour under a known truth, which does
+not depend on the mix being realistic.</p>
+
+<h3>The truth oracle &mdash; why this is a lab and not a guess</h3>
+
+<p>The engine that makes scoring possible is <code>truth_functionals(d, u)</code>: the
+<em>exact</em> mean layer payout, VaR<sub>95/99</sub>, TVaR<sub>99</sub>, and risk-loaded
+premium, computed by 1-D numeric integration of the mixture survival function &mdash; and
+verified against an independent 10<sup>6</sup>-draw Monte-Carlo within 1% (pinned in
+<code>tests/test_rqls.py</code>). Truth and every fitted model are priced through the
+<em>same</em> <code>layer_functionals</code> routine, so "truth" and "estimate" are never
+computed two different ways. When we say an estimator's premium error is 4.83%, we mean
+4.83% away from a number we know exactly.</p>
+
+<h3>The Monte-Carlo floor &mdash; the yardstick for the entire study</h3>
+
+<p>Here is the discipline that keeps every later result honest. At n = 2,000, even a
+<em>perfect, unbiased</em> estimator does not score 0% premium error &mdash; it scores
+about <strong>4.28% (sd 3.03)</strong>, because finite-sample noise propagates through the
+nonlinear premium map (a mean, a 99th-percentile tail average, a loading). This is not
+bias; it is irreducible sampling error at this sample size. So the rule, set in the data
+card and obeyed in every figure: <strong>report every premium error against the 4.28%
+floor, never against zero.</strong> A "5% error" is near-perfect play; only a wildly larger
+number signals a real estimator problem.</p>
+
+<h3>The war story for a synthetic lab &mdash; truth drift, and the E1 gate</h3>
+
+<p>The framework's usual data war story &mdash; pandas string-dtype breaking
+<code>dtype == "object"</code> checks &mdash; is trivially absent here: every column is a
+generated numpy array with a declared dtype, no string-encoded booleans possible. The
+<em>real</em> GIGO risk for a synthetic lab is different and more insidious:
+<strong>silent truth drift</strong>. If the generator's parameters ever diverge from the
+documented truth, every conclusion is quietly wrong and nothing crashes to warn you. Three
+guards hold the line: truth functionals are integration-computed <em>and</em>
+Monte-Carlo-verified within 1% in the tests; the parameters are frozen in the data card and
+<code>study.yaml</code>; and experiment <strong>E1 is a hard truth-recovery gate</strong>
+&mdash; the naive MLE must recover a known single family before anything else runs. It did:
+&mu;&#770; bias <strong>+0.00037</strong> (2&middot;SE = 0.00353) and &sigma;&#770; bias
+<strong>&minus;0.00043</strong> (2&middot;SE = 0.00260), both comfortably inside tolerance.
+The generator recovers its own truth; the lab is trustworthy. <strong>Verdict: GO.</strong></p>

@@ -1,0 +1,121 @@
+<h2>Model Coding Advice</h2>
+
+<p>This is the section that makes the study useful on Monday morning. The centerpiece code
+is two library-stable files &mdash; <code>generator.py</code> (the known-truth lab) and
+<code>estimators.py</code> (the four estimators) &mdash; plus a deliberately thin
+<code>train.py</code> that swaps one cell per experiment. Here are the four blocks worth
+stealing, then the pitfalls that shaped every finding above.</p>
+
+<h3>Block 1 &mdash; the truncated + censored likelihood</h3>
+
+<p>The proper conditional likelihood is what a naive MLE throws away. Uncensored points are
+conditioned on being above the deductible, so each contributes f(x)/S(d); censored points
+(recorded at the limit u, flagged) contribute S(u)/S(d); anything recorded at or below d
+can only be contamination and is dropped as unobservable under the truncated model:</p>
+
+<pre><code>def nll(theta):
+    dist   = _frozen(family, theta)
+    log_sd = np.log(dist.sf(d)) if d &gt; 0 else 0.0    # log S(d): the truncation normalizer
+    ll     = np.sum(dist.logpdf(unc)) - len(unc) * log_sd     # uncensored: f(x)/S(d)
+    if n_cens:
+        ll += n_cens * (np.log(max(dist.sf(u), 1e-300)) - log_sd)   # censored: S(u)/S(d)
+    return -ll
+
+res = minimize(nll, theta0, method="Nelder-Mead",
+               options={"xatol": 1e-6, "fatol": 1e-8, "maxiter": 4000})</code></pre>
+
+<p>This is the estimator that <em>won</em> the realistic cell (E5, 7.85%). Its cost is
+speed: Nelder-Mead on this likelihood took 13.6 s of E4's 20.7 s wall-clock &mdash; the one
+place compute mattered. Note the <code>1e-300</code> floor inside the log: without it, a
+parameter draw that pushes S(u) to underflow crashes the optimizer mid-search.</p>
+
+<h3>Block 2 &mdash; the observable-window quantile grid (the QLS core)</h3>
+
+<p>Two branches. When the data is complete, QLS is the three-line closed form (a
+<code>polyfit</code> whose slope is &sigma;&#770;). When a deductible or limit is present,
+match the empirical quantiles to the <em>conditional</em> model quantiles over the known
+window &mdash; the same identifiability trick from Section 2, in code:</p>
+
+<pre><code>qhat = np.quantile(z, p)                       # empirical quantiles of log-loss
+full_line = (not isfinite(a)) and (not isfinite(b))   # a = log d, b = log u
+
+if full_line and weights == "ols":            # complete data: the closed form
+    zp = norm.ppf(p)
+    slope, intercept = np.polyfit(zp, qhat, 1)
+    return Fit("lognormal", {"mu": intercept, "sigma": abs(slope)})
+
+def cond_q(mu, sigma):                         # windowed: CONDITIONAL model quantiles
+    lo = 0.0 if not isfinite(a) else norm.cdf((a - mu) / sigma)   # F(d)
+    hi = 1.0 if not isfinite(b) else norm.cdf((b - mu) / sigma)   # F(u)
+    return mu + sigma * norm.ppf(lo + p * (hi - lo))
+# fit: least_squares(lambda th: sw * (qhat - cond_q(th[0], exp(th[1]))), x0)</code></pre>
+
+<p>The <code>lo + p*(hi&minus;lo)</code> re-maps each grid point onto the observable slice
+[F(d), F(u)] &mdash; the whole reason window-QLS recovers the truth (E4, 4.83%) where a
+naive fit bends off the diagonal. The <code>obs = x[(~cens) &amp; (x &gt; d) &amp; (x &lt;
+u)]</code> filter <em>is</em> the robustness: unit typos (&times;0.01) fall below d and
+gross errors (&times;10&ndash;100) mostly above u, so the known policy terms screen the
+contamination for free.</p>
+
+<h3>Block 3 &mdash; the GLS weights (and why they disappointed)</h3>
+
+<p>The efficient inverse-variance weights, from the asymptotic covariance of sample
+quantiles, plugged in from a first-stage OLS fit:</p>
+
+<pre><code>if weights == "gls":
+    mu0, s0 = z.mean(), z.std(ddof=0)                  # first-stage OLS-ish fit
+    q0   = mu0 + s0 * norm.ppf(clip(p, 1e-4, 1 - 1e-4))
+    dens = norm.pdf((q0 - mu0) / s0) / s0              # f(Q_i) at the grid
+    w    = dens**2 * n / (p * (1.0 - p))               # &Sigma;&#8315;&#185; diagonal (inverse variance)</code></pre>
+
+<p>The theory says this should beat OLS. It did not (E2: 1.123&times; the MLE error vs
+OLS's 1.083&times;). The plug-in of f and Q from a noisy first-stage fit injects more
+variance than the weighting removes on a 19-point grid; the full off-diagonal
+&Sigma;<sup>&minus;1</sup> is the true efficiency ceiling but ill-conditions on fine grids.
+<strong>Practical rule: default to OLS.</strong> Only reach for full-covariance GLS on a
+<em>coarse</em> grid where the covariance inverts stably.</p>
+
+<h3>Block 4 &mdash; the premium functional (truth and fit, scored identically)</h3>
+
+<p>The single most important design choice in the lab: truth and every estimate are priced
+through the <em>same</em> routine, so a difference is never an artifact of two code paths.
+It is the stop-loss integral of the survival function, finite because the limit u caps the
+interval:</p>
+
+<pre><code>def layer_functionals(sf, qf, d, u, loading=0.10):
+    mean_payout = quad(sf, d, u, limit=200)[0]              # E[Y] = &#8747;_d^u S(x) dx
+    var99  = min(qf(0.99), u) - d if 0.99 &gt; F(d) else 0.0
+    tail   = quad(sf, d + var99, u, limit=200)[0]
+    tvar99 = var99 + tail / (1.0 - 0.99)
+    premium = mean_payout + loading * (tvar99 - mean_payout)
+    return {"mean_payout": ..., "var99": var99, "tvar99": tvar99, "premium": premium}</code></pre>
+
+<p>Because the layer is capped at u, even a &xi;=0.4 GPD tail integrates to a finite TVaR
+&mdash; which is precisely why the whole fire tail was worth only +0.174% of premium (E6).
+A policy limit is a tail-risk control written into the integral bounds.</p>
+
+<h3>The pitfalls list</h3>
+
+<ul>
+  <li><strong>Do not use the diagonal plug-in GLS.</strong> It added noise, not efficiency
+  (E2: 1.123&times; &gt; OLS 1.083&times;). Default to OLS; reserve full-&Sigma; GLS for
+  coarse grids.</li>
+  <li><strong>Do not trim blind.</strong> On a mixture, the upper tail can be <em>real</em>
+  risk, not contamination &mdash; trimming it deletes signal (E5: trim-only 35.90% vs
+  window-only 8.90%). Let the observable (d, u) window do the screening; trim only what the
+  window cannot reach.</li>
+  <li><strong>Never evaluate on parameter metrics alone.</strong> E4's naive MLE had huge
+  &mu;&#770;/&sigma;&#770; RMSE (0.60 / 0.35) yet a &minus;5.2% premium error &mdash; the
+  biases cancel in the layer map. Always push the fit through to the premium/VaR/TVaR you
+  actually sell.</li>
+  <li><strong>Model the mixture before blaming the estimator.</strong> Every single-family
+  fit underprices this book by 23&ndash;42% at &epsilon;=0 (E6, E7) &mdash; misspecification,
+  not estimation. A robust estimator cannot rescue the wrong family.</li>
+  <li><strong>Guard the synthetic truth, and report against the MC floor.</strong> Gate the
+  generator against its own truth before any experiment (E1: bias &lt; 2&middot;SE), and
+  score every result against the 4.28% floor, never against 0 &mdash; or you will chase
+  sampling noise as if it were bias.</li>
+  <li><strong>Watch the contamination direction.</strong> This mix biases premiums
+  <em>up</em> (overcharge); truncation-ignorance biases them <em>down</em>. Knowing the
+  sign is half of reading the decision table.</li>
+</ul>

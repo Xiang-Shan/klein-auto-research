@@ -1,0 +1,85 @@
+# study.yaml — the machine-readable contract for a Klein study.
+# The results-schema is NOT here — it lives ONLY in kleinlib/schema.py.
+# Study 02: Robust Quantile Least Squares (RQLS) for PV loss severity — a known-truth
+# synthetic lab. The "data" is generator.py (PVLossGenerator); estimators.py holds the
+# methods under study. Every experiment scores ONE metric: absolute risk-loaded premium
+# error % vs the generator's KNOWN truth for that experiment's cell (goal: lower).
+
+goal: "Robust Quantile Least Squares for photovoltaic loss severity under contamination and incomplete data (deductible-truncated, limit-censored) — a known-truth synthetic lab"
+domain: "insurance"
+target: "synthetic"          # known-truth synthetic lab (no observed label column)
+
+metric:
+  name: "premium_error_pct"  # |fitted premium − truth premium| / truth premium × 100
+  goal: "lower"
+
+family: "simulation"         # Monte-Carlo / simulation study — uses kleinlib.eval.evaluate_scalar
+
+data:
+  source: "synthetic:pv_losses_v1"      # PVLossGenerator in generator.py
+  path: "data/prepared/pv_losses_v1_refcell.csv"   # reference cell prepare.py emits (informational)
+  # Refinement rule (b) — UNIFORM METRIC CONTRACT: every experiment's primary_metric is the
+  # absolute risk-loaded premium error % vs truth for that experiment's cell. Heterogeneous
+  # scalars (param bias/RMSE, relative efficiency, VaR/TVaR errors) would break the
+  # one-metric-per-study contract and the progress frontier — they all go to aux_metrics.tsv.
+  split:
+    kind: none               # synthetic known-truth lab: no train/val split; MC reps instead
+    seed: 42                 # base seed; each MC rep offsets from it (comparability)
+    test_size: 0.0           # not used (kind: none)
+    stratify: false
+
+# Phases gate the loop AND encode the user-ack cadence: acks fire at every phase boundary,
+# i.e. after E1 (end phase 0), after E4 (end phase 1), and at study end (after E7, phase 2).
+phases:
+  - id: 0
+    desc: "generator truth-recovery gate (E1): naive MLE must recover a KNOWN single family"
+    min_experiments: 1
+    max_experiments: 1
+    experiments: {min: 1, max: 1}   # ID range for telemetry attribution
+    budget_h: 0.3
+  - id: 1
+    desc: "efficiency + robustness (E2 efficiency ε=0 · E3 breakdown sweep · E4 trunc+cens recovery)"
+    min_experiments: 3
+    max_experiments: 5
+    experiments: {min: 2, max: 4}
+    budget_h: 1.0
+  - id: 2
+    desc: "realistic cells + decisions (E5 realistic cell · E6 GPD-tail VaR/TVaR · E7 premium-error decision table)"
+    min_experiments: 3
+    max_experiments: 5
+    experiments: {min: 5, max: 7}
+    budget_h: 1.0
+
+ack_cadence: [after E1, after E4, at end]   # summarize + STOP for user ack at each
+
+# Falsifiable questions the study exists to answer. One verdict per RQ in findings.md.
+research_questions:
+  - id: RQ1
+    q: "QLS relative efficiency vs MLE at ε=0 (clean data) — what does robustness cost when there is nothing to be robust against?"
+    prior: "QLS is ~85–95% as efficient as MLE at ε=0 (premium error ~1.05–1.18× MLE); the price of robustness is a small efficiency loss on clean data."
+  - id: RQ2
+    q: "Breakdown under contamination — does the naive MLE's premium error diverge with ε while QLS/MTM stay bounded?"
+    prior: "MLE premium error (and param RMSE) diverges as ε grows; QLS and MTM stay bounded (trimmed grid / trimmed moments cap the damage)."
+  - id: RQ3
+    q: "Incomplete data — does observable-window QLS recover the truth under truncation (d=$5k) + censoring (u=$2M) where the naive full-sample MLE is biased?"
+    prior: "Naive MLE-full is materially biased (it ignores the deductible/limit); window-QLS and the truncated/censored MLE recover the truth (premium error ≪ naive)."
+  - id: RQ4
+    q: "Propagation to decisions — how do estimator errors flow through to VaR95/99, TVaR99, and the risk-loaded premium error?"
+    prior: "Tail-sensitive functionals (TVaR99, premium) amplify σ-estimation error; a heavy GPD fire tail, if ignored, underprices TVaR99 and the premium by a material margin."
+
+# Levers predicted to move the metric, and by how much. findings.md fills observed + verdict.
+predictions_to_falsify:
+  - lever: "QLS vs MLE at ε=0 (clean) — RQ1"
+    predicted_delta: "QLS premium error ≈ 1.05–1.18× MLE (rel. efficiency 85–95%); QLS slightly WORSE on clean data."
+  - lever: "contamination ε=5% (naive MLE vs QLS/MTM) — RQ2"
+    predicted_delta: "MLE premium error diverges (>50%); QLS/MTM bounded (<25%)."
+  - lever: "truncation d=$5k + censoring u=$2M (naive MLE-full vs window-QLS / trunc-MLE) — RQ3"
+    predicted_delta: "naive MLE-full premium error large (>20%, biased); window-QLS / trunc-MLE ≈ truth (<5%)."
+  - lever: "GPD fire tail ON at ξ=0.4 (tail-blind fit vs tail-aware) — RQ4"
+    predicted_delta: "ignoring the tail underprices TVaR99 → premium error material (>10%); a tail-aware fit recovers."
+
+deliverables:
+  - findings.md                    # 7-section synthesis (ALWAYS)
+  - report/index.html              # self-contained tutorial (ALWAYS)
+
+stop_rule: "keep running until the user says stop, or the phase max_experiments is hit"

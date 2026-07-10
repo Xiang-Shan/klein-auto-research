@@ -1,0 +1,4 @@
+trial	params_json	primary_metric	wall_seconds	status
+1	{"swap_rate":0.1}	0.661953	36.054	ok
+2	{"swap_rate":0.15}	0.668271	35.888	ok
+3	{"swap_rate":0.25}	0.664123	33.691	ok

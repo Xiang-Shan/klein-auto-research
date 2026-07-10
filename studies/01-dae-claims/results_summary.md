@@ -1,0 +1,73 @@
+# Results Summary
+
+- source: `studies/01-dae-claims/results.tsv`
+- metric column: `primary_metric`
+- goal: `higher`
+- total experiments: 8
+- keep: 4
+- discard: 4
+- crash: 0
+
+## Overview
+
+- baseline metric: 0.625462
+- best metric: 0.670616
+- total improvement: 0.045154
+- best commit: `cb6c1bc`
+- best description: supervised MLP raw floor: 3x256 ReLU on DAE-identical 94-dim encoding (RankGauss+is_*+OHE min_freq=20), cw=None, AdamW lr1e-3 wd1e-5 bs256, val-AUC early stop patience10 (best epoch 15/26), MPS; beats raw-LR 0.6255 by +0.0451, SURPRISE: ties tuned GBDT 0.6701; brier=0.058749 logloss=0.227846 lift10=1.88
+
+## Frontier
+
+| Run | Commit | Metric | Status | Description |
+| --- | --- | --- | --- | --- |
+| 1 | `c48a57b` | 0.625462 | keep | split-identity anchor: LR+OHE(min_freq=20)+cw=balanced, seed42/0.2/stratified; GATE |0.625462-0.6255|=0.000038<=0.001 PASS; brier=0.240153 logloss=0.672617; matches study00 exp1 exactly (shared prepare.py) -- unblocks Phase 1 DAE ladder |
+| 2 | `cb6c1bc` | 0.670616 | keep | supervised MLP raw floor: 3x256 ReLU on DAE-identical 94-dim encoding (RankGauss+is_*+OHE min_freq=20), cw=None, AdamW lr1e-3 wd1e-5 bs256, val-AUC early stop patience10 (best epoch 15/26), MPS; beats raw-LR 0.6255 by +0.0451, SURPRISE: ties tuned GBDT 0.6701; brier=0.058749 logloss=0.227846 lift10=1.88 |
+
+## Recent Runs
+
+| Run | Commit | Metric | Status | Description |
+| --- | --- | --- | --- | --- |
+| 1 | `c48a57b` | 0.625462 | keep | split-identity anchor: LR+OHE(min_freq=20)+cw=balanced, seed42/0.2/stratified; GATE |0.625462-0.6255|=0.000038<=0.001 PASS; brier=0.240153 logloss=0.672617; matches study00 exp1 exactly (shared prepare.py) -- unblocks Phase 1 DAE ladder |
+| 2 | `cb6c1bc` | 0.670616 | keep | supervised MLP raw floor: 3x256 ReLU on DAE-identical 94-dim encoding (RankGauss+is_*+OHE min_freq=20), cw=None, AdamW lr1e-3 wd1e-5 bs256, val-AUC early stop patience10 (best epoch 15/26), MPS; beats raw-LR 0.6255 by +0.0451, SURPRISE: ties tuned GBDT 0.6701; brier=0.058749 logloss=0.227846 lift10=1.88 |
+| 3 | `-` | 0.668271 | discard | frozen DAE->LGBM (RQ1 headline): inductive swap0.15 DAE (100ep max, es_mse=0.023, 33s MPS, n_fit_rows=46873 fairness-ok) -> 768d deep-stack -> LGBM recipe nl15/mcs20/lr.05/subcol.7/l2=1/es50 (best_iter=107); val_auc 0.668271 < E2 bar 0.670616 and < GBDT 0.6701 -> RQ1 answer NO as predicted (0.66-0.67 band hit); DAE+reps cached models/{dae,reps}_e3_swap015.cache.pkl for E4-E8; torch+lgbm libomp SIGSEGV war story -> two-stage process isolation (program.md) |
+| 4 | `113523a` | 0.658019 | keep | linear probe (RQ3): StandardScaler+LR(cw=None,lbfgs,2000it) on E3 frozen 768d reps (swap0.15 inductive, n_fit=46873); 0.658019 > raw-LR floor 0.6255 (+0.0326, keep bar) -> SSL DID linearize signal (~72% of LR->GBDT gap), still < E3 LGBM 0.6683 < E2 MLP 0.6706; brier=0.059107 lift10=1.77; reps from models/reps_e3_swap015.cache.pkl |
+| 5 | `-` | 0.668271 | discard | swap-rate sweep {0.10,0.15,0.25} via kleinlib.sweep.SweepRunner, 3 trials all ok, see sweeps/swaprate.sidecar.tsv; best rate=0.15 val_auc=0.668271 == E3 bit-exact (determinism check PASS) -> NO improvement over exp 3, rule-7 discard; sensitivity NOT flat: 0.10->0.661953 (-0.0063), 0.25->0.664123 (-0.0041) -> falsifies the |delta|<=0.002 prediction, 0.15 is a real local optimum; DAE es_mse rises with rate (.0154/.0230/.0358); two-stage per trial (libomp war story) |
+| 6 | `-` | 0.660653 | discard | DAE+raw concat -> LGBM (RQ2): concat(94d canonical raw enc via cached E3 transformer, 768d frozen reps)=862d -> same LGBM recipe (best_iter=55); 0.660653 < 0.6701 keep bar -> discard as predicted (prior <=+0.001); NOTABLE: also < E3 reps-only 0.668271 (-0.0076) -- adding raw to reps HURTS (redundancy dilutes split budget, earlier overfit); brier=0.058832 lift10=1.85 |
+| 7 | `e270ca3` | 0.632213 | keep | DAE-imputer vs median, MCAR{10,30}% on eligible cols (RQ4a): primary=DAE-arm@30% downstream val_auc thru frozen-E3-LGBM (clean ref 0.668271 bit-exact); DAE >= median at BOTH rates (keep bar): +0.001497@10% (0.659068 vs 0.657571), +0.001286@30% (0.632213 vs 0.630926); cell-level DAE dominates: num RMSE 1.02 vs 3.42 (3.4x), cat acc 90.1% vs 33.4%; predicted gain-growth-with-rate FALSIFIED (flat); info loss >> imputer choice |
+| 8 | `-` | 0.480548 | discard | recon-error anomaly (RQ4b): per-row MSE over 94 encoded dims from cached E3 DAE, rank-normalized 1-D ranker; val_auc 0.480548, lift@10=0.9341 < 1.0 keep bar -> discard, prior FALSIFIED; lift@5=0.9081 lift@20=0.9203 -- signal slightly INVERTED (unusual rows marginally LESS claim-prone); unsupervised recon error is NOT a standalone claim ranker on weak-signal policy data |
+
+## Aux Panels
+
+### val_brier (lower) — top 10
+
+| Run | Commit | val_brier | primary_metric | Status | Description |
+| --- | --- | --- | --- | --- | --- |
+| 2 | `cb6c1bc` | 0.058749 | 0.670616 | keep | supervised MLP raw floor: 3x256 ReLU on DAE-identical 94-dim encoding (RankGauss+is_*+OHE min_freq=20), cw=None, AdamW lr1e-3 wd1e-5 bs256, val-AUC early stop patience10 (best epoch 15/26), MPS; beats raw-LR 0.6255 by +0.0451, SURPRISE: ties tuned GBDT 0.6701; brier=0.058749 logloss=0.227846 lift10=1.88 |
+| 3 | `-` | 0.058819 | 0.668271 | discard | frozen DAE->LGBM (RQ1 headline): inductive swap0.15 DAE (100ep max, es_mse=0.023, 33s MPS, n_fit_rows=46873 fairness-ok) -> 768d deep-stack -> LGBM recipe nl15/mcs20/lr.05/subcol.7/l2=1/es50 (best_iter=107); val_auc 0.668271 < E2 bar 0.670616 and < GBDT 0.6701 -> RQ1 answer NO as predicted (0.66-0.67 band hit); DAE+reps cached models/{dae,reps}_e3_swap015.cache.pkl for E4-E8; torch+lgbm libomp SIGSEGV war story -> two-stage process isolation (program.md) |
+| 6 | `-` | 0.058832 | 0.660653 | discard | DAE+raw concat -> LGBM (RQ2): concat(94d canonical raw enc via cached E3 transformer, 768d frozen reps)=862d -> same LGBM recipe (best_iter=55); 0.660653 < 0.6701 keep bar -> discard as predicted (prior <=+0.001); NOTABLE: also < E3 reps-only 0.668271 (-0.0076) -- adding raw to reps HURTS (redundancy dilutes split budget, earlier overfit); brier=0.058832 lift10=1.85 |
+| 4 | `113523a` | 0.059107 | 0.658019 | keep | linear probe (RQ3): StandardScaler+LR(cw=None,lbfgs,2000it) on E3 frozen 768d reps (swap0.15 inductive, n_fit=46873); 0.658019 > raw-LR floor 0.6255 (+0.0326, keep bar) -> SSL DID linearize signal (~72% of LR->GBDT gap), still < E3 LGBM 0.6683 < E2 MLP 0.6706; brier=0.059107 lift10=1.77; reps from models/reps_e3_swap015.cache.pkl |
+| 7 | `e270ca3` | 0.059140 | 0.632213 | keep | DAE-imputer vs median, MCAR{10,30}% on eligible cols (RQ4a): primary=DAE-arm@30% downstream val_auc thru frozen-E3-LGBM (clean ref 0.668271 bit-exact); DAE >= median at BOTH rates (keep bar): +0.001497@10% (0.659068 vs 0.657571), +0.001286@30% (0.632213 vs 0.630926); cell-level DAE dominates: num RMSE 1.02 vs 3.42 (3.4x), cat acc 90.1% vs 33.4%; predicted gain-growth-with-rate FALSIFIED (flat); info loss >> imputer choice |
+| 1 | `c48a57b` | 0.240153 | 0.625462 | keep | split-identity anchor: LR+OHE(min_freq=20)+cw=balanced, seed42/0.2/stratified; GATE |0.625462-0.6255|=0.000038<=0.001 PASS; brier=0.240153 logloss=0.672617; matches study00 exp1 exactly (shared prepare.py) -- unblocks Phase 1 DAE ladder |
+| 8 | `-` | 0.335664 | 0.480548 | discard | recon-error anomaly (RQ4b): per-row MSE over 94 encoded dims from cached E3 DAE, rank-normalized 1-D ranker; val_auc 0.480548, lift@10=0.9341 < 1.0 keep bar -> discard, prior FALSIFIED; lift@5=0.9081 lift@20=0.9203 -- signal slightly INVERTED (unusual rows marginally LESS claim-prone); unsupervised recon error is NOT a standalone claim ranker on weak-signal policy data |
+
+### val_lift_top10 (higher) — top 10
+
+| Run | Commit | val_lift_top10 | primary_metric | Status | Description |
+| --- | --- | --- | --- | --- | --- |
+| 2 | `cb6c1bc` | 1.881445 | 0.670616 | keep | supervised MLP raw floor: 3x256 ReLU on DAE-identical 94-dim encoding (RankGauss+is_*+OHE min_freq=20), cw=None, AdamW lr1e-3 wd1e-5 bs256, val-AUC early stop patience10 (best epoch 15/26), MPS; beats raw-LR 0.6255 by +0.0451, SURPRISE: ties tuned GBDT 0.6701; brier=0.058749 logloss=0.227846 lift10=1.88 |
+| 3 | `-` | 1.868101 | 0.668271 | discard | frozen DAE->LGBM (RQ1 headline): inductive swap0.15 DAE (100ep max, es_mse=0.023, 33s MPS, n_fit_rows=46873 fairness-ok) -> 768d deep-stack -> LGBM recipe nl15/mcs20/lr.05/subcol.7/l2=1/es50 (best_iter=107); val_auc 0.668271 < E2 bar 0.670616 and < GBDT 0.6701 -> RQ1 answer NO as predicted (0.66-0.67 band hit); DAE+reps cached models/{dae,reps}_e3_swap015.cache.pkl for E4-E8; torch+lgbm libomp SIGSEGV war story -> two-stage process isolation (program.md) |
+| 6 | `-` | 1.854758 | 0.660653 | discard | DAE+raw concat -> LGBM (RQ2): concat(94d canonical raw enc via cached E3 transformer, 768d frozen reps)=862d -> same LGBM recipe (best_iter=55); 0.660653 < 0.6701 keep bar -> discard as predicted (prior <=+0.001); NOTABLE: also < E3 reps-only 0.668271 (-0.0076) -- adding raw to reps HURTS (redundancy dilutes split budget, earlier overfit); brier=0.058832 lift10=1.85 |
+| 7 | `e270ca3` | 1.801383 | 0.632213 | keep | DAE-imputer vs median, MCAR{10,30}% on eligible cols (RQ4a): primary=DAE-arm@30% downstream val_auc thru frozen-E3-LGBM (clean ref 0.668271 bit-exact); DAE >= median at BOTH rates (keep bar): +0.001497@10% (0.659068 vs 0.657571), +0.001286@30% (0.632213 vs 0.630926); cell-level DAE dominates: num RMSE 1.02 vs 3.42 (3.4x), cat acc 90.1% vs 33.4%; predicted gain-growth-with-rate FALSIFIED (flat); info loss >> imputer choice |
+| 4 | `113523a` | 1.774696 | 0.658019 | keep | linear probe (RQ3): StandardScaler+LR(cw=None,lbfgs,2000it) on E3 frozen 768d reps (swap0.15 inductive, n_fit=46873); 0.658019 > raw-LR floor 0.6255 (+0.0326, keep bar) -> SSL DID linearize signal (~72% of LR->GBDT gap), still < E3 LGBM 0.6683 < E2 MLP 0.6706; brier=0.059107 lift10=1.77; reps from models/reps_e3_swap015.cache.pkl |
+| 1 | `c48a57b` | 1.667948 | 0.625462 | keep | split-identity anchor: LR+OHE(min_freq=20)+cw=balanced, seed42/0.2/stratified; GATE |0.625462-0.6255|=0.000038<=0.001 PASS; brier=0.240153 logloss=0.672617; matches study00 exp1 exactly (shared prepare.py) -- unblocks Phase 1 DAE ladder |
+| 8 | `-` | 0.934051 | 0.480548 | discard | recon-error anomaly (RQ4b): per-row MSE over 94 encoded dims from cached E3 DAE, rank-normalized 1-D ranker; val_auc 0.480548, lift@10=0.9341 < 1.0 keep bar -> discard, prior FALSIFIED; lift@5=0.9081 lift@20=0.9203 -- signal slightly INVERTED (unusual rows marginally LESS claim-prone); unsupervised recon error is NOT a standalone claim ranker on weak-signal policy data |
+
+
+## Phase Telemetry
+
+| Phase | Experiments | Budget (h) | Actual (h) | Status |
+| --- | --- | --- | --- | --- |
+| 0 | 1-1 | 0.50 | 0.00 | under budget |
+| 1 | 2-5 | 1.50 | 0.01 | under budget |
+| 2 | 6-8 | 1.00 | 0.00 | under budget |
+

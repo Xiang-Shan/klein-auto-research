@@ -1,0 +1,71 @@
+<h2>The Data</h2>
+
+<p>The dataset is the Kaggle <code>litvinenko630/insurance-claims</code> file:
+<strong>58,592 policies</strong>, <strong>41 raw columns</strong> (45 after
+<code>prepare.py</code>), with a binary target <code>claim_status</code> that is
+<strong>6.40% positive</strong> (3,748 claims). Those three numbers — row count, prepared
+column count, and positive rate — match the campaign's own documented figures exactly,
+which is the first data-integrity signal, before the modeling even starts.</p>
+
+<h3>The war story that gate 1 exists to prevent</h3>
+
+<p>Here is the trap, and it is not a museum piece — it <strong>reproduced live in this
+environment</strong>. Nineteen columns in this data are really booleans wearing string
+clothes: the seventeen <code>is_*</code> feature flags hold exactly <code>"Yes"</code> /
+<code>"No"</code>, and two more (<code>rear_brakes_type</code>,
+<code>transmission_type</code>) hold <code>"Disc"</code>/<code>"Drum"</code> and
+<code>"Automatic"</code>/<code>"Manual"</code>. The obvious way to find categorical columns
+is to check the dtype:</p>
+
+<pre><code># The bug. Looks reasonable. Silently wrong.
+categorical = [c for c in df.columns if df[c].dtype == "object"]</code></pre>
+
+<p>Under this machine's <strong>pandas 3.0.3</strong>, every one of those nineteen columns
+reports its dtype as <code>str</code> — <em>not</em> <code>"object"</code>. Pandas 3.0 made
+a dedicated string type the default storage, so the label changed. The check above matches
+<em>none</em> of them, silently skips all nineteen boolean features, and hands the model a
+pile of raw <code>"Yes"</code>/<code>"No"</code> text. In the ancestor campaign this cost
+about two hours of confusion before anyone noticed the features had gone missing.</p>
+
+<p>The fix is a discipline, not a patch: <strong>never key on the dtype label; inspect the
+actual values.</strong></p>
+
+<pre><code># The fix. Detect by VALUE PATTERN, not by dtype.
+def detect_yes_no_columns(df):
+    out = []
+    for col in df.columns:
+        vals = set(df[col].dropna().unique())
+        if vals &lt;= {"Yes", "No"}:          # membership on the real values
+            out.append(col)
+    return out
+
+yes_no_cols = detect_yes_no_columns(df)     # finds all 17, dtype label be damned
+for col in yes_no_cols:
+    df[col] = df[col].map({"No": 0, "Yes": 1}).astype("int64")</code></pre>
+
+<p>After conversion, <code>prepare.py</code> verifies all nineteen are <code>int64</code>
+with zero nulls across the 58,592 rows. The same principle handles the numbers-in-strings
+columns (<code>max_torque</code> = <code>"113Nm@4400rpm"</code>), which are regex-parsed
+into clean numeric columns rather than treated as free text. This value-pattern discipline
+is exactly why the E1 anchor could reproduce the campaign's prepared frame bit-for-bit.</p>
+
+<h3>The go / no-go call</h3>
+
+<p>Gate 1 ranks every issue and blocks modeling until the verdict is <strong>GO</strong>.
+Here there were three <em>WARN</em>-severity issues and no blockers:</p>
+
+<ul>
+  <li><strong>WARN — the 19 string-boolean columns above.</strong> Mitigated by the
+  value-pattern conversion; verified <code>int64</code> post-fix.</li>
+  <li><strong>WARN — seven vehicle-spec columns</strong> (<code>engine_type</code>,
+  <code>displacement</code>, <code>cylinder</code>, and four parsed
+  <code>max_torque_*</code>/<code>max_power_*</code> columns) are near-deterministic
+  functions of <code>model</code> — redundant, and a source of collinearity for a GLM. Kept
+  for the LR anchors (to reproduce the campaign exactly), dropped for the HGBT recipe.</li>
+  <li><strong>WARN — the 6.4% class imbalance.</strong> Handled not by re-weighting but by
+  the calibration doctrine (Section 2), which RQ2 puts directly to the test.</li>
+</ul>
+
+<p>No leakage column, no broken split, no unusable encoding once the value-pattern
+conversions are applied. Verdict: <strong>GO</strong>. The full audit is in
+<code>data_card.md</code>.</p>

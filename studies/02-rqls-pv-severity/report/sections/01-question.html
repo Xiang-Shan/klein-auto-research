@@ -1,0 +1,56 @@
+<h2>The Question</h2>
+
+<p>Picture the moment this study exists for. You are an actuary handed a book of
+<strong>photovoltaic (solar) property risk</strong> to price &mdash; and there is no loss
+history. The technology is young, the portfolio younger, and the claims that would tell
+you how severe a hail strike or an inverter fire really gets have not been filed yet. Yet
+a premium is due. Where do the numbers even come from, and once a trickle of real claims
+does arrive &mdash; dirty, fat-fingered, clipped by deductibles and limits &mdash; which
+estimator do you trust to turn them into a rate?</p>
+
+<p>Finding out on real data is impossible here: there is no real data with a known answer
+to check yourself against. So this study does the next best thing an experimentalist can
+do &mdash; it builds a <strong>known-truth synthetic lab</strong>. A generator produces
+PV losses whose <em>exact</em> risk-loaded premium under the product layer is known by
+construction, so every estimator can be scored against ground truth in the one unit that
+matters: <strong>dollars of premium error</strong>. The vague question "which severity
+estimator?" becomes a measurable one.</p>
+
+<p>The method under the microscope is <strong>Robust Quantile Least Squares (QLS)</strong>
+&mdash; percentile-matching grown up &mdash; measured against the estimator every actuary
+actually reaches for (the naive maximum-likelihood fit), its proper truncated/censored
+cousin, and the method of trimmed moments. Four falsifiable research questions, each with
+an honest prior written down <em>before</em> any code ran, keyed to the two ways real loss
+data is broken &mdash; contamination and incompleteness:</p>
+
+<ul>
+  <li><strong>RQ1 &mdash; the price of robustness.</strong> On perfectly clean data, what
+  does QLS cost versus the MLE? <em>Prior: QLS is ~85&ndash;95% as efficient &mdash;
+  premium error ~1.05&ndash;1.18&times; the MLE. A small premium for nothing gained
+  yet.</em></li>
+  <li><strong>RQ2 &mdash; breakdown.</strong> As a fraction &epsilon; of records become
+  gross errors, does the naive MLE's premium diverge while QLS/MTM stay bounded?
+  <em>Prior: yes &mdash; MLE blows up, trimmed estimators cap the damage.</em></li>
+  <li><strong>RQ3 &mdash; incompleteness.</strong> Under a $5k deductible (left
+  truncation) and a $2M limit (right censoring), does observable-window QLS recover the
+  truth where the naive full-sample MLE is biased? <em>Prior: yes &mdash; naive MLE badly
+  biased (&gt;20% premium error); window fits recover.</em></li>
+  <li><strong>RQ4 &mdash; the tail.</strong> If a heavy GPD fire tail is present and
+  ignored, does the premium underprice materially? <em>Prior: yes &mdash; an ignored tail
+  underprices TVaR<sub>99</sub> and the premium by &gt;10%.</em></li>
+</ul>
+
+<p>Every experiment is scored by <strong>one</strong> number: <code>premium_error_pct</code>
+= |fitted premium &minus; truth premium| / truth premium &times; 100, lower is better.
+And there is a yardstick that governs the whole study: the <strong>Monte-Carlo
+floor</strong>. At the sample size used here (n = 2,000 claims), even a <em>perfect,
+unbiased</em> estimator posts about <strong>4.28% mean premium error</strong> &mdash; pure
+finite-sample noise propagating through the nonlinear premium map. "0% error" is
+impossible; 5% is excellent. Every result below is read against that floor, never against
+zero.</p>
+
+<p>Seven experiments later, all four questions have verdicts &mdash; two priors confirmed,
+one split down the middle, and one falsified <em>twice</em>. And the most valuable lesson
+is one nobody pre-registered: on this book the dominant pricing error is neither
+contamination nor truncation but <strong>fitting one curve to a mixture</strong>, and the
+cells that look most "accurate" turn out to be two large errors quietly cancelling.</p>

@@ -1,0 +1,60 @@
+<h2>Next Steps &amp; References</h2>
+
+<p>This quickstart's job — onboard the framework, prove split identity, confirm the
+calibration doctrine — is done. The open questions for a follow-up study, in priority
+order:</p>
+
+<ol>
+  <li><strong>Elastic-net on the spline basis.</strong> E5's design matrix (quantile-knot
+  splines plus interactions) is wide. An L1+L2 penalty (<code>saga</code> solver) could
+  prune the redundant basis columns and test whether the <code>0.651707</code> LR ceiling is
+  real capacity or just overfit — the cheapest way to try to beat E5 without hand-selecting
+  features.</li>
+
+  <li><strong>Target encoding (with smoothing) for LR.</strong> The knowledge base puts
+  smoothed target encoding within ~0.002 of one-hot overall and <em>ahead</em> of it on the
+  high-cardinality <code>region_code</code> (22 levels, only ~41 validation rows). A clean
+  A/B against E1's OHE on the high-cardinality columns is worth a run.</li>
+
+  <li><strong>Monotone-constrained HGBT.</strong> The campaign's strongest single model used
+  monotone constraints with the &ldquo;advanced&rdquo; method. Porting actuarially-signed
+  monotonicity onto the E6 HGBT would test whether the <code>+0.0014</code> sweep gain
+  compounds with monotonicity — and, importantly, yields a <em>filable</em> tree.</li>
+
+  <li><strong>TabPFN v2, zero-shot.</strong> At 58,592 rows this dataset now sits inside
+  TabPFN v2.5's supported range. A zero-shot pass is a cheap, high-information probe of
+  whether a pre-trained tabular foundation model beats the tuned GBDT (E6) with no tuning at
+  all — the regime shift the knowledge base flags as the big one since 2024.</li>
+
+  <li><strong>Graduate to studies 01 and 02.</strong> The anchors validated here become the
+  baselines for <code>studies/01-dae-claims</code> (representation learning) and
+  <code>studies/02-rqls-pv-severity</code> (severity / regression), where the genuinely open
+  methodological questions live.</li>
+</ol>
+
+<h3>Verified references</h3>
+
+<p>The two textbook GLM references carried through the method card (both verified in
+<code>knowledge/method_cards/glm-pricing.md</code> &sect;5):</p>
+
+<ul>
+  <li><cite>de Jong, P. &amp; Heller, G. Z. (2008). Generalized Linear Models for Insurance
+  Data. Cambridge University Press (International Series on Actuarial Science).</cite></li>
+  <li><cite>Ohlsson, E. &amp; Johansson, B. (2010). Non-Life Insurance Pricing with
+  Generalized Linear Models. Springer (EAA Series).</cite></li>
+</ul>
+
+<p>Two more from the knowledge base that frame the &ldquo;what next&rdquo; list above:</p>
+
+<ul>
+  <li><cite>Hollmann, N., et al. (2025). Accurate predictions on small data with a tabular
+  foundation model. Nature.</cite> &mdash; TabPFN v2; the small-tabular regime shift
+  (knowledge/insights-and-framework.md).</li>
+  <li><cite>Grinsztajn, L., et al. (2022). Why do tree-based models still outperform deep
+  learning on typical tabular data? NeurIPS.</cite> &mdash; the trees-win-on-tabular
+  consensus this study's ~0.013 GLM-vs-HGBT gap reproduces
+  (knowledge/method_cards/gbdt-tabular.md).</li>
+</ul>
+
+<p>Provenance for every number on this page: the study's <code>results.tsv</code>,
+<code>aux_metrics.tsv</code>, and <code>findings.md</code>.</p>

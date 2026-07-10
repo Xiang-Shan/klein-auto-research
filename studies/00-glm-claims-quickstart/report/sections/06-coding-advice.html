@@ -1,0 +1,109 @@
+<h2>Model Coding Advice</h2>
+
+<p>This is the section that makes the study useful on Monday morning. It walks the actual
+winning <code>train.py</code> (the E6 state, committed at <code>3f3822f</code>), then names
+the three details that bit the LR reconstruction, then the workflow discipline that kept the
+whole thing honest.</p>
+
+<h3>The winning train.py, annotated</h3>
+
+<p>The first thing to notice is how <em>little</em> code an experiment is. Everything stable
+— data loading, the fixed split, metrics, model saving — lives in <code>kleinlib</code>, so
+<code>train.py</code> is a thin, readable surface. The knobs sit right at the top:</p>
+
+<pre><code>RANDOM_SEED = 42
+EXPERIMENT_ID = 6          # bump per experiment; matches the results.tsv row
+MIN_FREQUENCY = 20         # campaign OneHotEncoder rarity threshold
+
+# 7 columns that are near-deterministic functions of `model` (see data_card issue #2) --
+# dropped for the HGBT recipe as a documented ablation.
+DROP_REDUNDANT = [
+    "engine_type", "displacement", "cylinder",
+    "max_torque_nm", "max_torque_rpm", "max_power_bhp", "max_power_rpm",
+]</code></pre>
+
+<p>The data path drops those redundant columns and then hands off to the <em>fixed</em>
+split — the same seed, ratio, and stratification every experiment, because comparability
+depends on never re-shuffling:</p>
+
+<pre><code>def load_split():
+    X, y = kleinlib.data.load_xy(PREPARED_PATH, TARGET_COLUMN)
+    X = X.drop(columns=DROP_REDUNDANT, errors="ignore")
+    return kleinlib.data.fixed_split(X, y)   # seed=42, test_size=0.2, stratify=True</code></pre>
+
+<p>The model itself is exp 3's HGBT recipe with exactly one number changed — the sweep
+winner's <code>learning_rate=0.06</code> (was 0.05). That one-line delta <em>is</em> the
+experiment:</p>
+
+<pre><code>def build_model(numeric_cols, categorical_cols):
+    preprocessor = kleinlib.encoders.build_preprocessor(
+        numeric_cols, categorical_cols, kind="ohe", min_frequency=MIN_FREQUENCY
+    )
+    classifier = HistGradientBoostingClassifier(
+        learning_rate=0.06,        # <-- the only change from exp 3 (was 0.05)
+        max_iter=500, max_leaf_nodes=31, l2_regularization=0.0,
+        random_state=RANDOM_SEED, class_weight="balanced",
+        early_stopping=True, validation_fraction=0.1, n_iter_no_change=20,
+    )
+    return Pipeline([("preprocess", preprocessor), ("model", classifier)])</code></pre>
+
+<p>And <code>main()</code> never touches <code>results.tsv</code> or the metrics itself — it
+fits, then hands the fitted model to <code>kleinlib.eval.evaluate</code>, which computes
+every metric, writes the aux sidecar, and (if it is a new best) pickles the model. The
+experiment author writes none of that plumbing:</p>
+
+<pre><code>def main():
+    X_tr, X_va, y_tr, y_va = load_split()
+    numeric_cols, categorical_cols = kleinlib.data.feature_column_groups(X_tr)
+    model = build_model(numeric_cols, categorical_cols)
+    model.fit(X_tr, y_tr)
+    kleinlib.eval.evaluate(model, X_va, y_va, exp_id=EXPERIMENT_ID,
+                           metric_name="val_auc", metric_goal="higher", study_dir=".")</code></pre>
+
+<h3>The three details that bit the LR reconstruction — copy these exactly</h3>
+
+<p>The E6 file above is a tree, so it does not show them, but the LR recovery (E5) turned on
+three constructor kwargs that <em>look</em> optional and are not. If you build splines for a
+linear model, set all three deliberately — leaving them at sklearn's defaults cost 0.026
+AUC (the entire difference between the failed E2 and the recovered E5):</p>
+
+<pre><code>SplineTransformer(
+    n_knots=5, degree=3,
+    knots="quantile",       # place knots where the data lives (default "uniform" wastes them)
+    include_bias=False,     # the regression already has an intercept; the default duplicates it
+)
+CalibratedClassifierCV(glm, method="isotonic", cv=5)   # cv=5 per the campaign's best-practices doc, NOT cv=3</code></pre>
+
+<p>The lesson generalizes past these three: when a result depends on a non-default kwarg,
+that kwarg is load-bearing and belongs in the record. Which brings us to the workflow.</p>
+
+<h3>The workflow discipline that kept it honest</h3>
+
+<ul>
+  <li><strong>Commit-or-revert first, then exactly one <code>results.tsv</code> row.</strong>
+  Never the other way around, and never a batch of rows. The row points at the commit that
+  produced it, so the ledger is always an accurate index into git. This is also what let E1
+  and E3 reproduce trivially — the code was <em>there</em>, in a <code>keep</code> commit.</li>
+  <li><strong>A discard is a discard.</strong> Reverted, uncommitted. That honesty is
+  correct — but it is also exactly why the campaign's Phase-1 recipe (all discards) could
+  only be reconstructed from prose. If a discarded recipe will matter later, write its two
+  or three non-default kwargs into the description text before you revert.</li>
+  <li><strong>Don't re-run for cosmetics.</strong> The aux sidecar is append-only with no
+  dedup; re-running <code>train.py</code> just to refresh a log file double-writes its
+  metrics block (this study hit exactly that and had to hand-clean it). Once a result is
+  recorded, leave it.</li>
+  <li><strong>Sweeps go through the one escape-hatch.</strong> Every trial to a sidecar TSV,
+  the winner snapshotted back into <code>train.py</code> as a plain diff, re-run once to
+  confirm, then committed — one ledger row for the winner (E6). No unattended meta-runners.</li>
+</ul>
+
+<p>Where the model earns its keep operationally is triage — ranking the book so the top
+decile catches more than its share of claims. The decile-lift chart shows E4's calibrated LR
+picking up ~1.76&times; the base claim rate in its top 10%:</p>
+
+<figure>
+  <img data-fig="figures/plot_decile_lift.png" alt="Decile lift chart showing the top predicted decile capturing well above the base claim rate">
+  <figcaption>Decile lift for E4's calibrated LR (lift@10 &asymp; 1.76). The HGBT anchors
+  rank a little harder still (E3 lift@10 &asymp; 2.04) — but they are uncalibrated, so for a
+  priced number you would recalibrate them first.</figcaption>
+</figure>

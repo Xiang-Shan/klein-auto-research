@@ -1,0 +1,90 @@
+# study.yaml — the machine-readable contract for a Klein study.
+# new_study.py fills what the CLI flags give; the CONSULT gate fills the rest.
+# The results-schema is NOT here — it lives ONLY in kleinlib/schema.py.
+# Every placeholder value is quoted so an unfilled stub stays valid YAML.
+
+goal: "Does a swap-noise denoising autoencoder pay on 58k-row weak-signal insurance claims? Quantify WHEN tabular SSL pays."            # one sentence: what question does this study answer?
+domain: "insurance"        # e.g. insurance, credit, energy, general
+target: "claim_status"        # prediction target column (or "synthetic" for known-truth labs)
+
+metric:
+  name: "val_auc"   # the ONE primary metric, e.g. val_auc, val_rmse, premium_error_pct
+  goal: "higher"   # higher | lower
+
+family: "deep"        # model family under study: glm | sklearn | gbdt | deep | mixed | simulation
+
+data:
+  source: "data_hub:insurance-claims" # data_hub:<name> | kaggle:<handle> | csv:<path> | synthetic:<generator>
+  path: "data/prepared/insurance_claims_prepared.csv"     # prepared-data path prepare.py writes/reads (fill after prepare)
+  split:
+    kind: stratified        # stratified | random | group | time | none (none for synthetic labs)
+    seed: 42                # canonical seed — changing it breaks cross-experiment comparability
+    test_size: 0.2
+    stratify: true          # stratify on target (classification); false for regression/simulation
+
+# Phases gate the loop. At every phase boundary the loop STOPS for user ack.
+phases:
+  - id: 0
+    desc: "split-identity anchors — reproduce the campaign's LR anchor EXACTLY (0.6255 STOP gate) before any DAE"
+    min_experiments: 1
+    max_experiments: 1
+    experiments: {min: 1, max: 1}   # ID range for telemetry attribution
+    budget_h: 0.5
+  - id: 1
+    desc: "DAE representation ladder — supervised MLP floor (E2), frozen DAE->LGBM (E3), linear probe (E4), swap-rate sweep (E5)"
+    min_experiments: 3
+    max_experiments: 5
+    experiments: {min: 2, max: 5}
+    budget_h: 1.5
+  - id: 2
+    desc: "additive value + other jobs — DAE+raw->LGBM (E6, keep iff >0.6701), DAE-imputer vs median (E7), recon-error anomaly (E8)"
+    min_experiments: 2
+    max_experiments: 3
+    experiments: {min: 6, max: 8}
+    budget_h: 1.0
+
+# Falsifiable questions the study exists to answer. One verdict per RQ in findings.md.
+# Honest prior for the study (from the plan): DAE reps land ~0.66-0.67, likely NO lift over a
+# tuned raw GBDT — so the headline is "the framework QUANTIFIES when a method pays on YOUR data
+# in <3h", and the imputer/anomaly angles are independent second acts, not the same bet.
+research_questions:
+  - id: RQ1
+    q: "Do frozen swap-noise DAE representations + LGBM beat the campaign's tuned raw-GBDT baseline (val_auc 0.6701)?"
+    prior: "no — on 58k weak-signal rows the DAE reps should land ~0.66-0.67, at or below the tuned raw GBDT; SSL pays at scale/multimodal/high-cardinality, none of which this data has"
+  - id: RQ2
+    q: "Does concatenating DAE representations WITH the raw features (DAE+raw -> LGBM) lift over the raw-GBDT 0.6701?"
+    prior: "<= +0.001 val_auc — trees already extract the axis-aligned signal the DAE re-expresses; keep the experiment ONLY if it clears 0.6701, else it is a discard"
+  - id: RQ3
+    q: "Does a LINEAR probe (LogisticRegression) on frozen DAE reps beat the raw-feature LR floor (val_auc 0.6255) — i.e. did SSL linearize the signal?"
+    prior: "yes, modestly — DAE reps should let a linear model reach ~0.63-0.66 (above the 0.6255 raw-LR floor) by pre-baking non-linear structure, but still short of a GBDT; this is the most likely 'DAE did something' signal"
+  - id: RQ4
+    q: "Do the imputer and anomaly-detection angles of the SAME DAE carry INDEPENDENT value — DAE reconstruction imputing MCAR-missing cells beating median, and recon-error ranking positives (lift@10%)?"
+    prior: "plausible and independent of RQ1-3 — a DAE is a denoiser first; imputation gain should grow with the missing rate, and recon-error lift@10% > 1.0 would be a second act that pays even if RQ1 says 'no headline lift'"
+
+# Levers you predict will move the metric, and by how much. findings.md fills observed + verdict.
+predictions_to_falsify:
+  - lever: "E1 split-identity anchor: LR+OHE(min_frequency=20)+class_weight=balanced on the fixed 42/0.2/stratified split"
+    predicted_delta: "val_auc = 0.6255 +/- 0.001 (GATE: STOP the whole study if outside tolerance — a miss means preprocessing/split drift)"
+  - lever: "E2 supervised MLP raw floor: 3x256 ReLU MLP on the same OHE+RankGauss encoding, trained supervised (no SSL)"
+    predicted_delta: "val_auc ~0.63-0.65 — a plain NN floor that beats raw LR (0.6255) but does NOT reach the GBDT 0.6701; establishes what representation power alone buys before SSL"
+  - lever: "E3 frozen DAE(768-d deep-stack) -> LGBM default (RQ1 headline)"
+    predicted_delta: "val_auc ~0.66-0.67, Delta <= 0 vs raw-GBDT 0.6701 (predicted NO beat)"
+  - lever: "E4 linear probe: LogisticRegression on frozen DAE reps (RQ3)"
+    predicted_delta: "val_auc ~0.63-0.66, Delta > 0 vs raw-LR 0.6255 (predicted SSL linearizes some signal), but < GBDT"
+  - lever: "E5 swap-rate sweep {0.10, 0.15, 0.25} via the sweep escape-hatch (noise-sensitivity)"
+    predicted_delta: "|Delta| <= 0.002 val_auc across rates — swap rate is a MINOR lever at 58k rows (Jahrer's 0.15 was tuned at ~1.5M); best rate near 0.15"
+  - lever: "E6 DAE+raw concatenated -> LGBM (RQ2), keep iff > 0.6701"
+    predicted_delta: "Delta <= +0.001 vs raw-GBDT 0.6701 — likely a discard (trees already have the raw signal)"
+  - lever: "E7 DAE-reconstruction imputer vs median imputer under MCAR {10%, 30%} (RQ4a)"
+    predicted_delta: "downstream val_auc Delta >= 0 vs median, GROWING with the missing rate (bigger gain at 30% than 10%)"
+  - lever: "E8 recon-error anomaly score, lift@10% among top recon-error rows (RQ4b)"
+    predicted_delta: "lift@10% > 1.0 (recon error concentrates positives above base rate) — an independent, calibration-free ranking signal"
+
+deliverables:
+  - findings.md                    # 7-section synthesis (ALWAYS)
+  - report/index.html              # self-contained tutorial (ALWAYS)
+  # - docs/<name>.md               # optional extra write-ups
+
+# Stop rule + user-ack cadence. The loop STOPS for user ack at each phase boundary; for this
+# study that is: after E1 (the STOP gate), after E5 (end of the DAE ladder), and at the end (after E8).
+stop_rule: "keep running until the user says stop, or the phase max_experiments is hit; MANDATORY user-ack pauses AFTER E1, AFTER E5, and AT END (after E8)"

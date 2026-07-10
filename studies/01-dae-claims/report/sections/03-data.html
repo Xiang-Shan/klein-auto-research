@@ -1,0 +1,87 @@
+<h2>The Data</h2>
+
+<p>Same book as study 00: the Kaggle <code>litvinenko630/insurance-claims</code> dataset
+— <strong>58,592 policies</strong>, 45 prepared columns, binary target
+<code>claim_status</code> at <strong>6.40% positive</strong> (3,748 claims), zero
+missing values, prepared by a <code>prepare.py</code> byte-identical to study 00's. The
+data gate's verdict was <strong>GO</strong> with no blockers; what is new in this study's
+data card is the <strong>DAE-specific column routing</strong> — because for an
+autoencoder, <em>how each column enters the network</em> is a modeling decision, not
+plumbing.</p>
+
+<h3>The 94-dimension routing table</h3>
+
+<p><code>dae.py</code> routes every prepared feature column into exactly one of three
+encoders, for a measured input dimension of <strong>d = 94</strong>:</p>
+
+<table>
+  <thead>
+    <tr><th>Route</th><th>Columns</th><th>Encoder</th><th>Dims</th><th>Swap-noise eligible?</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>RankGauss numerics</strong></td>
+      <td>21 — all numerics except <code>is_*</code>: continuous (<code>subscription_length</code>, <code>customer_age</code>, <code>region_density</code>, dimensions, power/torque…), low-cardinality ordinals (<code>airbags</code>, <code>ncap_rating</code>…), and the 0/1 binary maps</td>
+      <td>median-impute &rarr; <code>QuantileTransformer(output_distribution="normal")</code></td>
+      <td>21</td>
+      <td><strong>Yes</strong></td>
+    </tr>
+    <tr>
+      <td><strong><code>is_*</code> passthrough</strong></td>
+      <td>17 accessory/safety flags (<code>is_esc</code>, <code>is_parking_sensors</code>, <code>is_brake_assist</code>…)</td>
+      <td>passed through as 0/1</td>
+      <td>17</td>
+      <td><strong>No — deliberately excluded</strong></td>
+    </tr>
+    <tr>
+      <td><strong>One-hot categoricals</strong></td>
+      <td>6 — <code>region_code</code> (22), <code>model</code> (11), <code>engine_type</code> (11), <code>segment</code> (6), <code>fuel_type</code> (3), <code>steering_type</code> (3)</td>
+      <td>mode-impute &rarr; <code>OneHotEncoder(min_frequency=20)</code>, dense</td>
+      <td>56</td>
+      <td><strong>Yes</strong> (whole column swapped, then re-encoded)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Why the <code>is_*</code> flags are excluded from noise</h3>
+
+<p>Swap noise teaches by forcing the network to <em>infer a corrupted cell from its
+neighbors</em>. That only produces useful gradients when the cell has structure worth
+inferring. Swapping a 0/1 accessory flag mostly toggles a bit whose recovery signal is
+thin — a coin-flip-shaped pretext that adds loss noise without teaching joint structure.
+So the 17 flags ride along as clean context (the network may <em>use</em> them to
+reconstruct other columns) but are never themselves corrupted. The same 27 eligible
+columns (21 numerics + 6 categoricals) later define where E7 injects MCAR missingness —
+the imputation experiment deliberately mirrors the denoising doctrine.</p>
+
+<h3>The redundancy that becomes an asset</h3>
+
+<p>The data card's most interesting note: <strong>seven columns are near-deterministic
+functions of <code>model</code></strong> (<code>engine_type</code>,
+<code>displacement</code>, <code>cylinder</code>, and the four torque/power columns) —
+11 vehicle models, at most 11 distinct values each. For a GLM that is collinearity to
+manage; study 00 dropped them for its tree recipe. For a DAE this redundancy is
+<em>exactly the inter-column structure the denoiser feeds on</em> — a corrupted
+<code>max_power</code> is recoverable from <code>model</code> almost by lookup. The card
+kept all seven, and two experiments later confirm both faces of the coin: the redundancy
+is why the DAE imputes categoricals at 90% accuracy (E7) — and why handing trees the
+<em>same</em> information twice, raw plus re-encoded, actively hurts (E6).</p>
+
+<h3>Inherited guardrails, verified live</h3>
+
+<p>Two disciplines carried from study 00, both confirmed against this environment rather
+than assumed. First, the <strong>value-pattern check</strong>: under this machine's
+pandas 3.0.3, the 19 boolean-ish string columns report dtype <code>str</code>, not
+<code>object</code>, so a naive <code>dtype == "object"</code> gate would silently skip
+all 19 — <code>prepare.py</code> detects them by their actual value sets
+(<code>{"Yes","No"}</code>) and maps them deterministically. Second, the <strong>6.4%
+imbalance</strong> is handled by the calibration doctrine, not re-weighting: every
+downstream classifier here trains with <code>class_weight=None</code> (E1's
+<code>balanced</code> setting exists only to reproduce the campaign anchor). The DAE
+itself is unsupervised — imbalance cannot bite it; it bites only the classifiers on
+top.</p>
+
+<p>Row, column, and target counts match the ancestor campaign exactly — and the E1
+anchor then proved it bit-exactly: <code>val_auc 0.625462</code> vs the campaign's
+0.6255, a gap of 0.000038. The split is the same split; every comparison downstream is
+legitimate. Full audit: <code>data_card.md</code>.</p>

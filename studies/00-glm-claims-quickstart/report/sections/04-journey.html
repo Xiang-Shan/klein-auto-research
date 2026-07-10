@@ -1,0 +1,84 @@
+<h2>The Journey</h2>
+
+<p>Six experiments, every one a <code>keep</code>. But a clean ledger hides a plot twist:
+one anchor flatly refused to reproduce, and chasing down <em>why</em> became the most
+valuable thing the study found. Here is the full ledger, auto-generated from
+<code>results.tsv</code> — the framework's audit trail, one row per experiment, written
+only <em>after</em> the code was committed.</p>
+
+<!--LEDGER-->
+
+<p>Read left to right, the trajectory tells the story: two flat LR anchors, a jump to the
+HGBT anchor, a calibration test that trades a hair of AUC for a huge probability
+improvement, the LR recovery that finally hits its target, and a small sweep nudge to the
+study best.</p>
+
+<figure>
+  <img data-fig="figures/plot_metric_trajectory.png" alt="Validation AUC versus experiment number, all six experiments marked as keeps, the HGBT experiments visibly higher than the LR experiments">
+  <figcaption>Validation AUC across the six experiments. The two HGBT runs (E3, E6) sit a
+  clear ~0.01 above the LR family; the running-best frontier ends at E6's 0.664322.</figcaption>
+</figure>
+
+<h3>E1 &amp; E3 — the anchors that landed bit-exact</h3>
+
+<p><strong>E1</strong> (LR + one-hot + <code>class_weight=balanced</code>) came in at
+<code>0.625462</code> against a target of <code>0.6255</code> — off by
+<code>0.000038</code>, inside a tolerance ten times looser. The split-identity GATE passed
+almost to the digit, which means <code>kleinlib</code> and <code>prepare.py</code> are a
+faithful port. <strong>E3</strong>, the tuned HGBT anchor, was even tighter:
+<code>0.662897</code> vs <code>0.6629</code>, off by <code>0.000003</code>. E3's recipe was
+recovered <em>verbatim</em> by <code>git show</code>-ing two committed campaign experiments
+— when the exact code survives in git, reproduction is trivial and perfect.</p>
+
+<h3>E2 — the anchor that would not reproduce (the star of the show)</h3>
+
+<p>Then E2 broke the streak. The target was the campaign's winning Phase-1 LR at
+<code>0.6528</code>. E2 assembled what the campaign's ledger <em>described</em> — splines
+on three columns, a log-transform, two interactions, isotonic calibration — and landed at
+<code>0.625533</code>. That is <strong>&minus;0.0273 off target</strong>, and worse, it was
+<em>below its own splines-only ablation</em> (0.627959). Stacking on more &ldquo;correct&rdquo;
+features made the model worse, not better.</p>
+
+<p>Why couldn't we just copy the recipe? Because the campaign's entire Phase-1 spline block
+(its experiments 40&ndash;48) is <strong><code>discard</code>-status with no surviving
+commit</strong>. Under the very same commit-or-revert discipline this framework enforces, a
+discarded experiment's code is reverted and never committed — so all that remains is the
+one-line prose description in the ledger. E2 was reconstructed from prose alone, and prose,
+it turns out, is lossy.</p>
+
+<p>Seven reconstruction variants were tried; none closed the gap. Sweeping the knot count
+all the way to 50 hit a ceiling of ~0.641, still 0.012 short. The honest conclusion at the
+time: the historical &ldquo;+0.025 HUGE&rdquo; jump could not be reproduced from the
+documented recipe, and E2 was logged as a <code>keep</code> with the miss recorded plainly,
+not smoothed over.</p>
+
+<h3>E4 — the calibration doctrine, proven in a single A/B</h3>
+
+<p><strong>E4</strong> paused the reconstruction to settle RQ2. It is E1's exact pipeline
+with one lever flipped: <code>class_weight="balanced"</code> becomes
+<code>class_weight=None</code> plus isotonic calibration. Validation AUC barely moved
+(<code>0.622859</code>, down just 0.0026) while the Brier score improved
+<strong>~4&times;</strong> (0.240153 &rarr; 0.059279) and log-loss
+<strong>~2.9&times;</strong> (0.672617 &rarr; 0.232385). Textbook doctrine confirmation:
+re-weighting bought nothing on rank and had been quietly wrecking the probabilities.</p>
+
+<h3>E5 — the redux that cracked E2 open</h3>
+
+<p><strong>E5</strong> went back to E2 with a better method: instead of reconstructing from
+prose, it <code>git</code>-recovered the campaign's last committed LR base and re-applied
+the delta chain on top. It landed at <code>0.651707</code> — <strong>&minus;0.0011 from the
+0.6528 target</strong>, essentially a hit, and <strong>+0.0262 over E2</strong>. What closed
+the gap was three implementation details that no prose description ever mentioned:
+quantile-placed knots, no spline bias column, and isotonic <code>cv=5</code> rather than
+<code>cv=3</code>. That E5's Brier (0.058960) and log-loss (0.229111) match the campaign's
+own reported 0.059 / 0.229 almost to the digit is the proof it was a genuine recovery, not
+a lucky number. The full lesson is in Section 5.</p>
+
+<h3>E6 — the sweep demo, and the study best</h3>
+
+<p><strong>E6</strong> exercised the framework's one sanctioned escape-hatch, the sweep
+protocol, tuning the HGBT <code>learning_rate</code> over five values. The winner
+(<code>0.06</code>) reached <code>0.664322</code>, <strong>+0.001425</strong> over E3 and the
+study best. Every trial was logged to a sidecar; only the winner earned a ledger row and a
+pickled model. A small, honest gain — and Section 5 is candid about how little that
++0.0014 is worth for actual pricing.</p>

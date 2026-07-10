@@ -1,0 +1,81 @@
+<h2>Next Steps &amp; References</h2>
+
+<p>This study's job — quantify whether tabular self-supervision pays on this data, and
+where the same trained artifact pays anyway — is done. The open questions for a
+follow-up, in priority order (from <code>findings.md</code> &sect;7):</p>
+
+<ol>
+  <li><strong>TabPFN v2, zero-shot.</strong> The knowledge base's default first move
+  under ~50k rows, and at 58,592 rows this dataset sits at the edge of TabPFN v2.5's
+  envelope. One inference pass answers whether a pre-trained tabular foundation model
+  beats the E2 MLP / tuned GBDT pair (0.6706 / 0.6701) with zero tuning — the highest
+  information-per-second experiment available.</li>
+
+  <li><strong>MLP + GBDT cross-family soft vote.</strong> E2's MLP is a genuinely
+  different inductive bias at GBDT strength — exactly the diversity the campaign's
+  soft-vote doctrine wants, where the FT-Transformer failed its correlation gate. Check
+  the out-of-fold prediction correlation first (add the learner only if &lt; 0.95),
+  then target the campaign's 0.6715 global best.</li>
+
+  <li><strong>Complete the transductive aside.</strong> <code>dae.py</code> ships
+  <code>fit_mode="transductive"</code> (the Jahrer-style train+val-features fit) but the
+  ladder never ran it — the fairness rule kept it out of the headline and the study
+  closed at 8/8. One clearly-labeled run would price exactly what the "Kaggle-style"
+  peek is worth at 58k rows. Prediction to falsify: +0.001&ndash;0.003 over E3's
+  0.668271, still below E2.</li>
+
+  <li><strong>Entity embeddings for <code>region_code</code>.</strong> The one
+  higher-cardinality column (22 levels) was one-hot everywhere here. A small
+  <code>nn.Embedding</code> inside the E2 MLP tests the embeddings-beat-encoding claim
+  far below its usual &gt;1000-level rule — cheap, and it upgrades the architecture that
+  actually won.</li>
+
+  <li><strong>Productionize the imputer under MAR, not just MCAR.</strong> E7's
+  3.4&times; win was measured under uniformly-random masking. Real missingness is
+  MAR-at-best (spec fields absent conditional on model/segment). Re-run the E7 harness
+  with MAR injection keyed on <code>model</code> before recommending the DAE-imputer
+  for a production data-quality workflow.</li>
+</ol>
+
+<h3>Verified references</h3>
+
+<p>Carried from the study's <code>method_card.md</code> &sect;7, where each was verified
+against the primary source during the METHOD gate. One verification note worth keeping:
+a circulating arXiv id for VIME (2006.06775) was checked and found to be <em>wrong</em>
+during that gate, so VIME is cited by its NeurIPS proceedings page, not an arXiv id.</p>
+
+<ul>
+  <li><cite>Yoon, J., Zhang, Y., Jordon, J. &amp; van der Schaar, M. (2020). VIME:
+  Extending the Success of Self- and Semi-supervised Learning to Tabular Domain.
+  NeurIPS 2020.</cite> &mdash; proceedings.neurips.cc/paper/2020/hash/7d97667a3e056acab9aaf653807b4a03
+  (venue + authors verified; deliberately no arXiv id — see note above). The
+  mask-then-reconstruct generalization our DAE is the reconstruction half of.</li>
+
+  <li><cite>Bahri, D., Jiang, H., Tay, Y. &amp; Metzler, D. (2022). SCARF:
+  Self-Supervised Contrastive Learning using Random Feature Corruption. ICLR 2022.</cite>
+  &mdash; arXiv:2106.15147 (id + venue verified). Same corruption idea, contrastive
+  objective; gains concentrated where SSL has room.</li>
+
+  <li><cite>Jahrer, M. (2017). 1st place solution — Porto Seguro's Safe Driver
+  Prediction. Kaggle competition discussion #44629.</cite> &mdash; existence and the
+  DAE / swap-noise-0.15 / 6-model-blend facts confirmed via multiple secondary sources
+  (kaggler.com; fast.ai forums; The Kaggle Workbook). <strong>Not peer-reviewed</strong>;
+  the ~1500-unit hidden width and RankGauss details are from the forum write-up and
+  presented as such.</li>
+
+  <li><cite>Grinsztajn, L., Oyallon, E. &amp; Varoquaux, G. (2022). Why do tree-based
+  models still outperform deep learning on tabular data? NeurIPS 2022 Datasets &amp;
+  Benchmarks.</cite> &mdash; arXiv:2207.08815 (id + venue verified). The regime map this
+  study's null lands on, on schedule.</li>
+
+  <li><cite>Hollmann, N., et al. (2025). Accurate predictions on small data with a
+  tabular foundation model. Nature.</cite> &mdash; doi:10.1038/s41586-024-08328-6
+  (verified in <code>knowledge/insights-and-framework.md</code> &sect;5). TabPFN v2 —
+  the reason next-step #1 is next-step #1.</li>
+</ul>
+
+<p>Provenance for every number on this page: the study's <code>results.tsv</code>,
+<code>aux_metrics.tsv</code>, <code>sweeps/swaprate.sidecar.tsv</code>, and
+<code>findings.md</code>. The method is distilled for reuse in
+<code>knowledge/method_cards/dae-tabular.md</code>, with this study's observed numbers
+as its empirical when-it-pays row.</p>

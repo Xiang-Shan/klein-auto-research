@@ -1,0 +1,186 @@
+<h2>Model Coding Advice</h2>
+
+<p>This is the section that makes the study useful on Monday morning. The study's
+centerpiece code is <code>dae.py</code> — a ~380-line, sklearn-style
+<code>SwapNoiseDAE</code> — plus the two-stage launcher pattern in <code>train.py</code>
+that every torch+LightGBM experiment had to adopt. This walkthrough annotates the four
+blocks worth stealing, then the pitfalls that bit (or tried to bite) this study.</p>
+
+<h3>Block 1 — swap noise at the original-column level</h3>
+
+<p>The subtle design decision in the whole file. Corruption happens on the
+<em>dataframe</em>, per original column, and the corrupted frame is then re-encoded —
+never on the encoded matrix:</p>
+
+<pre><code>def apply_swap_noise(X, eligible_cols, *, rate, rng):
+    """Swap-noise corruption at the ORIGINAL-column level."""
+    Xc = X.copy()
+    n = len(X)
+    mask = np.zeros((n, len(eligible_cols)), dtype=bool)
+    for j, col in enumerate(eligible_cols):       # is_* flags are NOT in eligible_cols
+        flagged = rng.random(n) &lt; rate            # each row corrupted w.p. rate
+        mask[:, j] = flagged
+        idx = np.flatnonzero(flagged)
+        if idx.size:
+            donors = rng.integers(0, n, size=idx.size)   # random donor rows
+            col_vals = X[col].to_numpy()
+            Xc.iloc[idx, Xc.columns.get_loc(col)] = col_vals[donors]
+    return Xc, mask</code></pre>
+
+<p>Why it matters: corrupt the <em>encoded</em> matrix instead and a swapped categorical
+becomes a physically impossible half-corrupted one-hot (two hot bits, or none) — the
+network learns to denoise encoding artifacts, not policy structure. Original-column
+corruption guarantees every corrupted row is a <em>valid</em> row: a swapped
+<code>fuel_type</code> is still exactly one fuel type, a swapped numeric passes through
+the same RankGauss map as everything else. (Because both encoders are per-column
+deterministic maps, this is provably identical to copying the donor's encoded slice —
+the dataframe version is simply the honest, testable statement of the method.)</p>
+
+<h3>Block 2 — the training loop: fresh noise per epoch, index-shuffle batching</h3>
+
+<pre><code>for epoch in range(self.max_epochs):
+    # fresh swap noise EACH epoch (proper denoising training), then re-encode
+    X_corrupt, _ = apply_swap_noise(X_tr, self.eligible_cols_,
+                                    rate=self.swap_rate, rng=noise_rng)
+    Z_corrupt = torch.as_tensor(self._encode(X_corrupt), device=self.device_)
+
+    self.net_.train()
+    for b in kleinlib.torch_loop.iterate_minibatches(   # MPS-safe: NEVER a DataLoader
+        n_tr, self.batch_size, shuffle=True, generator=noise_rng
+    ):
+        bt = torch.as_tensor(b, device=self.device_)
+        optim.zero_grad()
+        recon = self.net_(Z_corrupt[bt])
+        loss = loss_fn(recon, Z_tr_clean[bt])           # reconstruct the CLEAN row
+        loss.backward()
+        optim.step()
+
+    # early stop on a FIXED held-out corrupted set — a stable signal across epochs
+    with torch.no_grad():
+        es_loss = float(loss_fn(self.net_(Z_es_corrupt), Z_es_clean).cpu())</code></pre>
+
+<p>Three deliberate choices: (1) <strong>fresh noise every epoch</strong> — the network
+must never memorize one corruption pattern; (2) <strong>index-shuffle batching</strong>
+via <code>kleinlib.torch_loop</code>, never a <code>DataLoader</code>/<code>TensorDataset</code>
+— on Apple MPS the obvious DataLoader route silently collapses predictions to a
+near-constant (the campaign's war story #2, and the reason <code>min_proba_std</code> is
+a hard guard); (3) the early-stop set is corrupted <em>once, with a fixed seed</em> —
+re-noising it each epoch would make the stopping signal jitter with the noise draw
+instead of tracking the model.</p>
+
+<h3>Block 3 — inductive vs transductive, made explicit and auditable</h3>
+
+<pre><code>dae = SwapNoiseDAE(swap_rate=0.15)            # fit_mode="inductive" is the DEFAULT
+rep_tr = dae.fit_transform(X_tr)              # encoder fit on TRAIN fold only
+rep_va = dae.transform(X_va)                  # val encoded, never seen at fit
+assert dae.n_fit_rows_ == len(X_tr)           # the fairness canary: 46,873 here
+
+# Kaggle-style aside — how Porto Seguro was actually won. NOT the headline:
+dae = SwapNoiseDAE(swap_rate=0.15, fit_mode="transductive")
+dae.fit(X_tr, X_transductive=X_va)            # encoder sees val FEATURES (no labels)</code></pre>
+
+<p>The API makes the integrity decision a named, greppable parameter instead of a silent
+concatenation, and <code>n_fit_rows_</code> gives every ledger row a one-number audit
+trail (E3/E4 log <code>dae_n_fit_rows=46873</code>). If a DAE result ever looks too
+good, this is the first number to check.</p>
+
+<h3>Block 4 — two-stage process isolation (the libomp fix), actual code</h3>
+
+<p>The pattern that every torch+LightGBM experiment reused, from the committed E7
+<code>train.py</code>. One file, two processes: <code>main()</code> re-invokes itself as
+a torch-only child, then runs the LightGBM head with lightgbm imported first:</p>
+
+<pre><code>def stage_impute() -&gt; None:
+    """CHILD (torch world; no lightgbm): fit/apply the DAE, dump .pkl caches."""
+    import joblib
+    m = joblib.load(DAE_CACHE)          # torch net inside; lightgbm NEVER imported here
+    ...                                 # DAE work: reconstruct / transform / diagnostics
+    joblib.dump(out, E7_CACHE)
+
+def stage_head(t0: float) -&gt; None:
+    """PARENT: lightgbm world."""
+    from lightgbm import LGBMClassifier, early_stopping   # MUST be first (war story)
+    import kleinlib     # binds torch passively; no torch op ever runs in this process
+    ...                 # LGBM head on the cached CPU-numpy reps + canonical evaluate
+
+def main() -&gt; None:
+    t0 = time.time()
+    r = subprocess.run([sys.executable, str(_HERE / "train.py"), "--stage", "impute"])
+    if r.returncode != 0:
+        raise RuntimeError(f"impute stage subprocess failed with rc={r.returncode}")
+    stage_head(t0)</code></pre>
+
+<p>Rules of the pattern: the child never imports lightgbm; the parent imports lightgbm
+<em>before anything torch-adjacent</em> and never executes a torch op; everything
+crossing the boundary is CPU numpy in <code>.pkl</code> caches; and the child's return
+code is checked loudly. Run it under <code>set -o pipefail</code> with
+<code>PYTHONUNBUFFERED=1</code>, or a segfault will eat both the exit code (tee masks
+it) and the log (block-buffered stdout dies with the process). Cost of the pattern: one
+subprocess call. Proof it preserves determinism: E5's winner trial reproduced E3
+<em>bit-exactly</em> (0.668271).</p>
+
+<h3>Re-using the trained DAE: the imputer and the anomaly score</h3>
+
+<p>Both second acts are one method call on the same fitted object.
+<code>reconstruct(X)</code> returns the decoder's output in encoded space; E7 writes it
+back only at the masked cells (numerics via inverse-RankGauss, categoricals via argmax
+over each one-hot block):</p>
+
+<pre><code>Zhat = m.reconstruct(X_missing)                        # (n, 94) decoder output
+raw_num = qt.inverse_transform(Zhat[:, :n_num])        # back to raw numeric units
+X_dae.loc[mask[c], c] = raw_num[mask[c], j]            # masked numerics only
+...
+block = Zhat[:, off:off + widths[k]]                   # this cat's one-hot block
+values = ohe.categories_[k][np.argmax(block, axis=1)]  # most-plausible category
+X_dae.loc[mask[c], c] = values[mask[c]]                # masked categoricals only</code></pre>
+
+<figure>
+  <img data-fig="figures/plot_imputer_gain.png" alt="Two panels: downstream AUC by missing rate for DAE versus median imputation, nearly overlapping; and numeric RMSE at masked cells where the DAE bar is 3.4 times lower than median">
+  <figcaption>E7 in one figure. Left: downstream AUC — the DAE arm wins at both MCAR
+  rates, barely, and information loss (distance to the dashed clean line) dwarfs the
+  imputer choice. Right: cell-level numeric RMSE — 1.02 vs 3.42, with categorical
+  accuracy 90.1% vs 33.4% annotated. Use the DAE-imputer when you need the values.</figcaption>
+</figure>
+
+<p>The anomaly score is per-row reconstruction MSE over the 94 encoded dims —
+statistically legitimate, and on this data an honest null worth showing because
+<em>nulls are results</em>:</p>
+
+<figure>
+  <img data-fig="figures/plot_anomaly_lift.png" alt="Bar chart of lift at 5, 10, and 20 percent by reconstruction error, all bars below the 1.0 no-signal line">
+  <figcaption>E8: lift@{5,10,20}% of rows ranked by reconstruction error, all
+  <em>below</em> the 1.0 no-signal line (ranker AUC 0.4805). Hard-to-reconstruct
+  policies are unusual configurations, and unusual is not risky on this book.</figcaption>
+</figure>
+
+<h3>The pitfalls list</h3>
+
+<ul>
+  <li><strong>Never mix torch and LightGBM in one process on macOS arm64.</strong>
+  Dual bundled <code>libomp</code> &rarr; SIGSEGV below Python; guards cannot catch it;
+  import order only picks the victim. Two-stage isolate (Block 4). Detection recipe if
+  you suspect it: (A) run the GBDT alone on cached inputs, (B) add one tiny torch op
+  first, (C) flip import order — if A passes and B dies, you have it.</li>
+  <li><strong>Never a DataLoader/TensorDataset on MPS.</strong> Index-shuffle batching
+  (Block 2) plus a <code>min_proba_std</code> hard guard that raises on collapsed
+  predictions. A collapsed model must crash loudly, not report a plausible-mediocre
+  AUC quietly.</li>
+  <li><strong>Corrupt original columns, not encoded ones</strong> (Block 1) — else you
+  train the net to fix impossible encodings.</li>
+  <li><strong>Sweep the swap rate.</strong> The "it's flat" assumption cost up to
+  &minus;0.0063 in this study's sweep (E5). Three points and a sidecar TSV is ~100
+  seconds of compute.</li>
+  <li><strong>Log the inductive canary.</strong> Record <code>n_fit_rows_</code> with
+  every DAE result; it is the difference between a defensible number and a quiet
+  transductive leak.</li>
+  <li><strong>Run the supervised floor first.</strong> E2's 12-second MLP re-set this
+  study's entire bar before the DAE ran. An SSL pipeline evaluated only against a
+  linear baseline will look better than it is.</li>
+  <li><strong>cw=None, calibrate after — for NNs too.</strong> Every
+  <code>class_weight=None</code> arm here posted Brier &asymp; 0.059; the lone
+  <code>balanced</code> run (E1, anchor duty) posted 0.240. The doctrine transfers
+  from GLMs to deep nets unchanged.</li>
+  <li><strong>Pipe hygiene on every tee'd run:</strong> <code>set -o pipefail</code> and
+  <code>PYTHONUNBUFFERED=1</code>. Without both, a hard crash leaves you a zero exit
+  code and an empty log — the most expensive kind of nothing.</li>
+</ul>

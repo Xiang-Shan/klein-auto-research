@@ -1,0 +1,141 @@
+<h2>The Journey</h2>
+
+<p>Eight experiments: 4 keeps, 4 discards, 0 crashes — and the discards carry as much
+information as the keeps, because every one was a pre-registered hypothesis that got an
+honest answer. Here is the full ledger, auto-generated from <code>results.tsv</code>,
+one row per experiment, each row written only <em>after</em> the code was committed or
+reverted:</p>
+
+<!--LEDGER-->
+
+<p>The trajectory below is the same story as a picture. The keeps (E1, E2, E4, E7) are
+highlighted; note that the running best is set at experiment <em>two</em> and never
+beaten — the plot of this study is not a climb, it is everything else failing to reach
+a bar that got set embarrassingly early. (E7's 0.632 and E8's 0.481 are not
+regressions of the pipeline — they measure different questions: degraded-data AUC and
+an anomaly ranker.)</p>
+
+<figure>
+  <img data-fig="figures/plot_metric_trajectory.png" alt="Validation AUC across the eight experiments, keeps highlighted; the maximum is at experiment 2 and is never exceeded">
+  <figcaption>Primary metric (<code>val_auc</code>) across the 8-experiment ladder.
+  Keeps (E1 anchor 0.6255, E2 MLP 0.6706, E4 probe 0.6580, E7 imputer-at-30%-MCAR
+  0.6322) highlighted; discards gray. The study best is E2 — the second experiment.</figcaption>
+</figure>
+
+<h3>E1 — the gate (0.625462, keep)</h3>
+
+<p>Before any DAE work, the split-identity anchor: the campaign's LR+OHE baseline on the
+fixed split, required to land within &plusmn;0.001 of 0.6255 or <em>the whole study
+stops</em>. It landed 0.000038 off — and exactly matched study 00's own E1 to the sixth
+decimal, proving both studies share <code>prepare.py</code> and the split byte-for-byte.
+Every cross-study comparison in this report is legitimate because of this row.</p>
+
+<h3>E2 — the "floor" that became the ceiling (0.670616, keep — THE SURPRISE)</h3>
+
+<p>E2 was designed as a humble control: a plain supervised MLP (3&times;256 ReLU) on the
+DAE's <em>exact</em> 94-dim input encoding, so that E3-vs-E2 would isolate what
+self-supervision adds with the representation held fixed. The prediction: 0.63&ndash;0.65
+— above raw LR, comfortably below the GBDT. The observation: <strong>0.670616</strong>,
++0.045 over the LR floor and <em>half a point of the fourth decimal above the tuned
+GBDT's 0.6701</em>. The control tied the champion. Twelve seconds of training on a
+laptop, early-stopped at epoch 15, with the study's best Brier (0.0587) and best decile
+lift (1.88) for good measure. Two consequences: the pre-registered keep bar for the DAE
+instantly hardened from "reach 0.6701" to "beat 0.670616" — and a meta-finding was born
+that outranks the study's official question (Section 5).</p>
+
+<h3>The infrastructure dragon — real research has one</h3>
+
+<p>E3's first run did not produce a number. It produced <strong>SIGSEGV, exit 139, no
+Python traceback, and an empty log file</strong> — the process died below Python at
+<code>LGBMClassifier.fit</code>, after the torch DAE stage had already succeeded. The
+armed prediction-collapse guard never fired; nothing Python-level ever ran wrong. Three
+isolation probes pinned the cause: (A) a torch-free process running LGBM on cached
+representations — fine; (B) one tiny torch-MPS op, then LGBM, same process — dead;
+(C) importing lightgbm <em>first</em> — survives toy loads, then dies inside the
+full-scale torch stage instead. Conclusion: <strong>torch and LightGBM each bundle
+their own OpenMP runtime (<code>libomp</code>) on macOS arm64, and whichever engages
+OpenMP heavily <em>second</em> segfaults the process</strong>; import order only picks
+the victim. The fix that carried the rest of the study is two-stage process isolation
+<em>inside one train.py</em> — a torch-only child fits the DAE and dumps caches, the
+lightgbm-first parent trains the head (Section 6 shows the code). Two ops corollaries
+came free: <code>set -o pipefail</code> (tee had masked the exit code) and
+<code>PYTHONUNBUFFERED=1</code> (block-buffered stdout died with the process, which is
+why the log was empty).</p>
+
+<h3>E3 — the headline verdict (0.668271, discard)</h3>
+
+<p>With isolation in place, the RQ1 experiment ran clean: inductive DAE (swap 0.15, fit
+on 46,873 train-fold rows only), 768-d deep-stack, the campaign's LGBM recipe. Result:
+<strong>0.668271</strong> — dead-center in the predicted 0.66&ndash;0.67 band, 0.0018
+below the tuned GBDT, and 0.0023 below E2's plain MLP <em>on the identical encoding</em>.
+That last comparison is the clean scientific one, and it is the study's climax: with
+the representation held fixed, <strong>self-supervision subtracted value</strong>. The
+unsupervised detour also cost 3&times; the wall-clock (37s vs 12s). RQ1: <strong>NO</strong>,
+as predicted — but against a harder bar than predicted.</p>
+
+<h3>E4 — but the DAE did learn something (0.658019, keep)</h3>
+
+<p>A plain logistic regression on the frozen 768-d representations scores
+<strong>0.658019</strong> — +0.0326 over the raw-feature LR floor, closing ~72% of the
+raw-LR&rarr;tuned-GBDT gap with a <em>linear</em> model. RQ3: <strong>YES</strong>. The
+representations demonstrably encode nonlinear joint structure a linear model can use.
+Both things are true at once, and this is the study's most instructive tension: the DAE
+learned real structure (E4), and that structure is worth nothing on top of plain
+supervised learning (E3 vs E2).</p>
+
+<h3>E5 — the sweep that falsified its own prediction (0.668271, discard)</h3>
+
+<p>The one sanctioned sweep: swap rate &isin; {0.10, 0.15, 0.25}, every trial logged to
+a sidecar, one ledger row. The pre-registered prediction — |&Delta;| &le; 0.002 across
+rates, "swap rate is a minor lever at this scale" — was <strong>falsified</strong>:
+0.10 costs &minus;0.0063 and 0.25 costs &minus;0.0041. Jahrer's 0.15 is a genuine local
+optimum on data 25&times; smaller than his — the one piece of the Porto Seguro recipe
+that replicated cleanly. The mechanism is visible in the DAE's own held-out
+reconstruction loss (rising 0.0154 &rarr; 0.0230 &rarr; 0.0358 with rate): at 0.10 the
+pretext task is too easy and applies too little denoising pressure; at 0.25 the input is
+over-corrupted. The winner (0.15) reproduced E3 <em>bit-exactly</em> — 0.668271 — which
+doubles as the determinism proof for the two-stage isolation. No improvement over E3, so
+by sweep rule 7: discard, honestly logged.</p>
+
+<figure>
+  <img data-fig="figures/plot_noise_sensitivity.png" alt="Downstream validation AUC versus swap rate, peaking at 0.15, with held-out reconstruction MSE rising monotonically with rate on a twin axis">
+  <figcaption>E5, the noise-sensitivity sweep. Downstream AUC (blue, left axis) peaks at
+  swap rate 0.15; the DAE's held-out reconstruction MSE (orange, right axis) rises
+  monotonically with the rate — corruption strength sets pretext difficulty, and the
+  representation quality peaks between too-easy and too-hard.</figcaption>
+</figure>
+
+<h3>E6, E7, E8 — the second acts (Phase 2)</h3>
+
+<p><strong>E6 (0.660653, discard):</strong> concatenating the raw 94-dim encoding with
+the 768-d representations — "give the tree everything" — did not merely fail to clear
+0.6701; it landed <strong>0.0076 below representations alone</strong>. The aux ledger
+shows why: LightGBM's best iteration fell from 107 to 55. With column subsampling at 0.7
+over 862 largely redundant dimensions, the duplicated information dilutes every split's
+candidate pool and the model overfits earlier. A sharper null than predicted: trees do
+not want your re-expression of information they already have.</p>
+
+<p><strong>E7 (keep):</strong> the same frozen DAE, re-purposed as a missing-value
+imputer under injected MCAR missingness at 10% and 30%, against a train-fold median/mode
+baseline. Downstream AUC through a deterministically-refit E3 head: DAE wins at both
+rates, but barely (+0.0015 / +0.0013). At the <em>cell</em> level it is not close —
+numeric RMSE 1.02 vs 3.42 (3.4&times; better), categorical accuracy 90.1% vs 33.4% —
+the DAE is exploiting exactly the model-derivative redundancy the data card flagged.
+The predicted "gain grows with missing rate" clause was falsified (flat), because
+information loss itself (clean 0.6683 &rarr; 0.6322 at 30% MCAR) dwarfs the choice of
+imputer. Verdict: reach for the DAE-imputer when you need the <em>values</em>; the
+classifier's rank barely cares. (Figures in Section 6, where the write-back code
+lives.)</p>
+
+<p><strong>E8 (0.480548, discard):</strong> the last prior — reconstruction error as a
+calibration-free claim ranker, predicted lift@10% &gt; 1.0 — was <strong>falsified with
+a twist</strong>: lift@10 = 0.934, and the ranker's AUC of 0.4805 means the signal is
+mildly <em>inverted</em>. The policies the DAE finds hardest to reconstruct — unusual
+vehicle-spec combinations — are marginally <em>less</em> claim-prone, because claims on
+this book ride weak exposure/usage signal (subscription length, age, density), not
+configuration weirdness. The same DAE that imputes 3.4&times; better than median (E7) is
+useless as an unsupervised claim flagger (E8): "unusual" and "risky" are different
+directions on personal-lines policy data.</p>
+
+<p>Total ledger wall-clock for all eight experiments: about a minute. The phase budgets
+allowed three hours.</p>

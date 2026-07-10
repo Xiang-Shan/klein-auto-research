@@ -1,0 +1,125 @@
+<h2>The Method</h2>
+
+<p>If you know principal component analysis, you are two ideas away from a denoising
+autoencoder. This section teaches both ideas, then the two tabular-specific tricks
+(swap noise, RankGauss) that make the method work on policy data, then the honest story
+of where it came from — including the part of that story that predicts it may not work
+here.</p>
+
+<h3>Idea 1 — an autoencoder is nonlinear PCA</h3>
+
+<p>PCA finds a low-dimensional <em>linear</em> subspace that reconstructs your columns
+with least squared error. An autoencoder does the same job — compress each row, then
+reconstruct it — but the compressor (<em>encoder</em>) and reconstructor
+(<em>decoder</em>) are neural networks, so the "subspace" can bend. It can capture the
+curved, interacting structure of a policy record: that <code>max_power</code>,
+<code>displacement</code>, and <code>segment</code> move together; that certain region
+and vehicle combinations co-occur. Crucially it is trained <strong>unsupervised</strong>
+— no <code>claim_status</code> label anywhere. The hope is that the encoder's internal
+activations become a feature representation with the joint structure of the columns
+already baked in, which a downstream model can then exploit.</p>
+
+<h3>Idea 2 — denoising is what forces it to learn</h3>
+
+<p>There is a cheat available. Our network's hidden layers (256 wide) are <em>wider</em>
+than its input (94 dims) — it is overcomplete — so an ordinary autoencoder could simply
+learn the identity map: copy input to output, perfect reconstruction, nothing learned.
+The fix is the <strong>D</strong> in DAE: <em>corrupt</em> each input row, and demand the
+network reconstruct the <em>clean</em> row from the corrupted one. Now copying is
+useless — on the corrupted cells, the input is wrong. The only way to drive the loss
+down is to infer each corrupted cell <em>from the other columns</em>: if
+<code>max_power</code> is corrupted, recover it from <code>displacement</code>,
+<code>segment</code>, and <code>model</code>. Undoing corruption <em>is</em> learning
+the joint distribution of the columns. Formally, with corruption
+<code>x&#771; ~ q(&middot;|x)</code>, the objective is:</p>
+
+<pre><code>minimize   E[ || g(f(x&#771;)) &minus; x ||&sup2; ]        f = encoder, g = decoder
+           reconstruct the CLEAN row x from the CORRUPTED row x&#771;</code></pre>
+
+<h3>Swap noise — the tabular-native corruption</h3>
+
+<p>In images you corrupt by adding Gaussian noise or masking pixels, which is meaningful
+because neighboring pixels are correlated. A table has no such geometry — adding
+Gaussian noise to a one-hot <code>fuel_type</code> is nonsense. Michael Jahrer's answer
+(Porto Seguro, 2017) is <strong>swap noise</strong>: with probability <em>p</em> per
+cell, replace the value with the <em>same column's</em> value from a random other row:</p>
+
+<pre><code>x&#771;[i][j] = x[r][j]   with probability p   (r = a random donor row)
+x&#771;[i][j] = x[i][j]   otherwise</code></pre>
+
+<p>The corrupted value is always a <em>plausible</em> value for that column — it came
+from a real policy — just wrong for <em>this</em> policy. That is exactly the corruption
+whose undoing teaches inter-column structure. Two study-specific routing decisions
+(Section 3 has the full table): the 17 <code>is_*</code> accessory flags are
+<strong>excluded</strong> from corruption (swapping a 0/1 accessory flag teaches
+nothing) and passed through untouched; and corruption is applied at the
+<strong>original-column level, then re-encoded</strong> — so a swapped categorical stays
+one valid one-hot, never a half-corrupted encoding (Section 6 shows the code). The swap
+rate <em>p</em> is a real hyperparameter: Jahrer used 0.15, and experiment E5 sweeps it
+rather than trusting him.</p>
+
+<h3>RankGauss — making MSE fair across columns</h3>
+
+<p>The reconstruction loss is a plain MSE over all encoded dimensions, so column scales
+matter: a raw <code>region_density</code> in the tens of thousands would dominate the
+loss while binary flags vanish. <strong>RankGauss</strong> fixes this by mapping each
+numeric column to a standard Gaussian <em>by rank</em>
+(sklearn's <code>QuantileTransformer(output_distribution="normal")</code>): the smallest
+value lands in the left tail, the median at 0, the largest in the right tail. Every
+numeric column then contributes to the MSE on equal terms. This detail is load-bearing —
+it is also, notably, most of what the supervised MLP in E2 needed to shine.</p>
+
+<h3>The deep-stack representation — what we actually hand downstream</h3>
+
+<p>After training, the decoder is thrown away. The feature handed to the downstream
+model is the <strong>deep stack</strong>: the concatenation of all three hidden-layer
+activations (3 &times; 256 = <strong>768 dims</strong>), not just the last layer.
+Jahrer's observation was that earlier layers keep information the deepest layer has
+already abstracted away; stacking them beats any single layer. So the full pipeline
+is:</p>
+
+<pre><code>94-dim encoding:  21 RankGauss numerics  &oplus;  17 is_* passthrough  &oplus;  56 one-hot cat dims
+encoder:          94 &rarr; 256 &rarr; 256 &rarr; 256   (ReLU), linear decoder head 256 &rarr; 94
+training:         fresh swap noise each epoch (p = 0.15), MSE vs the clean row,
+                  AdamW, early stop on a held-out reconstruction loss
+feature out:      concat(h1, h2, h3) = 768 dims  &rarr;  LightGBM / logistic probe</code></pre>
+
+<h3>The Porto Seguro story — told honestly</h3>
+
+<p>The precedent that makes this method worth testing is uncomfortably close to our
+problem: Jahrer's 1st-place solution to Porto Seguro's Safe Driver Prediction is
+<em>also auto-insurance claim prediction</em>. He won with a blend of six models — one
+LightGBM and five neural nets — and <strong>every neural net was trained on DAE hidden
+activations</strong>, not raw features. Swap noise at 0.15, RankGauss inputs, deep-stack
+features: the exact recipe above.</p>
+
+<p>But three regime differences separate his setup from ours, and all three push
+<em>against</em> the DAE here:</p>
+
+<table>
+  <thead>
+    <tr><th>Axis</th><th>Jahrer / Porto Seguro</th><th>This study</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Rows feeding the DAE</td><td>~1.5M (~595k train + ~892k test)</td><td>46,873 (train fold only)</td></tr>
+    <tr><td>Fit mode</td><td><strong>transductive</strong> — the DAE saw the test-set features</td><td><strong>inductive</strong> — the headline DAE never sees a validation row (the fairness rule)</td></tr>
+    <tr><td>Regime</td><td>large-data, where representation learning pays</td><td>58k weak-signal — squarely where trees still win (Grinsztajn 2022)</td></tr>
+  </tbody>
+</table>
+
+<p>The transductive point deserves a beat, because it is an integrity issue as much as a
+technical one: fitting the DAE on train+test features quietly uses the test
+distribution. Fine for a Kaggle leaderboard; not fine as a headline comparison against
+inductive baselines. This study's DAE is fit on the train fold only, with the fitted row
+count logged as a canary (<code>n_fit_rows=46873</code>), and the Jahrer-style
+transductive variant exists in the code only as a clearly-labeled aside. Representation
+learning's edge grows with unlabeled scale; at ~25&times; fewer rows and an honest
+inductive constraint, the method card's written prediction was that the DAE would
+<em>not</em> clear the tuned GBDT — and that a measured "no" would itself be the
+valuable answer. Section 4 shows what actually happened, including the result that made
+the question sharper than anyone planned.</p>
+
+<p>Full pedagogy with the mathematical details lives in the study's
+<code>method_card.md</code> (now distilled into the knowledge base as
+<code>knowledge/method_cards/dae-tabular.md</code>); this section is the working
+actuary's version.</p>

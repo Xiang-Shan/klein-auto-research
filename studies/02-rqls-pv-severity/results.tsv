@@ -1,0 +1,8 @@
+experiment	primary_metric	status	commit	description
+1	4.278819	keep	762e77d	E1 truth-gate PASS: naive MLE unbiased on single-family lognormal n=2000x200reps
+2	4.458722	keep	57e503e	E2 efficiency eps=0: QLS-OLS 4.459% = 1.083x MLE floor 4.116%; GLS 1.123x, MTM 1.219x; 1000 reps
+3	49.969892	keep	72d9c8b	E3 breakdown sweep 20 cells x 500 reps (sweeps/e3_breakdown.sidecar.tsv); reported trimmed-QLS-OLS@eps=10%; MLE 352% vs QLS 50%
+4	4.834350	keep	4a36b4e	E4 trunc+cens recovery: window-QLS 4.834% ~= floor, trunc-MLE 4.680%; naive param bias huge but premium -5.2% (prior >20% falsified); 500 reps
+5	18.783886	keep	c006944	E5 realistic cell: qls_window_trim 18.78% (-18.6 signed); mle_tc 7.85% best; ablation window>>trim (trim deletes hail tail); 500 reps
+6	25.813827	keep	e57c799	E6 tail mode: blind-QLS 25.81% vs aware 27.96% (POT hurts, xi_hat 0.22 vs 0.4); truth tail delta only +0.17% (capped layer); 500 reps
+7	18.783886	keep	bfdef87	E7 decision table 20 cells x 500 reps (sweeps/e7_decision.sidecar.tsv); reported qls_window_trim@eps=5 reproduces E5; misspecification floor ~23%

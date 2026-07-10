@@ -1,0 +1,33 @@
+<h2>The Question</h2>
+
+<p>Before you trust any research framework to price real risk, it has to earn that trust
+on a problem whose answer you already know. That is what this study is: a
+<strong>proving-ground reproduction</strong>. We take a mature 215-experiment campaign on
+the Kaggle auto-insurance-claims dataset, and we ask whether this framework — a fresh
+port called <code>kleinlib</code> plus the disciplined edit-run-log loop — can hit the
+campaign's known-good anchor numbers on the nose.</p>
+
+<p>Framed as a decision an actuary actually faces: <em>can I rely on this pipeline's
+numbers, and does its headline modeling doctrine hold on my data?</em> The study breaks
+that into two falsifiable research questions.</p>
+
+<ul>
+  <li><strong>RQ1 — Split identity.</strong> Does <code>prepare.py</code> plus the fixed
+  train/validation split reproduce the campaign's anchor scores <em>exactly</em>? If the
+  preprocessing or the split has drifted even slightly, every later comparison is poisoned
+  — so this is a hard gate, not a nicety. The prediction: the logistic-regression baseline
+  lands at <code>val_auc = 0.6255 ± 0.001</code>, and if it misses, we stop everything.</li>
+
+  <li><strong>RQ2 — The calibration-first doctrine.</strong> On a target that is only
+  6.4% positive, does training on the natural class balance and calibrating the
+  probabilities afterward (<code>class_weight=None</code> + isotonic regression) beat the
+  reflexive fix of re-weighting the loss (<code>class_weight="balanced"</code>)? The
+  campaign says re-weighting wins nothing on ranking and wrecks the probabilities. We test
+  that claim head-on, on this study's own anchor configuration.</li>
+</ul>
+
+<p>The metric under study is <strong>validation AUC</strong> (higher is better) — the one
+number every experiment optimizes. Everything else (Brier score, log-loss, decile lift,
+wall-clock) is recorded on the side and used to tell the fuller story. Six experiments
+later, both questions have a verdict — and the most instructive result is the one anchor
+that <em>refused</em> to reproduce on the first try.</p>

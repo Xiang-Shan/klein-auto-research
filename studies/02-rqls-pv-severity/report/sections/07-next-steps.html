@@ -1,0 +1,80 @@
+<h2>Next Steps &amp; References</h2>
+
+<p>This study's job &mdash; quantify, against a known truth, what robust quantile least
+squares costs and buys for a PV loss-severity premium under contamination and incomplete
+data &mdash; is done. The open questions for a follow-up, in priority order (from
+<code>findings.md</code> &sect;7):</p>
+
+<ol>
+  <li><strong>Model the mixture (per-peril fits) &mdash; the structural fix.</strong> Every
+  finding points here: the 23&ndash;42% underpricing at &epsilon;=0 (E6, E7) is
+  misspecification, not estimation. Fit each peril (or a lognormal mixture with a heavy hail
+  component) separately, price the layer on the mixture, and re-run the E7 grid. Prediction
+  to falsify: the &epsilon;=0 column collapses toward the 4.28% floor and the
+  "stopped-clock" cancellation disappears.</li>
+
+  <li><strong>An MLE-tc + window-QLS ensemble.</strong> Trunc-MLE won the realistic cell
+  (7.85%, E5) but is slow and less contamination-immune at high &epsilon;; window-QLS is
+  fast and bounded. A blend may dominate both across the &epsilon; grid &mdash; target the
+  best per-cell error in the decision table.</li>
+
+  <li><strong>An &epsilon;-contamination stress-test template for filings.</strong> Package
+  the E3/E7 sweep harness as a reusable exhibit: given a fitted severity model and a layer,
+  report the signed premium / VaR / TVaR error across &epsilon; &isin; {0,1,2,5,10}% and
+  flag any cancellation cell. This turns the study's method into a standard robustness
+  appendix for a rate filing.</li>
+
+  <li><strong>Acquire real PV loss-severity data.</strong> The lab is calibrated to
+  <em>illustrative</em> PV shape, not a real book. Even a modest real dataset
+  (deductible/limit-layered claims) would let the estimators be compared on genuine
+  severity &mdash; with the synthetic lab as the known-truth control for what "recovered the
+  truth" should look like.</li>
+
+  <li><strong>GLS with the full covariance on coarser grids.</strong> The diagonal plug-in
+  GLS added noise at 19 points (E2). The off-diagonal &Sigma;<sup>&minus;1</sup> is the
+  efficiency ceiling but ill-conditions on fine grids; a coarser 7&ndash;9 point grid with
+  the full covariance may finally beat OLS.</li>
+</ol>
+
+<h3>Verified references</h3>
+
+<p>Carried from the study's <code>method_card.md</code> &sect;5, each verified against the
+primary source (arXiv abstract and/or publisher) during the METHOD gate on 2026-07-10. The
+QLS estimator and the OLS/GLS quantile weighting come from Adjieteh &amp; Brazauskas 2025;
+the truncation/censoring framework from Poudyal &amp; Brazauskas 2022 and Poudyal 2021; the
+method of trimmed moments from Brazauskas, Jones &amp; Zitikis 2009.</p>
+
+<ul>
+  <li><cite>Adjieteh, M. &amp; Brazauskas, V. (2025). Quantile Least Squares: A Flexible
+  Approach for Robust Estimation and Validation of Location-Scale Families. Statistics and
+  Computing 35, Art. 106.</cite> &mdash; DOI 10.1007/s11222-025-10626-6; arXiv:2402.07837.
+  The QLS estimator, the joint asymptotic normality of sample quantiles, and the OLS/GLS
+  weighting.</li>
+
+  <li><cite>Poudyal, C. &amp; Brazauskas, V. (2022). Robust Estimation of Loss Models for
+  Truncated and Censored Severity Data. Variance 15(2).</cite> &mdash; arXiv:2202.13000.
+  The truncation / censoring / scaling framework the window fit rests on.</li>
+
+  <li><cite>Brazauskas, V., Jones, B. &amp; Zitikis, R. (2009). Robust fitting of claim
+  severity distributions and the method of trimmed moments. Journal of Statistical Planning
+  and Inference 139(6), 2028&ndash;2043.</cite> &mdash; the MTM cousin measured here.</li>
+
+  <li><cite>Poudyal, C. (2021). Robust Estimation of Loss Models for Lognormal Insurance
+  Payment Severity Data. ASTIN Bulletin 51(2).</cite> &mdash; DOI 10.1017/asb.2021.4;
+  arXiv:2103.02089. The lognormal payment-severity robustness results.</li>
+</ul>
+
+<p><strong>Honesty note (carried from the method card).</strong> No published paper applies
+QLS to photovoltaic risk &mdash; the PV bridge is this study's original construction. The
+QLS / MTM / truncated-MLE methods and their asymptotics are from the peer-reviewed
+severity-modeling literature above; grafting them onto a PV loss-severity generator (peril
+mix, hail concentration, fire GPD tail) is our own synthetic lab, built to make the
+estimators' behaviour visible against a known truth. The PV loss-concentration figures that
+motivate the peril mix are industry-reported (pv-magazine 2025) and used as
+<strong>market context only</strong> &mdash; not validated model parameters.</p>
+
+<p>Provenance for every number on this page: the study's <code>results.tsv</code>,
+<code>aux_metrics.tsv</code>, <code>sweeps/e3_breakdown.sidecar.tsv</code>,
+<code>sweeps/e7_decision.sidecar.tsv</code>, and <code>findings.md</code>. The method is
+distilled for reuse in <code>knowledge/method_cards/quantile-least-squares.md</code>, with
+this study's observed numbers as its empirical when-it-pays section.</p>

@@ -1,0 +1,123 @@
+<h2>The Journey</h2>
+
+<p>Seven experiments: <strong>7 keeps, 0 discards, 0 crashes</strong>. But do not read the
+ledger below as a leaderboard. This is a known-truth lab, and each experiment scores its
+premium error against a <em>different</em> truth cell &mdash; the single-family truth
+premium ($25,341) for E1&ndash;E3, the realistic mixture ($62,346) for E4/E5/E7, the
+tail-on mixture ($62,455) for E6. The "metric" does not climb; it answers a different
+question each time. The plot of this study is not a single ascent &mdash; it is a tour of
+the ways a severity premium goes wrong.</p>
+
+<!--LEDGER-->
+
+<h3>E1 &mdash; the gate (4.279%, keep)</h3>
+
+<p>Before anything else, the truth-recovery gate: the naive MLE on a <em>known</em>
+single-family lognormal(9.0, 1.1), n=2,000 &times; 200 reps, must come back unbiased or the
+whole lab is suspect. It did &mdash; &mu;&#770; bias +0.00037, &sigma;&#770; bias
+&minus;0.00043, both inside 2&middot;SE &mdash; and its <strong>4.279%</strong> premium
+error is not an error to fix but the <strong>Monte-Carlo floor</strong> itself: the
+irreducible n=2,000 sampling noise that every later result is measured against.</p>
+
+<h3>E2 &mdash; the price of robustness (4.459%, keep)</h3>
+
+<p>A paired 1,000-rep race on clean data set the efficiency number: the MLE floor refined
+to <strong>4.116%</strong>, and QLS-OLS landed <strong>4.459% = 1.083&times;</strong> it
+&mdash; robustness costs 8.3% more premium error when there is nothing to be robust
+against, exactly the small insurance premium the method card promised (RQ1
+<strong>confirmed</strong>, low edge of the band). Two things surprised: the diagonal
+plug-in <strong>GLS was <em>worse</em> than OLS</strong> (1.123&times;), and MTM's double
+trim was the priciest of all (1.219&times;). Compute was a non-issue &mdash; ~6 seconds per
+1,000 fits.</p>
+
+<h3>E3 &mdash; the breakdown, the money picture (49.97% reported, keep)</h3>
+
+<p>Now turn on contamination. Run as the first sanctioned sweep (20 cells &rarr; a sidecar,
+one ledger row = the pre-registered trimmed-QLS-OLS at &epsilon;=10%), E3 is the classic
+robustness exhibit. The naive MLE's premium error goes <strong>4.21 &rarr; 21.28 &rarr;
+45.47 &rarr; 136.59 &rarr; 352.19%</strong> across &epsilon; = 0,1,2,5,10% &mdash; even
+&epsilon;=1%, one bad record in a hundred, already puts it at 5&times; the floor. Trimmed
+QLS-OLS stays bounded: <strong>5.42 &rarr; 6.25 &rarr; 8.58 &rarr; 20.32 &rarr; 49.97%</strong>.
+Both pre-registered falsification points cleared at &epsilon;=5% (MLE 136.6% &gt; 50%; QLS
+20.3% / MTM 22.7% &lt; 25%): RQ2 <strong>confirmed</strong>. Note the direction &mdash; all
+estimators biased <em>up</em>: this contamination mix <strong>overcharges
+policyholders</strong>.</p>
+
+<figure>
+  <img data-fig="figures/breakdown_curve.png" alt="Two log-scale panels of premium error versus contamination epsilon; left single family with naive MLE diverging to 352 percent while trimmed estimators stay bounded; right realistic mixture where misspecification dominates at low epsilon">
+  <figcaption>Breakdown under contamination (500 MC reps/cell, log-y). <strong>Left</strong>
+  (E3, clean single family): the naive MLE diverges to 352% while trimmed estimators stay
+  bounded &mdash; the textbook robustness win. <strong>Right</strong> (E7, realistic lab):
+  the same axes tell a different story &mdash; misspecification (23&ndash;42% at
+  &epsilon;=0) dominates until contamination cancels it. The dashed line is the 4.28% MC
+  floor.</figcaption>
+</figure>
+
+<h3>E4 &mdash; the mid-arc twist: wrong parameters, nearly right layer (4.834%, keep)</h3>
+
+<p>Here the study turns. Under $5k truncation + $2M censoring, window-QLS recovered the
+truth (<strong>4.834%</strong> &asymp; the incomplete-data floor; trunc-MLE 4.680%) &mdash;
+the recovery half of RQ3, confirmed. But the <em>other</em> half of the prior &mdash;
+"naive MLE badly biased, &gt;20% premium error" &mdash; was <strong>falsified</strong>, and
+the way it failed is one of the study's crown jewels. The naive MLE's <em>parameter</em>
+bias is enormous and theory-exact (&mu;&#770; <strong>+0.596</strong>, the conditional-mean
+lift &sigma;&middot;&lambda;(&alpha;)=0.593 at &alpha;=&minus;0.439; &sigma;&#770;
+<strong>&minus;0.347</strong>, the truncated-normal variance shrink). Yet its
+<em>premium</em> error is only <strong>5.85% (signed &minus;5.2%)</strong>. The upward
+&mu; bias and the downward &sigma; bias <strong>cancel in the layer's premium map</strong>
+&mdash; the naive fit approximates the conditional law above d, and a layer with deductible
+d only pays above d. <em>Wrong parameters, nearly right layer.</em> The picture below shows
+it directly.</p>
+
+<figure>
+  <img data-fig="figures/window_qq.png" alt="Quantile-quantile plot of observed log-loss quantiles against fitted model quantiles; the window-QLS points lie on the y=x diagonal while the naive MLE points bend off it, with the truncated region below $5k shaded">
+  <figcaption>Window-QQ under truncation (E4, one rep). Empirical log-loss quantiles vs
+  each fit's quantiles; the y = x line is a perfect fit. The <strong>window-QLS</strong>
+  points lie on the diagonal (it fits the conditional law); the <strong>naive MLE</strong>
+  points bend off it, because it spends probability mass below the $5k deductible where no
+  losses were ever filed. That bend is the +0.596 / &minus;0.347 parameter bias &mdash;
+  which, remarkably, still prices the same-layer premium to within 5.2%.</figcaption>
+</figure>
+
+<h3>E5 &mdash; window &#8811; trim (18.78%, keep)</h3>
+
+<p>The realistic cell (full mixture, &epsilon;=5%, truncation + censoring) came with a 2&times;2
+ablation that <strong>overturned its own pre-registered hypothesis</strong>. "Trimming
+matters most" was wrong; the <em>window</em> is what matters. Premium errors: window-only
+<strong>8.90%</strong> &#8811; window+trim 18.78% &#8811; naive-QLS 23.74% &#8811; trim-only
+35.90%. Under a misspecified single-lognormal fit of a heavy-tailed mixture, the top
+quantiles carry <em>real</em> hail risk (&times;8, 8% of claims) &mdash; blind trimming of
+p &gt; 0.85 deletes that signal and underprices the tail. The known (d, u) window is the
+<em>principled</em> trimmer: typos land below d, gross errors above u, so the policy terms
+screen contamination without touching real mid-tail signal. The best estimators at this
+cell are the two window-corrected, <em>untrimmed</em> ones (trunc-MLE 7.85%,
+window-QLS-untrimmed 8.90%).</p>
+
+<h3>E6 &mdash; the tail prior, falsified twice (25.81%, keep)</h3>
+
+<p>Turn on the heavy GPD fire tail (&xi;=0.4 above $250k). RQ4 predicted an ignored tail
+would underprice the premium by &gt;10%. It falls on <em>both</em> sides.
+<strong>Truth-side:</strong> because the $2M limit caps the layer, the <em>entire</em> GPD
+tail is worth only <strong>+0.174%</strong> of premium &mdash; a policy limit is itself
+tail protection, and tail shape beyond the cap cannot move a capped TVaR.
+<strong>Estimation-side:</strong> fitting the tail made things <em>worse</em> &mdash;
+peaks-over-threshold estimated &xi;&#770; = <strong>0.217</strong> (vs true 0.4, 36% of
+fits clipped) because the exceedances above the threshold are mostly hail mass, not fire
+GPD. And an <strong>emergent finding</strong> that becomes the study's biggest practical
+lesson: at &epsilon;=0 <em>every</em> single-lognormal estimator underprices this mixture
+layer by 23&ndash;26% &mdash; pure misspecification bias from the un-modelled hail
+component. The dominant "tail risk" here is hail, not the GPD splice.</p>
+
+<h3>E7 &mdash; the decision table, and "stopped-clock pricing" (18.78%, keep)</h3>
+
+<p>The finale consolidated everything into a decision grid (4 estimators &times; 5
+contamination levels, 500 reps each) on the realistic lab &mdash; and reproduced E5's
+primary <em>exactly</em> (18.783886) as a free consistency check. The grid revealed the
+mechanism that ties the whole study together: at &epsilon;=0 every estimator underprices by
+23&ndash;42% (misspecification), and contamination pushes premiums up, so as &epsilon; rises
+the <strong>two errors cancel</strong>. The cells that look "accurate" are two large wrongs
+meeting in the middle &mdash; <em>stopped-clock pricing</em>. Section 5 lays the full table
+out, with the money slide.</p>
+
+<p>Total ledger wall-clock for all seven experiments: about five minutes of scipy. The
+phase budgets allowed 2.3 hours.</p>

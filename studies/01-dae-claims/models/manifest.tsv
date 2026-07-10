@@ -1,0 +1,3 @@
+experiment	path	metric	created_utc
+1	models/best_1_0.6255.pkl	0.625462	2026-07-10T06:24:43.794058+00:00
+2	models/best_2_0.6706.pkl	0.670616	2026-07-10T06:36:58.644896+00:00

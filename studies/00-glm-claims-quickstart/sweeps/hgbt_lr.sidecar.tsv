@@ -1,0 +1,6 @@
+trial	params_json	primary_metric	wall_seconds	status
+1	{"learning_rate":0.03}	0.662705	1.204	ok
+2	{"learning_rate":0.06}	0.664322	0.735	ok
+3	{"learning_rate":0.1}	0.660501	0.594	ok
+4	{"learning_rate":0.15}	0.661399	0.488	ok
+5	{"learning_rate":0.2}	0.654928	0.504	ok

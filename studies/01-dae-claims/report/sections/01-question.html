@@ -1,0 +1,49 @@
+<h2>The Question</h2>
+
+<p>Picture the moment this study exists for. You are an actuary or a pricing data
+scientist, and someone — a conference talk, a Kaggle write-up, an eager vendor — tells
+you that <strong>self-supervised representation learning</strong> is what your claims
+models are missing. The star exhibit is always the same: Porto Seguro's Safe Driver
+Prediction, an auto-insurance claims competition <em>won</em> with a denoising
+autoencoder. Your data is auto-insurance claims. Should you invest?</p>
+
+<p>Finding out alone is expensive. The method is genuinely unfamiliar territory for most
+actuarial teams: a neural net trained with no labels, a corruption scheme invented on a
+Kaggle forum, a representation you hand to a second model. Doing it credibly means a
+literature review, a correct implementation, honest baselines, and the discipline not to
+fool yourself — realistically weeks of a skilled person's time, with a real risk of an
+un-publishable "it kind of helped?" at the end. This study is that investigation run
+end-to-end under a research contract: <strong>8 pre-registered experiments, every
+prediction written down before the run, about a minute of total model wall-clock</strong>
+— and a verdict an actuary can act on.</p>
+
+<p>The decision under study: <em>does a swap-noise denoising autoencoder (DAE) pay on
+58,592 rows of weak-signal insurance claims — and if not for the headline metric, does
+it pay anywhere else?</em> Four falsifiable research questions, each with an honest
+prior stated before any model ran:</p>
+
+<ul>
+  <li><strong>RQ1 — the headline.</strong> Do frozen DAE representations, fed to
+  LightGBM, beat the ancestor campaign's tuned raw-feature GBDT
+  (<code>val_auc 0.6701</code>)? <em>Prior: no</em> — SSL pays at scale, and 58k
+  single-modal rows is not scale.</li>
+  <li><strong>RQ2 — additive value.</strong> Does concatenating the DAE representations
+  <em>with</em> the raw features lift over 0.6701? <em>Prior: ≤ +0.001</em> — trees
+  already extract the axis-aligned signal the DAE re-expresses.</li>
+  <li><strong>RQ3 — did it learn anything?</strong> Does a plain logistic regression on
+  the frozen DAE representations beat the raw-feature LR floor (0.6255)? <em>Prior:
+  yes, modestly</em> — the most likely "the DAE did something" signal.</li>
+  <li><strong>RQ4 — the second acts.</strong> The same trained DAE can also
+  <em>impute</em> missing cells (reconstruct them) and <em>flag anomalies</em>
+  (reconstruction error). Do those carry independent value even if RQ1 says no?</li>
+</ul>
+
+<p>The metric is <strong>validation AUC</strong> on a fixed, stratified 80/20 split
+(seed 42) — the identical split as the 215-experiment ancestor campaign, verified by a
+bit-exact anchor gate before anything else was allowed to run. Three campaign numbers
+serve as the reference lines throughout: the raw-LR floor <code>0.6255</code>, the tuned
+single-GBDT <code>0.6701</code>, and the cross-family soft-vote <code>0.6715</code>.</p>
+
+<p>Eight experiments later, all four questions have verdicts — and the most valuable
+result is one nobody pre-registered: the humble baseline that was supposed to be a floor
+turned out to be the ceiling.</p>

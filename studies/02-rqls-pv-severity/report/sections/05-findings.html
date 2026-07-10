@@ -1,0 +1,122 @@
+<h2>Findings &amp; Insights</h2>
+
+<p>All four research questions closed with verdicts, and all four pre-registered
+predictions were graded. The full synthesis, with every number traced to
+<code>results.tsv</code> / <code>aux_metrics.tsv</code> / the sweep sidecars, is in
+<code>findings.md</code>; here are the load-bearing conclusions.</p>
+
+<h3>The RQ scorecard</h3>
+
+<ul>
+  <li><strong>RQ1 (efficiency cost at &epsilon;=0): CONFIRMED.</strong> QLS-OLS 4.459% =
+  <strong>1.083&times;</strong> the MLE floor (rel. eff 0.846 premium / 0.805
+  &sigma;&#770;) &mdash; the small, promised insurance premium, at the low edge of the
+  85&ndash;95% band (E2).</li>
+  <li><strong>RQ2 (breakdown under contamination): CONFIRMED.</strong> At &epsilon;=5% the
+  MLE hits <strong>136.6%</strong> (&gt; 50%) while QLS 20.3% / MTM 22.7% stay bounded
+  (&lt; 25%); the MLE reaches 352% at &epsilon;=10% (E3). Contamination biases premiums
+  <em>up</em>.</li>
+  <li><strong>RQ3 (incomplete-data recovery): SPLIT.</strong> Window-QLS (4.83%) and
+  trunc-MLE (4.68%) recover the truth &mdash; but the "naive MLE &gt; 20%" prior was
+  <strong>falsified</strong>: naive premium error is only 5.85%, because a theory-exact
+  parameter bias (&mu;&#770; +0.596, &sigma;&#770; &minus;0.347) cancels in the layer map
+  (E4).</li>
+  <li><strong>RQ4 (tail propagation): FALSIFIED TWICE.</strong> The $2M cap bounds the whole
+  GPD tail to <strong>+0.174%</strong> of premium; and POT tail-awareness makes estimation
+  <em>worse</em> (&xi;&#770; 0.22 vs 0.4; +1.86 pp premium bias vs the tail-blind fit)
+  (E6).</li>
+</ul>
+
+<h3>The predictions table, graded</h3>
+
+<table>
+  <thead>
+    <tr><th>Lever</th><th>Predicted</th><th>Observed</th><th>Verdict</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>RQ1</strong> QLS vs MLE, &epsilon;=0</td><td>1.05&ndash;1.18&times; MLE (85&ndash;95% eff)</td><td>1.083&times; (rel. eff 0.846 / 0.805)</td><td><strong>HELD</strong> (low edge)</td></tr>
+    <tr><td><strong>RQ2</strong> contamination &epsilon;=5%</td><td>MLE &gt; 50%; QLS/MTM &lt; 25%</td><td>MLE 136.6%; QLS 20.3% / MTM 22.7%</td><td><strong>HELD</strong></td></tr>
+    <tr><td><strong>RQ3</strong> trunc d=$5k + cens u=$2M</td><td>naive &gt; 20%; window/trunc &lt; 5%</td><td>window 4.83% / trunc 4.68% &lt; 5%; naive only 5.85%</td><td><strong>SPLIT</strong> &mdash; recovery held, "naive &gt; 20%" falsified</td></tr>
+    <tr><td><strong>RQ4</strong> GPD fire tail &xi;=0.4</td><td>ignore tail &rarr; premium error &gt; 10%; aware recovers</td><td>tail worth +0.174%; aware +1.86 pp worse</td><td><strong>FALSIFIED TWICE</strong></td></tr>
+  </tbody>
+</table>
+
+<h3>Surprise 1 &mdash; "stopped-clock pricing": the money slide</h3>
+
+<p>The decision grid (E7) is the study's centrepiece exhibit. It reports, for each
+estimator and each contamination level, the <em>signed</em> premium bias vs a truth we know
+exactly ($62,346 layer premium): negative underprices (reserve risk), positive overcharges
+policyholders.</p>
+
+<table>
+  <thead>
+    <tr><th>Estimator (single-lognormal fit)</th><th>&epsilon;=0%</th><th>&epsilon;=1%</th><th>&epsilon;=2%</th><th>&epsilon;=5%</th><th>&epsilon;=10%</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>naive MLE (no corrections)</td><td>&minus;33.9</td><td>&minus;20.0</td><td><strong>&minus;3.5</strong></td><td>+57.5</td><td><strong>+188.9</strong></td></tr>
+    <tr><td>truncated/censored MLE</td><td>&minus;23.3</td><td>&minus;17.6</td><td>&minus;12.3</td><td><strong>+2.1</strong></td><td>+15.9</td></tr>
+    <tr><td>window-QLS, trimmed [0.15,0.85]</td><td>&minus;31.5</td><td>&minus;29.2</td><td>&minus;26.9</td><td>&minus;18.6</td><td><strong>&minus;0.6</strong></td></tr>
+    <tr><td>MTM (trim 0.10)</td><td>&minus;42.3</td><td>&minus;40.5</td><td>&minus;38.6</td><td>&minus;31.9</td><td>&minus;16.2</td></tr>
+  </tbody>
+</table>
+
+<p>Read it as <strong>two errors of opposite sign</strong>. At &epsilon;=0 every
+single-family estimator underprices by 23&ndash;42% &mdash; pure mixture-misspecification
+bias (the un-modelled hail tail), not estimation noise. Contamination pushes premiums up,
+so as &epsilon; rises the two errors cancel: the naive MLE crosses zero near &epsilon;&asymp;2%
+(&minus;3.5%) then goes catastrophically wrong (+188.9% at &epsilon;=10%); trunc-MLE
+sweet-spots at &epsilon;=5% (+2.1%); trimmed window-QLS drifts to near-exact at &epsilon;=10%
+(&minus;0.6%) <em>by cancellation, not by fit quality</em>. The caveat that must ship with
+this table into any filing: <strong>no cell reaches the 4.28% MC floor by skill &mdash;
+every low-error cell is misspecification undercharge cancelling contamination
+overcharge.</strong></p>
+
+<figure>
+  <img data-fig="figures/premium_tornado.png" alt="Horizontal tornado of signed premium bias per estimator and contamination level; naive MLE swings from minus 33.9 percent underpricing at epsilon 0 to plus 188.9 percent overcharge at epsilon 10, blue for underprice red for overcharge, with a shaded plus-minus 4.28 percent floor band">
+  <figcaption>The money slide (E7 decision grid, 500 MC reps/cell). Signed premium bias per
+  estimator &times; contamination level; <span style="color:#2a78d6"><strong>blue
+  underprices</strong></span> (reserve risk), <span style="color:#e34948"><strong>red
+  overcharges</strong></span> policyholders. The shaded band is the &plusmn;4.28% MC floor.
+  The naive MLE swings from &minus;33.9% underpricing (misspecification) to +188.9%
+  overcharge (contamination, off-scale) &mdash; the two errors that, in between, cancel to
+  a deceptive &minus;3.5%.</figcaption>
+</figure>
+
+<h3>Surprise 2 &mdash; parameter bias is not pricing bias</h3>
+
+<p>E4's naive MLE has a textbook-large, theory-exact parameter bias (RMSE &asymp; 0.60 in
+&mu;, 0.35 in &sigma;) yet prices the same-layer premium to within &minus;5.2%. The upward
+&mu; bias inflates the layer mean; the downward &sigma; bias deflates the tail; in this
+layer's premium map they nearly annihilate. The doctrine this sharpens is a warning:
+<strong>parameter RMSE is not pricing risk</strong> &mdash; a fit can be badly wrong in
+parameter space and nearly right in the premium you actually sell, and (elsewhere in the
+grid) the reverse. Always score the decision functional, never stop at the parameters.</p>
+
+<h3>Surprise 3 &mdash; the un-modelled mixture, not the estimator, is the real error</h3>
+
+<p>The severity fan makes the study's deepest lesson visual: every single-lognormal fit
+&mdash; robust or not &mdash; misses the hail shoulder, and the trimmed fits miss it worst
+(the &minus;19% to &minus;36% underpricing of E5).</p>
+
+<figure>
+  <img data-fig="figures/severity_fan.png" alt="Four panels of fitted single-lognormal log-density fans against the true mixture density; every fitted fan misses the right-hand hail shoulder of the true density, with the trimmed estimators missing it most">
+  <figcaption>Severity fan at the realistic cell (E5: mixture, &epsilon;=5%, trunc+cens;
+  10&ndash;90% fan over 100 reps). The dashed curve is the TRUE mixture, with its hail
+  shoulder to the right; every fitted single lognormal misses it, and the trimmed variants
+  (window-QLS-trimmed, MTM) miss it most &mdash; because trimming deletes exactly the
+  upper-tail hail mass that carries the risk. This is the misspecification that no choice of
+  estimator fixes; the fix is modeling the mixture.</figcaption>
+</figure>
+
+<h3>What it is worth, in actuarial terms</h3>
+
+<p>The bankable outputs are three. <strong>(1) The decision table is a filing-memo
+artifact</strong> &mdash; a ready exhibit of "how wrong is the premium, and in which
+direction," for every estimator and contamination level &mdash; provided its caveat travels
+with it (the low-error cells are luck, not skill). <strong>(2) Robustness priced in
+dollars:</strong> 1.083&times; the MLE's clean-data cost buys a 7&times; smaller error at
+&epsilon;=10% (50% vs 352%, single family) and the difference between a &minus;0.6% and a
++188.9% premium on the realistic lab &mdash; for a TVaR-loaded rate, the gap between
+fileable and blown. <strong>(3) The synthetic-lab pattern itself:</strong> with no PV loss
+data, the study still produced quantified, defensible verdicts against a known truth &mdash;
+in about five minutes of scipy.</p>
