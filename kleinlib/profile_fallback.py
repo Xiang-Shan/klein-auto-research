@@ -41,6 +41,25 @@ IMBALANCE_MINORITY_PCT = 15.0
 _YES_NO = frozenset({"Yes", "No"})
 
 
+def _is_missing_scalar(value: object) -> bool:
+    missing = pd.isna(value)
+    return bool(missing) if isinstance(missing, bool) else False
+
+
+def _safe_unique_values(s: pd.Series) -> list[object]:
+    """Return stable unique scalar/mixed values, including unhashable objects."""
+    values: list[object] = []
+    seen: set[tuple[type, str]] = set()
+    for value in s:
+        if _is_missing_scalar(value):
+            continue
+        marker = (type(value), repr(value))
+        if marker not in seen:
+            seen.add(marker)
+            values.append(value)
+    return values
+
+
 def _is_numeric_like(s: pd.Series) -> bool:
     return pd.api.types.is_numeric_dtype(s) or pd.api.types.is_bool_dtype(s)
 
@@ -51,8 +70,8 @@ def _is_floaty(s: pd.Series) -> bool:
 
 
 def _is_yes_no(s: pd.Series) -> bool:
-    vals = set(s.dropna().unique())
-    return bool(vals) and vals <= _YES_NO
+    vals = _safe_unique_values(s)
+    return bool(vals) and all(isinstance(value, str) and value in _YES_NO for value in vals)
 
 
 def _is_suspicious_numeric_as_string(s: pd.Series) -> bool:
@@ -61,16 +80,21 @@ def _is_suspicious_numeric_as_string(s: pd.Series) -> bool:
     non_null = s.dropna()
     if non_null.empty:
         return False
-    coerced = pd.to_numeric(non_null, errors="coerce")
+    try:
+        coerced = pd.to_numeric(non_null, errors="coerce")
+    except (TypeError, ValueError):
+        return False
     return bool(coerced.notna().mean() >= NUMERIC_STRING_THRESHOLD)
 
 
 def _truncate(text: str, width: int = 24) -> str:
-    return text if len(text) <= width else text[: width - 1] + "…"
+    escaped = text.replace("\\", "\\\\").replace("|", "\\|")
+    escaped = escaped.replace("\r", " ").replace("\n", " ")
+    return escaped if len(escaped) <= width else escaped[: width - 1] + "…"
 
 
 def _sample_values(s: pd.Series, n: int = 3) -> str:
-    vals = s.dropna().unique()[:n]
+    vals = _safe_unique_values(s)[:n]
     shown = ", ".join(_truncate(str(v)) for v in vals)
     return shown or "(all missing)"
 
@@ -82,6 +106,8 @@ def profile_dataframe(df: pd.DataFrame, *, target: str | None = None) -> str:
     section and target-aware modeling-implications notes (e.g. class
     imbalance).
     """
+    if target is not None and target not in df.columns:
+        raise ValueError(f"target column {target!r} is not present in the dataframe")
     n_rows, n_cols = df.shape
     lines: list[str] = ["# Data Profile", "", f"**Shape:** {n_rows} rows x {n_cols} columns", ""]
 
@@ -101,8 +127,13 @@ def profile_dataframe(df: pd.DataFrame, *, target: str | None = None) -> str:
         s = df[col]
         n_missing = int(s.isna().sum())
         missing_pct = (n_missing / n_rows * 100) if n_rows else 0.0
-        n_unique = int(s.nunique(dropna=True))
+        n_unique = len(_safe_unique_values(s))
         lines.append(f"| {col} | {s.dtype} | {missing_pct:.1f}% | {n_unique} | {_sample_values(s)} |")
+
+        # The target is described below, but it is not a candidate feature:
+        # never recommend dropping/encoding it as part of feature preparation.
+        if col == target:
+            continue
 
         if not _is_floaty(s) and n_rows > 1 and n_unique / n_rows >= ID_LIKE_RATIO:
             id_like.append((col, n_unique, n_rows))
@@ -237,7 +268,13 @@ def _main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     path = str(args.path)
-    df = pd.read_parquet(path) if path.endswith(".parquet") else pd.read_csv(path)
+    lower_path = path.lower()
+    if lower_path.endswith((".parquet", ".pq")):
+        df = pd.read_parquet(path)
+    elif lower_path.endswith((".csv", ".csv.gz")):
+        df = pd.read_csv(path)
+    else:
+        parser.error("unsupported input suffix; expected .csv, .csv.gz, .parquet, or .pq")
     print(profile_dataframe(df, target=args.target))
     return 0
 

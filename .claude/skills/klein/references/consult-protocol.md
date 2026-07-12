@@ -19,10 +19,11 @@ interrogate. The six axes, with example phrasings:
    and the target column? If none, should we build a synthetic known-truth lab instead?"
 3. **Method familiarity.** "Is the method one you know well, or one you've only read
    about? Frontier / unfamiliar methods get a full METHOD gate (intuition → math → refs)."
-4. **Metric & decision use.** "What single metric should every experiment optimize,
-   higher or lower — and how does it map to a real decision (premium, filing, triage)?"
-5. **Compute / time budget.** "Roughly how long can each experiment run, and how long the
-   whole study? (Sets per-phase budgets; the default is keep-going-until-you-stop.)"
+4. **Metric & decision use.** "For each distinct task, what primary metric should its
+   track optimize, higher or lower, what minimum delta matters, and which guardrails
+   must hold?" Never combine unrelated tasks into one global frontier.
+5. **Compute / time budget.** "What are the maximum seconds for one run, each phase's
+   total budget, and its experiment-count cap?" These are separate controls.
 6. **Deliverable form.** "Besides the always-on `findings.md` + HTML tutorial, do you
    want any study-specific docs?"
 
@@ -37,14 +38,16 @@ missing axis.
 From the answers, scaffold, then fill:
 
 ```bash
-uv run python .claude/skills/klein/scripts/new_study.py NN-slug \
+uv run --locked klein new NN-slug \
     --goal "..." --domain ... --metric ... --goal-direction higher|lower --data "..."
 ```
 
-Fill in `study.yaml`: `target`, `family`, `data.split`, the `phases` ladder with budgets,
-`research_questions` (each with an HONEST `prior`), and `predictions_to_falsify` (each a
-signed, unit-bearing `predicted_delta`). Mirror the phases, RQs, and predictions into
-`program.md`; sketch the experiment ladder in `research_plan.md`.
+Fill in `study.yaml`: `schema_version: 2`, explicit `task_type`, `method_depth`, one or
+more track metric contracts (name, direction, minimum delta, guardrails), a three-way
+train/development/test split, `max_run_seconds`, phases with independent
+`budget_seconds` and `max_experiments`, research questions with honest priors, and
+signed/unit-bearing predictions to falsify. Mirror the phases, RQs, and predictions
+into `program.md`; sketch the experiment ladder in `research_plan.md`.
 
 Rules for good drafting:
 
@@ -66,8 +69,9 @@ ask:
 > Here is the study contract. Anything to change before we start the DATA gate?
 
 WAIT for the user. Apply any changes to `study.yaml` + `program.md` immediately. Do NOT
-proceed to the DATA gate until the user explicitly acks. This ack is a Hard Rule — the
-gates hard-block modeling, and CONSULT is the first gate.
+proceed to the DATA gate until the user explicitly acks. Then record Gate 0 with
+`klein gate record consult --study <study> --acknowledged-by <actor>` so the ack and
+artifact hashes are machine-verifiable.
 
 **Relay pattern for delegated runs.** When a tool runs this stage as an isolated
 subagent (e.g. Claude Code's `klein-consultant`), that subagent cannot address the

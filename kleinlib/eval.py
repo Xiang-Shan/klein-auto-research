@@ -20,14 +20,20 @@ share that same canonical-block format via `_print_canonical_block`.
 
 Hard guard (the MPS collapse war story): on Apple Silicon, torch
 `DataLoader` + `TensorDataset` silently collapsed every prediction to a
-near-constant value — no error, no warning, just a wrecked metric. `evaluate`
-raises `RuntimeError` the instant predicted-probability std falls below
-`min_proba_std`, so that failure mode is loud instead of silent.
+near-constant value. ``evaluate`` now rejects non-finite output and detects
+true collapse from probability range and unique values, without rejecting a
+valid weak-signal model merely because its absolute standard deviation is
+below a domain-specific threshold.
 """
 
 from __future__ import annotations
 
+import csv
+import os
 import time
+import uuid
+import warnings
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +42,6 @@ import pandas as pd
 from sklearn.metrics import (
     average_precision_score,
     brier_score_loss,
-    f1_score,
     log_loss,
     mean_absolute_error,
     mean_squared_error,
@@ -48,11 +53,223 @@ from sklearn.model_selection import StratifiedKFold
 from . import schema, snapshot
 
 __all__ = [
+    "MetricSpec",
     "evaluate",
     "evaluate_regression",
     "evaluate_scalar",
     "evaluate_with_inner_cv",
+    "get_metric_spec",
 ]
+
+
+_VALID_GOALS = frozenset({"higher", "lower"})
+
+
+@dataclass(frozen=True)
+class MetricSpec:
+    """Validated identity, direction, and task for a primary metric."""
+
+    name: str
+    goal: str
+    task: str
+
+    def __post_init__(self) -> None:
+        if not self.name or any(char.isspace() for char in self.name):
+            raise ValueError("metric name must be a non-empty token without whitespace")
+        if self.goal not in _VALID_GOALS:
+            raise ValueError(
+                f"metric goal must be one of {sorted(_VALID_GOALS)}, got {self.goal!r}"
+            )
+
+    def validate_value(self, value: Any) -> float:
+        """Return ``value`` as a finite float or raise an actionable error."""
+        try:
+            result = float(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"metric {self.name!r} must be numeric, got {value!r}"
+            ) from exc
+        if not np.isfinite(result):
+            raise ValueError(
+                f"metric {self.name!r} must be finite, got {result!r}"
+            )
+        return result
+
+
+_METRIC_SPECS: dict[str, MetricSpec] = {
+    "val_auc": MetricSpec("val_auc", "higher", "classification"),
+    "val_pr_auc": MetricSpec("val_pr_auc", "higher", "classification"),
+    "val_logloss": MetricSpec("val_logloss", "lower", "classification"),
+    "val_brier": MetricSpec("val_brier", "lower", "classification"),
+    "val_lift_top10": MetricSpec("val_lift_top10", "higher", "classification"),
+    "val_f1_at_best": MetricSpec("val_f1_at_best", "higher", "classification"),
+    "val_rmse": MetricSpec("val_rmse", "lower", "regression"),
+    "val_mae": MetricSpec("val_mae", "lower", "regression"),
+    "val_r2": MetricSpec("val_r2", "higher", "regression"),
+}
+
+
+def get_metric_spec(
+    name: str,
+    *,
+    goal: str | None = None,
+    task: str | None = None,
+    allow_custom: bool = False,
+) -> MetricSpec:
+    """Resolve and validate a metric contract.
+
+    Known evaluator metrics have one canonical task and direction.  Custom
+    names are accepted only for scalar studies, where the caller already owns
+    the calculation and must state an explicit direction.
+    """
+    spec = _METRIC_SPECS.get(name)
+    if spec is None:
+        if not allow_custom:
+            known = ", ".join(sorted(_METRIC_SPECS))
+            raise ValueError(f"unknown metric {name!r}; supported metrics: {known}")
+        if goal is None:
+            raise ValueError(f"custom metric {name!r} requires metric_goal")
+        spec = MetricSpec(name=name, goal=goal, task=task or "scalar")
+    if goal is not None and goal != spec.goal:
+        raise ValueError(
+            f"metric {name!r} has canonical goal {spec.goal!r}, got {goal!r}"
+        )
+    if task is not None and spec.task != task and not allow_custom:
+        raise ValueError(
+            f"metric {name!r} belongs to task {spec.task!r}, not {task!r}"
+        )
+    return spec
+
+
+def _validate_probabilities(
+    probabilities: Any,
+    *,
+    collapse_rtol: float,
+    legacy_min_std: float | None,
+) -> tuple[np.ndarray, float, float, int]:
+    """Validate probabilities and reject only genuinely near-constant output."""
+    p = np.asarray(probabilities, dtype=float)
+    if p.ndim != 1 or p.size == 0:
+        raise ValueError(
+            f"positive-class probabilities must be a non-empty 1-D array, got {p.shape}"
+        )
+    if collapse_rtol < 0:
+        raise ValueError("collapse_rtol must be non-negative")
+    if not np.all(np.isfinite(p)):
+        bad = int(np.size(p) - np.count_nonzero(np.isfinite(p)))
+        raise ValueError(f"predicted probabilities contain {bad} non-finite value(s)")
+    if np.any((p < 0.0) | (p > 1.0)):
+        raise ValueError("predicted probabilities must lie in the closed interval [0, 1]")
+
+    proba_std = float(np.std(p))
+    proba_range = float(np.ptp(p))
+    unique_count = int(np.unique(p).size)
+    scale = max(1.0, float(np.max(np.abs(p))))
+    tolerance = max(np.finfo(float).eps * 32 * scale, collapse_rtol * scale)
+    if unique_count < 2 or proba_range <= tolerance:
+        raise RuntimeError(
+            "Collapsed predictions: positive-class probabilities are constant or "
+            f"numerically indistinguishable (range={proba_range:.6g}, "
+            f"unique_values={unique_count}, tolerance={tolerance:.6g}). This is the "
+            "MPS DataLoader+TensorDataset collapse war story; use "
+            "kleinlib.torch_loop's index-shuffle batching or inspect the fit for "
+            "degeneracy."
+        )
+    if legacy_min_std is not None:
+        if legacy_min_std < 0:
+            raise ValueError("min_proba_std must be non-negative when provided")
+        warnings.warn(
+            "min_proba_std is deprecated; the default collapse guard now uses "
+            "finite probability range and unique values",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        if proba_std < legacy_min_std:
+            raise RuntimeError(
+                f"Collapsed predictions under explicit legacy min_proba_std: "
+                f"std={proba_std:.6g} < {legacy_min_std:.6g}"
+            )
+    return p, proba_std, proba_range, unique_count
+
+
+def _classification_metric_values(
+    y_true: Any, probabilities: np.ndarray
+) -> tuple[dict[str, float], float]:
+    """Compute the supported binary metrics once, from one probability vector."""
+    y_array = np.asarray(y_true)
+    val_auc = float(roc_auc_score(y_array, probabilities))
+    val_pr_auc = float(average_precision_score(y_array, probabilities))
+    val_logloss = float(log_loss(y_array, probabilities, labels=[0, 1]))
+    val_brier = float(brier_score_loss(y_array, probabilities))
+
+    order = np.argsort(-probabilities)
+    decile_n = max(1, len(probabilities) // 10)
+    base_rate = float(y_array.mean())
+    val_lift10 = (
+        float(y_array[order[:decile_n]].mean()) / base_rate if base_rate > 0 else 0.0
+    )
+    thresholds = np.linspace(0.01, 0.99, 99)
+    predictions = probabilities[:, None] > thresholds[None, :]
+    positives = y_array.astype(bool)[:, None]
+    true_positive = np.count_nonzero(predictions & positives, axis=0)
+    false_positive = np.count_nonzero(predictions & ~positives, axis=0)
+    false_negative = np.count_nonzero(~predictions & positives, axis=0)
+    denominator = 2 * true_positive + false_positive + false_negative
+    f1s = np.divide(
+        2 * true_positive,
+        denominator,
+        out=np.zeros_like(denominator, dtype=float),
+        where=denominator != 0,
+    )
+    best_idx = int(np.argmax(f1s))
+    values = {
+        "val_auc": val_auc,
+        "val_pr_auc": val_pr_auc,
+        "val_logloss": val_logloss,
+        "val_brier": val_brier,
+        "val_lift_top10": val_lift10,
+        "val_f1_at_best": float(f1s[best_idx]),
+    }
+    for name, value in values.items():
+        _METRIC_SPECS[name].validate_value(value)
+    return values, float(thresholds[best_idx])
+
+
+def _positive_class_probabilities(model: Any, X: Any, y_true: Any) -> np.ndarray:
+    """Return P(y=1), validating the binary target and estimator class order."""
+    target = np.asarray(y_true)
+    if target.ndim != 1 or target.size == 0:
+        raise ValueError(f"binary target must be a non-empty 1-D array, got {target.shape}")
+    target_values = set(np.unique(target).tolist())
+    if target_values != {0, 1}:
+        raise ValueError(
+            "binary classification evaluate() requires target labels exactly {0, 1}; "
+            f"got {sorted(target_values, key=str)!r}"
+        )
+    raw_proba = np.asarray(model.predict_proba(X))
+    if raw_proba.ndim != 2 or raw_proba.shape[1] != 2:
+        raise ValueError(
+            "binary classification evaluate() requires predict_proba with shape (n, 2)"
+        )
+    if raw_proba.shape[0] != target.size:
+        raise ValueError(
+            f"predict_proba returned {raw_proba.shape[0]} rows for {target.size} targets"
+        )
+    classes = getattr(model, "classes_", None)
+    if classes is None:
+        return raw_proba[:, 1]
+    class_values = np.asarray(classes)
+    if class_values.ndim != 1 or class_values.size != 2:
+        raise ValueError("model.classes_ must contain exactly two labels")
+    if set(class_values.tolist()) != {0, 1}:
+        raise ValueError(
+            "model.classes_ must contain exactly {0, 1}; "
+            f"got {class_values.tolist()!r}"
+        )
+    positive = np.flatnonzero(class_values == 1)
+    if positive.size != 1:
+        raise ValueError("model.classes_ must identify class 1 exactly once")
+    return raw_proba[:, int(positive[0])]
 
 
 def _fmt_num(x: float | None, spec: str = ".6f") -> str:
@@ -106,17 +323,35 @@ def _append_aux_rows(
     """
     path = Path(study_dir) / schema.AUX_SIDECAR
     path.parent.mkdir(parents=True, exist_ok=True)
-    header = "\t".join(schema.AUX_COLUMNS)
-    kept: list[str] = []
+    kept: list[list[str]] = []
     if path.exists() and path.stat().st_size > 0:
-        prefix = f"{exp_id}\t"
-        kept = [
-            line
-            for line in path.read_text(encoding="utf-8").splitlines()
-            if line and line != header and not line.startswith(prefix)
-        ]
-    new_lines = [f"{exp_id}\t{metric}\t{value}" for metric, value in rows.items()]
-    path.write_text("\n".join([header, *kept, *new_lines]) + "\n", encoding="utf-8")
+        with path.open("r", encoding="utf-8", newline="") as stream:
+            reader = csv.reader(stream, delimiter="\t")
+            try:
+                header = next(reader)
+            except StopIteration:
+                header = []
+            if tuple(header) != schema.AUX_COLUMNS:
+                raise ValueError(f"invalid aux metrics header in {path}: {header}")
+            exp_text = str(exp_id)
+            for row in reader:
+                if len(row) != len(schema.AUX_COLUMNS):
+                    raise ValueError(f"invalid aux metrics row in {path}: {row}")
+                if row[0] != exp_text:
+                    kept.append(row)
+
+    new_rows = [[str(exp_id), str(metric), str(value)] for metric, value in rows.items()]
+    temporary = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+    try:
+        with temporary.open("w", encoding="utf-8", newline="") as stream:
+            writer = csv.writer(stream, delimiter="\t", lineterminator="\n")
+            writer.writerow(schema.AUX_COLUMNS)
+            writer.writerows([*kept, *new_rows])
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def evaluate(
@@ -133,7 +368,8 @@ def evaluate(
     metric_goal: str = "higher",
     extra: dict[str, Any] | None = None,
     status: str = "ok",
-    min_proba_std: float = 0.01,
+    min_proba_std: float | None = None,
+    collapse_rtol: float = 1e-12,
     study_dir: str | Path | None = None,
 ) -> float:
     """Binary-classification canonical eval: compute, print, guard, persist.
@@ -146,47 +382,30 @@ def evaluate(
     to `<study_dir>/aux_metrics.tsv`, and `kleinlib.snapshot.maybe_save_best`
     is called so the best-so-far model is pickled.
 
-    Raises `RuntimeError` if the predicted-probability std is below
-    `min_proba_std` — the MPS `DataLoader`/`TensorDataset` collapse war
-    story (see module docstring). Returns the ROC-AUC as a plain float.
+    ``metric_name`` selects the actual primary calculation and its registered
+    direction must agree with ``metric_goal``. Raises ``RuntimeError`` for
+    numerically collapsed probabilities. ``min_proba_std`` remains only as a
+    deprecated explicit compatibility guard. Returns the selected primary
+    metric as a plain float.
     """
-    p = np.asarray(model.predict_proba(X_va)[:, 1], dtype=float)
-
-    proba_std = float(np.std(p))
-    if proba_std < min_proba_std:
-        raise RuntimeError(
-            f"Collapsed predictions: predicted-probability std={proba_std:.6g} "
-            f"is below min_proba_std={min_proba_std}. This is the MPS "
-            "DataLoader+TensorDataset collapse war story (predictions "
-            "silently constant) — if this is a torch model, use "
-            "kleinlib.torch_loop's index-shuffle batching instead of "
-            "DataLoader/TensorDataset; otherwise look for a degenerate fit "
-            "(single-class target, saturated regularization, etc.)."
-        )
-
-    val_auc = float(roc_auc_score(y_va, p))
-    val_pr_auc = float(average_precision_score(y_va, p))
-    val_logloss = float(log_loss(y_va, p, labels=[0, 1]))
-    val_brier = float(brier_score_loss(y_va, p))
-
-    order = np.argsort(-p)
-    decile_n = max(1, len(p) // 10)
-    top_idx = order[:decile_n]
-    base_rate = float(np.asarray(y_va).mean())
-    val_lift10 = (
-        float(np.asarray(y_va)[top_idx].mean()) / base_rate if base_rate > 0 else 0.0
+    spec = get_metric_spec(metric_name, goal=metric_goal, task="classification")
+    p, proba_std, proba_range, proba_unique = _validate_probabilities(
+        _positive_class_probabilities(model, X_va, y_va),
+        collapse_rtol=collapse_rtol,
+        legacy_min_std=min_proba_std,
     )
-
-    thresholds = np.linspace(0.01, 0.99, 99)
-    f1s = [f1_score(y_va, (p > t).astype(int), zero_division=0) for t in thresholds]
-    best_idx = int(np.argmax(f1s))
-    val_best_threshold = float(thresholds[best_idx])
-    val_f1_at_best = float(f1s[best_idx])
+    metric_values, val_best_threshold = _classification_metric_values(y_va, p)
+    primary_value = spec.validate_value(metric_values[spec.name])
+    val_pr_auc = metric_values["val_pr_auc"]
+    val_logloss = metric_values["val_logloss"]
+    val_brier = metric_values["val_brier"]
+    val_lift10 = metric_values["val_lift_top10"]
+    val_f1_at_best = metric_values["val_f1_at_best"]
 
     total_seconds = time.time() - t0
 
     _print_canonical_block(
-        primary_value=val_auc,
+        primary_value=primary_value,
         metric_name=metric_name,
         metric_goal=metric_goal,
         fit_seconds=fit_seconds,
@@ -210,12 +429,14 @@ def evaluate(
         model_path = snapshot.maybe_save_best(
             model,
             exp_id=exp_id,
-            metric_value=val_auc,
+            metric_value=primary_value,
             metric_goal=metric_goal,
             study_dir=study_dir,
             primary_name=metric_name,
+            track=os.environ.get("KLEIN_TRACK", "primary"),
         )
         aux_rows: dict[str, Any] = {
+            "val_auc": metric_values["val_auc"],
             "val_pr_auc": val_pr_auc,
             "val_logloss": val_logloss,
             "val_brier": val_brier,
@@ -224,6 +445,8 @@ def evaluate(
             "val_f1_at_best": val_f1_at_best,
             "wall_seconds": total_seconds,
             "min_proba_std": proba_std,
+            "proba_range": proba_range,
+            "proba_unique_values": proba_unique,
         }
         if model_path is not None:
             aux_rows["model_path"] = model_path
@@ -231,7 +454,7 @@ def evaluate(
             aux_rows.update(extra)
         _append_aux_rows(study_dir, exp_id, aux_rows)
 
-    return val_auc
+    return primary_value
 
 
 def evaluate_regression(
@@ -257,17 +480,33 @@ def evaluate_regression(
     :func:`evaluate` — there is no `min_proba_std` guard here since there is
     no probability output to collapse.
     """
+    spec = get_metric_spec(metric_name, goal=metric_goal, task="regression")
     pred = np.asarray(model.predict(X_va), dtype=float)
     y_true = np.asarray(y_va, dtype=float)
+
+    if pred.shape != y_true.shape:
+        raise ValueError(
+            f"regression predictions shape {pred.shape} does not match target {y_true.shape}"
+        )
+    if not np.all(np.isfinite(pred)) or not np.all(np.isfinite(y_true)):
+        raise ValueError("regression predictions and targets must contain only finite values")
 
     val_rmse = float(np.sqrt(mean_squared_error(y_true, pred)))
     val_mae = float(mean_absolute_error(y_true, pred))
     val_r2 = float(r2_score(y_true, pred))
+    metric_values = {
+        "val_rmse": val_rmse,
+        "val_mae": val_mae,
+        "val_r2": val_r2,
+    }
+    for name, value in metric_values.items():
+        _METRIC_SPECS[name].validate_value(value)
+    primary_value = spec.validate_value(metric_values[spec.name])
 
     total_seconds = time.time() - t0
 
     _print_canonical_block(
-        primary_value=val_rmse,
+        primary_value=primary_value,
         metric_name=metric_name,
         metric_goal=metric_goal,
         fit_seconds=fit_seconds,
@@ -288,10 +527,11 @@ def evaluate_regression(
         model_path = snapshot.maybe_save_best(
             model,
             exp_id=exp_id,
-            metric_value=val_rmse,
+            metric_value=primary_value,
             metric_goal=metric_goal,
             study_dir=study_dir,
             primary_name=metric_name,
+            track=os.environ.get("KLEIN_TRACK", "primary"),
         )
         aux_rows: dict[str, Any] = {
             "val_rmse": val_rmse,
@@ -305,7 +545,7 @@ def evaluate_regression(
             aux_rows.update(extra)
         _append_aux_rows(study_dir, exp_id, aux_rows)
 
-    return val_rmse
+    return primary_value
 
 
 def evaluate_scalar(
@@ -329,10 +569,14 @@ def evaluate_scalar(
     no train/val split concept here; `total_seconds` is measured from `t0`
     when given, else 0.0.
     """
+    spec = get_metric_spec(
+        metric_name, goal=metric_goal, task="scalar", allow_custom=True
+    )
+    primary_value = spec.validate_value(value)
     total_seconds = 0.0 if t0 is None else time.time() - t0
 
     _print_canonical_block(
-        primary_value=float(value),
+        primary_value=primary_value,
         metric_name=metric_name,
         metric_goal=metric_goal,
         fit_seconds=None,
@@ -352,7 +596,7 @@ def evaluate_scalar(
             aux_rows.update(extra)
         _append_aux_rows(study_dir, exp_id, aux_rows)
 
-    return float(value)
+    return primary_value
 
 
 def evaluate_with_inner_cv(
@@ -365,18 +609,25 @@ def evaluate_with_inner_cv(
 ) -> tuple[float, list[float]]:
     """Inner stratified-k-fold CV on training data; returns (mean, fold_scores).
 
-    Kept from the campaign source as-is. Used for 'honest' HPO experiments
+    Used for 'honest' HPO experiments
     that need an inner CV loop without double-using the held-out validation
     split for both early-stopping and trial-selection. `model_factory` must
     be a callable returning a fresh sklearn-compatible estimator each call.
     """
+    spec = get_metric_spec(metric, task="classification")
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     scores: list[float] = []
-    for fold, (tr_idx, va_idx) in enumerate(skf.split(X, y)):
+    for _fold, (tr_idx, va_idx) in enumerate(skf.split(X, y)):
         X_tr, X_va = X.iloc[tr_idx], X.iloc[va_idx]
         y_tr, y_va = y.iloc[tr_idx], y.iloc[va_idx]
         m = model_factory()
         m.fit(X_tr, y_tr)
-        p = m.predict_proba(X_va)[:, 1]
-        scores.append(roc_auc_score(y_va, p))
-    return float(np.mean(scores)), scores
+        p, _, _, _ = _validate_probabilities(
+            _positive_class_probabilities(m, X_va, y_va),
+            collapse_rtol=1e-12,
+            legacy_min_std=None,
+        )
+        values, _ = _classification_metric_values(y_va, p)
+        scores.append(spec.validate_value(values[spec.name]))
+    mean_score = spec.validate_value(np.mean(scores))
+    return mean_score, scores

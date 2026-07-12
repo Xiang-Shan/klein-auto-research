@@ -7,6 +7,8 @@ happy and sad paths directly against the single source of truth.
 
 from __future__ import annotations
 
+import pytest
+
 from kleinlib import schema
 
 
@@ -64,3 +66,11 @@ def test_validate_row_sad_paths():
 
     problems = schema.validate_row(["1", "0.5", "keep", "zzz", "d"], n_columns=5)
     assert any("commit must be" in p for p in problems)
+
+
+@pytest.mark.parametrize("metric", ["nan", "inf", "-inf"])
+def test_validate_row_rejects_nonfinite_metrics(metric):
+    problems = schema.validate_row(
+        ["1", metric, "keep", "abc1234", "invalid metric"], n_columns=5
+    )
+    assert any("finite" in problem for problem in problems)

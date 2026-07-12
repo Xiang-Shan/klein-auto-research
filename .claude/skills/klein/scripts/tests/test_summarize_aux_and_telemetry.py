@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 RESULTS = (
     "experiment\tprimary_metric\tstatus\tcommit\tdescription\n"
     "1\t0.60\tkeep\taaaaaaa\tbaseline\n"
@@ -184,13 +186,13 @@ def test_no_study_yaml_means_no_phase_section_even_with_aux(summarize_module, tm
     assert "## Phase Telemetry" not in summary  # no study.yaml -> no crash, no section
 
 
-def test_malformed_study_yaml_degrades_gracefully(summarize_module, tmp_path):
+def test_malformed_study_yaml_fails_instead_of_guessing_direction(summarize_module, tmp_path):
     (tmp_path / "results.tsv").write_text(RESULTS, encoding="utf-8")
     (tmp_path / "aux_metrics.tsv").write_text(AUX, encoding="utf-8")
     (tmp_path / "study.yaml").write_text("phases: [this is not a list of mappings\n", encoding="utf-8")
     results_path = tmp_path / "results.tsv"
-    code = summarize_module.main([str(results_path), "--goal", "higher"])
-    assert code == 0  # never crashes on malformed study.yaml
+    with pytest.raises(ValueError, match="could not parse metric direction"):
+        summarize_module.main([str(results_path), "--goal", "higher"])
 
 
 def test_phase_table_uses_id_ranges_not_count_bounds(summarize_module, tmp_path):

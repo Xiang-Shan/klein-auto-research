@@ -77,10 +77,20 @@ try:
         sys.path.insert(0, str(_REPO_ROOT))
     from kleinlib.schema import (  # type: ignore
         AUX_COLUMNS as _K_AUX_COLUMNS,
+    )
+    from kleinlib.schema import (
         NA_METRIC as _K_NA_METRIC,
+    )
+    from kleinlib.schema import (
         NO_COMMIT as _K_NO_COMMIT,
+    )
+    from kleinlib.schema import (
         OPTIONAL_COLUMNS as _K_OPTIONAL,
+    )
+    from kleinlib.schema import (
         RESULTS_COLUMNS as _K_RESULTS_COLUMNS,
+    )
+    from kleinlib.schema import (
         VALID_STATUSES as _K_VALID_STATUSES,
     )
 except ImportError:

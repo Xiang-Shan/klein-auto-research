@@ -6,25 +6,27 @@
 > The loop invariants live in the repo `CLAUDE.md` and `.claude/skills/klein/SKILL.md`
 > Hard Rules — this file does not restate them, it applies them to THIS study.
 
-## Goal & metric contract
+## Goal & track metric contract
 
 **Goal:** {{GOAL}}
 
-**Primary metric:** `{{METRIC_NAME}}` ({{METRIC_GOAL}} is better) — the ONE number every
-experiment optimizes. Everything else (PR-AUC, brier, wall_seconds, ...) goes to
-`aux_metrics.tsv`, never into results.tsv.
+**Track:** `{{TRACK}}` · **Primary metric:** `{{METRIC_NAME}}` ({{METRIC_GOAL}} is
+better). Every distinct task has its own track frontier, minimum meaningful delta, and
+guardrails. Everything else (PR-AUC, brier, wall_seconds, ...) goes to
+`aux_metrics.tsv`, never into `results.tsv`.
 
-**Schema:** the shape of `results.tsv` and `aux_metrics.tsv` is defined ONLY in
-`kleinlib/schema.py`. This file never restates the column list — see
-`kleinlib.schema.RESULTS_COLUMNS`. `new_study.py` wrote the header from
-`kleinlib.schema.header_line()` at scaffold time; the indicative shape is
-`experiment<TAB>...` (generated from kleinlib.schema — do not hand-edit).
+**Schema:** schema-v2 `results.tsv` is a derived view of immutable
+`runs/E####/manifest.json` records. Its shape is defined in `kleinlib/schema.py`; do
+not hand-edit it. `study_state.json` and hash-chained `events.jsonl` record gates,
+fingerprints, acknowledgements, and sealed-test access.
 
 ## Data & split contract
 
-- **Source:** {{DATA_SOURCE}} — prepared by `uv run prepare.py`.
-- **Split:** see `study.yaml:data.split` — FIXED across every experiment. Never
-  resample, reshuffle, or peek at the held-out split. Comparability depends on it.
+- **Source:** {{DATA_SOURCE}} — prepared by a locked `uv run` command through the
+  exit-safe runner.
+- **Split:** see `study.yaml:data.split` — FIXED train/development/test partitions.
+  Adaptive work sees train/development only; each track gets one sealed final-test
+  access. Comparability and confirmation depend on it.
 - The DATA gate (`data_card.md`) must say **go** before the first modeling run.
 
 ## Mutable surface
@@ -40,10 +42,10 @@ experiment optimizes. Everything else (PR-AUC, brier, wall_seconds, ...) goes to
 Authoritative copy is `study.yaml:phases`. Mirror here for quick reading; STOP for user
 ack at every phase boundary.
 
-| Phase | Description | Min/Max exp | Budget |
-|---|---|---|---|
-| 0 | split-identity anchors | 1–4 | 1h |
-| … | (fill from study.yaml) | | |
+| Phase | Description | Max exp | Total budget | Per-run max |
+|---|---|---|---|---|
+| adaptive-1 | split-identity anchor + bounded adaptive work | 4 | 3600s | 600s |
+| confirmation | one sealed final-test evaluation per track | 1 | 900s | 600s |
 
 ## Research questions
 
@@ -65,14 +67,20 @@ A prediction with no verdict is an unfinished study.
 
 ## Guardrails (this study)
 
-- **Foreground runs only:** `uv run train.py 2>&1 | tee run.log`, terminal timeout =
-  phase budget in ms. A run over budget is a `crash` (timeout note), reverted.
-- **Commit-or-revert FIRST, then ONE results.tsv row.** Never the reverse; never batch.
+- **Single safe runner:** `uv run --locked klein run-one --study . --track <track>` runs one
+  unbuffered, locked subprocess, preserves its exit code, and enforces
+  `max_run_seconds`. Never pipe a training command through `tee`.
+- **Candidate commit first, then evidence transaction.** Every keep, discard, and
+  crash has a resolvable candidate commit; `results.tsv` is regenerated afterward.
 - **Status honesty:** keep / discard / crash. A crash is logged with `NA` metric, not
-  retried into oblivion. A missing row is worse than a crash row.
-- **Sweeps:** only via the escape-hatch — every trial to a sidecar TSV, ONE winner row.
-- **Phase-boundary acks:** summarize and STOP at each phase boundary.
-- **Branch:** run on `experiments/{{STUDY_ID}}`, never `main`. Merge at study end.
+  retried into oblivion. A missing manifest is an interrupted transaction: recover it.
+- **Sweeps:** only via the escape-hatch — every trial to a sidecar TSV, one winner
+  transaction / derived result.
+- **Phase-boundary acks:** summarize, STOP, and record the user acknowledgement with
+  `klein gate record phase` before continuing.
+- **Branch:** exact `experiments/{{STUDY_ID}}`; preflight rejects every other branch.
+- **Claims:** until a sealed final-test run exists, findings are exploratory. A small
+  delta without uncertainty is not “real” or “decisive.”
 
 ## Log (append-only)
 

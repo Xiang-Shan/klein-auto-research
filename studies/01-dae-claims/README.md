@@ -17,10 +17,20 @@ Full verdicts with evidence experiment IDs: `findings.md`. Teaching write-up:
 ## Running it
 
 ```bash
-uv sync --extra deep --extra gbdt   # torch + lightgbm — required for this study
-uv run prepare.py                   # bundled dataset; prints "data source: bundled"
-uv run train.py                     # current committed experiment state
+uv sync --locked --extra deep --extra gbdt  # torch + lightgbm — required here
+uv run --locked python prepare.py            # prints "data source: bundled"
+uv run --locked python bootstrap_caches.py   # rebuild ignored E3 caches + hash manifest
+uv run --locked python ../../scripts/run_with_log.py --timeout-seconds 3600 \
+  --log run.log -- uv run --locked python -u train.py
 ```
+
+The bootstrap step is required on a fresh clone because model payloads are local,
+trusted artifacts and are deliberately excluded from Git. It reconstructs the exact
+E3 recipe needed by the committed E7 state and writes
+`models/e3_cache_manifest.json` with data, lockfile, environment, and artifact hashes.
+For a cheap structural smoke check, use a separate output directory with
+`--device cpu --max-epochs 1 --limit-rows 500`; that mode does **not** claim the
+reference metric.
 
 Wall-clock is small (the whole ladder was ~minutes of compute, see
 `aux_metrics.tsv` `wall_seconds`), but note two things:

@@ -6,24 +6,18 @@ so callers can do
 ``from kleinlib import data, encoders, eval, figures, ...`` without knowing
 file layout.
 
-`torch_device`/`torch_loop` need the optional `deep` extra (`torch`).
-Importing bare `kleinlib` never requires torch: those two submodules are
-only bound into this namespace when torch is actually importable, so
-``import kleinlib`` still works with core deps only (e.g. in CI).
+Submodules are imported lazily, so lightweight helpers do not pay the
+matplotlib/sklearn/torch import cost or require unrelated optional extras.
 """
 
-from kleinlib import (
-    data,
-    encoders,
-    eval,
-    figures,
-    keep_awake,
-    profile_fallback,
-    schema,
-    snapshot,
-)
+from __future__ import annotations
+
+import importlib
+import importlib.util
+from types import ModuleType
 
 __all__ = [
+    "cli",
     "data",
     "encoders",
     "eval",
@@ -31,14 +25,28 @@ __all__ = [
     "keep_awake",
     "profile_fallback",
     "schema",
+    "scaffold",
     "snapshot",
+    "sweep",
+    "workflow",
 ]
 
-try:
-    from kleinlib import torch_device, torch_loop  # noqa: F401
-
+if importlib.util.find_spec("torch") is not None:
     __all__ += ["torch_device", "torch_loop"]
-except ImportError:
-    pass
 
-__version__ = "0.1.0"
+_LAZY_SUBMODULES = frozenset([*__all__, "runner", "torch_device", "torch_loop"])
+
+
+def __getattr__(name: str) -> ModuleType:
+    if name not in _LAZY_SUBMODULES:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    module = importlib.import_module(f".{name}", __name__)
+    globals()[name] = module
+    return module
+
+
+def __dir__() -> list[str]:
+    return sorted([*globals(), *_LAZY_SUBMODULES])
+
+
+__version__ = "0.2.0"

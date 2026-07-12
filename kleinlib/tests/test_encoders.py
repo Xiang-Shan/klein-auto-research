@@ -9,8 +9,11 @@ tested directly, no skip needed.
 
 from __future__ import annotations
 
+import joblib
+import numpy as np
 import pandas as pd
 import pytest
+from scipy import sparse
 
 from kleinlib import encoders
 
@@ -59,6 +62,100 @@ def test_build_preprocessor_target_kind():
     pre = encoders.build_preprocessor(NUMERIC_COLS, CATEGORICAL_COLS, kind="target")
     out = pre.fit_transform(df, y)
     assert out.shape[0] == len(df)
+
+
+def test_ohe_preserves_dense_v1_estimator_compatibility():
+    pre = encoders.build_preprocessor(NUMERIC_COLS, CATEGORICAL_COLS, kind="ohe")
+    transformed = pre.fit_transform(_toy_df())
+    assert isinstance(transformed, np.ndarray)
+    assert not sparse.issparse(transformed)
+
+
+def test_build_preprocessor_target_kind_supports_regression():
+    n = 30
+    df = pd.DataFrame(
+        {
+            "num1": np.linspace(0.0, 1.0, n),
+            "num2": np.arange(n),
+            "cat1": ["a", "b", "c"] * 10,
+            "cat2": ["x", "y"] * 15,
+        }
+    )
+    y = pd.Series(np.linspace(10.0, 20.0, n))
+    pre = encoders.build_preprocessor(
+        NUMERIC_COLS, CATEGORICAL_COLS, kind="target", task="regression"
+    )
+    out = pre.fit_transform(df, y)
+    assert out.shape == (n, 4)
+    assert np.isfinite(out).all()
+
+
+def test_hashing_preprocessor_is_sparse_and_joblib_serializable(tmp_path):
+    df = _toy_df()
+    pre = encoders.build_preprocessor(
+        NUMERIC_COLS,
+        CATEGORICAL_COLS,
+        kind="hashing",
+        n_hash_features=128,
+    )
+    expected = pre.fit_transform(df)
+    assert sparse.issparse(expected)
+
+    path = tmp_path / "hashing.joblib"
+    joblib.dump(pre, path)
+    restored = joblib.load(path)
+    actual = restored.transform(df)
+    assert sparse.issparse(actual)
+    assert np.array_equal(expected.toarray(), actual.toarray())
+
+
+def test_hashing_stays_sparse_with_numeric_only_input():
+    df = _toy_df()[NUMERIC_COLS]
+    pre = encoders.build_preprocessor(NUMERIC_COLS, [], kind="hashing")
+    transformed = pre.fit_transform(df)
+    assert sparse.isspmatrix_csr(transformed)
+    assert sparse.isspmatrix_csr(pre.transform(df))
+
+
+def test_native_preprocessor_preserves_categories_and_round_trips(tmp_path):
+    df = _toy_df()
+    pre = encoders.build_preprocessor(
+        NUMERIC_COLS, CATEGORICAL_COLS, kind="native"
+    )
+    expected = pre.fit_transform(df)
+    assert isinstance(expected, pd.DataFrame)
+    assert all(isinstance(expected[col].dtype, pd.CategoricalDtype) for col in CATEGORICAL_COLS)
+
+    path = tmp_path / "native.joblib"
+    joblib.dump(pre, path)
+    restored = joblib.load(path)
+    unseen = df.copy()
+    unseen.loc[0, "cat1"] = "unseen"
+    actual = restored.transform(unseen)
+    assert all(isinstance(actual[col].dtype, pd.CategoricalDtype) for col in CATEGORICAL_COLS)
+    assert pd.isna(actual.loc[0, "cat1"])
+
+
+def test_categorical_imputation_handles_mixed_values_without_sentinel_collision():
+    df = pd.DataFrame(
+        {
+            "num1": [1.0, 2.0, 3.0, 4.0],
+            "num2": [1, 2, 3, 4],
+            "cat1": [1, "1", None, "__KLEIN_MISSING__"],
+            "cat2": ["x", "x", "y", "y"],
+        }
+    )
+    ohe = encoders.build_preprocessor(
+        NUMERIC_COLS, CATEGORICAL_COLS, kind="ohe", min_frequency=None
+    )
+    transformed = ohe.fit_transform(df)
+    assert transformed.shape[0] == len(df)
+
+    native = encoders.build_preprocessor(
+        NUMERIC_COLS, CATEGORICAL_COLS, kind="native"
+    )
+    native_out = native.fit_transform(df)
+    assert native_out.loc[2, "cat1"] != native_out.loc[3, "cat1"]
 
 
 def test_build_preprocessor_frequency_kind_or_skip():

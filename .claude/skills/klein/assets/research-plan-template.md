@@ -36,8 +36,11 @@ study comes out? A study that changes no decision is not worth running.
 
 ## Metric & decision use
 
-- **Primary metric:** `{{METRIC_NAME}}` ({{METRIC_GOAL}} is better).
+- **Track primary metric:** `{{METRIC_NAME}}` ({{METRIC_GOAL}} is better), with its
+  configured minimum meaningful delta and guardrails.
 - How does this metric map to a real decision (premium, filing, capital, triage)?
+- If the study has distinct tasks, list their separate tracks; never propose a global
+  frontier across unlike metrics.
 
 ## Experiment ladder (sketch)
 
@@ -50,8 +53,9 @@ A rough ordered list — the loop ADAPTS, this is not a batch script.
 
 ## Budgets & stop rule
 
-- Per-phase budgets in `study.yaml:phases`. Stop rule: keep going until the user stops
-  or a phase max is hit.
+- `max_run_seconds`, phase `budget_seconds`, and phase `max_experiments` are separate.
+- Adaptive work uses train/development only; the selected candidate receives one
+  sealed final-test evaluation per track.
 
 ## Deliverables
 

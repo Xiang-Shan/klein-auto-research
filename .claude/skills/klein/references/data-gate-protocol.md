@@ -12,7 +12,9 @@ the source of truth; Claude Code ships it pre-wired as the `klein-data-auditor` 
 Run prep first so you profile the PREPARED artifact (the thing train.py sees):
 
 ```bash
-uv run prepare.py 2>&1 | tee run.log
+uv run --locked python ../../scripts/run_with_log.py \
+  --timeout-seconds <max-run-seconds> --log prepare.log -- \
+  uv run --locked python -u prepare.py
 ```
 
 Then profile. Prefer the global skill; fall back to the bundled profiler:
@@ -24,7 +26,7 @@ Then profile. Prefer the global skill; fall back to the bundled profiler:
   Bash. It reports dtypes, missingness, cardinality, ID-like and target-leakage flags,
   and the modeling implications.
 - **Else:** `kleinlib.profile_fallback` — the same profile from stdlib + pandas
-  (CLI: `uv run python -m kleinlib.profile_fallback <prepared.csv> --target <col>`).
+  (CLI: `uv run --locked python -m kleinlib.profile_fallback <prepared.csv> --target <col>`).
 
 Copy `assets/data-card-template.md` to the study as `data_card.md` and fill the profile
 summary table from the profiler output.
@@ -57,13 +59,24 @@ List issues most-severe first, each with a severity and a recommended action:
 Write the decision box: **GO**, **NO-GO**, or **GO-WITH-CAUTIONS**, with a rationale. Set
 the card frontmatter `status` to match.
 
-## Hard-block & the --fast-path override
+## Record the gate or an explicit override
 
 Modeling is HARD-BLOCKED until `data_card.md` says GO (or GO-WITH-CAUTIONS with the
-cautions noted) AND `method_card.md` exists. The ONLY override is an explicit, logged
-`--fast-path`:
+cautions noted), the prepared artifact exists, and DATA is recorded. After explicit
+acknowledgement:
 
-- Record it in `program.md`'s Log with a timestamp AND a reason ("fast-path: trusted
-  data_hub dataset, skipping full audit for the CI smoke study").
-- A fast-path with no logged reason is a bug. The override exists for data that is
-  already trusted — not to skip the thinking.
+```bash
+uv run --locked klein gate record data --study studies/NN-slug \
+  --acknowledged-by <actor> --note "<cautions accepted>"
+```
+
+This fingerprints the prepared artifact and gate card. If accepting a documented risk,
+use the machine-enforced override instead:
+
+```bash
+uv run --locked klein gate override data --study studies/NN-slug \
+  --acknowledged-by <actor> --reason "<specific reason>"
+```
+
+Also explain the decision in `program.md`; prose alone never unlocks a v2 run. Legacy
+v1 fast-path notes remain historical evidence but do not satisfy the v2 preflight.

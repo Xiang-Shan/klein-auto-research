@@ -24,8 +24,9 @@ Headlines (full verdicts in `findings.md`; teaching write-up in
 Pure numpy/scipy — no dataset, no extras, no credentials:
 
 ```bash
-uv run prepare.py    # writes the generator config; no external data to download
-uv run train.py      # current committed experiment state (~seconds)
+uv run --locked python prepare.py  # writes the generator config; no download
+uv run --locked python ../../scripts/run_with_log.py --timeout-seconds 600 \
+  --log run.log -- uv run --locked python -u train.py
 ```
 
 CI runs this study's E1 truth-recovery gate on every push. The whole 7-experiment

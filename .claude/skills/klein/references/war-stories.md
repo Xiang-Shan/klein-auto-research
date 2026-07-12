@@ -18,18 +18,19 @@ inspects ACTUAL values for every column — string-encoded booleans, numbers-in-
 sentinels — and prepare.py fixes encodings deterministically. See
 `data-gate-protocol.md`.
 
-## 2. The MPS prediction collapse (→ index-shuffle batching + min_proba_std)
+## 2. The MPS prediction collapse (→ streamed index-shuffle batching + diagnostics)
 
 **What happened.** A torch model on Apple MPS used the obvious `DataLoader` +
 `TensorDataset`. On MPS this silently collapsed the validation predictions to a near
 constant — every row got almost the same probability. The AUC looked plausibly mediocre,
 so it read as "the model just isn't good" rather than "the eval is broken."
 
-**The guard.** Torch loops use MPS-safe INDEX-SHUFFLE batching (shuffle indices, slice
-tensors — never a DataLoader on MPS), evaluate on CPU, and `kleinlib.eval` enforces a
-`min_proba_std` hard guard that RAISES on collapsed predictions after the first val
-batch. A collapsed run crashes loudly instead of lying quietly. See `kleinlib.torch_loop`
-and `train.py`'s build_model hint.
+**The guard.** Torch loops use MPS-safe streamed INDEX-SHUFFLE batching (shuffle
+indices, slice only the current batch onto the accelerator), evaluate from a best state
+kept on CPU, and `kleinlib.eval` rejects non-finite or near-constant prediction vectors
+from their finite range and unique-value count. This avoids a brittle absolute standard-
+deviation threshold while still making collapse loud. See `kleinlib.torch_loop` and
+`kleinlib.eval`.
 
 ## 3. The 4-vs-5-column schema drift (→ single-sourced schema)
 
@@ -78,9 +79,10 @@ runtimes, one process, no fix by ordering.
 **The guard.** Two-stage process isolation INSIDE one train.py (the launcher pattern
 SKILL.md sanctions): a torch-only child subprocess fits the net and dumps CPU-numpy
 `.pkl` caches (never imports lightgbm); the parent imports lightgbm FIRST, loads the
-caches, and runs the GBDT head (torch bound passively, never operated). Corollaries:
-`set -o pipefail` on every tee'd run and `PYTHONUNBUFFERED=1`, or a hard crash eats
-both the exit code and the log. Prove isolation preserved determinism with one
+caches, and runs the GBDT head (torch bound passively, never operated). Run the launcher
+through `klein run-one` (or `scripts/run_with_log.py` for v1): it enforces unbuffered
+output, process-group timeout, and the real child exit status without a masking tee
+pipeline. Prove isolation preserved determinism with one
 bit-exact rerun (study 01: E3 = sweep trial 2 = 0.668271). See
 `studies/01-dae-claims/train.py` (`stage_*`/`main`) for the reference implementation.
 

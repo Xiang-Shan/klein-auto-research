@@ -8,22 +8,28 @@ source of truth; Claude Code ships it pre-wired as the `klein-synthesist` worker
 
 ## Mine four sources
 
-### 1. results.tsv — the keep-chain and the discards
-- **Keep-chain deltas.** List the `status=keep` experiments in order; the metric deltas
-  between consecutive keeps are the story of what actually moved the number.
+### 1. manifests + derived results.tsv — track frontiers and all evidence
+- **Track-specific keep-chain deltas.** Partition by track before comparing metrics.
+  List each track's `status=keep` experiments in order; deltas between consecutive keeps
+  tell that track's adaptive story. Never calculate a global frontier across tasks.
 - **Discard clusters.** Group discards by theme (an encoder family, a model class, a
   regularization sweep). A cluster of discards is EVIDENCE — "we tried five imbalance
   strategies; none beat cw=None" is a finding, not a gap.
-- **Crash audit.** Read every `crash` row. Was it a bad idea or a bug that killed a good
-  idea? A crashed direction never retried is a caveat, not a verdict.
+- **Crash audit.** Read every crash manifest and `run.log`. Was it a bad idea or a bug
+  that killed a good idea? A crashed direction never retried is a caveat, not a verdict.
+- **Reconstruction audit.** Use `runs/E####/manifest.json` for exact candidate commit,
+  patch/data/split/environment fingerprints, exit status, and artifact hashes. The
+  derived TSV is an index, not the full evidence record.
+- **Confirmation status.** Separate development runs from the one sealed final-test
+  run per track. A final-test value does not become another adaptive keep.
 
 ### 2. aux_metrics.tsv — the tradeoffs
 - Rank-vs-calibration: did the best-AUC model also have the best brier/logloss, or did
   ranking and calibration trade off? For actuarial use, calibration often matters more
   than rank.
 - Wall-clock: was the best model 10× slower for +0.001? Note the cost.
-- Prediction health: check `min_proba_std` — a near-collapsed run is suspect even if its
-  headline metric looked fine.
+- Prediction health: check finite range and unique-value diagnostics — a near-collapsed
+  run is suspect even if its headline metric looked fine.
 
 ### 3. program.md — the decision history
 Read the Log. Why did the study change direction? What was decided at each phase
@@ -39,7 +45,8 @@ refuted prior is the most valuable kind of finding.
 Copy `assets/findings-template.md`. Fill, in order:
 
 - **① Research-question verdicts.** One row per RQ in study.yaml: supported / refuted /
-  inconclusive, with evidence experiment IDs and the metric delta.
+  inconclusive, with evidence experiment IDs and the metric delta. Label every verdict
+  `exploratory` (development only) or `confirmed` (its track has sealed-test evidence).
 - **② Predictions to falsify (filled).** Copy each lever from program.md; fill observed
   Δ, verdict (held / falsified), and the evidence exp IDs.
 - **③ Surprises & why.** What defied the prior — AND the mechanism you believe explains
@@ -60,4 +67,6 @@ Copy `assets/findings-template.md`. Fill, in order:
 - Contradictions with method-card priors are called out explicitly, not smoothed over.
 - Deltas are signed and unit-bearing. "Better" is not a finding; "+0.0021 val_auc (E12
   vs E7)" is.
+- Do not call a small delta real, material, or decisive without configured minimum
+  delta plus appropriate uncertainty evidence. State what remains uncertain.
 - No number appears that cannot be traced to results.tsv or aux_metrics.tsv.

@@ -5,9 +5,9 @@
 # What it does:
 #   1. Creates a TEMPORARY git worktree (own branch, own .venv) — never touches
 #      the real tree's branch or working directory.
-#   2. Scaffolds a throwaway study (studies/99-e2e) via new_study.py, writes a
-#      minimal sklearn train.py into it, and dogfoods a real 3-experiment
-#      edit -> run -> commit-or-revert -> log loop (SKILL.md Hard Rules).
+#   2. Builds an explicit throwaway v1 compatibility fixture (studies/99-e2e),
+#      writes a minimal sklearn train.py into it, and dogfoods a 3-experiment
+#      v1 edit -> run -> commit-or-revert -> log loop.
 #   3. Runs preflight / summarize_results.py / make_figures.py against that
 #      throwaway study and asserts their outputs.
 #   4. Re-checks (read-only) that the REAL committed studies/00 artifacts are
@@ -35,8 +35,12 @@ RESULT_LOG=""
 CHECK_COUNT=0
 FAIL_COUNT=0
 MAIN_COMPLETED=0
+BASE_TMP=""
+BASE_TMP_CREATED=0
 WORKTREE_DIR=""
+WORKTREE_CREATED=0
 BRANCH_NAME=""
+BRANCH_CREATED=0
 
 BEFORE_STATUS="$(git status --porcelain)"
 
@@ -63,12 +67,25 @@ check() {  # check "description" command args...  (swallows output; PASS iff exi
 }
 
 teardown_worktree() {
-  if [ -n "$WORKTREE_DIR" ] && [ -d "$WORKTREE_DIR" ]; then
-    git worktree remove --force "$WORKTREE_DIR" >/dev/null 2>&1 || rm -rf "$WORKTREE_DIR"
+  if [ "$WORKTREE_CREATED" -eq 1 ] && [ -n "$WORKTREE_DIR" ]; then
+    if ! git worktree remove --force "$WORKTREE_DIR" >/dev/null 2>&1; then
+      # The fallback is restricted to this invocation's mktemp-owned directory.
+      case "$WORKTREE_DIR" in
+        "$BASE_TMP"/*) rm -rf -- "$WORKTREE_DIR" ;;
+      esac
+    fi
+    WORKTREE_CREATED=0
   fi
   git worktree prune >/dev/null 2>&1 || true
-  if [ -n "$BRANCH_NAME" ] && git branch --list "$BRANCH_NAME" | grep -q .; then
-    git branch -D "$BRANCH_NAME" >/dev/null 2>&1 || true
+  if [ "$BRANCH_CREATED" -eq 1 ] && [ -n "$BRANCH_NAME" ]; then
+    git branch -D -- "$BRANCH_NAME" >/dev/null 2>&1 || true
+    if ! git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+      BRANCH_CREATED=0
+    fi
+  fi
+  if [ "$BASE_TMP_CREATED" -eq 1 ] && [ -n "$BASE_TMP" ]; then
+    rm -rf -- "$BASE_TMP"
+    BASE_TMP_CREATED=0
   fi
 }
 
@@ -89,32 +106,122 @@ trap cleanup_trap EXIT
 # 1. Temporary worktree
 # --------------------------------------------------------------------------
 
-BRANCH_NAME="e2e-smoke-$$"
-BASE_TMP="$(mktemp -d)"
+TMP_PARENT="${KLEIN_E2E_TMP_PARENT:-${TMPDIR:-/tmp}}"
+BASE_TMP="$(mktemp -d "$TMP_PARENT/klein-e2e.XXXXXX")"
+BASE_TMP_CREATED=1
+BRANCH_SUFFIX="${BASE_TMP##*.}"
+BRANCH_NAME="${KLEIN_E2E_BRANCH_NAME:-e2e-smoke-$BRANCH_SUFFIX}"
 WORKTREE_DIR="$BASE_TMP/klein-e2e-worktree"
 
+if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME"; then
+  echo "ERROR: refusing to reuse or delete pre-existing branch: $BRANCH_NAME" >&2
+  exit 2
+fi
+if ! git check-ref-format --branch "$BRANCH_NAME" >/dev/null 2>&1; then
+  echo "ERROR: invalid temporary branch name: $BRANCH_NAME" >&2
+  exit 2
+fi
+
 echo "=== creating worktree $WORKTREE_DIR on branch $BRANCH_NAME ==="
-git worktree add "$WORKTREE_DIR" -b "$BRANCH_NAME" >/dev/null
+git branch "$BRANCH_NAME" HEAD
+BRANCH_CREATED=1
+git worktree add "$WORKTREE_DIR" "$BRANCH_NAME" >/dev/null
+WORKTREE_CREATED=1
+
+# Test-only fast stop: exercises branch/worktree/temp ownership cleanup without
+# downloading dependencies or running the full smoke study.
+if [ "${KLEIN_E2E_TEST_STOP_AFTER_WORKTREE:-0}" = "1" ]; then
+  MAIN_COMPLETED=1
+  exit 0
+fi
+
 cd "$WORKTREE_DIR"
 
-echo "=== uv sync --extra dev (fresh .venv for the worktree) ==="
-uv sync --extra dev
+echo "=== uv sync --locked --extra dev (fresh .venv for the worktree) ==="
+uv sync --locked --extra dev
 
 # --------------------------------------------------------------------------
-# 2. Scaffold the throwaway study + a minimal train.py
+# 2. Build an explicit v1 compatibility fixture + a minimal train.py
 # --------------------------------------------------------------------------
 
-echo "=== scaffolding studies/99-e2e ==="
-uv run python .claude/skills/klein/scripts/new_study.py 99-e2e \
-  --goal "smoke-test the full Klein loop end to end (scaffold, run, log, preflight, summarize, figures)" \
-  --domain general --metric val_auc --goal-direction higher \
-  --data "synthetic:make_classification"
-
+echo "=== creating explicit v1 compatibility fixture studies/99-e2e ==="
 mkdir -p studies/99-e2e/data/prepared
 cat > studies/99-e2e/data/prepared/NOTE.txt <<'EOF'
 synthetic in-memory data (sklearn make_classification) -- no prepared file
 needed; this marker only satisfies preflight's prepared-data directory check.
 EOF
+
+cat > studies/99-e2e/study.yaml <<'EOF'
+goal: "exercise the legacy five-column study pipeline end to end"
+domain: "general"
+target: "synthetic"
+metric:
+  name: "val_auc"
+  goal: "higher"
+family: "sklearn"
+data:
+  source: "synthetic:make_classification"
+  path: "data/prepared"
+  split:
+    kind: "stratified"
+    seed: 42
+    test_size: 0.2
+    stratify: true
+phases:
+  - id: 0
+    desc: "legacy compatibility smoke"
+    min_experiments: 3
+    max_experiments: 3
+    experiments: {min: 1, max: 3}
+    budget_h: 1
+deliverables:
+  - findings.md
+  - report/index.html
+EOF
+
+cat > studies/99-e2e/research_plan.md <<'EOF'
+# E2E v1 compatibility plan
+
+Run three deterministic logistic-regression candidates on one fixed synthetic
+split, retain honest keep/discard status, and exercise the legacy helper scripts.
+EOF
+
+cat > studies/99-e2e/program.md <<'EOF'
+# E2E v1 compatibility notebook
+
+This fixture intentionally omits `schema_version`, which means v1. It verifies
+that v0.2 keeps the five-column legacy evidence path readable without rewriting it.
+EOF
+
+cat > studies/99-e2e/data_card.md <<'EOF'
+# Data card
+
+Synthetic, seeded binary classification data. Gate decision: GO for smoke testing.
+EOF
+
+cat > studies/99-e2e/method_card.md <<'EOF'
+# Method card
+
+Logistic regression is the familiar deterministic baseline for this smoke test.
+EOF
+
+cat > studies/99-e2e/prepare.py <<'PYEOF'
+"""The E2E fixture generates data in memory; preparation is an explicit no-op."""
+
+from pathlib import Path
+
+
+def main() -> None:
+    Path("data/prepared").mkdir(parents=True, exist_ok=True)
+    print("status: ok (synthetic data generated in train.py)")
+
+
+if __name__ == "__main__":
+    main()
+PYEOF
+
+printf 'experiment\tprimary_metric\tstatus\tcommit\tdescription\n' > studies/99-e2e/results.tsv
+printf 'experiment\tmetric\tvalue\n' > studies/99-e2e/aux_metrics.tsv
 
 cat > studies/99-e2e/train.py <<'PYEOF'
 """train.py -- throwaway e2e smoke-test study (99-e2e).
@@ -177,18 +284,18 @@ if __name__ == "__main__":
     main()
 PYEOF
 
-check "studies/99-e2e/train.py compiles" uv run python -m py_compile studies/99-e2e/train.py
+check "studies/99-e2e/train.py compiles" uv run --locked python -m py_compile studies/99-e2e/train.py
 
 # preflight requires a clean tree (results.tsv exempted) BEFORE the loop starts — in a
 # real study that's satisfied by committing the CONSULT/DATA/METHOD gate outputs;
-# fast-path that here with one baseline commit of the whole scaffold (data/ is
+# fast-path that here with one baseline commit of the whole fixture (data/ is
 # gitignored, so the prepared-data marker above is correctly excluded).
 git add studies/99-e2e
 git -c user.name="Klein E2E" -c user.email="klein-e2e@local" \
-  commit -q -m "scaffold studies/99-e2e (e2e smoke-test baseline)"
+  commit -q -m "fixture studies/99-e2e (legacy e2e baseline)"
 
 # --------------------------------------------------------------------------
-# 3. 3-experiment mini-loop: edit (sed) -> run -> commit-or-revert -> log row
+# 3. 3-experiment mini-loop: portable edit -> safe run -> commit/revert -> row
 # --------------------------------------------------------------------------
 
 cd studies/99-e2e
@@ -196,14 +303,33 @@ BEST_METRIC=""
 EXP_N=0
 for C_VAL in 0.1 1.0 10.0; do
   EXP_N=$((EXP_N + 1))
-  sed -i '' "s/^MODEL_C = .*/MODEL_C = ${C_VAL}/" train.py
+  uv run --locked python - "$C_VAL" <<'PYEOF'
+from pathlib import Path
+import re
+import sys
+
+path = Path("train.py")
+text = path.read_text(encoding="utf-8")
+updated, count = re.subn(
+    r"(?m)^MODEL_C = .*?$", f"MODEL_C = {sys.argv[1]}", text
+)
+if count != 1:
+    raise SystemExit(f"expected one MODEL_C assignment, found {count}")
+path.write_text(updated, encoding="utf-8")
+PYEOF
 
   echo ""
   echo "=== mini-loop experiment $EXP_N (MODEL_C=$C_VAL) ==="
-  EXP_ID="$EXP_N" MPLBACKEND=Agg uv run python train.py 2>&1 | tee run.log
+  set +e
+  EXP_ID="$EXP_N" MPLBACKEND=Agg uv run --locked python \
+    "$WORKTREE_DIR/scripts/run_with_log.py" \
+    --timeout-seconds "${KLEIN_E2E_RUN_TIMEOUT_SECONDS:-120}" \
+    --log run.log -- uv run --locked python -u train.py
+  RUN_EXIT=$?
+  set -e
 
   METRIC=$(awk '/^primary_metric:/{print $2; exit}' run.log)
-  if [ -z "$METRIC" ]; then
+  if [ "$RUN_EXIT" -ne 0 ] || [ -z "$METRIC" ]; then
     METRIC="NA"
     STATUS="crash"
   elif [ "$EXP_N" -eq 1 ]; then
@@ -254,7 +380,7 @@ git -c user.name="Klein E2E" -c user.email="klein-e2e@local" \
 
 echo ""
 echo "=== preflight --study studies/99-e2e ==="
-if MPLBACKEND=Agg uv run python .claude/skills/klein/scripts/preflight.py --study studies/99-e2e; then
+if MPLBACKEND=Agg uv run --locked python .claude/skills/klein/scripts/preflight.py --study studies/99-e2e; then
   record PASS "preflight --study studies/99-e2e: 0 fails"
 else
   record FAIL "preflight --study studies/99-e2e: reported failing checks"
@@ -262,7 +388,7 @@ fi
 
 echo ""
 echo "=== summarize_results.py studies/99-e2e/results.tsv ==="
-MPLBACKEND=Agg uv run python .claude/skills/klein/scripts/summarize_results.py studies/99-e2e/results.tsv
+MPLBACKEND=Agg uv run --locked python .claude/skills/klein/scripts/summarize_results.py studies/99-e2e/results.tsv
 check "results_summary.md produced" test -s studies/99-e2e/results_summary.md
 check "progress.svg produced" test -s studies/99-e2e/progress.svg
 if grep -q "## Aux Panels" studies/99-e2e/results_summary.md 2>/dev/null; then
@@ -273,7 +399,7 @@ fi
 
 echo ""
 echo "=== make_figures.py studies/99-e2e ==="
-MPLBACKEND=Agg uv run python .claude/skills/klein/scripts/make_figures.py studies/99-e2e
+MPLBACKEND=Agg uv run --locked python .claude/skills/klein/scripts/make_figures.py studies/99-e2e
 check "metric-trajectory PNG produced" test -s studies/99-e2e/figures/plot_metric_trajectory.png
 
 MANIFEST_ROWS=$(tail -n +2 studies/99-e2e/models/manifest.tsv 2>/dev/null | grep -c . || true)

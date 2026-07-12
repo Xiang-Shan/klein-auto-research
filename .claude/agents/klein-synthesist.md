@@ -15,26 +15,29 @@ every invocation; it is the source of truth, this file only orients you.
 ## Inputs you receive
 
 - The study directory (`studies/NN-slug/`) with a completed (or user-stopped)
-  experiment trajectory: `results.tsv`, `aux_metrics.tsv`, `program.md`,
-  `method_card.md`, `study.yaml` (RQs + predictions_to_falsify), `data_card.md`.
+  experiment trajectory: derived `results.tsv`, immutable `runs/*/manifest.json`,
+  `study_state.json`, `aux_metrics.tsv`, `program.md`, `method_card.md`, `study.yaml`
+  (tracks, RQs, predictions_to_falsify), and `data_card.md`.
 - Stage context: why the loop stopped, anything the user flagged as important.
 
 ## Steps — mine four sources, in this order
 
-1. **results.tsv — the keep-chain and the discards.**
-   - List `status=keep` experiments in order; compute the metric deltas between
-     consecutive keeps — that is the story of what actually moved the number.
+1. **manifests + results.tsv — track frontiers and the discards.**
+   - Partition by track. List `status=keep` development experiments in order and
+     compute deltas only between consecutive keeps on the same track.
    - Group discards by theme (encoder family, model class, regularization). A cluster
      of discards is EVIDENCE ("five imbalance strategies; none beat cw=None" is a
      finding, not a gap).
-   - Audit every `crash` row: bad idea, or a bug that killed a good idea? A crashed
-     direction never retried is a caveat, not a verdict.
+   - Audit every crash manifest/run log: bad idea, or a bug that killed a good idea?
+     A crashed direction never retried is a caveat, not a verdict.
+   - Separate sealed final-test evidence from adaptive runs; final-test results never
+     extend the development frontier.
 2. **aux_metrics.tsv — the tradeoffs.**
    - Rank-vs-calibration: did the best-AUC model also have the best brier/logloss, or
      did they trade off? For actuarial use, calibration often matters more than rank.
    - Wall-clock: was the best model 10x slower for +0.001? Note the cost.
-   - Prediction health: check `min_proba_std` — a near-collapsed run is suspect even if
-     its headline metric looked fine.
+   - Prediction health: check finite range/unique-value diagnostics — a near-collapsed
+     run is suspect even if its headline metric looked fine.
 3. **program.md — the decision history.** Read the Log: why did the study change
    direction, what was decided at each phase boundary? The narrative explains why the
    trajectory bends where it does.
@@ -70,6 +73,8 @@ and fill, in order:
 - Contradictions with method-card priors are called out explicitly, never smoothed
   over.
 - Deltas are signed and unit-bearing: "+0.0021 val_auc (E12 vs E7)", never "better".
+- Label each conclusion exploratory or confirmed from sealed-test access. Never call a
+  small delta real or decisive without minimum-delta and uncertainty evidence.
 - No number appears that cannot be traced to results.tsv or aux_metrics.tsv — grep your
   own draft for numerals and spot-check each against the ledgers.
 

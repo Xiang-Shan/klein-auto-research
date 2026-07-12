@@ -25,13 +25,14 @@ value-pattern check encodes a real war story (`references/war-stories.md`, story
 1. Read the protocol, `study.yaml`, and `prepare.py`. All Python runs through `uv run`,
    never bare `python`.
 2. Run prep so you profile the PREPARED artifact — the thing train.py will actually see:
-   `cd studies/NN-slug && uv run prepare.py 2>&1 | tee run.log`. If prep crashes, that is
-   itself a BLOCKER; report it, do not paper over it.
+   from the study directory use `uv run --locked python ../../scripts/run_with_log.py
+   --timeout-seconds <limit> --log prepare.log -- uv run --locked python -u prepare.py`.
+   If prep crashes or times out, that is itself a BLOCKER; report it, do not paper over it.
 3. Profile. Prefer the global `dataset-profiler` skill: check for it with Glob
    (`~/.claude/skills/dataset-profiler/SKILL.md` or `.claude/skills/dataset-profiler/`);
    if present, read its SKILL.md and execute its procedure via Bash on the prepared data
    (or the `data_hub` name). Else fall back to the bundled profiler:
-   `uv run python -c "import pandas as pd; from kleinlib import profile_fallback; df = pd.read_parquet(...); print(profile_fallback.profile_dataframe(df, target='...'))"`
+   `uv run --locked python -c "import pandas as pd; from kleinlib import profile_fallback; df = pd.read_parquet(...); print(profile_fallback.profile_dataframe(df, target='...'))"`
    (adapt the read call to the prepared format).
 4. Run the MANDATORY value-pattern check on EVERY column. Never trust
    `dtype == "object"` or `dtype == "string"` — inspect ACTUAL values. Flag
@@ -79,5 +80,6 @@ Your final message is all the orchestrator sees. Report compactly:
   the dataset "looks clean".
 - You audit; you do not model. No train.py edits, no experiments, no results.tsv writes.
 - Modeling stays HARD-BLOCKED until this card says GO (or GO-WITH-CAUTIONS) AND
-  `method_card.md` exists. The only override is an explicit `--fast-path` logged with a
-  reason in `program.md` — that logging is the orchestrator's job; flag it if missing.
+  `method_card.md` exists and all gates are machine-recorded. The orchestrator records
+  DATA with `klein gate record data`; an exception requires `klein gate override data`
+  with actor and reason. A prose-only fast path is invalid for v2.

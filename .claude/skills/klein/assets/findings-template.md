@@ -8,18 +8,19 @@ related: []
 
 # Findings — {{STUDY_ID}}
 
-> SYNTHESIZE stage output. QUALITY BAR: every claim cites experiment IDs from
-> results.tsv; no claim without evidence. Contradictions with the method-card priors
-> are called out explicitly. Protocol:
+> SYNTHESIZE stage output. QUALITY BAR: every claim cites experiment IDs from the
+> immutable run manifests / derived results; no claim without evidence. Track
+> frontiers stay separate, conclusions are labelled exploratory or confirmed, and
+> contradictions with the method-card priors are called out explicitly. Protocol:
 > `.claude/skills/klein/references/synthesis-protocol.md`.
 
 ## ① Research-question verdicts
 
 One row per RQ in `study.yaml`. The verdict MUST cite evidence experiment IDs.
 
-| RQ | Verdict | Evidence (exp IDs) | Metric delta |
-|---|---|---|---|
-| RQ1 | supported / refuted / inconclusive | E3, E6 | ... |
+| RQ | Track | Verdict | Evidence level | Evidence (exp IDs) | Metric delta + uncertainty |
+|---|---|---|---|---|---|
+| RQ1 | primary | supported / refuted / inconclusive | exploratory / confirmed | E0003, E0006 | ... |
 
 ## ② Predictions to falsify (filled)
 

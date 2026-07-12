@@ -29,15 +29,17 @@ and the coding pitfalls back to you.
    committing serious modeling effort. The shipped DAE study is the exemplar: "no
    for ranking at 58k rows, but 3.4× better than median-imputation at cell repair"
    is exactly the intelligence you want before a production bet.
-2. **A disciplined loop instead of notebook chaos.** One mutable file
-   (`train.py`), commit-or-revert per experiment, exactly one ledger row each
-   (`keep`/`discard`/`crash` — crashes are logged, not retried into oblivion),
-   fixed splits. Git *is* the config record; results stay trustworthy weeks later.
-3. **Gates against self-deception.** A GIGO ("garbage in, garbage out") data gate
-   blocks modeling until the data problems are on the table; a method gate forces
-   understanding (intuition → math → minimal implementation) before compute; a
-   consult gate turns vague goals into falsifiable research questions with priors
-   registered *before* running.
+2. **A disciplined loop instead of notebook chaos.** In v0.2 every candidate is
+   committed before it runs, including discards and crashes. An append-only event
+   log and immutable run manifest bind code, data, split, environment, metrics,
+   artifacts, and disposition; `results.tsv` is a compact derived view. Git *is*
+   the reconstructable config record, not just a list of winners.
+3. **Machine-enforced gates against self-deception.** A GIGO ("garbage in,
+   garbage out") data gate blocks modeling until the data problems are on the
+   table; a method gate forces understanding before compute; a consult gate turns
+   vague goals into falsifiable questions. Gate acknowledgements, overrides,
+   prepared-data fingerprints, exact study branches, and ledger integrity are
+   checked before a v0.2 run.
 4. **Insight mining is mandatory, not optional.** SYNTHESIZE mines the whole
    trajectory — keeps vs discards, metric trends, aux-metric tradeoffs (rank vs
    calibration), decision history — into findings a colleague can act on.
@@ -66,20 +68,47 @@ claims, Apache-2.0) is bundled in the repo.
 ```bash
 git clone https://github.com/Xiang-Shan/klein-auto-research
 cd klein-auto-research
-uv sync --extra dev                 # core deps + pytest
-uv run pytest kleinlib/tests .claude/skills/klein/scripts/tests \
-    studies/02-rqls-pv-severity/tests -q          # 113 tests
-bash scripts/verify_e2e.sh          # optional: 19-check proof of the whole pipeline
+uv sync --locked --extra dev --extra encoders
+uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests \
+    studies/02-rqls-pv-severity/tests scripts/tests -q
+uv run --no-sync klein --help
+bash scripts/verify_e2e.sh          # optional: isolated end-to-end proof
 
 cd studies/00-glm-claims-quickstart
 uv run prepare.py                   # prints "data source: bundled — …"
-uv run train.py                     # expect primary_metric: 0.664322 (±0.001 gate; CI-proven)
+uv run --locked python ../../scripts/run_with_log.py --timeout-seconds 600 \
+  --log run.log -- uv run --locked python -u train.py
+# expect primary_metric: 0.664322 (±0.001 gate; CI-proven)
 ```
 
 Heads-up on extras: `uv sync` installs exactly what you name — and *removes*
 extras you omit. Compose what a study needs: `--extra gbdt`
 (LightGBM/XGBoost/CatBoost), `--extra deep` (PyTorch — required for
-`studies/01-dae-claims`), e.g. `uv sync --extra dev --extra gbdt --extra deep`.
+`studies/01-dae-claims`), e.g.
+`uv sync --locked --extra dev --extra encoders --extra gbdt --extra deep`.
+
+## The v0.2 command line
+
+New studies default to `schema_version: 2` and are driven through the packaged
+`klein` command. Run `--help` on any command for its complete arguments.
+
+```bash
+klein new 03-my-question --metric val_auc --goal-direction higher
+klein gate record consult --study studies/03-my-question --acknowledged-by <name>
+klein gate record data --study studies/03-my-question --acknowledged-by <name>
+klein gate record method --study studies/03-my-question --acknowledged-by <name>
+klein preflight --study studies/03-my-question
+klein run-one --study studies/03-my-question --description "registered baseline"
+klein status --study studies/03-my-question
+klein recover --study studies/03-my-question
+klein finalize --study studies/03-my-question
+klein verify --study studies/03-my-question
+```
+
+`klein gate override` records an explicit reason instead of silently bypassing a
+gate. `klein run-one --final-test` permits one sealed final-test evaluation per
+track. `klein migrate --dry-run --study <legacy-study>` emits a compatibility and
+errata report without rewriting the study.
 
 ## Drive it with your agent — or none
 
@@ -99,10 +128,14 @@ New here? Reading order: this README → [`AGENTS.md`](AGENTS.md) →
 [`studies/00-glm-claims-quickstart/`](studies/00-glm-claims-quickstart/) → the
 stage protocols as you need them.
 
-## The shipped studies — three executed, worked examples
+## The shipped studies — immutable v0.1 legacy evidence
 
-Each ran the full lifecycle; ledgers, findings, and tutorials ship verbatim (see
-each study's README for provenance notes).
+The three executed studies predate the public v0.2 transaction contract. Their
+`results.tsv`, `program.md`, and `findings.md` ship verbatim as scientific
+exhibits; their private-lab commit hashes are candidly unresolved in this public
+history. Compatibility tools read them with explicit deprecation/provenance
+warnings. They are examples of the six-stage research doctrine, not examples of
+v0.2 reconstructable run manifests.
 
 | Study | Question | Headline findings |
 |---|---|---|
@@ -119,12 +152,14 @@ coding pitfalls included, works offline.
 The pitch is *your* data, so that path is first-class:
 
 1. Scaffold:
-   `uv run python .claude/skills/klein/scripts/new_study.py 03-my-question --data csv:/path/to/my.csv --metric val_auc --goal-direction higher`
+   `klein new 03-my-question --data csv:/path/to/my.csv --metric val_auc --goal-direction higher`
 2. Point `prepare.py` at your file (`kleinlib.data.load_prepared`) and keep its
    output stable; the CONSULT protocol (≤6 questions) turns your goal into
    research questions with registered predictions.
 3. Pass the DATA gate — the profiler ranks go/no-go issues before any modeling.
-4. Run the loop; SYNTHESIZE and TUTORIAL close it.
+4. Create the exact `experiments/03-my-question` branch, record the required gate
+   acknowledgements, pass `klein preflight`, then run one candidate at a time with
+   `klein run-one`; SYNTHESIZE and TUTORIAL close it.
 
 Evaluator shapes today: **binary classification, point regression, and
 scalar/simulation** (all print the same canonical block; everything non-primary
@@ -158,7 +193,7 @@ paths just work.
 | `knowledge/` | distilled research docs + method cards (the seed knowledge base) |
 | `datasets/` | bundled datasets with their own licenses/attribution |
 | `studies/` | one directory per study — the unit of research |
-| `scripts/verify_e2e.sh` | one-command local proof of the whole pipeline (19 checks) |
+| `scripts/verify_e2e.sh` | isolated, portable proof of the v1 compatibility pipeline |
 | `CLAUDE.md` | Claude Code's entry point — imports AGENTS.md |
 
 ## Lineage & citing
@@ -170,10 +205,13 @@ Klein descends from
 portable skill). Klein keeps the proven loop, drops the Docker/R baggage, and
 adds the consulting/data/method gates plus the mandatory synthesis and tutorial
 stages. The name nods to the Klein bottle: a research loop whose output feeds
-its own input. First shared alongside a CAS (Casualty Actuarial Society) seminar
-demo, August 2026.
+its own input. The public repository history begins in July 2026; the shipped
+v0.1 studies were executed in the development lab before that public history.
 
 To cite Klein, see [`CITATION.cff`](CITATION.cff). To contribute, see
-[`CONTRIBUTING.md`](CONTRIBUTING.md). MIT licensed ([LICENSE](LICENSE)); the
-bundled dataset carries its own Apache-2.0 license and attribution
+[`CONTRIBUTING.md`](CONTRIBUTING.md); report vulnerabilities via
+[`SECURITY.md`](SECURITY.md). The software is MIT licensed ([LICENSE](LICENSE));
+third-party data and lineage notices are collected in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). The bundled dataset carries
+its own Apache-2.0 license and attribution
 ([datasets/insurance-claims/DATA_LICENSE](datasets/insurance-claims/DATA_LICENSE)).

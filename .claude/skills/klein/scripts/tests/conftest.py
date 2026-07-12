@@ -15,8 +15,11 @@ import types
 from pathlib import Path
 
 import pytest
-
-from _helpers import REPO_ROOT, SCRIPTS_DIR, run_git  # noqa: F401 — shared helpers live there, not here
+from _helpers import (  # noqa: F401 — shared helpers live there, not here
+    REPO_ROOT,
+    SCRIPTS_DIR,
+    run_git,
+)
 
 
 def _load_module(name: str, filename: str) -> types.ModuleType:

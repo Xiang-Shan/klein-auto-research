@@ -25,10 +25,12 @@ finished is on disk already — the sidecar is written trial-by-trial, never buf
 from __future__ import annotations
 
 import json
+import math
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 from . import schema
 
@@ -41,6 +43,7 @@ SIDECAR_COLUMNS: tuple[str, ...] = (
     "primary_metric",
     "wall_seconds",
     "status",
+    "error",
 )
 
 _VALID_GOALS = ("higher", "lower")
@@ -83,12 +86,18 @@ class SweepSummary:
         Never an error: False when every trial crashed (sweep-rules.md rule 7 — "no
         improving trial -> the row is a discard").
         """
+        try:
+            numeric_baseline = float(baseline)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"baseline must be numeric, got {baseline!r}") from exc
+        if not math.isfinite(numeric_baseline):
+            raise ValueError(f"baseline must be finite, got {numeric_baseline!r}")
         w = self.winner
         if w is None:
             return False
         if self.metric_goal == "higher":
-            return w.primary_metric > baseline
-        return w.primary_metric < baseline
+            return w.primary_metric > numeric_baseline
+        return w.primary_metric < numeric_baseline
 
 
 class SweepRunner:
@@ -99,6 +108,7 @@ class SweepRunner:
     returns `{"primary_metric": float, "status": "ok" | "crash", ...}`; extra keys land
     on that trial's `TrialRecord.extra`, not the sidecar. Does NOT touch `results.tsv`,
     `git commit`, or `kleinlib.snapshot` — see the module docstring / sweep-rules.md.
+    Crash details are persisted in the sidecar; other extras remain in memory.
     """
 
     def __init__(
@@ -109,6 +119,8 @@ class SweepRunner:
         params_list: list[dict[str, Any]],
         *,
         metric_goal: str = "higher",
+        resume: bool = False,
+        overwrite: bool = False,
     ) -> None:
         if metric_goal not in _VALID_GOALS:
             raise ValueError(
@@ -119,6 +131,11 @@ class SweepRunner:
         self.trial_fn = trial_fn
         self.params_list = list(params_list)
         self.metric_goal = metric_goal
+        self.resume = resume
+        self.overwrite = overwrite
+        if resume and overwrite:
+            raise ValueError("resume and overwrite are mutually exclusive")
+        self._params_json = [self._serialize_params(params) for params in self.params_list]
 
     @property
     def sidecar_path(self) -> Path:
@@ -128,31 +145,134 @@ class SweepRunner:
     def run(self) -> SweepSummary:
         """Run every trial in `params_list`, in order; return the summary.
 
-        Starts the sidecar fresh (header only), then appends (open, write, close) each
-        trial's row as it finishes, so a `KeyboardInterrupt` partway through still
-        leaves every completed trial on disk (see module docstring).
+        Refuses to replace an existing sidecar unless ``overwrite=True``.
+        ``resume=True`` validates and loads the completed prefix, then continues
+        at the first missing trial.
         """
         path = self.sidecar_path
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("\t".join(SIDECAR_COLUMNS) + "\n", encoding="utf-8")
+        if path.exists():
+            if self.resume:
+                trials = self._read_existing(path)
+            elif self.overwrite:
+                path.write_text("\t".join(SIDECAR_COLUMNS) + "\n", encoding="utf-8")
+                trials = []
+            else:
+                raise FileExistsError(
+                    f"sweep sidecar already exists: {path}; pass resume=True to "
+                    "continue it or overwrite=True to replace it"
+                )
+        else:
+            path.write_text("\t".join(SIDECAR_COLUMNS) + "\n", encoding="utf-8")
+            trials = []
 
-        trials: list[TrialRecord] = []
-        for i, params in enumerate(self.params_list, start=1):
+        for i in range(len(trials) + 1, len(self.params_list) + 1):
+            params = self.params_list[i - 1]
             record = self._run_one(i, dict(params))
             trials.append(record)
             self._append_row(path, record)
         return SweepSummary(name=self.name, metric_goal=self.metric_goal, trials=trials)
+
+    @staticmethod
+    def _serialize_params(params: Any) -> str:
+        if not isinstance(params, dict):
+            raise TypeError(f"each parameter set must be a dict, got {type(params).__name__}")
+        try:
+            return json.dumps(
+                params,
+                separators=(",", ":"),
+                sort_keys=True,
+                allow_nan=False,
+            )
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"sweep parameters must be finite JSON values: {params!r}") from exc
+
+    def _read_existing(self, path: Path) -> list[TrialRecord]:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        expected_header = "\t".join(SIDECAR_COLUMNS)
+        if not lines or lines[0] != expected_header:
+            raise ValueError(
+                f"cannot resume {path}: expected header {expected_header!r}"
+            )
+        records: list[TrialRecord] = []
+        for expected_trial, line in enumerate(lines[1:], start=1):
+            fields = line.split("\t")
+            if len(fields) != len(SIDECAR_COLUMNS):
+                raise ValueError(
+                    f"cannot resume {path}: trial {expected_trial} has "
+                    f"{len(fields)} fields, expected {len(SIDECAR_COLUMNS)}"
+                )
+            row = dict(zip(SIDECAR_COLUMNS, fields, strict=True))
+            if int(row["trial"]) != expected_trial:
+                raise ValueError("cannot resume: existing trial numbers are not contiguous")
+            if expected_trial > len(self.params_list):
+                raise ValueError("cannot resume: sidecar has more trials than params_list")
+            if row["params_json"] != self._params_json[expected_trial - 1]:
+                raise ValueError(
+                    f"cannot resume: parameters changed at trial {expected_trial}"
+                )
+            status = row["status"]
+            metric = None
+            if status == "ok":
+                try:
+                    metric = float(row["primary_metric"])
+                except ValueError as exc:
+                    raise ValueError(
+                        f"cannot resume: invalid metric at trial {expected_trial}"
+                    ) from exc
+                if not math.isfinite(metric):
+                    raise ValueError(
+                        f"cannot resume: non-finite metric at trial {expected_trial}"
+                    )
+            elif status != "crash" or row["primary_metric"] != schema.NA_METRIC:
+                raise ValueError(
+                    f"cannot resume: invalid status/metric pair at trial {expected_trial}"
+                )
+            try:
+                error = json.loads(row["error"]) if row["error"] else ""
+                wall_seconds = float(row["wall_seconds"])
+            except (TypeError, ValueError, json.JSONDecodeError) as exc:
+                raise ValueError(
+                    f"cannot resume: malformed persisted fields at trial {expected_trial}"
+                ) from exc
+            if not math.isfinite(wall_seconds) or wall_seconds < 0:
+                raise ValueError(
+                    f"cannot resume: invalid wall_seconds at trial {expected_trial}"
+                )
+            records.append(
+                TrialRecord(
+                    trial=expected_trial,
+                    params=dict(self.params_list[expected_trial - 1]),
+                    primary_metric=metric,
+                    wall_seconds=wall_seconds,
+                    status=status,
+                    extra={"error": error} if error else {},
+                )
+            )
+        return records
 
     def _run_one(self, trial: int, params: dict[str, Any]) -> TrialRecord:
         """Call `trial_fn` once; a normal exception becomes a `crash` row, not a raise."""
         t0 = time.time()
         try:
             result = self.trial_fn(params)
+            if not isinstance(result, dict):
+                raise TypeError(
+                    f"trial_fn must return a dict, got {type(result).__name__}"
+                )
             status = result.get("status", "ok")
             metric = result.get("primary_metric")
             extra = {
                 k: v for k, v in result.items() if k not in ("status", "primary_metric")
             }
+            if status not in ("ok", "crash"):
+                raise ValueError(f"trial status must be 'ok' or 'crash', got {status!r}")
+            if status == "ok":
+                if metric is None:
+                    raise ValueError("status='ok' requires primary_metric")
+                metric = float(metric)
+                if not math.isfinite(metric):
+                    raise ValueError(f"primary_metric must be finite, got {metric!r}")
         except Exception as exc:
             status, metric = "crash", None
             extra = {"error": f"{type(exc).__name__}: {exc}"}
@@ -160,8 +280,6 @@ class SweepRunner:
 
         if status != "ok" or metric is None:
             status, metric = "crash", None  # NA metric pairs only with crash
-        else:
-            metric = float(metric)
         return TrialRecord(trial, params, metric, wall_seconds, status, extra)
 
     @staticmethod
@@ -171,7 +289,9 @@ class SweepRunner:
             if record.primary_metric is None
             else f"{record.primary_metric:.6f}"
         )
-        params_json = json.dumps(record.params, separators=(",", ":"), sort_keys=True)
+        params_json = SweepRunner._serialize_params(record.params)
+        error = str(record.extra.get("error", ""))
+        error_field = json.dumps(error, ensure_ascii=True) if error else ""
         line = "\t".join(
             [
                 str(record.trial),
@@ -179,6 +299,7 @@ class SweepRunner:
                 metric_field,
                 f"{record.wall_seconds:.3f}",
                 record.status,
+                error_field,
             ]
         )
         with path.open("a", encoding="utf-8") as f:

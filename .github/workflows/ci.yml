@@ -7,99 +7,252 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MPLBACKEND: Agg
+  PYTHONUNBUFFERED: "1"
+  UV_LOCKED: "1"
+
 jobs:
-  test:
+  core:
+    name: core / Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+      - name: Locked core environment
+        run: uv sync --locked --extra dev --extra encoders
+      - name: Ruff correctness checks
+        if: matrix.python-version == '3.13'
+        run: >-
+          uv run --no-sync ruff check --output-format github
+          kleinlib scripts .claude/skills/klein/scripts
+          studies/01-dae-claims/bootstrap_caches.py
+          studies/01-dae-claims/tests/test_dae.py
+      - name: Core, lifecycle, legacy compatibility, and verifier safety tests
+        run: >-
+          uv run --no-sync pytest -q
+          kleinlib/tests
+          .claude/skills/klein/scripts/tests
+          studies/02-rqls-pv-severity/tests
+          scripts/tests
+      - name: All immutable v1 studies validate with an explicit warning
+        if: matrix.python-version == '3.13'
+        shell: bash
+        run: |
+          set -euo pipefail
+          for study in \
+            studies/00-glm-claims-quickstart \
+            studies/01-dae-claims \
+            studies/02-rqls-pv-severity
+          do
+            output="$(uv run --no-sync klein verify --study "$study")"
+            printf '%s\n' "$output"
+            case "$output" in
+              *deprecated*) ;;
+              *) echo "missing explicit v1 warning for $study" >&2; exit 1 ;;
+            esac
+          done
 
-      # Reference interpreter = 3.13 everywhere: the committed .python-version pins
-      # local first-clone `uv sync`, and this input pins every later `uv` call here
-      # (temp-copy steps included). 3.13 is the interpreter the shipped study ledgers
-      # were produced under.
+  integration:
+    name: deep + GBDT integration and coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: "3.13"
+          enable-cache: true
+      - name: Locked integration environment
+        run: uv sync --locked --extra dev --extra encoders --extra gbdt --extra deep
+      - name: Engine and deep integration tests with coverage floor
+        run: >-
+          uv run --no-sync pytest -q
+          kleinlib/tests
+          .claude/skills/klein/scripts/tests
+          studies/01-dae-claims/tests
+          studies/02-rqls-pv-severity/tests
+          scripts/tests
+          --ignore=scripts/tests/test_optional_integrations.py
+          --cov=kleinlib
+          --cov-config=.coveragerc
+          --cov-report=term-missing
+          --cov-report=xml
+          --cov-fail-under=80
+      - name: GBDT smoke fits in isolated processes
+        shell: bash
+        run: |
+          # Never import Torch and GBDT runtimes in one process on macOS arm64;
+          # separate processes keep the same discipline on every CI platform.
+          uv run --no-sync pytest -q scripts/tests/test_optional_integrations.py -k lightgbm
+          uv run --no-sync pytest -q scripts/tests/test_optional_integrations.py -k xgboost
+          uv run --no-sync pytest -q scripts/tests/test_optional_integrations.py -k catboost
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          if-no-files-found: ignore
 
-      # --locked: a stale uv.lock (pyproject drifted without `uv lock`) fails loudly
-      # here instead of being silently rewritten and tripping the byte-clean gates.
-      - name: Sync core + dev deps only (no gbdt/deep extras — this job never touches torch/lightgbm/xgboost/catboost)
+  tutorial-browser:
+    name: generated tutorial / zero network
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Locked tutorial test environment
         run: uv sync --locked --extra dev
+      - name: Build a fresh tutorial and inspect Chrome's request-start netlog
+        run: >-
+          uv run --no-sync python scripts/check_generated_tutorial_network.py
+          --chrome /usr/bin/google-chrome
+          --evidence tutorial-network-evidence.json
+      - name: Upload zero-request evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tutorial-network-evidence
+          path: tutorial-network-evidence.json
+          if-no-files-found: warn
 
-      # preflight.py fails any check run on a protected branch (main/master); checkout
-      # leaves the runner on a detached HEAD, but branching explicitly removes all doubt.
-      - name: Move off main
-        run: git checkout -b ci-smoke
-
-      # One combined invocation: shared test helpers live in _helpers.py modules (never
-      # imported from conftest.py), so multiple bare conftest files coexist in one
-      # collection without clobbering each other in sys.modules.
-      - name: Unit tests (kleinlib, klein skill scripts, study 02 — excludes studies/01, which needs the torch/lightgbm extras this job doesn't install)
-        run: MPLBACKEND=Agg uv run pytest kleinlib/tests .claude/skills/klein/scripts/tests studies/02-rqls-pv-severity/tests -q
-
-      # Every step below runs against a $RUNNER_TEMP copy, never the checked-out study dir —
-      # train.py/prepare.py write aux_metrics.tsv/models/ via cwd-relative paths, and those
-      # files are committed ledgers (see kleinlib/schema.py); a sample-data run must not
-      # touch them. `uv --project` keeps the repo's synced venv while cwd stays in the copy.
-      - name: Study 00 sample dry-run (prepare --sample + train, temp copy)
+  reproduction:
+    name: documented CPU reproduction anchors
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Locked reproduction environment
+        run: uv sync --locked --extra dev --extra encoders
+      - name: Execute the Study 00 README bootstrap and committed state
+        shell: bash
         run: |
           set -euo pipefail
-          copy="$RUNNER_TEMP/ci_copy/studies/00-glm-claims-quickstart"
-          mkdir -p "$(dirname "$copy")"
-          cp -r studies/00-glm-claims-quickstart "$copy"
-          cd "$copy"
-          uv --project "$GITHUB_WORKSPACE" run python prepare.py --sample
-          uv --project "$GITHUB_WORKSPACE" run python train.py | tee "$RUNNER_TEMP/study00_train.log"
-          grep -q "^primary_metric:" "$RUNNER_TEMP/study00_train.log"  # canonical block landed; value NOT asserted (2k sample != anchor)
-
-      - name: Study 00 preflight (temp copy has the prepared data this needs)
-        run: |
-          set -euo pipefail
-          cd "$RUNNER_TEMP/ci_copy"
-          uv --project "$GITHUB_WORKSPACE" run python "$GITHUB_WORKSPACE/.claude/skills/klein/scripts/preflight.py" --study studies/00-glm-claims-quickstart
-
-      - name: Study 00 summarize (temp copy)
-        run: |
-          set -euo pipefail
-          copy="$RUNNER_TEMP/ci_copy/studies/00-glm-claims-quickstart"
-          uv --project "$GITHUB_WORKSPACE" run python "$GITHUB_WORKSPACE/.claude/skills/klein/scripts/summarize_results.py" "$copy/results.tsv"
-          test -s "$copy/results_summary.md"
-          test -s "$copy/progress.svg"
-
-      # The bundled-dataset promise, proven on every push: with no $DATA_HUB, prepare.py
-      # must resolve the repo-bundled datasets/insurance-claims copy (never a private
-      # hub), and the committed train.py (exp 6 sweep winner) must regenerate its own
-      # ledger row within the study's ±0.001 gate — ubuntu evidence that a stranger's
-      # clone reproduces the shipped numbers.
-      - name: Study 00 bundled full-data anchor (no --sample, DATA_HUB unset, ±0.001 vs ledger 0.664322)
-        run: |
-          set -euo pipefail
-          copy="$RUNNER_TEMP/ci_full/studies/00-glm-claims-quickstart"
-          mkdir -p "$(dirname "$copy")"
-          cp -r studies/00-glm-claims-quickstart "$copy"
+          copy="$RUNNER_TEMP/study00"
+          cp -R studies/00-glm-claims-quickstart "$copy"
           cd "$copy"
           unset DATA_HUB
-          uv --project "$GITHUB_WORKSPACE" run python prepare.py | tee "$RUNNER_TEMP/study00_prepare_full.log"
-          grep -q "data source: bundled" "$RUNNER_TEMP/study00_prepare_full.log"
-          uv --project "$GITHUB_WORKSPACE" run python train.py | tee "$RUNNER_TEMP/study00_train_full.log"
-          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-0.664322; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study00_train_full.log"
-
-      - name: Checked-out tree still byte-clean after the study 00 temp-copy steps
-        run: test -z "$(git status --porcelain)"
-
-      # Study 02's committed train.py is its FINAL experiment state (the exp-7
-      # reported-cell snapshot — a deterministic seeded Monte-Carlo, n=2000 × 500 reps,
-      # ~15s scipy-only). Like the study-00 anchor above, CI asserts the committed state
-      # regenerates its own ledger value on ubuntu.
-      - name: Study 02 committed-state anchor (exp-7 snapshot, deterministic MC, ±0.01 vs ledger 18.783886)
+          uv --project "$GITHUB_WORKSPACE" run --no-sync python \
+            "$GITHUB_WORKSPACE/scripts/run_with_log.py" --timeout-seconds 300 \
+            --log "$RUNNER_TEMP/study00-prepare.log" -- \
+            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py
+          grep -q "data source: bundled" "$RUNNER_TEMP/study00-prepare.log"
+          uv --project "$GITHUB_WORKSPACE" run --no-sync python \
+            "$GITHUB_WORKSPACE/scripts/run_with_log.py" --timeout-seconds 600 \
+            --log "$RUNNER_TEMP/study00-train.log" -- \
+            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py
+          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-0.664322; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study00-train.log"
+      - name: Execute the Study 02 committed-state anchor
+        shell: bash
         run: |
           set -euo pipefail
-          copy="$RUNNER_TEMP/ci_copy/studies/02-rqls-pv-severity"
-          mkdir -p "$(dirname "$copy")"
-          cp -r studies/02-rqls-pv-severity "$copy"
+          copy="$RUNNER_TEMP/study02"
+          cp -R studies/02-rqls-pv-severity "$copy"
           cd "$copy"
-          uv --project "$GITHUB_WORKSPACE" run python train.py | tee "$RUNNER_TEMP/study02_train.log"
-          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-18.783886; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.01)?0:1}' "$RUNNER_TEMP/study02_train.log"
-
-      - name: Checked-out tree still byte-clean after the study 02 temp-copy step
+          uv --project "$GITHUB_WORKSPACE" run --no-sync python \
+            "$GITHUB_WORKSPACE/scripts/run_with_log.py" --timeout-seconds 600 \
+            --log "$RUNNER_TEMP/study02-train.log" -- \
+            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py
+          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-18.783886; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.01)?0:1}' "$RUNNER_TEMP/study02-train.log"
+      - name: Checked-out legacy exhibits remain byte-clean
         run: test -z "$(git status --porcelain)"
+
+  e2e:
+    name: legacy compatibility end to end / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Verify the portable temporary-worktree lifecycle
+        run: bash scripts/verify_e2e.sh
+
+  cli-portability:
+    name: CLI smoke / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Locked CLI environment
+        run: uv sync --locked --extra dev --extra encoders
+      - name: Public command surface is importable
+        run: |
+          uv run --no-sync klein --help
+          uv run --no-sync klein new --help
+          uv run --no-sync klein gate --help
+          uv run --no-sync klein preflight --help
+          uv run --no-sync klein run-one --help
+          uv run --no-sync klein recover --help
+          uv run --no-sync klein status --help
+          uv run --no-sync klein finalize --help
+          uv run --no-sync klein migrate --help
+          uv run --no-sync klein verify --help
+
+  package:
+    name: build and clean-wheel install
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Assert the committed lock and build artifacts
+        run: |
+          uv lock --check
+          uv build --no-sources --out-dir dist
+      - name: Install the wheel without the source checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          venv="$RUNNER_TEMP/wheel-venv"
+          uv venv --python 3.13 "$venv"
+          uv pip install --python "$venv/bin/python" dist/*.whl
+          cd "$RUNNER_TEMP"
+          "$venv/bin/python" -c "import importlib.metadata as m; import kleinlib; assert m.version('klein-auto-research') == kleinlib.__version__ == '0.2.0'; print(kleinlib.__file__)"
+          "$venv/bin/klein" --help
+          "$venv/bin/klein" new 99-wheel-smoke \
+            --root "$RUNNER_TEMP/wheel-studies" \
+            --goal "clean wheel scaffold" --domain test --target y --family linear \
+            --metric val_auc --goal-direction higher --data csv:fixture.csv
+          test -s "$RUNNER_TEMP/wheel-studies/99-wheel-smoke/study_state.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*

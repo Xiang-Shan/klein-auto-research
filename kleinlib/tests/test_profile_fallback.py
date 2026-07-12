@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from kleinlib import profile_fallback
 
@@ -62,3 +63,33 @@ def test_profile_dataframe_no_flags_clean_data():
     report = profile_fallback.profile_dataframe(df)
     assert "(none)" in report
     assert "No structural red flags" in report
+
+
+def test_missing_target_is_a_loud_error():
+    with pytest.raises(ValueError, match="not present"):
+        profile_fallback.profile_dataframe(pd.DataFrame({"x": [1, 2]}), target="y")
+
+
+def test_target_is_excluded_from_feature_flags():
+    df = pd.DataFrame(
+        {"feature": [0, 1, 0, 1], "target": [f"unique-{i}" for i in range(4)]}
+    )
+    report = profile_fallback.profile_dataframe(df, target="target")
+    assert "Drop ID-like columns before modeling (target)" not in report
+
+
+def test_mixed_unhashable_samples_and_markdown_metacharacters_do_not_crash():
+    df = pd.DataFrame(
+        {
+            "mixed": pd.Series([1, "1", [1, 2], None], dtype=object),
+            "text": ["a|b", "line\nbreak", "plain", None],
+        }
+    )
+    report = profile_fallback.profile_dataframe(df)
+    assert "a\\|b" in report
+    assert "line break" in report
+
+
+def test_cli_rejects_unknown_suffix_before_reading():
+    with pytest.raises(SystemExit):
+        profile_fallback._main(["dataset.xlsx"])

@@ -7,14 +7,22 @@ data/
 __pycache__/
 *.pyc
 .pytest_cache/
+.coverage
+htmlcov/
 
 # Run artifacts
 run.log
 catboost_info/
 optuna_studies/*.db
 
-# Model payloads — manifest.tsv IS tracked; pickles are not
+# Unsafe/large model payloads — manifests are tracked; executable blobs are local
 *.pkl
+*.pickle
+*.joblib
+*.pt
+*.pth
+*.ckpt
+*.onnx
 
 # macOS
 .DS_Store

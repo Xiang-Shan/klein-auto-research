@@ -23,9 +23,11 @@ failing at module import time for callers who never use those two kinds.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
+import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
@@ -35,6 +37,160 @@ from sklearn.preprocessing import (
     StandardScaler,
     TargetEncoder,
 )
+
+
+class CategoricalTokenTransformer(BaseEstimator, TransformerMixin):
+    """Convert categorical rows to stable ``column=value`` token lists.
+
+    This top-level estimator replaces the former nested functions/lambdas so
+    hashing preprocessors survive ``joblib`` round trips.
+    """
+
+    def __init__(self, columns: list[str]) -> None:
+        self.columns = columns
+
+    def fit(self, X: Any, y: Any = None) -> CategoricalTokenTransformer:
+        values = np.asarray(X, dtype=object)
+        if values.ndim != 2 or values.shape[1] != len(self.columns):
+            raise ValueError(
+                f"expected {len(self.columns)} categorical columns, got {values.shape}"
+            )
+        self.n_features_in_ = values.shape[1]
+        return self
+
+    def transform(self, X: Any) -> list[list[str]]:
+        values = np.asarray(X, dtype=object)
+        if values.ndim != 2 or values.shape[1] != len(self.columns):
+            raise ValueError(
+                f"expected {len(self.columns)} categorical columns, got {values.shape}"
+            )
+        return [
+            [
+                f"{column}={value}"
+                for column, value in zip(self.columns, row, strict=True)
+            ]
+            for row in values
+        ]
+
+
+class SafeCategoricalImputer(BaseEstimator, TransformerMixin):
+    """Encode arbitrary scalar categories as strings with a collision-free NA token."""
+
+    _MISSING = "__KLEIN_MISSING__"
+
+    def fit(self, X: Any, y: Any = None) -> SafeCategoricalImputer:
+        values = np.asarray(X, dtype=object)
+        if values.ndim != 2:
+            raise ValueError(f"categorical input must be 2-D, got {values.shape}")
+        self.n_features_in_ = values.shape[1]
+        return self
+
+    @staticmethod
+    def _encode(value: Any) -> str:
+        missing = pd.isna(value)
+        if isinstance(missing, (bool, np.bool_)) and missing:
+            return SafeCategoricalImputer._MISSING
+        value_type = f"{type(value).__module__}.{type(value).__qualname__}"
+        return f"{value_type}:{value!r}"
+
+    def transform(self, X: Any) -> np.ndarray:
+        values = np.asarray(X, dtype=object)
+        if values.ndim != 2 or values.shape[1] != self.n_features_in_:
+            raise ValueError(
+                f"expected {self.n_features_in_} categorical columns, got {values.shape}"
+            )
+        encoded = np.empty(values.shape, dtype=object)
+        for index, value in np.ndenumerate(values):
+            encoded[index] = self._encode(value)
+        return encoded
+
+
+class NativeCategoricalPreprocessor(BaseEstimator, TransformerMixin):
+    """Impute numeric data while retaining pandas categorical dtypes."""
+
+    _MISSING = "__KLEIN_MISSING__"
+
+    def __init__(
+        self,
+        numeric_cols: list[str],
+        categorical_cols: list[str],
+        numeric_strategy: str = "standard",
+    ) -> None:
+        self.numeric_cols = numeric_cols
+        self.categorical_cols = categorical_cols
+        self.numeric_strategy = numeric_strategy
+
+    def _frame(self, X: Any) -> pd.DataFrame:
+        if isinstance(X, pd.DataFrame):
+            return X
+        columns = [*self.numeric_cols, *self.categorical_cols]
+        return pd.DataFrame(X, columns=columns)
+
+    def fit(self, X: Any, y: Any = None) -> NativeCategoricalPreprocessor:
+        frame = self._frame(X)
+        missing = [
+            column
+            for column in [*self.numeric_cols, *self.categorical_cols]
+            if column not in frame.columns
+        ]
+        if missing:
+            raise ValueError(f"missing preprocessing columns: {missing}")
+        self.numeric_pipeline_ = _numeric_pipeline(self.numeric_strategy)
+        if self.numeric_cols:
+            self.numeric_pipeline_.fit(frame[self.numeric_cols], y)
+
+        self.categories_: dict[str, list[Any]] = {}
+        self.missing_tokens_: dict[str, str] = {}
+        for column in self.categorical_cols:
+            values = frame[column].astype(object)
+            present_strings = {value for value in values.dropna() if isinstance(value, str)}
+            missing_token = self._MISSING
+            while missing_token in present_strings:
+                missing_token += "_"
+            self.missing_tokens_[column] = missing_token
+            values = values.where(values.notna(), missing_token)
+            categories = list(pd.unique(values))
+            if missing_token not in categories:
+                categories.append(missing_token)
+            self.categories_[column] = categories
+        self.feature_names_in_ = np.asarray(frame.columns, dtype=object)
+        self.n_features_in_ = frame.shape[1]
+        return self
+
+    def transform(self, X: Any) -> pd.DataFrame:
+        if not hasattr(self, "categories_"):
+            raise RuntimeError("NativeCategoricalPreprocessor must be fitted first")
+        frame = self._frame(X)
+        result = pd.DataFrame(index=frame.index)
+        if self.numeric_cols:
+            numeric = self.numeric_pipeline_.transform(frame[self.numeric_cols])
+            result[self.numeric_cols] = np.asarray(numeric)
+        for column in self.categorical_cols:
+            values = frame[column].astype(object)
+            values = values.where(values.notna(), self.missing_tokens_[column])
+            values = values.where(values.isin(self.categories_[column]), None)
+            result[column] = pd.Categorical(
+                values,
+                categories=self.categories_[column],
+            )
+        return result[[*self.numeric_cols, *self.categorical_cols]]
+
+    def get_feature_names_out(self, input_features: Any = None) -> np.ndarray:
+        return np.asarray([*self.numeric_cols, *self.categorical_cols], dtype=object)
+
+
+class SparseColumnTransformer(ColumnTransformer):
+    """A serializable ``ColumnTransformer`` that guarantees CSR output."""
+
+    def fit_transform(self, X: Any, y: Any = None, **params: Any):
+        from scipy import sparse
+
+        return sparse.csr_matrix(super().fit_transform(X, y, **params))
+
+    def transform(self, X: Any, **params: Any):
+        from scipy import sparse
+
+        return sparse.csr_matrix(super().transform(X, **params))
 
 
 def _numeric_pipeline(strategy: str = "standard") -> Pipeline:
@@ -64,8 +220,8 @@ def _numeric_pipeline(strategy: str = "standard") -> Pipeline:
     return Pipeline(steps)
 
 
-def _cat_imputer() -> SimpleImputer:
-    return SimpleImputer(strategy="most_frequent")
+def _cat_imputer() -> SafeCategoricalImputer:
+    return SafeCategoricalImputer()
 
 
 def build_preprocessor(
@@ -77,8 +233,11 @@ def build_preprocessor(
     min_frequency: int | None = 20,
     n_hash_features: int = 64,
     target_smooth: float | str = "auto",
-) -> ColumnTransformer:
+    task: Literal["classification", "regression"] = "classification",
+) -> ColumnTransformer | NativeCategoricalPreprocessor:
     """Build a `ColumnTransformer` for the given encoding strategy."""
+    if task not in ("classification", "regression"):
+        raise ValueError("task must be 'classification' or 'regression'")
     num_pipe = _numeric_pipeline(numeric_strategy)
 
     if kind == "ohe":
@@ -115,7 +274,11 @@ def build_preprocessor(
                 (
                     "encode",
                     TargetEncoder(
-                        smooth=target_smooth, target_type="binary", random_state=42
+                        smooth=target_smooth,
+                        target_type=(
+                            "binary" if task == "classification" else "continuous"
+                        ),
+                        random_state=42,
                     ),
                 ),
             ]
@@ -135,23 +298,10 @@ def build_preprocessor(
     elif kind == "hashing":
         from sklearn.feature_extraction import FeatureHasher
 
-        # FeatureHasher expects an iterable of mapping/strings per row. Use a
-        # small adapter that turns each row's categorical values into a list
-        # of "col=value" tokens.
-        from sklearn.preprocessing import FunctionTransformer
-
-        def _to_tokens(X_df: pd.DataFrame) -> list[list[str]]:
-            X_df = X_df.fillna("__NaN__")
-            cols = X_df.columns
-            return [
-                [f"{c}={v}" for c, v in zip(cols, row)] for row in X_df.values
-            ]
-
         cat_pipe = Pipeline(
             [
                 ("impute", _cat_imputer()),
-                ("to_df", FunctionTransformer(lambda X: pd.DataFrame(X))),
-                ("tokenize", FunctionTransformer(_to_tokens)),
+                ("tokenize", CategoricalTokenTransformer(categorical_cols)),
                 (
                     "hash",
                     FeatureHasher(n_features=n_hash_features, input_type="string"),
@@ -171,37 +321,22 @@ def build_preprocessor(
             [("impute", _cat_imputer()), ("encode", JamesSteinEncoder())]
         )
     elif kind == "native":
-        # Passthrough — caller is expected to convert these columns to
-        # pandas `category` dtype and pass them through to LightGBM /
-        # CatBoost native categorical handling.
-        from sklearn.preprocessing import FunctionTransformer
-
-        def _to_category(X: pd.DataFrame) -> pd.DataFrame:
-            X = X.copy()
-            for col in X.columns:
-                X[col] = X[col].astype("category")
-            return X
-
-        cat_pipe = Pipeline(
-            [
-                ("impute", _cat_imputer()),
-                (
-                    "to_df",
-                    FunctionTransformer(
-                        lambda X: pd.DataFrame(X, columns=categorical_cols)
-                    ),
-                ),
-                ("to_category", FunctionTransformer(_to_category)),
-            ]
+        return NativeCategoricalPreprocessor(
+            numeric_cols=numeric_cols,
+            categorical_cols=categorical_cols,
+            numeric_strategy=numeric_strategy,
         )
     else:
         raise ValueError(f"unknown encoder kind: {kind}")
 
-    return ColumnTransformer(
+    transformer_type = SparseColumnTransformer if kind == "hashing" else ColumnTransformer
+    return transformer_type(
         transformers=[
             ("num", num_pipe, numeric_cols),
             ("cat", cat_pipe, categorical_cols),
         ],
         remainder="drop",
-        sparse_threshold=0.3 if kind == "ohe" else 0.0,
+        # Preserve v1's dense OHE contract for estimators such as sklearn HGBT;
+        # only hashing has a v0.2 guarantee of sparse output.
+        sparse_threshold=1.0 if kind == "hashing" else 0.0,
     )

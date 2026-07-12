@@ -28,13 +28,22 @@ choice (thin, explicit train.py diffs), not an oversight.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterator
+from collections.abc import Callable, Iterator
+from typing import Any
 
 import numpy as np
 import torch
 import torch.nn as nn
 
 RANDOM_SEED_DEFAULT = 42
+
+
+def _cpu_state_dict(model: nn.Module) -> dict[str, torch.Tensor]:
+    """Clone a model state onto CPU so early stopping does not pin accelerator RAM."""
+    return {
+        key: value.detach().to(device="cpu", copy=True)
+        for key, value in model.state_dict().items()
+    }
 
 
 def iterate_minibatches(
@@ -89,20 +98,32 @@ def fit(
     this module's `iterate_minibatches` plus `predict`, the way
     `ftt_runner.py` drives FT-Transformer's.
 
-    Mutates `model`'s weights in place (restoring the best-training-loss
-    epoch's weights on early stop) and returns a small history dict:
-    `{"train_loss": [...], "best_epoch": int, "epochs_run": int}`.
+    ``loss_fn`` should use mean reduction: epoch loss is weighted by actual
+    batch row count, including a smaller final batch. Mutates `model`'s weights
+    in place (restoring the CPU-copied best-training-loss state on early stop)
+    and returns a small history dict with losses, best epoch/loss, and epochs run.
     """
     torch.manual_seed(seed)
     np.random.seed(seed)
     if device.type == "mps":
         torch.mps.manual_seed(seed)
 
+    X_array = np.asarray(X)
+    y_array = np.asarray(y)
+    if X_array.shape[0] != y_array.shape[0]:
+        raise ValueError(f"X and y have different lengths: {len(X_array)} != {len(y_array)}")
+    if X_array.shape[0] == 0:
+        raise ValueError("cannot fit on an empty dataset")
+    if epochs <= 0 or batch_size <= 0:
+        raise ValueError("epochs and batch_size must be positive")
+
     model.to(device)
     optim = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
 
-    Xt = torch.as_tensor(np.asarray(X), dtype=torch.float32, device=device)
-    yt = torch.as_tensor(np.asarray(y), dtype=torch.float32, device=device)
+    # Keep the full dataset on CPU and transfer only the active batch.  This
+    # bounds accelerator memory while retaining the MPS-safe index-shuffle loop.
+    Xt = torch.as_tensor(X_array, dtype=torch.float32, device="cpu")
+    yt = torch.as_tensor(y_array, dtype=torch.float32, device="cpu")
     n = Xt.shape[0]
     rng = np.random.default_rng(seed)
 
@@ -114,24 +135,33 @@ def fit(
 
     for epoch in range(epochs):
         model.train()
-        epoch_losses = []
+        weighted_loss = 0.0
+        seen_rows = 0
         for batch_idx in iterate_minibatches(
             n, batch_size, shuffle=True, generator=rng
         ):
-            b = torch.as_tensor(batch_idx, device=device)
-            optim.zero_grad()
-            out = model(Xt[b])
-            loss = loss_fn(out, yt[b])
+            b = torch.as_tensor(batch_idx, dtype=torch.long, device="cpu")
+            X_batch = Xt.index_select(0, b).to(device)
+            y_batch = yt.index_select(0, b).to(device)
+            optim.zero_grad(set_to_none=True)
+            out = model(X_batch)
+            loss = loss_fn(out, y_batch)
+            if loss.ndim != 0:
+                raise ValueError("loss_fn must return a scalar tensor")
+            if not torch.isfinite(loss):
+                raise ValueError("loss_fn returned a non-finite value")
             loss.backward()
             optim.step()
-            epoch_losses.append(float(loss.detach().cpu()))
+            rows = len(batch_idx)
+            weighted_loss += float(loss.detach().cpu()) * rows
+            seen_rows += rows
 
-        mean_loss = float(np.mean(epoch_losses))
+        mean_loss = weighted_loss / seen_rows
         train_losses.append(mean_loss)
 
         if mean_loss < best_loss - 1e-6:
             best_loss = mean_loss
-            best_state = {k: v.detach().clone() for k, v in model.state_dict().items()}
+            best_state = _cpu_state_dict(model)
             best_epoch = epoch
             bad_epochs = 0
         else:
@@ -148,6 +178,7 @@ def fit(
     return {
         "train_loss": train_losses,
         "best_epoch": best_epoch,
+        "best_loss": best_loss,
         "epochs_run": len(train_losses),
     }
 
@@ -166,14 +197,19 @@ def predict(
     downstream (e.g. handing a Tensor to an sklearn metric). This detaches to
     CPU numpy before returning, every time.
     """
+    X_array = np.asarray(X)
+    if X_array.shape[0] == 0:
+        raise ValueError("cannot predict an empty dataset")
+    if batch_size <= 0:
+        raise ValueError("batch_size must be positive")
     model.to(device)
     model.eval()
-    Xt = torch.as_tensor(np.asarray(X), dtype=torch.float32, device=device)
+    Xt = torch.as_tensor(X_array, dtype=torch.float32, device="cpu")
     n = Xt.shape[0]
     outputs = []
     with torch.no_grad():
         for batch_idx in iterate_minibatches(n, batch_size, shuffle=False, generator=None):
-            b = torch.as_tensor(batch_idx, device=device)
-            out = model(Xt[b])
+            b = torch.as_tensor(batch_idx, dtype=torch.long, device="cpu")
+            out = model(Xt.index_select(0, b).to(device))
             outputs.append(out.detach().cpu().numpy())
     return np.concatenate(outputs, axis=0)

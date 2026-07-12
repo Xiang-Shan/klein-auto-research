@@ -20,8 +20,9 @@ well clear of the >=12 target) — never re-ordered or re-cycled per chart.
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import matplotlib
 

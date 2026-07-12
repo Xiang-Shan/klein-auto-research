@@ -17,9 +17,9 @@ Every tutorial has these sections, in order:
    teach it, don't just cite it.
 3. **The data story.** The `data_card.md` highlights: shape, the value-pattern gotchas,
    the go/no-go call.
-4. **The experiment journey.** The annotated metric-vs-experiment trajectory with the
-   KEEPS highlighted — the narrative of what moved the number (results.tsv + program.md
-   Log).
+4. **The experiment journey.** One annotated development frontier per track, with keeps
+   highlighted, plus separately labelled sealed confirmation evidence (run manifests,
+   derived results.tsv, and program.md Log).
 5. **Findings & insights.** The verdicts and surprises, from `findings.md`.
 6. **Model coding advice.** An annotated walkthrough of the WINNING `train.py` plus the
    pitfalls / war stories that bit this study (the MPS trap, swap-noise details, QLS
@@ -52,7 +52,7 @@ script is **`.claude/skills/klein/scripts/build_tutorial.py`** (stdlib only):
   for the train.py walkthrough; reference figures as `<img data-fig="figures/<name>.png">`
   (the builder base64-inlines each PNG); drop a `<!--LEDGER-->` marker in 04-journey where
   the auto-generated results.tsv ledger table should go.
-- Build: `uv run python .claude/skills/klein/scripts/build_tutorial.py <study_dir>
+- Build: `uv run --locked python .claude/skills/klein/scripts/build_tutorial.py <study_dir>
   [--title "..."]` → writes `<study_dir>/report/index.html`. It reads study.yaml for the
   header (goal/metric), inlines every figure, and runs its own acceptance guard (all seven
   anchors present; zero `http://`/`https://` in `src`/`href` attributes) — a build that
@@ -65,6 +65,8 @@ script is **`.claude/skills/klein/scripts/build_tutorial.py`** (stdlib only):
   remote images, or fonts.
 - All figures are base64-inlined PNGs (`<img src="data:image/png;base64,...">`).
 - One file: `report/index.html`. Everything it needs is inside it.
+- Include a restrictive Content-Security-Policy meta tag compatible with inline styles
+  and `data:` images but with no remote/default connections.
 
 ## Which figures to inline
 
@@ -79,7 +81,8 @@ Always inline the metric-vs-experiment trajectory for the journey section.
 ## Acceptance checklist (all must pass)
 
 - [ ] All SEVEN sections are present and in order.
-- [ ] Opens offline from `file://` — verified, not assumed (no network requests).
+- [ ] Opens offline from `file://` — verified in a browser with zero network requests.
+- [ ] Restrictive CSP is present and the browser console records no CSP errors.
 - [ ] Includes the model-coding-advice section with the ACTUAL winning train.py.
 - [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md.
 - [ ] Every figure is inlined (grep the file: no `http://` / `https://` asset refs).

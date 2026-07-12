@@ -93,16 +93,26 @@ def get_mouse_pos() -> tuple[float, float]:
 
 
 def nudge_mouse() -> None:
-    """Post a synthetic mouse-moved event a pixel left, then a pixel right."""
+    """Post one synthetic nudge and always restore the original cursor position."""
     _load_coregraphics()
     x, y = get_mouse_pos()
-    for dx in (1, -1):
-        pt = CGPoint(x + dx, y)
+
+    def post_at(x_pos: float, y_pos: float) -> None:
+        pt = CGPoint(x_pos, y_pos)
         evt = _cg.CGEventCreateMouseEvent(
             None, _KCG_EVENT_MOUSE_MOVED, pt, _KCG_MOUSE_BUTTON_LEFT
         )
-        _cg.CGEventPost(_KCG_HID_EVENT_TAP, evt)
-        _cf.CFRelease(evt)
+        if not evt:
+            raise RuntimeError("CoreGraphics failed to create a mouse-moved event")
+        try:
+            _cg.CGEventPost(_KCG_HID_EVENT_TAP, evt)
+        finally:
+            _cf.CFRelease(evt)
+
+    try:
+        post_at(x + 1, y)
+    finally:
+        post_at(x, y)
 
 
 def main() -> None:

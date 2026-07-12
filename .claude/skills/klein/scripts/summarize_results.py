@@ -16,8 +16,9 @@ Features
 
 - Header-based TSV parsing (never positional) — a results.tsv with reordered
   columns parses identically to the canonical order.
-- higher/lower goal support, auto-detected from the metric column name or
-  set explicitly with ``--goal``.
+- higher/lower goal support read from ``study.yaml``. A missing/ambiguous direction
+  is an error; ``--goal`` exists only as an explicitly warned v1 compatibility
+  override.
 - ``results_summary.md`` (frontier + keep/discard/crash counts) and
   ``progress.svg`` (stdlib SVG line/scatter plot).
 - Aux panels: ``--aux <metric> [--aux-goal higher|lower]`` renders a top-10
@@ -104,6 +105,7 @@ AUTO_AUX_PANELS: tuple[tuple[str, str], ...] = (
 @dataclass
 class ResultRow:
     row_number: int
+    experiment: str
     commit: str
     metric: float | None
     status: str
@@ -119,7 +121,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--goal",
         choices=("higher", "lower"),
-        help="Optimization direction. Defaults to inference from the metric name.",
+        help="Deprecated v1-only override. V2 direction comes from study.yaml.",
+    )
+    parser.add_argument(
+        "--track",
+        help="V2 research track. Required when study.yaml declares multiple tracks.",
     )
     parser.add_argument("--title", help="Optional plot title override.")
     parser.add_argument("--summary-out", type=Path, help="Output markdown path.")
@@ -141,7 +147,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--study-yaml",
         type=Path,
-        help="Path to study.yaml for phase telemetry (default: alongside results.tsv).",
+        help="Path to the metric/track contract and phase telemetry (default: alongside results.tsv).",
     )
     parser.add_argument(
         "--expand-study",
@@ -177,6 +183,81 @@ def infer_goal(metric_col: str, requested: str | None) -> str:
     return "lower" if any(token in name for token in LOWER_IS_BETTER_HINTS) else "higher"
 
 
+def _configured_primary_contract(
+    study_yaml_path: Path,
+    *,
+    requested_track: str | None,
+    v1_goal_override: str | None,
+) -> tuple[int, str | None, str | None, str]:
+    """Return ``(version, track, metric_name, goal)`` without guessing direction."""
+    data: object = None
+    if study_yaml_path.is_file() and yaml is not None:
+        try:
+            data = yaml.safe_load(study_yaml_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            raise ValueError(f"could not parse metric direction from {study_yaml_path}: {exc}") from exc
+    if not isinstance(data, dict):
+        if v1_goal_override:
+            print(
+                "[WARN] --goal is a deprecated v1 compatibility override; add metric.goal to study.yaml",
+                file=sys.stderr,
+            )
+            return 1, None, None, v1_goal_override
+        raise ValueError(
+            f"metric direction unavailable: {study_yaml_path} is missing or unreadable; refusing to guess"
+        )
+    try:
+        version = int(data.get("schema_version", 1))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("study.yaml schema_version is invalid") from exc
+    if version not in {1, 2}:
+        raise ValueError(f"unsupported study.yaml schema_version: {version}")
+    if version == 2:
+        if v1_goal_override:
+            raise ValueError("--goal cannot override a schema-v2 track contract")
+        raw_tracks = data.get("tracks")
+        tracks: dict[str, dict[str, object]] = {}
+        if isinstance(raw_tracks, dict):
+            tracks = {str(k): dict(v) for k, v in raw_tracks.items() if isinstance(v, dict)}
+        elif isinstance(raw_tracks, list):
+            for item in raw_tracks:
+                if isinstance(item, dict) and item.get("id"):
+                    tracks[str(item["id"])] = dict(item)
+        if requested_track is None:
+            if len(tracks) != 1:
+                raise ValueError(
+                    f"study declares {len(tracks)} tracks; pass --track to avoid a misleading global frontier"
+                )
+            requested_track = next(iter(tracks))
+        if requested_track not in tracks:
+            raise ValueError(f"unknown track {requested_track!r}; choose one of {sorted(tracks)}")
+        metric = tracks[requested_track].get("metric")
+        if not isinstance(metric, dict):
+            raise ValueError(f"track {requested_track!r} has no metric contract")
+        goal = metric.get("goal")
+        name = metric.get("name")
+        if goal not in {"higher", "lower"} or not isinstance(name, str) or not name:
+            raise ValueError(f"track {requested_track!r} metric name/goal is unavailable")
+        return version, requested_track, name, str(goal)
+
+    if requested_track is not None:
+        raise ValueError("--track is available only for schema-v2 studies")
+    metric = data.get("metric")
+    configured_goal = metric.get("goal") if isinstance(metric, dict) else None
+    configured_name = metric.get("name") if isinstance(metric, dict) else None
+    if v1_goal_override:
+        print(
+            "[WARN] --goal is a deprecated v1 compatibility override; prefer metric.goal in study.yaml",
+            file=sys.stderr,
+        )
+        return version, None, str(configured_name) if configured_name else None, v1_goal_override
+    if configured_goal not in {"higher", "lower"}:
+        raise ValueError(
+            f"metric direction unavailable in {study_yaml_path}; refusing to infer it from the metric name"
+        )
+    return version, None, str(configured_name) if configured_name else None, str(configured_goal)
+
+
 def maybe_float(value: str | None) -> float | None:
     if value is None:
         return None
@@ -195,10 +276,8 @@ def _maybe_int(value: str | None) -> int | None:
     text = value.strip()
     if not text:
         return None
-    try:
-        return int(text)
-    except ValueError:
-        return None
+    match = re.fullmatch(r"(?:E)?([0-9]+)", text, flags=re.IGNORECASE)
+    return int(match.group(1)) if match else None
 
 
 def read_results(path: Path, metric_col: str) -> tuple[list[str], list[ResultRow]]:
@@ -211,6 +290,7 @@ def read_results(path: Path, metric_col: str) -> tuple[list[str], list[ResultRow
             rows.append(
                 ResultRow(
                     row_number=row_number,
+                    experiment=(raw.get("experiment") or str(row_number)).strip(),
                     commit=(raw.get("commit") or "").strip(),
                     metric=maybe_float(raw.get(metric_col)),
                     status=(raw.get("status") or "").strip().lower(),
@@ -230,7 +310,7 @@ def running_frontier(rows: list[ResultRow], goal: str) -> list[ResultRow]:
     frontier: list[ResultRow] = []
     best_value: float | None = None
     for row in rows:
-        if row.metric is None or row.status == "crash":
+        if row.metric is None or row.status != "keep":
             continue
         if best_value is None or is_better(row.metric, best_value, goal):
             frontier.append(row)
@@ -298,7 +378,7 @@ def build_aux_panel(
     entries.sort(key=lambda pair: pair[1], reverse=(goal == "higher"))
     for row, value in entries[:10]:
         lines.append(
-            f"| {row.row_number} | `{row.commit or 'n/a'}` | {value:.6f} | {format_metric(row.metric)} | "
+            f"| {row.experiment} | `{row.commit or 'n/a'}` | {value:.6f} | {format_metric(row.metric)} | "
             f"{row.status or 'n/a'} | {row.description or 'n/a'} |"
         )
     lines.append("")
@@ -563,7 +643,7 @@ def render_tsv_table(path: Path) -> str:
     widths = [max(len(row[i]) for row in rows) for i in range(ncols)]
     lines = []
     for idx, row in enumerate(rows):
-        lines.append("  ".join(cell.ljust(w) for cell, w in zip(row, widths)))
+        lines.append("  ".join(cell.ljust(w) for cell, w in zip(row, widths, strict=True)))
         if idx == 0:
             lines.append("  ".join("-" * w for w in widths))
     return "\n".join(lines)
@@ -588,8 +668,11 @@ def build_summary(
     goal: str,
     rows: list[ResultRow],
     extra_sections: list[list[str]] | None = None,
+    *,
+    metric_name: str | None = None,
+    track: str | None = None,
 ) -> str:
-    valid_rows = [row for row in rows if row.metric is not None and row.status != "crash"]
+    valid_rows = [row for row in rows if row.metric is not None and row.status == "keep"]
     frontier = running_frontier(rows, goal)
     baseline = valid_rows[0] if valid_rows else None
     best = frontier[-1] if frontier else None
@@ -602,11 +685,15 @@ def build_summary(
     if baseline and best:
         improvement = best.metric - baseline.metric if goal == "higher" else baseline.metric - best.metric
 
+    contract_lines = [f"- metric name: `{metric_name}`"] if metric_name else []
+    if track:
+        contract_lines.append(f"- track: `{track}`")
     lines = [
         "# Results Summary",
         "",
         f"- source: `{_display_source(results_path)}`",
         f"- metric column: `{metric_col}`",
+        *contract_lines,
         f"- goal: `{goal}`",
         f"- total experiments: {len(rows)}",
         f"- keep: {counts.get('keep', 0)}",
@@ -632,7 +719,7 @@ def build_summary(
     if frontier:
         for row in frontier:
             lines.append(
-                f"| {row.row_number} | `{row.commit or 'n/a'}` | {format_metric(row.metric)} | {row.status or 'n/a'} | {row.description or 'n/a'} |"
+                f"| {row.experiment} | `{row.commit or 'n/a'}` | {format_metric(row.metric)} | {row.status or 'n/a'} | {row.description or 'n/a'} |"
             )
     else:
         lines.append("| - | - | - | - | No valid experiment rows found |")
@@ -641,7 +728,7 @@ def build_summary(
     recent_rows = rows[-10:]
     for row in recent_rows:
         lines.append(
-            f"| {row.row_number} | `{row.commit or 'n/a'}` | {format_metric(row.metric)} | {row.status or 'n/a'} | {row.description or 'n/a'} |"
+            f"| {row.experiment} | `{row.commit or 'n/a'}` | {format_metric(row.metric)} | {row.status or 'n/a'} | {row.description or 'n/a'} |"
         )
 
     for section in extra_sections or []:
@@ -769,9 +856,22 @@ def main(argv: list[str] | None = None) -> int:
             raise ValueError("results.tsv is empty or missing a header row")
         fieldnames = reader.fieldnames
 
-    metric_col = pick_metric_column(fieldnames, args.metric_col)
-    goal = infer_goal(metric_col, args.goal)
+    study_yaml_path = args.study_yaml or results_path.with_name("study.yaml")
+    version, track, configured_metric, goal = _configured_primary_contract(
+        study_yaml_path,
+        requested_track=args.track,
+        v1_goal_override=args.goal,
+    )
+    if version >= 2:
+        metric_col = pick_metric_column(fieldnames, args.metric_col or "primary_metric")
+    else:
+        requested_metric_col = args.metric_col
+        if requested_metric_col is None and configured_metric in fieldnames:
+            requested_metric_col = configured_metric
+        metric_col = pick_metric_column(fieldnames, requested_metric_col)
     _, rows = read_results(results_path, metric_col)
+    if version >= 2:
+        rows = [row for row in rows if (row.raw.get("track") or "").strip() == track]
 
     # Aux panels — degrade gracefully when the sidecar is missing/unreadable.
     aux_path = args.aux_path or results_path.with_name("aux_metrics.tsv")
@@ -782,10 +882,10 @@ def main(argv: list[str] | None = None) -> int:
     custom_aux = None
     if args.aux:
         custom_aux = (args.aux, args.aux_goal or infer_goal(args.aux, args.aux_goal))
-    aux_section = build_aux_section(rows, metric_col, aux_table, custom=custom_aux)
+    metric_label = configured_metric or metric_col
+    aux_section = build_aux_section(rows, metric_label, aux_table, custom=custom_aux)
 
     # Phase telemetry — degrade gracefully when study.yaml/phases is missing.
-    study_yaml_path = args.study_yaml or results_path.with_name("study.yaml")
     try:
         phases = _load_phases(study_yaml_path)
     except Exception:
@@ -797,14 +897,22 @@ def main(argv: list[str] | None = None) -> int:
     title = args.title or f"Experiment Progress: {results_path.parent.name or results_path.stem}"
 
     summary_text = build_summary(
-        results_path, metric_col, goal, rows, extra_sections=[aux_section, phase_section]
+        results_path,
+        metric_col,
+        goal,
+        rows,
+        extra_sections=[aux_section, phase_section],
+        metric_name=configured_metric,
+        track=track,
     )
     summary_out.write_text(summary_text, encoding="utf-8")
-    plot_out.write_text(build_plot_svg(title, metric_col, goal, rows), encoding="utf-8")
+    plot_out.write_text(build_plot_svg(title, metric_label, goal, rows), encoding="utf-8")
 
     print(f"summary: {summary_out}")
     print(f"plot:    {plot_out}")
-    print(f"metric:  {metric_col} ({goal})")
+    print(f"metric:  {metric_label} ({goal})")
+    if track:
+        print(f"track:   {track}")
     print(f"rows:    {len(rows)}")
     if phase_section:
         print()

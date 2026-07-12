@@ -19,13 +19,15 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
-import torch
+
+torch = pytest.importorskip("torch", reason="Study 01 tests require the optional deep extra")
 
 # import the study-local dae.py (studies/01-dae-claims/) — pytest runs from repo root
 _STUDY_DIR = Path(__file__).resolve().parents[1]
 if str(_STUDY_DIR) not in sys.path:
     sys.path.insert(0, str(_STUDY_DIR))
 
+import bootstrap_caches as bootstrap_mod  # noqa: E402
 import dae as dae_mod  # noqa: E402
 from dae import SwapNoiseDAE, apply_swap_noise  # noqa: E402
 
@@ -127,6 +129,34 @@ def test_reconstruct_is_finite():
 
     assert recon.shape == (300, d.input_dim_)
     assert np.isfinite(recon).all()
+
+
+def test_fresh_clone_cache_bootstrap_smoke(tmp_path):
+    """The documented cache bootstrap works on a tiny CPU fixture and records hashes."""
+    X = _toy_frame(n=120, seed=5)
+    X["claim_status"] = np.arange(len(X)) % 2
+    prepared = tmp_path / "prepared.csv"
+    output = tmp_path / "models"
+    X.to_csv(prepared, index=False)
+
+    manifest = bootstrap_mod.build_caches(
+        prepared,
+        output,
+        max_epochs=1,
+        limit_rows=None,
+        device_name="cpu",
+    )
+
+    assert (output / "dae_e3_swap015.cache.pkl").is_file()
+    assert (output / "reps_e3_swap015.cache.pkl").is_file()
+    assert (output / "e3_cache_manifest.json").is_file()
+    assert manifest["reference_metric_claimed"] is False
+    assert manifest["train_rows"] == 96
+    assert manifest["validation_rows"] == 24
+    assert set(manifest["artifacts"]) == {
+        "dae_e3_swap015.cache.pkl",
+        "reps_e3_swap015.cache.pkl",
+    }
 
 
 if __name__ == "__main__":

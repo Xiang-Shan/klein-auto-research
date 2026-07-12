@@ -21,9 +21,10 @@ Fragment contract
 
 Acceptance guard (runs on the assembled page; non-zero exit lists violations):
 - all seven section anchors present;
-- zero ``http://`` / ``https://`` inside ``src=``/``href=`` ATTRIBUTE values
-  (plain-text URLs inside <cite>/<code>/reference lists are allowed — only
-  attribute URLs are banned, since those are what trigger a network fetch).
+- the exact restrictive Content-Security-Policy is present (default/connect deny,
+  data-only images, and a SHA-256-authorized fixed navigation script);
+- ``href`` values are local fragments and ``src`` values are inlined PNGs only.
+  Plain-text URLs inside <cite>/<code>/reference lists remain allowed.
 
 Stdlib only. PyYAML is used opportunistically for study.yaml (same graceful
 fallback pattern as summarize_results.py) but never required.
@@ -37,6 +38,7 @@ from __future__ import annotations
 import argparse
 import base64
 import csv
+import hashlib
 import html
 import re
 import subprocess
@@ -84,6 +86,10 @@ def _clean_scalar(raw: str) -> str | None:
 def _tiny_parse_meta(text: str, meta: dict[str, str | None]) -> dict[str, str | None]:
     """Stdlib fallback: harvest top-level goal/domain/target + nested metric.name."""
     in_metric = False
+    in_tracks = False
+    track_name: str | None = None
+    in_track_metric = False
+    track_metrics: list[str] = []
     for line in text.splitlines():
         if not line.strip() or line.lstrip().startswith("#"):
             continue
@@ -94,10 +100,24 @@ def _tiny_parse_meta(text: str, meta: dict[str, str | None]) -> dict[str, str | 
         key = key.strip()
         if indent == 0:
             in_metric = key == "metric"
+            in_tracks = key == "tracks"
+            track_name = None
+            in_track_metric = False
             if key in ("goal", "domain", "target"):
                 meta[key] = _clean_scalar(value)
         elif in_metric and key == "name":
             meta["metric_name"] = _clean_scalar(value)
+        elif in_tracks and indent == 2:
+            track_name = key
+            in_track_metric = False
+        elif in_tracks and indent == 4:
+            in_track_metric = key == "metric"
+        elif in_tracks and indent >= 6 and in_track_metric and key == "name":
+            metric_name = _clean_scalar(value)
+            if track_name and metric_name:
+                track_metrics.append(f"{metric_name} ({track_name})")
+    if track_metrics:
+        meta["metric_name"] = ", ".join(track_metrics)
     return meta
 
 
@@ -123,6 +143,18 @@ def load_study_meta(study_dir: Path) -> dict[str, str | None]:
             metric = data.get("metric")
             if isinstance(metric, dict):
                 meta["metric_name"] = metric.get("name")
+            tracks = data.get("tracks")
+            if isinstance(tracks, dict):
+                names: list[str] = []
+                for track_name, track_spec in tracks.items():
+                    if not isinstance(track_spec, dict):
+                        continue
+                    track_metric = track_spec.get("metric")
+                    if not isinstance(track_metric, dict) or not track_metric.get("name"):
+                        continue
+                    names.append(f"{track_metric['name']} ({track_name})")
+                if names:
+                    meta["metric_name"] = ", ".join(names)
             return meta
     return _tiny_parse_meta(text, meta)
 
@@ -273,6 +305,43 @@ NAV_JS = """
 """
 
 
+def content_security_policy() -> str:
+    """Return the restrictive policy for a generated, offline tutorial.
+
+    Figures are data URIs and CSS is intentionally inlined.  The only script is
+    this module's fixed navigation helper, authorized by its exact SHA-256 rather
+    than by ``'unsafe-inline'``.  Everything capable of network activity is
+    denied explicitly as well as by ``default-src 'none'``.
+    """
+    script_hash = base64.b64encode(hashlib.sha256(NAV_JS.encode("utf-8")).digest()).decode(
+        "ascii"
+    )
+    return "; ".join(
+        (
+            "default-src 'none'",
+            "img-src data:",
+            "style-src 'unsafe-inline'",
+            f"script-src 'sha256-{script_hash}'",
+            "connect-src 'none'",
+            "font-src 'none'",
+            "media-src 'none'",
+            "object-src 'none'",
+            "frame-src 'none'",
+            "worker-src 'none'",
+            "manifest-src 'none'",
+            "base-uri 'none'",
+            "form-action 'none'",
+        )
+    )
+
+
+def csp_meta_tag() -> str:
+    return (
+        '<meta http-equiv="Content-Security-Policy" '
+        f'content="{content_security_policy()}">'
+    )
+
+
 def assemble(study_dir: Path, title: str, meta: dict[str, str | None], missing: list[str]) -> str:
     study_id = study_dir.name
     ledger = build_ledger(study_dir)
@@ -302,6 +371,7 @@ def assemble(study_dir: Path, title: str, meta: dict[str, str | None], missing: 
     return (
         "<!doctype html>\n"
         '<html lang="en">\n<head>\n<meta charset="utf-8">\n'
+        f"{csp_meta_tag()}\n"
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f"<title>{html.escape(title)}</title>\n"
         f"<style>{CSS}</style>\n</head>\n<body>\n"
@@ -333,13 +403,18 @@ def assemble(study_dir: Path, title: str, meta: dict[str, str | None], missing: 
 
 def acceptance_violations(page: str) -> list[str]:
     violations: list[str] = []
+    if csp_meta_tag() not in page:
+        violations.append("missing or modified restrictive Content-Security-Policy")
     for _f, anchor, _t in SECTIONS:
         if f'id="{anchor}"' not in page:
             violations.append(f"missing section anchor: id={anchor!r}")
     for match in ATTR_URL_RE.finditer(page):
-        value = match.group(2)
-        if "http://" in value or "https://" in value:
+        value = match.group(2).strip()
+        lowered = value.lower()
+        if lowered.startswith(("http://", "https://", "//")):
             violations.append(f"external URL in src/href attribute: {value[:70]!r}")
+        elif not (value.startswith("#") or lowered.startswith("data:image/png;base64,")):
+            violations.append(f"unsafe URL in src/href attribute: {value[:70]!r}")
     return violations
 
 

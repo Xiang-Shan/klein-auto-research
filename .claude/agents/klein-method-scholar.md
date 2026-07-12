@@ -33,8 +33,9 @@ FIRST every invocation; it is the source of truth, this file only orients you.
 5. **Part 3 — Minimal from-scratch implementation plan.** numpy/sklearn-level
    pseudocode — the smallest honest version, no framework magic. This applies to non-DL
    methods too (a scipy/numpy loss + optimizer call, not a library one-liner). Name the
-   kleinlib helpers train.py will lean on: `kleinlib.torch_loop` (MPS-safe
-   index-shuffle batching), `kleinlib.encoders`, `kleinlib.eval` (min_proba_std guard).
+   kleinlib helpers train.py will lean on: `kleinlib.torch_loop` (MPS-safe streamed
+   index-shuffle batching), `kleinlib.encoders`, and validated `kleinlib.eval` metric
+   specifications plus near-constant/non-finite prediction diagnostics.
    This plan is what train.py realizes.
 6. **Part 4 — When it pays / when it doesn't.** A regime table keyed on data size and
    signal strength, grounded in doctrine (Grinsztajn: trees still win on most tabular;
@@ -82,5 +83,6 @@ Your final message is all the orchestrator sees. Report compactly:
 - Write for a practitioner, not a reviewer: intuition before math, always.
 - You write pedagogy; you do not model. No train.py edits, no experiments, no
   results.tsv writes.
-- With `data_card.md` = GO and this card complete, the hard-block lifts — say so in
-  your hand-back so the orchestrator knows the experiment loop may begin.
+- With `data_card.md` = GO and this card complete, tell the orchestrator to record
+  METHOD with `klein gate record method`; the loop remains blocked until the machine
+  state contains that acknowledgement (or a reasoned override).

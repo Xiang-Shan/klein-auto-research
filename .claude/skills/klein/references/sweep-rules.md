@@ -13,70 +13,109 @@ Uses `kleinlib.sweep.SweepRunner`.
 1. **Location.** A sweep lives ONLY at `studies/NN/sweeps/<name>.py`. Never at study
    root, never a meta-runner over the whole study.
 2. **Every trial → sidecar.** EVERY trial appends one line to
-   `sweeps/<name>.sidecar.tsv` with columns:
+   `sweeps/<name>.sidecar.tsv`. The authoritative columns live in
+   `kleinlib.sweep.SIDECAR_COLUMNS`; current sidecars include persisted error details
+   for crashes as well as parameters, metric, timing, and status.
 
    ```text
-   trial   params_json   primary_metric   wall_seconds   status
+   trial   params_json   primary_metric   wall_seconds   status   error
    ```
 
    No trial is silent. The sidecar is the full search record.
-3. **Exactly ONE results.tsv row.** The sweep contributes a SINGLE row to the study
-   ledger — the WINNER. Its `description` references the sidecar (e.g. "swap-rate sweep,
-   9 trials, see sweeps/swaprate.sidecar.tsv; best rate=0.15"). Optionally set the
-   `study_id` column to the sweep name.
+   When the sweep does not vary preprocessing, fit/transform the fixed train and
+   development matrices once outside `trial_fn` and reuse them. A 20k-row fixture
+   measured about 5.1× lower median sweep preprocessing time (276.0 ms → 54.5 ms for
+   five trials) with identical shape/nnz. Do not cache when a trial changes any
+   preprocessing parameter.
+3. **Exactly ONE derived result.** The sweep contributes one candidate transaction —
+   the winner rerun through `klein run-one`. Its description references the sidecar
+   (for example, "swap-rate sweep, 9 trials; see sweeps/swaprate.sidecar.tsv; best
+   rate=0.15"). Never append a v2 `results.tsv` row by hand.
 4. **Snapshot the winner into train.py.** Copy the winning config back into `train.py` so
    the committed mutable surface reproduces the winner with NO sweep machinery.
-5. **Pickle the winner.** Persist the winning model via `kleinlib.snapshot` →
-   `models/best_<exp>_<metric>.pkl` (+ manifest), same as a normal experiment.
-6. **Commit, then the one row.** Commit-or-revert FIRST (train.py now holds the winner),
-   THEN append the single results.tsv row, THEN commit results.tsv. Same discipline as
-   the hand loop.
-7. **No improving trial → the row is a `discard`.** When the sweep's best trial does not
-   beat the study's pre-sweep best: revert `train.py` (no snapshot, no pickle), log the
-   single row with the best trial's metric and status `discard`, description noting
-   "no improvement over exp N (<metric>)". The sidecar still keeps the full trail — a
-   null result is a result.
+5. **Record the winner artifact safely.** Persist the winning model locally via
+   `kleinlib.snapshot`; commit its relocatable manifest (metric identity, track,
+   availability, and SHA-256), never the unsafe/large joblib payload itself.
+6. **Commit the sweep evidence, then transact the winner.** Commit the sweep script and
+   completed sidecar, copy the winner into `train.py`, and invoke `klein run-one`. It
+   commits the candidate before its confirmation run, creates the immutable manifest,
+   and derives the one v2 ledger row transactionally.
+7. **No improving trial → `discard`.** Put the best trial in `train.py` and let
+   `klein run-one` compare its confirmation metric with the track frontier. If it does
+   not clear the configured minimum delta and guardrails, it is a `discard` and the
+   workflow restores `train.py`. The candidate commit and sidecar remain resolvable —
+   a null result is a result.
 
 ## Forbidden
 
 - Touching the split inside a sweep. The split is fixed; a sweep tunes the MODEL, never
   the data contract.
-- Multiple silent results.tsv rows from one sweep. Only the winner earns a row; all
-  trials live in the sidecar.
+- Multiple derived results from one sweep. Only the confirmed winner earns a manifest /
+  derived row; all trials live in the sidecar.
 - Unattended multi-experiment meta-runners BEYOND the sweep — no "run all my ideas"
   scripts. A sweep searches ONE axis (or a small grid) of ONE method; it does not replace
   the adaptive hand loop across methods.
 
-## Minimal SweepRunner sketch
+## Executable SweepRunner sketch
 
-```python
-from kleinlib.sweep import SweepRunner
-runner = SweepRunner("swaprate", metric_name="val_auc", metric_goal="higher")
-for rate in (0.10, 0.15, 0.25):
-    auc, secs = fit_and_eval(swap_rate=rate)      # your trial body (fixed split!)
-    runner.record(trial=rate, params={"swap_rate": rate},
-                  primary_metric=auc, wall_seconds=secs, status="ok")
-winner = runner.best()   # appends every trial to the sidecar; returns the winning row
+The block between the test markers is executed in CI. Replace `fit_and_eval` with the
+real fixed-split trial body; keep the runner construction and `.run()` contract.
+
+Commit the sweep script before execution. Then, from the study directory, execute it
+once with a total sweep timeout (not once per trial):
+
+```bash
+uv run --locked python ../../scripts/run_with_log.py \
+  --timeout-seconds <total-sweep-seconds> --log sweep.log -- \
+  uv run --locked python -u sweeps/<name>.py
 ```
+
+<!-- test:sweep-runner:start -->
+```python
+from pathlib import Path
+
+from kleinlib.sweep import SweepRunner
+
+
+def fit_and_eval(params: dict[str, float]) -> dict[str, float]:
+    """Replace with one real trial evaluated on the fixed development split."""
+    rate = params["swap_rate"]
+    return {"primary_metric": 0.67 - abs(rate - 0.15)}
+
+
+summary = SweepRunner(
+    "swaprate",
+    study_dir=Path("."),
+    trial_fn=fit_and_eval,
+    params_list=[{"swap_rate": rate} for rate in (0.10, 0.15, 0.25)],
+    metric_goal="higher",
+).run()
+
+winner = summary.winner
+assert winner is not None
+assert winner.params == {"swap_rate": 0.15}
+```
+<!-- test:sweep-runner:end -->
 
 Example `sweeps/swaprate.sidecar.tsv`:
 
 ```text
-trial   params_json           primary_metric   wall_seconds   status
-0.10    {"swap_rate": 0.10}   0.6689           412.3          ok
-0.15    {"swap_rate": 0.15}   0.6701           418.7          ok
-0.25    {"swap_rate": 0.25}   0.6683           420.1          ok
+trial   params_json           primary_metric   wall_seconds   status   error
+1       {"swap_rate":0.1}     0.668900         412.300        ok
+2       {"swap_rate":0.15}    0.670100         418.700        ok
+3       {"swap_rate":0.25}    0.668300         420.100        ok
 ```
 
 ## Shape of a sweep run
 
 ```text
-edit sweeps/<name>.py  →  run it (foreground, budget = trials × per-trial)  →
-  every trial appended to the sidecar  →  pick winner  →
-  snapshot winner config into train.py  →  pickle winner via kleinlib.snapshot  →
-  commit train.py  →  ONE results.tsv row (description points to sidecar)  →
-  commit results.tsv
+commit sweeps/<name>.py  →  execute it once with scripts/run_with_log.py
+  (foreground, budget = trials × per-trial)  →  every trial in sidecar  →
+  commit sidecar  →  copy winner into train.py  →  klein run-one reruns winner  →
+  one immutable manifest + one derived results row (description points to sidecar)
 ```
 
-The sidecar is the audit trail; results.tsv stays one-row-per-decision. That is what
-keeps the progress frontier honest even when a search ran 50 trials underneath.
+The sidecar is the trial-level audit trail; the run manifest is the winner-decision
+audit trail. This keeps each track's frontier honest even when a search ran 50 trials
+underneath. A legacy v1 study retains its manual one-row winner discipline, but should
+use the same `SweepRunner(...).run()` API and the exit-safe runner.

@@ -13,7 +13,10 @@ from kleinlib.sweep import SIDECAR_COLUMNS, SweepRunner
 def _read_rows(path):
     lines = path.read_text(encoding="utf-8").splitlines()
     assert lines[0] == "\t".join(SIDECAR_COLUMNS)
-    return [dict(zip(SIDECAR_COLUMNS, line.split("\t"))) for line in lines[1:]]
+    return [
+        dict(zip(SIDECAR_COLUMNS, line.split("\t"), strict=True))
+        for line in lines[1:]
+    ]
 
 
 def _ok(metric):
@@ -58,6 +61,7 @@ def test_crash_trial_recorded_and_skipped_for_winner(tmp_path):
     assert len(rows) == 3  # the crash is still recorded, not silent
     assert rows[1]["status"] == "crash"
     assert rows[1]["primary_metric"] == schema.NA_METRIC
+    assert "boom" in json.loads(rows[1]["error"])
 
     assert summary.winner is not None
     assert summary.winner.trial == 3  # the crashed trial 2 is skipped
@@ -162,14 +166,78 @@ def test_sidecar_append_as_you_go_kill_mid_run(tmp_path):
     assert [r["status"] for r in rows] == ["ok", "ok"]
 
 
-def test_rerun_starts_sidecar_fresh(tmp_path):
-    """A second `.run()` replaces the sidecar rather than appending to the old one."""
+def test_rerun_refuses_overwrite_by_default_and_allows_explicit_overwrite(tmp_path):
     runner = SweepRunner("rerun", tmp_path, lambda p: _ok(p["x"]), [{"x": 1}, {"x": 2}])
     runner.run()
     assert len(_read_rows(runner.sidecar_path)) == 2
 
     runner2 = SweepRunner("rerun", tmp_path, lambda p: _ok(p["x"]), [{"x": 9}])
-    runner2.run()
+    with pytest.raises(FileExistsError, match="overwrite=True"):
+        runner2.run()
+
+    runner3 = SweepRunner(
+        "rerun", tmp_path, lambda p: _ok(p["x"]), [{"x": 9}], overwrite=True
+    )
+    runner3.run()
     rows = _read_rows(runner2.sidecar_path)
     assert len(rows) == 1
     assert json.loads(rows[0]["params_json"]) == {"x": 9}
+
+
+@pytest.mark.parametrize("bad_metric", [float("nan"), float("inf"), -float("inf")])
+def test_nonfinite_metric_is_persisted_as_crash(tmp_path, bad_metric):
+    runner = SweepRunner(
+        "nonfinite",
+        tmp_path,
+        lambda p: _ok(bad_metric),
+        [{"x": 1}],
+    )
+    summary = runner.run()
+    assert summary.winner is None
+    row = _read_rows(runner.sidecar_path)[0]
+    assert row["status"] == "crash"
+    assert row["primary_metric"] == schema.NA_METRIC
+    assert "finite" in json.loads(row["error"])
+
+
+def test_non_json_or_nonfinite_params_are_rejected_before_run(tmp_path):
+    with pytest.raises(ValueError, match="finite JSON"):
+        SweepRunner("badparams", tmp_path, _ok, [{"x": float("nan")}])
+    with pytest.raises(ValueError, match="finite JSON"):
+        SweepRunner("badparams", tmp_path, _ok, [{"x": object()}])
+
+
+def test_resume_runs_only_missing_trials(tmp_path):
+    params = [{"x": 1}, {"x": 2}, {"x": 3}, {"x": 4}]
+
+    def interrupted(p):
+        if p["x"] == 3:
+            raise KeyboardInterrupt()
+        return _ok(float(p["x"]))
+
+    first = SweepRunner("resume", tmp_path, interrupted, params)
+    with pytest.raises(KeyboardInterrupt):
+        first.run()
+    assert len(_read_rows(first.sidecar_path)) == 2
+
+    calls = []
+
+    def finishing(p):
+        calls.append(p["x"])
+        return _ok(float(p["x"]))
+
+    summary = SweepRunner(
+        "resume", tmp_path, finishing, params, resume=True
+    ).run()
+    assert calls == [3, 4]
+    assert [trial.trial for trial in summary.trials] == [1, 2, 3, 4]
+    assert summary.winner.trial == 4
+
+
+def test_resume_rejects_changed_parameters(tmp_path):
+    SweepRunner("changed", tmp_path, lambda p: _ok(1.0), [{"x": 1}]).run()
+    runner = SweepRunner(
+        "changed", tmp_path, lambda p: _ok(2.0), [{"x": 2}], resume=True
+    )
+    with pytest.raises(ValueError, match="parameters changed"):
+        runner.run()

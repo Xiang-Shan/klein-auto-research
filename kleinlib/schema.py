@@ -13,6 +13,8 @@ Pure stdlib. Safe to import from any environment.
 
 from __future__ import annotations
 
+import math
+
 # --------------------------------------------------------------------------
 # results.tsv
 # --------------------------------------------------------------------------
@@ -20,6 +22,17 @@ from __future__ import annotations
 #: Canonical column order for results.tsv. Do not restate elsewhere.
 RESULTS_COLUMNS: tuple[str, ...] = (
     "experiment",
+    "primary_metric",
+    "status",
+    "commit",
+    "description",
+)
+
+#: Schema-version 2 results are a *derived view* of immutable run manifests.  Keep
+#: ``RESULTS_COLUMNS`` unchanged for legacy readers; callers select this explicitly.
+V2_RESULTS_COLUMNS: tuple[str, ...] = (
+    "experiment",
+    "track",
     "primary_metric",
     "status",
     "commit",
@@ -44,6 +57,16 @@ _HEX_DIGITS = frozenset("0123456789abcdef")
 def header_line() -> str:
     """Return the canonical tab-joined header (no trailing newline)."""
     return "\t".join(RESULTS_COLUMNS)
+
+
+def v2_header_line() -> str:
+    """Return the schema-version 2 derived-ledger header."""
+    return "\t".join(V2_RESULTS_COLUMNS)
+
+
+def is_valid_v2_header(line: str) -> bool:
+    """Return whether *line* is exactly the v2 derived-ledger header."""
+    return tuple(line.rstrip("\r\n").split("\t")) == V2_RESULTS_COLUMNS
 
 
 def is_valid_header(line: str) -> bool:
@@ -102,12 +125,18 @@ def validate_row(fields: list[str], *, n_columns: int) -> list[str]:
                 )
         else:
             try:
-                float(metric)
+                numeric_metric = float(metric)
             except ValueError:
                 problems.append(
                     f"primary_metric must be a float "
                     f"(or {NA_METRIC!r} on crash), got {metric!r}"
                 )
+            else:
+                if not math.isfinite(numeric_metric):
+                    problems.append(
+                        f"primary_metric must be finite "
+                        f"(or {NA_METRIC!r} on crash), got {metric!r}"
+                    )
 
     commit = _field("commit")
     if commit is not None and commit != NO_COMMIT:

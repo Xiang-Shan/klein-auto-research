@@ -1,0 +1,64 @@
+name: scheduled-hardening
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scheduled-hardening-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  MPLBACKEND: Agg
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  dependency-audit:
+    name: dependency resolution audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Lockfile is internally current
+        run: uv lock --check
+      - name: Preview dependency upgrades without rewriting the lock
+        run: uv lock --upgrade --dry-run
+      - name: Install and test the committed all-extras resolution
+        run: |
+          uv sync --locked --all-extras
+          uv run --no-sync pytest -q kleinlib/tests studies/01-dae-claims/tests
+
+  apple-mps:
+    name: Apple Silicon MPS canary
+    runs-on: macos-14
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Locked deep environment
+        run: uv sync --locked --extra dev --extra deep
+      - name: Assert the runner and MPS backend
+        run: >-
+          uv run --no-sync python -c
+          "import platform, torch;
+          assert platform.machine() == 'arm64', platform.machine();
+          assert torch.backends.mps.is_built();
+          assert torch.backends.mps.is_available();
+          x = torch.arange(8, dtype=torch.float32, device='mps');
+          assert float((x * 2).sum().cpu()) == 56.0;
+          print(platform.platform(), torch.__version__)"
+      - name: Torch loop and Study 01 MPS-sensitive canaries
+        env:
+          KLEIN_TEST_MPS: "1"
+        run: uv run --no-sync pytest -q kleinlib/tests/test_torch_loop.py studies/01-dae-claims/tests/test_dae.py

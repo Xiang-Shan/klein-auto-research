@@ -111,6 +111,12 @@ def test_happy_path_builds(build_module, tmp_path, capsys):
     assert "val_auc" in page
     # no external attribute URLs slipped through the guard
     assert build_module.acceptance_violations(page) == []
+    assert build_module.csp_meta_tag() in page
+    policy = build_module.content_security_policy()
+    assert "default-src 'none'" in policy
+    assert "connect-src 'none'" in policy
+    assert "script-src 'sha256-" in policy
+    assert "script-src 'unsafe-inline'" not in policy
 
 
 def test_ledger_marker_replaced_with_results_rows(build_module, tmp_path):
@@ -123,6 +129,36 @@ def test_ledger_marker_replaced_with_results_rows(build_module, tmp_path):
     assert "weaker family probe" in page  # exp 2 description
     assert "0.625462" in page  # exp 1 metric
     assert 'class="st-discard"' in page  # status styling hook
+
+
+def test_v2_track_metrics_are_displayed(build_module, tmp_path):
+    study = scaffold(tmp_path / "03-v2-meta")
+    (study / "study.yaml").write_text(
+        "schema_version: 2\n"
+        'goal: "Compare two registered tracks"\n'
+        'domain: "insurance"\n'
+        "tracks:\n"
+        "  primary:\n"
+        "    metric:\n"
+        '      name: "val_auc"\n'
+        '      goal: "higher"\n'
+        "  severity:\n"
+        "    metric:\n"
+        '      name: "rmse"\n'
+        '      goal: "lower"\n',
+        encoding="utf-8",
+    )
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert "metric: val_auc (primary), rmse (severity)" in page
+
+    original_yaml = build_module.yaml
+    try:
+        build_module.yaml = None
+        meta = build_module.load_study_meta(study)
+    finally:
+        build_module.yaml = original_yaml
+    assert meta["metric_name"] == "val_auc (primary), rmse (severity)"
 
 
 def test_missing_figure_fails_listing_name(build_module, tmp_path, capsys):
@@ -145,6 +181,28 @@ def test_attribute_url_violation_fails(build_module, tmp_path, capsys):
     err = capsys.readouterr().err
     assert "external URL" in err
     assert "cdn.example.com" in err
+
+
+def test_non_network_resource_scheme_is_also_rejected(build_module, tmp_path, capsys):
+    bad = dict(FRAGMENTS)
+    bad["06-coding-advice.html"] = (
+        '<h2>Coding Advice</h2><a href="javascript:alert(1)">unsafe</a>'
+    )
+    study = scaffold(tmp_path / "00-unsafe-scheme", fragments=bad)
+    assert build_module.main([str(study)]) == 4
+    assert "unsafe URL" in capsys.readouterr().err
+
+
+def test_acceptance_rejects_missing_or_modified_csp(build_module, tmp_path):
+    study = scaffold(tmp_path / "00-csp")
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+
+    without_policy = page.replace(build_module.csp_meta_tag(), "")
+    assert any("Content-Security-Policy" in item for item in build_module.acceptance_violations(without_policy))
+
+    weakened = page.replace("connect-src 'none'", "connect-src https:")
+    assert any("Content-Security-Policy" in item for item in build_module.acceptance_violations(weakened))
 
 
 def test_plaintext_url_in_body_is_allowed(build_module, tmp_path):

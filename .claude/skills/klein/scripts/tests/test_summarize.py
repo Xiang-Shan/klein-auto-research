@@ -68,6 +68,13 @@ class TestMetricDetection:
         assert summarize_module.infer_goal("val_logloss", None) == "lower"
         assert summarize_module.infer_goal("log_loss", None) == "lower"
 
+    def test_primary_direction_is_required_without_v1_override(
+        self, summarize_module, tmp_path
+    ):
+        path = write_tsv(tmp_path, CANONICAL)
+        with pytest.raises(ValueError, match="refusing to guess"):
+            summarize_module.main([str(path)])
+
 
 class TestHeaderBasedParsing:
     def test_canonical_and_shuffled_parse_identically(self, summarize_module, tmp_path):
@@ -106,3 +113,82 @@ class TestSummary:
         _, rows = summarize_module.read_results(path, "val_rmse")
         frontier = summarize_module.running_frontier(rows, "lower")
         assert [r.row_number for r in frontier] == [1, 3]
+
+    def test_unfamiliar_lower_is_better_comes_from_v2_track_contract(
+        self, summarize_module, tmp_path
+    ):
+        """A name heuristic would call ``mean_pinball`` higher; YAML must win."""
+        path = write_tsv(
+            tmp_path,
+            (
+                "experiment\ttrack\tprimary_metric\tstatus\tcommit\tdescription\n"
+                "E0001\tseverity\t0.42\tkeep\taaaaaaa\tbaseline\n"
+                "E0002\tfrequency\t0.99\tkeep\tbbbbbbb\tother task\n"
+                "E0003\tseverity\t0.31\tkeep\tccccccc\timproved\n"
+                "E0004\tseverity\t0.37\tdiscard\tddddddd\tnot frontier\n"
+            ),
+        )
+        (tmp_path / "study.yaml").write_text(
+            (
+                "schema_version: 2\n"
+                "tracks:\n"
+                "  severity:\n"
+                "    metric: {name: mean_pinball, goal: lower, minimum_delta: 0.0}\n"
+                "  frequency:\n"
+                "    metric: {name: auc, goal: higher, minimum_delta: 0.0}\n"
+            ),
+            encoding="utf-8",
+        )
+
+        assert summarize_module.main([str(path), "--track", "severity"]) == 0
+        summary = (tmp_path / "results_summary.md").read_text(encoding="utf-8")
+        assert "- track: `severity`" in summary
+        assert "- metric name: `mean_pinball`" in summary
+        assert "- goal: `lower`" in summary
+        assert "- total experiments: 3" in summary
+        assert "- best metric: 0.310000" in summary
+        assert "- total improvement: 0.110000" in summary
+        assert "E0002" not in summary
+
+    def test_multiple_v2_tracks_require_explicit_track(
+        self, summarize_module, tmp_path
+    ):
+        path = write_tsv(
+            tmp_path,
+            "experiment\ttrack\tprimary_metric\tstatus\tcommit\tdescription\n",
+        )
+        (tmp_path / "study.yaml").write_text(
+            (
+                "schema_version: 2\n"
+                "tracks:\n"
+                "  a: {metric: {name: score_a, goal: higher}}\n"
+                "  b: {metric: {name: score_b, goal: lower}}\n"
+            ),
+            encoding="utf-8",
+        )
+        with pytest.raises(ValueError, match="misleading global frontier"):
+            summarize_module.main([str(path)])
+
+    def test_e_prefixed_ids_join_aux_metrics(self, summarize_module, tmp_path):
+        path = write_tsv(
+            tmp_path,
+            (
+                "experiment\ttrack\tprimary_metric\tstatus\tcommit\tdescription\n"
+                "E0001\tmain\t0.4\tkeep\taaaaaaa\tbaseline\n"
+            ),
+        )
+        (tmp_path / "study.yaml").write_text(
+            (
+                "schema_version: 2\n"
+                "tracks:\n"
+                "  main: {metric: {name: score, goal: higher}}\n"
+            ),
+            encoding="utf-8",
+        )
+        (tmp_path / "aux_metrics.tsv").write_text(
+            "experiment\tmetric\tvalue\nE0001\tval_brier\t0.2\n",
+            encoding="utf-8",
+        )
+        assert summarize_module.main([str(path)]) == 0
+        summary = (tmp_path / "results_summary.md").read_text(encoding="utf-8")
+        assert "| E0001 | `aaaaaaa` | 0.200000 |" in summary

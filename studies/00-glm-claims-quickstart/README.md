@@ -7,8 +7,9 @@ full Klein artifact set — ledger, cards, findings, tutorial — in ~10 minutes
 ## Reproduce it right now (no credentials, no private infra)
 
 ```bash
-uv run prepare.py     # resolves the repo-bundled dataset; prints "data source: bundled"
-uv run train.py       # the committed winner (exp 6): HGBT, learning_rate=0.06
+uv run --locked python prepare.py  # resolves bundled data; prints its provenance
+uv run --locked python ../../scripts/run_with_log.py --timeout-seconds 600 \
+  --log run.log -- uv run --locked python -u train.py
 ```
 
 Expected `primary_metric: 0.664322` — exact on the reference setup (Python 3.13,

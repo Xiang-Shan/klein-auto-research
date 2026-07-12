@@ -27,9 +27,9 @@ every invocation; it is the source of truth, this file only orients you.
    Teach it; don't just cite it.
 3. **The data story** — `data_card.md` highlights: shape, the value-pattern gotchas,
    the go/no-go call.
-4. **The experiment journey** — the annotated metric-vs-experiment trajectory with
-   KEEPS highlighted; the narrative of what moved the number (results.tsv +
-   program.md Log).
+4. **The experiment journey** — separate annotated development frontiers per track,
+   with sealed confirmation evidence labelled separately (manifests + derived results
+   + program.md Log).
 5. **Findings & insights** — the verdicts and surprises, from `findings.md`.
 6. **Model coding advice** — an annotated walkthrough of the ACTUAL winning `train.py`
    plus the pitfalls / war stories that bit this study (the MPS trap, the value-pattern
@@ -41,7 +41,7 @@ every invocation; it is the source of truth, this file only orients you.
 
 1. Read the protocol, then every source file above. Ensure figures exist; generate
    standard ones if missing:
-   `uv run python .claude/skills/klein/scripts/make_figures.py studies/NN-slug --kind binary|regression`.
+   `uv run --locked python .claude/skills/klein/scripts/make_figures.py studies/NN-slug --kind binary|regression`.
 2. Pick the figure set by problem class (per the protocol): binary-clf → ROC, PR,
    reliability, score-hist-by-class, decile-lift, confusion@best; severity/regression →
    pred-vs-actual, residuals, QQ, Lorenz/Gini, lift-quantile; simulation → breakdown
@@ -63,6 +63,8 @@ every invocation; it is the source of truth, this file only orients you.
 - [ ] All SEVEN sections present and in order (grep the section headings).
 - [ ] Opens offline from `file://` — VERIFIED: grep the file for `http://` / `https://`
       asset refs (src=, href= stylesheets, @import, url(...)); none may fetch.
+- [ ] A restrictive CSP meta tag is present; a browser load records zero network
+      requests and zero CSP console errors.
 - [ ] Section 6 contains the ACTUAL winning train.py (diff the embedded code against
       the committed file).
 - [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md —
@@ -85,7 +87,7 @@ tutorial had to omit for lack of source material (e.g. a thin findings section).
 
 ## Hard constraints
 
-- One file, fully self-contained. Strictly no CDN scripts, external stylesheets,
+- One file, fully self-contained, with restrictive CSP. Strictly no CDN scripts, external stylesheets,
   remote images, or fonts — the file must open from `file://` with zero network.
 - Every number traceable to results.tsv / aux_metrics.tsv / findings.md. Never
   recompute or "improve" a metric for the page.

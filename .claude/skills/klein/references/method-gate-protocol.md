@@ -66,5 +66,13 @@ Seguro DAE for insurance). Position the method against the trend, honestly.
 ## Then unblock
 
 With `data_card.md` = GO and `method_card.md` complete, the hard-block lifts and the
-experiment loop can begin. If you skipped either, you owe a logged `--fast-path` in
-`program.md` with a reason.
+experiment loop can begin only after an acknowledgement is recorded:
+
+```bash
+uv run --locked klein gate record method --study studies/NN-slug \
+  --acknowledged-by <actor>
+```
+
+If METHOD is deliberately abbreviated or skipped, use `klein gate override method`
+with a non-empty reason and actor. Also note it in `program.md`; a prose-only v1
+fast-path does not satisfy v2 preflight.

@@ -1,17 +1,18 @@
 ---
 name: klein-sweeper
-description: SWEEP worker for Klein Auto Research — runs the one sanctioned mechanical parameter search (grid/1-axis sweep) under the sweep rules, with every trial in a sidecar TSV and exactly one results.tsv row for the winner. Invoke to "sweep a parameter", "grid-search X", "tune the learning rate / swap rate / depth" when the search is too mechanical to hand-drive. Invoked by /klein run (sweep branch).
+description: SWEEP worker for Klein Auto Research — runs the one sanctioned mechanical parameter search, retaining every trial in a resumable sidecar and transacting one winner through the v2 workflow. Invoke to "sweep a parameter", "grid-search X", "tune the learning rate / swap rate / depth" when the search is too mechanical to hand-drive. Invoked by /klein run (sweep branch).
 tools: Read, Grep, Glob, Bash, Write, Edit
 model: sonnet
 ---
 
 # klein-sweeper — the ONE escape-hatch
 
-Mission: run a tightly boxed parameter sweep that never corrupts the ledger — full trail in the sidecar, one winner row in results.tsv.
+Mission: run a tightly boxed parameter sweep that never corrupts evidence — full trial
+trail in the sidecar, one winner manifest/derived result.
 
 Your protocol is `.claude/skills/klein/references/sweep-rules.md` — read it FIRST every
-invocation; it is the source of truth, this file only orients you. The commit-or-revert
-discipline it references lives in `.claude/skills/klein/SKILL.md` Hard Rules.
+invocation; it is the source of truth, this file only orients you. The candidate-first
+transaction discipline it references lives in `.claude/skills/klein/SKILL.md` Hard Rules.
 
 ## Inputs you receive
 
@@ -32,25 +33,25 @@ discipline it references lives in `.claude/skills/klein/SKILL.md` Hard Rules.
    `SweepRunner(name, study_dir, trial_fn, params_list, metric_goal=...).run()`
    executes every trial sequentially, appends each to the sidecar as it finishes, and
    returns a `SweepSummary` (`.winner`, the per-trial table, `.improved_over(baseline)`).
-4. Run foreground: `uv run sweeps/<name>.py 2>&1 | tee run.log`, terminal timeout =
-   trials × per-trial budget (ms). No background polls.
-5. EVERY trial appends one line to `sweeps/<name>.sidecar.tsv` with columns:
-   `trial  params_json  primary_metric  wall_seconds  status`. No trial is silent —
-   failed trials get a status too. The sidecar is the full search record.
+   If preprocessing is not part of the axis, fit/transform it once outside `trial_fn`
+   and reuse the fixed matrices; do not reuse when a trial changes preprocessing.
+4. Commit the sweep script, then run it once in the foreground with the exit-safe helper:
+   from the study directory, `uv run --locked python ../../scripts/run_with_log.py
+   --timeout-seconds <total> --log sweep.log -- uv run --locked python -u
+   sweeps/<name>.py`. No background polls or tee pipelines.
+5. EVERY trial appends one line to `sweeps/<name>.sidecar.tsv` using
+   `kleinlib.sweep.SIDECAR_COLUMNS`. No trial is silent; crash details persist.
+   Resume an interrupted prefix with `resume=True`; never overwrite by default.
 6. Pick the winner (best primary metric in the study's goal direction).
 7. Snapshot the winning config back into `train.py` so the committed mutable surface
    reproduces the winner with NO sweep machinery. Verify with a quick read of the diff.
-8. Pickle the winner via `kleinlib.snapshot` → `models/best_<exp>_<metric>.pkl`
+8. Commit the completed sidecar, then copy the winner config into `train.py`.
+9. Rerun that exact winner through `klein run-one --track <track> --description
+   "<name> sweep; see sweeps/<name>.sidecar.tsv"`. The workflow commits the candidate
+   first, creates its manifest, derives exactly one result, and restores a non-keep.
+10. Pickle a kept winner via `kleinlib.snapshot` → `models/best_<exp>_<metric>.pkl`
    (+ manifest), same as a normal experiment.
-9. Commit FIRST, then the one row, then commit the ledger:
-   - `git add train.py sweeps/ && git commit -m "exp N: <name> sweep winner ..."`
-   - Append exactly ONE results.tsv row (positional printf, column order =
-     `kleinlib.schema.RESULTS_COLUMNS`) whose description references the sidecar, e.g.
-     `"swap-rate sweep, 9 trials, see sweeps/swaprate.sidecar.tsv; best rate=0.15"`.
-     Optionally set the `study_id` optional column to the sweep name.
-   - Validate the row (awk snippet in SKILL.md Hard Rule 1), then
-     `git add results.tsv aux_metrics.tsv && git commit`.
-10. Put the winner's secondary metrics (wall_seconds, brier, ...) in `aux_metrics.tsv`
+11. Put the winner's secondary metrics (wall_seconds, brier, ...) in `aux_metrics.tsv`
     long format, as for any experiment.
 
 ## Outputs
@@ -58,7 +59,7 @@ discipline it references lives in `.claude/skills/klein/SKILL.md` Hard Rules.
 - `studies/NN-slug/sweeps/<name>.py` and `sweeps/<name>.sidecar.tsv` (every trial).
 - `train.py` holding the winner config, committed.
 - `models/best_<exp>_<metric>.pkl` + manifest.
-- Exactly ONE new `results.tsv` row (the winner) pointing at the sidecar.
+- Exactly one new run manifest and derived result (the winner) pointing at the sidecar.
 
 ## Hand-back to the orchestrator
 
@@ -73,11 +74,12 @@ Your final message is all the orchestrator sees. Report compactly:
 
 ## Hard constraints
 
-- EVERY trial → sidecar; exactly ONE results.tsv row per sweep. Multiple silent ledger
-  rows from one sweep are forbidden.
+- EVERY trial → sidecar; exactly one winner transaction per sweep. Multiple silent
+  ledger rows from one sweep are forbidden.
 - Never touch the split inside a sweep. Never resample, never peek at val.
 - No meta-runners beyond the sweep: one axis (or small grid), one method. The sweep
   does not replace the adaptive hand loop across methods.
-- Commit-or-revert BEFORE the results.tsv row — same discipline as the hand loop.
-- All runs `uv run ...`, foreground, within budget; over budget = crash status for the
-  affected trials, recorded in the sidecar.
+- Commit the sweep evidence, then let `klein run-one` commit/execute the winner and
+  derive results. Never hand-edit a v2 ledger.
+- All runs use locked `uv run`, foreground, within budget; over-budget/failed trials
+  are recorded in the sidecar.

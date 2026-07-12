@@ -33,9 +33,11 @@ ranked go/no-go issues before any modeling. Check value patterns, never trust
 `method_card.md` — intuition → math core → minimal from-scratch implementation →
 when-it-pays / when-it-doesn't → verified references.
 
-**Hard-block rule:** modeling is BLOCKED until `data_card.md` says go AND
-`method_card.md` exists. The only override is an explicitly logged `--fast-path`,
-recorded in `program.md`.
+**Hard-block rule:** modeling is BLOCKED until the CONSULT, DATA, and METHOD gates
+are acknowledged and `data_card.md` says GO. In schema v2, record or override a gate
+with `klein gate`; the timestamp, artifact hashes, actor, and reason are persisted in
+`study_state.json` and hash-chained `events.jsonl`. The legacy v1 fast-path remains
+readable but is never sufficient for a new v2 study.
 
 **EXPERIMENT/SWEEP.** The edit-run-log loop under the contract below; sweeps only
 through the one sanctioned escape-hatch.
@@ -63,18 +65,18 @@ this same table routed as the `/klein` skill.)
 
 | Stage | Protocol (source of truth) | Key outputs | Helper script |
 |---|---|---|---|
-| scaffold | `.claude/skills/klein/references/defaults-and-scaffolding.md` | study dir + templates | `scripts/new_study.py` |
+| scaffold | `.claude/skills/klein/references/defaults-and-scaffolding.md` | study dir + templates | `klein new` |
 | CONSULT | `references/consult-protocol.md` | study.yaml, research_plan.md, program.md | — |
 | DATA | `references/data-gate-protocol.md` | data_card.md (go/no-go) | `python -m kleinlib.profile_fallback` |
 | METHOD | `references/method-gate-protocol.md` | method_card.md | — |
-| EXPERIMENT | loop contract below + `SKILL.md` Hard Rules (exact commands + row validator) | results.tsv rows, models/, figures/ | `scripts/preflight.py` before the first experiment |
-| SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, ONE winner row | `kleinlib.sweep.SweepRunner` |
+| EXPERIMENT | loop contract below + `SKILL.md` Hard Rules | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one` |
+| SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction | `kleinlib.sweep.SweepRunner` |
 | SYNTHESIZE | `references/synthesis-protocol.md` | findings.md | `scripts/summarize_results.py` |
 | TUTORIAL | `references/tutorial-spec.md` | report/index.html | `scripts/build_tutorial.py`, `scripts/make_figures.py` |
 | status (any time) | — | results_summary.md, progress.svg | `scripts/summarize_results.py` |
 
 (Relative paths above are under `.claude/skills/klein/`. Every helper is a plain
-CLI: `uv run python .claude/skills/klein/scripts/<name>.py --help`.)
+CLI: `uv run --locked python .claude/skills/klein/scripts/<name>.py --help`.)
 
 ## The experiment loop contract
 
@@ -88,27 +90,44 @@ not renegotiate them mid-study.
 - The mutable surface is `train.py` ONLY. Library code (`kleinlib/`, study `lib/`)
   changes are rare, deliberate, and never part of the per-experiment diff. Keep
   diffs thin: 5–15 lines.
-- Run every experiment in the foreground, within the phase budget from `study.yaml`:
-  `uv run train.py 2>&1 | tee run.log`.
-- After the run: commit-or-revert FIRST, then append exactly ONE row to
-  `results.tsv`. Never the other way around; never batch rows.
+- For schema v2, run exactly one candidate transaction in the foreground with
+  `uv run --locked klein run-one --study studies/NN-slug --track <track>`. It uses
+  unbuffered output, the configured
+  `max_run_seconds`, process-group timeout handling, and retains the real exit code.
+- Every candidate configuration is committed **before** execution, including a
+  discard or crash. Non-keeps restore the working `train.py`, but the candidate
+  commit remains resolvable. Evidence is then committed transactionally; use
+  `klein recover` after an interruption.
+- In v2, `runs/E####/manifest.json` and `events.jsonl` are the evidence. Never edit
+  `results.tsv`: it is a derived, track-aware view regenerated transactionally.
+- Legacy v1 studies retain their five-column, append-only ledger. If a v1 command
+  must be run, use `scripts/run_with_log.py`, not a shell `| tee` pipeline, so a
+  crash or timeout cannot be masked.
 - Status honesty: `keep` / `discard` / `crash` — a crash is logged as a crash with
   `NA` metric, not silently retried into oblivion.
 - **The driving agent IS the loop.** No meta-runners, no orchestration scripts that
   run many experiments unattended. The ONE sanctioned escape-hatch is the sweep
   protocol (`references/sweep-rules.md`): every trial to a sidecar TSV, exactly one
-  `results.tsv` row for the winner, winner config snapshotted into train.py,
-  winner pickled, committed.
-- Phase-boundary pauses: at every phase boundary defined in `study.yaml`, summarize
-  and STOP for user ack before continuing.
+  winner transaction / derived row, winner config snapshotted into train.py, winner
+  model stored locally with its hash/availability in the committed manifest. Unsafe
+  model payloads themselves are never committed.
+- Adaptive work uses train/development data only. Each track may access its sealed
+  final-test partition once with `klein run-one --final-test`; confirmation evidence
+  is excluded from the adaptive frontier.
+- Phase-boundary pauses: at every phase boundary defined in `study.yaml`, summarize,
+  STOP for user ack, then record it with `klein gate record phase --phase <id>`.
 - Studies run on `experiments/<study>` branches, never on `main`. Merge at study end.
 
 ## Schema discipline
 
 - The results schema lives ONLY in `kleinlib/schema.py`. Templates, docs, and
   scripts POINT there; none of them restate the column list.
-- `results.tsv` has the 5 canonical columns (plus optional `study_id`) defined by
-  `kleinlib.schema.RESULTS_COLUMNS` / `OPTIONAL_COLUMNS`.
+- A missing `schema_version` means v1. Its ledger remains readable through
+  `kleinlib.schema.RESULTS_COLUMNS` / `OPTIONAL_COLUMNS` and is never rewritten by
+  migration. Schema v2 uses `V2_RESULTS_COLUMNS` as a derived view of manifests.
+- Track metrics carry their own name, direction, minimum delta, and guardrails.
+  `keep` means a frontier improvement on that track satisfying those guardrails;
+  `discard` is retained evidence, and `crash` has `NA` as its primary metric.
 - Everything that is not the one primary metric (PR-AUC, logloss, brier, lift@10,
   thresholds, wall_seconds, model_path, min_proba_std, ...) goes to
   `aux_metrics.tsv` in long format (`experiment  metric  value`), never into extra
@@ -119,16 +138,16 @@ not renegotiate them mid-study.
 - pandas string-dtype broke `dtype == "object"` checks and silently skipped
   categorical handling → all dtype checks are value-pattern checks now.
 - On Apple-silicon MPS, DataLoader + TensorDataset silently collapsed predictions
-  to a constant → torch loops use index-shuffle batching, and `min_proba_std` is a
-  hard guard that raises on collapsed predictions.
+  to a constant → torch loops use streamed index-shuffle batches, and evaluators
+  reject non-finite or near-constant predictions using range/unique diagnostics.
 - A 4-column vs 5-column schema drift between two docs corrupted `results.tsv`
   appends → the schema is single-sourced in `kleinlib/schema.py` and drift-tested.
 - class-weight / imbalance reweighting ruins calibration on weak-signal insurance
   data → default to `class_weight=None` + isotonic calibration + threshold tuning.
 - torch + LightGBM in one process SIGSEGV on macOS arm64 (dual bundled `libomp`;
   whichever engages OpenMP second dies, below Python — no guard can fire) → any
-  train.py mixing them uses two-stage process isolation, with `set -o pipefail` +
-  `PYTHONUNBUFFERED=1` on every tee'd run.
+  train.py mixing them uses two-stage process isolation; Klein's runner supplies
+  unbuffered output and preserves the subprocess status.
 
 ## Worker roles (optional parallelization)
 
@@ -168,10 +187,12 @@ protocols always spell out both paths.
 
 ## Run commands
 
-- Always `uv run ...` (e.g. `uv run train.py`, `uv run pytest`), never bare
-  `python`.
-- `uv sync` to set up; extras compose and must be named together:
-  `uv sync --extra dev --extra gbdt --extra deep` (naming only some extras removes
+- Always locked `uv run ...` (e.g. `uv run --locked klein status`,
+  `uv run --locked pytest`), never bare `python`. CI may use `uv run --no-sync`
+  immediately after a successful `uv sync --locked` to prove it is not mutating the
+  environment.
+- `uv sync --locked` to set up; extras compose and must be named together:
+  `uv sync --locked --extra dev --extra gbdt --extra deep` (naming only some extras removes
   the others from the environment).
 
 ## Durable notes

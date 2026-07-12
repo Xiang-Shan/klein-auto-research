@@ -11,7 +11,7 @@ import pytest
 
 torch = pytest.importorskip("torch")
 
-from kleinlib import torch_loop  # noqa: E402
+from kleinlib import torch_device, torch_loop  # noqa: E402
 from kleinlib.torch_device import pick_device  # noqa: E402
 
 
@@ -76,3 +76,55 @@ def test_predict_without_fit_returns_cpu_array_with_variance():
     preds = torch_loop.predict(model, X, device=device, batch_size=16)
     assert isinstance(preds, np.ndarray)
     assert preds.shape == (50, 1)
+
+
+def test_epoch_loss_is_weighted_by_batch_size():
+    X = np.zeros((4, 1), dtype=np.float32)
+    y = np.array([0.0, 0.0, 0.0, 10.0], dtype=np.float32)
+    model = torch.nn.Linear(1, 1, bias=False)
+    torch.nn.init.zeros_(model.weight)
+
+    history = torch_loop.fit(
+        model,
+        X,
+        y,
+        loss_fn=lambda out, target: torch.nn.functional.mse_loss(
+            out.squeeze(-1), target
+        ),
+        epochs=1,
+        batch_size=3,
+        lr=0.0,
+        weight_decay=0.0,
+        device=torch.device("cpu"),
+        early_stopping_patience=None,
+        seed=42,
+    )
+    # Three rows in one batch and one in the last: the dataset mean is 25.
+    # An unweighted mean of batch means would incorrectly be 50 or 16.67.
+    assert history["train_loss"] == pytest.approx([25.0])
+    assert history["best_loss"] == pytest.approx(25.0)
+
+
+def test_early_stopping_state_clone_is_cpu_resident():
+    model = torch.nn.Linear(2, 1)
+    state = torch_loop._cpu_state_dict(model)
+    assert state
+    assert all(tensor.device.type == "cpu" for tensor in state.values())
+    assert all(
+        tensor.data_ptr() != model.state_dict()[name].data_ptr()
+        for name, tensor in state.items()
+    )
+
+
+def test_device_selection_preference_and_name(monkeypatch):
+    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: True)
+    monkeypatch.setattr(torch.backends.mps, "is_built", lambda: True)
+    assert torch_device.device_name(torch_device.pick_device("mps")) == "mps"
+
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    assert torch_device.device_name(torch_device.pick_device("cuda")) == "cuda"
+
+    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: False)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    assert torch_device.device_name(torch_device.pick_device("mps")) == "cpu"
+    assert torch_device.device_name(torch_device.pick_device("cuda")) == "cpu"

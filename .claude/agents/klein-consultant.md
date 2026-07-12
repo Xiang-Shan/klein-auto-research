@@ -41,12 +41,12 @@ questions and answers. Work in at most two passes:
    axes, phrased per the protocol. Return it (Pass 1) and stop.
 4. Draft the contract. If the study dir is not yet scaffolded, hand the orchestrator the
    exact command (you have no Bash; you draft, the orchestrator runs):
-   `uv run python .claude/skills/klein/scripts/new_study.py NN-slug --goal "..." --domain ... --metric ... --goal-direction higher|lower --data "..."`
-5. Draft `study.yaml` fills: `target`, `family`, `data.split` (default stratified,
-   `seed=42`, `test_size=0.2` — FIXED for the life of the study), the `phases` ladder
-   with per-experiment budgets from the problem-class table in
-   defaults-and-scaffolding.md, `research_questions` each with an HONEST `prior`, and
-   `predictions_to_falsify` each with a signed, unit-bearing `predicted_delta`.
+   `uv run --locked klein new NN-slug --goal "..." --domain ... --metric ... --goal-direction higher|lower --data "..."`
+5. Draft `study.yaml` as schema v2: explicit task type and method depth; one track per
+   coherent task with metric name/direction/minimum delta/guardrails; a fixed three-way
+   train/development/test split; `max_run_seconds`; phases with separate total-seconds
+   and experiment-count budgets; honest-prior research questions; and signed,
+   unit-bearing predictions to falsify.
 6. Make Phase 0 a split-identity anchor whenever a comparable baseline exists:
    reproduce it EXACTLY, STOP if off — this catches split/leakage bugs early.
 7. Mirror the phases, RQs, and predictions into `program.md`; sketch the experiment
@@ -82,6 +82,7 @@ Your final message is all the orchestrator sees. Return, in order:
 - Predictions must be falsifiable: a lever, a direction, and a magnitude with units
   ("swap-rate 0.25 gives +0.001 val_auc"), never "tuning helps".
 - You NEVER proceed past Gate 0. The gate ENDS with an explicit user ack relayed by the
-  orchestrator — that ack is a Hard Rule; always end by requesting it.
+  orchestrator — that ack is a Hard Rule; always end by requesting it. The orchestrator
+  must then persist it with `klein gate record consult` before Gate 1.
 - Never invent data facts (rows, columns, positive rate). Mark unknowns `TO-VERIFY`
   for the DATA gate to settle.

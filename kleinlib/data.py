@@ -29,10 +29,11 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
+import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GroupShuffleSplit, train_test_split
 
 #: Canonical split contract for studies replicating the model-survey doctrine.
 RANDOM_SEED = 42
@@ -141,7 +142,8 @@ def fixed_split(
     *,
     seed: int = RANDOM_SEED,
     test_size: float = TEST_SIZE,
-    stratify: bool = True,
+    stratify: bool | None = None,
+    task: Literal["classification", "regression"] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """Campaign-identical train/val split: seed=42, test_size=0.2, stratified.
 
@@ -150,12 +152,197 @@ def fixed_split(
     primary metric directly comparable between them. Returns
     ``(X_tr, X_va, y_tr, y_va)``.
     """
+    if task not in (None, "classification", "regression"):
+        raise ValueError("task must be 'classification' or 'regression'")
+    if stratify is None:
+        use_stratify = task != "regression"
+    else:
+        use_stratify = stratify
+    if task == "regression" and use_stratify:
+        raise ValueError(
+            "regression targets cannot use stratification; pass stratify=False"
+        )
     return train_test_split(
         X,
         y,
         test_size=test_size,
         random_state=seed,
-        stratify=y if stratify else None,
+        stratify=y if use_stratify else None,
+    )
+
+
+SplitTask = Literal["classification", "regression"]
+SplitStrategy = Literal["stratified", "random", "group", "time"]
+
+
+def _validate_three_way_inputs(
+    X: pd.DataFrame,
+    y: pd.Series,
+    *,
+    task: SplitTask,
+    strategy: SplitStrategy,
+    development_size: float,
+    test_size: float,
+) -> None:
+    if task not in ("classification", "regression"):
+        raise ValueError("task must be explicitly 'classification' or 'regression'")
+    if strategy not in ("stratified", "random", "group", "time"):
+        raise ValueError(
+            "strategy must be one of 'stratified', 'random', 'group', or 'time'"
+        )
+    if strategy == "stratified" and task != "classification":
+        raise ValueError("stratified splitting is supported only for classification")
+    if len(X) != len(y):
+        raise ValueError(f"X and y have different lengths: {len(X)} != {len(y)}")
+    if len(X) < 3:
+        raise ValueError("a three-way split requires at least three rows")
+    if not (0.0 < development_size < 1.0):
+        raise ValueError("development_size must be between 0 and 1")
+    if not (0.0 < test_size < 1.0):
+        raise ValueError("test_size must be between 0 and 1")
+    if development_size + test_size >= 1.0:
+        raise ValueError("development_size + test_size must be less than 1")
+
+
+def _take_rows(obj: pd.DataFrame | pd.Series, positions: np.ndarray):
+    return obj.iloc[positions]
+
+
+def three_way_split(
+    X: pd.DataFrame,
+    y: pd.Series,
+    *,
+    task: SplitTask,
+    strategy: SplitStrategy | None = None,
+    development_size: float = 0.2,
+    test_size: float = 0.2,
+    seed: int = RANDOM_SEED,
+    groups: pd.Series | np.ndarray | list[Any] | None = None,
+    time_values: pd.Series | np.ndarray | list[Any] | None = None,
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.Series,
+    pd.Series,
+    pd.Series,
+]:
+    """Return deterministic train/development/test partitions for v2 studies.
+
+    ``task`` is mandatory so continuous targets are never accidentally
+    stratified.  The default strategy is ``stratified`` for classification
+    and ``random`` for regression.  ``group`` keeps every group wholly inside
+    one partition; ``time`` sorts oldest-to-newest and assigns the newest rows
+    to the sealed test set.
+    """
+    resolved_strategy: SplitStrategy = strategy or (
+        "stratified" if task == "classification" else "random"
+    )
+    _validate_three_way_inputs(
+        X,
+        y,
+        task=task,
+        strategy=resolved_strategy,
+        development_size=development_size,
+        test_size=test_size,
+    )
+
+    n_rows = len(X)
+    positions = np.arange(n_rows)
+
+    if resolved_strategy in ("stratified", "random"):
+        stratify_values = np.asarray(y) if resolved_strategy == "stratified" else None
+        holdout_size = development_size + test_size
+        try:
+            train_idx, holdout_idx = train_test_split(
+                positions,
+                test_size=holdout_size,
+                random_state=seed,
+                stratify=stratify_values,
+            )
+            holdout_stratify = (
+                np.asarray(y)[holdout_idx]
+                if resolved_strategy == "stratified"
+                else None
+            )
+            dev_idx, test_idx = train_test_split(
+                holdout_idx,
+                test_size=test_size / holdout_size,
+                random_state=seed + 1,
+                stratify=holdout_stratify,
+            )
+        except ValueError as exc:
+            raise ValueError(
+                f"cannot create safe {resolved_strategy} three-way split: {exc}"
+            ) from exc
+    elif resolved_strategy == "group":
+        if groups is None:
+            raise ValueError("groups are required when strategy='group'")
+        group_values = np.asarray(groups)
+        if len(group_values) != n_rows:
+            raise ValueError("groups must have one value per row")
+        if pd.isna(group_values).any():
+            raise ValueError("groups must not contain missing values")
+        if np.unique(group_values).size < 3:
+            raise ValueError("group splitting requires at least three distinct groups")
+        outer = GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=seed)
+        remain_idx, test_idx = next(outer.split(positions, y, group_values))
+        inner = GroupShuffleSplit(
+            n_splits=1,
+            test_size=development_size / (1.0 - test_size),
+            random_state=seed + 1,
+        )
+        train_rel, dev_rel = next(
+            inner.split(remain_idx, np.asarray(y)[remain_idx], group_values[remain_idx])
+        )
+        train_idx = remain_idx[train_rel]
+        dev_idx = remain_idx[dev_rel]
+    else:
+        if time_values is None:
+            raise ValueError("time_values are required when strategy='time'")
+        times = np.asarray(time_values)
+        if len(times) != n_rows:
+            raise ValueError("time_values must have one value per row")
+        if pd.isna(times).any():
+            raise ValueError("time_values must not contain missing values")
+        try:
+            ordered = np.argsort(times, kind="stable")
+        except TypeError as exc:
+            raise ValueError("time_values must be mutually orderable") from exc
+        ordered_times = times[ordered]
+        boundaries = np.flatnonzero(ordered_times[1:] != ordered_times[:-1]) + 1
+        if len(boundaries) < 2:
+            raise ValueError(
+                "time splitting requires at least three distinct time values so "
+                "equal timestamps never cross partitions"
+            )
+        n_test = max(1, int(np.ceil(n_rows * test_size)))
+        n_dev = max(1, int(np.ceil(n_rows * development_size)))
+        if n_test + n_dev >= n_rows:
+            raise ValueError(
+                "requested time split leaves no training rows; use smaller holdouts"
+            )
+        target_test_start = n_rows - n_test
+        # Reserve at least one earlier boundary for train/development.
+        test_start = int(
+            min(boundaries[1:], key=lambda boundary: abs(boundary - target_test_start))
+        )
+        earlier = boundaries[boundaries < test_start]
+        target_dev_start = n_rows - n_test - n_dev
+        dev_start = int(
+            min(earlier, key=lambda boundary: abs(boundary - target_dev_start))
+        )
+        train_idx = ordered[:dev_start]
+        dev_idx = ordered[dev_start:test_start]
+        test_idx = ordered[test_start:]
+
+    return (
+        _take_rows(X, np.asarray(train_idx)),
+        _take_rows(X, np.asarray(dev_idx)),
+        _take_rows(X, np.asarray(test_idx)),
+        _take_rows(y, np.asarray(train_idx)),
+        _take_rows(y, np.asarray(dev_idx)),
+        _take_rows(y, np.asarray(test_idx)),
     )
 
 
