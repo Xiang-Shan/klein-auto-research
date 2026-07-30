@@ -203,6 +203,8 @@ jobs:
           enable-cache: true
       - name: Locked CLI environment
         run: uv sync --locked --extra encoders
+      - name: Split determinism holds on ${{ matrix.os }}
+        run: uv run --no-sync pytest -q kleinlib/tests/test_data_splits.py
       - name: Public command surface is importable
         run: |
           uv run --no-sync klein --help
