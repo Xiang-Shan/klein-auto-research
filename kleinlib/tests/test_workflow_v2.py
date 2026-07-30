@@ -39,6 +39,8 @@ def git(repo: Path, *args: str) -> str:
 
 def commit_all(repo: Path, message: str) -> None:
     git(repo, "add", "-A")
+    if git(repo, "status", "--porcelain") == "":
+        return  # gate records file their own state writes; nothing may remain
     git(
         repo,
         "-c",
@@ -482,6 +484,30 @@ def test_data_override_bypasses_only_go_and_still_fingerprints(ready_study) -> N
         )
 
 
+def test_gate_records_and_derived_views_do_not_block_the_loop(ready_study) -> None:
+    repo, study = ready_study
+    # A CLI verb's own state writes are filed automatically: re-recording a
+    # gate leaves the tree clean instead of blocking the next run-one (A1).
+    record_gate(study, "method", acknowledged_by="tester", note="re-record")
+    assert git(repo, "status", "--porcelain") == ""
+    assert "method gate recorded" in git(repo, "log", "-1", "--format=%s")
+    # Derived views may be dirty at run time; the run proceeds and the next
+    # state commit sweeps them (A2).
+    (study / "results_summary.md").write_text("derived view\n", encoding="utf-8")
+    (study / "progress.svg").write_text("<svg/>\n", encoding="utf-8")
+    (study / "figures").mkdir(exist_ok=True)
+    (study / "figures" / "x.png").write_bytes(b"png")
+    manifest = run_one(
+        study,
+        description="derived views present",
+        command=metric_command(0.9),
+        echo=False,
+    )
+    assert manifest["disposition"] == "keep"
+    record_gate(study, "consult", acknowledged_by="tester", note="sweep derived views")
+    assert git(repo, "status", "--porcelain") == ""
+
+
 def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
     study = tmp_path / "legacy"
     study.mkdir()
@@ -546,8 +572,10 @@ def test_finalize_requires_explicit_exploratory_or_confirmed_label(ready_study, 
     assert "status: finalized" in status_summary(study)
     assert verify_event_chain(study) == []
 
-    # Finalization state is deliberate evidence and remains visible to Git callers.
-    assert git(repo, "status", "--porcelain")
+    # Finalization state is evidence the CLI files itself (A1): tree clean,
+    # and the finalize commit is the receipt.
+    assert git(repo, "status", "--porcelain") == ""
+    assert "finalized exploratory" in git(repo, "log", "-1", "--format=%s")
 
 
 def test_finalize_confirmed_after_one_sealed_run(ready_study) -> None:
