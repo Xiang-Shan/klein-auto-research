@@ -111,6 +111,14 @@ The standing rules around those layers:
 
 - `program.md` is the living lab notebook: hypotheses, decisions, phase plans, and
   predictions-to-falsify live there and are updated as the study runs.
+- `playbook.md` is the rolling state of play — current best per track, ruled-out
+  directions with evidence, open hypotheses, next-best candidates. RE-READ it
+  before selecting every candidate; refresh it at every phase boundary and at
+  least every 5 experiments (the journal remembers everything; the map stays
+  small). Phase acknowledgements record its hash. At each phase start, run the
+  slate ritual (`references/phase-ritual.md`): propose 4–6 falsifiable
+  candidates, score novelty/testability/expected-information, record the slate
+  in `program.md`, mirror the survivors into the playbook.
 - The mutable surface is `train.py` ONLY. Library code (`kleinlib/`, study `lib/`)
   changes are rare, deliberate, and never part of the per-experiment diff.
 - Status honesty: `keep` / `discard` / `crash` — a crash is logged as a crash with
