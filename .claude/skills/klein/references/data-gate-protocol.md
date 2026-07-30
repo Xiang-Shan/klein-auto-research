@@ -54,6 +54,38 @@ List issues most-severe first, each with a severity and a recommended action:
   imbalance, small n).
 - **NOTE** — informational (a skewed numeric worth binning for linear models).
 
+## Clean-room leakage audit
+
+Leakage hides best from the eyes that prepared the data. The audit therefore runs in a
+FRESH context: a separate agent or session where possible; if self-performed, only
+AFTER the profile is finished — never interleaved with prep work. The auditor reads
+ONLY `study.yaml`, `prepare.py`, the prepared artifact, and the profile. Never
+`program.md` — its hopes, priors, and phase plans are exactly the context that makes a
+leak look plausible.
+
+Fill the four-row checklist on the data card (see `assets/data-card-template.md`):
+
+1. **Target leakage** — no feature is a proxy or derivative of the target, and none
+   encodes post-outcome information.
+2. **Lookahead** — encoders/imputers/scalers are fit on train only; time-derived
+   features precede the cut.
+3. **Split contamination** — no duplicate rows straddle partitions; group ids never
+   cross partitions; the split reproduces from `study.yaml` alone.
+4. **Eval-harness sanity** — the metric direction matches the contract; a constant
+   predictor and a label-shuffled predictor both score at chance.
+
+Rows 1–2 are judgment calls made from `prepare.py` plus the profile. Rows 3–4 are
+mechanized — run the bundled auditor and copy its `[OK]`/`[FAIL]` lines into the
+Evidence column:
+
+```bash
+uv run --locked python -m kleinlib.leakage <prepared> --target <col> --study <dir>
+```
+
+Any FAIL on any row is a **BLOCKER** — NO-GO by the ranking rule above — until the
+cause is fixed deterministically (in `prepare.py` or the split block) and the audit is
+re-run clean.
+
 ## Rule go / no-go
 
 Write the decision box: **GO**, **NO-GO**, or **GO-WITH-CAUTIONS**, with a rationale. Set

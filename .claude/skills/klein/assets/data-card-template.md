@@ -40,6 +40,21 @@ Severity: **BLOCKER** (must fix before modeling) · **WARN** (proceed with care)
 | 2 | WARN | … | … |
 | 3 | NOTE | … | … |
 
+## Clean-room leakage audit
+
+Performed in a FRESH context (separate agent/session, or self-performed only after the
+profile is finished), reading ONLY `study.yaml`, `prepare.py`, the prepared artifact,
+and the profile — never `program.md`. Rows 3–4 are mechanized:
+`uv run --locked python -m kleinlib.leakage <prepared> --target <col> --study <dir>`.
+Any FAIL is a **BLOCKER** (NO-GO until fixed and re-audited).
+
+| Check | Pass/Fail/N-A | Evidence |
+|---|---|---|
+| 1. Target leakage — no feature is a proxy/derivative of the target or post-outcome information | … | … |
+| 2. Lookahead — encoders/imputers/scalers fit on train only; time-derived features precede the cut | … | … |
+| 3. Split contamination — no duplicate rows straddling partitions; group ids never cross partitions; the split reproduces from `study.yaml` | … | … |
+| 4. Eval-harness sanity — metric direction matches the contract; constant and shuffled predictors score at chance | … | … |
+
 ## Go / no-go
 
 > **Decision:** GO · NO-GO · GO-WITH-CAUTIONS

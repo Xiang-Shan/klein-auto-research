@@ -41,7 +41,11 @@ value-pattern check encodes a real war story (`references/war-stories.md`, story
    column REALLY holds. This check is non-negotiable.
 5. Check for leakage and split problems: ID-like columns, target contamination,
    post-outcome features, and that the `study.yaml` split is realizable (stratification
-   possible, no group leakage across the split).
+   possible, no group leakage across the split). Then perform the protocol's clean-room
+   leakage audit — a fresh pass reading ONLY `study.yaml`, `prepare.py`, the prepared
+   artifact, and the profile — filling the card's four-row checklist and mechanizing
+   rows 3–4 with `uv run --locked python -m kleinlib.leakage <prepared> --target <col>
+   --study <dir>`; any `[FAIL]` is a BLOCKER.
 6. Copy `.claude/skills/klein/assets/data-card-template.md` to the study as
    `data_card.md`; fill the profile summary table from the profiler output.
 7. Rank every issue most-severe first, each with a severity and a recommended action:
