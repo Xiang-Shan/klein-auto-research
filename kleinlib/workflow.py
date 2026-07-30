@@ -808,7 +808,13 @@ def record_gate(
             "timestamp": now,
             "by": acknowledged_by,
         }
-        state.setdefault("artifact_hashes", {}).update(artifact_hashes)
+        # The journal is not a frozen artifact: program.md is REQUIRED to change
+        # as the study runs ("living lab notebook"), so its hash lives only in
+        # the point-in-time gate record above — live enforcement tracks the
+        # contract-like docs.
+        enforced_hashes = {k: v for k, v in artifact_hashes.items() if k != "program.md"}
+        state.setdefault("artifact_hashes", {}).update(enforced_hashes)
+        state["artifact_hashes"].pop("program.md", None)
         append_event(
             study_dir,
             "gate_overridden" if override_reason is not None else "gate_recorded",
