@@ -32,44 +32,48 @@ def build_parser() -> argparse.ArgumentParser:
 
     new = sub.add_parser("new", help="scaffold a schema-v2 study")
     new.add_argument("slug", help="study id, e.g. 03-calibration")
-    new.add_argument("--root", type=Path, default=Path("studies"))
-    new.add_argument("--goal")
-    new.add_argument("--domain")
-    new.add_argument("--target")
-    new.add_argument("--task-type", choices=("classification", "regression"), default="classification")
-    new.add_argument("--method-depth", choices=("brief", "full"), default="full")
-    new.add_argument("--family")
-    new.add_argument("--track", default="primary")
-    new.add_argument("--metric")
-    new.add_argument("--goal-direction", choices=("higher", "lower"))
-    new.add_argument("--minimum-delta", type=float, default=0.0)
-    new.add_argument("--data")
-    new.add_argument("--prepared-path")
+    new.add_argument("--root", type=Path, default=Path("studies"), help="parent directory for the study (default: studies/)")
+    new.add_argument("--goal", help="one-sentence falsifiable study goal")
+    new.add_argument("--domain", help="problem domain, e.g. insurance, optimization")
+    new.add_argument("--target", help="target column (or 'synthetic' for known-truth labs)")
+    new.add_argument("--task-type", choices=("classification", "regression"), default="classification", help="evaluator shape for the study")
+    new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
+    new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
+    new.add_argument("--track", default="primary", help="name of the first metric track (default: primary)")
+    new.add_argument("--metric", help="primary metric name, e.g. val_auc (see kleinlib.eval metric registry)")
+    new.add_argument("--goal-direction", choices=("higher", "lower"), help="metric direction; must match the metric's canonical direction")
+    new.add_argument("--minimum-delta", type=float, default=0.0, help="smallest improvement that counts as a keep (measure it at Phase 0)")
+    new.add_argument("--data", help="data source tag, e.g. data_hub:name, kaggle:slug, csv:/path, synthetic:name")
+    new.add_argument("--prepared-path", help="path prepare.py writes (default: data/prepared/prepared.csv)")
     new.add_argument(
         "--split-kind",
         choices=("stratified", "random", "group", "time"),
         help="default: stratified for classification, random for regression",
     )
-    new.add_argument("--group-column")
-    new.add_argument("--time-column")
-    new.add_argument("--max-run-seconds", type=int, default=600)
+    new.add_argument("--group-column", help="grouping column for split-kind=group")
+    new.add_argument("--time-column", help="timestamp column for split-kind=time")
+    new.add_argument("--max-run-seconds", type=int, default=600, help="hard per-run timeout enforced by run-one (default: 600)")
 
     gate = sub.add_parser("gate", help="record or explicitly override a gate")
     gate_sub = gate.add_subparsers(dest="gate_action", required=True)
+    gate_help = {
+        "record": "record a gate acknowledgement (artifact must exist, placeholder-free)",
+        "override": "proceed against a gate's conclusion, with a recorded reason",
+    }
     for action in ("record", "override"):
-        p = gate_sub.add_parser(action)
+        p = gate_sub.add_parser(action, help=gate_help[action])
         choices = ("consult", "data", "method", "phase") if action == "record" else (
             "consult",
             "data",
             "method",
         )
-        p.add_argument("gate", choices=choices)
+        p.add_argument("gate", choices=choices, help="which gate")
         _study_arg(p)
-        p.add_argument("--acknowledged-by", required=True)
-        p.add_argument("--note", default="")
-        p.add_argument("--phase")
+        p.add_argument("--acknowledged-by", required=True, help="who acknowledged (user name or agent id)")
+        p.add_argument("--note", default="", help="free-text note stored in the gate record")
+        p.add_argument("--phase", help="phase id (required for 'record phase')")
         if action == "override":
-            p.add_argument("--reason", required=True)
+            p.add_argument("--reason", required=True, help="why the gate's conclusion is being overridden")
 
     preflight = sub.add_parser("preflight", help="enforce gates, git, fingerprints, and ledger integrity")
     _study_arg(preflight)
@@ -151,7 +155,8 @@ def main(argv: list[str] | None = None) -> int:
                 override_reason=getattr(args, "reason", None),
                 phase=args.phase,
             )
-            print(f"{args.gate_action}ed gate {args.gate}")
+            past = {"record": "recorded", "override": "overridden"}[args.gate_action]
+            print(f"{past} gate {args.gate}")
             return 0
         if args.command_name == "preflight":
             return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
