@@ -48,6 +48,12 @@ base commit.
   is documented here.
 - 2026-07-30 — prepare.py generated the reference cell: anchor config
   (single-start NM, budget 200, dev block) mean_final_gap 1.251208 over 40 reps.
+- 2026-07-30 — DATA-gate clean-room audit finding (pre-loop): random search
+  (200 uniform samples) scores 0.397 vs the anchor's 1.251 — the no-information
+  baseline beats single-start NM 3.2× under noise. Noiseless probe = exact 0.0
+  (harness sane; the noise is the story). The bar for "restarts pay" is 0.397.
+  RQ1's prior strengthens; the interesting comparison is restarts vs random
+  search, not restarts vs the stalled anchor.
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):

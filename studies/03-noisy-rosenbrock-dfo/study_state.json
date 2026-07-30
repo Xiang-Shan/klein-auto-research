@@ -3,9 +3,14 @@
     "consult": {
       "by": "xiang",
       "timestamp": "2026-07-30T17:29:15.419548Z"
+    },
+    "data": {
+      "by": "xiang",
+      "timestamp": "2026-07-30T17:31:02.068788Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "a3a2db124eb6d65455652f0db6908fde7f56e413ad6147a60029bd41993fd4c7",
     "research_plan.md": "f36e38b06185b19d23aa11db7f52d3361dcd053cb75f32293946c84ba8f2b04c",
     "study.yaml": "f4990be0adfe80f54dabef2cd6fe02d04f32ad259ff6684b0e6f9d7f2cc9686a"
   },
@@ -19,7 +24,7 @@
     }
   },
   "fingerprints": {
-    "data": null,
+    "data": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344",
     "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
   },
   "gates": {
@@ -35,9 +40,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-07-30T17:31:02.068788Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "data_card.md": "a3a2db124eb6d65455652f0db6908fde7f56e413ad6147a60029bd41993fd4c7"
+      },
+      "note": "GO; clean-room audit found the random-search-beats-anchor landscape finding pre-loop",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -50,10 +59,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/03-noisy-rosenbrock-dfo/data/prepared/reference_cell.csv",
-    "sha256": null
+    "sha256": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344"
   },
   "schema_version": 2,
   "status": "active",
   "study_id": "03-noisy-rosenbrock-dfo",
-  "updated_at": "2026-07-30T17:29:15.419870Z"
+  "updated_at": "2026-07-30T17:31:02.069267Z"
 }
