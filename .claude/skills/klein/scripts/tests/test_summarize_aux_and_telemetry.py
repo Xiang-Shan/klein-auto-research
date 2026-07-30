@@ -196,7 +196,7 @@ def test_malformed_study_yaml_fails_instead_of_guessing_direction(summarize_modu
 
 
 def test_phase_table_uses_id_ranges_not_count_bounds(summarize_module, tmp_path):
-    # assets/study-template.yaml phases carry BOTH count bounds
+    # v1 study.yaml phases carry BOTH count bounds
     # (min_experiments/max_experiments, for the stop rule) and an explicit
     # `experiments: {min,max}` ID range (for telemetry). The parser must
     # attribute wall-clock by the ID range and IGNORE the count bounds —

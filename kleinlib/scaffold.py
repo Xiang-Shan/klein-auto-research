@@ -1,7 +1,9 @@
 """Self-contained v2 study scaffolding used by ``klein new``.
 
-Templates live in Python so the command continues to work from an installed wheel;
-the copies under ``.claude/skills/klein/assets`` are the agent-readable equivalents.
+Templates live HERE and only here, so the command works from an installed wheel
+and nothing can drift. The card templates under ``.claude/skills/klein/assets``
+are different animals: they are gate-authoring aids (data/method/findings), not
+scaffold sources.
 """
 
 from __future__ import annotations
