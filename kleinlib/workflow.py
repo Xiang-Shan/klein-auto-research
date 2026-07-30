@@ -42,7 +42,10 @@ VALID_DISPOSITIONS = frozenset({"keep", "discard", "crash"})
 STRONG_CLAIM_RE = re.compile(r"(?i)\b(?:real|decisive)\b")
 UNCERTAINTY_EVIDENCE_RE = re.compile(
     r"(?i)\b(?:bootstrap(?:ped|ping)?|confidence interval|credible interval|"
-    r"standard error|error bars?|uncertainty (?:estimate|interval|quantification))\b"
+    r"standard error|error bars?|uncertainty (?:estimate|interval|quantification)|"
+    # Klein's own Phase-0 vocabulary: deltas stated against a measured floor
+    # ARE uncertainty-qualified claims.
+    r"noise[- ]floor|floor std|seed[- ]block std)\b"
 )
 GATE_ARTIFACTS: dict[str, tuple[str, ...]] = {
     "consult": ("study.yaml", "research_plan.md", "program.md"),
