@@ -160,6 +160,42 @@ def main(argv: list[str] | None = None) -> int:
             print(f"scaffolded {study}")
             print(f"next: git switch -c experiments/{args.slug}")
             return 0
+        if args.command_name == "noise-floor":
+            from .noise_floor import floor_from_sidecar, summarize_noise, yaml_block
+
+            if args.values:
+                seeds = [int(v) for v in args.seeds.split(",")] if args.seeds else None
+                floor_stats = summarize_noise(
+                    [float(v) for v in args.values.split(",")], seeds=seeds
+                )
+                source = "--values"
+            else:
+                study = resolve_study(args.study)
+                sidecar = args.sidecar or (study / "sweeps" / "noise_floor.sidecar.tsv")
+                floor_stats = floor_from_sidecar(sidecar)
+                try:
+                    source = str(sidecar.resolve().relative_to(study.resolve()))
+                except ValueError:
+                    source = str(sidecar)
+            print(
+                f"k={floor_stats.k}  mean={floor_stats.mean:.6g}  std={floor_stats.std:.6g}  "
+                f"range={floor_stats.value_range:.6g}  suggested minimum_delta="
+                f"{floor_stats.suggested_minimum_delta:.6g}"
+            )
+            print()
+            print(
+                yaml_block(
+                    args.track,
+                    floor_stats,
+                    source=source,
+                    measured_after=args.measured_after,
+                )
+            )
+            print(
+                "next: edit study.yaml, then re-record the consult gate --note "
+                '"minimum_delta set from the measured noise floor"'
+            )
+            return 0
         study = resolve_study(args.study)
         if args.command_name == "gate":
             record_gate(
@@ -200,41 +236,6 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "finalize":
             label = finalize(study, allow_exploratory=args.allow_exploratory)
             print(f"finalized: {label}")
-            return 0
-        if args.command_name == "noise-floor":
-            from .noise_floor import floor_from_sidecar, summarize_noise, yaml_block
-
-            if args.values:
-                seeds = [int(v) for v in args.seeds.split(",")] if args.seeds else None
-                floor_stats = summarize_noise(
-                    [float(v) for v in args.values.split(",")], seeds=seeds
-                )
-                source = "--values"
-            else:
-                sidecar = args.sidecar or (study / "sweeps" / "noise_floor.sidecar.tsv")
-                floor_stats = floor_from_sidecar(sidecar)
-                try:
-                    source = str(sidecar.resolve().relative_to(study.resolve()))
-                except ValueError:
-                    source = str(sidecar)
-            print(
-                f"k={floor_stats.k}  mean={floor_stats.mean:.6g}  std={floor_stats.std:.6g}  "
-                f"range={floor_stats.value_range:.6g}  suggested minimum_delta="
-                f"{floor_stats.suggested_minimum_delta:.6g}"
-            )
-            print()
-            print(
-                yaml_block(
-                    args.track,
-                    floor_stats,
-                    source=source,
-                    measured_after=args.measured_after,
-                )
-            )
-            print(
-                "next: edit study.yaml, then re-record the consult gate --note "
-                '"minimum_delta set from the measured noise floor"'
-            )
             return 0
         if args.command_name == "verify":
             return _print_checks(verify_study(study))
