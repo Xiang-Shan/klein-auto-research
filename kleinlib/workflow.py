@@ -318,8 +318,8 @@ def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None
             )
     if contract.get("method_depth") not in {"brief", "full"}:
         problems.append("method_depth must be brief or full")
-    if contract.get("task_type") not in {"classification", "regression"}:
-        problems.append("task_type must be classification or regression")
+    if contract.get("task_type") not in {"classification", "regression", "simulation"}:
+        problems.append("task_type must be classification, regression, or simulation")
     try:
         max_run_seconds = float(contract.get("max_run_seconds", 0))
         if not math.isfinite(max_run_seconds) or max_run_seconds <= 0:
@@ -343,11 +343,13 @@ def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None
         if metric_goal not in VALID_GOALS:
             problems.append(f"track {name!r}: metric.goal must be higher or lower")
         if isinstance(metric_name, str) and metric_name and metric_goal in VALID_GOALS:
+            simulation = contract.get("task_type") == "simulation"
             try:
                 get_metric_spec(
                     metric_name,
                     goal=str(metric_goal),
-                    task=str(contract.get("task_type")),
+                    task="scalar" if simulation else str(contract.get("task_type")),
+                    allow_custom=simulation,
                 )
             except ValueError as exc:
                 problems.append(f"track {name!r}: {exc}")
@@ -366,23 +368,33 @@ def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None
         problems.append("data.split is required")
     else:
         split_kind = split.get("kind")
-        if split_kind not in {"stratified", "random", "group", "time"}:
-            problems.append("data.split.kind must be stratified, random, group, or time")
+        simulation = contract.get("task_type") == "simulation"
+        allowed_kinds = {"stratified", "random", "group", "time"}
+        if simulation:
+            allowed_kinds = allowed_kinds | {"none"}
+        if split_kind not in allowed_kinds:
+            problems.append(
+                "data.split.kind must be stratified, random, group, or time"
+                + (" (or none)" if simulation else "")
+            )
+        if split_kind == "none" and not simulation:
+            problems.append("data.split.kind none is valid only for simulation studies")
         if split_kind == "stratified" and contract.get("task_type") == "regression":
             problems.append("regression studies cannot use a stratified split")
         if split_kind == "group" and not split.get("group_column"):
             problems.append("data.split.group_column is required for a group split")
         if split_kind == "time" and not split.get("time_column"):
             problems.append("data.split.time_column is required for a time split")
-        try:
-            dev = float(split.get("development_size"))
-            test = float(split.get("test_size"))
-            if not (0 < dev < 1 and 0 < test < 1 and dev + test < 1):
-                raise ValueError
-        except (TypeError, ValueError):
-            problems.append(
-                "data.split development_size and test_size must be positive and sum to < 1"
-            )
+        if split_kind != "none":
+            try:
+                dev = float(split.get("development_size"))
+                test = float(split.get("test_size"))
+                if not (0 < dev < 1 and 0 < test < 1 and dev + test < 1):
+                    raise ValueError
+            except (TypeError, ValueError):
+                problems.append(
+                    "data.split development_size and test_size must be positive and sum to < 1"
+                )
 
     phases = contract.get("phases")
     if not isinstance(phases, list) or len(phases) < 2:

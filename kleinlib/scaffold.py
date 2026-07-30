@@ -27,7 +27,7 @@ study_id: "{{STUDY_ID}}"
 goal: "{{GOAL}}"
 domain: "{{DOMAIN}}"
 target: "{{TARGET}}"
-task_type: "{{TASK_TYPE}}"       # classification | regression
+task_type: "{{TASK_TYPE}}"       # classification | regression | simulation
 method_depth: "{{METHOD_DEPTH}}" # brief | full
 family: "{{FAMILY}}"
 
@@ -44,10 +44,9 @@ data:
   source: "{{DATA_SOURCE}}"
   prepared_path: "{{DATA_PATH}}"
   split:
-    kind: {{SPLIT_KIND}}           # stratified | random | group | time
+    kind: {{SPLIT_KIND}}           # stratified | random | group | time | none (simulation)
     seed: 42
-    development_size: 0.20
-    test_size: 0.20
+{{SPLIT_SIZES}}
 {{SPLIT_COLUMN}}
     # group_column: account_id     # required when kind=group
     # time_column: event_time      # required when kind=time
@@ -272,14 +271,23 @@ def scaffold_study(
         raise ValueError("study id must match NN-lowercase-slug")
     if not IDENTIFIER_RE.fullmatch(track):
         raise ValueError("track must be a safe identifier")
-    if task_type not in {"classification", "regression"}:
-        raise ValueError("task_type must be classification or regression")
+    if task_type not in {"classification", "regression", "simulation"}:
+        raise ValueError("task_type must be classification, regression, or simulation")
     if method_depth not in {"brief", "full"}:
         raise ValueError("method_depth must be brief or full")
     if split_kind is None:
-        split_kind = "stratified" if task_type == "classification" else "random"
-    if split_kind not in {"stratified", "random", "group", "time"}:
-        raise ValueError("split_kind must be stratified, random, group, or time")
+        if task_type == "simulation":
+            split_kind = "none"
+        else:
+            split_kind = "stratified" if task_type == "classification" else "random"
+    allowed_kinds = {"stratified", "random", "group", "time"}
+    if task_type == "simulation":
+        allowed_kinds = allowed_kinds | {"none"}
+    if split_kind not in allowed_kinds:
+        raise ValueError(
+            "split_kind must be stratified, random, group, or time"
+            + (" (or none)" if task_type == "simulation" else "")
+        )
     if task_type == "regression" and split_kind == "stratified":
         raise ValueError("regression studies cannot use a stratified split")
     if split_kind == "group" and not group_column:
@@ -290,7 +298,8 @@ def scaffold_study(
         spec = get_metric_spec(
             metric_name,
             goal=metric_goal,
-            task=task_type,
+            task="scalar" if task_type == "simulation" else task_type,
+            allow_custom=task_type == "simulation",
         )
         metric_goal = spec.goal
     elif metric_goal is not None:
@@ -316,6 +325,13 @@ def scaffold_study(
         # pyarrow extra; opt in via --prepared-path *.parquet).
         "DATA_PATH": _quote_text(data_path or "data/prepared/prepared.csv"),
         "SPLIT_KIND": split_kind,
+        "SPLIT_SIZES": (
+            "    # kind none: comparability comes from fixed seed blocks inside train.py;\n"
+            "    # the sealed final test is a pre-registered fresh-seed block\n"
+            "    # (run-one sets KLEIN_EVALUATION_KIND=final_test)."
+            if split_kind == "none"
+            else "    development_size: 0.20\n    test_size: 0.20"
+        ),
         "SPLIT_COLUMN": (
             f'    group_column: "{_quote_text(group_column)}"'
             if split_kind == "group" and group_column
