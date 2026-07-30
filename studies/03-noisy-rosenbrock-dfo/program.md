@@ -61,10 +61,23 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase adaptive-1 slate (2026-07-30)
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | NM adaptive=True (Gao-Han) — within-floor calibration probe | 2 | 3 | 3 | 8 |
+| 2 | 4×50 restarts — H1/RQ1, must clear 0.5695 AND beat random-search 0.397 to matter | 3 | 3 | 3 | 9 |
+| 3 | SPSA a0=50 — registered divergence prediction (honest crash) | 3 | 3 | 2 | 8 |
+| 4 | SPSA a0=0.1 tuned — RQ2 | 3 | 3 | 3 | 9 |
+| 5 | 8×25 restarts — RQ3 fragmentation | 2 | 3 | 3 | 8 |
+| 6 | pure random search as a ledger experiment (data-card finding) | 3 | 3 | 3 | 9 |
+
+Chosen order: 1 (cheapest, demonstrates the measured floor) → 2 → 3 → 4 → 5,
+which exactly fills adaptive-1's remaining budget (max_experiments 6 incl. the
+anchor). Candidate 6 scores 9 but is DEFERRED to the next study — the
+pre-registered predictions cover 1–5, and pre-registration discipline outranks
+in-flight curiosity; random search's 0.397 stands as data-card evidence.
+Survivors mirrored to playbook.md.
 - 2026-07-30 — Phase-0 noise floor measured: anchor config across 5 disjoint
   seed blocks → mean 1.725, std 0.2848, range 0.749. minimum_delta set to
   0.5695 (= 2×std). The dev block (1.251) is the LUCKIEST of the five — a
