@@ -1712,41 +1712,32 @@ def recover(study_dir: Path) -> list[str]:
     return recovered
 
 
-def migration_report(study_dir: Path) -> str:
-    contract = load_contract(study_dir)
-    version = schema_version(contract)
-    lines = [
-        f"# Klein migration compatibility report: {study_dir.name}",
-        "",
-        f"- detected schema: v{version}",
-        "- mode: dry-run; no study evidence was rewritten",
-    ]
-    if version == SCHEMA_VERSION:
-        problems = [c.message for c in preflight_checks(study_dir, require_clean=False, require_branch=False) if not c.ok]
-        lines.append("- compatibility: v2")
-    else:
-        problems = _legacy_results_problems(study_dir / "results.tsv")
-        lines.extend(
-            [
-                "- compatibility: readable through the deprecated v1 adapter",
-                "- errata: v1 discard/crash rows may use `-` because exact candidate commits were not retained",
-                "- errata: v1 has no machine-recorded gates, split fingerprint, track frontier, or sealed test count",
-                "- proposed migration: create a new v2 study; preserve this directory as immutable legacy evidence",
-            ]
-        )
-    if problems:
-        lines.extend(["", "## Validation problems", "", *[f"- {p}" for p in problems]])
-    else:
-        lines.extend(["", "## Validation", "", "- Compatible; no ledger corruption detected."])
-    return "\n".join(lines) + "\n"
-
-
 def verify_study(study_dir: Path) -> list[Check]:
     contract = load_contract(study_dir)
     if schema_version(contract) == 1:
         problems = _legacy_results_problems(study_dir / "results.tsv")
         return [
-            Check("legacy warning", True, "schema_version missing means v1; compatibility mode is deprecated"),
+            Check(
+                "legacy warning",
+                True,
+                "schema_version missing means v1; readable through the deprecated v1 adapter"
+                " — no study evidence is rewritten",
+            ),
+            Check(
+                "legacy errata",
+                True,
+                "v1 discard/crash rows may use `-` because exact candidate commits were not retained",
+            ),
+            Check(
+                "legacy errata",
+                True,
+                "v1 has no machine-recorded gates, split fingerprint, track frontier, or sealed test count",
+            ),
+            Check(
+                "legacy migration",
+                True,
+                "create a new v2 study; preserve this directory as immutable legacy evidence",
+            ),
             Check("legacy ledger", not problems, "; ".join(problems) or "valid"),
         ]
     return preflight_checks(study_dir, require_clean=False, require_branch=False)

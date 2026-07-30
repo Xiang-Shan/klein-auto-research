@@ -164,8 +164,7 @@ uv run --locked klein gate record phase --study studies/NN-slug \
 ### Legacy v1 compatibility
 
 A missing `schema_version` means v1. Existing five-column ledgers and Python APIs stay
-readable and are not rewritten. Use `klein verify` and `klein migrate --dry-run` for
-explicit warnings/errata. When reproducing a legacy command, replace the old tee
+readable and are not rewritten. Use `klein verify` for explicit warnings/errata. When reproducing a legacy command, replace the old tee
 pipeline with the exit-safe helper from inside the study directory:
 
 ```bash

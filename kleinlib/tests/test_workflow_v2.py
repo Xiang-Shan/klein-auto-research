@@ -18,7 +18,6 @@ from kleinlib.workflow import (
     finalize,
     load_manifests,
     load_state,
-    migration_report,
     preflight_checks,
     record_gate,
     run_one,
@@ -483,7 +482,7 @@ def test_data_override_bypasses_only_go_and_still_fingerprints(ready_study) -> N
         )
 
 
-def test_v1_migration_report_is_read_only(tmp_path: Path) -> None:
+def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
     study = tmp_path / "legacy"
     study.mkdir()
     (study / "study.yaml").write_text("goal: legacy\n", encoding="utf-8")
@@ -494,14 +493,15 @@ def test_v1_migration_report_is_read_only(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     before = results.read_bytes()
-    report = migration_report(study)
-    assert "v1" in report
-    assert "deprecated" in report
-    assert results.read_bytes() == before
-    assert "schema: v1 (deprecated compatibility)" in status_summary(study)
     checks = verify_study(study)
     assert checks[0].name == "legacy warning"
+    assert "deprecated" in checks[0].message
+    messages = " ".join(check.message for check in checks)
+    assert "exact candidate commits were not retained" in messages
+    assert "create a new v2 study" in messages
     assert all(check.ok for check in checks)
+    assert results.read_bytes() == before
+    assert "schema: v1 (deprecated compatibility)" in status_summary(study)
 
 
 def test_v1_and_v2_cli_compatibility_round_trips(ready_study, tmp_path: Path, capsys) -> None:
@@ -524,9 +524,9 @@ def test_v1_and_v2_cli_compatibility_round_trips(ready_study, tmp_path: Path, ca
     assert cli.main(["status", "--study", str(v1)]) == 0
     assert "v1 (deprecated compatibility)" in capsys.readouterr().out
     assert cli.main(["verify", "--study", str(v1)]) == 0
-    assert "legacy warning" in capsys.readouterr().out
-    assert cli.main(["migrate", "--dry-run", "--study", str(v1)]) == 0
-    assert "no study evidence was rewritten" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "legacy warning" in out
+    assert "no study evidence is rewritten" in out
     assert ledger.read_bytes() == before
 
 

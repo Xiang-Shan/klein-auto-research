@@ -107,8 +107,8 @@ klein verify --study studies/03-my-question
 
 `klein gate override` records an explicit reason instead of silently bypassing a
 gate. `klein run-one --final-test` permits one sealed final-test evaluation per
-track. `klein migrate --dry-run --study <legacy-study>` emits a compatibility and
-errata report without rewriting the study.
+track. `klein verify --study <legacy-study>` prints deprecation errata for v1
+studies without ever rewriting them.
 
 ## Drive it with your agent — or none
 

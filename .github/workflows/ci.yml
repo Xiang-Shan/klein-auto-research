@@ -220,7 +220,6 @@ jobs:
           uv run --no-sync klein recover --help
           uv run --no-sync klein status --help
           uv run --no-sync klein finalize --help
-          uv run --no-sync klein migrate --help
           uv run --no-sync klein verify --help
 
   package:
