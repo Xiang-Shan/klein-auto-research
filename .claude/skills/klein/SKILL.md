@@ -181,11 +181,16 @@ Klein is self-contained under `.claude/skills/klein/`:
 cp -r .claude/skills/klein /path/to/your-repo/.claude/skills/
 ```
 
-`preflight.py` and `new_study.py` carry an embedded schema fallback and ASSERT it equals
-`kleinlib.schema` when the engine is importable — so they work in a foreign repo without
-`kleinlib`, and drift fails loudly. A real study needs the engine, though: add `kleinlib`
-as a dependency (see `assets/pyproject-study-template.toml`), `uv sync --locked`, then
-`new_study.py` bootstraps the study from `assets/` templates.
+The engine is a dependency, not an option: every helper (`preflight.py`,
+`new_study.py`, the `klein` CLI) imports `kleinlib` — the schema and templates live
+there and nowhere else, so nothing can drift. In the foreign repo, add the engine
+(see `assets/pyproject-study-template.toml`), then `uv sync --locked`:
+
+```bash
+uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research"
+```
+
+`klein new` then scaffolds byte-identical schema-v2 studies anywhere.
 
 ## Limitations
 
