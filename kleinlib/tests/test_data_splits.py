@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -14,6 +16,13 @@ def _frame(n=100):
     return X
 
 
+def _index_digest(part: pd.DataFrame) -> str:
+    """sha256 of the sorted realized index, in a platform-independent form."""
+    ordered = np.sort(np.asarray(part.index))
+    joined = ",".join(str(int(position)) for position in ordered)
+    return hashlib.sha256(joined.encode("ascii")).hexdigest()
+
+
 def test_classification_default_is_stratified_three_way():
     X = _frame()
     y = pd.Series([0, 1] * 50)
@@ -24,6 +33,35 @@ def test_classification_default_is_stratified_three_way():
     assert [series.mean() for series in (y_tr, y_dev, y_test)] == [0.5, 0.5, 0.5]
     assert set(X_tr["row"]).isdisjoint(X_dev["row"])
     assert set(X_tr["row"]).isdisjoint(X_test["row"])
+
+
+def test_three_way_split_realized_indices_match_golden_digests():
+    """Golden-index evidence that the canonical v2 split is deterministic.
+
+    `split_fingerprint` hashes the split *configuration*; this test pins the
+    *realized* row memberships. The digests below were computed once from this
+    exact fixture and hard-coded — they must be identical on every OS and every
+    supported Python (3.11–3.14) under the locked dependency set. A mismatch
+    anywhere means the same study.yaml no longer reproduces the same
+    train/development/test partitions, which breaks cross-experiment metric
+    comparability. Do not regenerate these digests casually: a legitimate
+    update is a split-contract change and must be called out as one.
+    """
+    rng = np.random.default_rng(20260730)
+    n = 200
+    X = pd.DataFrame({"row": np.arange(n), "x": rng.normal(size=n)})
+    y = pd.Series(rng.integers(0, 2, size=n))
+    X_tr, X_dev, X_test, *_ = data.three_way_split(X, y, task="classification")
+    assert (len(X_tr), len(X_dev), len(X_test)) == (120, 40, 40)
+    assert _index_digest(X_tr) == (
+        "15fd61b2ba41737b61ddd53ecdfc5342c9cf098922c93236f05ad75b5d234669"
+    )
+    assert _index_digest(X_dev) == (
+        "e80f44f7fe23d97f1c9569b536281f60dfac2b35c523fd8ef5b87ab2ff3d230c"
+    )
+    assert _index_digest(X_test) == (
+        "2c013c4b14b31cb5f3697b22930ba4b290318139a8ec105a20152911af976a82"
+    )
 
 
 def test_regression_defaults_to_random_and_fixed_split_stays_compatible():
