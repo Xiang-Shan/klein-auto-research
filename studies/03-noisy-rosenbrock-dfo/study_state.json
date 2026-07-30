@@ -28,6 +28,16 @@
       "experiment": "E0007"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "primary": "E0007"
+    },
+    "timestamp": "2026-07-30T17:45:10.773188Z"
+  },
   "fingerprints": {
     "data": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344",
     "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
@@ -78,7 +88,7 @@
     "sha256": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344"
   },
   "schema_version": 2,
-  "status": "active",
+  "status": "finalized",
   "study_id": "03-noisy-rosenbrock-dfo",
-  "updated_at": "2026-07-30T17:43:51.780541Z"
+  "updated_at": "2026-07-30T17:45:10.773192Z"
 }
