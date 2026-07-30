@@ -1107,7 +1107,19 @@ def preflight_checks(
         except SyntaxError as exc:
             checks.append(Check("train.py", False, f"syntax error: {exc}"))
         else:
-            checks.append(Check("train.py", True, "syntax valid"))
+            source = train.read_text(encoding="utf-8")
+            if "NotImplementedError" in source:
+                checks.append(
+                    Check(
+                        "train.py",
+                        True,
+                        "[WARN] syntax valid but scaffold stubs remain "
+                        "(NotImplementedError) — fill load_split/build_model "
+                        "before the loop; run-one would record the stub as a crash",
+                    )
+                )
+            else:
+                checks.append(Check("train.py", True, "syntax valid"))
     return checks
 
 

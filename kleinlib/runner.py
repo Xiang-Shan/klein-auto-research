@@ -67,6 +67,9 @@ def run_logged(
     if not command:
         raise ValueError("a command is required")
     env = os.environ.copy()
+    # A stale VIRTUAL_ENV from a driving session makes uv warn into every
+    # archived run.log; uv resolves the project env itself, so drop it.
+    env.pop("VIRTUAL_ENV", None)
     env["PYTHONUNBUFFERED"] = "1"
     env.update(env_overrides or {})
     log_path.parent.mkdir(parents=True, exist_ok=True)
