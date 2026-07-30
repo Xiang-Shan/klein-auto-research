@@ -634,10 +634,23 @@ def record_gate(
                 raise WorkflowError(
                     f"can acknowledge only the current phase {current_phase!r}, got {phase!r}"
                 )
+            playbook = study_dir / "playbook.md"
+            if not playbook.is_file():
+                raise WorkflowError(
+                    "phase acknowledgement requires playbook.md — the rolling state of "
+                    "play must be refreshed at every phase boundary (see "
+                    "references/phase-ritual.md)"
+                )
+            if PLACEHOLDER_RE.search(playbook.read_text(encoding="utf-8")):
+                raise WorkflowError(
+                    "playbook.md still contains unresolved placeholders — refresh it "
+                    "before acknowledging the phase"
+                )
             state.setdefault("phase_acknowledgements", {})[phase] = {
                 "acknowledged_at": now,
                 "acknowledged_by": acknowledged_by,
                 "note": note,
+                "playbook_sha256": sha256_file(playbook),
             }
             ids = _phase_ids(contract)
             next_index = ids.index(phase) + 1
@@ -649,6 +662,7 @@ def record_gate(
                 phase=phase,
                 acknowledged_by=acknowledged_by,
                 note=note,
+                playbook_sha256=state["phase_acknowledgements"][phase]["playbook_sha256"],
             )
             save_state(study_dir, state)
             _commit_state_writes(study_dir, f"klein: phase {phase} acknowledged")
@@ -1316,6 +1330,7 @@ def _relative(repo: Path, path: Path) -> str:
 #: committing it here would silently move run-one's restore anchor.
 _STATE_WRITE_PATHS = (
     "study.yaml",
+    "playbook.md",
     "study_state.json",
     "events.jsonl",
     "research_plan.md",
@@ -1359,6 +1374,7 @@ def _stage_evidence(repo: Path, study_dir: Path, manifest: Mapping[str, Any]) ->
         study_dir / "study_state.json",
         study_dir / "events.jsonl",
         study_dir / "results.tsv",
+        study_dir / "playbook.md",
         study_dir / "runs" / str(manifest["experiment"]) / "manifest.json",
         study_dir / "runs" / str(manifest["experiment"]) / "run.log",
     ]
@@ -1415,10 +1431,11 @@ def _assert_run_worktree(repo: Path, study_dir: Path) -> None:
     # (summary, progress, figures) are regenerable at any time and are swept
     # into the next state commit by a gate record — they never gate a run.
     lock_rel = _relative(repo, study_dir / ".klein.lock")
+    playbook_rel = _relative(repo, study_dir / "playbook.md")
     summary_rel = _relative(repo, study_dir / "results_summary.md")
     progress_rel = _relative(repo, study_dir / "progress.svg")
     figures_prefix = _relative(repo, study_dir / "figures") + "/"
-    allowed = {train_rel, lock_rel, summary_rel, progress_rel}
+    allowed = {train_rel, lock_rel, playbook_rel, summary_rel, progress_rel}
     bad: list[str] = []
     for line in status:
         path = line[3:].split(" -> ")[-1]

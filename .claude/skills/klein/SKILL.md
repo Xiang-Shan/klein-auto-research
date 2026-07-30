@@ -161,11 +161,14 @@ exists): findings without sealed evidence are labelled exploratory; findings wit
 successful sealed run may be labelled confirmed. Small deltas without uncertainty
 are not described as real or decisive — finalize warns on that language.
 
-### 5. Keep until the user stops
+### 5. Keep until the user stops — with the map open
 
 Default stop rule: keep experimenting until the user says stop or a phase `max_experiments`
-is hit. Do not unilaterally declare the batch done on a plateau. Summarize and STOP for
-ack at every phase boundary.
+is hit. Do not unilaterally declare the batch done on a plateau. RE-READ `playbook.md`
+before choosing every candidate and refresh it at every phase boundary (or every 5
+experiments); start each phase with the slate ritual (`references/phase-ritual.md`).
+Summarize and STOP for ack at every phase boundary — the acknowledgement requires a
+refreshed, placeholder-free playbook and records its hash.
 
 Record that acknowledgement before the next phase:
 

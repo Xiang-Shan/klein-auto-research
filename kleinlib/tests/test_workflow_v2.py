@@ -553,6 +553,41 @@ def test_gate_records_and_derived_views_do_not_block_the_loop(ready_study) -> No
     assert git(repo, "status", "--porcelain") == ""
 
 
+def test_playbook_is_scaffolded_wired_into_evidence_and_phase_acks(ready_study) -> None:
+    repo, study = ready_study
+    playbook = study / "playbook.md"
+    text = playbook.read_text(encoding="utf-8")
+    for heading in (
+        "## Current best (per track)",
+        "## Ruled out (evidence, not opinion)",
+        "## Open hypotheses",
+        "## Next-best candidates",
+    ):
+        assert heading in text
+    # dirty playbook never blocks a run, and the evidence commit carries it
+    playbook.write_text(text + "\n| primary | E0001 | 0.9 | baseline | now |\n", encoding="utf-8")
+    manifest = run_one(
+        study,
+        description="playbook dirty at run time",
+        command=metric_command(0.9),
+        echo=False,
+    )
+    assert manifest["disposition"] == "keep"
+    committed = git(
+        repo, "show", f"{manifest['transaction']['evidence_commit']}:studies/03-demo/playbook.md"
+    )
+    assert "E0001" in committed
+    # phase ack refuses a placeholder playbook, then records the hash
+    playbook.write_text(text + "\n{{REFRESH_ME}}\n", encoding="utf-8")
+    with pytest.raises(WorkflowError, match="unresolved placeholders"):
+        record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
+    playbook.write_text(text + "\n| primary | E0001 | 0.9 | baseline | now |\n", encoding="utf-8")
+    state = record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
+    ack = state["phase_acknowledgements"]["adaptive-1"]
+    assert len(ack["playbook_sha256"]) == 64
+    assert git(repo, "status", "--porcelain") == ""
+
+
 def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
     study = tmp_path / "legacy"
     study.mkdir()

@@ -115,6 +115,17 @@ commits; the evidence transaction then restores the last working `train.py`.
 ## Decisions (append-only)
 
 - {{DATE}} — schema-v2 study scaffolded; gates pending.
+## Phase slates
+
+At every phase start, run the slate ritual (references/phase-ritual.md):
+propose 4-6 falsifiable candidates, score novelty / testability / expected
+information 1-3, record the table and the chosen candidate here, and mirror
+the ranked survivors into playbook.md "Next-best candidates".
+
+### Phase <id> slate
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
 """
 
 RESEARCH_PLAN = """\
@@ -145,6 +156,35 @@ exploratory or confirmed.
 2. Establish an honest baseline.
 3. Test the proposed method and ablations inside phase limits.
 4. Run the chosen track candidate once on the sealed final test.
+"""
+
+PLAYBOOK = """\
+# Playbook — {{STUDY_ID}}
+
+> Rolling state of play (keep under ~120 lines). RE-READ this file before
+> choosing every candidate; refresh at every phase boundary or every 5
+> experiments, whichever comes first. `program.md` is the append-only journal;
+> THIS is the current map. SYNTHESIZE mines both. Swept into the next state
+> commit automatically; its hash is recorded at every phase acknowledgement.
+
+## Current best (per track)
+
+| Track | Exp | Metric | Config one-liner | Held since |
+| --- | --- | --- | --- | --- |
+
+## Ruled out (evidence, not opinion)
+
+| Direction | Evidence (exp IDs) | Why it lost (one line) |
+| --- | --- | --- |
+
+## Open hypotheses
+
+| ID | Hypothesis | Prior | Cheapest next test |
+| --- | --- | --- | --- |
+
+## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
+
+1. (fill at the phase-start slate ritual)
 """
 
 PREPARE = '''\
@@ -353,6 +393,7 @@ def scaffold_study(
     files = {
         "study.yaml": STUDY_YAML,
         "program.md": PROGRAM,
+        "playbook.md": PLAYBOOK,
         "research_plan.md": RESEARCH_PLAN,
         "prepare.py": PREPARE,
         "train.py": TRAIN,

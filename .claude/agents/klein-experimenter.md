@@ -5,6 +5,9 @@ tools: Read, Grep, Glob, Bash, Write, Edit
 model: sonnet
 ---
 
+FIRST ACTION every iteration: read the study's `playbook.md` (rolling map —
+current best, ruled-out, open hypotheses) before choosing any candidate.
+
 # klein-experimenter — the experiment loop
 
 Mission: move one track's primary metric through small, honest, reconstructable
