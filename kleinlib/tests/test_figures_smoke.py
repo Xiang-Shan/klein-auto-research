@@ -145,3 +145,24 @@ def test_plot_decision_trajectory_track_name_suffix(tmp_path):
     assert path == tmp_path / "figures" / "plot_decision_trajectory__severity.png"
     assert path.exists()
     assert path.stat().st_size > 0
+
+
+def test_decision_trajectory_declares_log_scale_on_extreme_range(tmp_path):
+    """A divergence outlier must not flatten the frontier story: all-positive
+    values spanning >3 decades switch to a DECLARED log scale (figure critique)."""
+    from kleinlib.figures import plot_decision_trajectory
+
+    manifests = [
+        {"experiment": "E0001", "track": "primary", "phase": "p1",
+         "disposition": "keep", "primary_metric": 1.25, "metric_name": "gap"},
+        {"experiment": "E0002", "track": "primary", "phase": "p1",
+         "disposition": "discard", "primary_metric": 1.1e196, "metric_name": "gap"},
+        {"experiment": "E0003", "track": "primary", "phase": "p1",
+         "disposition": "keep", "primary_metric": 0.41, "metric_name": "gap"},
+        {"experiment": "E0004", "track": "primary", "phase": "p1",
+         "disposition": "crash", "primary_metric": None, "metric_name": "gap"},
+    ]
+    path = plot_decision_trajectory(
+        manifests, tmp_path, track="primary", metric_goal="lower", metric_name="gap"
+    )
+    assert path.exists() and path.stat().st_size > 5000

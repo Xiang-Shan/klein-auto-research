@@ -533,7 +533,11 @@ def plot_decision_trajectory(
     finite = [v for _, v in frontier + discards + sealed]
     lo, hi = (min(finite), max(finite)) if finite else (0.0, 1.0)
     span = (hi - lo) or max(abs(hi), 1.0) * 0.1
-    rug_y = lo - 0.12 * span
+    # Scale honesty (tutorial-spec figure critique): a divergence outlier on a
+    # linear axis flattens the real frontier story to zero. All-positive values
+    # spanning more than three decades get a DECLARED log scale instead.
+    use_log = bool(finite) and lo > 0 and hi / lo > 1e3
+    rug_y = lo / 3.0 if use_log else lo - 0.12 * span
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
 
@@ -581,7 +585,10 @@ def plot_decision_trajectory(
             zorder=2, label="discard (retained evidence)",
         )
     if crashes:
-        ax.axhspan(rug_y - 0.05 * span, rug_y + 0.05 * span, color=STATUS_COLOR["crash"], alpha=0.07, linewidth=0, zorder=0)
+        if use_log:
+            ax.axhspan(rug_y / 1.35, rug_y * 1.35, color=STATUS_COLOR["crash"], alpha=0.07, linewidth=0, zorder=0)
+        else:
+            ax.axhspan(rug_y - 0.05 * span, rug_y + 0.05 * span, color=STATUS_COLOR["crash"], alpha=0.07, linewidth=0, zorder=0)
         ax.scatter(
             crashes, [rug_y] * len(crashes), marker="x", s=60, color=STATUS_COLOR["crash"],
             linewidths=1.8, zorder=4, label="crash (metric NA)",
@@ -600,13 +607,17 @@ def plot_decision_trajectory(
 
     label = metric_name or next((str(m["metric_name"]) for _, m in rows if m.get("metric_name")), "primary metric")
     ax.set_xlabel("Experiment ordinal (E#### sequence)")
-    ax.set_ylabel(label)
+    if use_log:
+        ax.set_yscale("log")
+        ax.set_ylabel(f"{label} (log scale)")
+    else:
+        ax.set_ylabel(label)
     ax.set_title(f"{track} · {label} ({metric_goal})")
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     if not finite:  # all-crash: no metric scale exists, so show none
         ax.set_yticks([])
     if crashes:
-        ax.set_ylim(bottom=rug_y - 0.1 * span)
+        ax.set_ylim(bottom=rug_y / 1.6 if use_log else rug_y - 0.1 * span)
     if frontier or discards or crashes or sealed:
         ax.legend(loc="best", fontsize=8, framealpha=0.9)
     else:

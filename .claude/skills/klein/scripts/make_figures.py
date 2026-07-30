@@ -42,22 +42,26 @@ def main() -> None:
     parser.add_argument("--kind", choices=["binary", "regression"], default=None)
     args = parser.parse_args()
 
-    results_path = args.study_dir / "results.tsv"
-    if results_path.exists():
-        with results_path.open(newline="") as f:
-            rows = list(csv.DictReader(f, delimiter="\t"))
-        if rows:
-            path = figures.plot_metric_trajectory(rows, args.study_dir)
-            print(f"wrote {path}")
-    else:
-        print(f"no results.tsv under {args.study_dir}, skipping trajectory")
-
     try:
         manifests = workflow.load_manifests(args.study_dir)
         tracks = workflow.normalize_tracks(workflow.load_contract(args.study_dir)) if manifests else {}
     except workflow.WorkflowError as exc:
         manifests, tracks = [], {}
         print(f"skipping decision trajectories: {exc}")
+
+    if not manifests:
+        # v1 studies only: integer experiment ids, plain metric trajectory. A v2
+        # study's E#### ids belong to the decision trajectory below instead.
+        results_path = args.study_dir / "results.tsv"
+        if results_path.exists():
+            with results_path.open(newline="") as f:
+                rows = list(csv.DictReader(f, delimiter="\t"))
+            if rows:
+                path = figures.plot_metric_trajectory(rows, args.study_dir)
+                print(f"wrote {path}")
+        else:
+            print(f"no results.tsv under {args.study_dir}, skipping trajectory")
+
     for track, spec in tracks.items():
         metric = spec.get("metric", {})
         path = figures.plot_decision_trajectory(
