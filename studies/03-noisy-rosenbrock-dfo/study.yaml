@@ -42,14 +42,10 @@ data:
 # Per-run, per-phase time, and experiment-count limits are intentionally separate.
 max_run_seconds: 120
 phases:
-  - id: phase0-anchor
-    description: "reference-cell reproduction anchor (STOP if off), then the k=5 noise-floor measurement sweep"
-    budget_seconds: 600
-    max_experiments: 1
   - id: adaptive-1
-    description: "slate ritual, then bounded adaptive work on restarts and SPSA"
-    budget_seconds: 900
-    max_experiments: 5
+    description: "anchor (reference-cell reproduction, STOP if off) + k=5 noise-floor sweep, then slate ritual and bounded adaptive work"
+    budget_seconds: 1500
+    max_experiments: 6
   - id: confirmation
     description: "one sealed fresh-seed-block confirmation of the incumbent"
     budget_seconds: 300
