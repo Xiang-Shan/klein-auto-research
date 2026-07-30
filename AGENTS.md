@@ -36,8 +36,8 @@ when-it-pays / when-it-doesn't → verified references.
 **Hard-block rule:** modeling is BLOCKED until the CONSULT, DATA, and METHOD gates
 are acknowledged and `data_card.md` says GO. In schema v2, record or override a gate
 with `klein gate`; the timestamp, artifact hashes, actor, and reason are persisted in
-`study_state.json` and hash-chained `events.jsonl`. The legacy v1 fast-path remains
-readable but is never sufficient for a new v2 study.
+`study_state.json` and the append-only, self-verifying `events.jsonl`. The legacy v1
+fast-path remains readable but is never sufficient for a new v2 study.
 
 **EXPERIMENT/SWEEP.** The edit-run-log loop under the contract below; sweeps only
 through the one sanctioned escape-hatch.
@@ -71,7 +71,7 @@ this same table routed as the `/klein` skill.)
 | METHOD | `references/method-gate-protocol.md` | method_card.md | — |
 | EXPERIMENT | loop contract below + `SKILL.md` Hard Rules | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one` |
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction | `kleinlib.sweep.SweepRunner` |
-| SYNTHESIZE | `references/synthesis-protocol.md` | findings.md | `scripts/summarize_results.py` |
+| SYNTHESIZE | `references/synthesis-protocol.md` | findings.md | `scripts/summarize_results.py`, then `klein finalize` |
 | TUTORIAL | `references/tutorial-spec.md` | report/index.html | `scripts/build_tutorial.py`, `scripts/make_figures.py` |
 | status (any time) | — | results_summary.md, progress.svg | `scripts/summarize_results.py` |
 
@@ -85,38 +85,52 @@ happened (`.claude/skills/klein/references/war-stories.md`), and the 215-experim
 ancestor campaign they come from ships its distilled findings in `knowledge/`. Do
 not renegotiate them mid-study.
 
+The loop has three layers. Keep them straight and the rest follows:
+
+1. **The loop is yours — judgment.** Think → edit `train.py` with ONE falsifiable
+   idea (a 5–15 line diff) → run it → reflect in `program.md` → repeat. No
+   meta-runner exists and none is missing: **the driving agent IS the loop**,
+   because only the agent can change direction based on what just happened.
+2. **`klein run-one` is the crash boundary — a notary, not a driver.** One
+   invocation is one candidate transaction: it commits your candidate BEFORE
+   execution, runs one bounded foreground subprocess (unbuffered, the contract's
+   `max_run_seconds`, process-group timeout, the real exit code — 124 on
+   timeout), decides keep/discard by arithmetic on the contract YOU declared
+   (metric, direction, `minimum_delta`, guardrails), restores `train.py` to the
+   pre-candidate base commit on a non-keep (the candidate commit stays
+   resolvable — negative evidence is evidence), and files the evidence commit.
+   It never proposes, schedules, or retries an experiment.
+3. **The state files are receipts — generated, never hand-edited.**
+   `runs/E####/manifest.json`, `study_state.json`, the append-only self-verifying
+   `events.jsonl`, and the derived `results.tsv` record what layer 1 decided and
+   layer 2 observed. Gate records, `klein finalize`, and `klein recover` commit
+   their own state writes; if the tree is dirty at run time, it is your edit,
+   not Klein's.
+
+The standing rules around those layers:
+
 - `program.md` is the living lab notebook: hypotheses, decisions, phase plans, and
   predictions-to-falsify live there and are updated as the study runs.
 - The mutable surface is `train.py` ONLY. Library code (`kleinlib/`, study `lib/`)
-  changes are rare, deliberate, and never part of the per-experiment diff. Keep
-  diffs thin: 5–15 lines.
-- For schema v2, run exactly one candidate transaction in the foreground with
-  `uv run --locked klein run-one --study studies/NN-slug --track <track>`. It uses
-  unbuffered output, the configured
-  `max_run_seconds`, process-group timeout handling, and retains the real exit code.
-- Every candidate configuration is committed **before** execution, including a
-  discard or crash. Non-keeps restore the working `train.py`, but the candidate
-  commit remains resolvable. Evidence is then committed transactionally; use
-  `klein recover` after an interruption.
-- In v2, `runs/E####/manifest.json` and `events.jsonl` are the evidence. Never edit
-  `results.tsv`: it is a derived, track-aware view regenerated transactionally.
-- Legacy v1 studies retain their five-column, append-only ledger. If a v1 command
-  must be run, use `scripts/run_with_log.py`, not a shell `| tee` pipeline, so a
-  crash or timeout cannot be masked.
+  changes are rare, deliberate, and never part of the per-experiment diff.
 - Status honesty: `keep` / `discard` / `crash` — a crash is logged as a crash with
   `NA` metric, not silently retried into oblivion.
-- **The driving agent IS the loop.** No meta-runners, no orchestration scripts that
-  run many experiments unattended. The ONE sanctioned escape-hatch is the sweep
-  protocol (`references/sweep-rules.md`): every trial to a sidecar TSV, exactly one
-  winner transaction / derived row, winner config snapshotted into train.py, winner
-  model stored locally with its hash/availability in the committed manifest. Unsafe
+- The ONE sanctioned escape-hatch is the sweep protocol
+  (`references/sweep-rules.md`): every trial to a sidecar TSV, exactly one winner
+  transaction / derived row, winner config snapshotted into train.py, winner model
+  stored locally with its hash/availability in the committed manifest. Unsafe
   model payloads themselves are never committed.
 - Adaptive work uses train/development data only. Each track may access its sealed
-  final-test partition once with `klein run-one --final-test`; confirmation evidence
-  is excluded from the adaptive frontier.
+  final-test partition once with `klein run-one --final-test`; confirmation
+  evidence is excluded from the adaptive frontier. Close the study with
+  `klein finalize`, which labels findings exploratory or confirmed against the
+  sealed evidence.
 - Phase-boundary pauses: at every phase boundary defined in `study.yaml`, summarize,
   STOP for user ack, then record it with `klein gate record phase --phase <id>`.
 - Studies run on `experiments/<study>` branches, never on `main`. Merge at study end.
+- Legacy v1 studies retain their five-column, append-only ledger. If a v1 command
+  must be run, use `scripts/run_with_log.py`, not a shell `| tee` pipeline, so a
+  crash or timeout cannot be masked.
 
 ## Schema discipline
 

@@ -87,13 +87,15 @@ extras you omit. Compose what a study needs: `--extra gbdt`
 `studies/01-dae-claims`), e.g.
 `uv sync --locked --extra encoders --extra gbdt --extra deep`.
 
-## The v0.2 command line
+## The `klein` command line
 
 New studies default to `schema_version: 2` and are driven through the packaged
 `klein` command. Run `--help` on any command for its complete arguments.
 
 ```bash
 klein new 03-my-question --metric val_auc --goal-direction higher
+git switch -c experiments/03-my-question   # the loop refuses to run on main
+# author data_card.md / method_card.md at their gates (templates in assets/), then:
 klein gate record consult --study studies/03-my-question --acknowledged-by <name>
 klein gate record data --study studies/03-my-question --acknowledged-by <name>
 klein gate record method --study studies/03-my-question --acknowledged-by <name>
@@ -104,6 +106,9 @@ klein recover --study studies/03-my-question
 klein finalize --study studies/03-my-question
 klein verify --study studies/03-my-question
 ```
+
+Gate records, `finalize`, and `recover` commit their own state writes — the loop
+never dead-ends on receipts the CLI itself generated.
 
 `klein gate override` records an explicit reason instead of silently bypassing a
 gate. `klein run-one --final-test` permits one sealed final-test evaluation per
@@ -175,9 +180,9 @@ paths just work.
   (`kleinlib`), lifecycle skill, agents, knowledge base, executed exemplars.
   Clone it and run studies inside; your ledgers' commit hashes resolve here.
 - **Skill (portable doctrine):** copy `.claude/skills/klein/` into any repo —
-  it is self-contained, with an embedded schema fallback that drift-asserts
-  against the engine when present. Install the engine from git with a pinned tag
-  (see `assets/pyproject-study-template.toml`). The "skill" packaging is Claude
+  the protocols are self-contained markdown, and the engine is a one-line git
+  dependency (schema and templates are single-sourced in `kleinlib`, so nothing
+  can drift). Pin a tag (see `assets/pyproject-study-template.toml`). The "skill" packaging is Claude
   Code's; every file inside is plain markdown/Python that any agent reads, and
   `AGENTS.md` is the tool-neutral router for the same doctrine. The skill is the
   flight doctrine; the harness is the equipped aircraft.
@@ -208,6 +213,7 @@ stages. The name nods to the Klein bottle: a research loop whose output feeds
 its own input. The public repository history begins in July 2026; the shipped
 v0.1 studies were executed in the development lab before that public history.
 
+Release history: [`CHANGELOG.md`](CHANGELOG.md).
 To cite Klein, see [`CITATION.cff`](CITATION.cff). To contribute, see
 [`CONTRIBUTING.md`](CONTRIBUTING.md); report vulnerabilities via
 [`SECURITY.md`](SECURITY.md). The software is MIT licensed ([LICENSE](LICENSE));
