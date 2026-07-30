@@ -10,7 +10,6 @@ from .scaffold import scaffold_study
 from .workflow import (
     WorkflowError,
     finalize,
-    migration_report,
     preflight_checks,
     record_gate,
     recover,
@@ -96,12 +95,10 @@ def build_parser() -> argparse.ArgumentParser:
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
 
-    migrate = sub.add_parser("migrate", help="report v1 compatibility without rewriting evidence")
-    _study_arg(migrate)
-    migrate.add_argument("--dry-run", action="store_true", required=True)
-    migrate.add_argument("--report", type=Path)
-
-    verify = sub.add_parser("verify", help="validate a v1 or v2 study")
+    verify = sub.add_parser(
+        "verify",
+        help="validate a v1 or v2 study; v1 studies get deprecation errata, never a rewrite",
+    )
     _study_arg(verify)
     return parser
 
@@ -182,14 +179,6 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "finalize":
             label = finalize(study, allow_exploratory=args.allow_exploratory)
             print(f"finalized: {label}")
-            return 0
-        if args.command_name == "migrate":
-            report = migration_report(study)
-            if args.report:
-                args.report.write_text(report, encoding="utf-8")
-                print(f"report: {args.report}")
-            else:
-                print(report, end="")
             return 0
         if args.command_name == "verify":
             return _print_checks(verify_study(study))

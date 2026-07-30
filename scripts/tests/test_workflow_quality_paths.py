@@ -13,7 +13,6 @@ from kleinlib.workflow import (
     finalize,
     fingerprint_path,
     load_contract,
-    migration_report,
     normalize_tracks,
     read_events,
     render_results,
@@ -283,10 +282,9 @@ def test_legacy_reports_and_v2_exploratory_finalize(tmp_path: Path) -> None:
         encoding="utf-8",
     )
     assert "v1 (deprecated compatibility)" in status_summary(legacy)
-    assert "deprecated v1 adapter" in migration_report(legacy)
     checks = verify_study(legacy)
     assert all(check.ok for check in checks)
-    assert any("deprecated" in check.message for check in checks)
+    assert any("deprecated v1 adapter" in check.message for check in checks)
 
     study = scaffold_study(
         tmp_path,

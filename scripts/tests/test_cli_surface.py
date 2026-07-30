@@ -107,28 +107,23 @@ def test_cli_run_status_recover_finalize_and_verify(monkeypatch, study: Path, ca
     assert "0 failed" in capsys.readouterr().out
 
 
-def test_cli_migrate_stdout_and_report(monkeypatch, study: Path, tmp_path: Path, capsys) -> None:
-    monkeypatch.setattr(cli, "resolve_study", lambda _path: study)
-    monkeypatch.setattr(cli, "migration_report", lambda _study: "# compatibility\n")
-    assert cli.main(["migrate", "--dry-run", "--study", str(study)]) == 0
-    assert capsys.readouterr().out == "# compatibility\n"
-
-    report = tmp_path / "migration.md"
-    assert (
-        cli.main(
-            [
-                "migrate",
-                "--dry-run",
-                "--study",
-                str(study),
-                "--report",
-                str(report),
-            ]
-        )
-        == 0
+def test_cli_verify_reports_v1_errata_without_rewriting(monkeypatch, tmp_path: Path, capsys) -> None:
+    legacy = tmp_path / "legacy"
+    legacy.mkdir()
+    (legacy / "study.yaml").write_text("goal: legacy\n", encoding="utf-8")
+    ledger = legacy / "results.tsv"
+    ledger.write_text(
+        "experiment\tprimary_metric\tstatus\tcommit\tdescription\n"
+        "1\t0.5\tkeep\tabc1234\tbaseline\n",
+        encoding="utf-8",
     )
-    assert report.read_text(encoding="utf-8") == "# compatibility\n"
-    assert str(report) in capsys.readouterr().out
+    before = ledger.read_bytes()
+    monkeypatch.setattr(cli, "resolve_study", lambda _path: legacy)
+    assert cli.main(["verify", "--study", str(legacy)]) == 0
+    out = capsys.readouterr().out
+    assert "deprecated v1 adapter" in out
+    assert "create a new v2 study" in out
+    assert ledger.read_bytes() == before
 
 
 def test_cli_crash_exit_and_workflow_error(monkeypatch, study: Path, capsys) -> None:
