@@ -17,6 +17,8 @@ new ─▶ CONSULT ─▶ DATA ─▶ METHOD ═══▶ EXPERIMENT/SWEEP ─�
         Gate 0   Gate 1   Gate 2      └ the honest loop ┘    findings.md   report/
 ```
 
+<p align="center"><img src="docs/diagrams/lifecycle.png" alt="The Klein study lifecycle — six stages, three checkpoints" width="640"></p>
+
 The last two stages are what make it *research*, not just experiment-running:
 every study must end with `findings.md` — verdicts on the research questions,
 surprises, practical advice, literature tie-back, every claim citing experiment
@@ -109,6 +111,8 @@ klein verify --study studies/03-my-question
 
 Gate records, `finalize`, and `recover` commit their own state writes — the loop
 never dead-ends on receipts the CLI itself generated.
+
+<p align="center"><img src="docs/diagrams/loop-transaction.png" alt="One candidate transaction — you think; run-one notarizes; the files remember" width="640"></p>
 
 `klein gate override` records an explicit reason instead of silently bypassing a
 gate. `klein run-one --final-test` permits one sealed final-test evaluation per
@@ -210,7 +214,11 @@ Klein descends from
 portable skill). Klein keeps the proven loop, drops the Docker/R baggage, and
 adds the consulting/data/method gates plus the mandatory synthesis and tutorial
 stages. The name nods to the Klein bottle: a research loop whose output feeds
-its own input. The public repository history begins in July 2026; the shipped
+its own input.
+
+<p align="center"><img src="docs/diagrams/klein-bottle.png" alt="Why Klein — the inside is the outside; a study's findings become the next study's priors" width="560"></p>
+
+The public repository history begins in July 2026; the shipped
 v0.1 studies were executed in the development lab before that public history.
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md).
