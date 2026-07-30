@@ -106,3 +106,9 @@ Survivors mirrored to playbook.md.
   queue. Slate discipline note: the re-plan swaps ONE registered candidate for a
   corrected version of another registered candidate; both changes logged here
   before the runs.
+- 2026-07-30 — adaptive-1 phase boundary STOP. Ledger 6/6: E0001 keep 1.2512
+  (anchor), E0002 discard (Gao-Han no-op), E0003 KEEP 0.4071 (incumbent),
+  E0004 discard 1.1e196 (finite divergence), E0005 crash (c0=0 denominator),
+  E0006 discard 1.9e178 (mis-scaled "textbook" gains). Summary + trajectory
+  regenerated; playbook refreshed. Ack basis = pre-approved plan; proceeding
+  to the sealed confirmation of E0003's config.

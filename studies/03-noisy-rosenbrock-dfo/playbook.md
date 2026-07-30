@@ -18,17 +18,17 @@
 | --- | --- | --- |
 | NM adaptive (Gao-Han) at n=2 | E0002 | coefficients identical to standard NM in 2-D — a no-op by mathematics |
 | SPSA divergence as a crash source | E0004 (+off-ledger a0=500,5000) | diverges to absurd-but-FINITE values (1e81..1e196); decaying gains self-limit below overflow |
+| SPSA at "textbook" a0=0.1 on Rosenbrock | E0006 | still diverges (1.9e178): Spall 1998's own rule sizes a0 from first-step magnitude — gradients ~1e3-1e4 demand a0~2e-5 |
 
 ## Open hypotheses
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
-| H1 | Restarts beat single-start NM under noise (escape > depth) | very high — random search alone already beats the anchor 3.2× (data card issue 1) | 4×50 restarts vs anchor AND vs 0.397 |
-| H2 | SPSA needs more than 200 evals to compete | medium (uninformed) | tuned SPSA a0=0.1 |
-| H3 | Restart fragmentation has an optimum near 4 | medium (uninformed) | 8×25 vs 4×50 |
+| H1 | CONFIRMED (dev): E0003 0.4071 clears the floor bar vs anchor; polish adds ~nothing over random search | — | sealed confirmation next |
+| H2 | SUPERSEDED: SPSA at this budget doesn't merely lose, it diverges unless a0 is landscape-scaled (~2e-5) | high (E0006 + Spall 1998 rule) | next study: a0=2e-5, gradient-normalized SPSA |
+| H3 | UNTESTED (deferred with random-search-as-experiment) | medium | 8×25 vs 4×50 next study |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. SPSA c0=0 — corrected crash mechanism (estimator denominator), registered pre-run
-2. SPSA a0=0.1 tuned — RQ2
-3. DEFERRED next study: random search as ledger experiment; 8×25 fragmentation (RQ3)
+1. Sealed final test of the incumbent (E0003 config) on the fresh block — the only remaining move
+2. NEXT STUDY queue: random search as ledger experiment; 8×25 fragmentation (RQ3); SPSA a0≈2e-5 landscape-scaled
