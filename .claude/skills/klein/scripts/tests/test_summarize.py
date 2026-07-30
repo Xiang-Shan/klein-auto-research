@@ -150,6 +150,29 @@ class TestSummary:
         assert "- total improvement: 0.110000" in summary
         assert "E0002" not in summary
 
+    def test_decision_trajectory_embeds_only_when_rendered(self, summarize_module, tmp_path):
+        content = (
+            "experiment\ttrack\tprimary_metric\tstatus\tcommit\tdescription\n"
+            "E0001\tprimary\t0.6\tkeep\taaaaaaa\tanchor\n"
+        )
+        path = write_tsv(tmp_path, content)
+        (tmp_path / "study.yaml").write_text(
+            "schema_version: 2\ntracks:\n  primary:\n"
+            "    metric: {name: val_auc, goal: higher, minimum_delta: 0.0}\n",
+            encoding="utf-8",
+        )
+        assert summarize_module.main([str(path), "--track", "primary"]) == 0
+        summary = (tmp_path / "results_summary.md").read_text(encoding="utf-8")
+        assert "## Decision trajectory" not in summary
+
+        figs = tmp_path / "figures"
+        figs.mkdir()
+        (figs / "plot_decision_trajectory__primary.png").write_bytes(b"png")
+        assert summarize_module.main([str(path), "--track", "primary"]) == 0
+        summary = (tmp_path / "results_summary.md").read_text(encoding="utf-8")
+        assert "## Decision trajectory" in summary
+        assert "![Decision trajectory](figures/plot_decision_trajectory__primary.png)" in summary
+
     def test_noise_floor_labels_render_when_declared(self, summarize_module, tmp_path):
         path = write_tsv(
             tmp_path,
