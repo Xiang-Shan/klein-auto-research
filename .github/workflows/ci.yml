@@ -167,6 +167,21 @@ jobs:
             --log "$RUNNER_TEMP/study02-train.log" -- \
             uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py
           awk -F': *' '/^primary_metric:/{m=$2} END{d=m-18.783886; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.01)?0:1}' "$RUNNER_TEMP/study02-train.log"
+      - name: Execute the Study 03 v2 anchor (seed-block determinism on Linux)
+        shell: bash
+        run: |
+          set -euo pipefail
+          copy="$RUNNER_TEMP/study03"
+          cp -R studies/03-noisy-rosenbrock-dfo "$copy"
+          cd "$copy"
+          # The committed working train.py holds the study's incumbent (4x50
+          # restarts); the anchor row E0001 used OPTIMIZER="nm". Flip the one
+          # config line on the throwaway copy to re-run the anchor cell.
+          sed -i 's/^OPTIMIZER = "[a-z_]*"/OPTIMIZER = "nm"/' train.py
+          uv --project "$GITHUB_WORKSPACE" run --no-sync python prepare.py
+          KLEIN_EVALUATION_KIND=development KLEIN_EXPERIMENT_ID=E0001 KLEIN_TRACK=primary \
+            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py | tee "$RUNNER_TEMP/study03-train.log"
+          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-1.251208; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study03-train.log"
       - name: Checked-out legacy exhibits remain byte-clean
         run: test -z "$(git status --porcelain)"
 
