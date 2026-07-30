@@ -13,6 +13,7 @@ matplotlib/sklearn/torch import cost or require unrelated optional extras.
 from __future__ import annotations
 
 import importlib
+import importlib.metadata
 import importlib.util
 from types import ModuleType
 
@@ -48,4 +49,7 @@ def __dir__() -> list[str]:
     return sorted([*globals(), *_LAZY_SUBMODULES])
 
 
-__version__ = "0.2.0"
+try:
+    __version__ = importlib.metadata.version("klein-auto-research")
+except importlib.metadata.PackageNotFoundError:  # raw checkout without install
+    __version__ = "0+uninstalled"

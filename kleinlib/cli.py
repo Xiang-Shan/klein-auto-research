@@ -6,6 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from . import __version__
 from .scaffold import scaffold_study
 from .workflow import (
     WorkflowError,
@@ -26,7 +27,7 @@ def _study_arg(parser: argparse.ArgumentParser) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="klein", description="Auditable single-machine ML research")
-    parser.add_argument("--version", action="version", version="klein 0.2.0")
+    parser.add_argument("--version", action="version", version=f"klein {__version__}")
     sub = parser.add_subparsers(dest="command_name", required=True)
 
     new = sub.add_parser("new", help="scaffold a schema-v2 study")

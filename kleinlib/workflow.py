@@ -1330,6 +1330,8 @@ def _complete_evidence_transaction(
 def _assert_run_worktree(repo: Path, study_dir: Path) -> None:
     status = _git(repo, ["status", "--porcelain", "--untracked-files=all"]).stdout.splitlines()
     train_rel = _relative(repo, study_dir / "train.py")
+    # The lock is ephemeral state; a foreign repo has no .gitignore for it, so
+    # it must be exempt here rather than rely on ignore rules.
     lock_rel = _relative(repo, study_dir / ".klein.lock")
     bad: list[str] = []
     for line in status:
