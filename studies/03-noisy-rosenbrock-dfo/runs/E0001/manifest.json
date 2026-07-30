@@ -1,0 +1,72 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 197,
+      "committed": true,
+      "sha256": "6c35e0223dd9775dd5467706f79712a141ecab730198f9ca8c80c0674b6ca552"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 408,
+      "committed": true,
+      "sha256": "78937dada21dff2ab5f7b9f1437939fb27494a863c22a3e972ee60a9e8b71ee9"
+    }
+  },
+  "base_commit": "c886a75f280cc9d51fb3e78b1363f28801dcef4a",
+  "candidate_commit": "2dabc272fd596d91d3b38ba4126b06912c2907d4",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "anchor: single-start Nelder-Mead, budget 200, dev block \u2014 must reproduce the prepared reference cell to 1e-9; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-07-30T17:32:50.143175Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "541fd18ff5ac1d60536b33b9252e47092c86f7581b12cd22a80bdd0c18855af3"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344",
+    "environment": "6e1045cba5b568b0ceef01b270d4ffe12e18016dc0780994e43c196d25e3c34d",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_final_gap",
+  "metrics": {
+    "gap_median": 0.7679323500976418,
+    "gap_std_across_reps": 1.2411075052610203,
+    "gap_worst": 4.4501120324261985,
+    "n_reps": 40.0,
+    "primary_metric": 1.251208,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.03203105926513672
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 5,
+  "primary_metric": 1.251208,
+  "schema_version": 2,
+  "started_at": "2026-07-30T17:32:49.465652Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-07-30T17:32:50.143788Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6774259579833597
+}

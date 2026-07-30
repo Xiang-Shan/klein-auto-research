@@ -1,1 +1,6 @@
 experiment	metric	value
+E0001	wall_seconds	0.03203105926513672
+E0001	gap_std_across_reps	1.2411075052610203
+E0001	gap_median	0.7679323500976418
+E0001	gap_worst	4.4501120324261985
+E0001	n_reps	40.0
