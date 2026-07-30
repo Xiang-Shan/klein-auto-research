@@ -1,0 +1,26 @@
+<h2>The Data</h2>
+
+<p>A synthetic lab's "data" is its generator plus its seed discipline. The generator is
+fixed: true Rosenbrock plus N(0, 0.5&sup2;) per evaluation, hard 200-evaluation budget,
+R = 40 independent repetitions per experiment, each rep scored as
+<code>true f(answer) &minus; f*</code> &mdash; the optimizer never sees the truth it is
+scored on. The seed contract does the work a train/test split does elsewhere:
+development block 42&ndash;81, four extra floor-measurement blocks, and a sealed
+final-test block 10042&ndash;10081 &mdash; pairwise disjoint by construction, proven
+mechanically by <code>prepare.py</code>.</p>
+
+<p>The DATA gate's clean-room audit then ran its harness-sanity check &mdash; and made
+the study's biggest single discovery <em>before experiment one</em>: plain
+<strong>random search</strong> (200 uniform darts, keep the best-looking) scores a mean
+true gap of <strong>0.397</strong>, while single-start Nelder-Mead scores
+<strong>1.251</strong>. The no-information baseline beats the default method
+3.2&times;. A noiseless probe (NM solves the clean function to exactly 0.0 on all 40
+starts) proved the harness sane: <em>the noise is the entire problem</em> &mdash; it
+corrupts NM's simplex comparisons until the search stalls wherever the noise first
+confuses it.</p>
+
+<p>The other Phase-0 ritual: the <strong>measured noise floor</strong>. The anchor config
+was rerun on five disjoint seed blocks: means 1.25&ndash;2.00, std
+<strong>0.2848</strong>. The keep bar (<code>minimum_delta</code>) was set to 2&times;
+that &mdash; 0.5695 &mdash; and the contract records the whole measurement. One humbling
+detail: the development block turned out to be the <em>luckiest</em> of the five.</p>

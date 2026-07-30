@@ -42,7 +42,10 @@ VALID_DISPOSITIONS = frozenset({"keep", "discard", "crash"})
 STRONG_CLAIM_RE = re.compile(r"(?i)\b(?:real|decisive)\b")
 UNCERTAINTY_EVIDENCE_RE = re.compile(
     r"(?i)\b(?:bootstrap(?:ped|ping)?|confidence interval|credible interval|"
-    r"standard error|error bars?|uncertainty (?:estimate|interval|quantification))\b"
+    r"standard error|error bars?|uncertainty (?:estimate|interval|quantification)|"
+    # Klein's own Phase-0 vocabulary: deltas stated against a measured floor
+    # ARE uncertainty-qualified claims.
+    r"noise[- ]floor|floor std|seed[- ]block std)\b"
 )
 GATE_ARTIFACTS: dict[str, tuple[str, ...]] = {
     "consult": ("study.yaml", "research_plan.md", "program.md"),
@@ -1196,6 +1199,37 @@ def preflight_checks(
             checks.append(Check("working tree", not dirty, dirty or "clean"))
     except WorkflowError as exc:
         checks.append(Check("git repository", False, str(exc)))
+
+    phase_ids = _phase_ids(contract)
+    current_phase = state.get("current_phase")
+    if current_phase not in phase_ids:
+        checks.append(
+            Check(
+                "phase ladder",
+                False,
+                f"state current_phase {current_phase!r} is not in the contract's "
+                f"phases {phase_ids} — phases were renamed/removed after "
+                "initialization; amend the contract to match the recorded state",
+            )
+        )
+    else:
+        acked = set(state.get("phase_acknowledgements", {}))
+        earlier_unacked = [
+            pid for pid in phase_ids[: phase_ids.index(current_phase)] if pid not in acked
+        ]
+        checks.append(
+            Check(
+                "phase ladder",
+                not earlier_unacked,
+                (
+                    f"contract declares phases before the current one that were never "
+                    f"acknowledged: {earlier_unacked} — phases cannot be inserted "
+                    "retroactively; fold them into the ladder the machine actually ran"
+                )
+                if earlier_unacked
+                else f"current={current_phase!r}; ladder consistent",
+            )
+        )
 
     gates = state.get("gates", {})
     for gate in GATE_ARTIFACTS:

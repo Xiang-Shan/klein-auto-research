@@ -1,0 +1,75 @@
+schema_version: 2
+study_id: "03-noisy-rosenbrock-dfo"
+goal: "At a fixed 200-evaluation budget on noisy Rosenbrock (sigma=0.5), do restarts beat plain Nelder-Mead, and does SPSA beat both?"
+domain: "optimization"
+target: "synthetic"
+task_type: "simulation"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "simulation"
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  primary:
+    metric:
+      name: "mean_final_gap"
+      goal: "lower"     # higher | lower
+      minimum_delta: 0.569532   # = max(2*std, range/2), std 0.284766 — measured, not guessed
+      noise_floor:
+        k: 5
+        std: 0.284766
+        range: 0.748732
+        mean: 1.72461
+        values: [1.25121, 1.7091, 1.85784, 1.80499, 1.99994]
+        source: "sweeps/noise_floor.sidecar.tsv"
+        measured_after: "E0001"
+    guardrails:
+      wall_seconds:
+        max: 60
+
+data:
+  source: "synthetic:noisy_rosenbrock_v1"
+  prepared_path: "data/prepared/reference_cell.csv"
+  split:
+    kind: none           # stratified | random | group | time | none (simulation)
+    seed: 42
+    # kind none: comparability comes from fixed seed blocks inside train.py;
+    # the sealed final test is a pre-registered fresh-seed block
+    # (run-one sets KLEIN_EVALUATION_KIND=final_test).
+
+    # group_column: account_id     # required when kind=group
+    # time_column: event_time      # required when kind=time
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 120
+phases:
+  - id: adaptive-1
+    description: "anchor (reference-cell reproduction, STOP if off) + k=5 noise-floor sweep, then slate ritual and bounded adaptive work"
+    budget_seconds: 1500
+    max_experiments: 6
+  - id: confirmation
+    description: "one sealed fresh-seed-block confirmation of the incumbent"
+    budget_seconds: 300
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "Do 4 random restarts (same 200-eval total budget) beat single-start Nelder-Mead on the noisy landscape?"
+    prior: "Yes, by well over the noise floor: single-start NM stalls in the banana valley under noise; restarts trade depth for escape. (source: method_card §4)"
+  - id: RQ2
+    question: "Does SPSA at this budget beat restarted Nelder-Mead?"
+    prior: "No: 200 evaluations is too few for SPSA's gain sequence to settle; expect within 2x the noise-floor std of restarted NM. (source: uninformed)"
+  - id: RQ3
+    question: "Does splitting the same budget into more, shorter restarts (8x25 vs 4x50) keep paying?"
+    prior: "No: each 25-eval start is too short to descend the valley; fragmentation loses more than escape gains. (source: uninformed)"
+
+predictions_to_falsify:
+  - lever: "restarts 1 -> 4 at fixed 200-eval budget (RQ1)"
+    predicted_delta: "mean_final_gap improves by >= 3x the measured noise-floor std (KEEP)"
+  - lever: "Nelder-Mead adaptive=True (Gao-Han parameters) at n=2"
+    predicted_delta: "within 2x noise-floor std of the anchor -> DISCARD by the measured minimum_delta"
+  - lever: "SPSA with aggressive gain a0=50"
+    predicted_delta: "iterates diverge, objective overflows to non-finite -> honest CRASH with NA metric"
+
+deliverables:
+  - findings.md
+  - report/index.html

@@ -1,0 +1,21 @@
+<h2>The Question</h2>
+
+<p>Every tuner of anything noisy has lived this moment: you change a knob, the number
+improves, and a small voice asks &mdash; <em>improved, or got lucky?</em> This study puts
+that moment under a microscope with the cleanest possible specimen: minimize the
+<strong>Rosenbrock banana function</strong> when every evaluation you request comes back
+corrupted by Gaussian noise (&sigma; = 0.5), and you may ask for only
+<strong>200 evaluations</strong>. The true surface has a known minimum, f* = 0 at (1, 1)
+&mdash; so unlike real life, we can score every answer against truth.</p>
+
+<p>Three contenders, one fixed budget: single-start <strong>Nelder-Mead</strong> (the
+default reflex), the same budget split across <strong>random restarts</strong>, and
+<strong>SPSA</strong> &mdash; the stochastic-approximation method literally designed for
+noisy evaluations. Three research questions were registered with priors before any run:
+do restarts pay (RQ1)? does SPSA beat them at this budget (RQ2)? does finer restart
+fragmentation keep paying (RQ3)?</p>
+
+<p>The real subject, though, is the <strong>discipline</strong>: a measured noise floor
+instead of a guessed significance bar, a sealed fresh-noise confirmation spent exactly
+once, every discard and crash kept as evidence &mdash; and, as it turned out, the study's
+biggest finding was made by a gate <em>before the first experiment ran</em>.</p>

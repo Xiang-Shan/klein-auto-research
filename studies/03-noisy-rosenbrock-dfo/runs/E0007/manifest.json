@@ -1,0 +1,74 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1089,
+      "committed": true,
+      "sha256": "f5a1b8006225982c4863ac118f74d359ad2f1ad76de77cb3efe82b1981dbe0d3"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 408,
+      "committed": true,
+      "sha256": "07ba4ee0a0677c90c95df736af158b6339ec07e71fc0c0ddcc71da1d3d2da97e"
+    }
+  },
+  "base_commit": "548403c0363b7b6c91fa1991d54428a81d851fb5",
+  "candidate_commit": "7a68c8488786e80a124c8e4795b0e0cf85fe44a0",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "sealed confirmation: incumbent 4x50 restarts on the fresh seed block 10042..; sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "ended_at": "2026-07-30T17:43:51.779462Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "541fd18ff5ac1d60536b33b9252e47092c86f7581b12cd22a80bdd0c18855af3"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344",
+    "environment": "6e1045cba5b568b0ceef01b270d4ffe12e18016dc0780994e43c196d25e3c34d",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_final_gap",
+  "metrics": {
+    "gap_median": 0.23169437717649316,
+    "gap_std_across_reps": 0.28835824307039304,
+    "gap_worst": 1.01524050029377,
+    "n_reps": 40.0,
+    "primary_metric": 0.312078,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.03464007377624512
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 300.0,
+  "phase_experiment_limit": 1,
+  "primary_metric": 0.312078,
+  "schema_version": 2,
+  "started_at": "2026-07-30T17:43:51.104436Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-07-30T17:43:51.843845Z",
+    "evidence_commit": "4d75f7187b37070cd508d1488146b7506965b654",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6749289160361513
+}

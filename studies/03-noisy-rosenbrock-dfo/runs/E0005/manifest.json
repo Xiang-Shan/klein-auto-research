@@ -1,0 +1,59 @@
+{
+  "artifacts": {
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 916,
+      "committed": true,
+      "sha256": "77c8570b0c08ebcd35f762cc1b0902b20c90638ceea003238b2c2f8e9dd45010"
+    }
+  },
+  "base_commit": "f234b105a8486e57aa333cb9801d9daf35b4aa92",
+  "candidate_commit": "a9197c54167d90bb701056616ac16fad044ddde9",
+  "code_patch_hash": "782831aa9642d8e0007d3381de7d3caabd1e6d63863bb69027c0f04ee0820796",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "process exit code 1",
+  "description": "SPSA c0=0 \u2014 the estimator's own denominator: registered crash, mechanism corrected after E0004; process exit code 1",
+  "disposition": "crash",
+  "ended_at": "2026-07-30T17:39:37.720138Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "541fd18ff5ac1d60536b33b9252e47092c86f7581b12cd22a80bdd0c18855af3"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 1,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344",
+    "environment": "6e1045cba5b568b0ceef01b270d4ffe12e18016dc0780994e43c196d25e3c34d",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_final_gap",
+  "metrics": {},
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 1500.0,
+  "phase_experiment_limit": 6,
+  "primary_metric": null,
+  "schema_version": 2,
+  "started_at": "2026-07-30T17:39:37.032147Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-07-30T17:39:37.786699Z",
+    "evidence_commit": "16614e5eafd37ceda7211a9aa8a4550c53d47f19",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6878987919772044
+}
