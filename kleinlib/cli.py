@@ -36,7 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--goal", help="one-sentence falsifiable study goal")
     new.add_argument("--domain", help="problem domain, e.g. insurance, optimization")
     new.add_argument("--target", help="target column (or 'synthetic' for known-truth labs)")
-    new.add_argument("--task-type", choices=("classification", "regression"), default="classification", help="evaluator shape for the study")
+    new.add_argument("--task-type", choices=("classification", "regression", "simulation"), default="classification", help="evaluator shape for the study (simulation = scalar/known-truth labs)")
     new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
     new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
     new.add_argument("--track", default="primary", help="name of the first metric track (default: primary)")
@@ -47,8 +47,8 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--prepared-path", help="path prepare.py writes (default: data/prepared/prepared.csv)")
     new.add_argument(
         "--split-kind",
-        choices=("stratified", "random", "group", "time"),
-        help="default: stratified for classification, random for regression",
+        choices=("stratified", "random", "group", "time", "none"),
+        help="default: stratified for classification, random for regression, none for simulation",
     )
     new.add_argument("--group-column", help="grouping column for split-kind=group")
     new.add_argument("--time-column", help="timestamp column for split-kind=time")

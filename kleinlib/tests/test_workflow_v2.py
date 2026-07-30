@@ -191,6 +191,51 @@ def test_scaffold_and_contract_reject_metric_identity_drift(tmp_path: Path) -> N
     assert any("canonical goal" in problem for problem in validate_contract(contract, study))
 
 
+def test_simulation_contract_accepts_custom_scalar_metric_and_kind_none(tmp_path: Path) -> None:
+    """E-0: math/optimization labs are first-class — custom metric, split kind none."""
+    study = scaffold_study(
+        tmp_path,
+        "03-noisy-rosenbrock",
+        goal="do restarts beat plain NM?",
+        domain="optimization",
+        target="synthetic",
+        task_type="simulation",
+        family="simulation",
+        metric_name="mean_final_gap",
+        metric_goal="lower",
+        data_source="synthetic:noisy_rosenbrock_v1",
+        data_path="data/prepared/reference_cell.csv",
+    )
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    assert contract["task_type"] == "simulation"
+    assert contract["data"]["split"]["kind"] == "none"
+    assert "development_size" not in contract["data"]["split"]
+    problems = [
+        p
+        for p in validate_contract(contract, study)
+        if "unresolved placeholders" not in p
+    ]
+    assert problems == []
+
+    # custom metric requires an explicit direction
+    with pytest.raises(ValueError, match="requires metric_goal"):
+        scaffold_study(
+            tmp_path,
+            "04-no-goal",
+            task_type="simulation",
+            metric_name="my_custom_gap",
+        )
+    # kind none is simulation-only
+    classification = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    classification["task_type"] = "classification"
+    classification["tracks"]["primary"]["metric"]["name"] = "val_auc"
+    classification["tracks"]["primary"]["metric"]["goal"] = "higher"
+    assert any(
+        "none is valid only for simulation" in problem or "kind must be" in problem
+        for problem in validate_contract(classification, study)
+    )
+
+
 def test_generated_train_executes_through_workflow_with_durable_identity(ready_study) -> None:
     _, study = ready_study
     train = study / "train.py"

@@ -24,7 +24,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--goal")
     parser.add_argument("--domain")
     parser.add_argument("--target")
-    parser.add_argument("--task-type", choices=("classification", "regression"), default="classification")
+    parser.add_argument("--task-type", choices=("classification", "regression", "simulation"), default="classification")
     parser.add_argument("--method-depth", choices=("brief", "full"), default="full")
     parser.add_argument("--family")
     parser.add_argument("--track", default="primary")
@@ -33,7 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--minimum-delta", type=float, default=0.0)
     parser.add_argument("--data")
     parser.add_argument("--prepared-path")
-    parser.add_argument("--split-kind", choices=("stratified", "random", "group", "time"), default="stratified")
+    parser.add_argument("--split-kind", choices=("stratified", "random", "group", "time", "none"), default=None)
     parser.add_argument("--max-run-seconds", type=int, default=600)
     return parser
 
