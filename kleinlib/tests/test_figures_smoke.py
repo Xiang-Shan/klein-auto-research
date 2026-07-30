@@ -64,3 +64,84 @@ def test_plot_metric_trajectory_smoke(tmp_path):
     path = figures.plot_metric_trajectory(rows, tmp_path)
     assert path.exists()
     assert path.stat().st_size > 0
+
+
+def _manifest(number, *, phase="p1", disposition="discard", metric=0.5, kind="development", track="frequency"):
+    return {
+        "experiment": f"E{number:04d}",
+        "track": track,
+        "phase": phase,
+        "evaluation_kind": kind,
+        "disposition": disposition,
+        "primary_metric": metric,
+        "metric_name": "val_pr_auc",
+        "wall_seconds": 2.0,
+    }
+
+
+DECISION_MANIFESTS = [
+    _manifest(1, disposition="keep", metric=0.60),
+    _manifest(2, disposition="discard", metric=0.58),
+    _manifest(3, disposition="crash", metric=None),
+    _manifest(4, disposition="keep", metric=0.64),
+    _manifest(5, phase="p2", disposition="discard", metric=0.63),
+    _manifest(6, phase="p2", disposition="keep", metric=0.67),
+    _manifest(7, phase="p2", disposition="discard", metric=0.61),
+    _manifest(8, phase="p2", disposition="keep", metric=0.66, kind="final_test"),
+]
+
+
+def test_plot_decision_trajectory_smoke(tmp_path):
+    path = figures.plot_decision_trajectory(
+        DECISION_MANIFESTS, tmp_path, track="frequency", metric_goal="higher",
+        metric_name="val_pr_auc", minimum_delta=0.005, noise_floor_std=0.01,
+    )
+    assert path == tmp_path / "figures" / "plot_decision_trajectory.png"
+    assert path.exists()
+    assert path.stat().st_size > 10_000, "PNG should be non-trivial (marks, bands, legend)"
+
+
+def test_plot_decision_trajectory_lower_goal(tmp_path):
+    lower = [
+        {**m, "primary_metric": None if m["primary_metric"] is None else round(1 - m["primary_metric"], 3)}
+        for m in DECISION_MANIFESTS
+    ]
+    path = figures.plot_decision_trajectory(
+        lower, tmp_path, track="frequency", metric_goal="lower",
+        metric_name="val_logloss", minimum_delta=0.005,
+    )
+    assert path.exists()
+    assert path.stat().st_size > 0
+
+
+def test_plot_decision_trajectory_all_crash_does_not_raise(tmp_path):
+    crashes = [_manifest(n, disposition="crash", metric=None) for n in (1, 2, 3)]
+    path = figures.plot_decision_trajectory(
+        crashes, tmp_path, track="frequency", metric_goal="higher"
+    )
+    assert path.exists()
+    assert path.stat().st_size > 0
+
+
+def test_plot_decision_trajectory_single_phase_single_experiment(tmp_path):
+    path = figures.plot_decision_trajectory(
+        [_manifest(1, disposition="keep", metric=0.6)],
+        tmp_path, track="frequency", metric_goal="higher", name="single",
+    )
+    assert path == tmp_path / "figures" / "single.png"
+    assert path.exists()
+    assert path.stat().st_size > 0
+
+
+def test_plot_decision_trajectory_track_name_suffix(tmp_path):
+    mixed = DECISION_MANIFESTS + [
+        _manifest(9, track="severity", disposition="keep", metric=240.0),
+        _manifest(10, track="severity", disposition="discard", metric=250.0),
+    ]
+    path = figures.plot_decision_trajectory(
+        mixed, tmp_path, track="severity", metric_goal="lower",
+        metric_name="val_rmse", name="plot_decision_trajectory__severity",
+    )
+    assert path == tmp_path / "figures" / "plot_decision_trajectory__severity.png"
+    assert path.exists()
+    assert path.stat().st_size > 0
