@@ -6,9 +6,9 @@
 - track: `primary`
 - minimum delta: 0.569532 (= 2.0x measured seed std 0.284766, k=5)
 - goal: `lower`
-- total experiments: 6
+- total experiments: 7
 - keep: 2
-- discard: 3
+- discard: 4
 - crash: 1
 
 ## Overview
@@ -36,11 +36,22 @@
 | E0004 | `569bf832e7a3ed6a57efb9f5f9480541f2df3e9c` | 11155760522900000835037867593246821038466806263430450505544431676982102285133816303625773157367718946962685096575694782418666807315183416408169426909871509134135538322484211140999407634715613593600.000000 | discard | SPSA a0=50 aggressive gains — registered prediction: iterates diverge, objective overflows non-finite, honest crash; did not improve track frontier 0.407072 by minimum_delta=0.569532 |
 | E0005 | `a9197c54167d90bb701056616ac16fad044ddde9` | n/a | crash | SPSA c0=0 — the estimator's own denominator: registered crash, mechanism corrected after E0004; process exit code 1 |
 | E0006 | `8395ce73bae895434031ad97bf59cddc3ddbd754` | 18507098284400000505127373551076521068197799267852249336004572973231362251300864947343537581426479805203950546322114610295760044928520793566253074551862531878622517108014575517696.000000 | discard | SPSA tuned a0=0.1 c0=0.1 — RQ2: prediction says within 2x floor std of restarted NM (discard); did not improve track frontier 0.407072 by minimum_delta=0.569532 |
+| E0007 | `7a68c8488786e80a124c8e4795b0e0cf85fe44a0` | 0.312078 | discard | sealed confirmation: incumbent 4x50 restarts on the fresh seed block 10042..; sealed final-test evidence; excluded from the adaptive frontier |
+
+## Decision trajectory
+
+Per-track decision history — the development keep-frontier (step line),
+discards, crashes on the bottom rug, and the sealed final-test confirmation
+star, with phase bands. Regenerate with
+`uv run --locked python .claude/skills/klein/scripts/make_figures.py <study_dir>`.
+
+![Decision trajectory](figures/plot_decision_trajectory__primary.png)
+
 
 ## Phase Telemetry
 
 | Phase | Experiments (used/max) | Seconds (used/budget) | Status |
 | --- | --- | --- | --- |
 | adaptive-1 | 6/6 | 4.1/1500 | within budget |
-| confirmation | 0/1 | 0.0/300 | untouched |
+| confirmation | 1/1 | 0.7/300 | within budget |
 
