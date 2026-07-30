@@ -588,6 +588,32 @@ def test_playbook_is_scaffolded_wired_into_evidence_and_phase_acks(ready_study) 
     assert git(repo, "status", "--porcelain") == ""
 
 
+def test_method_gate_enforces_declared_triad(ready_study) -> None:
+    _, study = ready_study
+    card = study / "method_card.md"
+    card.write_text(
+        "---\ntriad:\n  theory: true\n  papers: false\n  practice: true\n---\n"
+        "# Method card\n\nBrief method.\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(WorkflowError, match="triad incomplete"):
+        record_gate(study, "method", acknowledged_by="tester")
+    # naming the missing leg in the note is an explicit, recorded acceptance
+    record_gate(
+        study,
+        "method",
+        acknowledged_by="tester",
+        note="papers pending: preprint only, refs flagged UNVERIFIED",
+    )
+    # all legs true also passes
+    card.write_text(
+        "---\ntriad:\n  theory: true\n  papers: true\n  practice: true\n---\n"
+        "# Method card\n\nBrief method.\n",
+        encoding="utf-8",
+    )
+    record_gate(study, "method", acknowledged_by="tester", note="triad complete")
+
+
 def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
     study = tmp_path / "legacy"
     study.mkdir()

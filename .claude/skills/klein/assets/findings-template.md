@@ -13,14 +13,19 @@ related: []
 > frontiers stay separate, conclusions are labelled exploratory or confirmed, and
 > contradictions with the method-card priors are called out explicitly. Protocol:
 > `.claude/skills/klein/references/synthesis-protocol.md`.
+>
+> CLAIM IDs: every ① verdict and every ④ advice item carries a stable ID —
+> `**[C1]**, **[C2]**, ...` — never renumbered once published. Fully qualified
+> form: `<study_id>#C<n>`. knowledge/ docs cite them with a typed verb:
+> `(supports 02-rqls-pv-severity#C3)` / `(refutes 01-dae-claims#C1)`.
 
 ## ① Research-question verdicts
 
 One row per RQ in `study.yaml`. The verdict MUST cite evidence experiment IDs.
 
-| RQ | Track | Verdict | Evidence level | Evidence (exp IDs) | Metric delta + uncertainty |
-|---|---|---|---|---|---|
-| RQ1 | primary | supported / refuted / inconclusive | exploratory / confirmed | E0003, E0006 | ... |
+| Claim | RQ | Track | Verdict | Evidence level | Evidence (exp IDs) | Metric delta + uncertainty |
+|---|---|---|---|---|---|---|
+| **[C1]** | RQ1 | primary | supported / refuted / inconclusive | exploratory / confirmed | E0003, E0006 | ... |
 
 ## ② Predictions to falsify (filled)
 
@@ -37,8 +42,8 @@ What defied the prior, and the mechanism you believe explains it. Be concrete ab
 
 ## ④ Practical advice
 
-"On your own data, do X, avoid Y." Concrete and numbered (the best-practices style):
-what to reach for first, what to skip, the trap to avoid.
+"On your own data, do X, avoid Y." Concrete, and every item carries the next claim
+ID (continue the ① numbering): `**[C4]** Reach for ... first (evidence: E0003).`
 
 ## ⑤ Business / actuarial value implications
 
@@ -49,6 +54,8 @@ not just in metric points.
 
 Did results match what the method-card papers claim? Where do they sit against the
 trend (e.g. Grinsztajn "trees still win on tabular"; the DAE / SSL literature)?
+Also settle the priors' scorecard: did knowledge/-sourced priors outpredict
+`uninformed` ones? A knowledge doc that mispredicted gets updated at promotion.
 
 ## ⑦ What to try next
 

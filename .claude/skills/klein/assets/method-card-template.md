@@ -5,6 +5,10 @@ status: draft
 concepts: []
 related: []
 refs_verified: false   # set true ONLY after every reference below is verified
+triad:                 # the Theory + Papers + Practice contract — self-asserted, gate-checked
+  theory: false        # true requires §2's notation table + at least one display equation
+  papers: false        # true if and only if refs_verified is true
+  practice: false      # true requires §3 to name the runnable helpers or a from-scratch plan train.py realizes
 ---
 
 # Method card — {{METHOD_NAME}}

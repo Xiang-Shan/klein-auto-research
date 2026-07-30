@@ -37,3 +37,12 @@ finding generalizes beyond its study, it is promoted back into this directory �
 updated synthesis doc, or a new method card — so the next study starts from accumulated
 knowledge instead of a blank page. That is the Klein-bottle loop: a study's output feeds
 the framework's own input.
+
+## Claim citations (required at promotion)
+
+Promoted statements carry at least one typed claim citation —
+`(supports 02-rqls-pv-severity#C3)` / `(refutes 01-dae-claims#C1)` — pointing at a
+stable claim ID in that study's `findings.md`. Optional frontmatter `claims:` may
+list the IDs a doc leans on. Everything stays greppable:
+`grep -rn "#C[0-9]" knowledge/`. Two lines citing claims that refute each other is
+a contradiction to surface in prose, never to keep silently.

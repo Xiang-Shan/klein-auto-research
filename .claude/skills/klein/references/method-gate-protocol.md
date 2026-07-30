@@ -76,3 +76,13 @@ uv run --locked klein gate record method --study studies/NN-slug \
 If METHOD is deliberately abbreviated or skipped, use `klein gate override method`
 with a non-empty reason and actor. Also note it in `program.md`; a prose-only v1
 fast-path does not satisfy v2 preflight.
+
+## The triad contract
+
+A method is grasped when all three legs stand — **Theory** (the math core is
+written, §2), **Papers** (the references are verified, `refs_verified: true`),
+**Practice** (a runnable minimal implementation plan exists, §3). Assert them in
+the card's `triad:` frontmatter; `klein gate record method` refuses while any leg
+is false unless the `--note` names the missing leg and why it is acceptable
+(e.g. `--note "papers pending: preprint only, flagged UNVERIFIED"`). Self-asserted,
+machine-surfaced: the gate makes the assertion explicit and auditable, nothing more.

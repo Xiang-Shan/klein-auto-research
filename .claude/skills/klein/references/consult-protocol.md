@@ -80,3 +80,11 @@ study.yaml/research_plan.md/program.md contents plus the `new_study.py` command 
 to the orchestrating session, which asks the user, writes the files, and owns the ack.
 A session running this protocol solo — the default with any tool — does those steps
 directly.
+
+## Prior provenance
+
+Every research-question prior names its source in parentheses:
+`(source: knowledge/gbdt-hyperparameter-guide.md#C2)`, `(source: method_card §4)`,
+or `(source: uninformed)`. Findings §⑥ then settles the scorecard — did
+knowledge-sourced priors outpredict uninformed ones? — which is what makes the
+knowledge promotion loop measurable rather than devotional.
