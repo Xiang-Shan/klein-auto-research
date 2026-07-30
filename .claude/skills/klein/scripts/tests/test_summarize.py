@@ -150,6 +150,33 @@ class TestSummary:
         assert "- total improvement: 0.110000" in summary
         assert "E0002" not in summary
 
+    def test_noise_floor_labels_render_when_declared(self, summarize_module, tmp_path):
+        path = write_tsv(
+            tmp_path,
+            (
+                "experiment\ttrack\tprimary_metric\tstatus\tcommit\tdescription\n"
+                "E0001\tprimary\t0.660\tkeep\taaaaaaa\tanchor\n"
+                "E0002\tprimary\t0.668\tkeep\tbbbbbbb\timproved\n"
+            ),
+        )
+        (tmp_path / "study.yaml").write_text(
+            (
+                "schema_version: 2\n"
+                "tracks:\n"
+                "  primary:\n"
+                "    metric:\n"
+                "      name: val_auc\n"
+                "      goal: higher\n"
+                "      minimum_delta: 0.004\n"
+                "      noise_floor: {k: 5, std: 0.002, range: 0.005, mean: 0.66}\n"
+            ),
+            encoding="utf-8",
+        )
+        assert summarize_module.main([str(path), "--track", "primary"]) == 0
+        summary = (tmp_path / "results_summary.md").read_text(encoding="utf-8")
+        assert "- minimum delta: 0.004 (= 2.0x measured seed std 0.002, k=5)" in summary
+        assert "(4.0x noise-floor std)" in summary
+
     def test_v2_phase_telemetry_comes_from_run_manifests(self, summarize_module, tmp_path):
         """A7: v2 phases (budget_seconds/max_experiments) render from manifests,
         not from the v1 budget_h/ID-range shape."""

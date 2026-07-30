@@ -38,6 +38,10 @@ tracks:
       name: "{{METRIC_NAME}}"
       goal: "{{METRIC_GOAL}}"     # higher | lower
       minimum_delta: {{MINIMUM_DELTA}}
+      # noise_floor:                # measured at Phase 0, never guessed —
+      #   k: 5                      # klein noise-floor prints this block
+      #   std: ...
+      #   range: ...
     guardrails: {}
 
 data:

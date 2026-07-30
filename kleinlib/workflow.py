@@ -359,6 +359,11 @@ def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None
                 raise ValueError
         except (TypeError, ValueError):
             problems.append(f"track {name!r}: metric.minimum_delta must be finite and >= 0")
+        if metric.get("noise_floor") is not None:
+            problems.extend(
+                f"track {name!r}: {problem}"
+                for problem in _noise_floor_problems(metric.get("noise_floor"))
+            )
         for problem in _guardrail_contract_problems(spec.get("guardrails")):
             problems.append(f"track {name!r}: {problem}")
 
@@ -446,6 +451,45 @@ def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None
     locations = _placeholder_locations(contract)
     if locations:
         problems.append("unresolved placeholders at " + ", ".join(locations))
+    return problems
+
+
+def _noise_floor_problems(floor: Any) -> list[str]:
+    from .noise_floor import ALLOWED_KEYS
+
+    if not isinstance(floor, Mapping):
+        return ["metric.noise_floor must be a mapping"]
+    problems: list[str] = []
+    unknown = set(floor) - ALLOWED_KEYS
+    if unknown:
+        problems.append(f"metric.noise_floor has unknown keys: {sorted(unknown)}")
+    try:
+        k = int(floor.get("k", 0))
+        if k < 3:
+            raise ValueError
+    except (TypeError, ValueError):
+        problems.append("metric.noise_floor.k must be an integer >= 3")
+        k = None
+    for key in ("std", "range"):
+        try:
+            value = float(floor.get(key))
+            if not math.isfinite(value) or value < 0:
+                raise ValueError
+        except (TypeError, ValueError):
+            problems.append(f"metric.noise_floor.{key} must be finite and >= 0")
+    values = floor.get("values")
+    if values is not None:
+        if not isinstance(values, Sequence) or isinstance(values, (str, bytes)):
+            problems.append("metric.noise_floor.values must be a list of numbers")
+        else:
+            try:
+                floats = [float(v) for v in values]
+                if any(not math.isfinite(v) for v in floats):
+                    raise ValueError
+                if k is not None and len(floats) != k:
+                    problems.append("metric.noise_floor.values length must equal k")
+            except (TypeError, ValueError):
+                problems.append("metric.noise_floor.values must all be finite numbers")
     return problems
 
 
@@ -1095,6 +1139,38 @@ def preflight_checks(
 
     contract_problems = validate_contract(contract, study_dir)
     checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or "schema_version 2 contract valid"))
+    for track_name, track_spec in normalize_tracks(contract).items():
+        metric = track_spec["metric"]
+        floor = metric.get("noise_floor")
+        if not isinstance(floor, Mapping):
+            checks.append(
+                Check(
+                    "noise floor",
+                    True,
+                    f"track {track_name!r}: not measured — Phase 0 protocol expects a "
+                    "k-seed measurement (see consult-protocol.md)",
+                )
+            )
+            continue
+        try:
+            floor_std = float(floor.get("std"))
+            minimum_delta = float(metric.get("minimum_delta", 0))
+        except (TypeError, ValueError):
+            continue  # validate_contract already reported the malformed block
+        checks.append(
+            Check(
+                "noise floor",
+                minimum_delta >= floor_std,
+                f"track {track_name!r}: minimum_delta {minimum_delta:.6g} vs measured "
+                f"seed std {floor_std:.6g}"
+                + (
+                    ""
+                    if minimum_delta >= floor_std
+                    else " — declaring a floor then keeping inside it is the exact "
+                    "dishonesty the measurement exists to prevent"
+                ),
+            )
+        )
     try:
         state = load_state(study_dir, contract)
     except WorkflowError as exc:

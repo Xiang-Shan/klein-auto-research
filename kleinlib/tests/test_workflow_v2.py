@@ -614,6 +614,41 @@ def test_method_gate_enforces_declared_triad(ready_study) -> None:
     record_gate(study, "method", acknowledged_by="tester", note="triad complete")
 
 
+def test_noise_floor_contract_validation_and_preflight_honesty(ready_study) -> None:
+    repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    metric = contract["tracks"]["primary"]["metric"]
+
+    # malformed blocks are contract problems
+    metric["noise_floor"] = {"k": 2, "std": -1.0, "range": 0.1, "bogus": 1}
+    problems = " ".join(validate_contract(contract, study))
+    assert "noise_floor.k" in problems
+    assert "noise_floor.std" in problems
+    assert "unknown keys" in problems
+
+    # a declared floor with minimum_delta inside it fails preflight
+    metric["noise_floor"] = {"k": 5, "std": 0.002, "range": 0.005, "mean": 0.67}
+    metric["minimum_delta"] = 0.001
+    (study / "study.yaml").write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+    record_gate(study, "consult", acknowledged_by="tester", note="floor measured")
+    floor_checks = [
+        c for c in preflight_checks(study, require_clean=False, require_branch=False)
+        if c.name == "noise floor"
+    ]
+    assert len(floor_checks) == 1 and not floor_checks[0].ok
+    assert "dishonesty" in floor_checks[0].message
+
+    # honest minimum_delta passes
+    metric["minimum_delta"] = 0.004
+    (study / "study.yaml").write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+    record_gate(study, "consult", acknowledged_by="tester", note="delta from floor")
+    floor_checks = [
+        c for c in preflight_checks(study, require_clean=False, require_branch=False)
+        if c.name == "noise floor"
+    ]
+    assert len(floor_checks) == 1 and floor_checks[0].ok
+
+
 def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
     study = tmp_path / "legacy"
     study.mkdir()
