@@ -1,0 +1,72 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 916,
+      "committed": true,
+      "sha256": "0b72485e02553260d384f11add8947ed2eafab41837f026e0f4c2c32066e3519"
+    },
+    "runs/E0006/run.log": {
+      "availability": "recorded",
+      "bytes": 598,
+      "committed": true,
+      "sha256": "c15efedbf244cb0a32b0fbf06516a3d7bf586636cf0b1f7928f9e37db129949f"
+    }
+  },
+  "base_commit": "02dd94824e86bcd4141f616139c12559109dbaa3",
+  "candidate_commit": "8395ce73bae895434031ad97bf59cddc3ddbd754",
+  "code_patch_hash": "f7394db1f14beb4fc974125690a7472339704e4510668a34a497529ca4e3291b",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.407072 by minimum_delta=0.569532",
+  "description": "SPSA tuned a0=0.1 c0=0.1 \u2014 RQ2: prediction says within 2x floor std of restarted NM (discard); did not improve track frontier 0.407072 by minimum_delta=0.569532",
+  "disposition": "discard",
+  "ended_at": "2026-07-30T17:39:55.609230Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "541fd18ff5ac1d60536b33b9252e47092c86f7581b12cd22a80bdd0c18855af3"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0006",
+  "fingerprints": {
+    "data": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344",
+    "environment": "6e1045cba5b568b0ceef01b270d4ffe12e18016dc0780994e43c196d25e3c34d",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_final_gap",
+  "metrics": {
+    "gap_median": 8.199165801289529e+94,
+    "gap_std_across_reps": 1.1704563274077045e+179,
+    "gap_worst": 7.402621377628238e+179,
+    "n_reps": 40.0,
+    "primary_metric": 1.8507098284403038e+178,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.02379918098449707
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 1500.0,
+  "phase_experiment_limit": 6,
+  "primary_metric": 1.8507098284403038e+178,
+  "schema_version": 2,
+  "started_at": "2026-07-30T17:39:54.929264Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-07-30T17:39:55.609845Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6798497500130907
+}
