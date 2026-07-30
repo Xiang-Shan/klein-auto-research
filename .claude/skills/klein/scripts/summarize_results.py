@@ -929,4 +929,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except (ValueError, FileNotFoundError) as exc:
+        print(f"summarize_results.py: error: {exc}", file=sys.stderr)
+        sys.exit(1)
