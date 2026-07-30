@@ -31,20 +31,29 @@ and the coding pitfalls back to you.
    committing serious modeling effort. The shipped DAE study is the exemplar: "no
    for ranking at 58k rows, but 3.4× better than median-imputation at cell repair"
    is exactly the intelligence you want before a production bet.
-2. **A disciplined loop instead of notebook chaos.** In v0.2 every candidate is
-   committed before it runs, including discards and crashes. An append-only event
+2. **A disciplined loop instead of notebook chaos.** Under schema v2 every
+   candidate is committed before it runs, including discards and crashes. An append-only event
    log and immutable run manifest bind code, data, split, environment, metrics,
    artifacts, and disposition; `results.tsv` is a compact derived view. Git *is*
-   the reconstructable config record, not just a list of winners.
+   the reconstructable config record, not just a list of winners. A rolling
+   `playbook.md` keeps the map (current best, ruled-out, open hypotheses) that
+   the loop re-reads before every candidate, and each phase starts with a
+   scored candidate slate rather than a hunch.
 3. **Machine-enforced gates against self-deception.** A GIGO ("garbage in,
    garbage out") data gate blocks modeling until the data problems are on the
-   table; a method gate forces understanding before compute; a consult gate turns
-   vague goals into falsifiable questions. Gate acknowledgements, overrides,
+   table — closing with a clean-room leakage audit whose mechanical checks ship
+   in `kleinlib.leakage`; a method gate forces understanding before compute
+   (Theory+Papers+Practice, asserted and checked); a consult gate turns
+   vague goals into falsifiable questions. `minimum_delta` — the smallest
+   difference worth calling a keep — is MEASURED from a k-seed noise floor,
+   never guessed. Gate acknowledgements, overrides,
    prepared-data fingerprints, exact study branches, and ledger integrity are
-   checked before a v0.2 run.
+   checked before a schema-v2 run.
 4. **Insight mining is mandatory, not optional.** SYNTHESIZE mines the whole
    trajectory — keeps vs discards, metric trends, aux-metric tradeoffs (rank vs
-   calibration), decision history — into findings a colleague can act on.
+   calibration), decision history — into findings a colleague can act on, every
+   claim carrying a stable citable ID, with the keep/discard/crash journey
+   rendered as a per-track decision-trajectory figure.
 5. **A teaching artifact closes every study.** The tutorial (`report/index.html`,
    fully offline) levels you up and onboards the next person.
 6. **A frontier-method onramp.** Method cards teach unfamiliar methods; when no
@@ -77,9 +86,10 @@ uv run --no-sync klein --help
 bash scripts/verify_e2e.sh          # optional: isolated end-to-end proof
 
 cd studies/00-glm-claims-quickstart
-uv run prepare.py                   # prints "data source: bundled — …"
-uv run --locked python ../../scripts/run_with_log.py --timeout-seconds 600 \
-  --log run.log -- uv run --locked python -u train.py
+uv run --no-sync prepare.py         # prints "data source: bundled — …"
+uv run --no-sync python ../../scripts/run_with_log.py --timeout-seconds 600 \
+  --log run.log -- uv run --no-sync python -u train.py
+# --no-sync keeps step 1's extras: a bare `uv run` re-syncs to default extras
 # expect primary_metric: 0.664322 (±0.001 gate; CI-proven)
 ```
 
@@ -95,18 +105,19 @@ New studies default to `schema_version: 2` and are driven through the packaged
 `klein` command. Run `--help` on any command for its complete arguments.
 
 ```bash
-klein new 03-my-question --metric val_auc --goal-direction higher
-git switch -c experiments/03-my-question   # the loop refuses to run on main
+klein new 04-my-question --metric val_auc --goal-direction higher
+git switch -c experiments/04-my-question   # the loop refuses to run on main
 # author data_card.md / method_card.md at their gates (templates in assets/), then:
-klein gate record consult --study studies/03-my-question --acknowledged-by <name>
-klein gate record data --study studies/03-my-question --acknowledged-by <name>
-klein gate record method --study studies/03-my-question --acknowledged-by <name>
-klein preflight --study studies/03-my-question
-klein run-one --study studies/03-my-question --description "registered baseline"
-klein status --study studies/03-my-question
-klein recover --study studies/03-my-question
-klein finalize --study studies/03-my-question
-klein verify --study studies/03-my-question
+klein gate record consult --study studies/04-my-question --acknowledged-by <name>
+klein gate record data --study studies/04-my-question --acknowledged-by <name>
+klein gate record method --study studies/04-my-question --acknowledged-by <name>
+klein preflight --study studies/04-my-question
+klein run-one --study studies/04-my-question --description "registered baseline"
+klein noise-floor --study studies/04-my-question   # Phase 0: measure minimum_delta
+klein status --study studies/04-my-question
+klein recover --study studies/04-my-question
+klein finalize --study studies/04-my-question
+klein verify --study studies/04-my-question
 ```
 
 Gate records, `finalize`, and `recover` commit their own state writes — the loop
@@ -168,12 +179,12 @@ coding pitfalls included, works offline.
 The pitch is *your* data, so that path is first-class:
 
 1. Scaffold:
-   `klein new 03-my-question --data csv:/path/to/my.csv --metric val_auc --goal-direction higher`
+   `klein new 04-my-question --data csv:/path/to/my.csv --metric val_auc --goal-direction higher`
 2. Point `prepare.py` at your file (`kleinlib.data.load_prepared`) and keep its
    output stable; the CONSULT protocol (≤6 questions) turns your goal into
    research questions with registered predictions.
 3. Pass the DATA gate — the profiler ranks go/no-go issues before any modeling.
-4. Create the exact `experiments/03-my-question` branch, record the required gate
+4. Create the exact `experiments/04-my-question` branch, record the required gate
    acknowledgements, pass `klein preflight`, then run one candidate at a time with
    `klein run-one`; SYNTHESIZE and TUTORIAL close it.
 

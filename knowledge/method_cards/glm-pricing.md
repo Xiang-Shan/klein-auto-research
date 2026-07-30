@@ -5,6 +5,10 @@ domain: insurance
 status: seed
 concepts: [logistic-regression, link-function, splines, binning-linear, encoder-criticality, isotonic-calibration, threshold-tuning, weak-signal, class-weight]
 related: [../best-practices-auto-insurance.md, ../encoder-comparison.md, gbdt-tabular.md]
+triad:                 # asserted retroactively at v0.3 (cards predate the contract)
+  theory: true
+  papers: false
+  practice: true
 ---
 
 # GLM / Logistic Regression for Insurance Risk

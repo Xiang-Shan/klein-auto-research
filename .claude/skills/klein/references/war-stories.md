@@ -40,8 +40,8 @@ the description, statuses in the commit field. The ledger corrupted silently and
 history became unrecoverable.
 
 **The guard.** The schema lives in ONE place: `kleinlib/schema.py`. Templates, preflight,
-summarize, and `new_study.py` POINT there or carry a fallback that is ASSERTED equal to
-it at runtime. A drift-test fails loudly. No document restates the column list. See
+summarize, and `new_study.py` POINT there — they import it and fail loudly if the
+engine is absent. A drift-test guards the round-trip. No document restates the column list. See
 `kleinlib.schema`.
 
 ## 4. Imbalance reweighting vs calibration (→ cw=None + isotonic)

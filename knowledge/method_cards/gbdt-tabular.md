@@ -5,6 +5,10 @@ domain: ml
 status: seed
 concepts: [lightgbm, xgboost, catboost, encoder-pairing, monotone-constraints, soft-voting, regularization-defaults, hyperparameter-importance, imbalance-calibration]
 related: [../gbdt-hyperparameter-guide.md, ../encoder-comparison.md, ../insights-and-framework.md, glm-pricing.md]
+triad:                 # asserted retroactively at v0.3 (cards predate the contract)
+  theory: true
+  papers: false
+  practice: true
 ---
 
 # Gradient-Boosted Decision Trees for Tabular Data

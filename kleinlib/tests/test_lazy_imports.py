@@ -28,4 +28,6 @@ print(json.dumps({'before': before, 'after': after, 'schema': schema_name,
     assert result["before"] == {"matplotlib": False, "sklearn": False, "torch": False}
     assert result["after"] == {"matplotlib": False, "sklearn": False, "torch": False}
     assert result["schema"] == "kleinlib.schema"
-    assert result["version"] == "0.2.0"
+    import importlib.metadata
+
+    assert result["version"] == importlib.metadata.version("klein-auto-research")

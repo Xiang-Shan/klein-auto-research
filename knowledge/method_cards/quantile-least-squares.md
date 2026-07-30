@@ -6,6 +6,10 @@ status: validated
 source: studies/02-rqls-pv-severity
 concepts: [quantile-least-squares, method-of-trimmed-moments, left-truncation-right-censoring, observable-window-fit, gls-quantile-weights, layer-map-cancellation, mixture-misspecification, cap-bounded-tail, monte-carlo-floor, tvar-loaded-premium]
 related: [glm-pricing.md, gbdt-tabular.md, dae-tabular.md]
+triad:                 # asserted retroactively at v0.3 (cards predate the contract)
+  theory: true
+  papers: false
+  practice: true
 ---
 
 # Robust Quantile Least Squares for Loss Severity

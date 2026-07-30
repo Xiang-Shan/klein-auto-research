@@ -23,13 +23,14 @@ wheel installation. Scheduled jobs check dependency resolution and Apple MPS.
 These are load-bearing; PRs that renegotiate them will be declined:
 
 - **Schema is single-sourced** in `kleinlib/schema.py`. Nothing restates the
-  results columns; scripts carry an embedded fallback that is drift-asserted.
+  results columns; scripts import the schema from `kleinlib.schema` and fail
+  loudly if the engine is absent.
 - **Executed studies are immutable history.** Never edit a shipped study's
   `results.tsv`, `findings.md`, or `program.md`. New results = new experiments
   in your own study.
-- **One primary metric per v0.2 track**; unrelated tasks use separate tracks and
+- **One primary metric per schema-v2 track**; unrelated tasks use separate tracks and
   everything non-primary goes to `aux_metrics.tsv`.
-- **Every v0.2 candidate is committed before execution.** Discards and crashes
+- **Every schema-v2 candidate is committed before execution.** Discards and crashes
   remain resolvable evidence. The working `train.py` may be restored afterward,
   but the candidate commit and immutable run manifest remain.
 - **Evidence is transactional.** Append-only events and run manifests are the
@@ -44,8 +45,7 @@ These are load-bearing; PRs that renegotiate them will be declined:
   proving them, per the repo's own ethos.
 - New method cards under `knowledge/method_cards/` (intuition → math → minimal
   implementation → when-it-pays → verified references).
-- New studies: scaffold with
-  `uv run python .claude/skills/klein/scripts/new_study.py`, run the full
+- New studies: scaffold with `uv run --locked klein new NN-slug`, run the full
   lifecycle, and include `findings.md` + tutorial.
 - Portability fixes (Windows paths, non-MPS torch devices).
 
