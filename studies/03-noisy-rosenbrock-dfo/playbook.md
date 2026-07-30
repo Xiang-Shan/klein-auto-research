@@ -10,12 +10,14 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary | E0001 | 1.2512 | nm single-start, budget 200 | phase0 (anchor; luckiest block of 5 — floor std 0.2848) |
+| primary | E0003 | 0.4071 | 4x50 restarts, budget 200 | adaptive-1 (beats anchor 2.96x floor; TIES random search 0.397) |
 
 ## Ruled out (evidence, not opinion)
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
+| NM adaptive (Gao-Han) at n=2 | E0002 | coefficients identical to standard NM in 2-D — a no-op by mathematics |
+| SPSA divergence as a crash source | E0004 (+off-ledger a0=500,5000) | diverges to absurd-but-FINITE values (1e81..1e196); decaying gains self-limit below overflow |
 
 ## Open hypotheses
 
@@ -27,9 +29,6 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. 4×50 restarts (sum 9) — the H1 test; bars: 0.5695 delta AND random-search 0.397
-2. SPSA a0=0.1 (sum 9) — RQ2
-3. NM adaptive probe (sum 8) — floor calibration, run first (cheapest)
-4. SPSA a0=50 (sum 8) — registered crash
-5. 8×25 restarts (sum 8) — RQ3
-6. DEFERRED next study: random search as ledger experiment (sum 9; pre-registration outranks curiosity)
+1. SPSA c0=0 — corrected crash mechanism (estimator denominator), registered pre-run
+2. SPSA a0=0.1 tuned — RQ2
+3. DEFERRED next study: random search as ledger experiment; 8×25 fragmentation (RQ3)
