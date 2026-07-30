@@ -27,7 +27,9 @@ straight to confirmation. Output: `study.yaml`, `research_plan.md`, a generated
 
 **DATA (Gate 1).** GIGO guard: profile the dataset and write `data_card.md` with
 ranked go/no-go issues before any modeling. Check value patterns, never trust
-`dtype == "object"` (see war stories).
+`dtype == "object"` (see war stories). A clean-room leakage audit — run in a FRESH
+context, rows 3–4 mechanized by `python -m kleinlib.leakage` — fills the card's
+four-row checklist; any FAIL is a BLOCKER.
 
 **METHOD (Gate 2).** Pedagogy for unfamiliar or frontier methods: write
 `method_card.md` — intuition → math core → minimal from-scratch implementation →
@@ -67,7 +69,7 @@ this same table routed as the `/klein` skill.)
 |---|---|---|---|
 | scaffold | `.claude/skills/klein/references/defaults-and-scaffolding.md` | study dir + templates | `klein new` |
 | CONSULT | `references/consult-protocol.md` | study.yaml, research_plan.md, program.md | — |
-| DATA | `references/data-gate-protocol.md` | data_card.md (go/no-go) | `python -m kleinlib.profile_fallback` |
+| DATA | `references/data-gate-protocol.md` | data_card.md (go/no-go) | `python -m kleinlib.profile_fallback`, `python -m kleinlib.leakage` |
 | METHOD | `references/method-gate-protocol.md` | method_card.md | — |
 | EXPERIMENT | loop contract below + `SKILL.md` Hard Rules | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one` |
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction | `kleinlib.sweep.SweepRunner` |

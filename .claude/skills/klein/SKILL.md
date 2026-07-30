@@ -35,9 +35,9 @@ optional accelerators; a solo session follows the protocols directly.
 |---|---|---|---|---|
 | `new` | Scaffold a study dir | `references/defaults-and-scaffolding.md` | `klein new` | — |
 | `consult` | Gate 0: ≤6-question interview (or fast-path) | `references/consult-protocol.md` | `klein gate record consult` after the **user ack** | klein-consultant |
-| `data` | Gate 1: profile → ranked go/no-go → data_card.md | `references/data-gate-protocol.md` | `klein gate record data` (or `gate override data --reason`) | klein-data-auditor |
+| `data` | Gate 1: profile → clean-room leakage audit → ranked go/no-go → data_card.md | `references/data-gate-protocol.md` | `python -m kleinlib.leakage`; `klein gate record data` (or `gate override data --reason`) | klein-data-auditor |
 | `method` | Gate 2: intuition→math→impl→refs → method_card.md | `references/method-gate-protocol.md` | `klein gate record method` | klein-method-scholar |
-| `run` | One candidate transaction (edit → commit → run → retain evidence) | Hard Rules below; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one` (each candidate); `klein recover` after interruption | klein-experimenter / klein-sweeper |
+| `run` | One candidate transaction (edit → commit → run → retain evidence) | Hard Rules below; phase starts: `references/phase-ritual.md`; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one` (each candidate); `klein recover` after interruption | klein-experimenter / klein-sweeper |
 | `synthesize` | Mine trajectory → 7-section findings; close the study | `references/synthesis-protocol.md` | `klein finalize` (labels exploratory/confirmed) | klein-synthesist |
 | `tutorial` | Build self-contained teaching HTML | `references/tutorial-spec.md` | — (`scripts/build_tutorial.py`) | klein-tutor |
 | `status` | Summarize results + phase telemetry | `scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation | — |
