@@ -90,3 +90,19 @@ Survivors mirrored to playbook.md.
   into `adaptive-1` (max_experiments 6 = anchor + 5 adaptive; budgets summed);
   consult re-recorded. The framework now preflight-fails this drift instead of
   ignoring it.
+- 2026-07-30 — adaptive-1 progress + MID-PHASE RE-PLAN. E0002 discard: Gao-Han
+  adaptive coefficients are IDENTICAL to standard NM at n=2 (chi=2, psi=sigma=1/2)
+  — the probe was a mathematical no-op, delta exactly 0. E0003 KEEP 0.4071: clears
+  the anchor by 0.844 = 2.96x floor std (prediction "≥3x" essentially held) — but
+  only TIES random search (0.397): local polish buys ~nothing at 50 evals/start
+  under sigma=0.5. E0004 discard 1.1e+196: the registered CRASH prediction is
+  FALSIFIED on mechanism — SPSA divergence saturates FINITE (decaying gains
+  self-limit; off-ledger probes: a0=500 → 1e81, a0=5000 → 1e97, never inf).
+  RE-PLAN: the honest crash lives in the estimator's own denominator — c0=0
+  divides by zero (verified off-ledger: immediate ZeroDivisionError). E0005 =
+  SPSA c0=0 (registered crash, mechanism corrected); E0006 = tuned SPSA a0=0.1
+  (RQ2). The 8x25 fragmentation probe (RQ3) is DEFERRED — verdict will read
+  untested/inconclusive; it joins random-search-as-experiment in the next-study
+  queue. Slate discipline note: the re-plan swaps ONE registered candidate for a
+  corrected version of another registered candidate; both changes logged here
+  before the runs.
