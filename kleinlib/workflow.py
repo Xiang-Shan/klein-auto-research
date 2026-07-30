@@ -19,7 +19,6 @@ import math
 import os
 import platform
 import re
-import shutil
 import subprocess
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
@@ -1867,7 +1866,3 @@ def status_summary(study_dir: Path) -> str:
     lines.append(f"pending transactions: {', '.join(pending) if pending else 'none'}")
     return "\n".join(lines) + "\n"
 
-
-def ensure_uv_locked_command_available() -> None:
-    if shutil.which("uv") is None:
-        raise WorkflowError("uv is required for the locked default run command")
