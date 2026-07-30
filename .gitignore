@@ -12,6 +12,7 @@ htmlcov/
 
 # Run artifacts
 run.log
+.klein.lock
 catboost_info/
 optuna_studies/*.db
 

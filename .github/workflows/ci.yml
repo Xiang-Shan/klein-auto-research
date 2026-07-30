@@ -244,7 +244,7 @@ jobs:
           uv venv --python 3.13 "$venv"
           uv pip install --python "$venv/bin/python" dist/*.whl
           cd "$RUNNER_TEMP"
-          "$venv/bin/python" -c "import importlib.metadata as m; import kleinlib; assert m.version('klein-auto-research') == kleinlib.__version__ == '0.2.0'; print(kleinlib.__file__)"
+          "$venv/bin/python" -c "import importlib.metadata as m; import kleinlib; v = m.version('klein-auto-research'); assert v == kleinlib.__version__ and v.count('.') == 2, v; print(v, kleinlib.__file__)"
           "$venv/bin/klein" --help
           "$venv/bin/klein" new 99-wheel-smoke \
             --root "$RUNNER_TEMP/wheel-studies" \
