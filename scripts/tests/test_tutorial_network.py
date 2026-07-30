@@ -59,6 +59,20 @@ def test_build_fresh_tutorial_has_csp_and_inline_figure(tmp_path: Path) -> None:
     assert "href=\"http" not in text
 
 
+def test_page_initiated_urls_differences_out_browser_service_noise() -> None:
+    module = _load_module()
+    urls = [
+        "https://accounts.google.com/ListAccounts?x=1",
+        "http://clients2.google.com/time/1/current",
+        "https://cdn.example.invalid/leaked.js",
+    ]
+    noise = {"accounts.google.com", "clients2.google.com"}
+    assert module.page_initiated_urls(urls, noise) == [
+        "https://cdn.example.invalid/leaked.js"
+    ]
+    assert module.page_initiated_urls(urls[:2], noise) == []
+
+
 def test_check_in_chrome_times_the_page_load(tmp_path: Path, monkeypatch) -> None:
     module = _load_module()
 
