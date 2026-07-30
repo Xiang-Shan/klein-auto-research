@@ -603,6 +603,25 @@ def append_event(study_dir: Path, event_type: str, **payload: Any) -> dict[str, 
     return event
 
 
+def _method_card_triad(text: str) -> dict[str, bool] | None:
+    """Parse the method card's optional ``triad:`` frontmatter (Theory + Papers +
+    Practice legs). Returns None when the card declares no triad — older cards
+    stay valid; the contract is opt-in via the template."""
+    if not text.startswith("---"):
+        return None
+    end = text.find("\n---", 3)
+    if end < 0:
+        return None
+    try:
+        meta = yaml.safe_load(text[3:end])
+    except yaml.YAMLError:
+        return None
+    triad = meta.get("triad") if isinstance(meta, dict) else None
+    if not isinstance(triad, Mapping):
+        return None
+    return {leg: bool(triad.get(leg)) for leg in ("theory", "papers", "practice")}
+
+
 def record_gate(
     study_dir: Path,
     gate: str,
@@ -686,6 +705,21 @@ def record_gate(
             if PLACEHOLDER_RE.search(text):
                 raise WorkflowError(f"cannot {verb} {gate}: unresolved placeholder in {name}")
             artifact_hashes[name] = sha256_file(path)
+        if gate == "method" and override_reason is None:
+            triad = _method_card_triad(
+                (study_dir / "method_card.md").read_text(encoding="utf-8")
+            )
+            if triad is not None:
+                missing = [leg for leg, ok in triad.items() if not ok]
+                unnamed = [leg for leg in missing if leg not in note.lower()]
+                if missing and unnamed:
+                    raise WorkflowError(
+                        "method card triad incomplete — "
+                        + ", ".join(f"{leg}: false" for leg in missing)
+                        + ". Complete the leg(s), or name each missing leg in --note "
+                        "with why that is acceptable (the assertion is yours; the "
+                        "gate only makes it explicit)."
+                    )
         if gate == "data":
             if override_reason is None:
                 text = (study_dir / "data_card.md").read_text(encoding="utf-8")

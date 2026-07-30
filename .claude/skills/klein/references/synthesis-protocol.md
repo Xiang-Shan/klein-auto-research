@@ -6,7 +6,7 @@ and write `findings.md` with EXACTLY seven sections. Every claim cites experimen
 Role: synthesist. Any agent or human can execute this protocol directly — it is the
 source of truth; Claude Code ships it pre-wired as the `klein-synthesist` worker.
 
-## Mine four sources
+## Mine five sources
 
 ### 1. manifests + derived results.tsv — track frontiers and all evidence
 - **Track-specific keep-chain deltas.** Partition by track before comparing metrics.
@@ -40,11 +40,17 @@ Pull the falsifiable priors from part 4 of the method card. Each becomes a verdi
 section ① and a row in section ②. Where results CONTRADICT a prior, say so explicitly — a
 refuted prior is the most valuable kind of finding.
 
+### 5. playbook.md — the pre-clustered map
+The Ruled-out table seeds the discard-cluster analysis (it already names the theme and
+the evidence IDs); the Current-best history cross-checks each track's frontier; open
+hypotheses that were never tested become ⑦ "what to try next" candidates.
+
 ## Write findings.md — exactly seven sections
 
 Copy `assets/findings-template.md`. Fill, in order:
 
-- **① Research-question verdicts.** One row per RQ in study.yaml: supported / refuted /
+- **① Research-question verdicts.** One row per RQ in study.yaml, each with a stable
+  claim ID (`**[C1]**...`, fully qualified `<study_id>#Cn`, never renumbered): supported / refuted /
   inconclusive, with evidence experiment IDs and the metric delta. Label every verdict
   `exploratory` (development only) or `confirmed` (its track has sealed-test evidence).
 - **② Predictions to falsify (filled).** Copy each lever from program.md; fill observed
@@ -70,3 +76,13 @@ Copy `assets/findings-template.md`. Fill, in order:
 - Do not call a small delta real, material, or decisive without configured minimum
   delta plus appropriate uncertainty evidence. State what remains uncertain.
 - No number appears that cannot be traced to results.tsv or aux_metrics.tsv.
+
+## Promotion to knowledge/ (closing the Klein bottle)
+
+A statement promotes into `knowledge/` only WITH at least one claim citation —
+`(supports <study_id>#Cn)` or `(refutes <study_id>#Cn)` — so every knowledge line
+remains greppably traceable to the evidence that earned it
+(`grep -rn "#C[0-9]" knowledge/`). When two knowledge lines cite claims that
+refute each other, surface the contradiction in the doc text; do not silently
+keep both. Ruled-out rows from `playbook.md` promote the same way. No graph
+engine, no registry file — the markdown convention IS the mechanism.
