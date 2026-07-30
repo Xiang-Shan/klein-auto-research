@@ -100,7 +100,8 @@ being on `main` as a failure for the loop — respect it.
 ## uv only
 
 All Python runs through locked `uv run`; all deps through `uv add`. `uv sync --locked` to set up;
-`--extra gbdt`, `--extra deep`, `--extra dev` for the optional stacks. If `uv` is
+`--extra gbdt`, `--extra deep` for the optional stacks (dev tools are a default
+dependency group — plain `uv sync --locked` installs them). If `uv` is
 missing, install it first — never fall back to pip/conda (lockfile drift is
 undebuggable).
 

@@ -137,8 +137,8 @@ fi
 
 cd "$WORKTREE_DIR"
 
-echo "=== uv sync --locked --extra dev (fresh .venv for the worktree) ==="
-uv sync --locked --extra dev
+echo "=== uv sync --locked (fresh .venv for the worktree; dev group is default) ==="
+uv sync --locked
 
 # --------------------------------------------------------------------------
 # 2. Build an explicit v1 compatibility fixture + a minimal train.py

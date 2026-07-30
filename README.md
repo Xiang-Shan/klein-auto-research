@@ -68,7 +68,7 @@ claims, Apache-2.0) is bundled in the repo.
 ```bash
 git clone https://github.com/Xiang-Shan/klein-auto-research
 cd klein-auto-research
-uv sync --locked --extra dev --extra encoders
+uv sync --locked --extra encoders
 uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests \
     studies/02-rqls-pv-severity/tests scripts/tests -q
 uv run --no-sync klein --help
@@ -85,7 +85,7 @@ Heads-up on extras: `uv sync` installs exactly what you name — and *removes*
 extras you omit. Compose what a study needs: `--extra gbdt`
 (LightGBM/XGBoost/CatBoost), `--extra deep` (PyTorch — required for
 `studies/01-dae-claims`), e.g.
-`uv sync --locked --extra dev --extra encoders --extra gbdt --extra deep`.
+`uv sync --locked --extra encoders --extra gbdt --extra deep`.
 
 ## The v0.2 command line
 
