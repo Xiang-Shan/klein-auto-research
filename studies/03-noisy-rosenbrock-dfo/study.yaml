@@ -1,0 +1,59 @@
+schema_version: 2
+study_id: "03-noisy-rosenbrock-dfo"
+goal: "At a fixed 200-evaluation budget on noisy Rosenbrock (sigma=0.5), do restarts beat plain Nelder-Mead, and does SPSA beat both?"
+domain: "optimization"
+target: "synthetic"
+task_type: "simulation"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "simulation"
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  primary:
+    metric:
+      name: "mean_final_gap"
+      goal: "lower"     # higher | lower
+      minimum_delta: 0
+      # noise_floor:                # measured at Phase 0, never guessed —
+      #   k: 5                      # klein noise-floor prints this block
+      #   std: ...
+      #   range: ...
+    guardrails: {}
+
+data:
+  source: "synthetic:noisy_rosenbrock_v1"
+  prepared_path: "data/prepared/reference_cell.csv"
+  split:
+    kind: none           # stratified | random | group | time | none (simulation)
+    seed: 42
+    # kind none: comparability comes from fixed seed blocks inside train.py;
+    # the sealed final test is a pre-registered fresh-seed block
+    # (run-one sets KLEIN_EVALUATION_KIND=final_test).
+
+    # group_column: account_id     # required when kind=group
+    # time_column: event_time      # required when kind=time
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 120
+phases:
+  - id: adaptive-1
+    description: "split-identity anchor, baseline, then bounded adaptive work"
+    budget_seconds: 3600
+    max_experiments: 4
+  - id: confirmation
+    description: "one sealed final-test evaluation per track"
+    budget_seconds: 900
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "{{RQ1_QUESTION}}"
+    prior: "{{RQ1_PRIOR}}"
+
+predictions_to_falsify:
+  - lever: "{{LEVER_1}}"
+    predicted_delta: "{{DELTA_1}}"
+
+deliverables:
+  - findings.md
+  - report/index.html
