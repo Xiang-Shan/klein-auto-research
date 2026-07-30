@@ -9,9 +9,11 @@ not resolve imports, read `AGENTS.md` directly before working here.
 
 ## Claude Code specifics
 
-- The **`/klein` skill** (`.claude/skills/klein/SKILL.md`) routes the same stage
-  map as subcommands: `new | consult | data | method | run | synthesize |
-  tutorial | status`.
+- The **`/klein` skill** (`.claude/skills/klein/SKILL.md`) routes the lifecycle
+  STAGES (`new | consult | data | method | run | synthesize | tutorial | status`).
+- The machine actions are the packaged **`klein` CLI** verbs:
+  `new | gate | preflight | run-one | recover | status | finalize | verify` —
+  the SKILL.md stage table maps each stage to its verbs.
 - The worker roles from AGENTS.md ship pre-wired as subagents in `.claude/agents/`:
 
 | Agent | Model | Stage |

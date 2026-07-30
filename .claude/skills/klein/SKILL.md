@@ -22,22 +22,25 @@ new ─▶ CONSULT ─▶ DATA ─▶ METHOD ═══▶ EXPERIMENT/SWEEP ─�
 DATA artifact says GO. Schema-v2 acknowledgements and explicit overrides are recorded
 with `klein gate`; prose in `program.md` alone cannot unlock a v2 run.
 
-## Subcommands
+## Stages
 
-Run in lifecycle order for a new study; `status` any time. The reference PROTOCOLS are
-the source of truth — the worker agents in `.claude/agents/` are optional accelerators;
-a solo session follows the protocols directly.
+`/klein <stage>` routes the lifecycle stages below. The STAGES are protocol routes;
+the `klein` CLI verbs (`new gate preflight run-one recover status finalize verify`)
+are the machine actions each stage uses — the two are mapped here, not identical.
+Run stages in lifecycle order for a new study; `status` any time. The reference
+PROTOCOLS are the source of truth — the worker agents in `.claude/agents/` are
+optional accelerators; a solo session follows the protocols directly.
 
-| Subcommand | What it does | Protocol | Key outputs | Worker agent |
+| Stage | What it does | Protocol | CLI verbs used | Worker agent |
 |---|---|---|---|---|
-| `new` | Scaffold a study dir | `references/defaults-and-scaffolding.md` | study.yaml, state/events, prepare/train, ledgers | `klein new` |
-| `consult` | Gate 0: ≤6-question interview (or fast-path) | `references/consult-protocol.md` | study.yaml, research_plan.md; **user ack** | klein-consultant |
-| `data` | Gate 1: profile → ranked go/no-go | `references/data-gate-protocol.md` | data_card.md | klein-data-auditor |
-| `method` | Gate 2: intuition→math→impl→refs | `references/method-gate-protocol.md` | method_card.md | klein-method-scholar |
-| `run` | One candidate transaction (edit → commit → run → retain evidence) | Hard Rules below; sweeps: `references/sweep-rules.md` | run manifests, derived results, models/, figures/ | klein-experimenter / klein-sweeper |
-| `synthesize` | Mine trajectory → 7-section findings | `references/synthesis-protocol.md` | findings.md | klein-synthesist |
-| `tutorial` | Build self-contained teaching HTML | `references/tutorial-spec.md` | report/index.html | klein-tutor |
-| `status` | Summarize results + phase telemetry | `scripts/summarize_results.py` | results_summary.md, progress.svg | — |
+| `new` | Scaffold a study dir | `references/defaults-and-scaffolding.md` | `klein new` | — |
+| `consult` | Gate 0: ≤6-question interview (or fast-path) | `references/consult-protocol.md` | `klein gate record consult` after the **user ack** | klein-consultant |
+| `data` | Gate 1: profile → ranked go/no-go → data_card.md | `references/data-gate-protocol.md` | `klein gate record data` (or `gate override data --reason`) | klein-data-auditor |
+| `method` | Gate 2: intuition→math→impl→refs → method_card.md | `references/method-gate-protocol.md` | `klein gate record method` | klein-method-scholar |
+| `run` | One candidate transaction (edit → commit → run → retain evidence) | Hard Rules below; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one` (each candidate); `klein recover` after interruption | klein-experimenter / klein-sweeper |
+| `synthesize` | Mine trajectory → 7-section findings; close the study | `references/synthesis-protocol.md` | `klein finalize` (labels exploratory/confirmed) | klein-synthesist |
+| `tutorial` | Build self-contained teaching HTML | `references/tutorial-spec.md` | — (`scripts/build_tutorial.py`) | klein-tutor |
+| `status` | Summarize results + phase telemetry | `scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation | — |
 
 War stories behind the guards: `references/war-stories.md`. Schema authority:
 `kleinlib/schema.py` — never restate columns anywhere.
@@ -45,7 +48,7 @@ War stories behind the guards: `references/war-stories.md`. Schema authority:
 ## Setup
 
 ```bash
-uv sync --locked             # core deps; add --extra gbdt | deep | dev as needed
+uv sync --locked             # core deps + dev tools; add --extra gbdt | deep as needed
 uv run --locked python -c "import kleinlib"
 ```
 
@@ -91,12 +94,20 @@ incidents live in `references/war-stories.md`, and the 215-experiment ancestor
 campaign they come from ships its distilled findings in `knowledge/`. Do not
 renegotiate them mid-study.
 
+Three layers, one division of labor: **the loop is yours** (think → edit
+`train.py` with one falsifiable idea → run → reflect → repeat); **`run-one` is
+only the crash boundary** (commit candidate → one bounded run → honest
+disposition by YOUR declared contract → restore on non-keep); **the state files
+are receipts** the CLI generates and commits itself. The rules below defend that
+division.
+
 ### 1. Commit every candidate before execution; derive the ledger afterward
 
 The mutable surface is `train.py` only (normally a 5–15 line diff). `klein run-one`
 commits that exact candidate before running it, even when it later becomes a discard
 or crash. It then writes the immutable `runs/E####/manifest.json`, appends the
-hash-chained event, restores `train.py` after a non-keep, derives `results.tsv`, and
+self-verifying event, restores `train.py` to the pre-candidate base commit after a
+non-keep, derives `results.tsv`, and
 commits evidence transactionally. Never hand-edit the v2 ledger. If interrupted, run:
 
 ```bash
@@ -144,9 +155,11 @@ uv run --locked klein run-one --study studies/NN-slug --track <track> --final-te
   --description "sealed confirmation of the selected candidate"
 ```
 
-The final-test result is evidence, not another adaptive frontier candidate. Findings
-without it are labelled exploratory; findings with it may be labelled confirmed.
-Small deltas without uncertainty are not described as real or decisive.
+The final-test result is evidence, not another adaptive frontier candidate. Close
+the study with `klein finalize` (add `--allow-exploratory` when no sealed run
+exists): findings without sealed evidence are labelled exploratory; findings with a
+successful sealed run may be labelled confirmed. Small deltas without uncertainty
+are not described as real or decisive — finalize warns on that language.
 
 ### 5. Keep until the user stops
 
