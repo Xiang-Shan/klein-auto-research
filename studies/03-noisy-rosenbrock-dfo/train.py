@@ -30,10 +30,11 @@ EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID")
 TRACK = os.environ.get("KLEIN_TRACK")
 
 # ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
-OPTIMIZER = "nm_restarts"  # nm | nm_restarts | spsa
+OPTIMIZER = "spsa"        # nm | nm_restarts | spsa
 ADAPTIVE = False          # Nelder-Mead adaptive (Gao-Han) parameters
 N_RESTARTS = 4            # nm_restarts: starts sharing the SAME total budget
 SPSA_A0 = 0.1             # SPSA gain-sequence scale
+SPSA_C0 = 0.1             # perturbation size (Spall 1998 guidance ~ noise sigma/5)
 SEED_BASE_OVERRIDE = None  # measurement sweeps only; never for frontier runs
 # --------------------------------------------------------------------
 
@@ -46,7 +47,7 @@ def run_rep(seed: int) -> float:
     elif OPTIMIZER == "nm_restarts":
         answer = nm_restarts(objective, N_RESTARTS, EVAL_BUDGET, adaptive=ADAPTIVE)
     elif OPTIMIZER == "spsa":
-        answer = spsa(objective, x0, EVAL_BUDGET, a0=SPSA_A0)
+        answer = spsa(objective, x0, EVAL_BUDGET, a0=SPSA_A0, c0=SPSA_C0)
     else:
         raise RuntimeError(f"unknown OPTIMIZER {OPTIMIZER!r}")
     return rosenbrock(answer) - F_STAR  # scored on the TRUE function
