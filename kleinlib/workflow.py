@@ -639,6 +639,7 @@ def record_gate(
                 note=note,
             )
             save_state(study_dir, state)
+            _commit_state_writes(study_dir, f"klein: phase {phase} acknowledged")
             return state
         if gate not in GATE_ARTIFACTS:
             raise WorkflowError(f"unknown gate {gate!r}")
@@ -703,6 +704,7 @@ def record_gate(
             artifact_hashes=artifact_hashes,
         )
         save_state(study_dir, state)
+        _commit_state_writes(study_dir, f"klein: {gate} gate {status}")
         return state
 
 
@@ -1274,6 +1276,49 @@ def _relative(repo: Path, path: Path) -> str:
         raise WorkflowError(f"path is outside git repository: {path}") from exc
 
 
+#: Study files a CLI verb may (re)write outside a run transaction: contract and
+#: narrative docs, machine state, and regenerable derived views. Never train.py —
+#: committing it here would silently move run-one's restore anchor.
+_STATE_WRITE_PATHS = (
+    "study.yaml",
+    "study_state.json",
+    "events.jsonl",
+    "research_plan.md",
+    "program.md",
+    "data_card.md",
+    "method_card.md",
+    "findings.md",
+    "results_summary.md",
+    "progress.svg",
+    "figures",
+)
+
+
+def _commit_state_writes(study_dir: Path, message: str) -> str | None:
+    """Commit the state/derived files a CLI verb just wrote.
+
+    The loop contract requires a clean tree at ``run-one``; the receipts the CLI
+    itself generates must therefore be filed by the CLI, not hand-committed by
+    the operator. No-op outside a git repository (unit fixtures scaffold studies
+    in bare temp dirs) and when nothing actually changed.
+    """
+    probe = _git(study_dir, ["rev-parse", "--show-toplevel"], check=False)
+    if probe.returncode:
+        return None
+    repo = Path(probe.stdout.strip()).resolve()
+    existing = [
+        _relative(repo, study_dir / name)
+        for name in _STATE_WRITE_PATHS
+        if (study_dir / name).exists()
+    ]
+    if not existing:
+        return None
+    _git(repo, ["add", "--", *existing])
+    if _git(repo, ["diff", "--cached", "--quiet"], check=False).returncode == 0:
+        return None
+    return _git_commit(repo, message)
+
+
 def _stage_evidence(repo: Path, study_dir: Path, manifest: Mapping[str, Any]) -> None:
     core = [
         study_dir / "study_state.json",
@@ -1331,16 +1376,25 @@ def _assert_run_worktree(repo: Path, study_dir: Path) -> None:
     status = _git(repo, ["status", "--porcelain", "--untracked-files=all"]).stdout.splitlines()
     train_rel = _relative(repo, study_dir / "train.py")
     # The lock is ephemeral state; a foreign repo has no .gitignore for it, so
-    # it must be exempt here rather than rely on ignore rules.
+    # it must be exempt here rather than rely on ignore rules. Derived views
+    # (summary, progress, figures) are regenerable at any time and are swept
+    # into the next state commit by a gate record — they never gate a run.
     lock_rel = _relative(repo, study_dir / ".klein.lock")
+    summary_rel = _relative(repo, study_dir / "results_summary.md")
+    progress_rel = _relative(repo, study_dir / "progress.svg")
+    figures_prefix = _relative(repo, study_dir / "figures") + "/"
+    allowed = {train_rel, lock_rel, summary_rel, progress_rel}
     bad: list[str] = []
     for line in status:
         path = line[3:].split(" -> ")[-1]
-        if path not in {train_rel, lock_rel}:
+        if path not in allowed and not path.startswith(figures_prefix):
             bad.append(line)
     if bad:
         raise WorkflowError(
-            "run-one requires a clean tree except for train.py; found: " + ", ".join(bad)
+            "run-one requires a clean tree except for train.py and derived views; found: "
+            + ", ".join(bad)
+            + " — commit these first (gate records, finalize, and recover file their own "
+            "state writes automatically; for manual edits: git add <files> && git commit)"
         )
 
 
@@ -1712,6 +1766,7 @@ def recover(study_dir: Path) -> list[str]:
                 repo, study_dir, manifest, restored_train=restored, recovery=True
             )
             recovered.append(run_id)
+    _commit_state_writes(study_dir, "klein: recover — state writes filed")
     return recovered
 
 
@@ -1823,6 +1878,7 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
             final_holdout_counts=counts,
             successful_confirmation=successful_confirmation,
         )
+        _commit_state_writes(study_dir, f"klein: finalized {label}")
         return label
 
 
