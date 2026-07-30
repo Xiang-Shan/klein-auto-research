@@ -46,7 +46,9 @@ every invocation; it is the source of truth, this file only orients you.
    reliability, score-hist-by-class, decile-lift, confusion@best; severity/regression →
    pred-vs-actual, residuals, QQ, Lorenz/Gini, lift-quantile; simulation → breakdown
    curve, efficiency-cost bar, premium-error slide. ALWAYS include the
-   metric-vs-experiment trajectory for section 4.
+   metric-vs-experiment trajectory for section 4. Before any figure lands in the
+   page, run the figure critique in `tutorial-spec.md` (axis labels, scale
+   honesty, legend readability, chart-type-fits-claim).
 3. **Route A (preferred):** if the global `nano-tutorial-html` skill is installed (Glob
    for its SKILL.md under `~/.claude/skills/` or `.claude/skills/`), read it and drive
    its harvest/spec/render pipeline via Bash on `studies/NN-slug/`, steering the focus

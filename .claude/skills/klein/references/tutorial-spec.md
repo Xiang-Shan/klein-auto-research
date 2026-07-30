@@ -76,7 +76,27 @@ Pull from `figures/` (produced by `kleinlib.figures`), matched to the problem:
 - **severity / regression:** pred-vs-actual, residuals, QQ, Lorenz/Gini, lift-quantile.
 - **simulation:** breakdown curve, efficiency-cost bar, the premium-error "money" slide.
 
-Always inline the metric-vs-experiment trajectory for the journey section.
+Always inline the decision trajectory for the journey section — one
+`plot_decision_trajectory__<track>` PNG per track (step frontier of development
+keeps, discard dots, crash rug, the sealed final-test star, phase bands;
+`make_figures.py` emits them from the run manifests). v1 studies without
+manifests fall back to the plain `plot_metric_trajectory`.
+
+## Figure critique (run before any figure lands)
+
+Apply four checks to EVERY figure before it is inlined; fix and re-render on any
+failure:
+
+1. **Axis labels unit-bearing and non-default.** Each axis names its quantity and
+   unit/scale (`val_pr_auc`, `wall_seconds`, `Experiment ordinal`) — never a bare
+   library default like `value` or an unlabeled axis.
+2. **Scale honesty.** Bars are zero-based; no truncated axis inflating a
+   within-noise delta; any log scale is declared on the axis label.
+3. **Legend readability.** Every mark type on the plot appears in the legend, and
+   marks stay distinguishable in grayscale (shape/ring/linestyle, never hue alone).
+4. **Chart-type-fits-claim.** A frontier claim gets a step/line, not bars; a
+   distribution claim gets a histogram, not a mean bar; an A-vs-B claim gets
+   paired marks.
 
 ## Acceptance checklist (all must pass)
 
@@ -87,3 +107,4 @@ Always inline the metric-vs-experiment trajectory for the journey section.
 - [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md.
 - [ ] Every figure is inlined (grep the file: no `http://` / `https://` asset refs).
 - [ ] The references match the method card (no unverified refs promoted to verified).
+- [ ] Figure critique passed for every inlined figure.
