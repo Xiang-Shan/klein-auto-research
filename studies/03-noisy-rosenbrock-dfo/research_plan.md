@@ -21,7 +21,14 @@ exploratory or confirmed.
 
 ## Experiment ladder
 
-1. Reproduce a split-identity anchor.
-2. Establish an honest baseline.
-3. Test the proposed method and ablations inside phase limits.
-4. Run the chosen track candidate once on the sealed final test.
+1. E0001 (phase0-anchor): single-start Nelder-Mead, dev seed block — must reproduce
+   the prepared reference cell to 1e-9 (split-identity anchor; STOP if off).
+2. Measurement sweep (no ledger row): the same anchor config on 5 disjoint seed
+   blocks → `klein noise-floor` → set `minimum_delta = max(2×std, range/2)` and the
+   `noise_floor:` block in study.yaml; re-record consult.
+3. adaptive-1 (slate ritual first): NM adaptive=True (calibration probe, expected
+   within-floor DISCARD) → 4×50 restarts (expected KEEP ≥3× floor) → SPSA a0=50
+   (expected honest CRASH via divergence) → SPSA a0=0.1 (expected DISCARD) →
+   8×25 restarts (expected DISCARD; fragmentation).
+4. confirmation: the incumbent once on the sealed fresh-seed block
+   (`klein run-one --final-test`), then `klein finalize`.

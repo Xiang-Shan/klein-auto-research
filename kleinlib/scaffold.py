@@ -114,7 +114,8 @@ state and must not be hand-edited.
    `uv run --locked klein run-one --study . --track {{TRACK}} --description ...`.
 
 Every candidate is committed before execution. Discards and crashes remain resolvable
-commits; the evidence transaction then restores the last working `train.py`.
+commits; the evidence transaction then restores `train.py` to the pre-candidate
+base commit.
 
 ## Decisions (append-only)
 

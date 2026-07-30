@@ -15,9 +15,15 @@ state and must not be hand-edited.
 
 ## Data and split
 
-- Source: synthetic:noisy_rosenbrock_v1
-- Adaptive work uses train + development only. The test partition stays sealed.
-- Gate 1 records the prepared-data SHA-256 and split-policy fingerprint.
+- Source: synthetic:noisy_rosenbrock_v1 — generated locally, known truth f*=0 at (1,1),
+  evaluation noise N(0, 0.5^2), hard budget 200 evaluations per rep, R=40 reps per
+  experiment.
+- Split kind `none`: comparability = fixed seed blocks (objective.py). Development
+  block 42..81; noise-floor measurement blocks 142.., 242.., 342.., 442..; sealed
+  final-test block 10042..10081, touched once via `klein run-one --final-test`.
+  `prepare.py` proves the blocks disjoint mechanically.
+- Gate 1 records the prepared-data SHA-256 (the reference cell) and split-policy
+  fingerprint.
 
 ## Workflow
 
@@ -30,11 +36,18 @@ state and must not be hand-edited.
    `uv run --locked klein run-one --study . --track primary --description ...`.
 
 Every candidate is committed before execution. Discards and crashes remain resolvable
-commits; the evidence transaction then restores the last working `train.py`.
+commits; the evidence transaction then restores `train.py` to the pre-candidate
+base commit.
 
 ## Decisions (append-only)
 
 - 2026-07-30 — schema-v2 study scaffolded; gates pending.
+- 2026-07-30 — CONSULT ack basis: the user approved this exact study design
+  (goal, phases, RQs with priors, predictions incl. one engineered crash) in the
+  Stage-1 plan; phase-boundary acks are recorded on the same basis and each STOP
+  is documented here.
+- 2026-07-30 — prepare.py generated the reference cell: anchor config
+  (single-start NM, budget 200, dev block) mean_final_gap 1.251208 over 40 reps.
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):

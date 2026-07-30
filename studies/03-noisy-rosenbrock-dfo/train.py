@@ -1,31 +1,61 @@
-"""The only per-candidate mutable surface in a Klein v2 study."""
+"""The only per-candidate mutable surface in a Klein v2 study.
+
+Simulation harness for noisy-Rosenbrock derivative-free optimization: the
+CONFIG block below is the 5–15-line experiment surface; objective.py and
+optimizers.py are stable study libraries.
+"""
 
 from __future__ import annotations
 
+import csv
 import os
+import statistics
 import time
+from pathlib import Path
 
-import kleinlib
+from kleinlib.eval import evaluate_scalar
+from objective import (
+    DEV_BASE,
+    EVAL_BUDGET,
+    F_STAR,
+    FINAL_BASE,
+    N_REPS,
+    NoisyBudgetedObjective,
+    block,
+    rosenbrock,
+)
+from optimizers import nelder_mead, nm_restarts, spsa
 
-RANDOM_SEED = 42
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID")
 TRACK = os.environ.get("KLEIN_TRACK")
 
-
-def load_split(evaluation_kind: str):
-    """Select development or the sealed final-test partition explicitly.
-
-    The workflow sets KLEIN_EVALUATION_KIND. Implement this function so
-    ``development`` returns train/development and ``final_test`` returns the frozen
-    chosen training data/final test. Never choose the partition from experiment code.
-    """
-    if evaluation_kind not in {"development", "final_test"}:
-        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
-    raise NotImplementedError("implement the fixed three-way split declared in study.yaml")
+# ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
+OPTIMIZER = "nm"          # nm | nm_restarts | spsa
+ADAPTIVE = False          # Nelder-Mead adaptive (Gao-Han) parameters
+N_RESTARTS = 1            # nm_restarts: starts sharing the SAME total budget
+SPSA_A0 = 0.1             # SPSA gain-sequence scale
+SEED_BASE_OVERRIDE = None  # measurement sweeps only; never for frontier runs
+# --------------------------------------------------------------------
 
 
-def build_model():
-    raise NotImplementedError("build this candidate")
+def run_rep(seed: int) -> float:
+    objective = NoisyBudgetedObjective(seed, budget=EVAL_BUDGET)
+    x0 = objective.random_start()
+    if OPTIMIZER == "nm":
+        answer = nelder_mead(objective, x0, EVAL_BUDGET, adaptive=ADAPTIVE)
+    elif OPTIMIZER == "nm_restarts":
+        answer = nm_restarts(objective, N_RESTARTS, EVAL_BUDGET, adaptive=ADAPTIVE)
+    elif OPTIMIZER == "spsa":
+        answer = spsa(objective, x0, EVAL_BUDGET, a0=SPSA_A0)
+    else:
+        raise RuntimeError(f"unknown OPTIMIZER {OPTIMIZER!r}")
+    return rosenbrock(answer) - F_STAR  # scored on the TRUE function
+
+
+def seed_base(evaluation_kind: str) -> int:
+    if SEED_BASE_OVERRIDE is not None:
+        return int(SEED_BASE_OVERRIDE)
+    return FINAL_BASE if evaluation_kind == "final_test" else DEV_BASE
 
 
 def main() -> None:
@@ -45,23 +75,39 @@ def main() -> None:
             "train.py must be invoked through `klein run-one`; missing "
             + ", ".join(missing)
         )
-    X_tr, X_dev, y_tr, y_dev = load_split(evaluation_kind)
-    model = build_model()
-    fit_start = time.time()
-    model.fit(X_tr, y_tr)
-    fit_seconds = time.time() - fit_start
-    kleinlib.eval.evaluate(
-        model,
-        X_dev,
-        y_dev,
+    if evaluation_kind not in {"development", "final_test"}:
+        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
+
+    base = seed_base(evaluation_kind)
+    gaps = [run_rep(seed) for seed in block(base, N_REPS)]
+    mean_gap = statistics.fmean(gaps)
+
+    if OPTIMIZER == "nm" and not ADAPTIVE and base == DEV_BASE:
+        reference = Path("data/prepared/reference_cell.csv")
+        if reference.is_file():
+            with reference.open("r", encoding="utf-8", newline="") as f:
+                rows = list(csv.DictReader(f))
+            ref_mean = statistics.fmean(float(r["final_gap"]) for r in rows)
+            if abs(ref_mean - mean_gap) > 1e-9:
+                raise RuntimeError(
+                    f"split-identity anchor FAILED: prepared reference mean {ref_mean!r} "
+                    f"vs recomputed {mean_gap!r} — seed plumbing drifted, STOP"
+                )
+
+    evaluate_scalar(
+        mean_gap,
         exp_id=EXPERIMENT_ID,
-        study_dir=".",
-        t0=t0,
-        fit_seconds=fit_seconds,
-        train_n=len(X_tr),
-        val_n=len(X_dev),
         metric_name="mean_final_gap",
         metric_goal="lower",
+        study_dir=".",
+        t0=t0,
+        extra={
+            "gap_std_across_reps": statistics.stdev(gaps),
+            "gap_median": statistics.median(gaps),
+            "gap_worst": max(gaps),
+            "n_reps": float(N_REPS),
+            "wall_seconds": time.time() - t0,
+        },
     )
 
 
