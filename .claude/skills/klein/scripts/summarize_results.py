@@ -744,6 +744,8 @@ def build_summary(
     *,
     metric_name: str | None = None,
     track: str | None = None,
+    noise_floor: dict[str, object] | None = None,
+    minimum_delta: float | None = None,
 ) -> str:
     valid_rows = [row for row in rows if row.metric is not None and row.status == "keep"]
     frontier = running_frontier(rows, goal)
@@ -761,6 +763,21 @@ def build_summary(
     contract_lines = [f"- metric name: `{metric_name}`"] if metric_name else []
     if track:
         contract_lines.append(f"- track: `{track}`")
+    floor_std: float | None = None
+    if isinstance(noise_floor, dict):
+        try:
+            floor_std = float(noise_floor.get("std"))
+        except (TypeError, ValueError):
+            floor_std = None
+    if floor_std is not None and floor_std > 0:
+        k = noise_floor.get("k")
+        delta_note = (
+            f"- minimum delta: {minimum_delta:.6g} (= {minimum_delta / floor_std:.1f}x "
+            f"measured seed std {floor_std:.6g}, k={k})"
+            if minimum_delta is not None
+            else f"- measured seed std: {floor_std:.6g} (k={k})"
+        )
+        contract_lines.append(delta_note)
     lines = [
         "# Results Summary",
         "",
@@ -777,7 +794,16 @@ def build_summary(
         "",
         f"- baseline metric: {format_metric(baseline.metric if baseline else None)}",
         f"- best metric: {format_metric(best.metric if best else None)}",
-        f"- total improvement: {format_metric(improvement)}" if improvement is not None else "- total improvement: n/a",
+        (
+            f"- total improvement: {format_metric(improvement)}"
+            + (
+                f" ({improvement / floor_std:.1f}x noise-floor std)"
+                if improvement is not None and floor_std
+                else ""
+            )
+            if improvement is not None
+            else "- total improvement: n/a"
+        ),
     ]
 
     if best:
@@ -971,6 +997,20 @@ def main(argv: list[str] | None = None) -> int:
     plot_out = args.plot_out or results_path.with_name("progress.svg")
     title = args.title or f"Experiment Progress: {results_path.parent.name or results_path.stem}"
 
+    track_floor: dict[str, object] | None = None
+    track_minimum_delta: float | None = None
+    if yaml is not None and track and study_yaml_path.exists():
+        try:
+            contract_data = yaml.safe_load(study_yaml_path.read_text(encoding="utf-8"))
+            metric_block = contract_data["tracks"][track]["metric"]
+            raw_floor = metric_block.get("noise_floor")
+            track_floor = raw_floor if isinstance(raw_floor, dict) else None
+            if track_floor is not None:
+                track_minimum_delta = float(metric_block.get("minimum_delta"))
+        except Exception:  # graceful degradation: no floor labels, never a crash
+            track_floor = None
+            track_minimum_delta = None
+
     summary_text = build_summary(
         results_path,
         metric_col,
@@ -979,6 +1019,8 @@ def main(argv: list[str] | None = None) -> int:
         extra_sections=[aux_section, phase_section],
         metric_name=configured_metric,
         track=track,
+        noise_floor=track_floor,
+        minimum_delta=track_minimum_delta,
     )
     summary_out.write_text(summary_text, encoding="utf-8")
     plot_out.write_text(build_plot_svg(title, metric_label, goal, rows), encoding="utf-8")

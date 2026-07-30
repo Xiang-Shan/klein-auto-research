@@ -100,6 +100,21 @@ def build_parser() -> argparse.ArgumentParser:
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
 
+    floor = sub.add_parser(
+        "noise-floor",
+        help="compute the measured noise floor from a k-seed sweep; prints the study.yaml block",
+    )
+    _study_arg(floor)
+    floor.add_argument("--track", default="primary", help="track the floor belongs to")
+    floor.add_argument(
+        "--sidecar",
+        type=Path,
+        help="measurement sweep sidecar (default: <study>/sweeps/noise_floor.sidecar.tsv)",
+    )
+    floor.add_argument("--values", help="comma-separated metric values (instead of --sidecar)")
+    floor.add_argument("--seeds", help="comma-separated seeds (with --values)")
+    floor.add_argument("--measured-after", help="anchor experiment id, e.g. E0001")
+
     verify = sub.add_parser(
         "verify",
         help="validate a v1 or v2 study; v1 studies get deprecation errata, never a rewrite",
@@ -185,6 +200,41 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "finalize":
             label = finalize(study, allow_exploratory=args.allow_exploratory)
             print(f"finalized: {label}")
+            return 0
+        if args.command_name == "noise-floor":
+            from .noise_floor import floor_from_sidecar, summarize_noise, yaml_block
+
+            if args.values:
+                seeds = [int(v) for v in args.seeds.split(",")] if args.seeds else None
+                floor_stats = summarize_noise(
+                    [float(v) for v in args.values.split(",")], seeds=seeds
+                )
+                source = "--values"
+            else:
+                sidecar = args.sidecar or (study / "sweeps" / "noise_floor.sidecar.tsv")
+                floor_stats = floor_from_sidecar(sidecar)
+                try:
+                    source = str(sidecar.resolve().relative_to(study.resolve()))
+                except ValueError:
+                    source = str(sidecar)
+            print(
+                f"k={floor_stats.k}  mean={floor_stats.mean:.6g}  std={floor_stats.std:.6g}  "
+                f"range={floor_stats.value_range:.6g}  suggested minimum_delta="
+                f"{floor_stats.suggested_minimum_delta:.6g}"
+            )
+            print()
+            print(
+                yaml_block(
+                    args.track,
+                    floor_stats,
+                    source=source,
+                    measured_after=args.measured_after,
+                )
+            )
+            print(
+                "next: edit study.yaml, then re-record the consult gate --note "
+                '"minimum_delta set from the measured noise floor"'
+            )
             return 0
         if args.command_name == "verify":
             return _print_checks(verify_study(study))

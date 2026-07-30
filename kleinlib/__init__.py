@@ -23,6 +23,7 @@ __all__ = [
     "encoders",
     "eval",
     "figures",
+    "noise_floor",
     "profile_fallback",
     "schema",
     "scaffold",

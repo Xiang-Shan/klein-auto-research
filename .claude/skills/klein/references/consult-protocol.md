@@ -58,6 +58,16 @@ Rules for good drafting:
 - **Phase 0 is always a split-identity anchor** when a comparable baseline exists —
   reproduce it EXACTLY (STOP if off) before exploring. This catches split/leakage bugs
   before they poison every later comparison.
+- **Then measure the noise floor — never guess `minimum_delta`.** After the anchor,
+  run a k-seed measurement sweep of the SAME config varying only the seed (k=5
+  default; k=3 if one run exceeds ~5 minutes) via `sweeps/noise_floor.py` →
+  `sweeps/noise_floor.sidecar.tsv` (a measurement sweep promotes NO winner — see the
+  carve-out in `sweep-rules.md`). Then `klein noise-floor --study <dir>` prints the
+  per-track `noise_floor:` block; set `minimum_delta = max(2×std, range/2)` in
+  `study.yaml` and re-record the consult gate with
+  `--note "minimum_delta set from the measured noise floor"`. Preflight fails a
+  `minimum_delta` set inside a declared floor, and findings must report any delta
+  under 2× the floor std as within-noise.
 - Set budgets from the problem class (see `defaults-and-scaffolding.md`).
 
 ## Confirm — and STOP for ack

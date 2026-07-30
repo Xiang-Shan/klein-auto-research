@@ -119,3 +119,11 @@ The sidecar is the trial-level audit trail; the run manifest is the winner-decis
 audit trail. This keeps each track's frontier honest even when a search ran 50 trials
 underneath. A legacy v1 study retains its manual one-row winner discipline, but should
 use the same `SweepRunner(...).run()` API and the exit-safe runner.
+
+## Carve-out: measurement sweeps
+
+A **measurement sweep** (the Phase-0 noise floor, `sweeps/noise_floor.py`) runs
+identical configs varying only the seed and therefore promotes **no winner and no
+`results.tsv` row at all** — its evidence is the sidecar, the `noise_floor:` block
+it produces in `study.yaml`, and the consult-gate re-record event. Rule 7 governs
+search sweeps; a measurement is not a search.
