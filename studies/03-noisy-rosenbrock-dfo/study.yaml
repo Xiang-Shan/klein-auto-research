@@ -13,11 +13,15 @@ tracks:
     metric:
       name: "mean_final_gap"
       goal: "lower"     # higher | lower
-      minimum_delta: 0
-      # noise_floor:                # measured at Phase 0, never guessed —
-      #   k: 5                      # klein noise-floor prints this block
-      #   std: ...
-      #   range: ...
+      minimum_delta: 0.569532   # = max(2*std, range/2), std 0.284766 — measured, not guessed
+      noise_floor:
+        k: 5
+        std: 0.284766
+        range: 0.748732
+        mean: 1.72461
+        values: [1.25121, 1.7091, 1.85784, 1.80499, 1.99994]
+        source: "sweeps/noise_floor.sidecar.tsv"
+        measured_after: "E0001"
     guardrails:
       wall_seconds:
         max: 60

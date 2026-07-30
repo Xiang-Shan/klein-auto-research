@@ -9,7 +9,7 @@ state and must not be hand-edited.
 - Goal: At a fixed 200-evaluation budget on noisy Rosenbrock (sigma=0.5), do restarts beat plain Nelder-Mead, and does SPSA beat both?
 - Track: `primary`
 - Primary metric: `mean_final_gap` (lower is better; minimum meaningful
-  delta 0)
+  delta 0.5695 = 2× the measured seed-block std, k=5)
 - Results are exploratory until the track's one sealed final-test run confirms them.
   A small delta without uncertainty must not be described as real or decisive.
 
@@ -65,3 +65,8 @@ the ranked survivors into playbook.md "Next-best candidates".
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+- 2026-07-30 — Phase-0 noise floor measured: anchor config across 5 disjoint
+  seed blocks → mean 1.725, std 0.2848, range 0.749. minimum_delta set to
+  0.5695 (= 2×std). The dev block (1.251) is the LUCKIEST of the five — a
+  block-level reminder that single-block deltas below 0.57 are weather, not
+  climate. Consult gate re-recorded with the amended contract.

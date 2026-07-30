@@ -10,6 +10,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
+| primary | E0001 | 1.2512 | nm single-start, budget 200 | phase0 (anchor; luckiest block of 5 — floor std 0.2848) |
 
 ## Ruled out (evidence, not opinion)
 
