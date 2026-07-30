@@ -13,15 +13,15 @@ different tasks become explicit tracks with independent metric contracts/frontie
 Scaffold it — never hand-create the tree:
 
 ```bash
-uv run --locked klein new 03-my-study \
+uv run --locked klein new 04-my-study \
     --goal "does X beat baseline B on my data?" \
     --domain insurance --metric val_auc --goal-direction higher \
     --data "data_hub:insurance-claims"
 ```
 
-This writes the schema-v2 contract, program/plan, prepare/train entrypoints, derived
-ledger header, auxiliary sidecar, initial `study_state.json`, first hash-chained event,
-and empty artifact/run directories. It refuses to overwrite an existing study dir.
+This writes the schema-v2 contract, program/plan, the rolling `playbook.md`,
+prepare/train entrypoints, derived ledger header, auxiliary sidecar, initial
+`study_state.json`, first hash-chained event, and empty artifact/run directories. It refuses to overwrite an existing study dir.
 Flags fill matching placeholders; CONSULT fills the rest.
 
 ## The canonical files (fixed names)
@@ -92,7 +92,7 @@ Studies run on `experiments/<study-slug>` — NEVER on `main`. Branch before the
 experiment:
 
 ```bash
-git switch -c experiments/03-my-study
+git switch -c experiments/04-my-study
 ```
 
 `main` stays the stable baseline; merge the study branch at study end. Preflight treats

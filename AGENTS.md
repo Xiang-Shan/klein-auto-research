@@ -33,7 +33,9 @@ four-row checklist; any FAIL is a BLOCKER.
 
 **METHOD (Gate 2).** Pedagogy for unfamiliar or frontier methods: write
 `method_card.md` — intuition → math core → minimal from-scratch implementation →
-when-it-pays / when-it-doesn't → verified references.
+when-it-pays / when-it-doesn't → verified references. The card asserts its
+Theory+Papers+Practice `triad:` in frontmatter; the gate refuses an incomplete
+triad unless the note names the missing leg.
 
 **Hard-block rule:** modeling is BLOCKED until the CONSULT, DATA, and METHOD gates
 are acknowledged and `data_card.md` says GO. In schema v2, record or override a gate
@@ -46,8 +48,9 @@ through the one sanctioned escape-hatch.
 
 **SYNTHESIZE.** Mine the full trajectory — `results.tsv` (keep vs discard clusters,
 deltas between consecutive keeps), `aux_metrics.tsv` (tradeoffs, e.g. AUC vs brier),
-`program.md` decision history, the method card's literature expectations — and write
-`findings.md` with exactly seven sections: ① verdict per research question with
+`program.md` decision history, `playbook.md`'s pre-clustered map, the method card's
+literature expectations — and write `findings.md` with exactly seven sections
+(each ① verdict and ④ advice item carries a stable claim ID, `<study_id>#Cn`): ① verdict per research question with
 evidence experiment IDs; ② predictions-to-falsify table filled; ③ surprises & why;
 ④ practical advice; ⑤ business value implications; ⑥ literature tie-back;
 ⑦ what to try next.
@@ -73,12 +76,13 @@ this same table routed as the `/klein` skill.)
 | METHOD | `references/method-gate-protocol.md` | method_card.md | — |
 | EXPERIMENT | loop contract below + `SKILL.md` Hard Rules | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one` |
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction | `kleinlib.sweep.SweepRunner` |
-| SYNTHESIZE | `references/synthesis-protocol.md` | findings.md | `scripts/summarize_results.py`, then `klein finalize` |
-| TUTORIAL | `references/tutorial-spec.md` | report/index.html | `scripts/build_tutorial.py`, `scripts/make_figures.py` |
-| status (any time) | — | results_summary.md, progress.svg | `scripts/summarize_results.py` |
+| SYNTHESIZE | `references/synthesis-protocol.md` | findings.md | `.claude/skills/klein/scripts/summarize_results.py`, then `klein finalize` |
+| TUTORIAL | `references/tutorial-spec.md` | report/index.html | `.claude/skills/klein/scripts/build_tutorial.py`, `.claude/skills/klein/scripts/make_figures.py` |
+| status (any time) | — | results_summary.md, progress.svg | `.claude/skills/klein/scripts/summarize_results.py` |
 
-(Relative paths above are under `.claude/skills/klein/`. Every helper is a plain
-CLI: `uv run --locked python .claude/skills/klein/scripts/<name>.py --help`.)
+(`references/…` paths above live under `.claude/skills/klein/`; a bare `scripts/…`
+path means the repo root. Every helper is a plain CLI:
+`uv run --locked python <path> --help`.)
 
 ## The experiment loop contract
 
@@ -130,6 +134,10 @@ The standing rules around those layers:
   transaction / derived row, winner config snapshotted into train.py, winner model
   stored locally with its hash/availability in the committed manifest. Unsafe
   model payloads themselves are never committed.
+- `minimum_delta` is MEASURED, never guessed: Phase 0 runs a k-seed noise-floor
+  sweep and `klein noise-floor` prints the contract block; preflight fails a
+  delta declared inside its own floor, and summaries state deltas as multiples
+  of the floor std.
 - Adaptive work uses train/development data only. Each track may access its sealed
   final-test partition once with `klein run-one --final-test`; confirmation
   evidence is excluded from the adaptive frontier. Close the study with

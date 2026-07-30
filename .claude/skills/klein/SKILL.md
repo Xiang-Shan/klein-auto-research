@@ -25,7 +25,7 @@ with `klein gate`; prose in `program.md` alone cannot unlock a v2 run.
 ## Stages
 
 `/klein <stage>` routes the lifecycle stages below. The STAGES are protocol routes;
-the `klein` CLI verbs (`new gate preflight run-one recover status finalize verify`)
+the `klein` CLI verbs (`new gate preflight run-one recover status finalize noise-floor verify`)
 are the machine actions each stage uses — the two are mapped here, not identical.
 Run stages in lifecycle order for a new study; `status` any time. The reference
 PROTOCOLS are the source of truth — the worker agents in `.claude/agents/` are
@@ -39,8 +39,8 @@ optional accelerators; a solo session follows the protocols directly.
 | `method` | Gate 2: intuition→math→impl→refs → method_card.md | `references/method-gate-protocol.md` | `klein gate record method` | klein-method-scholar |
 | `run` | One candidate transaction (edit → commit → run → retain evidence) | Hard Rules below; phase starts: `references/phase-ritual.md`; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one` (each candidate); `klein recover` after interruption | klein-experimenter / klein-sweeper |
 | `synthesize` | Mine trajectory → 7-section findings; close the study | `references/synthesis-protocol.md` | `klein finalize` (labels exploratory/confirmed) | klein-synthesist |
-| `tutorial` | Build self-contained teaching HTML | `references/tutorial-spec.md` | — (`scripts/build_tutorial.py`) | klein-tutor |
-| `status` | Summarize results + phase telemetry | `scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation | — |
+| `tutorial` | Build self-contained teaching HTML | `references/tutorial-spec.md` | — (`.claude/skills/klein/scripts/build_tutorial.py`) | klein-tutor |
+| `status` | Summarize results + phase telemetry | `.claude/skills/klein/scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation | — |
 
 War stories behind the guards: `references/war-stories.md`. Schema authority:
 `kleinlib/schema.py` — never restate columns anywhere.
@@ -165,8 +165,10 @@ are not described as real or decisive — finalize warns on that language.
 
 Default stop rule: keep experimenting until the user says stop or a phase `max_experiments`
 is hit. Do not unilaterally declare the batch done on a plateau. RE-READ `playbook.md`
-before choosing every candidate and refresh it at every phase boundary (or every 5
-experiments); start each phase with the slate ritual (`references/phase-ritual.md`).
+— the study's rolling map (current best / ruled out with evidence / open hypotheses /
+next-best candidates; `program.md` stays the append-only journal) — before choosing
+every candidate, and refresh it at every phase boundary (or every 5 experiments);
+start each phase with the slate ritual (`references/phase-ritual.md`).
 Summarize and STOP for ack at every phase boundary — the acknowledgement requires a
 refreshed, placeholder-free playbook and records its hash.
 
@@ -203,7 +205,7 @@ there and nowhere else, so nothing can drift. In the foreign repo, add the engin
 (see `assets/pyproject-study-template.toml`), then `uv sync --locked`:
 
 ```bash
-uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research"
+uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v0.3.0"  # pin a tag
 ```
 
 `klein new` then scaffolds byte-identical schema-v2 studies anywhere.
@@ -225,5 +227,9 @@ Klein is intentionally a small, single-machine harness. Know the edges.
   (e.g. `torchrun` as a subprocess); the adaptive loop is lost if experiments run in
   parallel.
 - **No distributed / no learned meta-controller.** The agent reasons about results
-  conversationally; it does not learn a policy across runs. *Extension:* `program.md` IS
-  the persistent memory — write priors and doctrine there between studies.
+  conversationally; it does not learn a policy across runs. *Extension:* `playbook.md`
+  is the within-study memory and `knowledge/` the cross-study memory — priors promote
+  through claim-cited findings, not learned weights.
+- **The measured noise floor bounds honesty, not power.** A `minimum_delta` from k seed
+  blocks stops within-noise keeps; it does not create statistical power. Shrinking the
+  floor (more reps, CRN pairing) is study design, not framework magic.

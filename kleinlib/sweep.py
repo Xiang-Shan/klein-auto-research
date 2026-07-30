@@ -1,18 +1,18 @@
 """SweepRunner — the ONE sanctioned escape-hatch for a boxed parameter sweep.
 
-Klein's experiment loop is normally hand-driven: one `train.py` diff, one foreground
-run, one `results.tsv` row (`.claude/skills/klein/SKILL.md` Hard Rule 1). A SWEEP is the
-single exception — a parameter search too mechanical to hand-drive one trial at a time.
-Full contract: `.claude/skills/klein/references/sweep-rules.md` — READ IT before writing
-a sweep script. This module mechanizes rule 2 only: every trial appended to the sidecar
-TSV, in arrival order, flushed as each finishes.
+Klein's experiment loop is normally hand-driven: one `train.py` diff, one candidate
+transaction through `klein run-one` (`.claude/skills/klein/SKILL.md` Hard Rule 1). A
+SWEEP is the single exception — a parameter search too mechanical to hand-drive one
+trial at a time. Full contract:
+`.claude/skills/klein/references/sweep-rules.md` — READ IT before writing a sweep
+script. This module mechanizes rule 2 only: every trial appended to the sidecar TSV,
+in arrival order, flushed as each finishes.
 
 This runner deliberately does NOT touch `results.tsv`, does NOT `git commit`, and does
-NOT pickle a model via `kleinlib.snapshot`. Those stay manual, per sweep-rules.md rules
-3-6: commit-or-revert `train.py` FIRST, THEN append exactly one `results.tsv` row for
-the winner (or a `discard` row per rule 7 if nothing improved), THEN pickle the winner
-via `kleinlib.snapshot.maybe_save_best` if it's a keep — a sweep script drives all of
-that around one call to :meth:`SweepRunner.run`.
+NOT snapshot a model. Per sweep-rules.md rules 3-6 the close-out stays with the loop:
+commit the sweep script + sidecar, copy the winner's config into `train.py`, then
+`klein run-one` commits that candidate and derives the ONE v2 ledger row transactionally
+(a `discard` per rule 7 if nothing improved). Never hand-edit the v2 ledger.
 
 Trials run SEQUENTIALLY in the foreground (no background polling, no parallel
 dispatch). A trial that raises a normal exception is caught, recorded as a `crash` row

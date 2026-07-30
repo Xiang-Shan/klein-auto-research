@@ -69,7 +69,7 @@ try:
 except ImportError as _exc:  # pragma: no cover — reachable only outside the repo
     print("[FAIL] schema source: kleinlib is not importable — the schema lives only in kleinlib.schema.")
     print("       In a foreign repo, install the engine first, e.g.:")
-    print('       uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research"')
+    print('       uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v0.3.0"')
     print(f"       ({_exc})")
     sys.exit(1)
 
@@ -142,9 +142,9 @@ def check_git_branch(protected: tuple[str, ...]) -> CheckResult:
 def check_tree_clean(ignore: tuple[Path, ...]) -> CheckResult:
     """Working tree clean check (restored from the original preflight).
 
-    Uncommitted changes to results.tsv itself are tolerated (it is
-    appended to right after each run, ahead of the commit-or-revert step),
-    everything else must be clean before the loop starts.
+    Uncommitted changes to results.tsv itself are tolerated (in v2 it is
+    a derived view that run-one/recover regenerate and sweep into the next
+    state commit), everything else must be clean before the loop starts.
     """
     proc = subprocess.run(["git", "status", "--porcelain"], capture_output=True, text=True)
     if proc.returncode != 0:

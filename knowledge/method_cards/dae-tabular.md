@@ -6,6 +6,10 @@ status: validated
 source: studies/01-dae-claims
 concepts: [denoising-autoencoder, swap-noise, rankgauss, deep-stack-representation, self-supervised-tabular, dae-imputer, recon-error-anomaly, inductive-fairness, when-dl-pays]
 related: [gbdt-tabular.md, glm-pricing.md, ../insights-and-framework.md]
+triad:                 # asserted retroactively at v0.3 (cards predate the contract)
+  theory: true
+  papers: false
+  practice: true
 ---
 
 # Swap-Noise Denoising Autoencoders for Tabular Data
