@@ -20,6 +20,7 @@ well clear of the >=12 target) — never re-ordered or re-cycled per chart.
 from __future__ import annotations
 
 import os
+import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -34,6 +35,7 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 from cycler import cycler  # noqa: E402
 from matplotlib.colors import LinearSegmentedColormap  # noqa: E402
+from matplotlib.ticker import MaxNLocator  # noqa: E402
 from scipy import stats  # noqa: E402
 from sklearn.metrics import (  # noqa: E402
     average_precision_score,
@@ -463,4 +465,151 @@ def plot_metric_trajectory(
     ax.set_ylabel("Primary metric")
     ax.set_title("Metric trajectory")
     ax.legend()
+    return _save_fig(fig, study_dir, name)
+
+
+#: Status colors — reserved decision meanings, identical to the canonical
+#: ``docs/diagrams/src/klein_palette.py`` STATUS_COLOR (dataviz skill status
+#: palette): keep=good, discard=serious, crash=critical. Never series hues.
+STATUS_COLOR: dict[str, str] = {"keep": "#0ca30c", "discard": "#ec835a", "crash": "#d03b3b"}
+
+_SURFACE = "#fcfcfb"  # klein_palette.SURFACE — the ring color on overlapping marks
+
+
+def _experiment_ordinal(manifest: Mapping[str, Any], fallback: int) -> int:
+    """``E0012`` -> 12; unparseable ids fall back to sequence position."""
+    match = re.search(r"(\d+)", str(manifest.get("experiment", "")))
+    return int(match.group(1)) if match else fallback
+
+
+def plot_decision_trajectory(
+    manifests: Sequence[Mapping[str, Any]],
+    study_dir: str | Path,
+    *,
+    track: str,
+    metric_goal: str,
+    metric_name: str | None = None,
+    minimum_delta: float | None = None,
+    noise_floor_std: float | None = None,
+    name: str = "plot_decision_trajectory",
+) -> Path:
+    """One track's decision history from schema-v2 run manifests.
+
+    `manifests` is the full `kleinlib.workflow.load_manifests` sequence — rows
+    are filtered to `track` here. Development keeps form a step-line frontier
+    with ringed markers (it steps DOWN when `metric_goal == "lower"`); discards
+    stay as muted evidence dots; crashes (`primary_metric` is NA) are pinned as
+    red x marks to a bottom rug band; the sealed `evaluation_kind ==
+    "final_test"` run is a star EXCLUDED from the frontier. Alternating
+    `axvspan` bands mark `phase` changes. Optional bands shade `minimum_delta`
+    (the not-yet-a-keep zone beyond the current frontier) and ±`noise_floor_std`
+    around it. Multi-track callers pass `name=f"plot_decision_trajectory__{track}"`.
+    """
+    picked = [m for m in manifests if m.get("track") == track]
+    rows = sorted(((_experiment_ordinal(m, i + 1), m) for i, m in enumerate(picked)), key=lambda p: p[0])
+
+    def _metric(manifest: Mapping[str, Any]) -> float | None:
+        try:
+            value = float(manifest.get("primary_metric"))  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            return None  # crash rows carry None (or "NA" in older exports)
+        return value if np.isfinite(value) else None
+
+    frontier: list[tuple[int, float]] = []  # development keeps only
+    discards: list[tuple[int, float]] = []
+    sealed: list[tuple[int, float]] = []
+    crashes: list[int] = []
+    for x, manifest in rows:
+        value = _metric(manifest)
+        if value is None:
+            crashes.append(x)
+        elif manifest.get("evaluation_kind", "development") == "final_test":
+            sealed.append((x, value))
+        elif manifest.get("disposition") == "keep":
+            frontier.append((x, value))
+        else:
+            discards.append((x, value))
+
+    finite = [v for _, v in frontier + discards + sealed]
+    lo, hi = (min(finite), max(finite)) if finite else (0.0, 1.0)
+    span = (hi - lo) or max(abs(hi), 1.0) * 0.1
+    rug_y = lo - 0.12 * span
+
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+
+    segments: list[tuple[str, int, int]] = []  # contiguous (phase, x_first, x_last)
+    for x, manifest in rows:
+        if manifest.get("phase") is None:
+            continue
+        phase = str(manifest["phase"])
+        if segments and segments[-1][0] == phase:
+            segments[-1] = (phase, segments[-1][1], x)
+        else:
+            segments.append((phase, x, x))
+    for index, (phase, x0, x1) in enumerate(segments):
+        if index % 2 == 1:  # alternate: even segments stay on the plain surface
+            ax.axvspan(x0 - 0.5, x1 + 0.5, color=SEQUENTIAL[0], alpha=0.28, linewidth=0, zorder=0)
+        ax.text(
+            (x0 + x1) / 2, 0.99, phase, transform=ax.get_xaxis_transform(),
+            ha="center", va="top", fontsize=8, color=CHROME["secondary_ink"], zorder=5,
+        )
+
+    if frontier:
+        current = frontier[-1][1]
+        if minimum_delta:
+            edge = current + (-1.0 if metric_goal == "lower" else 1.0) * float(minimum_delta)
+            ax.axhspan(
+                min(current, edge), max(current, edge), color=STATUS_COLOR["keep"], alpha=0.10,
+                linewidth=0, zorder=0, label=f"minimum_delta ({float(minimum_delta):g})",
+            )
+        if noise_floor_std:
+            nfs = float(noise_floor_std)
+            ax.axhspan(
+                current - nfs, current + nfs, color=CHROME["muted"], alpha=0.15,
+                linewidth=0, zorder=0, label=f"noise floor (±{nfs:g} std)",
+            )
+        fx, fy = zip(*frontier, strict=True)
+        ax.step(
+            fx, fy, where="post", color=STATUS_COLOR["keep"], linewidth=2, zorder=3,
+            marker="o", markersize=8, markerfacecolor=STATUS_COLOR["keep"],
+            markeredgecolor=_SURFACE, markeredgewidth=1.5, label="keep (development frontier)",
+        )
+    if discards:
+        dx, dy = zip(*discards, strict=True)
+        ax.scatter(
+            dx, dy, s=26, color=STATUS_COLOR["discard"], alpha=0.8, edgecolors="none",
+            zorder=2, label="discard (retained evidence)",
+        )
+    if crashes:
+        ax.axhspan(rug_y - 0.05 * span, rug_y + 0.05 * span, color=STATUS_COLOR["crash"], alpha=0.07, linewidth=0, zorder=0)
+        ax.scatter(
+            crashes, [rug_y] * len(crashes), marker="x", s=60, color=STATUS_COLOR["crash"],
+            linewidths=1.8, zorder=4, label="crash (metric NA)",
+        )
+    if sealed:
+        sx, sy = zip(*sealed, strict=True)
+        ax.scatter(
+            sx, sy, marker="*", s=200, color=CATEGORICAL[4], edgecolors=_SURFACE,
+            linewidths=0.8, zorder=5, label="final test (sealed)",
+        )
+        for x, value in sealed:
+            ax.annotate(
+                "sealed confirmation", (x, value), textcoords="offset points",
+                xytext=(0, 10), ha="center", fontsize=8, color=CATEGORICAL[4], zorder=5,
+            )
+
+    label = metric_name or next((str(m["metric_name"]) for _, m in rows if m.get("metric_name")), "primary metric")
+    ax.set_xlabel("Experiment ordinal (E#### sequence)")
+    ax.set_ylabel(label)
+    ax.set_title(f"{track} · {label} ({metric_goal})")
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    if not finite:  # all-crash: no metric scale exists, so show none
+        ax.set_yticks([])
+    if crashes:
+        ax.set_ylim(bottom=rug_y - 0.1 * span)
+    if frontier or discards or crashes or sealed:
+        ax.legend(loc="best", fontsize=8, framealpha=0.9)
+    else:
+        ax.text(0.5, 0.5, f"no runs for track {track!r}", transform=ax.transAxes,
+                ha="center", va="center", color=CHROME["muted"])
     return _save_fig(fig, study_dir, name)
