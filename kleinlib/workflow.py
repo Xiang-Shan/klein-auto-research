@@ -643,26 +643,37 @@ def record_gate(
             return state
         if gate not in GATE_ARTIFACTS:
             raise WorkflowError(f"unknown gate {gate!r}")
+        verb = "override" if override_reason is not None else "record"
+        override_hint = (
+            " — an override still requires the artifact to exist: it records that the"
+            " artifact's conclusion was not met, not that the artifact is skippable"
+        )
         artifact_hashes: dict[str, str] = {}
         for name in GATE_ARTIFACTS[gate]:
             path = study_dir / name
             if not path.is_file():
-                raise WorkflowError(f"cannot record {gate}: missing {name}")
+                raise WorkflowError(
+                    f"cannot {verb} {gate}: missing {name}"
+                    + (override_hint if override_reason is not None else "")
+                )
             text = path.read_text(encoding="utf-8")
             if PLACEHOLDER_RE.search(text):
-                raise WorkflowError(f"cannot record {gate}: unresolved placeholder in {name}")
+                raise WorkflowError(f"cannot {verb} {gate}: unresolved placeholder in {name}")
             artifact_hashes[name] = sha256_file(path)
         if gate == "data":
             if override_reason is None:
                 text = (study_dir / "data_card.md").read_text(encoding="utf-8")
-                plain = re.sub(r"[>*_`]", "", text)
+                plain = re.sub(r"[>*_`#]", "", text)
                 if not re.search(
                     r"(?im)^\s*(?:decision|status|verdict)\s*:\s*"
                     r"go(?:-with-cautions)?\s*$",
                     plain,
                 ):
                     raise WorkflowError(
-                        "data_card.md must contain an exact GO or GO-WITH-CAUTIONS decision"
+                        "data_card.md must contain an exact GO or GO-WITH-CAUTIONS decision "
+                        "line, e.g. '> **Decision:** GO' or '## Decision: GO-WITH-CAUTIONS' "
+                        "(NO-GO blocks by design; use 'klein gate override data --reason ...' "
+                        "to proceed against it)"
                     )
             data_path = prepared_data_path(study_dir, contract)
             data_hash = fingerprint_path(data_path)
