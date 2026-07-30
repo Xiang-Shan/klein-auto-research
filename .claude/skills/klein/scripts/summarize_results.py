@@ -26,7 +26,10 @@ Features
   format: experiment / metric / value), alongside the primary metric. Two
   panels — ``val_brier`` (lower) and ``val_lift_top10`` (higher) — render
   automatically whenever the sidecar exists and carries those metrics.
-- Phase telemetry: when a ``study.yaml`` with a ``phases:`` block (each
+- Phase telemetry: schema-v2 studies get it from ``runs/E####/manifest.json``
+  (each manifest names its ``phase`` and ``wall_seconds``) measured against the
+  contract's ``budget_seconds``/``max_experiments``. Legacy v1: when a
+  ``study.yaml`` with a ``phases:`` block (each
   phase: ``id``, ``budget_h``, and an experiment range) sits next to
   results.tsv, and ``wall_seconds`` rows exist in the aux sidecar, a
   "phase actual vs budget" table is rendered (actual = sum of that phase's
@@ -41,6 +44,7 @@ from __future__ import annotations
 import argparse
 import csv
 import html
+import json
 import math
 import re
 import sys
@@ -497,6 +501,21 @@ def _coerce_phase(raw: dict[str, object]) -> dict[str, object]:
         norm["max"] = int(max_v) if max_v is not None and max_v != "" else None
     except (TypeError, ValueError):
         norm["max"] = None
+    # Schema-v2 contract fields (used with run manifests, not ID ranges).
+    try:
+        raw_budget_s = raw.get("budget_seconds")
+        norm["budget_seconds"] = (
+            float(raw_budget_s) if raw_budget_s is not None and raw_budget_s != "" else None
+        )
+    except (TypeError, ValueError):
+        norm["budget_seconds"] = None
+    try:
+        raw_max_exp = raw.get("max_experiments")
+        norm["max_experiments"] = (
+            int(raw_max_exp) if raw_max_exp is not None and raw_max_exp != "" else None
+        )
+    except (TypeError, ValueError):
+        norm["max_experiments"] = None
     return norm
 
 
@@ -604,12 +623,66 @@ def build_phase_table(phases: list[dict[str, object]], wall_seconds: dict[int, f
     return lines
 
 
+def _load_run_manifests(study_dir: Path) -> list[dict[str, object]]:
+    """Read runs/E####/manifest.json (schema v2). Degrades to [] gracefully."""
+    runs = study_dir / "runs"
+    manifests: list[dict[str, object]] = []
+    if not runs.is_dir():
+        return manifests
+    for path in sorted(runs.glob("E*/manifest.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if isinstance(data, dict):
+            manifests.append(data)
+    return manifests
+
+
+def build_v2_phase_table(
+    phases: list[dict[str, object]], manifests: list[dict[str, object]]
+) -> list[str]:
+    """Phase telemetry from run manifests vs the contract's budgets (A7)."""
+    lines = [
+        "## Phase Telemetry",
+        "",
+        "| Phase | Experiments (used/max) | Seconds (used/budget) | Status |",
+        "| --- | --- | --- | --- |",
+    ]
+    for phase in phases:
+        pid = str(phase.get("id") or "n/a")
+        max_exp = phase.get("max_experiments")
+        budget_s = phase.get("budget_seconds")
+        mine = [m for m in manifests if str(m.get("phase") or "") == pid]
+        used = len(mine)
+        secs = 0.0
+        for m in mine:
+            try:
+                secs += float(m.get("wall_seconds") or 0.0)
+            except (TypeError, ValueError):
+                pass
+        exp_cell = f"{used}/{int(max_exp)}" if max_exp is not None else f"{used}/-"
+        sec_cell = (
+            f"{secs:.1f}/{budget_s:.0f}" if budget_s is not None else f"{secs:.1f}/-"
+        )
+        over = (max_exp is not None and used > int(max_exp)) or (
+            budget_s is not None and secs > float(budget_s)
+        )
+        status = "OVER budget" if over else ("untouched" if used == 0 else "within budget")
+        lines.append(f"| {pid} | {exp_cell} | {sec_cell} | {status} |")
+    lines.append("")
+    return lines
+
+
 def build_phase_section(
     phases: list[dict[str, object]] | None,
     aux_table: dict[str, dict[int, float]] | None,
+    manifests: list[dict[str, object]] | None = None,
 ) -> list[str]:
     if not phases:
         return []
+    if manifests:
+        return build_v2_phase_table(phases, manifests)
     wall_seconds = (aux_table or {}).get("wall_seconds", {})
     return build_phase_table(phases, wall_seconds)
 
@@ -890,7 +963,9 @@ def main(argv: list[str] | None = None) -> int:
         phases = _load_phases(study_yaml_path)
     except Exception:
         phases = None
-    phase_section = build_phase_section(phases, aux_table)
+    phase_section = build_phase_section(
+        phases, aux_table, _load_run_manifests(study_yaml_path.parent)
+    )
 
     summary_out = args.summary_out or results_path.with_name("results_summary.md")
     plot_out = args.plot_out or results_path.with_name("progress.svg")
