@@ -1,0 +1,24 @@
+<h2>Findings</h2>
+
+<p>Verdicts against the registered questions (claim IDs are stable and citable as
+<code>03-noisy-rosenbrock-dfo#C&lt;n&gt;</code>):</p>
+
+<table>
+<tr><th>Claim</th><th>Question</th><th>Verdict</th><th>Evidence</th></tr>
+<tr><td><strong>[C1]</strong></td><td>Do restarts beat single-start NM?</td>
+<td><strong>Supported &mdash; confirmed.</strong> 1.2512 &rarr; 0.4071 (2.96&times; floor std); sealed fresh-block 0.3121 replicates.</td>
+<td>E0001, E0003, E0007</td></tr>
+<tr><td><strong>[C2]</strong></td><td>Does SPSA beat restarted NM here?</td>
+<td><strong>Refuted, more strongly than predicted</strong> &mdash; it diverges rather than merely losing.</td>
+<td>E0004, E0006</td></tr>
+<tr><td><strong>[C3]</strong></td><td>Does 8&times;25 fragmentation keep paying?</td>
+<td><strong>Untested</strong> &mdash; deferred at the logged mid-phase re-plan.</td>
+<td>program.md</td></tr>
+</table>
+
+<p>The four surprises that outrank the verdicts: the DATA gate's discovery that random
+search beats the default method 3.2&times; before any experiment ran; the dimensional
+illusion of "adaptive" NM at n = 2; finite-saturating SPSA divergence (a very confident
+wrong answer is not a crash); and a mis-tuning the method card itself had already warned
+against. The priors' scorecard closed the loop: method-card-sourced priors went 2/2,
+uninformed priors 1/2 &mdash; accumulated knowledge measurably outpredicted vibes.</p>

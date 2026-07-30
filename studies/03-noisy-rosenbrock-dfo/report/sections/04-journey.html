@@ -1,0 +1,46 @@
+<h2>The Journey</h2>
+
+<p>Seven ledger rows, every one still resolvable to its exact code. The full-range
+trajectory is the honest record &mdash; note the DECLARED log scale, forced by two
+discards in the numeric stratosphere:</p>
+
+<img data-fig="figures/plot_decision_trajectory__primary.png" alt="Full-range decision trajectory (log scale)">
+
+<p>And the zoom where the actual frontier lives (divergent discards excluded, as
+labeled):</p>
+
+<img data-fig="figures/plot_decision_trajectory_zoom.png" alt="Zoomed decision trajectory">
+
+<!--LEDGER-->
+
+<p>The beats, in order. <strong>E0001</strong> anchored the study: it reproduced the
+prepared reference cell to 1e&minus;9, proving the seed plumbing end to end.
+<strong>E0002</strong> was designed as a cheap calibration probe &mdash; "adaptive"
+Nelder-Mead &mdash; and returned a delta of <em>exactly zero</em>: the Gao&ndash;Han
+adaptive coefficients are algebraically identical to standard NM at n = 2. A no-op by
+mathematics, caught because the run was bit-reproducible.</p>
+
+<p><strong>E0003</strong> was the payoff: 4 restarts &times; 50 evaluations,
+<strong>1.2512 &rarr; 0.4071</strong> &mdash; a 0.844 improvement, 2.96&times; the floor
+std, clearing the measured bar almost exactly as the registered prediction
+("&ge;3&times;") demanded. The sting is in the comparison nobody registered: 0.407 only
+<em>ties</em> random search's 0.397. At this budget, restarts' entire value is their
+random-sampling component; the local polish buys nothing the noise doesn't take back.</p>
+
+<p><strong>E0004</strong> falsified our crash prediction in the most educational way
+possible: SPSA at a&#8320; = 50 diverged as predicted &mdash; to a mean gap of
+<strong>1.1&times;10&sup1;&#8313;&#8310;</strong> &mdash; and stayed <em>finite</em>,
+so the arithmetic filed a discard, not a crash. Divergence saturates: the decaying gains
+strangle the step size before float overflow. Off-ledger probes at a&#8320; = 500 and
+5000 confirmed the ceiling moves (1e81, 1e97) but never breaks. The re-registered
+<strong>E0005</strong> found the true crash where it structurally must live: c&#8320; = 0
+divides the estimator by its own perturbation size &mdash; ZeroDivisionError, honest
+crash, NA metric, candidate commit retained.</p>
+
+<p><strong>E0006</strong> supplied the humility: "textbook" SPSA (a&#8320; = 0.1) ALSO
+diverged, to 1.9&times;10&sup1;&#8311;&#8312; &mdash; because Spall 1998's own
+first-step rule, quoted in this study's method card, prescribes a&#8320; &asymp;
+2&times;10&#8315;&#8309; for gradients this steep. The cure was in the card; the
+researcher didn't apply it. Finally <strong>E0007</strong> spent the track's one sealed
+evaluation: the incumbent on fresh noise scored <strong>0.3121</strong> &mdash;
+replicating the development result within 0.33&times; the floor std. Confirmed.</p>
