@@ -23,9 +23,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "primary": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-07-30T17:43:51.104203Z",
+      "count": 1,
+      "experiment": "E0007"
     }
   },
   "fingerprints": {
@@ -63,7 +63,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 6,
+  "last_experiment": 7,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -80,5 +80,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "03-noisy-rosenbrock-dfo",
-  "updated_at": "2026-07-30T17:43:36.523830Z"
+  "updated_at": "2026-07-30T17:43:51.780541Z"
 }
