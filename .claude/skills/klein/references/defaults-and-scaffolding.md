@@ -82,6 +82,9 @@ After the baseline runs, tighten to `max(3× baseline wall-clock, 60s)`. A run o
 `max_run_seconds` is recorded as a timeout crash. Reaching phase seconds or experiment
 count pauses the study for acknowledgement. User-supplied budgets always win.
 
+For long overnight sessions on macOS, keep the machine awake with the stdlib tool —
+`caffeinate -i uv run --locked klein run-one ...` — rather than any custom helper.
+
 ## Branch rule
 
 Studies run on `experiments/<study-slug>` — NEVER on `main`. Branch before the first

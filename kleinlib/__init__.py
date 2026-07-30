@@ -1,7 +1,7 @@
 """kleinlib — engine package for Klein Auto Research.
 
 The engine: data, encoders, eval, torch_device, torch_loop, figures,
-snapshot, sweep, profile_fallback, keep_awake. Re-exported here as submodules
+snapshot, sweep, profile_fallback. Re-exported here as submodules
 so callers can do
 ``from kleinlib import data, encoders, eval, figures, ...`` without knowing
 file layout.
@@ -22,7 +22,6 @@ __all__ = [
     "encoders",
     "eval",
     "figures",
-    "keep_awake",
     "profile_fallback",
     "schema",
     "scaffold",
