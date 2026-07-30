@@ -136,6 +136,41 @@ def test_native_preprocessor_preserves_categories_and_round_trips(tmp_path):
     assert pd.isna(actual.loc[0, "cat1"])
 
 
+ALL_KINDS = ("ohe", "ordinal", "target", "frequency", "hashing", "james-stein", "native")
+
+
+@pytest.mark.parametrize("kind", ALL_KINDS)
+def test_every_encoder_kind_round_trips_through_joblib(kind, tmp_path):
+    """A fitted preprocessor of every kind must survive joblib dump/load.
+
+    Fit and transform are deliberately separate calls (never `fit_transform`)
+    because sklearn's `TargetEncoder.fit_transform` cross-fits and so
+    legitimately differs from `transform` on the same rows — the serialization
+    contract under test is transform-before == transform-after.
+    """
+    if kind in ("frequency", "james-stein"):
+        pytest.importorskip("category_encoders")
+    df, y = _toy_df_larger()
+    pre = encoders.build_preprocessor(NUMERIC_COLS, CATEGORICAL_COLS, kind=kind)
+    pre.fit(df, y)
+    expected = pre.transform(df)
+
+    path = tmp_path / f"{kind}.joblib"
+    joblib.dump(pre, path)
+    restored = joblib.load(path)
+    actual = restored.transform(df)
+
+    if kind == "native":
+        assert isinstance(actual, pd.DataFrame)
+        pd.testing.assert_frame_equal(actual, expected)
+    elif sparse.issparse(expected):
+        assert sparse.issparse(actual)
+        assert np.allclose(expected.toarray(), actual.toarray())
+    else:
+        assert isinstance(actual, np.ndarray)
+        assert np.allclose(expected, actual)
+
+
 def test_categorical_imputation_handles_mixed_values_without_sentinel_collision():
     df = pd.DataFrame(
         {
