@@ -14,6 +14,11 @@ experiment loop, so regenerating figures is normally unnecessary — reach for
 this script only for a synthesis/tutorial pass, or if a PNG was deleted or
 edited by hand outside the loop.
 
+Schema-v2 studies (`runs/*/manifest.json` present) additionally get one
+decision trajectory per study.yaml track
+(`figures/plot_decision_trajectory__<track>.png`); v1 studies keep the plain
+metric trajectory only.
+
 Predictions contract (optional, beyond the always-available trajectory):
 `<study_dir>/models/latest_val_preds.npz` with keys `y_true` + `proba`
 (binary) or `y_true` + `y_pred` (regression) — a train.py can `np.savez`
@@ -28,7 +33,7 @@ from pathlib import Path
 
 import numpy as np
 
-from kleinlib import figures
+from kleinlib import figures, workflow
 
 
 def main() -> None:
@@ -46,6 +51,25 @@ def main() -> None:
             print(f"wrote {path}")
     else:
         print(f"no results.tsv under {args.study_dir}, skipping trajectory")
+
+    try:
+        manifests = workflow.load_manifests(args.study_dir)
+        tracks = workflow.normalize_tracks(workflow.load_contract(args.study_dir)) if manifests else {}
+    except workflow.WorkflowError as exc:
+        manifests, tracks = [], {}
+        print(f"skipping decision trajectories: {exc}")
+    for track, spec in tracks.items():
+        metric = spec.get("metric", {})
+        path = figures.plot_decision_trajectory(
+            manifests,
+            args.study_dir,
+            track=track,
+            metric_goal=str(metric.get("goal") or "higher"),
+            metric_name=metric.get("name"),
+            minimum_delta=metric.get("minimum_delta") or None,
+            name=f"plot_decision_trajectory__{track}",
+        )
+        print(f"wrote {path}")
 
     preds_path = args.study_dir / "models" / "latest_val_preds.npz"
     if not preds_path.exists():
