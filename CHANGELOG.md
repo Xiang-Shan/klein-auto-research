@@ -7,18 +7,47 @@ All notable changes to Klein Auto Research. Format follows
 ## [0.3.0] — 2026-07-30
 
 The distillation release: v0.2's hardening adopted, audited live, and slimmed —
-plus the researcher-value layer (measured noise floors, a rolling playbook,
-a phase-start slate ritual, a clean-room leakage audit, decision-trajectory
-visualization) and a fourth executed study proving the v2 contract end to end.
+plus the researcher-value layer and a fourth executed study proving the v2
+contract end to end.
 
 ### Added
 
+- **Simulation studies are first-class** (`task_type: simulation`): custom
+  scalar metrics with explicit direction, `split.kind: none` with seed-block
+  comparability — math/optimization/Monte-Carlo labs now express under v2.
+- **Measured noise floor**: `klein noise-floor` + a Phase-0 k-seed measurement
+  sweep turn `minimum_delta` into a measured quantity; the contract validates
+  the `noise_floor:` block, preflight fails a delta set inside its own floor,
+  and summaries state deltas as multiples of the floor std.
+- **Rolling playbook** (`playbook.md`): the map the loop re-reads before every
+  candidate — current best / ruled out with evidence / open hypotheses /
+  next-best candidates; refreshed and hash-recorded at every phase
+  acknowledgement, staged into evidence commits, mined as synthesis source 5.
+- **Phase-start slate ritual** (`references/phase-ritual.md`): 4–6 scored
+  falsifiable candidates before spending any run — procedure, not Elo.
+- **Clean-room leakage audit** at the DATA gate: a four-check card table run in
+  a fresh context, with `python -m kleinlib.leakage` mechanizing split
+  contamination and eval-harness chance checks.
+- **Decision-trajectory figure** (`kleinlib.figures.plot_decision_trajectory`):
+  the keep/discard/crash journey per track with phase bands, minimum-delta and
+  noise-floor bands, the sealed confirmation star — embedded in summaries and
+  tutorials, with a declared log scale on extreme ranges.
+- **Theory+Papers+Practice triad** on method cards, gate-checked; **stable
+  claim IDs** (`<study_id>#Cn`) with typed `supports/refutes` citations
+  required at knowledge promotion; RQ priors name their source and findings
+  score knowledge-sourced priors against uninformed ones.
+- **Study `03-noisy-rosenbrock-dfo`** — the v2 contract's live acceptance test:
+  7 experiments (2 keep / 4 discard / 1 crash, all candidate commits
+  resolvable), a measured floor governing dispositions, one sealed fresh-seed
+  confirmation that replicates, findings C1–C7, self-contained tutorial.
 - `docs/reviews/2026-07-30-v0.2-adoption-audit.md` — live behavioral audit of
-  the v0.2 hardening: every P0 mechanism verified by driving it, 18 ergonomic
-  defects found and dispositioned.
+  the v0.2 hardening: every P0 mechanism verified by driving it, 20 defects
+  found and dispositioned (A19 journal-hash freeze and A20 phase-ladder drift
+  were caught by real use during this release).
 - v2 phase telemetry: `summarize_results.py` renders per-phase experiments and
   wall-seconds from `runs/E####/manifest.json` against the contract's budgets.
-- Preflight warns when `train.py` still contains scaffold stubs.
+- Preflight warns on scaffold stubs in `train.py`, validates declared noise
+  floors, and catches contract/state phase-ladder drift.
 - Help text on every `klein new` / `klein gate` flag.
 - CHANGELOG (this file), canonical diagrams under `docs/diagrams/`.
 

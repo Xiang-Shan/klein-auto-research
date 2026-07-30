@@ -152,6 +152,13 @@ v0.2 reconstructable run manifests.
 | [`01-dae-claims`](studies/01-dae-claims/) | Does a denoising autoencoder pay on 58k-row tabular claims? | Honest no for ranking (0.6683 vs GBDT 0.6701); plain MLP ties tuned GBDT (0.6706); the DAE pays 3.4× as an *imputer*; recon-error is not a claim ranker |
 | [`02-rqls-pv-severity`](studies/02-rqls-pv-severity/) | Is robust quantile least squares worth its efficiency cost for loss severity? | At 10% contamination, naive MLE premium error hits 352% vs 50% for window-QLS; robustness costs only 1.083× when clean; parameter bias ≠ pricing bias |
 
+The fourth study is a **v0.3 schema-v2 exhibit** — every candidate commit
+resolves in this repository, and it exercised the whole hardened contract live:
+
+| Study | Question | Headline findings |
+|---|---|---|
+| [`03-noisy-rosenbrock-dfo`](studies/03-noisy-rosenbrock-dfo/) | At 200 noisy evaluations, do restarts beat Nelder-Mead — and does SPSA beat both? | Restarts win 2.96× the measured floor and the sealed fresh-seed run replicates (confirmed); random search ties them — found by the DATA gate before any run; "textbook" SPSA diverges to 1e178 because the method card's own tuning rule went unapplied |
+
 Open a tutorial to see what "closing the loop" means:
 `open studies/01-dae-claims/report/index.html` — method taught, journey annotated,
 coding pitfalls included, works offline.
@@ -171,8 +178,9 @@ The pitch is *your* data, so that path is first-class:
    `klein run-one`; SYNTHESIZE and TUTORIAL close it.
 
 Evaluator shapes today: **binary classification, point regression, and
-scalar/simulation** (all print the same canonical block; everything non-primary
-goes to `aux_metrics.tsv`). Multiclass/survival/ranking are documented extension
+scalar/simulation** (`task_type: simulation` gives math/optimization labs custom
+scalar metrics and seed-block splits; everything non-primary goes to
+`aux_metrics.tsv`). Multiclass/survival/ranking are documented extension
 points — see *Limitations* in `.claude/skills/klein/SKILL.md`. If you keep a
 data-hub directory, set `$DATA_HUB`; otherwise bundled datasets (see
 [`datasets/insurance-claims/`](datasets/insurance-claims/README.md)) and `csv:`
