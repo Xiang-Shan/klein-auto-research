@@ -78,6 +78,8 @@ jobs:
       - name: Locked integration environment
         run: uv sync --locked --extra encoders --extra gbdt --extra deep
       - name: Engine and deep integration tests with coverage floor
+        # GBDT smokes self-isolate in subprocesses (war story 5), so one
+        # collection is safe even with torch loaded in-process.
         run: >-
           uv run --no-sync pytest -q
           kleinlib/tests
@@ -85,20 +87,11 @@ jobs:
           studies/01-dae-claims/tests
           studies/02-rqls-pv-severity/tests
           scripts/tests
-          --ignore=scripts/tests/test_optional_integrations.py
           --cov=kleinlib
           --cov-config=.coveragerc
           --cov-report=term-missing
           --cov-report=xml
           --cov-fail-under=80
-      - name: GBDT smoke fits in isolated processes
-        shell: bash
-        run: |
-          # Never import Torch and GBDT runtimes in one process on macOS arm64;
-          # separate processes keep the same discipline on every CI platform.
-          uv run --no-sync pytest -q scripts/tests/test_optional_integrations.py -k lightgbm
-          uv run --no-sync pytest -q scripts/tests/test_optional_integrations.py -k xgboost
-          uv run --no-sync pytest -q scripts/tests/test_optional_integrations.py -k catboost
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v4
