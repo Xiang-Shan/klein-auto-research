@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "xiang",
-      "timestamp": "2026-07-30T17:33:40.126981Z"
+      "timestamp": "2026-07-30T17:34:25.334621Z"
     },
     "data": {
       "by": "xiang",
@@ -17,7 +17,7 @@
     "data_card.md": "a3a2db124eb6d65455652f0db6908fde7f56e413ad6147a60029bd41993fd4c7",
     "method_card.md": "9c73264aab0523983dd73872b6b4d137be05e2f4ff6de760a6a6453fb47bf29a",
     "research_plan.md": "f36e38b06185b19d23aa11db7f52d3361dcd053cb75f32293946c84ba8f2b04c",
-    "study.yaml": "340acd71132b0468e4276b05d9e0f53ad70e7c76e71f45506228c1a692225a03"
+    "study.yaml": "de5228169aa0b77b1f9f20e35b0e4c91083f593d0031c308d28820590613a10d"
   },
   "created_at": "2026-07-30T17:24:46.241657Z",
   "current_phase": "adaptive-1",
@@ -34,14 +34,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-07-30T17:33:40.126981Z",
+      "acknowledged_at": "2026-07-30T17:34:25.334621Z",
       "acknowledged_by": "xiang",
       "artifacts": {
-        "program.md": "85caa2e6b7ea02071822b70bfd483fafcde0dae7261915321fe4f5ffce68f3ce",
+        "program.md": "d69d5136b954c6f2fae6d9e020c2984c0d7f75b26b1b7629091e6c86d40354fc",
         "research_plan.md": "f36e38b06185b19d23aa11db7f52d3361dcd053cb75f32293946c84ba8f2b04c",
-        "study.yaml": "340acd71132b0468e4276b05d9e0f53ad70e7c76e71f45506228c1a692225a03"
+        "study.yaml": "de5228169aa0b77b1f9f20e35b0e4c91083f593d0031c308d28820590613a10d"
       },
-      "note": "minimum_delta set from the measured noise floor (2x std over k=5 disjoint seed blocks)",
+      "note": "phase ladder folded to match machine phase state (A20); anchor lives inside adaptive-1",
       "status": "recorded"
     },
     "data": {
@@ -73,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "03-noisy-rosenbrock-dfo",
-  "updated_at": "2026-07-30T17:33:40.127585Z"
+  "updated_at": "2026-07-30T17:34:25.334978Z"
 }

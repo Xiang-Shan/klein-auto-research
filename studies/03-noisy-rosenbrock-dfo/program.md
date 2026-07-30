@@ -70,3 +70,10 @@ the ranked survivors into playbook.md "Next-best candidates".
   0.5695 (= 2×std). The dev block (1.251) is the LUCKIEST of the five — a
   block-level reminder that single-block deltas below 0.57 are weather, not
   climate. Consult gate re-recorded with the amended contract.
+- 2026-07-30 — CONTRACT AMENDMENT (framework lesson, logged as defect A20): the
+  phase ladder was edited after scaffold to insert `phase0-anchor`, but phase
+  state anchors at scaffold time — the machine ran E0001 under `adaptive-1` and
+  a pre-current phase can never be acknowledged retroactively. Folded the anchor
+  into `adaptive-1` (max_experiments 6 = anchor + 5 adaptive; budgets summed);
+  consult re-recorded. The framework now preflight-fails this drift instead of
+  ignoring it.
