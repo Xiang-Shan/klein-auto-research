@@ -7,6 +7,15 @@ read at the ``URL_REQUEST_START_JOB`` boundary, so a blocked or failed DNS looku
 cannot be mistaken for zero attempted network requests.  The headless page load
 is also timed and asserted against ``--max-load-seconds`` (default 5.0), the
 tutorial spec's "opens from file:// within 5 s" budget.
+
+Modern Chrome fires its OWN service traffic (network-time, Safe Browsing key
+fetch, account probes) even under the classic quiet flags, and the exact set
+drifts by version.  Rather than chase feature-flag names, the check first loads
+``about:blank`` under identical flags and collects that run's request hosts as
+the browser's noise baseline; the tutorial run must add NOTHING beyond those
+hosts.  Residual risk — a page targeting exactly a Google service host would be
+masked here — is covered by the two primary layers this check backs up: the
+build-time zero-external-reference scan and the ``default-src 'none'`` CSP.
 """
 
 from __future__ import annotations
@@ -21,6 +30,7 @@ import tempfile
 import time
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit
 
 from kleinlib.scaffold import scaffold_study
 from kleinlib.workflow import load_contract, validate_contract
@@ -146,9 +156,19 @@ def started_http_urls(payload: dict[str, Any]) -> list[str]:
     return urls
 
 
-def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> float:
-    """Load *page* headlessly, assert zero HTTP(S) requests, return load seconds."""
+def page_initiated_urls(urls: list[str], noise_hosts: set[str]) -> list[str]:
+    """Drop requests whose host appeared on the about:blank baseline run.
+
+    Anything that survives was initiated by the page under test — Chrome's own
+    service traffic hits the same hosts whether or not a page is loaded.
+    """
+    return [url for url in urls if urlsplit(url).hostname not in noise_hosts]
+
+
+def _run_chrome(chrome: str, target: str, work_dir: Path) -> tuple[list[str], Any]:
+    """One headless load of *target*; returns (started HTTP(S) urls, process)."""
     netlog = work_dir / "chrome-netlog.json"
+    netlog.unlink(missing_ok=True)
     profile = work_dir / "chrome-profile"
     command = [
         chrome,
@@ -164,14 +184,13 @@ def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> float:
         "--no-default-browser-check",
         "--no-first-run",
         "--safebrowsing-disable-auto-update",
-        "--disable-features=AutofillServerCommunication,CertificateTransparencyComponentUpdater,MediaRouter,OptimizationHints",
+        "--disable-features=AutofillServerCommunication,CertificateTransparencyComponentUpdater,MediaRouter,OptimizationHints,NetworkTimeServiceQuerying",
         f"--user-data-dir={profile}",
         f"--log-net-log={netlog}",
         "--net-log-capture-mode=Everything",
         "--dump-dom",
-        page.resolve().as_uri(),
+        target,
     ]
-    started = time.perf_counter()
     result = subprocess.run(
         command,
         check=False,
@@ -179,20 +198,41 @@ def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> float:
         capture_output=True,
         timeout=30,
     )
-    load_seconds = time.perf_counter() - started
     if result.returncode != 0:
         raise RuntimeError(
             f"Chrome failed ({result.returncode}):\n{result.stdout[-2000:]}\n{result.stderr[-2000:]}"
         )
-    if 'id="next-steps"' not in result.stdout:
-        raise RuntimeError("Chrome did not render the generated tutorial's final section")
     if not netlog.is_file():
         raise RuntimeError("Chrome exited without writing its requested netlog")
     payload = json.loads(netlog.read_text(encoding="utf-8"))
-    urls = started_http_urls(payload)
+    return started_http_urls(payload), result
+
+
+def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> float:
+    """Load *page* headlessly, assert zero PAGE-INITIATED HTTP(S) requests,
+    return load seconds. Browser service noise is measured on an about:blank
+    baseline run first and differenced out (see module docstring)."""
+    baseline_urls, _ = _run_chrome(chrome, "about:blank", work_dir)
+    noise_hosts = {urlsplit(url).hostname for url in baseline_urls}
+    started = time.perf_counter()
+    urls, result = _run_chrome(chrome, page.resolve().as_uri(), work_dir)
+    load_seconds = time.perf_counter() - started
+    if 'id="next-steps"' not in result.stdout:
+        raise RuntimeError("Chrome did not render the generated tutorial's final section")
+    offending = page_initiated_urls(urls, noise_hosts)
+    if offending:
+        rendered = "\n".join(f"  - {url}" for url in offending)
+        filtered = len(urls) - len(offending)
+        raise RuntimeError(
+            "generated tutorial started HTTP(S) requests beyond the browser's "
+            f"own service baseline ({filtered} baseline request(s) filtered):\n{rendered}"
+        )
     if urls:
-        rendered = "\n".join(f"  - {url}" for url in urls)
-        raise RuntimeError(f"generated tutorial started HTTP(S) requests:\n{rendered}")
+        print(
+            f"[tutorial-browser] note: {len(urls)} browser-service request(s) matched "
+            f"the about:blank baseline hosts and were excluded: "
+            + ", ".join(sorted({urlsplit(u).hostname or '?' for u in urls}))
+        )
     return load_seconds
 
 
