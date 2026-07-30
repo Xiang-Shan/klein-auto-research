@@ -674,6 +674,43 @@ def test_journal_appends_do_not_invalidate_preflight(ready_study) -> None:
     assert any(not c.ok and "study.yaml" in c.message for c in hash_checks)
 
 
+def test_phase_ladder_drift_is_caught_by_preflight(ready_study) -> None:
+    """A20: phases inserted or renamed after initialization must fail preflight,
+    not silently orphan — state's current_phase anchors at scaffold time."""
+    _, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    ladder = [c for c in preflight_checks(study, require_clean=False, require_branch=False)
+              if c.name == "phase ladder"]
+    assert len(ladder) == 1 and ladder[0].ok
+
+    # insert a phase BEFORE the current one
+    inserted = dict(contract)
+    inserted["phases"] = [
+        {"id": "phase0-inserted", "description": "retrofit", "budget_seconds": 60,
+         "max_experiments": 1},
+        *contract["phases"],
+    ]
+    (study / "study.yaml").write_text(yaml.safe_dump(inserted, sort_keys=False), encoding="utf-8")
+    record_gate(study, "consult", acknowledged_by="tester", note="amend")
+    ladder = [c for c in preflight_checks(study, require_clean=False, require_branch=False)
+              if c.name == "phase ladder"]
+    assert len(ladder) == 1 and not ladder[0].ok
+    assert "phase0-inserted" in ladder[0].message
+
+    # rename the current phase away entirely
+    renamed = dict(contract)
+    renamed["phases"] = [
+        {**contract["phases"][0], "id": "renamed-phase"},
+        *contract["phases"][1:],
+    ]
+    (study / "study.yaml").write_text(yaml.safe_dump(renamed, sort_keys=False), encoding="utf-8")
+    record_gate(study, "consult", acknowledged_by="tester", note="rename")
+    ladder = [c for c in preflight_checks(study, require_clean=False, require_branch=False)
+              if c.name == "phase ladder"]
+    assert len(ladder) == 1 and not ladder[0].ok
+    assert "renamed" in ladder[0].message or "not in the contract" in ladder[0].message
+
+
 def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
     study = tmp_path / "legacy"
     study.mkdir()
