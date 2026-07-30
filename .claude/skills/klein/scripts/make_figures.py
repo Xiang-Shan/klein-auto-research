@@ -67,6 +67,7 @@ def main() -> None:
             metric_goal=str(metric.get("goal") or "higher"),
             metric_name=metric.get("name"),
             minimum_delta=metric.get("minimum_delta") or None,
+            noise_floor_std=(metric.get("noise_floor") or {}).get("std"),
             name=f"plot_decision_trajectory__{track}",
         )
         print(f"wrote {path}")

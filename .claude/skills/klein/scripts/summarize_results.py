@@ -997,6 +997,25 @@ def main(argv: list[str] | None = None) -> int:
     plot_out = args.plot_out or results_path.with_name("progress.svg")
     title = args.title or f"Experiment Progress: {results_path.parent.name or results_path.stem}"
 
+    trajectory_section: list[str] = []
+    figures_dir = study_yaml_path.parent / "figures"
+    trajectory_pngs = sorted(figures_dir.glob("plot_decision_trajectory*.png"))
+    if trajectory_pngs:
+        trajectory_section = [
+            "## Decision trajectory",
+            "",
+            "Per-track decision history — the development keep-frontier (step line),",
+            "discards, crashes on the bottom rug, and the sealed final-test confirmation",
+            "star, with phase bands. Regenerate with",
+            "`uv run --locked python .claude/skills/klein/scripts/make_figures.py <study_dir>`.",
+            "",
+            *[
+                f"![Decision trajectory]({png.relative_to(study_yaml_path.parent).as_posix()})"
+                for png in trajectory_pngs
+            ],
+            "",
+        ]
+
     track_floor: dict[str, object] | None = None
     track_minimum_delta: float | None = None
     if yaml is not None and track and study_yaml_path.exists():
@@ -1016,7 +1035,7 @@ def main(argv: list[str] | None = None) -> int:
         metric_col,
         goal,
         rows,
-        extra_sections=[aux_section, phase_section],
+        extra_sections=[trajectory_section, aux_section, phase_section],
         metric_name=configured_metric,
         track=track,
         noise_floor=track_floor,
