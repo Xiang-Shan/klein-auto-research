@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/03-noisy-rosenbrock-dfo/train.py", line 116, in <module>
+    main()
+    ~~~~^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/03-noisy-rosenbrock-dfo/train.py", line 83, in main
+    gaps = [run_rep(seed) for seed in block(base, N_REPS)]
+            ~~~~~~~^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/03-noisy-rosenbrock-dfo/train.py", line 50, in run_rep
+    answer = spsa(objective, x0, EVAL_BUDGET, a0=SPSA_A0, c0=SPSA_C0)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/03-noisy-rosenbrock-dfo/optimizers.py", line 83, in spsa
+    gradient_estimate = (y_plus - y_minus) / (2.0 * ck) * delta
+                        ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~
+ZeroDivisionError: float division by zero
+runner_status: crash
+runner_exit_code: 1

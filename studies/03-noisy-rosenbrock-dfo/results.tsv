@@ -1,0 +1,8 @@
+experiment	track	primary_metric	status	commit	description
+E0001	primary	1.251208	keep	2dabc272fd596d91d3b38ba4126b06912c2907d4	anchor: single-start Nelder-Mead, budget 200, dev block — must reproduce the prepared reference cell to 1e-9; first valid result on this track
+E0002	primary	1.251208	discard	ca7d068bcea4126e3786b8768e08472227985948	NM adaptive=True (Gao-Han) — calibration probe: prediction says within 2x floor std of the anchor; did not improve track frontier 1.251208 by minimum_delta=0.569532
+E0003	primary	0.407072	keep	350fc3557c3acea5c375e551de047a3469fb6f81	4 restarts x 50 evals, same 200-eval budget — RQ1: must clear minimum_delta 0.5695; the honest bar is also random-search 0.397; frontier improvement over 1.251208 with minimum_delta=0.569532
+E0004	primary	1.11557605229e+196	discard	569bf832e7a3ed6a57efb9f5f9480541f2df3e9c	SPSA a0=50 aggressive gains — registered prediction: iterates diverge, objective overflows non-finite, honest crash; did not improve track frontier 0.407072 by minimum_delta=0.569532
+E0005	primary	NA	crash	a9197c54167d90bb701056616ac16fad044ddde9	SPSA c0=0 — the estimator's own denominator: registered crash, mechanism corrected after E0004; process exit code 1
+E0006	primary	1.85070982844e+178	discard	8395ce73bae895434031ad97bf59cddc3ddbd754	SPSA tuned a0=0.1 c0=0.1 — RQ2: prediction says within 2x floor std of restarted NM (discard); did not improve track frontier 0.407072 by minimum_delta=0.569532
+E0007	primary	0.312078	discard	7a68c8488786e80a124c8e4795b0e0cf85fe44a0	sealed confirmation: incumbent 4x50 restarts on the fresh seed block 10042..; sealed final-test evidence; excluded from the adaptive frontier

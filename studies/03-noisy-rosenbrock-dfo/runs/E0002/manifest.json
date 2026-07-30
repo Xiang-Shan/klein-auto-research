@@ -1,0 +1,74 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 369,
+      "committed": true,
+      "sha256": "986747a734ae488adbe27efb55e17299b7f1032213325fcbbdcbbb85b1193dc0"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 407,
+      "committed": true,
+      "sha256": "b057eeab63c6a529d47edd9424baf0686e8abcf78b3451f3a92c188aed595c8e"
+    }
+  },
+  "base_commit": "ce4af5bc67288aef72ef6ee0b49fb60184bc15dc",
+  "candidate_commit": "ca7d068bcea4126e3786b8768e08472227985948",
+  "code_patch_hash": "31f1b40e698bb0d0d1e34002128a8f8aa6b163325d507875a5b6761746808f00",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 1.251208 by minimum_delta=0.569532",
+  "description": "NM adaptive=True (Gao-Han) \u2014 calibration probe: prediction says within 2x floor std of the anchor; did not improve track frontier 1.251208 by minimum_delta=0.569532",
+  "disposition": "discard",
+  "ended_at": "2026-07-30T17:36:51.720494Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "541fd18ff5ac1d60536b33b9252e47092c86f7581b12cd22a80bdd0c18855af3"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "f904b12932361a4339e51931cb596dfebc8679a351f4909354a440b604d7c344",
+    "environment": "6e1045cba5b568b0ceef01b270d4ffe12e18016dc0780994e43c196d25e3c34d",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_final_gap",
+  "metrics": {
+    "gap_median": 0.7679323500976418,
+    "gap_std_across_reps": 1.2411075052610203,
+    "gap_worst": 4.4501120324261985,
+    "n_reps": 40.0,
+    "primary_metric": 1.251208,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.0329129695892334
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 1500.0,
+  "phase_experiment_limit": 6,
+  "primary_metric": 1.251208,
+  "schema_version": 2,
+  "started_at": "2026-07-30T17:36:51.037572Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-07-30T17:36:51.783070Z",
+    "evidence_commit": "b76007b7a7bff09f8020c1eb77872f68ca75a0ae",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6828228749800473
+}

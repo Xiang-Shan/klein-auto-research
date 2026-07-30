@@ -1,0 +1,17 @@
+---
+primary_metric:    11155760522937360998462287613348787502667549632853591065196426457611213185901686096213329275863828709377880345587568572090771653970587111150876896828856068611704483394540666491366333125712114876416.000000
+metric_name:       mean_final_gap
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+gap_std_across_reps: 7.049937868433346e+196
+gap_median: 1.2580735249143802e+137
+gap_worst: 4.458859212230798e+197
+n_reps: 40.0
+wall_seconds: 0.024458885192871094
+runner_status: ok
+runner_exit_code: 0
