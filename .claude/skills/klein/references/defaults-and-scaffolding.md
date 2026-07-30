@@ -106,7 +106,7 @@ undebuggable).
 
 ## Foreign-repo bootstrap
 
-Copy `.claude/skills/klein/` into the target repo. Legacy preflight and `new_study.py` carry an
-embedded schema fallback, so they work even without `kleinlib` installed — but a real
-study needs the engine: add `kleinlib` as a dependency (see
+Copy `.claude/skills/klein/` into the target repo, then install the engine — the
+protocols are portable markdown, but every helper imports `kleinlib` (schema and
+templates are single-sourced there): add it as a dependency (see
 `assets/pyproject-study-template.toml`) and `uv sync --locked`.

@@ -12,8 +12,10 @@ results.tsv (header, per-row validity, experiment-number gaps), entrypoints
 that don't compile, missing prepared data, and an aux_metrics.tsv sidecar
 whose header has drifted from the schema.
 
-Stdlib-only — this script must run even in a foreign repo that only copied
-the skill directory (no ``kleinlib`` on the path) and even before ``uv sync``.
+The schema and row validators come from ``kleinlib.schema`` — the single
+source (AGENTS.md "Schema discipline"). In a foreign repo, install the engine
+first (see SKILL.md "Installing in another repo"); the skill directory alone
+is not a runnable copy of Klein.
 
 Exit code
 ---------
@@ -46,188 +48,33 @@ import sys
 from pathlib import Path
 
 # --------------------------------------------------------------------------
-# Schema portability contract
+# Schema source
 # --------------------------------------------------------------------------
 #
-# This skill must work standing alone in a foreign repo (copied without
-# kleinlib/), so it carries its own fallback literal for the results.tsv
-# schema. When kleinlib IS importable (i.e. we are running inside this repo,
-# or a repo that vendored kleinlib), we assert the fallback still matches the
-# imported source of truth — drift between the skill's copy and kleinlib
-# must fail LOUDLY, never silently. See kleinlib/schema.py for the canonical
-# definitions and AGENTS.md "Schema discipline".
+# The results schema lives ONLY in kleinlib.schema (AGENTS.md "Schema
+# discipline") — this script is a thin consumer, exactly like new_study.py.
 
-_FALLBACK_RESULTS_COLUMNS = ("experiment", "primary_metric", "status", "commit", "description")
-_FALLBACK_OPTIONAL = ("study_id",)
-_FALLBACK_VALID_STATUSES = frozenset({"keep", "discard", "crash"})
-_FALLBACK_NA_METRIC = "NA"
-_FALLBACK_NO_COMMIT = "-"
-_FALLBACK_AUX_COLUMNS = ("experiment", "metric", "value")
-_FALLBACK_HEX_DIGITS = frozenset("0123456789abcdef")
-
-_SCHEMA_SOURCE = "embedded fallback"
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
 try:
-    # Make `kleinlib` importable when this script is invoked directly
-    # (e.g. `uv run python .claude/skills/klein/scripts/preflight.py`)
-    # rather than as part of an installed package. Repo root is three
-    # levels up from .claude/skills/klein/scripts/.
-    _REPO_ROOT = Path(__file__).resolve().parents[4]
-    if str(_REPO_ROOT) not in sys.path:
-        sys.path.insert(0, str(_REPO_ROOT))
-    from kleinlib.schema import (  # type: ignore
-        AUX_COLUMNS as _K_AUX_COLUMNS,
+    from kleinlib.schema import (  # noqa: E402
+        AUX_COLUMNS,
+        OPTIONAL_COLUMNS,
+        RESULTS_COLUMNS,
+        is_valid_header,
+        validate_row,
     )
-    from kleinlib.schema import (
-        NA_METRIC as _K_NA_METRIC,
-    )
-    from kleinlib.schema import (
-        NO_COMMIT as _K_NO_COMMIT,
-    )
-    from kleinlib.schema import (
-        OPTIONAL_COLUMNS as _K_OPTIONAL,
-    )
-    from kleinlib.schema import (
-        RESULTS_COLUMNS as _K_RESULTS_COLUMNS,
-    )
-    from kleinlib.schema import (
-        VALID_STATUSES as _K_VALID_STATUSES,
-    )
-except ImportError:
-    _KLEINLIB_AVAILABLE = False
-else:
-    _KLEINLIB_AVAILABLE = True
-
-
-def find_schema_drift(
-    k_results_columns: tuple[str, ...],
-    k_optional: tuple[str, ...],
-    k_valid_statuses: frozenset[str],
-    k_na_metric: str,
-    k_no_commit: str,
-    k_aux_columns: tuple[str, ...],
-) -> list[str]:
-    """Compare kleinlib's live schema values against this script's embedded
-    fallback literals; return a human-readable problem line per mismatch (an
-    empty list means no drift). Pure function so the drift-detection logic
-    itself is unit-testable without needing a real mismatched kleinlib on
-    disk — see tests/test_preflight.py::test_schema_drift_detected.
-
-    Drift between the embedded fallback and kleinlib is exactly the bug
-    class this project exists to prevent (see schema.py docstring: a
-    4-vs-5-column drift once corrupted results.tsv appends). Fail loudly,
-    never silently.
-    """
-    drift: list[str] = []
-    if tuple(k_results_columns) != _FALLBACK_RESULTS_COLUMNS:
-        drift.append(
-            f"RESULTS_COLUMNS: kleinlib={tuple(k_results_columns)!r} "
-            f"!= embedded={_FALLBACK_RESULTS_COLUMNS!r}"
-        )
-    if tuple(k_optional) != _FALLBACK_OPTIONAL:
-        drift.append(f"OPTIONAL_COLUMNS: kleinlib={tuple(k_optional)!r} != embedded={_FALLBACK_OPTIONAL!r}")
-    if frozenset(k_valid_statuses) != _FALLBACK_VALID_STATUSES:
-        drift.append(
-            f"VALID_STATUSES: kleinlib={sorted(k_valid_statuses)!r} "
-            f"!= embedded={sorted(_FALLBACK_VALID_STATUSES)!r}"
-        )
-    if k_na_metric != _FALLBACK_NA_METRIC:
-        drift.append(f"NA_METRIC: kleinlib={k_na_metric!r} != embedded={_FALLBACK_NA_METRIC!r}")
-    if k_no_commit != _FALLBACK_NO_COMMIT:
-        drift.append(f"NO_COMMIT: kleinlib={k_no_commit!r} != embedded={_FALLBACK_NO_COMMIT!r}")
-    if tuple(k_aux_columns) != _FALLBACK_AUX_COLUMNS:
-        drift.append(
-            f"AUX_COLUMNS: kleinlib={tuple(k_aux_columns)!r} != embedded={_FALLBACK_AUX_COLUMNS!r}"
-        )
-    return drift
-
-
-if _KLEINLIB_AVAILABLE:
-    _drift = find_schema_drift(
-        _K_RESULTS_COLUMNS, _K_OPTIONAL, _K_VALID_STATUSES, _K_NA_METRIC, _K_NO_COMMIT, _K_AUX_COLUMNS
-    )
-    if _drift:
-        print("[FAIL] schema drift between skill and kleinlib — never silent:")
-        for line in _drift:
-            print(f"       {line}")
-        sys.exit(1)
-    _SCHEMA_SOURCE = "kleinlib.schema (verified == embedded fallback)"
-
-# The names this module actually uses from here on — bound to kleinlib's
-# values when available (post drift-check, so they are guaranteed identical
-# to the fallback), else the embedded fallback for foreign-repo mode.
-if _KLEINLIB_AVAILABLE:
-    RESULTS_COLUMNS = tuple(_K_RESULTS_COLUMNS)
-    OPTIONAL_COLUMNS = tuple(_K_OPTIONAL)
-    VALID_STATUSES = frozenset(_K_VALID_STATUSES)
-    NA_METRIC = _K_NA_METRIC
-    NO_COMMIT = _K_NO_COMMIT
-    AUX_COLUMNS = tuple(_K_AUX_COLUMNS)
-else:
-    RESULTS_COLUMNS = _FALLBACK_RESULTS_COLUMNS
-    OPTIONAL_COLUMNS = _FALLBACK_OPTIONAL
-    VALID_STATUSES = _FALLBACK_VALID_STATUSES
-    NA_METRIC = _FALLBACK_NA_METRIC
-    NO_COMMIT = _FALLBACK_NO_COMMIT
-    AUX_COLUMNS = _FALLBACK_AUX_COLUMNS
+except ImportError as _exc:  # pragma: no cover — reachable only outside the repo
+    print("[FAIL] schema source: kleinlib is not importable — the schema lives only in kleinlib.schema.")
+    print("       In a foreign repo, install the engine first, e.g.:")
+    print('       uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research"')
+    print(f"       ({_exc})")
+    sys.exit(1)
 
 DEFAULT_MUTABLE_FILES = ("train.py", "prepare.py")
 DEFAULT_PROTECTED_BRANCHES = ("main", "master")
-
-
-# --------------------------------------------------------------------------
-# Schema helpers (mirror kleinlib.schema.is_valid_header / validate_row so
-# this script behaves identically whether or not kleinlib is importable)
-# --------------------------------------------------------------------------
-
-
-def _is_valid_header(fields: tuple[str, ...]) -> bool:
-    n = len(RESULTS_COLUMNS)
-    if fields[:n] != RESULTS_COLUMNS:
-        return False
-    extra = fields[n:]
-    return extra == OPTIONAL_COLUMNS[: len(extra)]
-
-
-def _validate_row(fields: list[str], *, n_columns: int) -> list[str]:
-    problems: list[str] = []
-    if len(fields) != n_columns:
-        problems.append(f"expected {n_columns} fields to match header, got {len(fields)}")
-
-    def _field(name: str) -> str | None:
-        idx = RESULTS_COLUMNS.index(name)
-        return fields[idx] if idx < len(fields) else None
-
-    experiment = _field("experiment")
-    if experiment is not None:
-        try:
-            int(experiment)
-        except ValueError:
-            problems.append(f"experiment must be an integer, got {experiment!r}")
-
-    status = _field("status")
-    if status is not None and status not in VALID_STATUSES:
-        problems.append(f"status must be one of {sorted(VALID_STATUSES)}, got {status!r}")
-
-    metric = _field("primary_metric")
-    if metric is not None:
-        if metric == NA_METRIC:
-            if status != "crash":
-                problems.append(f"primary_metric may be {NA_METRIC!r} only when status is 'crash'")
-        else:
-            try:
-                float(metric)
-            except ValueError:
-                problems.append(
-                    f"primary_metric must be a float (or {NA_METRIC!r} on crash), got {metric!r}"
-                )
-
-    commit = _field("commit")
-    if commit is not None and commit != NO_COMMIT:
-        if not (7 <= len(commit) <= 40) or not set(commit.lower()) <= _FALLBACK_HEX_DIGITS:
-            problems.append(f"commit must be 7-40 hex chars or {NO_COMMIT!r}, got {commit!r}")
-
-    return problems
 
 
 # --------------------------------------------------------------------------
@@ -254,13 +101,7 @@ def _result(name: str, status: str, message: str) -> CheckResult:
 
 
 def check_schema_source() -> CheckResult:
-    if _KLEINLIB_AVAILABLE:
-        return _result("schema source", "OK", f"{_SCHEMA_SOURCE}")
-    return _result(
-        "schema source",
-        "OK",
-        "[INFO] kleinlib not found — using embedded schema",
-    )
+    return _result("schema source", "OK", "kleinlib.schema (single source)")
 
 
 def check_uv_available() -> CheckResult:
@@ -343,7 +184,7 @@ def check_results_tsv(path: Path) -> list[CheckResult]:
         return results
 
     header_fields = tuple(lines[0].split("\t"))
-    if not _is_valid_header(header_fields):
+    if not is_valid_header(lines[0]):
         results.append(
             _result(
                 "results.tsv header",
@@ -369,7 +210,7 @@ def check_results_tsv(path: Path) -> list[CheckResult]:
     experiment_numbers: list[int] = []
     for n, line in enumerate(data_lines, start=1):
         fields = line.split("\t")
-        problems = _validate_row(fields, n_columns=n_columns)
+        problems = validate_row(fields, n_columns=n_columns)
         if problems:
             row_problems.append(f"row {n}: {'; '.join(problems)} ({line!r})")
         # Recover an experiment number for the sequence check independently
