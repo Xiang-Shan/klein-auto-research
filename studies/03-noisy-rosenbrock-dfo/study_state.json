@@ -63,7 +63,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
@@ -73,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "03-noisy-rosenbrock-dfo",
-  "updated_at": "2026-07-30T17:32:31.918545Z"
+  "updated_at": "2026-07-30T17:32:50.144283Z"
 }
