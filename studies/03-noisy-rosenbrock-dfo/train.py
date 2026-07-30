@@ -30,9 +30,9 @@ EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID")
 TRACK = os.environ.get("KLEIN_TRACK")
 
 # ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
-OPTIMIZER = "nm"          # nm | nm_restarts | spsa
+OPTIMIZER = "nm_restarts"  # nm | nm_restarts | spsa
 ADAPTIVE = False          # Nelder-Mead adaptive (Gao-Han) parameters
-N_RESTARTS = 1            # nm_restarts: starts sharing the SAME total budget
+N_RESTARTS = 4            # nm_restarts: starts sharing the SAME total budget
 SPSA_A0 = 0.1             # SPSA gain-sequence scale
 SEED_BASE_OVERRIDE = None  # measurement sweeps only; never for frontier runs
 # --------------------------------------------------------------------
