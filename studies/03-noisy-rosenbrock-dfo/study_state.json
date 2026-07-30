@@ -7,10 +7,15 @@
     "data": {
       "by": "xiang",
       "timestamp": "2026-07-30T17:31:02.068788Z"
+    },
+    "method": {
+      "by": "xiang",
+      "timestamp": "2026-07-30T17:32:31.917644Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "a3a2db124eb6d65455652f0db6908fde7f56e413ad6147a60029bd41993fd4c7",
+    "method_card.md": "9c73264aab0523983dd73872b6b4d137be05e2f4ff6de760a6a6453fb47bf29a",
     "research_plan.md": "f36e38b06185b19d23aa11db7f52d3361dcd053cb75f32293946c84ba8f2b04c",
     "study.yaml": "f4990be0adfe80f54dabef2cd6fe02d04f32ad259ff6684b0e6f9d7f2cc9686a"
   },
@@ -49,9 +54,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-07-30T17:32:31.917644Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "method_card.md": "9c73264aab0523983dd73872b6b4d137be05e2f4ff6de760a6a6453fb47bf29a"
+      },
+      "note": "triad complete: theory+papers+practice; both Spall refs verified against indexes",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -64,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "03-noisy-rosenbrock-dfo",
-  "updated_at": "2026-07-30T17:31:02.069267Z"
+  "updated_at": "2026-07-30T17:32:31.918545Z"
 }
