@@ -1,6 +1,6 @@
 [project]
 name = "klein-auto-research"
-version = "0.2.0"
+version = "0.3.0"
 description = "Klein Auto Research — an agentic, visualization-first ML research framework for actuaries and data scientists"
 readme = "README.md"
 license = "MIT"
