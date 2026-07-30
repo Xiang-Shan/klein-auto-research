@@ -50,7 +50,7 @@ questions and answers. Work in at most two passes:
 6. Make Phase 0 a split-identity anchor whenever a comparable baseline exists:
    reproduce it EXACTLY, STOP if off — this catches split/leakage bugs early.
 7. Mirror the phases, RQs, and predictions into `program.md`; sketch the experiment
-   ladder in `research_plan.md` (templates: `.claude/skills/klein/assets/`).
+   ladder in `research_plan.md` (both scaffolded by `klein new`; fill the placeholders).
 8. Compose the confirm summary: goal, metric contract, data source, split, phase ladder
    with budgets, RQs with priors, predictions to falsify — ending with the protocol's
    question: "Here is the study contract. Anything to change before we start the DATA

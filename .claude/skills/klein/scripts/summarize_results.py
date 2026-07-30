@@ -439,7 +439,7 @@ def build_aux_section(
 #
 # A flat `min`/`max` directly on the phase (instead of nested under
 # `experiments`/`experiment_range`/`range`) is also accepted.
-# NOTE: `min_experiments`/`max_experiments` (assets/study-template.yaml) are
+# NOTE: `min_experiments`/`max_experiments` (v1 study.yaml phases) are
 # COUNT bounds for the phase stop rule, not ID ranges — they are deliberately
 # ignored here. A phase without an explicit ID range gets no telemetry row.
 
