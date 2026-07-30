@@ -26,7 +26,9 @@ dependencies = [
 [project.optional-dependencies]
 gbdt = ["lightgbm>=4.3", "xgboost>=2.0", "catboost>=1.2"]   # uv sync --extra gbdt
 deep = ["torch>=2.3"]                                        # uv sync --extra deep (MPS-safe patterns)
-dev  = ["pytest>=8"]                                         # uv sync --extra dev
+
+[dependency-groups]
+dev = ["pytest>=8"]                                          # installed by default on uv sync
 
 [build-system]
 requires = ["hatchling"]

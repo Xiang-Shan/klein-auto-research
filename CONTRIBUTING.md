@@ -6,7 +6,7 @@ that respect its invariants are very welcome.
 ## Setup & checks
 
 ```bash
-uv sync --locked --extra dev --extra encoders
+uv sync --locked --extra encoders
 uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests \
   studies/02-rqls-pv-severity/tests scripts/tests
 uv run --no-sync ruff check kleinlib scripts .claude/skills/klein/scripts \

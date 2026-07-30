@@ -32,7 +32,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
       - name: Locked core environment
-        run: uv sync --locked --extra dev --extra encoders
+        run: uv sync --locked --extra encoders
       - name: Ruff correctness checks
         if: matrix.python-version == '3.13'
         run: >-
@@ -76,7 +76,7 @@ jobs:
           python-version: "3.13"
           enable-cache: true
       - name: Locked integration environment
-        run: uv sync --locked --extra dev --extra encoders --extra gbdt --extra deep
+        run: uv sync --locked --extra encoders --extra gbdt --extra deep
       - name: Engine and deep integration tests with coverage floor
         run: >-
           uv run --no-sync pytest -q
@@ -118,7 +118,7 @@ jobs:
           python-version: "3.13"
           enable-cache: true
       - name: Locked tutorial test environment
-        run: uv sync --locked --extra dev
+        run: uv sync --locked
       - name: Build a fresh tutorial and inspect Chrome's request-start netlog
         run: >-
           uv run --no-sync python scripts/check_generated_tutorial_network.py
@@ -143,7 +143,7 @@ jobs:
           python-version: "3.13"
           enable-cache: true
       - name: Locked reproduction environment
-        run: uv sync --locked --extra dev --extra encoders
+        run: uv sync --locked --extra encoders
       - name: Execute the Study 00 README bootstrap and committed state
         shell: bash
         run: |
@@ -209,7 +209,7 @@ jobs:
           python-version: "3.13"
           enable-cache: true
       - name: Locked CLI environment
-        run: uv sync --locked --extra dev --extra encoders
+        run: uv sync --locked --extra encoders
       - name: Public command surface is importable
         run: |
           uv run --no-sync klein --help

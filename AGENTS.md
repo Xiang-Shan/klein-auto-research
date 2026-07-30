@@ -192,7 +192,7 @@ protocols always spell out both paths.
   immediately after a successful `uv sync --locked` to prove it is not mutating the
   environment.
 - `uv sync --locked` to set up; extras compose and must be named together:
-  `uv sync --locked --extra dev --extra gbdt --extra deep` (naming only some extras removes
+  `uv sync --locked --extra gbdt --extra deep` (naming only some extras removes
   the others from the environment).
 
 ## Durable notes

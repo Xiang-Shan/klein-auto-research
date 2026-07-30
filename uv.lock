@@ -564,11 +564,6 @@ dependencies = [
 deep = [
     { name = "torch" },
 ]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-]
 encoders = [
     { name = "category-encoders" },
 ]
@@ -582,6 +577,13 @@ parquet = [
     { name = "pyarrow" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "catboost", marker = "extra == 'gbdt'", specifier = ">=1.2" },
@@ -591,16 +593,20 @@ requires-dist = [
     { name = "matplotlib", specifier = ">=3.9" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pyarrow", marker = "extra == 'parquet'", specifier = ">=16" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=5" },
     { name = "pyyaml", specifier = ">=6" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6" },
     { name = "scikit-learn", specifier = ">=1.5" },
     { name = "scipy", specifier = ">=1.13" },
     { name = "torch", marker = "extra == 'deep'", specifier = ">=2.3" },
     { name = "xgboost", marker = "extra == 'gbdt'", specifier = ">=2.0" },
 ]
-provides-extras = ["encoders", "parquet", "gbdt", "deep", "dev"]
+provides-extras = ["encoders", "parquet", "gbdt", "deep"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-cov", specifier = ">=5" },
+    { name = "ruff", specifier = ">=0.6" },
+]
 
 [[package]]
 name = "lightgbm"
