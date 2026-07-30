@@ -4,7 +4,9 @@
 This check deliberately generates a temporary artifact.  It never treats the
 shipped v0.1 reports as evidence for the v0.2 CSP contract.  Chrome's netlog is
 read at the ``URL_REQUEST_START_JOB`` boundary, so a blocked or failed DNS lookup
-cannot be mistaken for zero attempted network requests.
+cannot be mistaken for zero attempted network requests.  The headless page load
+is also timed and asserted against ``--max-load-seconds`` (default 5.0), the
+tutorial spec's "opens from file:// within 5 s" budget.
 """
 
 from __future__ import annotations
@@ -16,6 +18,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -143,7 +146,8 @@ def started_http_urls(payload: dict[str, Any]) -> list[str]:
     return urls
 
 
-def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> None:
+def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> float:
+    """Load *page* headlessly, assert zero HTTP(S) requests, return load seconds."""
     netlog = work_dir / "chrome-netlog.json"
     profile = work_dir / "chrome-profile"
     command = [
@@ -167,6 +171,7 @@ def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> None:
         "--dump-dom",
         page.resolve().as_uri(),
     ]
+    started = time.perf_counter()
     result = subprocess.run(
         command,
         check=False,
@@ -174,6 +179,7 @@ def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> None:
         capture_output=True,
         timeout=30,
     )
+    load_seconds = time.perf_counter() - started
     if result.returncode != 0:
         raise RuntimeError(
             f"Chrome failed ({result.returncode}):\n{result.stdout[-2000:]}\n{result.stderr[-2000:]}"
@@ -187,6 +193,7 @@ def check_in_chrome(chrome: str, page: Path, work_dir: Path) -> None:
     if urls:
         rendered = "\n".join(f"  - {url}" for url in urls)
         raise RuntimeError(f"generated tutorial started HTTP(S) requests:\n{rendered}")
+    return load_seconds
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -197,13 +204,24 @@ def main(argv: list[str] | None = None) -> int:
         type=Path,
         help="optional JSON path for the zero-request CI evidence record",
     )
+    parser.add_argument(
+        "--max-load-seconds",
+        type=float,
+        default=5.0,
+        help="fail when the headless file:// page load exceeds this budget (default: 5.0)",
+    )
     args = parser.parse_args(argv)
     try:
         chrome = find_chrome(args.chrome)
         with tempfile.TemporaryDirectory(prefix="klein-tutorial-browser-") as temp:
             root = Path(temp)
             page = build_fresh_tutorial(root)
-            check_in_chrome(chrome, page, root)
+            load_seconds = check_in_chrome(chrome, page, root)
+            if load_seconds > args.max_load_seconds:
+                raise RuntimeError(
+                    f"tutorial page load took {load_seconds:.2f} s, over the "
+                    f"--max-load-seconds budget of {args.max_load_seconds:.2f} s"
+                )
     except (FileNotFoundError, RuntimeError, ValueError, subprocess.TimeoutExpired) as exc:
         print(f"[tutorial-browser] FAIL: {exc}", file=sys.stderr)
         return 1
@@ -214,6 +232,7 @@ def main(argv: list[str] | None = None) -> int:
                     "artifact_kind": "fresh-generated-v2-tutorial",
                     "browser": chrome,
                     "http_requests_started": 0,
+                    "load_seconds": round(load_seconds, 3),
                 },
                 indent=2,
                 sort_keys=True,
@@ -221,7 +240,10 @@ def main(argv: list[str] | None = None) -> int:
             + "\n",
             encoding="utf-8",
         )
-    print("[tutorial-browser] PASS: fresh generated tutorial started 0 HTTP(S) requests")
+    print(
+        "[tutorial-browser] PASS: fresh generated tutorial started 0 HTTP(S) requests "
+        f"and loaded in {load_seconds:.2f} s (budget {args.max_load_seconds:.2f} s)"
+    )
     return 0
 
 
