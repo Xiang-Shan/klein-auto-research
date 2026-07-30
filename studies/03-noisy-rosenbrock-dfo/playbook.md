@@ -20,6 +20,9 @@
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
+| H1 | Restarts beat single-start NM under noise (escape > depth) | high (method_card §4) | 4×50 restarts vs anchor |
+| H2 | SPSA needs more than 200 evals to compete | medium (uninformed) | tuned SPSA a0=0.1 |
+| H3 | Restart fragmentation has an optimum near 4 | medium (uninformed) | 8×25 vs 4×50 |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 

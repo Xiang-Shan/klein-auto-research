@@ -18,7 +18,9 @@ tracks:
       #   k: 5                      # klein noise-floor prints this block
       #   std: ...
       #   range: ...
-    guardrails: {}
+    guardrails:
+      wall_seconds:
+        max: 60
 
 data:
   source: "synthetic:noisy_rosenbrock_v1"
@@ -36,23 +38,37 @@ data:
 # Per-run, per-phase time, and experiment-count limits are intentionally separate.
 max_run_seconds: 120
 phases:
+  - id: phase0-anchor
+    description: "reference-cell reproduction anchor (STOP if off), then the k=5 noise-floor measurement sweep"
+    budget_seconds: 600
+    max_experiments: 1
   - id: adaptive-1
-    description: "split-identity anchor, baseline, then bounded adaptive work"
-    budget_seconds: 3600
-    max_experiments: 4
-  - id: confirmation
-    description: "one sealed final-test evaluation per track"
+    description: "slate ritual, then bounded adaptive work on restarts and SPSA"
     budget_seconds: 900
+    max_experiments: 5
+  - id: confirmation
+    description: "one sealed fresh-seed-block confirmation of the incumbent"
+    budget_seconds: 300
     max_experiments: 1
 
 research_questions:
   - id: RQ1
-    question: "{{RQ1_QUESTION}}"
-    prior: "{{RQ1_PRIOR}}"
+    question: "Do 4 random restarts (same 200-eval total budget) beat single-start Nelder-Mead on the noisy landscape?"
+    prior: "Yes, by well over the noise floor: single-start NM stalls in the banana valley under noise; restarts trade depth for escape. (source: method_card §4)"
+  - id: RQ2
+    question: "Does SPSA at this budget beat restarted Nelder-Mead?"
+    prior: "No: 200 evaluations is too few for SPSA's gain sequence to settle; expect within 2x the noise-floor std of restarted NM. (source: uninformed)"
+  - id: RQ3
+    question: "Does splitting the same budget into more, shorter restarts (8x25 vs 4x50) keep paying?"
+    prior: "No: each 25-eval start is too short to descend the valley; fragmentation loses more than escape gains. (source: uninformed)"
 
 predictions_to_falsify:
-  - lever: "{{LEVER_1}}"
-    predicted_delta: "{{DELTA_1}}"
+  - lever: "restarts 1 -> 4 at fixed 200-eval budget (RQ1)"
+    predicted_delta: "mean_final_gap improves by >= 3x the measured noise-floor std (KEEP)"
+  - lever: "Nelder-Mead adaptive=True (Gao-Han parameters) at n=2"
+    predicted_delta: "within 2x noise-floor std of the anchor -> DISCARD by the measured minimum_delta"
+  - lever: "SPSA with aggressive gain a0=50"
+    predicted_delta: "iterates diverge, objective overflows to non-finite -> honest CRASH with NA metric"
 
 deliverables:
   - findings.md
