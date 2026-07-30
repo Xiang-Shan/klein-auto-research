@@ -150,6 +150,50 @@ class TestSummary:
         assert "- total improvement: 0.110000" in summary
         assert "E0002" not in summary
 
+    def test_v2_phase_telemetry_comes_from_run_manifests(self, summarize_module, tmp_path):
+        """A7: v2 phases (budget_seconds/max_experiments) render from manifests,
+        not from the v1 budget_h/ID-range shape."""
+        import json
+
+        path = write_tsv(
+            tmp_path,
+            (
+                "experiment\ttrack\tprimary_metric\tstatus\tcommit\tdescription\n"
+                "E0001\tprimary\t0.60\tkeep\taaaaaaa\tanchor\n"
+                "E0002\tprimary\t0.61\tkeep\tbbbbbbb\tprobe\n"
+            ),
+        )
+        (tmp_path / "study.yaml").write_text(
+            (
+                "schema_version: 2\n"
+                "tracks:\n"
+                "  primary:\n"
+                "    metric: {name: val_auc, goal: higher, minimum_delta: 0.0}\n"
+                "phases:\n"
+                "  - id: phase0\n"
+                "    budget_seconds: 600\n"
+                "    max_experiments: 1\n"
+                "  - id: adaptive-1\n"
+                "    budget_seconds: 900\n"
+                "    max_experiments: 5\n"
+            ),
+            encoding="utf-8",
+        )
+        for exp, phase, wall in (("E0001", "phase0", 12.5), ("E0002", "adaptive-1", 30.0)):
+            run_dir = tmp_path / "runs" / exp
+            run_dir.mkdir(parents=True)
+            (run_dir / "manifest.json").write_text(
+                json.dumps({"experiment": exp, "phase": phase, "wall_seconds": wall}),
+                encoding="utf-8",
+            )
+
+        assert summarize_module.main([str(path), "--track", "primary"]) == 0
+        summary = (tmp_path / "results_summary.md").read_text(encoding="utf-8")
+        assert "## Phase Telemetry" in summary
+        assert "| phase0 | 1/1 | 12.5/600 | within budget |" in summary
+        assert "| adaptive-1 | 1/5 | 30.0/900 | within budget |" in summary
+        assert "n/a | n/a | n/a" not in summary
+
     def test_multiple_v2_tracks_require_explicit_track(
         self, summarize_module, tmp_path
     ):
