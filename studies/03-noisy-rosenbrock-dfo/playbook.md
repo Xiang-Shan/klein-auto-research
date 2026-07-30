@@ -27,4 +27,9 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. (fill at the phase-start slate ritual)
+1. 4×50 restarts (sum 9) — the H1 test; bars: 0.5695 delta AND random-search 0.397
+2. SPSA a0=0.1 (sum 9) — RQ2
+3. NM adaptive probe (sum 8) — floor calibration, run first (cheapest)
+4. SPSA a0=50 (sum 8) — registered crash
+5. 8×25 restarts (sum 8) — RQ3
+6. DEFERRED next study: random search as ledger experiment (sum 9; pre-registration outranks curiosity)
