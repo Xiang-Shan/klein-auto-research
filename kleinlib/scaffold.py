@@ -312,7 +312,9 @@ def scaffold_study(
         "METRIC_GOAL": metric_goal or "{{METRIC_GOAL}}",
         "MINIMUM_DELTA": format(float(minimum_delta), ".12g"),
         "DATA_SOURCE": _quote_text(data_source or "{{DATA_SOURCE}}"),
-        "DATA_PATH": _quote_text(data_path or "data/prepared/dataset.parquet"),
+        # CSV by default: writable with core deps alone (parquet needs the optional
+        # pyarrow extra; opt in via --prepared-path *.parquet).
+        "DATA_PATH": _quote_text(data_path or "data/prepared/prepared.csv"),
         "SPLIT_KIND": split_kind,
         "SPLIT_COLUMN": (
             f'    group_column: "{_quote_text(group_column)}"'
