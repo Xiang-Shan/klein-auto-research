@@ -649,6 +649,31 @@ def test_noise_floor_contract_validation_and_preflight_honesty(ready_study) -> N
     assert len(floor_checks) == 1 and floor_checks[0].ok
 
 
+def test_journal_appends_do_not_invalidate_preflight(ready_study) -> None:
+    """A19: program.md is the living lab notebook — appending to it after the
+    consult ack must not fail the artifact-hash check (study.yaml still does)."""
+    _, study = ready_study
+    program = study / "program.md"
+    program.write_text(
+        program.read_text(encoding="utf-8") + "\n- log: tried X, keeping Y\n",
+        encoding="utf-8",
+    )
+    hash_checks = [
+        c for c in preflight_checks(study, require_clean=False, require_branch=False)
+        if c.name == "gate artifact hashes"
+    ]
+    assert all(c.ok for c in hash_checks), [c.message for c in hash_checks]
+    contract_path = study / "study.yaml"
+    contract_path.write_text(
+        contract_path.read_text(encoding="utf-8") + "# drifted\n", encoding="utf-8"
+    )
+    hash_checks = [
+        c for c in preflight_checks(study, require_clean=False, require_branch=False)
+        if c.name == "gate artifact hashes"
+    ]
+    assert any(not c.ok and "study.yaml" in c.message for c in hash_checks)
+
+
 def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
     study = tmp_path / "legacy"
     study.mkdir()
