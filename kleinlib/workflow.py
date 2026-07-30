@@ -20,6 +20,7 @@ import os
 import platform
 import re
 import subprocess
+import sys
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -1796,9 +1797,14 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
         if not re.search(rf"(?i)\b{label}\b", text):
             raise WorkflowError(f"findings.md must explicitly label the study `{label}`")
         if STRONG_CLAIM_RE.search(text) and not UNCERTAINTY_EVIDENCE_RE.search(text):
-            raise WorkflowError(
-                "findings.md calls a result real or decisive without explicit uncertainty "
-                "evidence (for example a confidence interval, bootstrap, or standard error)"
+            # Loud warning, not a hard stop: prose like "the real dataset" is a
+            # false positive; the enforceable epistemics live in the label check
+            # above and the sealed-access counts. See synthesis-protocol quality bar.
+            print(
+                "klein: warning: findings.md uses 'real'/'decisive' language without "
+                "explicit uncertainty evidence (confidence interval, bootstrap, or "
+                "standard error) — soften the claim or add the evidence",
+                file=sys.stderr,
             )
         state["status"] = "finalized"
         state["finalization"] = {

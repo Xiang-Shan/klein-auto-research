@@ -530,7 +530,7 @@ def test_v1_and_v2_cli_compatibility_round_trips(ready_study, tmp_path: Path, ca
     assert ledger.read_bytes() == before
 
 
-def test_finalize_requires_explicit_exploratory_or_confirmed_label(ready_study) -> None:
+def test_finalize_requires_explicit_exploratory_or_confirmed_label(ready_study, capsys) -> None:
     repo, study = ready_study
     (study / "findings.md").write_text(
         "# Findings\n\nThis study is exploratory.\n", encoding="utf-8"
@@ -540,13 +540,9 @@ def test_finalize_requires_explicit_exploratory_or_confirmed_label(ready_study) 
     (study / "findings.md").write_text(
         "# Findings\n\nThis exploratory study found a real effect.\n", encoding="utf-8"
     )
-    with pytest.raises(WorkflowError, match="without explicit uncertainty"):
-        finalize(study, allow_exploratory=True)
-    (study / "findings.md").write_text(
-        "# Findings\n\nThis exploratory study found a real effect with a bootstrap confidence interval.\n",
-        encoding="utf-8",
-    )
     assert finalize(study, allow_exploratory=True) == "exploratory"
+    captured = capsys.readouterr()
+    assert "without explicit uncertainty" in captured.err
     assert "status: finalized" in status_summary(study)
     assert verify_event_chain(study) == []
 
