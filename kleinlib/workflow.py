@@ -1197,6 +1197,37 @@ def preflight_checks(
     except WorkflowError as exc:
         checks.append(Check("git repository", False, str(exc)))
 
+    phase_ids = _phase_ids(contract)
+    current_phase = state.get("current_phase")
+    if current_phase not in phase_ids:
+        checks.append(
+            Check(
+                "phase ladder",
+                False,
+                f"state current_phase {current_phase!r} is not in the contract's "
+                f"phases {phase_ids} — phases were renamed/removed after "
+                "initialization; amend the contract to match the recorded state",
+            )
+        )
+    else:
+        acked = set(state.get("phase_acknowledgements", {}))
+        earlier_unacked = [
+            pid for pid in phase_ids[: phase_ids.index(current_phase)] if pid not in acked
+        ]
+        checks.append(
+            Check(
+                "phase ladder",
+                not earlier_unacked,
+                (
+                    f"contract declares phases before the current one that were never "
+                    f"acknowledged: {earlier_unacked} — phases cannot be inserted "
+                    "retroactively; fold them into the ladder the machine actually ran"
+                )
+                if earlier_unacked
+                else f"current={current_phase!r}; ladder consistent",
+            )
+        )
+
     gates = state.get("gates", {})
     for gate in GATE_ARTIFACTS:
         entry = gates.get(gate, {}) if isinstance(gates, Mapping) else {}
