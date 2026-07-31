@@ -20,7 +20,7 @@
     "study.yaml": "dadabd4f7882ced94f64ca11f8793cf145bf096bc988086a3ddb9e6638a522f2"
   },
   "created_at": "2026-07-31T17:43:27.649816Z",
-  "current_phase": "adaptive-2",
+  "current_phase": "adaptive-3",
   "final_holdout_access": {
     "decision": {
       "accessed_at": null,
@@ -76,6 +76,12 @@
       "acknowledged_by": "xiang",
       "note": "",
       "playbook_sha256": "61fad221c83b4452343ce64c7be45381b3314eac9af41f487c33e2275a034d72"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-07-31T18:45:56.326798Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "61fad221c83b4452343ce64c7be45381b3314eac9af41f487c33e2275a034d72"
     }
   },
   "prepared_data": {
@@ -85,5 +91,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "06-hurricane-gqls-returnlevels",
-  "updated_at": "2026-07-31T18:44:50.441314Z"
+  "updated_at": "2026-07-31T18:45:56.327358Z"
 }
