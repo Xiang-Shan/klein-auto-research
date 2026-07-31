@@ -451,6 +451,32 @@ def test_empty_diff_guard_refuses_and_burns_nothing(ready_study) -> None:
     assert cli.build_parser().parse_args(["run-one"]).allow_rerun is False
 
 
+def test_cli_names_the_restore_anchor_on_non_keeps(ready_study, capsys) -> None:
+    """Soak F5b: after a discard the driver's mental model must reset — the
+    CLI names the base commit train.py was restored to and the incumbent
+    whose config that equals."""
+    repo, study = ready_study
+    train = study / "train.py"
+    train.write_text(train.read_text(encoding="utf-8") + "\nCANDIDATE = 1\n", encoding="utf-8")
+    assert cli.main(
+        ["run-one", "--study", str(study), "--quiet", "--command", *metric_command(0.9)]
+    ) == 0
+    out = capsys.readouterr().out
+    assert "train.py restored" not in out  # keeps restore nothing
+    base = git(repo, "rev-parse", "HEAD")
+    train.write_text(train.read_text(encoding="utf-8") + "\nWEAKER = 1\n", encoding="utf-8")
+    assert cli.main(
+        ["run-one", "--study", str(study), "--quiet", "--command", *metric_command(0.5)]
+    ) == 0
+    out = capsys.readouterr().out
+    assert f"train.py restored to pre-candidate base {base[:12]}" in out
+    assert "(= E0001's kept config)" in out
+    assert "candidate stays resolvable at" in out
+    manifests = load_manifests(study)
+    assert manifests[0]["incumbent"] is None
+    assert manifests[1]["incumbent"] == "E0001"
+
+
 def test_phase_boundary_and_evaluation_kind_are_enforced(ready_study) -> None:
     repo, study = ready_study
     with pytest.raises(WorkflowError, match="only in final phase"):
