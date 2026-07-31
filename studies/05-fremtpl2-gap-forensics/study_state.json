@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "xiang",
-      "timestamp": "2026-07-31T16:28:36.603711Z"
+      "timestamp": "2026-07-31T16:33:41.154339Z"
     },
     "data": {
       "by": "xiang",
@@ -17,7 +17,7 @@
     "data_card.md": "e355711f464fc322df8075682c610341a9ec8ad5ce5edaed50492be325355ea2",
     "method_card.md": "396bb8fd16b6def5e9a2cc315f89b8741661e1e46af882f7c41b7f1b40efb2a7",
     "research_plan.md": "a59898cbf0220936d78c366fdb863cce6328be007f16f01c56a99db1813df17f",
-    "study.yaml": "abddd51fc9b3e15469c9743fee7ce923972bd38ffe6edb580565d26d1c0efccf"
+    "study.yaml": "a8d06f2aec1dcc97df6affdaf5cb1cb92e1988de5afada241778020bd8f78aba"
   },
   "created_at": "2026-07-31T15:51:34.126091Z",
   "current_phase": "adaptive-1",
@@ -34,14 +34,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-07-31T16:28:36.603711Z",
+      "acknowledged_at": "2026-07-31T16:33:41.154339Z",
       "acknowledged_by": "xiang",
       "artifacts": {
-        "program.md": "fe1a76f47f51aa90505475156e84017a3c0030a261d7b893ebdf0d5d6c221f5e",
+        "program.md": "0e6118d473cf010289d44528b02bf9d0d9680ef40c01b932a5c785b049f1190c",
         "research_plan.md": "a59898cbf0220936d78c366fdb863cce6328be007f16f01c56a99db1813df17f",
-        "study.yaml": "abddd51fc9b3e15469c9743fee7ce923972bd38ffe6edb580565d26d1c0efccf"
+        "study.yaml": "a8d06f2aec1dcc97df6affdaf5cb1cb92e1988de5afada241778020bd8f78aba"
       },
-      "note": "adaptive-1 max_experiments 2->3: E0001 burned by wall_seconds guardrail-visibility bug (friction F1 in program.md); contract otherwise unchanged",
+      "note": "minimum_delta set from the measured noise floors (glm 0.000539 paired-governed, gbdt 0.000573 max-rule); cross-track band 0.000963 recorded; M1-a..M5-a levers appended",
       "status": "recorded"
     },
     "data": {
@@ -73,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "05-fremtpl2-gap-forensics",
-  "updated_at": "2026-07-31T16:29:16.874056Z"
+  "updated_at": "2026-07-31T16:33:41.154732Z"
 }
