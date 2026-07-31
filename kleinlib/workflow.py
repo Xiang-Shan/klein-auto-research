@@ -356,6 +356,22 @@ def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None
                 )
             except ValueError as exc:
                 problems.append(f"track {name!r}: {exc}")
+        power = metric.get("power")
+        if metric_name == "val_tweedie_deviance":
+            try:
+                power_value = float(power)
+                if not math.isfinite(power_value) or not 1.0 < power_value < 2.0:
+                    raise ValueError
+            except (TypeError, ValueError):
+                problems.append(
+                    f"track {name!r}: val_tweedie_deviance requires metric.power with "
+                    "1 < power < 2 (use val_poisson_deviance or val_gamma_deviance "
+                    "for the endpoints)"
+                )
+        elif power is not None:
+            problems.append(
+                f"track {name!r}: metric.power applies only to val_tweedie_deviance"
+            )
         try:
             minimum_delta = float(metric.get("minimum_delta", 0))
             if not math.isfinite(minimum_delta) or minimum_delta < 0:
