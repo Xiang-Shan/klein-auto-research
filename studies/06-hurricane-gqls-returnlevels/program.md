@@ -116,6 +116,23 @@ base commit.
   REFUTED: at n=30 BOTH k and the quantile convention are load-bearing
   specification choices (the thesis pins k=8 + inverted_cdf; reproduction is
   exact under that pin).
+- 2026-07-31/08-01 — adaptive-3 COMPLETE (decision units). E0006 keep MLE-
+  lognormal 58.06 (stress: leave-1/2/3 = −25.7/−36.5/−44.6%, 5×max = +58.1%;
+  clean 1-in-100 $55.5bn). E0007 discard gQLS log-Cauchy 62.94 — **the
+  registered RQ5 prediction (< ⅓ of MLE) is REFUTED and the punchline lands**:
+  PERFECT contamination robustness (0.0% under 5× — parameters unmoved) coexists
+  with the worst leave-k-out instability (62.9%) and an absurd family-
+  conditional level (clean 1-in-100 ≈ $4.1e16 bn-scale — tan(0.49π)=31.8
+  amplification made real). Robust-to-outliers ≠ robust-to-resampling; the
+  best-FITTING family is the least decision-stable. E0008 KEEP gQLS lognormal
+  (0.05,0.95) 41.33 — the bounded transform (z=2.33) lets the trimmed-quantile
+  robustness REACH the decision: 0.0% under 5× (vs MLE's +58.1% under the same
+  stress), sane clean level $53.0bn. E0009 KEEP gQLS lognormal (0.10,0.90)
+  27.58 — instability monotone in the breakdown point (41.3 → 27.6; leave-1
+  19.0 → 5.7%), incumbent for the sealed run. RQ6 refined: parameter robustness
+  transfers to decisions IFF the quantile transform is bounded; the trim is the
+  knob and its GoF cost is negligible here (published W p 0.73 at the wide
+  trim). All numbers are within-sample ordering devices per the data-card band.
 - 2026-07-31 — Metric-registry note: both primaries are custom scalar names
   (simulation task type, evaluate_scalar path, study-03 precedent
   `mean_final_gap`); directions declared explicitly in the contract; guardrail
