@@ -214,11 +214,15 @@ uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-resea
 
 Klein is intentionally a small, single-machine harness. Know the edges.
 
-- **Three evaluator shapes today**: binary classification (`evaluate`), point
-  regression (`evaluate_regression`), and scalar/simulation (`evaluate_scalar`) — all
-  printing the same canonical block. Multiclass, survival, and ranking are extension
-  points, deliberately not shipped until a worked study proves them (the repo's own
-  ethos); `evaluate_with_inner_cv` is binary-only.
+- **Three evaluator shapes, one deviance family**: binary classification (`evaluate`),
+  point/rate regression (`evaluate_regression` — RMSE/MAE/R², plus
+  Poisson/Gamma/Tweedie deviance under the exposure-weighted-rate convention: y is the
+  rate, `sample_weight` the exposure; Tweedie declares its `power` in the track
+  contract), and scalar/simulation (`evaluate_scalar`) — all printing the same
+  canonical block. Regression weighting is optional and off by default;
+  **classification metrics remain unweighted**. Multiclass, survival, and ranking are
+  extension points, deliberately not shipped until a worked study proves them (the
+  repo's own ethos); `evaluate_with_inner_cv` is binary-only.
 - **One primary metric per track.** Each track owns its direction, minimum delta, and
   guardrails. Everything else (calibration, wall-clock, lift) remains auxiliary, and
   SYNTHESIZE weighs those tradeoffs without manufacturing a global cross-task frontier.
