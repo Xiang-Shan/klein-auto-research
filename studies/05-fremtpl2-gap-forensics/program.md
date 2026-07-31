@@ -67,6 +67,18 @@ base commit.
   "non-unique" claim is wrong for this table); 149,248 duplicate 9-feature
   profiles TOTAL (the 4,872 figure from study 04 is the train/dev STRADDLE count —
   both true, different measures).
+- 2026-07-31 — DATA gate recorded (GO-WITH-CAUTIONS, clean-room audit 9/9
+  mechanized clean). Standing directives adopted from the card: (a) 26.54% of dev
+  rows have a 9-feature twin in train (31,798 straddling groups; twins are
+  claim-poor, 1.97% claim-bearing) → REPORT THE GAP, never absolute deviance
+  levels; (b) interaction pairs for glm_interactions must be derived from the
+  train-fold surrogate ONLY, with the chosen pairs + their surrogate ranking
+  recorded in the candidate description (lookahead guard no static check
+  catches); (c) rate outliers (ClaimNb/Exposure up to 365) stay — exposure
+  weighting handles them, never filter; (d) Exposure lower clip binds 1,060 rows
+  at 1/365.25 (prepare's counter counts only outside-(0,1] rows — under-reports
+  by design, recorded); (e) Density has a real censoring ceiling: 1.55% of rows
+  pinned at exactly 27,000.
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
