@@ -163,12 +163,13 @@ v0.2 reconstructable run manifests.
 | [`01-dae-claims`](studies/01-dae-claims/) | Does a denoising autoencoder pay on 58k-row tabular claims? | Honest no for ranking (0.6683 vs GBDT 0.6701); plain MLP ties tuned GBDT (0.6706); the DAE pays 3.4× as an *imputer*; recon-error is not a claim ranker |
 | [`02-rqls-pv-severity`](studies/02-rqls-pv-severity/) | Is robust quantile least squares worth its efficiency cost for loss severity? | At 10% contamination, naive MLE premium error hits 352% vs 50% for window-QLS; robustness costs only 1.083× when clean; parameter bias ≠ pricing bias |
 
-The fourth study is a **v0.3 schema-v2 exhibit** — every candidate commit
-resolves in this repository, and it exercised the whole hardened contract live:
+The fourth and fifth studies are **schema-v2 exhibits** — every candidate commit
+resolves in this repository, and they exercised the whole hardened contract live:
 
 | Study | Question | Headline findings |
 |---|---|---|
 | [`03-noisy-rosenbrock-dfo`](studies/03-noisy-rosenbrock-dfo/) | At 200 noisy evaluations, do restarts beat Nelder-Mead — and does SPSA beat both? | Restarts win 2.96× the measured floor and the sealed fresh-seed run replicates (confirmed); random search ties them — found by the DATA gate before any run; "textbook" SPSA diverges to 1e178 because the method card's own tuning rule went unapplied |
+| [`04-fremtpl2-frequency`](studies/04-fremtpl2-frequency/) | On 678k freMTPL2 policies, does a GBDT beat a shaped GLM at claim frequency by more than the honest noise floor? | GBDT wins by 0.0101 deviance = 11.3× the paired-bootstrap SE — while three defensible floors differ by 25×, and the naive marginal one would have called the gap borderline; one keep decided by 0.000002; the sealed test confirms the incumbent's level (0.65× fold SE) |
 
 Open a tutorial to see what "closing the loop" means:
 `open studies/01-dae-claims/report/index.html` — method taught, journey annotated,
