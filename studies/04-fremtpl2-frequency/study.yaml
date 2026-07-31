@@ -1,0 +1,58 @@
+schema_version: 2
+study_id: "04-fremtpl2-frequency"
+goal: "On freMTPL2 claim frequency, does gradient boosting beat a well-specified GLM by more than the measured noise floor in Poisson deviance?"
+domain: "insurance"
+target: "ClaimNb"
+task_type: "simulation"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "glm-vs-gbdt"
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  primary:
+    metric:
+      name: "val_poisson_deviance"
+      goal: "lower"     # higher | lower
+      minimum_delta: 0
+      # noise_floor:                # measured at Phase 0, never guessed —
+      #   k: 5                      # klein noise-floor prints this block
+      #   std: ...
+      #   range: ...
+    guardrails: {}
+
+data:
+  source: "data_hub:freMTPL2"
+  prepared_path: "data/prepared/fremtpl2_frequency.csv"
+  split:
+    kind: random           # stratified | random | group | time | none (simulation)
+    seed: 42
+    development_size: 0.20
+    test_size: 0.20
+
+    # group_column: account_id     # required when kind=group
+    # time_column: event_time      # required when kind=time
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 300
+phases:
+  - id: adaptive-1
+    description: "split-identity anchor, baseline, then bounded adaptive work"
+    budget_seconds: 3600
+    max_experiments: 4
+  - id: confirmation
+    description: "one sealed final-test evaluation per track"
+    budget_seconds: 900
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "{{RQ1_QUESTION}}"
+    prior: "{{RQ1_PRIOR}}"
+
+predictions_to_falsify:
+  - lever: "{{LEVER_1}}"
+    predicted_delta: "{{DELTA_1}}"
+
+deliverables:
+  - findings.md
+  - report/index.html
