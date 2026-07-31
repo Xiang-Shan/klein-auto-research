@@ -49,6 +49,10 @@ Klein scaffolds a canonical layout — do NOT rename these to match an existing 
 `data_card.md` and `method_card.md` are NOT scaffolded by `klein new` — they are the
 outputs of the DATA and METHOD gates, authored from `assets/*-card-template.md`.
 
+The scaffolded `train.py` refuses to run outside `klein run-one` except in smoke
+mode: `KLEIN_SMOKE=1 python train.py` executes the full path but the evaluators skip
+every sidecar/snapshot write — the sanctioned pre-run syntax check.
+
 ### Adopting an existing (foreign) repo
 
 If a repo already has prep/train scripts, prefer them over renaming. Discovery hints:

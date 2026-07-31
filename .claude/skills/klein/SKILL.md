@@ -58,6 +58,12 @@ a `data source:` provenance line either way; plain local files go through
 `kleinlib.data.load_prepared` (`csv:<path>` sources). Study 00's `prepare.py --sample`
 uses a committed 2k fixture for fast offline smoke runs.
 
+Smoke-testing a candidate before its run: `KLEIN_SMOKE=1 python train.py` is the ONE
+sanctioned off-loop execution — it prints the canonical block but writes no sidecars
+or snapshots and is not evidence. Never fake `KLEIN_EXPERIMENT_ID`/`KLEIN_TRACK` by
+hand; `run-one` force-clears `KLEIN_SMOKE` in the child, so an exported smoke flag
+can never suppress real evidence writes.
+
 Before every schema-v2 experiment, run the machine preflight (exact branch, gates,
 acknowledgements, placeholders, artifact hashes, prepared-data/split fingerprints,
 ledger integrity, and clean mutable surface):

@@ -217,8 +217,9 @@ import time
 import kleinlib
 
 RANDOM_SEED = 42
-EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID")
-TRACK = os.environ.get("KLEIN_TRACK")
+SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
+EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
+TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
 
 
 def load_split(evaluation_kind: str):
@@ -240,6 +241,8 @@ def build_model():
 def main() -> None:
     t0 = time.time()
     evaluation_kind = os.environ.get("KLEIN_EVALUATION_KIND")
+    if SMOKE:
+        evaluation_kind = evaluation_kind or "development"
     missing = [
         name
         for name, value in (
@@ -251,8 +254,10 @@ def main() -> None:
     ]
     if missing:
         raise RuntimeError(
-            "train.py must be invoked through `klein run-one`; missing "
-            + ", ".join(missing)
+            "train.py must be invoked through `klein run-one`. For a pre-run "
+            "syntax/shape check use `KLEIN_SMOKE=1 python train.py` — it prints "
+            "the canonical block, writes no sidecars or snapshots, and is not "
+            "evidence. Missing: " + ", ".join(missing)
         )
     X_tr, X_dev, y_tr, y_dev = load_split(evaluation_kind)
     model = build_model()

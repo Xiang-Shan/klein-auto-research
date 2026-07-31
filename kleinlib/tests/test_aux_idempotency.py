@@ -1,11 +1,14 @@
 """Re-running an experiment must refresh, not duplicate, its aux block."""
 
 import csv
+import time
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from kleinlib import schema
-from kleinlib.eval import _append_aux_rows
+from kleinlib.eval import _append_aux_rows, evaluate_regression, evaluate_scalar
 
 
 def _lines(path):
@@ -55,3 +58,46 @@ def test_invalid_existing_aux_file_is_not_overwritten(tmp_path):
     with pytest.raises(ValueError, match="invalid aux metrics header"):
         _append_aux_rows(tmp_path, 1, {"m": 1})
     assert path.read_text(encoding="utf-8") == "bad\theader\n"
+
+
+class _StubModel:
+    def __init__(self, predictions):
+        self.predictions = np.asarray(predictions, dtype=float)
+
+    def predict(self, X):
+        return self.predictions[: len(X)]
+
+
+def test_smoke_mode_skips_every_sidecar_and_snapshot_write(tmp_path, monkeypatch, capsys):
+    """Soak F2: an off-loop train.py execution under KLEIN_SMOKE=1 must leave
+    the evidence ledger byte-untouched — canonical block still prints."""
+    monkeypatch.setenv("KLEIN_SMOKE", "1")
+    y = pd.Series([1.0, 2.0, 3.0, 4.0])
+    X = pd.DataFrame({"x": range(4)})
+    value = evaluate_regression(
+        _StubModel([1.1, 2.1, 2.9, 4.2]), X, y,
+        exp_id="SMOKE", t0=time.time(), fit_seconds=0.1, train_n=4, val_n=4,
+        study_dir=tmp_path,
+    )
+    assert value > 0
+    evaluate_scalar(
+        0.5, exp_id="SMOKE", metric_name="gap", metric_goal="lower",
+        study_dir=tmp_path,
+    )
+    out = capsys.readouterr().out
+    assert "primary_metric:" in out
+    assert out.count("smoke mode: no sidecar/snapshot writes (KLEIN_SMOKE=1)") == 2
+    assert not (tmp_path / schema.AUX_SIDECAR).exists()
+    assert not (tmp_path / "models").exists()
+
+
+def test_smoke_mode_off_still_writes(tmp_path, monkeypatch):
+    monkeypatch.setenv("KLEIN_SMOKE", "")  # run-one's force-clear value
+    y = pd.Series([1.0, 2.0, 3.0, 4.0])
+    X = pd.DataFrame({"x": range(4)})
+    evaluate_regression(
+        _StubModel([1.1, 2.1, 2.9, 4.2]), X, y,
+        exp_id="E0001", t0=time.time(), fit_seconds=0.1, train_n=4, val_n=4,
+        study_dir=tmp_path,
+    )
+    assert (tmp_path / schema.AUX_SIDECAR).exists()

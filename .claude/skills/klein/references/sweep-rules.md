@@ -21,7 +21,9 @@ Uses `kleinlib.sweep.SweepRunner`.
    trial   params_json   primary_metric   wall_seconds   status   error
    ```
 
-   No trial is silent. The sidecar is the full search record.
+   No trial is silent. The sidecar is the full search record. (Sidecar writes are
+   NOT gated by `KLEIN_SMOKE` — they are explicit named artifacts with overwrite
+   protection; smoke-test a sweep script by slicing its `params_list` instead.)
    When the sweep does not vary preprocessing, fit/transform the fixed train and
    development matrices once outside `trial_fn` and reuse them. A 20k-row fixture
    measured about 5.1× lower median sweep preprocessing time (276.0 ms → 54.5 ms for
