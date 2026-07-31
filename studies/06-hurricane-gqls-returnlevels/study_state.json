@@ -3,9 +3,14 @@
     "consult": {
       "by": "xiang",
       "timestamp": "2026-07-31T17:44:51.798876Z"
+    },
+    "method": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T18:23:03.220722Z"
     }
   },
   "artifact_hashes": {
+    "method_card.md": "1353420a08e7cba1a83dc9a9fee737afd42ca1f0aef33794f5e3478b854de4e7",
     "research_plan.md": "58573aef80b67d3e13b20f73eec5b92b1990186da2f02c218fe7b4be390a754f",
     "study.yaml": "581e7b238de4ac495f113bc99aed18450a625b4e54689e08fb6a344022f26f5d"
   },
@@ -45,9 +50,13 @@
       "status": "pending"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-07-31T18:23:03.220722Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "method_card.md": "1353420a08e7cba1a83dc9a9fee737afd42ca1f0aef33794f5e3478b854de4e7"
+      },
+      "note": "full-depth card, triad complete (20/20 tests as practice leg), 11/12 refs verified; PDF-wins corrections adopted: inverted_cdf convention lever queued for the ladder, Table 3.4 members, 6.9 log-Gumbel typo documented, RQ2 prior revision",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -60,5 +69,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "06-hurricane-gqls-returnlevels",
-  "updated_at": "2026-07-31T17:44:51.799519Z"
+  "updated_at": "2026-07-31T18:23:03.221716Z"
 }
