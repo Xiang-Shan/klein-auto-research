@@ -1,0 +1,269 @@
+<h2>Findings</h2>
+
+<p>Seven claims carry the study. One is <strong>confirmed</strong> against sealed
+evidence; the rest are development-fold findings and say so. Claim IDs are stable
+(<code>05-fremtpl2-gap-forensics#C&lt;n&gt;</code>) and are never renumbered.</p>
+
+<h3>C1 &mdash; the gap survives as a difference of two sealed numbers <span>[confirmed]</span></h3>
+
+<figure>
+<img data-fig="figures/sealed_gap.png" alt="Development gap +0.008467 with 2xSE 0.000963 versus sealed gap +0.009564 with 2xSE 0.001028; the two differ by 0.001097 = 1.07 SE, inside the pre-registered 2-SE replication band">
+<figcaption>RQ1 answered. Two sealed accesses, one per track, neither incumbent chosen
+after seeing the sealed fold.</figcaption>
+</figure>
+
+<pre><code>sealed gap   0.459231 - 0.449667 = +0.009564  =  9.3x the sealed cross-track SE (0.001028)
+
+dev gap      0.453156 - 0.444689 = +0.008467       (incumbent vs incumbent)
+| sealed - dev |                 =  0.001097  =  1.07x SE   -> inside the 2-SE band
+
+anchor gap   0.454861 - 0.444689 = +0.010172  =  10.6x the dev cross-track SE (0.000963)</code></pre>
+
+<p>This is the study's estimand and both tracks' single sealed accesses were spent on it.
+The pre-registered band was "within 2 paired SEs of the development gap"; the observed
+displacement is 1.07 SE. The anchor-config gap &mdash; the reference the whole study was
+designed around &mdash; replicates too. <strong>Study 04's protocol caveat, that a gap
+cannot be sealed-confirmed under one-access-per-track, is closed.</strong></p>
+
+<h3>C4 &mdash; additive shaping tops out near 17%, and the leak was never the constraint</h3>
+
+<p>Column-scoped splines on DrivAge, BonusMalus and log-Density moved the GLM
+0.454861 &rarr; <strong>0.453156</strong>: &minus;0.001705, a real kept improvement at
+3.2&times; the glm floor &mdash; and only <strong>16.8%</strong> of the 0.010172 anchor
+gap, less than half the 30&ndash;45% prior.</p>
+
+<p>The decisive sub-finding is a comparison, not a level. Study 04's shaped GLM had a
+<em>leaky</em> basis (the spline transform spilled onto the OHE dummies) and closed
+<strong>17.6%</strong>. This study's clean, column-scoped basis &mdash; the whole reason
+RQ4 existed &mdash; closed <strong>16.8%</strong>.</p>
+
+<blockquote><strong>Fixing the leak changed the closure by &minus;0.8 percentage
+points.</strong> The leak was never the binding constraint. Mechanism: splining a dummy
+is a no-op in expressiveness &mdash; a 0/1 column's cubic basis spans the same two-point
+space &mdash; so the "leak" added parameters and a hair of overfit, never signal.</blockquote>
+
+<h3>C5 &mdash; 83% of the gap is non-additive residue: 10 screened, 0 adopted</h3>
+
+<p>The surrogate said the structure exists (<code>R&sup2;_main</code> = 0.6647) and named
+where it is. The GLM could not use it:</p>
+
+<table>
+<thead><tr><th>Candidate</th><th>Dev deviance</th><th>&Delta; vs E0004</th><th>&times; glm floor</th><th>Disposition</th></tr></thead>
+<tbody>
+<tr><td>E0004 scoped splines (incumbent)</td><td>0.453156</td><td>&mdash;</td><td>&mdash;</td><td>keep</td></tr>
+<tr><td>E0007 + VehAge&times;BonusMalus (rank 1)</td><td>0.452926</td><td>&minus;0.000230</td><td>0.43&times;</td><td><strong>discard</strong></td></tr>
+<tr><td>E0008 + both top pairs</td><td>0.452913</td><td>&minus;0.000244</td><td>0.45&times;</td><td><strong>discard</strong></td></tr>
+</tbody>
+</table>
+
+<p>The scoped-spline GLM is therefore the <strong>practical GLM ceiling</strong> on this
+feature set, and the non-additive residue is
+<strong>0.008467 = 83.2% of the anchor gap = 8.8&times; the cross-track SE</strong>
+&mdash; an irreducible remainder at this basis, not a measurement artefact.</p>
+
+<p><strong>The honest zero is the finding.</strong> A floor-free search over ten pairs
+would have reported the best of them as an improvement; the multiplicity budget was fixed
+in advance (10 screened, &le; 2 adopted, nothing adopted below 1&times; floor, every
+rejection reported) and it came in at <strong>10 / 0</strong> with room to spare.</p>
+
+<p><em>Surprise inside the surprise:</em> the interaction the literature would bet on
+&mdash; BonusMalus &times; DrivAge, the canonical French-MTPL confound where young drivers
+enter at the base level 100 &mdash; ranked <strong>8 of 10</strong>. What the tree
+actually adds is <strong>vehicle-age conditioning of the experience-rating signal</strong>:
+an old car with a bad BM record is not the linear sum of "old car" and "bad record". The
+DrivAge&ndash;BonusMalus relationship is largely <em>marginal</em> confounding, which
+additive main effects already absorb.</p>
+
+<h3>C6 &mdash; the gap is a function of portfolio size, and below the crossover it reverses</h3>
+
+<figure>
+<img data-fig="figures/data_volume_curve.png" alt="Gap versus training rows on a log x-axis: negative 0.0019 at 20k rows (GLM wins), +0.0034 at 41k, +0.0032 at 61k, +0.0064 at 102k, +0.0085 at 203k, +0.0092 at 305k, +0.0102 at 407k">
+<figcaption>Seven refits of the two anchor configs on nested train subsamples, scored on
+the <em>unchanged</em> development fold. Fourteen seconds of compute for a sizing
+decision.</figcaption>
+</figure>
+
+<pre><code>  5% of train   ~20.3k rows    -0.001931     <-- the GLM WINS
+ 10%            ~40.7k         +0.003446
+ 15%            ~61.0k         +0.003195     (a sub-floor inversion, see below)
+ 25%             ~102k         +0.006370
+ 50%                           +0.008471
+ 75%                           +0.009240
+100%           406,807         +0.010172</code></pre>
+
+<p>The gap crosses zero between <strong>20k and 41k rows</strong> and first clears
+2&times; the cross-track SE (2 &times; 0.000963) at 10% of train. The prior's
+~10&ndash;15% band was right about where the gap becomes <em>measurable</em>; the sign
+flip is one octave below it.</p>
+
+<p><strong>Two honesty caveats, both load-bearing.</strong> First: at 2.0&times; the
+full-data cross SE, the 5% reversal sits right on the 2-SE line, and the SE <em>at</em> 5%
+of the data is larger than the SE it is being judged against &mdash; so read the
+<em>crossover</em> as established and the <em>magnitude of the GLM's win</em> as at the
+edge of measurability. Second: the 15% cell sits 0.000251 = 0.26&times; SE below the 10%
+cell, which is noise &mdash; describe the curve as "increasing apart from one sub-floor
+inversion", never as "monotonically increasing".</p>
+
+<h3>C7 &mdash; a filable monotone constraint costs 3.7&times; the floor <em>even though it is true</em></h3>
+
+<p>This is the study's sharpest mechanism finding, and it only exists because two
+instruments were run in the right order.</p>
+
+<pre><code>M3-a first:  BonusMalus is non-decreasing in frequency over 100% of TRAIN EXPOSURE
+             (marginally).  So +1 is not merely defensible - it is the right sign.
+
+E0009 then:  constraint cost vs a SAME-ENCODING control (study 04 native HGBT 0.445343)
+             0.447455 - 0.445343 = +0.002112  =  3.7x the gbdt floor
+
+             vs the OHE incumbent (constraint + encoding switch)
+             0.447455 - 0.444689 = +0.002766  =  4.8x floor
+
+             effective_trees fell 67 -> 53: the constraint also cut capacity.</code></pre>
+
+<p>The prior said filability is nearly free. It is not. And because the marginal shape
+was checked <em>first</em>, the cost is interpretable rather than mysterious:</p>
+
+<blockquote>The cost is <strong>not</strong> a wrong-sign penalty. It is the price of
+forbidding <strong>conditional</strong> non-monotonicity. sklearn enforces the constraint
+pointwise in every conditioning context; the model wants the BonusMalus slope to bend
+differently for old vehicles than for new ones &mdash; <em>precisely the
+VehAge&times;BonusMalus interaction that ranked first in the surrogate screen</em>.</blockquote>
+
+<p>Two forensics instruments, run for unrelated reasons, landed on the same structure by
+different routes. That convergence is worth more than either number alone. And it is a
+completely different conversation with a regulator: not "your model wanted the wrong
+shape" but "your shape guarantee costs this much, and here is exactly which interaction
+it forbids".</p>
+
+<h3>C2 &mdash; the library tie, and the capacity trap underneath it</h3>
+
+<p>LightGBM-Poisson vs sklearn HGBT, at <em>both</em> capacities:</p>
+
+<table>
+<thead><tr><th>Comparison</th><th>Deviance</th><th>&Delta; vs HGBT 0.444689</th><th>&times; gbdt floor</th></tr></thead>
+<tbody>
+<tr><td>nominal-matched (200 rounds, E0005)</td><td>0.444413</td><td>&minus;0.000276</td><td>0.48&times;</td></tr>
+<tr><td>effective-matched (67 trees, E0010)</td><td>0.444431</td><td>&minus;0.000258</td><td>0.45&times;</td></tr>
+</tbody>
+</table>
+
+<p>A tie at both capacities, so the tie is algorithmic rather than an early-stopping
+artefact. Both are discards by the contract &mdash; and <strong>the discard IS the
+finding</strong>: library choice on this data is an operations decision (deployment
+target, native-categorical support, team familiarity), not an accuracy decision.</p>
+
+<p>Underneath sits a trap worth more than the tie. <code>HistGradientBoostingRegressor(max_iter=200)</code>
+fitted <strong>67</strong> trees; LightGBM at <code>n_estimators=200</code> built all 200;
+CatBoost built all 200; the monotone variant managed 53. <em>Every</em> "matched-capacity
+library comparison" published with those two default configs is comparing 67 trees to
+200. Here the confound was real but <strong>inert</strong> &mdash; matching capacity made
+the delta <em>shrink</em>, because both libraries saturate this signal well before 67
+trees. That is luck, not design: it was only visible because the method card forced
+<code>effective_trees</code> into the aux ledger on every GBDT row.</p>
+
+<p>For completeness: CatBoost's CTR + symmetric-tree package (E0006, 0.446332) landed
+<strong>+2.9&times; floor worse</strong> than plain OHE-HGBT &mdash; a real deficit, not a
+tie. At &le; 22 levels with ~9,000 train rows per Region level, ordered target statistics
+have nothing to de-bias. <em>Open caveat:</em> the isolation lever (<code>one_hot_max_size=32</code>)
+was never run, so CTR-vs-symmetric-tree attribution remains unresolved; the claim is
+package-level only.</p>
+
+<h3>The bonus finding: the "+2% calibration bias" was a fold, not a model</h3>
+
+<p>Every development row reports <code>calibration_ratio</code> &asymp; 1.014&ndash;1.022
+&mdash; a consistent 2% over-prediction that the method card froze as a known bias to be
+reported and never recalibrated. On the sealed test <strong>both models flip to
+under-prediction</strong>: 0.9962 (GLM, E0011) and 0.9905 (GBDT, E0012).</p>
+
+<p>Nothing about either model changed. The data card's partition frequencies explain it
+almost exactly:</p>
+
+<pre><code>predicted over-prediction on dev   0.073900 / 0.072375 = 1.021    observed 1.0216
+predicted under-prediction on test 0.073900 / 0.074350 = 0.994    observed 0.9962</code></pre>
+
+<blockquote>The A/E number was measuring <strong>split sampling variation</strong>, not
+model calibration.</blockquote>
+
+<p>Both tracks move together, so the <em>gap</em> is untouched &mdash; which makes this
+the sharpest available demonstration of why "report the gap, never the levels" is the
+operative discipline. Practical consequence: the &plusmn;2% swing between folds is
+portfolio-sampling noise and <strong>should not be booked as a model loading</strong>.
+Both sealed models land within 1% of unity on A/E with no recalibration applied, so the
+deviance comparison is between two adequately-calibrated models rather than a
+rank-versus-calibration trade.</p>
+
+<h3>The scorecard &mdash; priors were right about decisions, wrong about magnitudes</h3>
+
+<p>Fourteen registered levers: <strong>6 fully held</strong> (RQ1 replication, the RQ2
+tie, M1-a's early stopping, M1-b's matched capacity, M3-a's monotone sign, M4-c's
+multiplicity budget); <strong>2 held on disposition but falsified on magnitude</strong>
+(CatBoost's deficit is real, not a tie; splines keep but at half the predicted closure);
+<strong>5 outright falsified</strong> (RQ5's further recovery, RQ7's free constraint,
+M4-a's additivity, M4-b's favourite pair, M5-a's concentration); <strong>1 untested</strong>
+(the CatBoost isolation lever).</p>
+
+<blockquote>The study's priors were right about <em>what the loop would decide</em> far
+more often than about <em>how much</em>. Every magnitude prior that was stakeable came
+out wrong.</blockquote>
+
+<p>Worth noting for anyone maintaining a knowledge base: <code>knowledge/</code>-sourced
+priors went 1 fully held / 1 partially / 2 refuted, while <em>uninformed</em> priors went
+1 held / 1 refuted. <strong>Informed priors did not outperform uninformed ones here</strong>,
+and both card refutations are cases where a large-sample, main-effects intuition was
+generalised into a regime where the binding structure was interactions.</p>
+
+<h3>What this means for a pricing committee</h3>
+
+<ul>
+<li><strong>The price of interpretability is now a number with an error bar.</strong> A
+filed additive GLM &mdash; even a properly spline-shaped one &mdash; leaves
+<strong>83.2%</strong> of the modelling gap on the table at this portfolio size.
+"Rebuild the GLM better" is not a route to closing it: the remaining advantage is
+non-additive structure a linear score cannot represent.</li>
+<li><strong>But the price is a function of portfolio size, and below ~40k rows it is zero
+or negative.</strong> For a small book, a new line, a thin segment carved out for separate
+rating, or a territory with sparse history, the boosted model buys nothing measurable and
+costs the whole governance, documentation and monitoring apparatus. <em>Do not buy a GBDT
+programme for a portfolio that cannot feed it.</em></li>
+<li><strong>The shape guarantee has a price tag: 27% of the boosted edge.</strong> The
+unconstrained incumbent captures the full 0.010172 gap; the monotone variant captures
+0.454861 &minus; 0.447455 = 0.007406 = <strong>72.8%</strong>. That is a concrete trade a
+committee can actually decide.</li>
+<li><strong>Where the gap does NOT live is as useful as where it does.</strong> The
+decomposition is diffuse &mdash; top-3 BonusMalus bins carry 87% of the gap on 89% of
+exposure. There is no thin high-frequency pocket where a specialist model earns its keep.
+Any capture of this gap is a <strong>book-wide re-rate</strong>, not a targeted
+intervention &mdash; which raises implementation cost and filing burden relative to the
+"just fix the bad segment" story the concentration prior would have supported.</li>
+<li><strong>Operational cost is not the deciding variable.</strong> Per fit: GLM
+1.1&ndash;1.5 s, HGBT 2.9 s, LightGBM 2.2&ndash;3.2 s, CatBoost 7.1 s &mdash; all three
+orders of magnitude inside the 400 s guardrail.</li>
+</ul>
+
+<h3>Limitations, stated plainly</h3>
+
+<ol>
+<li><strong>Feature-profile twins straddle the split</strong> (26.54% of dev rows, 26.37%
+of sealed-test rows). Every <em>absolute</em> deviance here is optimistic relative to a
+fresh portfolio; the <em>gap</em> is not, because both tracks consume identical
+contamination.</li>
+<li><strong>The surrogate screen is numeric-only.</strong> Region&times;DrivAge,
+VehBrand&times;VehAge and pure threshold interactions are <em>structurally invisible</em>
+to the ranking and to the E0007/E0008 adoption test. "0 of 10 adopted" bounds what
+<em>numeric-product</em> translate-back can recover, not what any GLM-representable
+structure could.</li>
+<li><strong>One split, one seed.</strong> The paired bootstraps quantify comparison noise
+<em>within</em> the seed-42 split; they say nothing about split-to-split variation. With
+no time column available, C1 is an in-period statement, not a forward-in-time
+generalization.</li>
+<li><strong>Hub-prepped data.</strong> Pre-clipped, with a silently-binding exposure lower
+clip &mdash; absolute values are not directly comparable to published freMTPL2 numbers
+from other preparations.</li>
+<li><strong>Off-ledger forensics carry no uncertainty.</strong> <code>R&sup2;_main</code>,
+the pair rankings, the PD strengths and the M5 shares are same-fold descriptive
+instruments. They are cited as directional evidence, and <strong>every conclusion they
+support is independently confirmed by a ledger row</strong> &mdash; no verdict rests on a
+forensics number alone.</li>
+<li><strong>M2-a untested.</strong> The CatBoost deficit's attribution was never
+isolated.</li>
+</ol>
