@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	glm	0.454861	discard	9edcd2af6603b1367dfc6d49be53115e9bc8a4df	GLM-OHE anchor (intentional replication of the committed baseline config): the v0.4.0 registry val_poisson_deviance reproduces study-04's hand-rolled 0.454861 to 1e-9 on identical prep/split; any mismatch means split/weight/clip drift - STOP; guardrails failed: guardrail metric 'wall_seconds' missing

@@ -1,0 +1,2 @@
+experiment	track	path	metric	primary_name	metric_goal	sha256	available	created_utc
+E0001	glm	models/best_glm_E0001_0.454861_590b5fea4b7d.joblib	0.45486081689395963	val_poisson_deviance	lower	d650e993930db8adb82c64397a03c1539205d95e7c92b6743eb6f7db0eb486c1	true	2026-07-31T16:27:08.777784+00:00
