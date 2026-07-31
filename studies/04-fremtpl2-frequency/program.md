@@ -79,3 +79,9 @@ severity track. Survivors mirrored to playbook.md.
   noise 6x because both models share each bootstrap row's shot noise. Preview
   from the measurement (not a ledger row): HGBT baseline ~0.4449 vs GLM 0.4549,
   paired delta 0.0101 = 11.3 paired SEs. Consult re-recorded.
+- 2026-07-31 — E0002 keep 0.453073, delta 0.001788 = 1.001x minimum_delta — a
+  keep by 0.000002. CAVEAT (honest implementation note): glm_shaped applies
+  SplineTransformer AFTER the OHE preprocessor, so the spline basis covers the
+  dummy columns too, not just the numerics as intended; gain may understate
+  proper scoped shaping. Follow-up (column-scoped splines) queued for ⑦ —
+  adaptive slots are reserved for RQ1/RQ3 per the slate.
