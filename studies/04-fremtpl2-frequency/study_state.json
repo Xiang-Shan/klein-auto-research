@@ -7,10 +7,15 @@
     "data": {
       "by": "xiang",
       "timestamp": "2026-07-31T02:26:40.771575Z"
+    },
+    "method": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T02:27:20.939742Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "f13bc60bafb422b3f4d524df861d71b32ab53f3ec250950f1bf8493904391944",
+    "method_card.md": "0b8bb36eee40584d35ee4b54a5d6c5db1823e677595a732dab0e04fe2c1c9206",
     "research_plan.md": "ac48b09fca87c254401ca508013c63473b98342f573a11c206a232040a97c17e",
     "study.yaml": "27312af68eebbfbd3696a166862ca6a51aaf89221e150154e15a6baf94155b2a"
   },
@@ -49,9 +54,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-07-31T02:27:20.939742Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "method_card.md": "0b8bb36eee40584d35ee4b54a5d6c5db1823e677595a732dab0e04fe2c1c9206"
+      },
+      "note": "brief depth (familiar methods; seed cards cited); triad complete; both refs verified against SSRN/Springer indexes",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -64,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "04-fremtpl2-frequency",
-  "updated_at": "2026-07-31T02:26:40.783280Z"
+  "updated_at": "2026-07-31T02:27:20.940637Z"
 }
