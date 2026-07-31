@@ -52,6 +52,21 @@ base commit.
   the pre-clipped hub Exposure are recorded as data-card NOTEs and findings
   limitations, NOT "fixed" — changing prep would break the 0.454861/0.444689
   anchors and destroy cross-study comparability.
+- 2026-07-31 — Pre-loop evidence (off-loop, sanctioned smoke + library sanity, not
+  ledger rows): prepare.py reproduces study 04's corpus exactly (678,013 rows /
+  26,406 claims / 358,360.1 exposure-years; null dev deviance 0.473037 matches
+  study 04's card; prepared sha256 db82e802…1cf948). KLEIN_SMOKE glm_ohe through
+  the v0.4.0 registry path prints val_poisson_deviance 0.454861 — anchor-exact,
+  registry ≡ study-04's hand-rolled metric (soak-F1 friction is CLOSED by v0.4.0).
+  Constructor sanity on dev fold: hgbt_ohe 0.444689 (anchor-exact, calibration
+  1.0149 = archived pricing-eval card), lgbm_poisson 0.444413 (RQ2 tie prior looks
+  close — formal verdict at E0003), catboost_poisson 0.446332 via
+  prediction_type="Exponent" (raw-score trap handled; calibration 1.0164 sane).
+  Fit times 1.1-6.7 s — far inside the 400 s guardrail.
+- 2026-07-31 — Value-level audit at prep: IDpol fully unique (hub README's
+  "non-unique" claim is wrong for this table); 149,248 duplicate 9-feature
+  profiles TOTAL (the 4,872 figure from study 04 is the train/dev STRADDLE count —
+  both true, different measures).
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):

@@ -3,9 +3,14 @@
     "consult": {
       "by": "xiang",
       "timestamp": "2026-07-31T15:53:30.611961Z"
+    },
+    "data": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T16:12:35.146866Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "e355711f464fc322df8075682c610341a9ec8ad5ce5edaed50492be325355ea2",
     "research_plan.md": "a59898cbf0220936d78c366fdb863cce6328be007f16f01c56a99db1813df17f",
     "study.yaml": "b0d83fbd909c9e323f7b49ae6c8b990776c5260ab02d5c81300067c8da8fde63"
   },
@@ -19,7 +24,7 @@
     }
   },
   "fingerprints": {
-    "data": null,
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
     "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
   },
   "gates": {
@@ -35,9 +40,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-07-31T16:12:35.146866Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "data_card.md": "e355711f464fc322df8075682c610341a9ec8ad5ce5edaed50492be325355ea2"
+      },
+      "note": "GO-WITH-CAUTIONS: 9/9 mechanized clean; cautions accepted \u2014 26.54% dev feature-twin straddle (report gaps not levels; prep frozen for anchor comparability), interaction pairs must be train-fold-derived with provenance, rate outliers stay (exposure-weighted), Density ceiling + exposure-clip under-count recorded",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -50,10 +59,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/05-fremtpl2-gap-forensics/data/prepared/fremtpl2_frequency.csv",
-    "sha256": null
+    "sha256": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10"
   },
   "schema_version": 2,
   "status": "active",
   "study_id": "05-fremtpl2-gap-forensics",
-  "updated_at": "2026-07-31T15:53:30.612611Z"
+  "updated_at": "2026-07-31T16:12:35.159652Z"
 }
