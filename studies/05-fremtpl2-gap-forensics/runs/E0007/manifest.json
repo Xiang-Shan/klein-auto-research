@@ -82,8 +82,10 @@
   "timed_out": false,
   "track": "glm",
   "transaction": {
-    "ready_at": "2026-07-31T16:37:47.237732Z",
-    "status": "pending"
+    "committed_at": "2026-07-31T16:37:47.308722Z",
+    "evidence_commit": "939f90f6096f2e3dc093b55f2c10205f8415ba9d",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 1.934631333919242
 }
