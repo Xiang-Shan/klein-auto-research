@@ -16,6 +16,10 @@ run.log
 catboost_info/
 optuna_studies/*.db
 
+# Per-row holdout prediction tables (kleinlib.eval.save_holdout_predictions) —
+# derived and regenerable; the committed exhibit is the card/figure built from them
+predictions/
+
 # Unsafe/large model payloads — manifests are tracked; executable blobs are local
 *.pkl
 *.pickle
