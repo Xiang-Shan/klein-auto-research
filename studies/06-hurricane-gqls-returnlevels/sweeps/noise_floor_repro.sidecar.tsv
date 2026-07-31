@@ -1,0 +1,6 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"convention":"inverted_cdf"}	0.002754	0.004	ok	
+2	{"convention":"hazen"}	0.009303	0.003	ok	
+3	{"convention":"weibull"}	0.021252	0.003	ok	
+4	{"convention":"median_unbiased"}	0.012036	0.003	ok	
+5	{"convention":"normal_unbiased"}	0.011024	0.003	ok	

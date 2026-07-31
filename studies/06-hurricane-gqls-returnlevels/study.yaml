@@ -21,11 +21,16 @@ tracks:
     metric:
       name: "mean_abs_param_deviation"
       goal: "lower"     # higher | lower
-      minimum_delta: 0.005   # PROVISIONAL = the reporting-resolution floor (half the last published digit); the quantile-convention sweep re-measures at adaptive-1, then consult re-recorded
-      # noise_floor:                # measured at Phase 0, never guessed —
-      #   k: 5                      # klein noise-floor prints this block
-      #   std: ...
-      #   range: ...
+      minimum_delta: 0.005   # = the reporting-resolution floor (half the last published digit). MEASURED at adaptive-1: numerical floor 8.8e-17 (recording ~0 IS the finding — every disagreement is a modeling choice); the k=5 quantile-convention sweep below is a SPECIFICATION spread (constant once a kept candidate fixes the convention), reported but deliberately NOT folded into the delta
+      noise_floor:
+        k: 5
+        std: 0.00664603
+        range: 0.018498
+        mean: 0.0112738
+        values: [0.002754, 0.009303, 0.021252, 0.012036, 0.011024]
+        source: "sweeps/noise_floor_repro.sidecar.tsv"
+        measured_after: "E0001"
+        method: "quantile-convention"
     guardrails:
       max_abs_param_deviation:
         max: 0.02
@@ -39,7 +44,16 @@ tracks:
     metric:
       name: "return_level_instability_pct"
       goal: "lower"
-      minimum_delta: 1.0     # PROVISIONAL (percentage points); paired-bootstrap floor re-measured at adaptive-1, then consult re-recorded
+      minimum_delta: 1.0     # ORDERING DEVICE on the fixed 30-event sample (data-card WARN language), kept per the measured floor's resolution (1): the paired log-return-level bootstrap SE is 3.461 — driven almost entirely by the log-Cauchy arm (3.59 alone; tan(0.49*pi)=31.8 amplification) — whose literal 2xSE (~1e5 pp) exceeds the metric's own scale. That pathology is RQ5's punchline arriving as METROLOGY (at n=30 the log-Cauchy 1-in-100 is not estimable to useful precision) and is carried as the track's stated uncertainty band, never quietly shrunk: decision-track differences are within-sample orderings; resample-level stability claims are out of scope (data-card rule e)
+      noise_floor:
+        k: 5
+        std: 0.104          # block-SE spread of the paired log-RL SE (blocks 3.54/3.30/3.44/3.46/3.58)
+        range: 0.28
+        mean: 3.461
+        values: [3.54, 3.30, 3.44, 3.46, 3.58]
+        source: "sweeps/noise_floor_decision.py (printed block; log-RL scale)"
+        measured_after: "E0001"
+        method: "paired-bootstrap"
     guardrails:
       w_pvalue:
         min: 0.10

@@ -75,6 +75,24 @@ base commit.
   Audit previews (to be formalized on-ledger): MLE-lognormal 1-in-100 moves
   −25.7/−36.5/−44.6% under leave-top-1/2/3 and +99.4% under the exact 10×
   modification.
+- 2026-07-31 — adaptive-1 COMPLETE. E0001 discard 0.00309 under the REGISTERED
+  hazen default: the identity gate passed (12 quantities ≤3.3e-5 — this IS the
+  thesis's sample) and the single-cell params landed inside 0.005, but
+  max_abs_w_deviation 0.494 breached the 0.10 guardrail — an honest discard that
+  forces the convention question the thesis itself defines (F̂⁻¹(p)=X₍⌈np⌉₎ =
+  inverted_cdf, ch. 2). Floors measured: numerical 8.8e-17 (≈0 IS the finding);
+  convention sweep k=5 (inverted_cdf 0.002754 / hazen 0.009303 / weibull
+  0.021252 / median_unbiased 0.012036 / normal_unbiased 0.011024 — spread 0.0185
+  = 3.7× resolution, a SPECIFICATION spread, not folded into the delta);
+  reproduction minimum_delta = 0.005 (resolution-governed). Decision floor:
+  paired log-RL bootstrap SE 3.461, essentially all from the log-Cauchy arm
+  (3.59 alone) — RQ5's punchline as metrology (at n=30 the log-Cauchy 1-in-100
+  is not estimable to useful precision); resolution (1) adopted: minimum_delta
+  stays 1.0pp as a within-sample ORDERING DEVICE with the band stated; never
+  quietly shrunk. Ladder amendment recorded: adaptive-2 = grid-hazen /
+  grid-inverted_cdf / gof_redundancy / oqls_mle_arms (the k-sensitivity content
+  moves to an off-ledger measurement table + E0005 aux — the convention sweep
+  already covers convention sensitivity).
 - 2026-07-31 — Metric-registry note: both primaries are custom scalar names
   (simulation task type, evaluate_scalar path, study-03 precedent
   `mean_final_gap`); directions declared explicitly in the contract; guardrail
