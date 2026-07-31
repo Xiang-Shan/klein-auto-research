@@ -20,7 +20,7 @@
     "study.yaml": "dadabd4f7882ced94f64ca11f8793cf145bf096bc988086a3ddb9e6638a522f2"
   },
   "created_at": "2026-07-31T17:43:27.649816Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "adaptive-2",
   "final_holdout_access": {
     "decision": {
       "accessed_at": null,
@@ -70,7 +70,14 @@
   },
   "last_experiment": 1,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-07-31T18:43:37.534996Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "61fad221c83b4452343ce64c7be45381b3314eac9af41f487c33e2275a034d72"
+    }
+  },
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/06-hurricane-gqls-returnlevels/data/prepared/hurricane_top30.csv",
     "sha256": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96"
@@ -78,5 +85,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "06-hurricane-gqls-returnlevels",
-  "updated_at": "2026-07-31T18:43:37.419535Z"
+  "updated_at": "2026-07-31T18:43:37.535508Z"
 }
