@@ -1,0 +1,83 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 8345,
+      "committed": true,
+      "sha256": "9e420d85437ea7a9918cfca1f047abcce9bf731a0718e75f202d1a0ffd1aa3a7"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 3676,
+      "committed": true,
+      "sha256": "4357fb6422ea76e7e463750fb6c2e6db113dfa168d0128026dede5231fce8011"
+    }
+  },
+  "base_commit": "1cb5e839b6e611649b1d0d5afaa69346bf555555",
+  "candidate_commit": "151cd8da2c647fb35020a671c9e4f02516d82d7e",
+  "code_patch_hash": "842458efe741e9211e2e8431217587fb74b16a8f3e24d4d595ccf423d42c199f",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "the thesis's OWN convention (ch.2: quantile = X_ceil(np), inverted_cdf), one CONFIG line changed: full 18-cell grid predicted mean ~0.00275 with all guardrails passing (max ~0.0187, driven solely by Table 6.9's log-Gumbel (0.10,0.90) typo cell - our 22.3587 agrees with Table 6.10's 22.36) - KEEP predicted, RQ1 answered; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-07-31T18:44:14.960535Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": null,
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_abs_param_deviation",
+  "metrics": {
+    "gumbel_g3_dev_vs_table_6_10": 0.0013128787928700092,
+    "gumbel_g3_dev_vs_table_6_9": 0.018687121207129564,
+    "gumbel_g3_mu_hat": 22.35868712120713,
+    "k": 8.0,
+    "max_abs_p_deviation": 0.00485721199461997,
+    "max_abs_param_deviation": 0.018687121207129564,
+    "max_abs_w_deviation": 0.005006716286982016,
+    "mean_abs_dev_trim_002_098": 0.002272808971628487,
+    "mean_abs_dev_trim_005_095": 0.0025893035425136276,
+    "mean_abs_dev_trim_010_090": 0.003399129645231702,
+    "n_cells": 18.0,
+    "n_params": 36.0,
+    "params_within_resolution": 35.0,
+    "primary_metric": 0.002754,
+    "runner_exit_code": 0.0,
+    "sigma_star_cond_max": 27302.621191579718,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.004621982574462891
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 0.002754,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:44:14.339149Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "ready_at": "2026-07-31T18:44:14.961305Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6212948330212384
+}
