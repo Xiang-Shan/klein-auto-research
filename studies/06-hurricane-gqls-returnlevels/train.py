@@ -36,8 +36,8 @@ MODE = "decision"          # anchor | grid | gof_redundancy | oqls_mle_arms | se
                          # | decision | sealed_repro | sealed_decision
 CONVENTION = "inverted_cdf"     # inverted_cdf | hazen | weibull | median_unbiased | normal_unbiased
 K = 8                    # quantile levels per fit; Tables 6.9/6.10 use k = 8
-ESTIMATOR = "mle"
-FAMILY = "lognormal"
+ESTIMATOR = "gqls"
+FAMILY = "log-cauchy"
 TRIM = (0.05, 0.95)      # decision modes only: the (a, b) quantile trim
 # -------------------------------------------------------------------
 
