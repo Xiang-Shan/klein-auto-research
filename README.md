@@ -153,12 +153,13 @@ New here? Reading order: this README → [`AGENTS.md`](AGENTS.md) →
 [`studies/00-glm-claims-quickstart/`](studies/00-glm-claims-quickstart/) → the
 stage protocols as you need them.
 
-## The shipped studies — three executed exhibits
+## The shipped studies — four executed exhibits
 
 One exhibit per audience: an ML study on bundled real data you can re-run from a
 bare clone, a math/optimization study under the full schema-v2 evidence
-contract, and a two-track actuarial comparison study whose headline is a
-difference of two SEALED numbers.
+contract, a two-track actuarial comparison study whose headline is a difference
+of two SEALED numbers, and a paper-reproduction study whose sealed evidence is
+the paper's own published tables.
 
 The quickstart study predates the public v0.2 transaction contract: its
 `results.tsv`, `program.md`, and `findings.md` ship verbatim as a scientific
@@ -185,6 +186,16 @@ say WHERE the gap lives and what a filed GLM can buy back:
 | Study | Question | Headline findings |
 |---|---|---|
 | [`05-fremtpl2-gap-forensics`](studies/05-fremtpl2-gap-forensics/) | On 678k-row freMTPL2 frequency, WHERE does the GBDT's edge live, how much transfers back into a GLM, and does the gap survive two sealed tests? | Sealed gap 0.009564 = 9.3× its sealed paired SE (confirmed, 1.07× SE from dev); scoped splines buy back only 16.8% and the top-10 product interactions all fall below the measured floor — ≈83% of the gap is non-additive (surrogate R² 0.66, led by VehAge×BonusMalus, not the literature's DrivAge×BonusMalus); a monotone BonusMalus constraint costs 3.7× the floor; and below ~20–40k training rows the GLM wins outright |
+
+The fourth study answers a different research ask — "a fresh thesis claims a
+robust fitting method; should I adopt it on my book?" — by reproducing the
+thesis's published tables from scratch (its 30-row dataset is bundled: the
+repo's most reproducible exhibit), stress-testing beyond them, and extending
+into the decision units the thesis itself declared as future work:
+
+| Study | Question | Headline findings |
+|---|---|---|
+| [`06-hurricane-gqls-returnlevels`](studies/06-hurricane-gqls-returnlevels/) | Does a from-scratch gQLS reproduce Adjieteh (2024) §6.2.2 on the 30 most-damaging US hurricanes — and does its robustness reach the 1-in-100 event loss? | Full reproduction at the published resolution (18 Table-6.9 cells; then all 120 Table-6.10 parameters SEALED at 0.002) once the loop discovers the thesis's own quantile convention; the best-FITTING family (log-Cauchy) is decision-degenerate (no finite mean; 63% resample instability); the winner — trimmed gQLS-lognormal at the wide trim — holds its $57bn 1-in-100 to **0.0%** under the thesis's exact 10× contamination while untrimmed MLE moves **+99.4%** |
 
 Three further executed exhibits — the 58k-row DAE honest-no, the robust-QLS
 known-truth severity lab, and the 678k-row freMTPL2 frequency soak — are

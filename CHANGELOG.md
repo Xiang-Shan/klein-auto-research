@@ -10,6 +10,20 @@ version.
 
 ### Added
 
+- Study `06-hurricane-gqls-returnlevels` (fourth public exhibit): from-scratch
+  reproduction of Adjieteh (2024) §6.2.2 — gQLS loss-model fitting on the 30
+  most-damaging US hurricanes (Pielke-Landsea 1998; the 30-row dataset is
+  bundled under `datasets/`, making this the repo's most reproducible study).
+  Sealed evidence is the thesis's own published Table 6.10 grid (120 parameters,
+  reproduced at 0.002 mean absolute deviation) plus its exact 10× contamination,
+  under which the study's decision incumbent (trimmed gQLS-lognormal, wide trim)
+  holds the 1-in-100 event loss to 0.0% while untrimmed MLE moves +99.4%. The
+  loop's reproduction ladder discovered the thesis's own ch. 2 quantile
+  convention via an honest guardrail breach, localized a typo in one printed
+  Table 6.9 cell, and recorded that the best-fitting family (log-Cauchy, no
+  finite moments) is decision-degenerate at this sample size.
+- Bundled dataset `hurricane_top30_pl1998` (30 rows, provenance-documented,
+  including the source's own "1925–95"-vs-1900–95 label trap).
 - Study `05-fremtpl2-gap-forensics` (third public exhibit): the two-track
   sealed-gap redesign that study 04 (archived at [1.0.0]) queued as future
   work, executed. Each track owns one sealed final-test access, so the
