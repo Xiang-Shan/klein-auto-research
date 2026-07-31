@@ -2,9 +2,10 @@
 
 ## Supported development line
 
-Security fixes target the current repository development line (`0.4.0` in
-package metadata — see `CHANGELOG.md`). The shipped v0.1 studies are immutable research evidence, not
-a separately supported executable distribution.
+Security fixes target the current repository development line (`1.0.0` in
+package metadata — see `CHANGELOG.md`); "supported" means exactly that it
+receives security fixes. The shipped v0.1 studies are immutable research
+evidence, not a separately supported executable distribution.
 
 ## Reporting a vulnerability
 

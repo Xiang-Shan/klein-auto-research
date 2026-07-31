@@ -212,7 +212,10 @@ paths just work.
 - **Skill (portable doctrine):** copy `.claude/skills/klein/` into any repo —
   the protocols are self-contained markdown, and the engine is a one-line git
   dependency (schema and templates are single-sourced in `kleinlib`, so nothing
-  can drift). Pin a tag (see `assets/pyproject-study-template.toml`). The "skill" packaging is Claude
+  can drift). Pin a tag (see `assets/pyproject-study-template.toml`): since
+  v1.0.0 the study schema (v2), the `klein` CLI surface, and the ledger formats
+  are stable — a pinned engine moves only when you move it, and breaking
+  changes mean a major version. The "skill" packaging is Claude
   Code's; every file inside is plain markdown/Python that any agent reads, and
   `AGENTS.md` is the tool-neutral router for the same doctrine. The skill is the
   flight doctrine; the harness is the equipped aircraft.
@@ -250,7 +253,9 @@ Two ancestor design documents (the agent-smith quality audit and the
 215-experiment campaign's optimization notes) are archived verbatim in
 [`docs/lineage/`](docs/lineage/).
 
-Release history: [`CHANGELOG.md`](CHANGELOG.md).
+Release history: [`CHANGELOG.md`](CHANGELOG.md). Versioning is SemVer: 1.0.0
+froze the study schema (v2), the `klein` CLI surface, and the ledger formats —
+breaking changes mean a major version.
 To cite Klein, see [`CITATION.cff`](CITATION.cff). To contribute, see
 [`CONTRIBUTING.md`](CONTRIBUTING.md); report vulnerabilities via
 [`SECURITY.md`](SECURITY.md). The software is MIT licensed ([LICENSE](LICENSE));
