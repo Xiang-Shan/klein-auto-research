@@ -63,7 +63,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 4,
+  "last_experiment": 5,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -80,5 +80,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "05-fremtpl2-gap-forensics",
-  "updated_at": "2026-07-31T16:34:47.423705Z"
+  "updated_at": "2026-07-31T16:35:19.088327Z"
 }

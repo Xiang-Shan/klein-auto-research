@@ -31,3 +31,12 @@ E0004	val_poisson_deviance	0.4531562744675676
 E0004	calibration_ratio	1.022482951661956
 E0004	model_path	models/best_glm_E0004_0.453156_e52e9ddffe72.joblib
 E0004	model_config	glm_scoped_splines
+E0005	val_rmse	0.4890151254509974
+E0005	val_mae	0.13525745108697887
+E0005	val_r2	0.013159426179334077
+E0005	wall_seconds	3.2003860473632812
+E0005	val_poisson_deviance	0.44441274708719836
+E0005	calibration_ratio	1.018450124314406
+E0005	model_path	models/best_gbdt_E0005_0.444413_3beed7044c5b.joblib
+E0005	model_config	lgbm_poisson
+E0005	effective_trees	200.0
