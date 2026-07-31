@@ -64,3 +64,11 @@ E0008	val_poisson_deviance	0.4529125938096384
 E0008	calibration_ratio	1.0213934667602478
 E0008	model_path	models/best_glm_E0008_0.452913_9190b076b94c.joblib
 E0008	model_config	glm_interactions
+E0009	val_rmse	0.4895030871539977
+E0009	val_mae	0.13563963278724775
+E0009	val_r2	0.011189014085883131
+E0009	wall_seconds	1.5690057277679443
+E0009	val_poisson_deviance	0.4474553449044678
+E0009	calibration_ratio	1.0141811842476987
+E0009	model_config	hgbt_monotone
+E0009	effective_trees	53.0
