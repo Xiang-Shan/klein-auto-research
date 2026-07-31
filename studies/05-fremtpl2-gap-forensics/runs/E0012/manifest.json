@@ -72,8 +72,10 @@
   "timed_out": false,
   "track": "gbdt",
   "transaction": {
-    "ready_at": "2026-07-31T16:46:28.959339Z",
-    "status": "pending"
+    "committed_at": "2026-07-31T16:46:29.029430Z",
+    "evidence_commit": "e942f68cc2b37e28fc63974238c457c50645b386",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 4.567889292025939
 }
