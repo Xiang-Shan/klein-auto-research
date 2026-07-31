@@ -84,8 +84,10 @@
   "timed_out": false,
   "track": "decision",
   "transaction": {
-    "ready_at": "2026-07-31T18:46:45.585202Z",
-    "status": "pending"
+    "committed_at": "2026-07-31T18:46:45.631977Z",
+    "evidence_commit": "a4c7807ad219279994fd93975c4bd62ef13731bc",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 0.5988062089309096
 }
