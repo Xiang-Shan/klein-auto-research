@@ -214,7 +214,7 @@ there and nowhere else, so nothing can drift. In the foreign repo, add the engin
 (see `assets/pyproject-study-template.toml`), then `uv sync --locked`:
 
 ```bash
-uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v1.0.0"  # pin a tag
+uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v1.1.0"  # pin a tag
 ```
 
 Tags are safe to pin: since v1.0.0 the study schema (v2), the `klein` CLI

@@ -6,6 +6,49 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [1.1.0] — 2026-07-31
+
+The slim release: public `main` becomes the reader-first product — two executed
+exhibits (the bundled-data ML quickstart and the schema-v2 math/optimization
+study), the engine, the protocols, and nothing a first-time reader must climb
+over. **Nothing is lost:** everything removed is preserved intact at tag
+[1.0.0], where every recorded candidate commit resolves — historical references
+in earlier entries resolve there too.
+
+### Removed
+
+- Studies `01-dae-claims`, `02-rqls-pv-severity`, and `04-fremtpl2-frequency`
+  plus the archive docs — `docs/lineage/`, `docs/benchmarks/`, the three
+  pre-1.0 dated reviews, and the pricing eval-card worked example
+  (137 files, ~3.2 MB). All preserved at tag [1.0.0].
+
+### Changed
+
+- CI retargeted step-level, no check renamed: core/integration pytest and ruff
+  paths, the v1-verify loop (study 00 is the only remaining v1 exhibit), the
+  Study-02 reproduction anchor dropped (anchors 00 and 03 remain), scheduled
+  jobs run the engine suites.
+- README quickstart and CONTRIBUTING commands match the slimmed tree; the
+  knowledge method cards distilled from archived studies carry archived-source
+  notes — knowledge outliving its source studies is the promotion loop working
+  as designed.
+- Commit-message trailers normalized across `main` (authorship-metadata
+  cleanup); tags v0.1.0–v1.0.0 keep the original pre-normalization history,
+  through which all recorded study candidate commits resolve.
+
+### Added
+
+- Framework tests for `kleinlib.data.load_xy` and
+  `kleinlib.data.feature_column_groups`, previously exercised only through an
+  archived study's suite.
+- `.gitattributes` marking generated tutorial HTML as `linguist-generated`.
+
+### Docs
+
+- ML/Math positioning aligned across README, package metadata, and
+  CITATION.cff (math labs run under `task_type: simulation`; study 03 is the
+  exemplar); repo topics gained `optimization` and `simulation`.
+
 ## [1.0.0] — 2026-07-31
 
 The universality release: what v0.4.0 could do, now proven portable and frozen.
@@ -242,6 +285,7 @@ war stories; tool-neutral `AGENTS.md`; seed `knowledge/` base; bundled
 Apache-2.0 insurance-claims dataset; three executed exemplar studies
 (GLM quickstart, DAE honest-no, robust-QLS synthetic lab).
 
+[1.1.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v1.0.0
 [0.4.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v0.3.0

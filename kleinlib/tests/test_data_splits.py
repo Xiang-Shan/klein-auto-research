@@ -137,6 +137,30 @@ def test_time_split_keeps_equal_timestamps_in_one_partition():
     assert time_sets[1].isdisjoint(time_sets[2])
 
 
+def test_load_xy_splits_on_target_without_dtype_coercion(tmp_path):
+    df = pd.DataFrame({"a": [1, 2, 3], "b": ["x", "y", "z"], "sev": [10.5, 0.0, 3.25]})
+    path = tmp_path / "prepared.csv"
+    df.to_csv(path, index=False)
+    X, y = data.load_xy(path, "sev")
+    assert list(X.columns) == ["a", "b"]
+    assert y.tolist() == [10.5, 0.0, 3.25]
+    assert y.dtype.kind == "f"  # float target stays float — no binary-era coercion
+
+
+def test_feature_column_groups_partition_numeric_bool_vs_rest():
+    X = pd.DataFrame(
+        {
+            "num": pd.array([1, 2, None], dtype="Int64"),
+            "flag": [True, False, True],
+            "cat": pd.array(["a", "b", "a"], dtype="string"),
+            "obj": ["u", "v", "w"],
+        }
+    )
+    numeric, categorical = data.feature_column_groups(X)
+    assert numeric == ["num", "flag"]
+    assert categorical == ["cat", "obj"]
+
+
 def test_time_split_requires_three_distinct_time_values():
     X = _frame(8)
     y = pd.Series(np.linspace(0.0, 1.0, len(X)))
