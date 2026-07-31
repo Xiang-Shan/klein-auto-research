@@ -62,6 +62,7 @@ __all__ = [
     "evaluate_scalar",
     "evaluate_with_inner_cv",
     "get_metric_spec",
+    "save_holdout_predictions",
 ]
 
 
@@ -745,6 +746,71 @@ def evaluate_scalar(
         _append_aux_rows(study_dir, exp_id, aux_rows)
 
     return primary_value
+
+
+def save_holdout_predictions(
+    study_dir: str | Path,
+    exp_id: int | str,
+    *,
+    y_true: Any,
+    y_pred: Any,
+    weight: Any = None,
+    dims: Any = None,
+    pred_b: Any = None,
+    name_b: str = "y_pred_b",
+) -> Path:
+    """Write a per-row holdout predictions table for external eval tooling.
+
+    The table lands at ``<study_dir>/predictions/<exp_id>_holdout.csv.gz``
+    (the ``predictions/`` directory is gitignored — the table is a derived,
+    regenerable artifact; the committed exhibit is whatever card or figure is
+    built FROM it). Columns follow the pricing-eval-card convention:
+    ``y_true`` (observed target), ``y_pred`` (holdout prediction), ``weight``
+    (the exposure base, when given), one column per rating dimension in
+    ``dims`` (a mapping ``name -> values`` or a DataFrame), and optionally a
+    second model's prediction as ``name_b`` for double-lift comparisons.
+
+    Two per-row conventions coexist deliberately:
+    ``models/latest_val_preds.npz`` (see ``make_figures.py``) feeds the
+    BUNDLED figure regeneration path; this table feeds EXTERNAL tools.
+    Both are optional, both stay out of git. Re-exporting an experiment id
+    overwrites its table (derived data, not evidence).
+    """
+    y = np.asarray(y_true, dtype=float)
+    pred = np.asarray(y_pred, dtype=float)
+    if y.ndim != 1 or y.size == 0:
+        raise ValueError(f"y_true must be a non-empty 1-D array, got shape {y.shape}")
+    if pred.shape != y.shape:
+        raise ValueError(f"y_pred shape {pred.shape} does not match y_true {y.shape}")
+    if not np.all(np.isfinite(y)) or not np.all(np.isfinite(pred)):
+        raise ValueError("y_true and y_pred must contain only finite values")
+    columns: dict[str, np.ndarray] = {"y_true": y, "y_pred": pred}
+    weights = _validate_sample_weight(weight, y.size)
+    if weights is not None:
+        columns["weight"] = weights
+    if dims is not None:
+        dim_frame = pd.DataFrame(dims)
+        if len(dim_frame) != y.size:
+            raise ValueError(
+                f"dims must have {y.size} rows, got {len(dim_frame)}"
+            )
+        for name in dim_frame.columns:
+            if str(name) in columns or str(name) == name_b:
+                raise ValueError(f"dim column {name!r} collides with a reserved column")
+            columns[str(name)] = dim_frame[name].to_numpy()
+    if pred_b is not None:
+        b = np.asarray(pred_b, dtype=float)
+        if b.shape != y.shape:
+            raise ValueError(f"pred_b shape {b.shape} does not match y_true {y.shape}")
+        if not np.all(np.isfinite(b)):
+            raise ValueError("pred_b must contain only finite values")
+        columns[name_b] = b
+    out_dir = Path(study_dir) / "predictions"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / f"{exp_id}_holdout.csv.gz"
+    pd.DataFrame(columns).to_csv(path, index=False, compression="gzip")
+    print(f"predictions: wrote {Path('predictions') / path.name} ({y.size:,} rows)")
+    return path
 
 
 def evaluate_with_inner_cv(
