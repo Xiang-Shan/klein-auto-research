@@ -93,6 +93,29 @@ base commit.
   grid-inverted_cdf / gof_redundancy / oqls_mle_arms (the k-sensitivity content
   moves to an off-ledger measurement table + E0005 aux — the convention sweep
   already covers convention sensitivity).
+- 2026-07-31 — adaptive-2 COMPLETE (reproduction fidelity). E0002 discard grid-
+  hazen 0.009303 (max_abs_param 0.0318 breaches 0.02 — the descriptive
+  convention cannot reproduce the estimation tables). E0003 KEEP grid-
+  inverted_cdf 0.002754 — RQ1 ANSWERED: the full 18-cell grid reproduces Table
+  6.9 at the reporting resolution under the thesis's own ch.2 convention
+  (guardrails 0.0187/0.0050/0.0049 all pass; the 0.0187 max is Table 6.9's
+  log-Gumbel (0.10,0.90) typo cell — our 22.3587 sits 0.0013 from Table 6.10's
+  22.36 for the same fit). E0004 discard gof_redundancy (fits unchanged):
+  RQ2's REVISED verdict on ledger — a real B=1000 bootstrap wanders from χ²₂₃
+  by mean 0.081/max 0.287, yet 16/18 PUBLISHED p-values sit within resolution
+  of the χ² reference (tighter than bootstrap MC error allows) with 2/18
+  divergent (log-Logistic (0.02,0.98): pub 0.16 vs χ² 0.594; log-Laplace
+  (0.10,0.90): 0.55 vs 0.450) — consistent with the published values being
+  χ²-derived despite §5.2's bootstrap prescription; worded respectfully as an
+  observation about reproducibility of the printed numbers. E0005 discard
+  oqls_mle_arms: Σ★ FALSIFIER PASSED exactly (o2 log-Cauchy σ̂ 0.22991 vs 0.23,
+  dev 8.8e-05; g2 0.48505 vs 0.49; arm means vs Table 6.10 originals: o2
+  0.00194, g2 0.00259). Off-ledger k-sensitivity (logged here, aux of no run):
+  max param movement across k ∈ {8,10,15,25} = 0.122 (log-Laplace) and across
+  conventions 0.104 — the registered "k moves < resolution" prediction is
+  REFUTED: at n=30 BOTH k and the quantile convention are load-bearing
+  specification choices (the thesis pins k=8 + inverted_cdf; reproduction is
+  exact under that pin).
 - 2026-07-31 — Metric-registry note: both primaries are custom scalar names
   (simulation task type, evaluate_scalar path, study-03 precedent
   `mean_final_gap`); directions declared explicitly in the contract; guardrail
