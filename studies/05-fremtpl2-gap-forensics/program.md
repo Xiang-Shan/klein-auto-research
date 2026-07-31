@@ -171,3 +171,20 @@ instruments agree on the set, disagree mildly on order; R7 blind-spot caveat
 (numeric-only basis) stands for findings.
 **Dev waterfall: 0.454861 → 0.453156 (splines, 16.8%) → [products sub-floor,
 rejected] → 0.444689 (HGBT). Irreducible non-additive residue ≈ 83% of the gap.**
+
+### adaptive-3 outcome (2026-07-31)
+
+E0009 discard hgbt_monotone 0.447455 (effective_trees 53): constraint cost
++0.002112 vs same-encoding control (study-04 E0004 native 0.445343) = **3.7×
+gbdt floor — RQ7 "filability nearly free" REFUTED**; total cost vs OHE incumbent
++0.002766 = 4.8× floor. E0010 discard lgbm@67 0.444431 (−0.000258 = 0.45× floor
+vs HGBT): **M1-b confirmed — the RQ2 tie is algorithmic**, holding at matched-67
+AND full-200 capacity. Off-ledger: **M3-a** — train BM→frequency is
+non-decreasing over **100% of exposure** (qcut collapsed to 4 bins; 68.8% of
+exposure in BM 50–54), so +1 was the right marginal sign, and E0009's cost
+therefore localises the non-monotonicity in CONDITIONING contexts — coherent
+with VehAge×BM ranking first in the surrogate. **RQ6 data-volume curve**
+(sweeps/data_volume.sidecar.tsv): gap by train fraction = −0.0019 (5%, ~20k
+rows: GLM WINS), +0.0034 (10%), +0.0032 (15%), +0.0064 (25%), +0.0085 (50%),
++0.0092 (75%), +0.0102 (100%) — crossover ≈ 20–40k rows; gap clears 2× cross SE
+(0.0019) from ~10% of train. RQ6 prior (~10–15%) CONFIRMED.

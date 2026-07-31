@@ -30,10 +30,16 @@
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
-| RQ7/M3 | monotone BonusMalus costs <1× gbdt floor | cheap | E0009; control = study-04 E0004 native 0.445343 (same split/prep, tag v1.0.0) |
-| M1-b | LGBM at n_estimators=67 (matched effective capacity) still ties HGBT | tie is algorithmic | E0010 |
-| RQ1 | sealed gap within 2 sealed-paired SEs of dev gap 0.010172 | yes | confirmation: E0011 glm sealed (incumbent E0004), E0012 gbdt sealed (incumbent E0003) + off-ledger join |
-| RQ6 | gap collapses below 2× paired floor only under ~10-15% train | uninformed | sweeps/data_volume.py (measurement, off-ledger, before synthesis) |
+| RQ1 | sealed gap within 2 sealed-paired SEs of dev gap 0.010172 | yes | confirmation NOW: E0011 glm sealed (incumbent E0004 scoped splines), E0012 gbdt sealed (incumbent E0003 hgbt_ohe) + off-ledger join |
+
+## Closed this phase (adaptive-3 + off-ledger)
+
+RQ7 REFUTED: monotone BM costs 3.7× floor vs same-encoding control (E0009) —
+because BM is monotone on the MARGIN (100% of exposure, M3-a) but not in
+conditioning contexts (VehAge×BM, surrogate rank 1). M1-b CONFIRMED: LGBM ties
+HGBT at matched-67 AND 200 trees (E0010, E0005). RQ6 CONFIRMED: crossover
+20–40k rows; GLM WINS at ~20k (gap −0.0019); gap grows monotonically to 0.0102
+at 678k (data_volume sidecar).
 
 ## Waterfall (dev fold — the study's central artifact, pending sealed confirmation)
 
