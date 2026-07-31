@@ -23,3 +23,11 @@ E0003	calibration_ratio	1.0148587723803848
 E0003	model_path	models/best_gbdt_E0003_0.444689_42a4c1fb7c37.joblib
 E0003	model_config	hgbt_ohe
 E0003	effective_trees	67.0
+E0004	val_rmse	0.4903614752028447
+E0004	val_mae	0.13719238506041903
+E0004	val_r2	0.007718033964958737
+E0004	wall_seconds	1.1118578910827637
+E0004	val_poisson_deviance	0.4531562744675676
+E0004	calibration_ratio	1.022482951661956
+E0004	model_path	models/best_glm_E0004_0.453156_e52e9ddffe72.joblib
+E0004	model_config	glm_scoped_splines

@@ -1,0 +1,89 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1288,
+      "committed": true,
+      "sha256": "00a66921fd630805ea52a9ae4846e883e2ee7b33860997234881b7fbab275f38"
+    },
+    "models/best_glm_E0004_0.453156_e52e9ddffe72.joblib": {
+      "availability": "local",
+      "bytes": 8231,
+      "committed": false,
+      "sha256": "a418bf89c1634f29521a27bf2648bd4ed63b047047a428f73aa4f77e3aafbcef"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 718,
+      "committed": true,
+      "sha256": "0c9dd395cf70ac22b154a310445dc099b6424a137ef7d9a45430adc2c3cc5e18"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 484,
+      "committed": true,
+      "sha256": "73caeac9d70c4f62066b9e502bee9dd53d2ff64c06d5364ce51a12635256e3b8"
+    }
+  },
+  "base_commit": "406cdadeca73cbe09a629e1e35653888c61e6709",
+  "candidate_commit": "288665c5d5fa72acd2d79c5113eb8161f7763e74",
+  "code_patch_hash": "5d1b746b99c27723c28a4bfef6a638451b99746f6d0ee364fa2158ab9986e2f8",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 0.454861 with minimum_delta=0.000539",
+  "description": "RQ4: column-SCOPED splines (DrivAge/BonusMalus/log-Density only; basis never touches OHE dummies, fixing study-04 E0002 leak) close >=30% of the 0.010172 gap; pre-loop signal says ~16.8% - prior doubted, honest-no informs the translate-back program either way; frontier improvement over 0.454861 with minimum_delta=0.000539",
+  "disposition": "keep",
+  "ended_at": "2026-07-31T16:34:47.421917Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0002",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.022483,
+    "primary_metric": 0.453156,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.2,
+    "train_rows": 406807.0,
+    "training_seconds": 0.7,
+    "val_mae": 0.137192,
+    "val_poisson_deviance": 0.453156,
+    "val_r2": 0.007718,
+    "val_rmse": 0.490361,
+    "val_rows": 135603.0,
+    "wall_seconds": 1.1118578910827637
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 5,
+  "primary_metric": 0.453156,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:34:45.503420Z",
+  "timed_out": false,
+  "track": "glm",
+  "transaction": {
+    "ready_at": "2026-07-31T16:34:47.423056Z",
+    "status": "pending"
+  },
+  "wall_seconds": 1.9184102920116857
+}
