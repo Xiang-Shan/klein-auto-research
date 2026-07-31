@@ -451,6 +451,25 @@ def test_empty_diff_guard_refuses_and_burns_nothing(ready_study) -> None:
     assert cli.build_parser().parse_args(["run-one"]).allow_rerun is False
 
 
+def test_cli_labels_the_sealed_confirmation(ready_study, capsys) -> None:
+    """Soak F6: correct mechanics, clearer vocabulary — the sealed run stays a
+    recorded discard but the CLI surface calls it what it is."""
+    repo, study = ready_study
+    train = study / "train.py"
+    train.write_text(train.read_text(encoding="utf-8") + "\nCANDIDATE = 1\n", encoding="utf-8")
+    run_one(study, description="baseline", command=metric_command(0.7), echo=False)
+    record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
+    commit_all(repo, "ack phase")
+    capsys.readouterr()
+    assert cli.main([
+        "run-one", "--study", str(study), "--final-test", "--quiet",
+        "--command", *metric_command(0.69, expected_kind="final_test"),
+    ]) == 0
+    out = capsys.readouterr().out
+    assert "sealed (recorded as discard — confirmation evidence" in out
+    assert "train.py restored to pre-candidate base" in out
+
+
 def test_cli_names_the_restore_anchor_on_non_keeps(ready_study, capsys) -> None:
     """Soak F5b: after a discard the driver's mental model must reset — the
     CLI names the base commit train.py was restored to and the incumbent

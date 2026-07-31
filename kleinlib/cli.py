@@ -235,15 +235,27 @@ def main(argv: list[str] | None = None) -> int:
                 echo=not args.quiet,
                 allow_rerun=args.allow_rerun,
             )
+            label = manifest["disposition"]
+            if (
+                manifest.get("evaluation_kind") == "final_test"
+                and label == "discard"
+            ):
+                # Correct mechanics, clearer vocabulary: the sealed run is
+                # confirmation evidence, recorded as discard so it never
+                # enters the adaptive frontier.
+                label = (
+                    "sealed (recorded as discard — confirmation evidence, "
+                    "excluded from the adaptive frontier)"
+                )
             print(
-                f"{manifest['experiment']}: {manifest['disposition']} "
+                f"{manifest['experiment']}: {label} "
                 f"metric={manifest['primary_metric']} commit={manifest['candidate_commit']}"
             )
             restored = (
                 manifest["disposition"] != "keep"
                 or manifest.get("evaluation_kind") == "final_test"
             )
-            if restored:
+            if restored and manifest.get("base_commit"):
                 anchor = manifest.get("incumbent")
                 holder = (
                     f"(= {anchor}'s kept config)" if anchor else "(pre-candidate scaffold state)"
