@@ -394,6 +394,9 @@ def test_run_transactions_keep_discard_crash_and_seal(ready_study) -> None:
     )
     assert final["evaluation_kind"] == "final_test"
     assert final["disposition"] == "discard"
+    # the sealed confirmation re-runs the incumbent with an EMPTY diff by
+    # design — no --allow-rerun needed, and the manifest marks the replication
+    assert final.get("empty_candidate_diff") is True
     with pytest.raises(WorkflowError, match="already been accessed"):
         run_one(
             study,
@@ -421,6 +424,31 @@ def test_run_transactions_keep_discard_crash_and_seal(ready_study) -> None:
     lines = (study / "results.tsv").read_text().splitlines()
     assert lines[0] == "\t".join(V2_RESULTS_COLUMNS)
     assert lines[3].split("\t")[2:4] == ["NA", "crash"]
+
+
+def test_empty_diff_guard_refuses_and_burns_nothing(ready_study) -> None:
+    """Soak F5a: an accidental rerun of the incumbent config must be refused
+    BEFORE any experiment id, run dir, or commit exists."""
+    repo, study = ready_study
+    head_before = git(repo, "rev-parse", "HEAD")
+    with pytest.raises(WorkflowError, match="unchanged since HEAD"):
+        run_one(study, description="accidental rerun", echo=False)
+    assert git(repo, "rev-parse", "HEAD") == head_before
+    assert not (study / "runs").exists() or not any((study / "runs").iterdir())
+    assert load_state(study, workflow.load_contract(study))["last_experiment"] == 0
+    # a declared --command override is exempt (test/debug path) but the empty
+    # candidate diff is still marked on the manifest as greppable evidence
+    manifest = run_one(study, command=metric_command(0.9), echo=False)
+    assert manifest.get("empty_candidate_diff") is True
+    # a real train.py edit clears the marker
+    train = study / "train.py"
+    train.write_text(train.read_text(encoding="utf-8") + "\nCANDIDATE = 2\n", encoding="utf-8")
+    manifest = run_one(study, command=metric_command(0.95), echo=False)
+    assert "empty_candidate_diff" not in manifest
+    # --allow-rerun reaches run_one as a real parameter
+    args = cli.build_parser().parse_args(["run-one", "--allow-rerun"])
+    assert args.allow_rerun is True
+    assert cli.build_parser().parse_args(["run-one"]).allow_rerun is False
 
 
 def test_phase_boundary_and_evaluation_kind_are_enforced(ready_study) -> None:

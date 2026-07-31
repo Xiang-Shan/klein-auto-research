@@ -1637,6 +1637,7 @@ def run_one(
     final_test: bool = False,
     command: Sequence[str] | None = None,
     echo: bool = True,
+    allow_rerun: bool = False,
 ) -> dict[str, Any]:
     contract = load_contract(study_dir)
     problems = validate_contract(contract, study_dir)
@@ -1725,12 +1726,29 @@ def run_one(
         number = len(manifests) + 1
         run_id = f"E{number:04d}"
 
-        base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
         train_rel = _relative(repo, study_dir / "train.py")
+        if (
+            not final_test
+            and command is None
+            and not allow_rerun
+            and not _git(repo, ["status", "--porcelain", "--", train_rel]).stdout.strip()
+        ):
+            # Before any E#### is allocated, run dir created, or commit made —
+            # a refusal here burns nothing. The sealed final test re-runs the
+            # incumbent with an empty diff BY DESIGN and stays exempt, as do
+            # declared --command overrides.
+            raise WorkflowError(
+                "train.py is unchanged since HEAD — this run would re-execute the "
+                "incumbent configuration and burn a phase slot; edit train.py with "
+                "ONE falsifiable change, or pass --allow-rerun for an intentional "
+                "identical replication"
+            )
+        base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
         _git(repo, ["add", "--", train_rel])
         candidate_commit = _git_commit(repo, f"candidate {run_id}: {description or track}", allow_empty=True)
         patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", train_rel]).stdout.encode()
         patch_hash = sha256_bytes(patch)
+        empty_diff = patch == b""
         env_hash, env_details = environment_fingerprint(repo)
         run_dir = study_dir / "runs" / run_id
         run_dir.mkdir(parents=True, exist_ok=False)
@@ -1768,6 +1786,8 @@ def run_one(
             "decision_reason": "run transaction started",
             "transaction": {"status": "pending", "started_at": utc_now()},
         }
+        if empty_diff:
+            manifest["empty_candidate_diff"] = True
         atomic_write_json(run_dir / "manifest.json", manifest)
         append_event(
             study_dir,
@@ -1776,6 +1796,7 @@ def run_one(
             track=track,
             phase=manifest["phase"],
             candidate_commit=candidate_commit,
+            **({"empty_diff": True} if empty_diff else {}),
         )
         artifacts_before = artifact_inventory(study_dir)
         if final_test:
