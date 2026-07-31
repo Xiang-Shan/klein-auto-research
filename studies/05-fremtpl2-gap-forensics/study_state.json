@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "xiang",
-      "timestamp": "2026-07-31T15:53:30.611961Z"
+      "timestamp": "2026-07-31T16:26:25.391166Z"
     },
     "data": {
       "by": "xiang",
@@ -17,7 +17,7 @@
     "data_card.md": "e355711f464fc322df8075682c610341a9ec8ad5ce5edaed50492be325355ea2",
     "method_card.md": "396bb8fd16b6def5e9a2cc315f89b8741661e1e46af882f7c41b7f1b40efb2a7",
     "research_plan.md": "a59898cbf0220936d78c366fdb863cce6328be007f16f01c56a99db1813df17f",
-    "study.yaml": "b0d83fbd909c9e323f7b49ae6c8b990776c5260ab02d5c81300067c8da8fde63"
+    "study.yaml": "f9bb8ad729396580698d550b7c3ef86a2a5f2f67e7640cdf05602a40ca319bf6"
   },
   "created_at": "2026-07-31T15:51:34.126091Z",
   "current_phase": "adaptive-1",
@@ -34,14 +34,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-07-31T15:53:30.611961Z",
+      "acknowledged_at": "2026-07-31T16:26:25.391166Z",
       "acknowledged_by": "xiang",
       "artifacts": {
-        "program.md": "b5d8432afe91b30acf78cfcddb196dfb85a1e066847217ac7f2d4fb87f4cf27d",
+        "program.md": "0fd18e86d65ed937af3156dec05cac53e8257a0c6d26466ec4e1fabfad9b16f7",
         "research_plan.md": "a59898cbf0220936d78c366fdb863cce6328be007f16f01c56a99db1813df17f",
-        "study.yaml": "b0d83fbd909c9e323f7b49ae6c8b990776c5260ab02d5c81300067c8da8fde63"
+        "study.yaml": "f9bb8ad729396580698d550b7c3ef86a2a5f2f67e7640cdf05602a40ca319bf6"
       },
-      "note": "fast-path: approved cross-session plan answers all six questions; two-track sealed-gap redesign per study-04 queued future work; minimum_delta provisional until anchor-0 floors",
+      "note": "phase ladder folded to the machine-initialized first phase (adaptive-1 = anchors+metrology); RQs/tracks/deltas unchanged, deltas still provisional until the floor sweeps",
       "status": "recorded"
     },
     "data": {
@@ -73,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "05-fremtpl2-gap-forensics",
-  "updated_at": "2026-07-31T16:21:21.357625Z"
+  "updated_at": "2026-07-31T16:26:25.391878Z"
 }
