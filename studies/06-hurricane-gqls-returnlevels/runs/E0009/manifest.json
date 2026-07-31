@@ -1,0 +1,91 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 22908,
+      "committed": true,
+      "sha256": "974cb59df4c410cda7a0ddc0cfb8be64b415933c0ee9eb741e552901cedf0655"
+    },
+    "runs/E0009/run.log": {
+      "availability": "recorded",
+      "bytes": 1693,
+      "committed": true,
+      "sha256": "6d47a0761630d90b6ba3754a7af81b1f022ff34bf76df32c50aa68cc2cde3bc4"
+    }
+  },
+  "base_commit": "aae333c680f698f95e6b502174850362bbf191be",
+  "candidate_commit": "5e05c8022a7892663a21d448e27a6085ebde32fa",
+  "code_patch_hash": "66d45fc7240dae5ce4eb4f968a27fcd70f1a89bdbecf9db1d0297592f2d876c9",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 41.325245 with minimum_delta=1",
+  "description": "RQ4/RQ6: gQLS lognormal at the WIDEST trim (0.10,0.90), breakdown point 0.10 > 3/30 - all three leave-top-k stresses now sit inside the breakdown guarantee (k=3: 0.10 <= 0.10 boundary); prediction: instability monotone decreasing in min{a,1-b}, beating E0008's 41.3 by > 1.0pp, at a GoF cost < 1x the W floor (published W p 0.73 at this trim); frontier improvement over 41.325245 with minimum_delta=1",
+  "disposition": "keep",
+  "ended_at": "2026-07-31T18:47:08.612410Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0009",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": "E0008",
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "return_level_instability_pct",
+  "metrics": {
+    "baseline_return_level_bn": 56.66197552261015,
+    "breakdown_point": 0.09999999999999998,
+    "k": 8.0,
+    "mu_hat": 22.739330897318172,
+    "n_stress_cases": 4.0,
+    "pct_change_inflate_max_x5": 0.0,
+    "pct_change_leave_top_1_out": 5.662488833761527,
+    "pct_change_leave_top_2_out": 26.961574584599934,
+    "pct_change_leave_top_3_out": 27.584596584947423,
+    "primary_metric": 27.584597,
+    "return_level_1in100_bn": 56.66197552261015,
+    "return_level_1in10_bn": 22.860853076176465,
+    "return_level_1in25_bn": 34.363375548260294,
+    "rl_bn_inflate_max_x5": 56.66197552261015,
+    "rl_bn_leave_top_1_out": 53.453497485653656,
+    "rl_bn_leave_top_2_out": 41.38501473097386,
+    "rl_bn_leave_top_3_out": 41.03199815763648,
+    "runner_exit_code": 0.0,
+    "sigma_hat": 0.8687601378283524,
+    "stress_inflate_factor": 5.0,
+    "total_seconds": 0.0,
+    "w_chi2_calibrated": 1.0,
+    "w_df": 6.0,
+    "w_pvalue": 0.731022968038227,
+    "w_statistic": 3.5969982119580926,
+    "wall_seconds": 0.0026438236236572266
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 27.584597,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:47:08.004253Z",
+  "timed_out": false,
+  "track": "decision",
+  "transaction": {
+    "ready_at": "2026-07-31T18:47:08.613025Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6080685000633821
+}
