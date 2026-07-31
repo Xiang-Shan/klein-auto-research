@@ -36,7 +36,9 @@ FIRST every invocation; it is the source of truth, this file only orients you.
    kleinlib helpers train.py will lean on: `kleinlib.torch_loop` (MPS-safe streamed
    index-shuffle batching), `kleinlib.encoders`, and validated `kleinlib.eval` metric
    specifications plus near-constant/non-finite prediction diagnostics.
-   This plan is what train.py realizes.
+   This plan is what train.py realizes. The triad's practice leg may instead cite an
+   existing from-scratch nano (`nano_repos/NNN-slug/` — name it and the measured
+   result relied on; see the protocol's triad contract).
 6. **Part 4 — When it pays / when it doesn't.** A regime table keyed on data size and
    signal strength, grounded in doctrine (Grinsztajn: trees still win on most tabular;
    deep methods need scale/signal). Then state the FALSIFIABLE PRIORS this study will
@@ -48,6 +50,9 @@ FIRST every invocation; it is the source of truth, this file only orients you.
    If the global `alphaxiv-paper-lookup` skill is installed (Glob for its SKILL.md
    under `~/.claude/skills/` or `.claude/skills/`), read it and drive its procedure;
    else use WebSearch/WebFetch and confirm venue, year, and arXiv id for every entry.
+   If the harness carries vault skills (`~/.claude/skills/ask-vault/`,
+   `~/.claude/skills/arxiv-into-vault/` — example bindings), use them for grounded
+   intuition Q&A and to file cited papers durably; verification rules are unchanged.
    Mark anything you could not verify as `⚠️ UNVERIFIED`, explicitly. Set
    `refs_verified: true` in the frontmatter ONLY when every row is verified.
 8. **Frontier lit-scan (mandatory when applicable).** If the method is recent or

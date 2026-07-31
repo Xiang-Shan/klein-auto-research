@@ -200,7 +200,8 @@ the stages map to natural roles; match model strength to the stage:
 Claude Code ships these roles pre-wired in `.claude/agents/`; with any other tool,
 run the stages sequentially or use your tool's own subagent mechanism. Some
 protocols name optional external accelerators (a dataset profiler, a paper-lookup,
-a tutorial renderer); when absent, Klein's bundled fallbacks run instead — the
+a tutorial renderer, a pricing eval-card generator, a knowledge-vault Q&A, a
+corpus synthesizer); when absent, Klein's bundled fallbacks run instead — the
 protocols always spell out both paths.
 
 ## Driving Klein with your tool
@@ -212,6 +213,13 @@ protocols always spell out both paths.
   this manual.
 - **Gemini CLI / Qwen Code**: point the context file at `AGENTS.md` (e.g. the
   `contextFileName` setting), or start the session with "read AGENTS.md first".
+- **Model backends.** Any driver above runs over any backend that speaks its
+  protocol — a subscription agent CLI, or a **local model** behind an
+  OpenAI-compatible or Anthropic-Messages-compatible server (llama.cpp's server
+  speaks the Anthropic Messages API natively; proxies such as LiteLLM can front
+  OpenAI-style servers). Klein itself calls no model APIs and requires no API
+  keys — the framework is plain Python + git; the driving agent brings its own
+  model.
 - **GLM and other Anthropic-compatible CLIs**: they load `CLAUDE.md`, which points
   here.
 - **No agent at all**: follow the stage map by hand — each protocol is a

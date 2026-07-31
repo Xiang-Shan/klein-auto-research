@@ -48,6 +48,23 @@ The Ruled-out table seeds the discard-cluster analysis (it already names the the
 the evidence IDs); the Current-best history cross-checks each track's frontier; open
 hypotheses that were never tested become ⑦ "what to try next" candidates.
 
+## Pricing studies: the eval-card exhibit (optional accelerator)
+
+For frequency/severity/pure-premium studies, an underwriting-ready eval card of the
+incumbent is a synthesis exhibit worth attaching.
+
+- **If the `pricing-eval` skill is available** (check: does
+  `~/.claude/skills/pricing-eval/SKILL.md` exist? — an example binding from the
+  author's harness; any eval-card tool with the same input contract works): export
+  holdout predictions with `kleinlib.eval.save_holdout_predictions(...)` (columns
+  `y_true`, `y_pred`, `weight` + rating dims, written under the gitignored
+  `predictions/`) and run the card per that SKILL.md. Tweedie power is
+  dataset-dependent: **1 = frequency (Poisson), 2 = severity (Gamma), 1<p<2 = pure
+  premium**. Commit the card and its small charts; never the predictions table.
+- **Else:** `kleinlib.figures.standard_regression_report` — the bundled Lorenz,
+  CAS-style lift/quantile, and A/E calibration-by-decile figures cover the same
+  ground (`make_figures.py` regenerates them from `models/latest_val_preds.npz`).
+
 ## Write findings.md — exactly seven sections
 
 Copy `assets/findings-template.md`. Fill, in order:
@@ -79,6 +96,15 @@ Copy `assets/findings-template.md`. Fill, in order:
 - Do not call a small delta real, material, or decisive without configured minimum
   delta plus appropriate uncertainty evidence. State what remains uncertain.
 - No number appears that cannot be traced to results.tsv or aux_metrics.tsv.
+
+## Cross-study writeups (optional accelerator)
+
+Surveys or comparisons spanning several studies (or an external paper corpus) are
+outside findings.md's scope. If a corpus-synthesis skill is available (example
+binding from the author's harness: a paper_book-style corpus repo whose
+`/synthesize` emits per-claim-cited writeups), hand it the studies' `findings.md`
+claim IDs; else author the doc by hand under `docs/` with the same typed
+citations. findings.md remains the per-study source of truth either way.
 
 ## Promotion to knowledge/ (closing the Klein bottle)
 

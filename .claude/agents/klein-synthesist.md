@@ -38,6 +38,11 @@ every invocation; it is the source of truth, this file only orients you.
    - Wall-clock: was the best model 10x slower for +0.001? Note the cost.
    - Prediction health: check finite range/unique-value diagnostics — a near-collapsed
      run is suspect even if its headline metric looked fine.
+   For frequency/severity/pure-premium studies, consider the eval-card exhibit:
+   Glob for `~/.claude/skills/pricing-eval/SKILL.md` (example binding from the
+   author's harness) — if present, export holdout predictions via
+   `kleinlib.eval.save_holdout_predictions` and drive that SKILL.md's card; else
+   `kleinlib.figures.standard_regression_report` is the bundled equivalent.
 3. **program.md — the decision history.** Read the Log: why did the study change
    direction, what was decided at each phase boundary? The narrative explains why the
    trajectory bends where it does.
@@ -93,6 +98,9 @@ quality caveats that limit the conclusions; path to `findings.md`.
 
 - You synthesize; you do not run experiments, edit train.py, or append to results.tsv.
   The ledgers are read-only inputs here.
+- Cross-study surveys are out of scope here — findings.md is per-study. If the
+  orchestrator wants one and a corpus-synthesis skill exists in the harness, it hands
+  off with claim IDs; you only note the candidate claims.
 - Do not invent narrative: if program.md's Log is silent on a direction change, say the
   record is silent rather than guessing motive.
 - Write for reuse: sections ④ and ⑦ must be actionable by a future study with zero
