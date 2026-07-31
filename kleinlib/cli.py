@@ -87,6 +87,11 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--final-test", action="store_true")
     run.add_argument("--quiet", action="store_true")
     run.add_argument(
+        "--allow-rerun",
+        action="store_true",
+        help="permit an intentional identical replication (empty train.py diff)",
+    )
+    run.add_argument(
         "--command",
         nargs=argparse.REMAINDER,
         help="test/debug override; default is: uv run --locked python -u train.py",
@@ -228,6 +233,7 @@ def main(argv: list[str] | None = None) -> int:
                 final_test=args.final_test,
                 command=args.command or None,
                 echo=not args.quiet,
+                allow_rerun=args.allow_rerun,
             )
             print(
                 f"{manifest['experiment']}: {manifest['disposition']} "
