@@ -1,0 +1,91 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 21369,
+      "committed": true,
+      "sha256": "8e78bd731dcd6225e19b54d1adf1b8ba03f4089574cedd0d382814996baa982a"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 1675,
+      "committed": true,
+      "sha256": "e272c8a5edc5f287b57278b9bbf8b8c40812004c36924016c5f7aa9f7d83cadb"
+    }
+  },
+  "base_commit": "9f43131df685791747b01372dbff0cadd911cc22",
+  "candidate_commit": "9a6562f582bdb3baa7143564cb59f1786e9d6d5b",
+  "code_patch_hash": "444ac563c24e4820b0d2bc53c11205abd79f46ce252a0636bbc619521a5441a0",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 58.063948 with minimum_delta=1",
+  "description": "RQ6: gQLS lognormal (0.05,0.95) - a GoF-passing family (W p 0.52) with a LIGHT quantile transform (z_0.99 = 2.326, not 31.8): prediction - materially more stable 1-in-100 than both log-Cauchy (62.9) and MLE-lognormal (58.1); trimmed quantile estimation + bounded transform = the robustness that actually reaches the decision; frontier improvement over 58.063948 with minimum_delta=1",
+  "disposition": "keep",
+  "ended_at": "2026-07-31T18:46:45.584611Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": "E0006",
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "return_level_instability_pct",
+  "metrics": {
+    "baseline_return_level_bn": 53.04389639083805,
+    "breakdown_point": 0.05,
+    "k": 8.0,
+    "mu_hat": 22.791049610478723,
+    "n_stress_cases": 4.0,
+    "pct_change_inflate_max_x5": 0.0,
+    "pct_change_leave_top_1_out": 19.023520225285278,
+    "pct_change_leave_top_2_out": 30.66293610787787,
+    "pct_change_leave_top_3_out": 41.325245058654026,
+    "primary_metric": 41.325245,
+    "return_level_1in100_bn": 53.04389639083805,
+    "return_level_1in10_bn": 22.562837677083962,
+    "return_level_1in25_bn": 33.11987512214834,
+    "rl_bn_inflate_max_x5": 53.04389639083805,
+    "rl_bn_leave_top_1_out": 42.953080032647605,
+    "rl_bn_leave_top_2_out": 36.779080331386446,
+    "rl_bn_leave_top_3_out": 31.123376218665687,
+    "runner_exit_code": 0.0,
+    "sigma_hat": 0.818164837792205,
+    "stress_inflate_factor": 5.0,
+    "total_seconds": 0.0,
+    "w_chi2_calibrated": 1.0,
+    "w_df": 6.0,
+    "w_pvalue": 0.5153323198067623,
+    "w_statistic": 5.224710316571713,
+    "wall_seconds": 0.0026397705078125
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 41.325245,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:46:44.985719Z",
+  "timed_out": false,
+  "track": "decision",
+  "transaction": {
+    "ready_at": "2026-07-31T18:46:45.585202Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.5988062089309096
+}

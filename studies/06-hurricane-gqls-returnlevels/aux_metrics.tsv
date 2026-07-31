@@ -191,3 +191,34 @@ E0007	stress_table	"{""inflate_max_x5"":{""pct_change"":0.0,""return_level_bn"":
 E0007	moment_note	log-Cauchy has NO finite moments: mean_loss() and cte() raise NotImplementedError by design, so this family can only ever be priced through QUANTILES — any mean/CTE/TVaR number for it is a truncation artifact
 E0007	mode	decision
 E0007	convention	inverted_cdf
+E0008	wall_seconds	0.0026397705078125
+E0008	w_pvalue	0.5153323198067623
+E0008	w_statistic	5.224710316571713
+E0008	w_df	6
+E0008	w_chi2_calibrated	1
+E0008	estimator	gqls
+E0008	family	lognormal
+E0008	trim	0.05_0.95
+E0008	k	8
+E0008	breakdown_point	0.05
+E0008	mu_hat	22.791049610478723
+E0008	sigma_hat	0.818164837792205
+E0008	return_level_1in10_bn	22.562837677083962
+E0008	return_level_1in25_bn	33.11987512214834
+E0008	return_level_1in100_bn	53.04389639083805
+E0008	return_level_support_caveat	n=30 events: empirical support tops out near 1-in-30; the 1-in-100 is extrapolation governed entirely by the fitted family's tail, not by the data
+E0008	baseline_return_level_bn	53.04389639083805
+E0008	worst_case	leave_top_3_out
+E0008	n_stress_cases	4
+E0008	stress_inflate_factor	5.0
+E0008	pct_change_leave_top_1_out	19.023520225285278
+E0008	rl_bn_leave_top_1_out	42.953080032647605
+E0008	pct_change_leave_top_2_out	30.66293610787787
+E0008	rl_bn_leave_top_2_out	36.779080331386446
+E0008	pct_change_leave_top_3_out	41.325245058654026
+E0008	rl_bn_leave_top_3_out	31.123376218665687
+E0008	pct_change_inflate_max_x5	0.0
+E0008	rl_bn_inflate_max_x5	53.04389639083805
+E0008	stress_table	"{""inflate_max_x5"":{""pct_change"":0.0,""return_level_bn"":53.043896},""leave_top_1_out"":{""pct_change"":19.02352,""return_level_bn"":42.95308},""leave_top_2_out"":{""pct_change"":30.662936,""return_level_bn"":36.77908},""leave_top_3_out"":{""pct_change"":41.325245,""return_level_bn"":31.123376}}"
+E0008	mode	decision
+E0008	convention	inverted_cdf
