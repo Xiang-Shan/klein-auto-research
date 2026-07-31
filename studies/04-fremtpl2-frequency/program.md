@@ -56,10 +56,21 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase adaptive-1 slate (2026-07-31)
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | GLM + shaping (log-density, age/BM splines) — RQ2 | 2 | 3 | 3 | 8 |
+| 2 | HGBT poisson baseline (OHE) — RQ1 | 3 | 3 | 3 | 9 |
+| 3 | HGBT native categoricals — RQ3 (encoder claim) | 2 | 3 | 3 | 8 |
+| 4 | HGBT capacity lever (max_leaf 31→63) | 2 | 3 | 2 | 7 |
+| 5 | Interaction-aware GLM (Area×VehGas) | 2 | 2 | 2 | 6 |
+| 6 | Tweedie pure-premium track | 3 | 1 (needs severity + new track) | 3 | 7 |
+
+Chosen order: 1 → 2 → 3 → 4 (fills adaptive-1's 4 remaining slots; RQ-coverage
+first, capacity probe last). 5 and 6 defer — 6 to a future study with a
+severity track. Survivors mirrored to playbook.md.
+
 - 2026-07-31 — Phase-0 noise floor, three views (soak F4): HGBT fit-seed sweep
   k=5 std 0.000210 (suggested 0.00042); marginal dev-fold bootstrap SE 0.005391
   (suggested 0.01078); PAIRED-difference bootstrap (GLM vs HGBT, same rows,

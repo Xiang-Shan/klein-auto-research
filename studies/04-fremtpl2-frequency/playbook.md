@@ -10,6 +10,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
+| primary | E0001 | 0.454861 | glm_ohe, alpha 1e-4 | anchor |
 
 ## Ruled out (evidence, not opinion)
 
@@ -26,4 +27,8 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. (fill at the phase-start slate ritual)
+1. HGBT poisson baseline (sum 9) — RQ1; paired-floor preview says ~11 SEs
+2. GLM + shaping (sum 8) — RQ2, run first (cheaper, orders the GLM story)
+3. HGBT native categoricals (sum 8) — RQ3
+4. HGBT max_leaf 63 (sum 7) — capacity probe
+5. DEFERRED: Area×VehGas GLM interactions; Tweedie pure-premium (new track, needs severity)
