@@ -1,0 +1,91 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 19848,
+      "committed": true,
+      "sha256": "fdbfda9d32afe772eaab9e336a57a98e42252b6927cbf94599f1053ff222b38e"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 1927,
+      "committed": true,
+      "sha256": "31707f9c4585a3db2f061ff5a650933c71b26cfb8fec98fd90c01d302fd92424"
+    }
+  },
+  "base_commit": "1d7d8409791201434545f602c7bc49230e3b0ff6",
+  "candidate_commit": "6f91dc8ac14114676d29ebd78060b6cdec4c1a7f",
+  "code_patch_hash": "ae3ad48e36cfe75483728f7b542aa6d2d11bec15769a0d104233f9e1c0255fac",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 58.063948 by minimum_delta=1",
+  "description": "RQ5 live question: gQLS log-Cauchy (0.05,0.95) - the best-FITTING family (W p 0.82) whose quantile transform amplifies sigma by tan(0.49pi)=31.8 at p=0.99; registered prediction: instability < 1/3 of MLE-lognormal's (i.e. < 19.4); the metrology floor already warns its 1-in-100 carries a 3.6 log-SE - REFUTATION would be the seminar punchline (robust parameters, unstable decisions); did not improve track frontier 58.063948 by minimum_delta=1",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T18:46:18.146739Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": "E0006",
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "return_level_instability_pct",
+  "metrics": {
+    "baseline_return_level_bn": 40814054.60549047,
+    "breakdown_point": 0.05,
+    "k": 8.0,
+    "mu_hat": 22.813116138827095,
+    "n_stress_cases": 4.0,
+    "pct_change_inflate_max_x5": 0.0,
+    "pct_change_leave_top_1_out": 62.941399968253315,
+    "pct_change_leave_top_2_out": 47.213685827669416,
+    "pct_change_leave_top_3_out": 61.315797622990566,
+    "primary_metric": 62.9414,
+    "return_level_1in100_bn": 40814054.60549047,
+    "return_level_1in10_bn": 35.9703422823807,
+    "return_level_1in25_bn": 375.9486644374198,
+    "rl_bn_inflate_max_x5": 40814054.60549047,
+    "rl_bn_leave_top_1_out": 66502991.957993545,
+    "rl_bn_leave_top_2_out": 21544235.09052076,
+    "rl_bn_leave_top_3_out": 15788591.481851071,
+    "runner_exit_code": 0.0,
+    "sigma_hat": 0.48505457222071985,
+    "stress_inflate_factor": 5.0,
+    "total_seconds": 0.0,
+    "w_chi2_calibrated": 1.0,
+    "w_df": 6.0,
+    "w_pvalue": 0.8176478997462225,
+    "w_statistic": 2.9294517700262483,
+    "wall_seconds": 0.002112865447998047
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 62.9414,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:46:17.544611Z",
+  "timed_out": false,
+  "track": "decision",
+  "transaction": {
+    "ready_at": "2026-07-31T18:46:18.147321Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6020389590412378
+}

@@ -159,3 +159,35 @@ E0006	rl_bn_inflate_max_x5	87.76055293970546
 E0006	stress_table	"{""inflate_max_x5"":{""pct_change"":58.063948,""return_level_bn"":87.760553},""leave_top_1_out"":{""pct_change"":25.682251,""return_level_bn"":41.262836},""leave_top_2_out"":{""pct_change"":36.457832,""return_level_bn"":35.279998},""leave_top_3_out"":{""pct_change"":44.555645,""return_level_bn"":30.783916}}"
 E0006	mode	decision
 E0006	convention	inverted_cdf
+E0007	wall_seconds	0.002112865447998047
+E0007	w_pvalue	0.8176478997462225
+E0007	w_statistic	2.9294517700262483
+E0007	w_df	6
+E0007	w_chi2_calibrated	1
+E0007	estimator	gqls
+E0007	family	log-cauchy
+E0007	trim	0.05_0.95
+E0007	k	8
+E0007	breakdown_point	0.05
+E0007	mu_hat	22.813116138827095
+E0007	sigma_hat	0.48505457222071985
+E0007	return_level_1in10_bn	35.9703422823807
+E0007	return_level_1in25_bn	375.9486644374198
+E0007	return_level_1in100_bn	40814054.60549047
+E0007	return_level_support_caveat	n=30 events: empirical support tops out near 1-in-30; the 1-in-100 is extrapolation governed entirely by the fitted family's tail, not by the data
+E0007	baseline_return_level_bn	40814054.60549047
+E0007	worst_case	leave_top_1_out
+E0007	n_stress_cases	4
+E0007	stress_inflate_factor	5.0
+E0007	pct_change_leave_top_1_out	62.941399968253315
+E0007	rl_bn_leave_top_1_out	66502991.957993545
+E0007	pct_change_leave_top_2_out	47.213685827669416
+E0007	rl_bn_leave_top_2_out	21544235.09052076
+E0007	pct_change_leave_top_3_out	61.315797622990566
+E0007	rl_bn_leave_top_3_out	15788591.481851071
+E0007	pct_change_inflate_max_x5	0.0
+E0007	rl_bn_inflate_max_x5	40814054.60549047
+E0007	stress_table	"{""inflate_max_x5"":{""pct_change"":0.0,""return_level_bn"":40814054.60549},""leave_top_1_out"":{""pct_change"":62.9414,""return_level_bn"":66502991.957994},""leave_top_2_out"":{""pct_change"":47.213686,""return_level_bn"":21544235.090521},""leave_top_3_out"":{""pct_change"":61.315798,""return_level_bn"":15788591.481851}}"
+E0007	moment_note	log-Cauchy has NO finite moments: mean_loss() and cte() raise NotImplementedError by design, so this family can only ever be priced through QUANTILES — any mean/CTE/TVaR number for it is a truncation artifact
+E0007	mode	decision
+E0007	convention	inverted_cdf
