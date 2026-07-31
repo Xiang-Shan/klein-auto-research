@@ -83,8 +83,10 @@ caches, and runs the GBDT head (torch bound passively, never operated). Run the 
 through `klein run-one` (or `scripts/run_with_log.py` for v1): it enforces unbuffered
 output, process-group timeout, and the real child exit status without a masking tee
 pipeline. Prove isolation preserved determinism with one
-bit-exact rerun (study 01: E3 = sweep trial 2 = 0.668271). See
-`studies/01-dae-claims/train.py` (`stage_*`/`main`) for the reference implementation.
+bit-exact rerun (study 01: E3 = sweep trial 2 = 0.668271). Pattern: `main()`
+dispatches each framework's fit into its own `stage_*` subprocess, so torch and
+OpenMP never share a process (reference implementation: the archived study 01
+`train.py`, tag v1.0.0).
 
 ## The meta-lesson
 

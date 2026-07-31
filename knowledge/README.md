@@ -19,7 +19,8 @@ study. Two kinds of file live here.
   `best-practices-auto-insurance.md`, `gbdt-hyperparameter-guide.md`,
   `encoder-comparison.md`.
 - **Seed method cards** — `method_cards/`, the reusable teaching seeds for the METHOD
-  gate (`glm-pricing.md`, `gbdt-tabular.md`; studies 01/02 add two more).
+  gate (`glm-pricing.md`, `gbdt-tabular.md`; the archived studies 01/02 — tag
+  v1.0.0 — added two more).
 
 **Provenance.** Every ported doc carries a one-line banner under its H1 and a `source:`
 frontmatter field naming the campaign document it was ported from; the originals live
@@ -41,7 +42,7 @@ the framework's own input.
 ## Claim citations (required at promotion)
 
 Promoted statements carry at least one typed claim citation —
-`(supports 02-rqls-pv-severity#C3)` / `(refutes 01-dae-claims#C1)` — pointing at a
+`(supports 03-noisy-rosenbrock-dfo#C3)` / `(refutes 00-glm-claims-quickstart#C1)` — pointing at a
 stable claim ID in that study's `findings.md`. Optional frontmatter `claims:` may
 list the IDs a doc leans on. Everything stays greppable:
 `grep -rn "#C[0-9]" knowledge/`. Two lines citing claims that refute each other is

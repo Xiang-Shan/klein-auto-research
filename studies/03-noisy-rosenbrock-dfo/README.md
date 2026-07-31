@@ -52,4 +52,5 @@ Executed 2026-07-30 as the v0.3 release's live acceptance test (one keep, one
 discard, one crash, one sealed confirmation — all with real fits). Mid-study
 contract amendments (the phase-ladder fold, the corrected crash registration)
 are logged in `program.md` and were themselves the source of two framework
-fixes — see `docs/reviews/2026-07-30-v0.2-adoption-audit.md` items A19–A20.
+fixes — see `docs/reviews/2026-07-30-v0.2-adoption-audit.md` items A19–A20
+(archived at tag v1.0.0).

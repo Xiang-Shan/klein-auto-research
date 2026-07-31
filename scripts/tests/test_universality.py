@@ -6,15 +6,15 @@ Klein's evidence doctrine distinguishes two kinds of text:
   These must contain no machine-local strings: the repo must clone and run
   identically for anyone, anywhere.
 - FROZEN EVIDENCE — the hash-chained study ledgers (``study_state.json``,
-  ``events.jsonl``, ``runs/*/run.log``) and the ``docs/lineage/`` archives.
-  Ledgers legitimately embed author-machine paths captured at execution time
-  (rewriting them would break the append-only event chain and candidate-commit
-  resolvability), and ``docs/lineage/README.md`` declares its archives'
-  machine paths "historical, not normative". Neither is ever edited.
+  ``events.jsonl``, ``runs/*/run.log``). Ledgers legitimately embed
+  author-machine paths captured at execution time; rewriting them would break
+  the append-only event chain and candidate-commit resolvability, so they are
+  never edited. (Historical archives with the same status are preserved at tag
+  v1.0.0, outside the current tree.)
 
 The guard therefore scans TRACKED ``*.md``/``*.py`` only (ledgers are
-``.json``/``.jsonl``/``.log`` — out of scope by extension) and exempts
-``docs/lineage/``. Deliberately allowed and out of pattern reach:
+``.json``/``.jsonl``/``.log`` — out of scope by extension). Deliberately
+allowed and out of pattern reach:
 ``$DATA_HUB`` / ``~/data_hub`` (the documented env seam — any user's hub),
 the repo's own ``.claude/`` tree, and capitalized attribution (the GitHub
 owner URLs, the CITATION author) — the username pattern below is lowercase
@@ -44,7 +44,6 @@ FORBIDDEN = [
 ]
 
 EXEMPT = (
-    "docs/lineage/",  # verbatim historical archives — disclaimed in docs/lineage/README.md
     "scripts/tests/test_universality.py",  # this file names the strings it hunts
 )
 

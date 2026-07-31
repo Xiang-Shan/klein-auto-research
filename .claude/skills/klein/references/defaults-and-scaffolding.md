@@ -6,7 +6,7 @@ study or proposing defaults.
 ## Study layout & naming
 
 Every study is ONE directory: `studies/NN-slug/` — a two-digit ordinal plus a lowercase
-slug (`00-glm-claims-quickstart`, `01-dae-claims`). The ordinal orders the research
+slug (`00-glm-claims-quickstart`, `03-noisy-rosenbrock-dfo`). The ordinal orders the research
 narrative; the slug says what it is. One study has one coherent goal; materially
 different tasks become explicit tracks with independent metric contracts/frontiers.
 

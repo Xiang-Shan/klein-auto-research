@@ -7,10 +7,8 @@ that respect its invariants are very welcome.
 
 ```bash
 uv sync --locked --extra encoders
-uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests \
-  studies/02-rqls-pv-severity/tests scripts/tests
-uv run --no-sync ruff check kleinlib scripts .claude/skills/klein/scripts \
-  studies/01-dae-claims/bootstrap_caches.py studies/01-dae-claims/tests/test_dae.py
+uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests scripts/tests
+uv run --no-sync ruff check kleinlib scripts .claude/skills/klein/scripts
 bash scripts/verify_e2e.sh
 ```
 

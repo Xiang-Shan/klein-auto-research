@@ -1,7 +1,7 @@
 [project]
 name = "klein-auto-research"
 version = "1.0.0"
-description = "Klein Auto Research — an agentic, visualization-first ML research framework for actuaries and data scientists"
+description = "Klein Auto Research — an agentic, visualization-first ML/Math research framework for actuaries and data scientists"
 readme = "README.md"
 license = "MIT"
 authors = [{ name = "Xiang Shan" }]
@@ -70,9 +70,7 @@ select = ["E", "F", "I", "UP", "B"]
 ignore = ["E501"]
 
 [tool.pytest.ini_options]
-# Framework paths only. Study test dirs (studies/01-dae-claims/tests needs the
-# deep+gbdt extras; studies/02-rqls-pv-severity/tests) are named explicitly by
-# CI and the README where the right extras are guaranteed to be present.
+# Framework paths only; no shipped study carries tests.
 testpaths = [
     "kleinlib/tests",
     ".claude/skills/klein/scripts/tests",

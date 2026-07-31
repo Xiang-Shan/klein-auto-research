@@ -1,7 +1,7 @@
 # insurance-claims — bundled dataset
 
-The full auto-insurance claims dataset used by `studies/00-glm-claims-quickstart`
-and `studies/01-dae-claims`, bundled so a fresh clone reproduces both studies with
+The full auto-insurance claims dataset used by `studies/00-glm-claims-quickstart`,
+bundled so a fresh clone reproduces the study with
 **no credentials, no downloads, no private infrastructure**.
 
 | Fact | Value |

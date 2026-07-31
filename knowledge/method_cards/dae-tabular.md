@@ -14,7 +14,8 @@ triad:                 # asserted retroactively at v0.3 (cards predate the contr
 
 # Swap-Noise Denoising Autoencoders for Tabular Data
 
-*Validated card distilled from `studies/01-dae-claims` (8-experiment ladder, 58,592-row
+*Validated card distilled from `studies/01-dae-claims` (archived intact at tag
+v1.0.0; 8-experiment ladder, 58,592-row
 weak-signal auto-insurance claims; full trail in that study's `method_card.md`,
 `findings.md`, `results.tsv`). The method: Jahrer's Porto Seguro 2017 recipe, tested
 under an honest inductive contract.*

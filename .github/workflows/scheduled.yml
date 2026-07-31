@@ -34,7 +34,7 @@ jobs:
       - name: Install and test the committed all-extras resolution
         run: |
           uv sync --locked --all-extras
-          uv run --no-sync pytest -q kleinlib/tests studies/01-dae-claims/tests
+          uv run --no-sync pytest -q kleinlib/tests
 
   apple-mps:
     name: Apple Silicon MPS canary
@@ -58,7 +58,5 @@ jobs:
           x = torch.arange(8, dtype=torch.float32, device='mps');
           assert float((x * 2).sum().cpu()) == 56.0;
           print(platform.platform(), torch.__version__)"
-      - name: Torch loop and Study 01 MPS-sensitive canaries
-        env:
-          KLEIN_TEST_MPS: "1"
-        run: uv run --no-sync pytest -q kleinlib/tests/test_torch_loop.py studies/01-dae-claims/tests/test_dae.py
+      - name: Torch loop MPS canary
+        run: uv run --no-sync pytest -q kleinlib/tests/test_torch_loop.py

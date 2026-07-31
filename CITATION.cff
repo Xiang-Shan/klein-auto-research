@@ -3,8 +3,8 @@ message: "If you use Klein Auto Research in your work, please cite it as below."
 type: software
 title: "Klein Auto Research"
 abstract: >-
-  An agentic, visualization-first ML research framework for actuaries and data
-  scientists: a six-stage study lifecycle (consult, data gate, method gate,
+  An agentic, visualization-first ML/Math research framework for actuaries and
+  data scientists: a six-stage study lifecycle (consult, data gate, method gate,
   ledgered experiment loop, insight synthesis, teaching tutorial) that turns
   hours of disciplined experiments on your own data into honest verdicts about
   where a modeling method pays.
@@ -18,6 +18,7 @@ url: "https://github.com/Xiang-Shan/klein-auto-research"
 repository-code: "https://github.com/Xiang-Shan/klein-auto-research"
 keywords:
   - machine learning
+  - mathematical optimization
   - actuarial science
   - research framework
   - agentic workflows

@@ -17,7 +17,7 @@ related: []
 > CLAIM IDs: every ① verdict and every ④ advice item carries a stable ID —
 > `**[C1]**, **[C2]**, ...` — never renumbered once published. Fully qualified
 > form: `<study_id>#C<n>`. knowledge/ docs cite them with a typed verb:
-> `(supports 02-rqls-pv-severity#C3)` / `(refutes 01-dae-claims#C1)`.
+> `(supports 03-noisy-rosenbrock-dfo#C3)` / `(refutes 00-glm-claims-quickstart#C1)`.
 
 ## ① Research-question verdicts
 

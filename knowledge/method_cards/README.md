@@ -21,8 +21,8 @@ and instantiates them is the framework's METHOD stage.
 |---|---|---|---|---|
 | [`glm-pricing.md`](glm-pricing.md) | GLM / logistic regression for insurance risk | insurance | seed | campaign Phase 1 (LR 0.6255 → 0.6528) |
 | [`gbdt-tabular.md`](gbdt-tabular.md) | GBDT three-family landscape (LGBM / XGB / CatBoost) | ml | seed | campaign Phase 3 (0.6701 single, 0.6715 soft-vote) |
-| [`dae-tabular.md`](dae-tabular.md) | Swap-noise denoising-autoencoder representations | ml / insurance | validated — Study 01 | study 01 (DAE→LGBM 0.6683 < MLP 0.6706 ≈ GBDT 0.6701; imputer 3.4×; anomaly no) |
-| [`quantile-least-squares.md`](quantile-least-squares.md) | Robust quantile least squares for loss severity | insurance | validated — Study 02 | study 02 (QLS-OLS 1.083× MLE; MLE 352% vs QLS 50% @ ε=10; window ≫ trim; $2M cap bounds GPD tail to +0.17%; the cancellation caveat) |
+| [`dae-tabular.md`](dae-tabular.md) | Swap-noise denoising-autoencoder representations | ml / insurance | validated — Study 01 (archived at tag v1.0.0) | study 01 (DAE→LGBM 0.6683 < MLP 0.6706 ≈ GBDT 0.6701; imputer 3.4×; anomaly no) |
+| [`quantile-least-squares.md`](quantile-least-squares.md) | Robust quantile least squares for loss severity | insurance | validated — Study 02 (archived at tag v1.0.0) | study 02 (QLS-OLS 1.083× MLE; MLE 352% vs QLS 50% @ ε=10; window ≫ trim; $2M cap bounds GPD tail to +0.17%; the cancellation caveat) |
 
 Studies **01** and **02** have each promoted their card at the SYNTHESIZE stage
 (`dae-tabular.md`, `quantile-least-squares.md`) — both promised cards are now delivered and

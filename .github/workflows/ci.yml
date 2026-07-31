@@ -38,14 +38,11 @@ jobs:
         run: >-
           uv run --no-sync ruff check --output-format github
           kleinlib scripts .claude/skills/klein/scripts
-          studies/01-dae-claims/bootstrap_caches.py
-          studies/01-dae-claims/tests/test_dae.py
       - name: Core, lifecycle, legacy compatibility, and verifier safety tests
         run: >-
           uv run --no-sync pytest -q
           kleinlib/tests
           .claude/skills/klein/scripts/tests
-          studies/02-rqls-pv-severity/tests
           scripts/tests
       - name: All immutable v1 studies validate with an explicit warning
         if: matrix.python-version == '3.13'
@@ -53,9 +50,7 @@ jobs:
         run: |
           set -euo pipefail
           for study in \
-            studies/00-glm-claims-quickstart \
-            studies/01-dae-claims \
-            studies/02-rqls-pv-severity
+            studies/00-glm-claims-quickstart
           do
             output="$(uv run --no-sync klein verify --study "$study")"
             printf '%s\n' "$output"
@@ -84,8 +79,6 @@ jobs:
           uv run --no-sync pytest -q
           kleinlib/tests
           .claude/skills/klein/scripts/tests
-          studies/01-dae-claims/tests
-          studies/02-rqls-pv-severity/tests
           scripts/tests
           --cov=kleinlib
           --cov-config=.coveragerc
@@ -155,18 +148,6 @@ jobs:
             --log "$RUNNER_TEMP/study00-train.log" -- \
             uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py
           awk -F': *' '/^primary_metric:/{m=$2} END{d=m-0.664322; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study00-train.log"
-      - name: Execute the Study 02 committed-state anchor
-        shell: bash
-        run: |
-          set -euo pipefail
-          copy="$RUNNER_TEMP/study02"
-          cp -R studies/02-rqls-pv-severity "$copy"
-          cd "$copy"
-          uv --project "$GITHUB_WORKSPACE" run --no-sync python \
-            "$GITHUB_WORKSPACE/scripts/run_with_log.py" --timeout-seconds 600 \
-            --log "$RUNNER_TEMP/study02-train.log" -- \
-            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py
-          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-18.783886; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.01)?0:1}' "$RUNNER_TEMP/study02-train.log"
       - name: Execute the Study 03 v2 anchor (seed-block determinism on Linux)
         shell: bash
         run: |
@@ -182,7 +163,7 @@ jobs:
           KLEIN_EVALUATION_KIND=development KLEIN_EXPERIMENT_ID=E0001 KLEIN_TRACK=primary \
             uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py | tee "$RUNNER_TEMP/study03-train.log"
           awk -F': *' '/^primary_metric:/{m=$2} END{d=m-1.251208; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study03-train.log"
-      - name: Checked-out legacy exhibits remain byte-clean
+      - name: Checked-out exhibits remain byte-clean
         run: test -z "$(git status --porcelain)"
 
   e2e:

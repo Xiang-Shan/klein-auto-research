@@ -4,7 +4,7 @@
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![python ≥3.11](https://img.shields.io/badge/python-%E2%89%A53.11-3776AB.svg)](pyproject.toml)
 
-**A reconnaissance aircraft for ML research.** Before you bet a production quarter
+**A reconnaissance aircraft for ML/Math research.** Before you bet a production quarter
 on a new modeling method, fly a cheap, honest sortie over it first: a few hours of
 disciplined, git-ledgered experiments on *your* data, closed with mined insights
 and a teaching artifact. Built by an actuary, for actuaries and data scientists —
@@ -27,10 +27,12 @@ and the coding pitfalls back to you.
 
 ## Why Klein
 
-1. **Recon before conquest.** Learn where a new method pays *on your data* before
-   committing serious modeling effort. The shipped DAE study is the exemplar: "no
-   for ranking at 58k rows, but 3.4× better than median-imputation at cell repair"
-   is exactly the intelligence you want before a production bet.
+1. **Recon before conquest.** Learn where a new method pays *on your problem*
+   before committing serious effort. The shipped optimization study is the
+   exemplar: "restarts win 2.96× the measured noise floor, 'textbook' SPSA
+   diverges until its own tuning rule is applied, and random search ties the
+   winner — caught by the data gate before a single run" is exactly the
+   intelligence you want before a production bet.
 2. **A disciplined loop instead of notebook chaos.** Under schema v2 every
    candidate is committed before it runs, including discards and crashes. An append-only event
    log and immutable run manifest bind code, data, split, environment, metrics,
@@ -57,8 +59,8 @@ and the coding pitfalls back to you.
 5. **A teaching artifact closes every study.** The tutorial (`report/index.html`,
    fully offline) levels you up and onboards the next person.
 6. **A frontier-method onramp.** Method cards teach unfamiliar methods; when no
-   dataset exists, a synthetic known-truth lab (see the QLS study) makes estimator
-   claims checkable by construction.
+   dataset exists, a synthetic known-truth lab (see the noisy-Rosenbrock study)
+   makes estimator claims checkable by construction.
 7. **Senior scars, encoded.** Real failures live as executable guards — collapsed-
    prediction assert, schema drift tests, OpenMP process isolation — so beginners
    inherit them. The incident reports: `.claude/skills/klein/references/war-stories.md`.
@@ -80,8 +82,7 @@ claims, Apache-2.0) is bundled in the repo.
 git clone https://github.com/Xiang-Shan/klein-auto-research
 cd klein-auto-research
 uv sync --locked --extra encoders
-uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests \
-    studies/02-rqls-pv-severity/tests scripts/tests -q
+uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests scripts/tests -q
 uv run --no-sync klein --help
 bash scripts/verify_e2e.sh          # optional: isolated end-to-end proof
 
@@ -95,8 +96,7 @@ uv run --no-sync python ../../scripts/run_with_log.py --timeout-seconds 600 \
 
 Heads-up on extras: `uv sync` installs exactly what you name — and *removes*
 extras you omit. Compose what a study needs: `--extra gbdt`
-(LightGBM/XGBoost/CatBoost), `--extra deep` (PyTorch — required for
-`studies/01-dae-claims`), e.g.
+(LightGBM/XGBoost/CatBoost), `--extra deep` (PyTorch), e.g.
 `uv sync --locked --extra encoders --extra gbdt --extra deep`.
 
 ## The `klein` command line
@@ -153,32 +153,38 @@ New here? Reading order: this README → [`AGENTS.md`](AGENTS.md) →
 [`studies/00-glm-claims-quickstart/`](studies/00-glm-claims-quickstart/) → the
 stage protocols as you need them.
 
-## The shipped studies — five executed exhibits
+## The shipped studies — two executed exhibits
 
-The first three studies predate the public v0.2 transaction contract. Their
-`results.tsv`, `program.md`, and `findings.md` ship verbatim as scientific
-exhibits; their private-lab commit hashes are candidly unresolved in this public
-history. Compatibility tools read them with explicit deprecation/provenance
-warnings. They are examples of the six-stage research doctrine, not examples of
-v0.2 reconstructable run manifests.
+One exhibit per audience: an ML study on bundled real data you can re-run from a
+bare clone, and a math/optimization study under the full schema-v2 evidence
+contract.
+
+The quickstart study predates the public v0.2 transaction contract: its
+`results.tsv`, `program.md`, and `findings.md` ship verbatim as a scientific
+exhibit; its private-lab commit hashes are candidly unresolved in this public
+history, and compatibility tools read it with explicit deprecation/provenance
+warnings.
 
 | Study | Question | Headline findings |
 |---|---|---|
 | [`00-glm-claims-quickstart`](studies/00-glm-claims-quickstart/) | Are GLM/GBDT baselines reproducible here, and is there headroom? | Anchors reproduce to 4 decimals; splines close most of the LR→GBDT gap; a sanctioned sweep finds +0.0014 (best 0.6643) |
-| [`01-dae-claims`](studies/01-dae-claims/) | Does a denoising autoencoder pay on 58k-row tabular claims? | Honest no for ranking (0.6683 vs GBDT 0.6701); plain MLP ties tuned GBDT (0.6706); the DAE pays 3.4× as an *imputer*; recon-error is not a claim ranker |
-| [`02-rqls-pv-severity`](studies/02-rqls-pv-severity/) | Is robust quantile least squares worth its efficiency cost for loss severity? | At 10% contamination, naive MLE premium error hits 352% vs 50% for window-QLS; robustness costs only 1.083× when clean; parameter bias ≠ pricing bias |
 
-The fourth and fifth studies are **schema-v2 exhibits** — every candidate commit
-resolves in this repository, and they exercised the whole hardened contract live:
+The second study is a **schema-v2 exhibit** — every candidate commit resolves in
+this repository's history, and it exercised the whole hardened contract live:
 
 | Study | Question | Headline findings |
 |---|---|---|
 | [`03-noisy-rosenbrock-dfo`](studies/03-noisy-rosenbrock-dfo/) | At 200 noisy evaluations, do restarts beat Nelder-Mead — and does SPSA beat both? | Restarts win 2.96× the measured floor and the sealed fresh-seed run replicates (confirmed); random search ties them — found by the DATA gate before any run; "textbook" SPSA diverges to 1e178 because the method card's own tuning rule went unapplied |
-| [`04-fremtpl2-frequency`](studies/04-fremtpl2-frequency/) | On 678k freMTPL2 policies, does a GBDT beat a shaped GLM at claim frequency by more than the honest noise floor? | GBDT wins by 0.0102 deviance = 11.4× the paired-bootstrap SE — while three defensible floors differ by 25×, and the naive marginal one would have called the gap borderline; one keep decided by 0.000002; the sealed test confirms the incumbent's level (0.65× fold SE) |
+
+Three further executed exhibits — the 58k-row DAE honest-no, the robust-QLS
+known-truth severity lab, and the 678k-row freMTPL2 frequency soak — are
+preserved intact (ledgers, figures, tutorials) at tag
+[`v1.0.0`](https://github.com/Xiang-Shan/klein-auto-research/tree/v1.0.0/studies),
+where every recorded candidate commit resolves.
 
 Open a tutorial to see what "closing the loop" means:
-`open studies/01-dae-claims/report/index.html` — method taught, journey annotated,
-coding pitfalls included, works offline.
+`open studies/03-noisy-rosenbrock-dfo/report/index.html` — method taught, journey
+annotated, coding pitfalls included, works offline.
 
 ## Run it on your own data
 
@@ -250,8 +256,8 @@ its own input.
 The public repository history begins in July 2026; the shipped
 v0.1 studies were executed in the development lab before that public history.
 Two ancestor design documents (the agent-smith quality audit and the
-215-experiment campaign's optimization notes) are archived verbatim in
-[`docs/lineage/`](docs/lineage/).
+215-experiment campaign's optimization notes) are archived verbatim at tag
+[`v1.0.0`](https://github.com/Xiang-Shan/klein-auto-research/tree/v1.0.0/docs/lineage).
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md). Versioning is SemVer: 1.0.0
 froze the study schema (v2), the `klein` CLI surface, and the ledger formats —

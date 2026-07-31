@@ -14,7 +14,8 @@ triad:                 # asserted retroactively at v0.3 (cards predate the contr
 
 # Robust Quantile Least Squares for Loss Severity
 
-*Validated card distilled from `studies/02-rqls-pv-severity` (7-experiment known-truth
+*Validated card distilled from `studies/02-rqls-pv-severity` (archived intact at
+tag v1.0.0; 7-experiment known-truth
 synthetic lab — a PV loss-severity generator whose exact layer premium is known, so every
 estimator is scored in dollars of premium error against ground truth; full trail in that
 study's `method_card.md`, `findings.md`, `results.tsv`, and the two sweep sidecars). The
