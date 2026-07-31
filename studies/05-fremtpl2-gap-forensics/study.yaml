@@ -1,0 +1,140 @@
+schema_version: 2
+study_id: "05-fremtpl2-gap-forensics"
+goal: "On freMTPL2 claim frequency, WHERE does a gradient-boosted model's Poisson-deviance advantage over a spline-shaped GLM live, how much of it transfers back into GLM-representable structure, and does the gap itself survive two sealed final-test evaluations?"
+domain: "insurance"
+target: "ClaimNb"
+task_type: "regression"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "glm-vs-gbdt"
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+# Two tracks = the sealed-gap redesign study 04 queued as future work: each family
+# selects adaptively on its own frontier, spends its ONE sealed final-test access,
+# and the headline gap becomes a difference of two sealed numbers.
+tracks:
+  glm:
+    metric:
+      name: "val_poisson_deviance"
+      goal: "lower"     # higher | lower
+      minimum_delta: 0.000539   # = 2x within-track paired-bootstrap SE (glm_ohe vs glm_scoped_splines, CRN row bootstrap B=1000; sweeps/paired_floor.py) — the fit-seed floor is EXACTLY 0 (deterministic solver), so the paired floor governs
+      noise_floor:
+        k: 5
+        std: 0
+        range: 0
+        mean: 0.454861
+        values: [0.454861, 0.454861, 0.454861, 0.454861, 0.454861]
+        source: "sweeps/noise_floor_glm.sidecar.tsv"
+        measured_after: "E0002"
+        method: "seed-sweep"
+    guardrails:
+      wall_seconds:
+        max: 400
+  gbdt:
+    metric:
+      name: "val_poisson_deviance"
+      goal: "lower"
+      minimum_delta: 0.000573   # = max(2x fit-seed std 0.000420, 2x paired-bootstrap SE 0.000573 from hgbt_ohe vs lgbm_poisson CRN row bootstrap; sweeps/paired_floor.py)
+      noise_floor:
+        k: 5
+        std: 0.000210143
+        range: 0.000512
+        mean: 0.444913
+        values: [0.444689, 0.445201, 0.444912, 0.444737, 0.445025]
+        source: "sweeps/noise_floor_gbdt.sidecar.tsv"
+        measured_after: "E0003"
+        method: "seed-sweep"
+    guardrails:
+      wall_seconds:
+        max: 400
+
+# Headline-gap uncertainty (NOT a minimum_delta): cross-track paired-bootstrap SE
+# glm_ohe vs hgbt_ohe = 0.000963 (2xSE 0.001925); dev gap +0.010172 = 10.6x SE.
+# Source: sweeps/paired_floor.py, 2026-07-31; see program.md.
+
+data:
+  source: "data_hub:freMTPL2"
+  prepared_path: "data/prepared/fremtpl2_frequency.csv"
+  split:
+    kind: random           # identical to study 04: seed 42, 60/20/20
+    seed: 42
+    development_size: 0.20
+    test_size: 0.20
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 420
+phases:
+  - id: adaptive-1
+    description: "anchors + metrology: GLM-OHE must reproduce study-04's 0.454861 to 1e-9 and HGBT-OHE 0.444689; then the three measurement floor sweeps (fit-seed x2, paired bootstrap) set minimum_delta. max_experiments raised 2->3: E0001 was burned by a harness-visibility bug (wall_seconds guardrail metric not printed to the canonical block), not by evidence"
+    budget_seconds: 1800
+    max_experiments: 3
+  - id: adaptive-2
+    description: "slate ritual, then the forensics ladder: GBDT-library equivalence (LGBM, CatBoost) on the gbdt track; column-scoped splines and surrogate-derived interactions on the glm track"
+    budget_seconds: 3600
+    max_experiments: 5
+  - id: adaptive-3
+    description: "post-forensics redirect: monotone-constraint cost on gbdt; reserve slots steered by segment-gap decomposition and the refreshed slate"
+    budget_seconds: 2400
+    max_experiments: 3
+  - id: confirmation
+    description: "one sealed final-test evaluation per track (glm incumbent, gbdt incumbent), each exporting holdout predictions for the off-ledger sealed-gap + paired-SE computation"
+    budget_seconds: 900
+    max_experiments: 2
+
+research_questions:
+  - id: RQ1
+    question: "Does the GLM-to-GBDT gap survive as a difference of two SEALED test numbers, within 2 paired-bootstrap SEs of the development gap (0.010172)?"
+    prior: "Yes — study 04's incumbent level replicated at 0.65x fold SE on its sealed test; the gap should replicate too. (source: 04-fremtpl2-frequency findings §① C1, at tag v1.0.0)"
+  - id: RQ2
+    question: "Is LightGBM's Poisson objective at matched capacity within 2x the gbdt-track floor of sklearn's HistGradientBoostingRegressor?"
+    prior: "Yes, a tie — same algorithm family, same loss, 678k rows. (source: knowledge/method_cards/gbdt-tabular.md)"
+  - id: RQ3
+    question: "Does CatBoost's ordered-target-statistics categorical handling beat OHE-HGBT at freMTPL2's cardinality (Region 22, VehBrand 11)?"
+    prior: "No — study 04 found native-vs-OHE a 0.37x-floor tie at this cardinality. (source: 04-fremtpl2-frequency findings, RQ3)"
+  - id: RQ4
+    question: "With column-SCOPED splines (DrivAge, BonusMalus, log-density only — not leaking the spline basis onto OHE dummies as study 04's E0002 did), what fraction of the gap does additive shaping close?"
+    prior: "30-45%, up from study 04's 18%. (source: 04-fremtpl2-frequency E0002 caveat in findings §③)"
+  - id: RQ5
+    question: "How much of the residual gap is recovered by adding the top TWO interactions identified by a train-fold surrogate GLM distilled from the GBDT's predictions?"
+    prior: "A further 20-30%; a hard non-additive residue of >=30% of the original gap remains. (source: uninformed)"
+  - id: RQ6
+    question: "At what training-set size does the gap fall below 2x the paired floor (measurement sweep, not a ledger experiment)?"
+    prior: "Around 10-15% of train (~40-60k rows). (source: uninformed)"
+  - id: RQ7
+    question: "Does enforcing a monotone BonusMalus constraint on the GBDT cost more than 1x the gbdt-track floor?"
+    prior: "No — filability is nearly free. (source: knowledge/method_cards/glm-pricing.md)"
+
+predictions_to_falsify:
+  - lever: "glm sealed incumbent vs gbdt sealed incumbent (RQ1)"
+    predicted_delta: "sealed gap within 2 paired-bootstrap SEs of 0.010172 (gap CONFIRMED)"
+  - lever: "HGBT-OHE -> LightGBM poisson, matched capacity (RQ2)"
+    predicted_delta: "within 2x gbdt floor -> DISCARD (tie is the prediction)"
+  - lever: "HGBT-OHE -> CatBoost native categoricals (RQ3)"
+    predicted_delta: "within 2x gbdt floor -> DISCARD (ordered TS does not pay at cardinality <=22)"
+  - lever: "GLM-OHE anchor -> column-scoped splines (RQ4)"
+    predicted_delta: "closes >=30% of the 0.010172 gap (KEEP)"
+  - lever: "scoped-spline GLM -> + top-2 surrogate interactions (RQ5)"
+    predicted_delta: "closes a further >=2x glm floor; total closure <=70% (KEEP, ceiling stated)"
+  - lever: "HGBT -> HGBT with monotone BonusMalus (RQ7)"
+    predicted_delta: "within 1x gbdt floor -> DISCARD (constraint is free; that IS the finding)"
+  - lever: "M1-a: HGBT early_stopping='auto' at 406,807 train rows"
+    predicted_delta: "fitted n_iter_ < 200 (capacity NOT matched at nominal max_iter=200) — CONFIRMED at E0003: effective_trees=67"
+  - lever: "M1-b: LGBM vs HGBT after matching effective tree count"
+    predicted_delta: "|delta| stays < 2x floor_gbdt -> RQ2 tie is algorithmic, not an artefact"
+  - lever: "M2-a: catboost_poisson with one_hot_max_size=32 (CTRs off for Region/VehBrand/Area)"
+    predicted_delta: "moves dev deviance < 0.5x floor_gbdt -> any CatBoost deficit is symmetric-tree capacity, not categorical handling"
+  - lever: "M3-a: empirical BonusMalus -> frequency direction, 8 quantile bins on train"
+    predicted_delta: "non-decreasing over >= 90% of exposure -> +1 is the correct monotone sign"
+  - lever: "M4-a: train-fold surrogate R2_main vs HGBT log-score"
+    predicted_delta: "> 0.90 -> the gap is mostly NOT an interaction gap"
+  - lever: "M4-b: top-ranked surrogate residual pair"
+    predicted_delta: "(BonusMalus, DrivAge) ranks first"
+  - lever: "M4-c: multiplicity budget"
+    predicted_delta: "10 pairs screened, <= 2 adopted, none below 1x floor_glm, all rejections reported"
+  - lever: "M5-a: 8-bin BonusMalus gap decomposition"
+    predicted_delta: "top-3 segments carry >= 50% of the gap on <= 25% of exposure"
+
+deliverables:
+  - findings.md
+  - report/index.html
+  - checklist.md          # dataset-characteristics -> method-choice, every row claim-cited
+  - predictions exported at both sealed runs (pricing-eval double-lift input)

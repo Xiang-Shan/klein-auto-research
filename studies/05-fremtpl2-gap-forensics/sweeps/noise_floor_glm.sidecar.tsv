@@ -1,0 +1,6 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"seed":0}	0.454861	1.553	ok	
+2	{"seed":1}	0.454861	1.506	ok	
+3	{"seed":2}	0.454861	1.483	ok	
+4	{"seed":3}	0.454861	1.484	ok	
+5	{"seed":4}	0.454861	1.478	ok	

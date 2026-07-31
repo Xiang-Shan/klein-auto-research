@@ -1,0 +1,81 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3728,
+      "committed": true,
+      "sha256": "c4166cb49356d4ecb524c11f4e248d221970226b350bf68fa3b17615ab17dea9"
+    },
+    "runs/E0012/run.log": {
+      "availability": "recorded",
+      "bytes": 626,
+      "committed": true,
+      "sha256": "a24031fa921d877ef1dcec52dea0488d465ab026ce579a25b21bd8fa843599ef"
+    }
+  },
+  "base_commit": "ee175e3bee1b599b251e6476c9923b7a492d0226",
+  "candidate_commit": "bf7677d47c0b15aa8315157574d323411da0834c",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "sealed confirmation of the gbdt incumbent (E0003 hgbt_ohe, seed 0, lr .1, nominal 200 iters) + holdout prediction export for the off-ledger sealed-gap computation; sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-07-31T16:46:28.957948Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0012",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 0.990457,
+    "effective_trees": 67.0,
+    "primary_metric": 0.449667,
+    "runner_exit_code": 0.0,
+    "total_seconds": 3.0,
+    "train_rows": 406807.0,
+    "training_seconds": 2.5,
+    "val_mae": 0.136973,
+    "val_poisson_deviance": 0.449667,
+    "val_r2": 0.015872,
+    "val_rmse": 0.482241,
+    "val_rows": 135603.0,
+    "wall_seconds": 2.7186241149902344
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 2,
+  "primary_metric": 0.449667,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:46:24.389957Z",
+  "timed_out": false,
+  "track": "gbdt",
+  "transaction": {
+    "committed_at": "2026-07-31T16:46:29.029430Z",
+    "evidence_commit": "e942f68cc2b37e28fc63974238c457c50645b386",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 4.567889292025939
+}

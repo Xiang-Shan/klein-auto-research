@@ -1,0 +1,20 @@
+---
+primary_metric:    0.447455
+metric_name:       val_poisson_deviance
+metric_goal:       lower
+training_seconds:  1.1
+total_seconds:     1.7
+train_rows:        406807
+val_rows:          135603
+status:            ok
+--- aux_metrics ---
+val_rmse:          0.489503
+val_mae:           0.135640
+val_r2:            0.011189
+val_poisson_deviance: 0.447455
+calibration_ratio: 1.014181
+model_config: hgbt_monotone
+wall_seconds: 1.5690057277679443
+effective_trees: 53.0
+runner_status: ok
+runner_exit_code: 0

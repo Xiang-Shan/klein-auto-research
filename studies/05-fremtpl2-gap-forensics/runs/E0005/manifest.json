@@ -1,0 +1,92 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1646,
+      "committed": true,
+      "sha256": "4806b83ae2129d3a5612e70a6de5395bb1b83fac1582cb68ea5837a95fe77af3"
+    },
+    "models/best_gbdt_E0005_0.444413_3beed7044c5b.joblib": {
+      "availability": "local",
+      "bytes": 708165,
+      "committed": false,
+      "sha256": "9889e488c4e7f97479da0747e38b50731750d0d29db1c589d37bdaec42b24ea4"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 931,
+      "committed": true,
+      "sha256": "51d70ab70239ea395b11dd4d157159bb9fbd3af6446dd586ff6f9c111ec5650c"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 739,
+      "committed": true,
+      "sha256": "fd93eedc3549924cf1d58e9bbdc1a4f4dd8b21964cb7eb393a5e90a0454c4c86"
+    }
+  },
+  "base_commit": "21946ff109863ab9233981804dae72cf756593c0",
+  "candidate_commit": "336b4054732518e1b879db23761d9a038b73ea03",
+  "code_patch_hash": "48fd91518dbc5bbf43e66587509d1f71e69b255a3fefcf1026117630120f9a9e",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "description": "RQ2/M1: LightGBM poisson at nominal-matched config (31 leaves, lr .1, 200 rounds) lands within 2x gbdt floor 0.000573 of HGBT 0.444689 - tie predicted DISCARD; capacity confound acknowledged: HGBT effective_trees=67 (early stopping) vs LGBM full 200; M1-b matched-capacity lever fires in adaptive-3 only if this breaks the tie; did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T16:35:19.086522Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.01845,
+    "effective_trees": 200.0,
+    "primary_metric": 0.444413,
+    "runner_exit_code": 0.0,
+    "total_seconds": 3.5,
+    "train_rows": 406807.0,
+    "training_seconds": 2.7,
+    "val_mae": 0.135257,
+    "val_poisson_deviance": 0.444413,
+    "val_r2": 0.013159,
+    "val_rmse": 0.489015,
+    "val_rows": 135603.0,
+    "wall_seconds": 3.2003860473632812
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 5,
+  "primary_metric": 0.444413,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:35:14.880053Z",
+  "timed_out": false,
+  "track": "gbdt",
+  "transaction": {
+    "committed_at": "2026-07-31T16:35:19.161036Z",
+    "evidence_commit": "a407b04dbe4315187745900675762edf4b58aa26",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 4.206342000048608
+}

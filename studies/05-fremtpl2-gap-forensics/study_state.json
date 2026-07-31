@@ -1,0 +1,113 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T16:33:41.154339Z"
+    },
+    "data": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T16:12:35.146866Z"
+    },
+    "method": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T16:21:21.356514Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "e355711f464fc322df8075682c610341a9ec8ad5ce5edaed50492be325355ea2",
+    "method_card.md": "396bb8fd16b6def5e9a2cc315f89b8741661e1e46af882f7c41b7f1b40efb2a7",
+    "research_plan.md": "a59898cbf0220936d78c366fdb863cce6328be007f16f01c56a99db1813df17f",
+    "study.yaml": "a8d06f2aec1dcc97df6affdaf5cb1cb92e1988de5afada241778020bd8f78aba"
+  },
+  "created_at": "2026-07-31T15:51:34.126091Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "gbdt": {
+      "accessed_at": "2026-07-31T16:46:24.389692Z",
+      "count": 1,
+      "experiment": "E0012"
+    },
+    "glm": {
+      "accessed_at": "2026-07-31T16:44:16.295257Z",
+      "count": 1,
+      "experiment": "E0011"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "gbdt": 1,
+      "glm": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "gbdt": "E0012",
+      "glm": "E0011"
+    },
+    "timestamp": "2026-07-31T17:10:18.285470Z"
+  },
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-07-31T16:33:41.154339Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "program.md": "0e6118d473cf010289d44528b02bf9d0d9680ef40c01b932a5c785b049f1190c",
+        "research_plan.md": "a59898cbf0220936d78c366fdb863cce6328be007f16f01c56a99db1813df17f",
+        "study.yaml": "a8d06f2aec1dcc97df6affdaf5cb1cb92e1988de5afada241778020bd8f78aba"
+      },
+      "note": "minimum_delta set from the measured noise floors (glm 0.000539 paired-governed, gbdt 0.000573 max-rule); cross-track band 0.000963 recorded; M1-a..M5-a levers appended",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-07-31T16:12:35.146866Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "data_card.md": "e355711f464fc322df8075682c610341a9ec8ad5ce5edaed50492be325355ea2"
+      },
+      "note": "GO-WITH-CAUTIONS: 9/9 mechanized clean; cautions accepted \u2014 26.54% dev feature-twin straddle (report gaps not levels; prep frozen for anchor comparability), interaction pairs must be train-fold-derived with provenance, rate outliers stay (exposure-weighted), Density ceiling + exposure-clip under-count recorded",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-07-31T16:21:21.356514Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "method_card.md": "396bb8fd16b6def5e9a2cc315f89b8741661e1e46af882f7c41b7f1b40efb2a7"
+      },
+      "note": "full-depth card, triad complete, 18/18 refs verified; risks R1-R9 adopted into loop discipline (effective-trees aux, monotone-native control via study-04 E0004 + optional in-study control, CatBoost claim worded as CTR+symmetric-tree package, no recalibration)",
+      "status": "recorded"
+    }
+  },
+  "last_experiment": 12,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-07-31T16:33:41.270431Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "6c9823ea5c618a76bf3010d7cbb330d14884f2adb9ebf834e122eeb0dbbd0881"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-07-31T16:40:51.671864Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "7d6fac4404938e0781f13279b40995dd1b5c6a4f8f1f534a5a6f152e5cd9212b"
+    },
+    "adaptive-3": {
+      "acknowledged_at": "2026-07-31T16:44:15.562617Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "8104d40fc75fe05494f85e8ceca7e873865be296cd6e1dd47c93be3d616a0623"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/05-fremtpl2-gap-forensics/data/prepared/fremtpl2_frequency.csv",
+    "sha256": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10"
+  },
+  "schema_version": 2,
+  "status": "finalized",
+  "study_id": "05-fremtpl2-gap-forensics",
+  "updated_at": "2026-07-31T17:10:18.285473Z"
+}

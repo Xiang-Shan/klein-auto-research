@@ -1,0 +1,162 @@
+<h2>Next Steps</h2>
+
+<h3>What to try next, in priority order</h3>
+
+<ol>
+<li><strong>Tensor-product spline / GAM interactions on the <code>glm</code> track &mdash;
+the real test of RQ5.</strong> E0007/E0008 tested <em>raw standardised products</em>, the
+crudest possible interaction basis, and found 0.43&ndash;0.45&times; floor. The surrogate
+says the structure exists (<code>R&sup2;_main</code> = 0.6647) and names where it is
+(VehAge&times;BonusMalus). Fit a tensor-product spline basis, or a bivariate smooth, on
+that one pair inside the scoped-spline GLM. <strong>Highest-information follow-up:</strong>
+it decides whether "83% non-additive" means <em>GLM-unrepresentable</em> or merely
+<em>not representable by products</em>. Prediction to falsify: closes 2&ndash;5&times; the
+glm floor &mdash; enough to keep, far short of the residue.</li>
+
+<li><strong>Categorical interaction probe &mdash; close the numeric-only blind spot, and
+spend the slot the isolation lever never got.</strong> Extend the screen to
+categorical&times;numeric and categorical&times;categorical structure (Region&times;DrivAge,
+VehBrand&times;VehAge) using the two-way PD instrument on the fitted HGBT rather than the
+numeric-only surrogate, and re-run the segment decomposition over Region and VehBrand
+levels instead of BonusMalus bins. In the same phase, run <code>catboost_poisson</code>
+with <code>one_hot_max_size=32</code> so C3's CTR-versus-capacity attribution stops being
+open.</li>
+
+<li><strong>A two-track CI anchor test.</strong> Both anchors reproduced to 1e&minus;9
+across a study boundary, and E0012 reproduced study 04's sealed number bit-identically.
+Promote the pair (0.454861 / 0.444689 on the frozen prep SHA-256
+<code>db82e802&hellip;1cf948</code>) into a repo-level regression test, so that any future
+change to the study library, the metric registry, or the environment that moves either
+anchor fails CI loudly. <em>Determinism this exact is an asset; nothing currently guards
+it.</em></li>
+
+<li><strong>Framework fixes &mdash; both cost a real experiment slot in this study.</strong>
+<ul>
+<li><strong>F1</strong> &mdash; <code>evaluate_regression</code> writes
+<code>wall_seconds</code> to <code>aux_metrics.tsv</code> but does not PRINT it, and the
+runner's guardrail check reads the printed block; E0001 was dispositioned discard with an
+anchor-exact metric because of it. Fix: print <code>wall_seconds</code> in the canonical
+block, <strong>or</strong> have <code>klein preflight</code> fail when a declared
+guardrail metric is not among the keys the run will print.</li>
+<li><strong>F2</strong> &mdash; <code>klein new</code> scaffolds a single track and the
+initial state derives <code>final_holdout_access</code> keys from the tracks <em>at
+scaffold time</em>; adding a second track by editing <code>study.yaml</code> (the only way
+to build a two-track study today) leaves that map stale, and E0012 was refused. Fix: have
+state loading top up per-track maps from the current contract, <strong>or</strong> let
+<code>klein new</code> accept repeated <code>--track</code>.</li>
+</ul></li>
+
+<li><strong>Severity / pure-premium extension.</strong> Frequency is one of two factors in
+the premium. The same two-track sealed-gap protocol on a Gamma severity track and a
+Tweedie pure-premium track would say whether the 83% non-additive residue is a
+<em>frequency</em> phenomenon or a property of <em>this book</em> &mdash; and whether the
+20&ndash;41k crossover moves when the response gets noisier.</li>
+</ol>
+
+<h3>And the artifact to start from</h3>
+
+<p>The transferable product of this study is <strong><code>checklist.md</code></strong>
+&mdash; seven rows of <em>measurable property of your data &rarr; method choice it
+implies</em>, each citing the claim that earned it and each naming the cheap measurement
+to run before trusting it. Its 15-minute protocol:</p>
+
+<ol>
+<li>Count your rows. Under ~40k, stop and build the GLM well.</li>
+<li>Fit one default GBDT, distil it, read <code>R&sup2;_main</code>. This single number
+tells you whether an interpretable rebuild can <em>ever</em> close the gap.</li>
+<li>If the gap is non-additive and you must file an interpretable model, run the screen
+with a published multiplicity budget, and price your shape constraints.</li>
+<li>Do not spend slots on encoder or library shootouts until your cardinality and capacity
+numbers say you are outside the regime where they are ties.</li>
+<li>Before any of it becomes a number in a document, measure your floors. It is the
+cheapest step and the only one that can invalidate all the others.</li>
+</ol>
+
+<p><em>Scope honesty:</em> those rows were earned on ONE dataset &mdash; freMTPL2 claim
+frequency, 678,013 rows, 9 features, exposure-weighted Poisson, a single seed-42 split.
+They are <strong>starting priors with measured magnitudes, not laws</strong>.</p>
+
+<h3>References</h3>
+
+<p>All 18 entries in the method card were verified on 2026-07-31 against arXiv, the
+NeurIPS proceedings, official library documentation, Springer, and the Swiss Association
+of Actuaries' Actuarial Data Science index. <strong>0 UNVERIFIED.</strong> Three carry
+honest caveats, reproduced here rather than smoothed away.</p>
+
+<h4>Papers</h4>
+<ol>
+<li><cite>Prokhorenkova, L., Gusev, G., Vorobev, A., Dorogush, A.V., Gulin, A. (2018).
+CatBoost: unbiased boosting with categorical features.</cite> NeurIPS 31; arXiv:1706.09516.</li>
+<li><cite>Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., Liu, T.-Y.
+(2017). LightGBM: A Highly Efficient Gradient Boosting Decision Tree.</cite> NIPS 30.</li>
+<li><cite>Craven, M. &amp; Shavlik, J.W. Extracting Tree-Structured Representations of
+Trained Networks</cite> (TREPAN). NIPS 8; MIT Press. <em>Year ambiguity, stated honestly:
+papers.nips.cc labels the volume "NIPS 1995" while the MIT Press volume appeared 1996 —
+cite as "NIPS 8 (1995 conference; MIT Press, 1996)" rather than silently picking one.</em></li>
+<li><cite>Hinton, G., Vinyals, O., Dean, J. (2015). Distilling the Knowledge in a Neural
+Network.</cite> arXiv:1503.02531; NIPS 2014 Deep Learning Workshop.</li>
+<li><cite>Lundberg, S.M., Erion, G.G., Lee, S.-I. (2018). Consistent Individualized
+Feature Attribution for Tree Ensembles.</cite> arXiv:1802.03888 &mdash; the SHAP
+interaction-value construct this study deliberately declines to use.</li>
+<li><cite>Grinsztajn, L., Oyallon, E., Varoquaux, G. (2022). Why do tree-based models
+still outperform deep learning on typical tabular data?</cite> NeurIPS 35, Datasets &amp;
+Benchmarks Track; arXiv:2207.08815. <em>Title differs between sources: arXiv reads "…on
+tabular data?", the proceedings read "…on typical tabular data?" — the proceedings title
+is used.</em></li>
+</ol>
+
+<h4>Insurance / actuarial</h4>
+<ol start="7">
+<li><cite>Noll, A., Salzmann, R., Wüthrich, M.V. Case Study: French Motor Third-Party
+Liability Claims.</cite> SSRN 3164764. <em>Verified through two independent indexes —
+papers.ssrn.com returns HTTP 403 to automated fetches.</em></li>
+<li><cite>Wüthrich, M.V. &amp; Merz, M. (2023). Statistical Foundations of Actuarial
+Learning and its Applications.</cite> Springer Actuarial, Open Access,
+DOI 10.1007/978-3-031-12409-9, Ch. 2 &amp; 5 &mdash; the offset / exposure-weight
+treatment behind the equivalence taught in section 2.</li>
+<li><cite>Denuit, M., Hainaut, D., Trufin, J. (2019). Effective Statistical Learning
+Methods for Actuaries I: GLMs and Extensions.</cite> Springer Actuarial,
+DOI 10.1007/978-3-030-25820-7.</li>
+<li><cite>Lorentzen, C. &amp; Mayer, M. (2020). Peeking into the Black Box: An Actuarial
+Case Study for Interpretable Machine Learning.</cite> SSRN 3595944 &mdash; the closest
+published precedent for this study's forensics layer, on the same dataset, without a
+sealed confirmation.</li>
+<li><cite>Mayer, M., Meier, D., Wüthrich, M.V. (2023). SHAP for Actuaries: Explain any
+Model.</cite> SSRN 4389797 &mdash; the tooling line this study does not follow.</li>
+<li><cite>Actuarial Data Science tutorials index</cite>, Swiss Association of Actuaries
+&mdash; the corroborating index for entries 7, 10 and 11.</li>
+</ol>
+
+<h4>Library documentation (the implementation facts rest on these)</h4>
+<ol start="13">
+<li><cite>scikit-learn user guide — Ensembles: gradient boosting, v1.9.0</cite> &mdash;
+the <code>+1 / 0 / -1</code> monotone encoding, the guarantee
+<code>x1 &le; x1' &rArr; F(x1,x2) &le; F(x1',x2)</code>,
+and "it is not possible to enforce monotonic constraints on categorical features".</li>
+<li><cite>scikit-learn API — HistGradientBoostingRegressor, v1.9.0</cite> &mdash;
+<strong><code>early_stopping='auto'</code> = "early stopping is enabled if the sample size
+is larger than 10000"</strong>, with <code>validation_fraction=0.1</code>. The source of
+the 67-tree discovery.</li>
+<li><cite>scikit-learn example — Tweedie regression on insurance claims, v1.9.0</cite>
+&mdash; same freMTPL2 parameterisation. <em>Verified absence: the page does not state the
+offset↔weight equivalence in prose, which is why section 2 derives it.</em></li>
+<li><cite>LightGBM parameters documentation (stable)</cite> &mdash;
+<code>objective="poisson"</code>, and <code>poisson_max_delta_step</code> default 0.7, an
+HGBT-absent regulariser.</li>
+<li><cite>CatBoost training parameters (common)</cite> &mdash; <code>boosting_type</code>
+default <code>Plain</code> on CPU (ordered <em>boosting</em> is OFF) and
+<code>one_hot_max_size</code> default 2 (ordered <em>target statistics</em> are ON for
+Region / VehBrand / Area). This pair of facts is why C3 is worded as a claim about the
+CTR + symmetric-tree package and never about ordered boosting.</li>
+<li><cite>CatBoost CatBoostRegressor.predict</cite> &mdash; "<strong>Exponent for Poisson
+and Tweedie</strong>, RawFormulaVal for all other loss functions". The fact the study
+library encodes.</li>
+</ol>
+
+<p class="note"><strong>Honest positioning.</strong> None of the five methods taught here
+is a frontier architecture; all are well-established. What this study contributes is not a
+new method but a <strong>protocol</strong> — deriving translate-back structure on train,
+adopting it on development under a reported multiplicity budget, and confirming the
+resulting gap as a difference of <em>two sealed test numbers</em>. Reference 10 does the
+forensics without the seal; study 04 did the seal on one track only. Doing both at once is
+the gap in the literature this study fills.</p>

@@ -1,0 +1,21 @@
+---
+primary_metric:    0.459231
+metric_name:       val_poisson_deviance
+metric_goal:       lower
+training_seconds:  0.7
+total_seconds:     1.0
+train_rows:        406807
+val_rows:          135603
+status:            ok
+--- aux_metrics ---
+val_rmse:          0.484040
+val_mae:           0.139032
+val_r2:            0.008517
+val_poisson_deviance: 0.459231
+calibration_ratio: 0.996226
+model_config: glm_scoped_splines
+wall_seconds: 0.919320821762085
+predictions: wrote predictions/E0011_holdout.csv.gz (135,603 rows)
+holdout predictions exported: predictions/E0011_holdout.csv.gz
+runner_status: ok
+runner_exit_code: 0

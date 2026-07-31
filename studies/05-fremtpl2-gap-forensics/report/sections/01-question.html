@@ -1,0 +1,81 @@
+<h2>The Question</h2>
+
+<p>A pricing actuary on a French motor third-party liability book has a boosted model
+that scores better than the filed GLM. Everyone knows this. The question that actually
+reaches a committee is narrower and harder:</p>
+
+<blockquote><strong>How much accuracy are we giving up by filing the interpretable
+model &mdash; and is that number real, or is it an artefact of the fold we happened to
+measure it on?</strong></blockquote>
+
+<p>This study answers it three ways at once. Its goal statement:</p>
+
+<blockquote>On freMTPL2 claim frequency, <strong>WHERE</strong> does a gradient-boosted
+model's Poisson-deviance advantage over a spline-shaped GLM live, <strong>how
+much</strong> of it transfers back into GLM-representable structure, and does the gap
+itself <strong>survive two sealed final-test evaluations</strong>?</blockquote>
+
+<h3>Why "two sealed evaluations" is the whole design</h3>
+
+<p>Klein studies seal a final-test partition and allow each research <em>track</em>
+exactly <strong>one</strong> access to it. Everything else &mdash; every candidate,
+every discard, every tuning decision &mdash; happens on train and development only. The
+sealed number is therefore an honest out-of-sample confirmation rather than the last of
+many peeks.</p>
+
+<p>Its predecessor, study 04, ran a single track. It could seal the <em>level</em> of one
+model, but the GLM&rarr;GBDT <em>gap</em> was still a development quantity, and it filed
+a protocol caveat saying so. This study splits the work into <strong>two tracks with
+independent frontiers</strong>:</p>
+
+<ul>
+<li><code>glm</code> &mdash; the interpretable family: OHE anchor, column-scoped splines,
+surrogate-derived interaction products.</li>
+<li><code>gbdt</code> &mdash; the black box: sklearn HGBT, LightGBM, CatBoost, and a
+monotone-constrained filability probe.</li>
+</ul>
+
+<p>Each track selects its own incumbent adaptively on development, then spends its
+<strong>one</strong> sealed access on that incumbent. The headline gap becomes a
+<strong>difference of two sealed numbers</strong> &mdash; neither of which was chosen
+after looking at the sealed fold. That is the protocol contribution, and it is what
+closes study 04's caveat.</p>
+
+<p>The two tracks are never merged into one leaderboard. Each owns its metric contract,
+its measured <code>minimum_delta</code>, and its guardrails:</p>
+
+<table>
+<thead><tr><th>Track</th><th>Metric</th><th>Direction</th><th>minimum_delta</th><th>Guardrail</th></tr></thead>
+<tbody>
+<tr><td><code>glm</code></td><td><code>val_poisson_deviance</code></td><td>lower is better</td><td>0.000539</td><td><code>wall_seconds</code> &le; 400</td></tr>
+<tr><td><code>gbdt</code></td><td><code>val_poisson_deviance</code></td><td>lower is better</td><td>0.000573</td><td><code>wall_seconds</code> &le; 400</td></tr>
+</tbody>
+</table>
+
+<p>Both <code>minimum_delta</code> values were <strong>measured, not guessed</strong>
+&mdash; section 2 explains how, and why the floor that governs the headline gap is a
+third number entirely.</p>
+
+<h3>The seven research questions</h3>
+
+<p>Each was registered with a prior <em>before</em> the loop ran, so each could come out
+wrong. Several did.</p>
+
+<table>
+<thead><tr><th>RQ</th><th>Question</th><th>Registered prior</th></tr></thead>
+<tbody>
+<tr><td><strong>RQ1</strong></td><td>Does the gap survive as a difference of two SEALED test numbers, within 2 paired-bootstrap SEs of the development gap (0.010172)?</td><td>Yes &mdash; study 04's level replicated at 0.65&times; fold SE; the gap should too</td></tr>
+<tr><td><strong>RQ2</strong></td><td>Is LightGBM-Poisson within 2&times; the gbdt floor of sklearn HGBT at matched capacity?</td><td>Yes, a tie (<code>knowledge/gbdt-tabular.md</code>)</td></tr>
+<tr><td><strong>RQ3</strong></td><td>Does CatBoost's ordered-target-statistics package beat OHE-HGBT at cardinality &le; 22?</td><td>No &mdash; study 04 found native-vs-OHE a 0.37&times;-floor tie here</td></tr>
+<tr><td><strong>RQ4</strong></td><td>With column-SCOPED splines, what fraction of the gap does additive shaping close?</td><td>30&ndash;45%, up from study 04's leaky 18%</td></tr>
+<tr><td><strong>RQ5</strong></td><td>How much of the residual gap do the top surrogate-derived interactions recover?</td><td>A further 20&ndash;30% (uninformed)</td></tr>
+<tr><td><strong>RQ6</strong></td><td>At what training-set size does the gap fall below 2&times; the paired floor?</td><td>~10&ndash;15% of train, 40&ndash;60k rows (uninformed)</td></tr>
+<tr><td><strong>RQ7</strong></td><td>Does a monotone BonusMalus constraint cost more than 1&times; the gbdt floor?</td><td>No &mdash; "filability is nearly free" (<code>knowledge/glm-pricing.md</code>)</td></tr>
+</tbody>
+</table>
+
+<p>RQ1 is the estimand. RQ4&ndash;RQ5 are the <em>translate-back</em> programme: can the
+black box's advantage be handed back to a filable model? RQ6 asks whether the whole
+question is even live at your portfolio's size. RQ7 prices the regulator's shape
+guarantee. RQ2&ndash;RQ3 clear the ground so no one can attribute the gap to a library
+choice.</p>

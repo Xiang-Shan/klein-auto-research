@@ -1,0 +1,80 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3177,
+      "committed": true,
+      "sha256": "cf9b84fb14b60265c768466cac005f4793b93de2b18b7dbee3795a7cb2a3c8e8"
+    },
+    "runs/E0010/run.log": {
+      "availability": "recorded",
+      "bytes": 737,
+      "committed": true,
+      "sha256": "56fbd141bda9001792d2944fdcf2599d89fbc4cec55a62f9b0642147a66b3b60"
+    }
+  },
+  "base_commit": "648081a829f56628e417db424af1e4f3a64a7165",
+  "candidate_commit": "35c5de935ca29f9f4698db6a7a6548e33011ba1d",
+  "code_patch_hash": "98409987744363d04a4c21f93483418eb77cac9f252adefa0672f7c5beccad93",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "description": "M1-b: LightGBM poisson at n_estimators=67 - matched to HGBT's EFFECTIVE capacity (E0003 early-stopped at 67 trees). Prediction: |delta| vs 0.444689 stays < 2x gbdt floor 0.000573 -> the RQ2 tie is algorithmic, not an early-stopping artefact; did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T16:42:04.210707Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0010",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.019748,
+    "effective_trees": 67.0,
+    "primary_metric": 0.444431,
+    "runner_exit_code": 0.0,
+    "total_seconds": 2.4,
+    "train_rows": 406807.0,
+    "training_seconds": 1.6,
+    "val_mae": 0.135646,
+    "val_poisson_deviance": 0.444431,
+    "val_r2": 0.013213,
+    "val_rmse": 0.489002,
+    "val_rows": 135603.0,
+    "wall_seconds": 2.154860019683838
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 2400.0,
+  "phase_experiment_limit": 3,
+  "primary_metric": 0.444431,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:42:01.083251Z",
+  "timed_out": false,
+  "track": "gbdt",
+  "transaction": {
+    "committed_at": "2026-07-31T16:42:04.280669Z",
+    "evidence_commit": "ebfb426ef041e06141d1c68199e0f7554244f906",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 3.1273671250091866
+}

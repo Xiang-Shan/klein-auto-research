@@ -1,0 +1,131 @@
+<h2>The Data</h2>
+
+<p><strong>freMTPL2</strong> &mdash; French motor third-party liability claim counts, the
+standard actuarial benchmark. Prepared once, then <strong>frozen byte-for-byte</strong> to
+study 04 so both studies' anchors stay comparable (prepared SHA-256
+<code>db82e802&hellip;1cf948</code>, verified by hash identity against the reference cell,
+not by re-running prep).</p>
+
+<table>
+<thead><tr><th>Property</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Rows &times; columns</td><td>678,013 &times; 12</td></tr>
+<tr><td>Target</td><td><code>ClaimNb</code> (mean 0.038946 claims/row; 96.321% zero-claim)</td></tr>
+<tr><td>Exposure-weighted frequency</td><td>26,406 / 358,360.11 = <strong>0.073686</strong> claims per exposure-year</td></tr>
+<tr><td>Modelled response</td><td><code>ClaimNb / Exposure</code>, with <code>Exposure</code> as the Poisson sample weight</td></tr>
+<tr><td>Features</td><td><strong>9</strong> &mdash; 5 numeric (VehPower, VehAge, DrivAge, BonusMalus, Density) + 4 categorical (Area, VehBrand, VehGas, Region)</td></tr>
+<tr><td>Split</td><td>random 60/20/20 at seed 42 &rarr; train <strong>406,807</strong> / development <strong>135,603</strong> / sealed test <strong>135,603</strong></td></tr>
+<tr><td>Null (intercept-only) dev deviance</td><td>0.473037 &mdash; the split-identity anchor re-asserted on every run</td></tr>
+</tbody>
+</table>
+
+<h3>The value-pattern gotchas (checked against raw tokens, never dtypes)</h3>
+
+<p>Klein's standing war story is that <code>dtype == "object"</code> checks lie under
+pandas string dtypes, so the audit reads raw CSV tokens with
+<code>dtype=str, na_filter=False</code>. All 12 columns, by value:</p>
+
+<ul>
+<li><strong><code>VehGas</code> is a two-level <em>string</em> binary</strong> &mdash;
+exactly <code>{Regular: 345,877, Diesel: 332,136}</code>. Not <code>Yes/No</code>, not
+<code>0/1</code>. This is the exact shape that silently skipped categorical handling in
+the ancestor campaign. It is listed in <code>pipeline.CATEGORICAL</code>, so OHE picks it
+up &mdash; no dtype-based skip.</li>
+<li><strong><code>VehBrand</code> and <code>Region</code> are digits-inside-strings</strong>
+(<code>B12</code>, <code>R24</code>). They must never be coerced to numbers.</li>
+<li><strong><code>Density</code> has a real censoring ceiling</strong> &mdash; 10,515 rows
+(1.55%) pinned at exactly 27,000, so p99 == max. A genuine ceiling in the source,
+<strong>not</strong> a sentinel; never treat it as missing. Skew 4.65 &rarr; 0.05 after
+<code>log1p</code>, which is why the shaped GLM configs log it first.</li>
+<li><strong>The <code>SENTINEL</code> regex fired twice and both were false
+positives</strong> &mdash; the substring <code>999</code> inside legitimate
+<code>IDpol</code>/<code>Density</code> integers, and the letter <code>F</code> as an
+<code>Area</code> level. Dismissed by inspecting the full value sets.</li>
+<li><strong><code>IDpol</code> is a perfect row identifier</strong> (678,013 unique,
+monotone increasing, r = &minus;0.0396 with the target). Structurally excluded &mdash;
+<code>X</code> is built from the 9 modelled columns only.</li>
+<li><strong>The exposure lower clip silently binds.</strong> 1,060 rows sit at exactly
+<code>repr(1/365.25)</code> &mdash; the 19-decimal fingerprint of <code>prepare.py</code>'s
+clip &mdash; while the hygiene counter reports 0, because it only counts rows outside
+(0, 1]. Recorded, not fixed: prep is frozen.</li>
+<li><strong>The <code>ClaimNb</code> cap at 4 is a no-op here.</strong> 0 rows exceed 4
+pre-clip; 13 rows sit at the cap. The hub table arrives already capped &mdash; the guard
+is inherited, not applied.</li>
+<li><strong>Zero missing values, zero whitespace padding, zero mixed-type columns, zero
+true sentinels.</strong></li>
+</ul>
+
+<h3>The dominant caveat: feature-profile twins straddle the split</h3>
+
+<p>The 9 modelled features repeat heavily &mdash; 528,765 distinct profiles over 678,013
+rows. Under the seed-42 split, <strong>31,798 profile groups span train and
+development</strong>, so:</p>
+
+<blockquote><strong>26.54%</strong> of development rows (35,985 / 135,603) and
+<strong>26.37%</strong> of sealed-test rows have a <em>feature-identical twin</em> in the
+train fold.</blockquote>
+
+<p>These are not full-row duplicates &mdash; <code>IDpol</code> is unique and
+<code>Exposure</code> varies, so the mechanized duplicate-row check correctly passes.
+They are policies with identical rating characteristics. The decision was to
+<strong>record, not fix</strong>: deduplicating or switching to a group split would break
+the 0.454861 / 0.444689 anchors and destroy cross-study comparability.</p>
+
+<p>This is exactly why the study's standing directive is <strong>report the GAP, never
+the levels</strong>. Both tracks consume identical contamination, so the GLM&harr;GBDT
+difference &mdash; the actual estimand &mdash; is unbiased by it; what is optimistic is
+every <em>absolute</em> deviance versus a fresh portfolio. The upside is also bounded:
+twin rows are claim-poor (1.97% claim-bearing among the dev twins vs 3.68% overall).</p>
+
+<h3>The other reason levels lie: the folds are not identically frequent</h3>
+
+<p>Exposure-weighted frequency by partition:</p>
+
+<pre><code>train  0.073900          development  0.072375          sealed test  0.074350</code></pre>
+
+<p>A model calibrated on train therefore <em>must</em> over-predict development by
+0.073900 / 0.072375 = <strong>1.021</strong> and under-predict the sealed test by
+0.073900 / 0.074350 = <strong>0.994</strong> &mdash; before any question of model
+quality. Hold that thought; section 5 shows it explaining an apparent calibration finding
+almost exactly.</p>
+
+<h3>The clean-room leakage audit &mdash; and the leak that was already removed</h3>
+
+<p>Performed in a fresh context reading only <code>study.yaml</code>,
+<code>prepare.py</code>, <code>pipeline.py</code>, the prepared artifact and the profile
+&mdash; <code>program.md</code> and every other study's files stayed closed. Rows 3&ndash;4
+are mechanized: <strong>9/9 checks passed: clean</strong>.</p>
+
+<p>The most instructive row is target leakage. <code>prepare.py</code>'s
+<code>RAW_KEEP</code> is an <strong>allowlist</strong>, not a denylist: it admits exactly
+12 canonical raw columns and drops <strong>46</strong> hub columns &mdash; including the
+hub's derived <code>Frequency</code> column, which is the target in disguise. Verified by
+value rather than by trusting the code, and quantified as a contrast:</p>
+
+<table>
+<thead><tr><th>Column</th><th>Correlation with <code>ClaimNb</code></th><th>Reading</th></tr></thead>
+<tbody>
+<tr><td>the dropped <code>Frequency</code> (if it had survived)</td><td><strong>+0.3055</strong> (and +1.0000 with the modelled rate)</td><td>the leak signature</td></tr>
+<tr><td><code>BonusMalus</code> &mdash; the strongest <em>surviving</em> feature</td><td><strong>+0.0667</strong></td><td>two orders of magnitude away from a leak</td></tr>
+</tbody>
+</table>
+
+<p>BonusMalus is also legitimate <em>ex ante</em>: the coefficient is fixed from prior
+years' experience at renewal, so it cannot encode this period's claims. The eval harness
+was sanity-checked too &mdash; the constant predictor scores 0.2554 and the label-shuffled
+predictor 1.5327 (glm) / 1.5296 (gbdt), both no-information baselines, with the metric
+direction matching the contract on both tracks.</p>
+
+<h3>Go / no-go</h3>
+
+<blockquote><strong>Decision: GO-WITH-CAUTIONS.</strong> No BLOCKER open. Three WARNs
+carried forward as standing directives: (1) report the gap, never the levels; (2) derive
+interaction pairs from a <em>train-fold</em> surrogate only &mdash; the pairs are a
+caller-supplied argument, which is the one live lookahead surface no static check can
+catch; (3) never filter the 365&times; rate tail &mdash; exposure weighting already
+down-weights a one-day policy to 1/365 of a full-year policy.</blockquote>
+
+<p>One structural limitation the card flags for the findings: <strong>the prepared
+artifact has no time column</strong>, so a temporal split is impossible and the frozen
+random split is the only realizable design. Every conclusion here is an
+<em>in-period</em> statement about this portfolio, not a forward-in-time generalization.</p>

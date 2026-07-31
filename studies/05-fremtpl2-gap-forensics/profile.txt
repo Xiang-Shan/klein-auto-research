@@ -1,0 +1,37 @@
+# Data Profile
+
+**Shape:** 678013 rows x 12 columns
+
+## Columns
+
+| Column | dtype | missing % | n_unique | sample values |
+|---|---|---|---|---|
+| IDpol | int64 | 0.0% | 678013 | 1, 3, 5 |
+| ClaimNb | int64 | 0.0% | 5 | 0, 1, 2 |
+| Exposure | float64 | 0.0% | 106 | 0.1, 0.77, 0.75 |
+| VehPower | int64 | 0.0% | 12 | 5, 6, 7 |
+| VehAge | int64 | 0.0% | 78 | 0, 2, 1 |
+| DrivAge | int64 | 0.0% | 83 | 55, 52, 46 |
+| BonusMalus | int64 | 0.0% | 115 | 50, 68, 90 |
+| Density | int64 | 0.0% | 1607 | 1217, 54, 76 |
+| Area | str | 0.0% | 6 | D, B, E |
+| VehBrand | str | 0.0% | 11 | B12, B6, B3 |
+| VehGas | str | 0.0% | 2 | Regular, Diesel |
+| Region | str | 0.0% | 22 | R82, R22, R72 |
+
+## Flags
+
+- **ID-like** (unique ≈ rows): `IDpol` (678013/678013 unique)
+
+## Target balance (`ClaimNb`)
+
+- `0`: 653069 rows (96.32%)
+- `1`: 23570 rows (3.48%)
+- `2`: 1299 rows (0.19%)
+- `3`: 62 rows (0.01%)
+- `4`: 13 rows (0.00%)
+
+## Modeling implications
+
+- [ ] Drop ID-like columns before modeling (IDpol) — near-unique values carry no generalizable signal and can leak row identity.
+

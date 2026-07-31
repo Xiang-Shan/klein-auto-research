@@ -1,0 +1,91 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 348,
+      "committed": true,
+      "sha256": "5012ee48174d661fad081f08715a29170709644e9473d6021e2778f3c831b7ec"
+    },
+    "models/best_glm_E0001_0.454861_590b5fea4b7d.joblib": {
+      "availability": "local",
+      "bytes": 5743,
+      "committed": false,
+      "sha256": "d650e993930db8adb82c64397a03c1539205d95e7c92b6743eb6f7db0eb486c1"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 294,
+      "committed": true,
+      "sha256": "f221093147ae9e82387156f832f237357003799390010c598488b749b3232e89"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 440,
+      "committed": true,
+      "sha256": "351b3fcd0e826719df6090f25b70becd4740c55e581b0ce0263a23c93c280718"
+    }
+  },
+  "base_commit": "7b7f28ff3c9dcba690032efaa508582285c4328c",
+  "candidate_commit": "9edcd2af6603b1367dfc6d49be53115e9bc8a4df",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "guardrails failed: guardrail metric 'wall_seconds' missing",
+  "description": "GLM-OHE anchor (intentional replication of the committed baseline config): the v0.4.0 registry val_poisson_deviance reproduces study-04's hand-rolled 0.454861 to 1e-9 on identical prep/split; any mismatch means split/weight/clip drift - STOP; guardrails failed: guardrail metric 'wall_seconds' missing",
+  "disposition": "discard",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-07-31T16:27:08.898662Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": null,
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.021618,
+    "primary_metric": 0.454861,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.7,
+    "train_rows": 406807.0,
+    "training_seconds": 1.1,
+    "val_mae": 0.137129,
+    "val_poisson_deviance": 0.454861,
+    "val_r2": 0.006292,
+    "val_rmse": 0.490714,
+    "val_rows": 135603.0
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 2,
+  "primary_metric": 0.454861,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:27:06.433409Z",
+  "timed_out": false,
+  "track": "glm",
+  "transaction": {
+    "committed_at": "2026-07-31T16:27:08.972631Z",
+    "evidence_commit": "1f9982c6a19cd1f8940ab5c458e54ef3277d0ecf",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 2.4651468329830095
+}

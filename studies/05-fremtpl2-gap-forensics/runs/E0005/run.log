@@ -1,0 +1,22 @@
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/utils/validation.py:2827: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+---
+primary_metric:    0.444413
+metric_name:       val_poisson_deviance
+metric_goal:       lower
+training_seconds:  2.7
+total_seconds:     3.5
+train_rows:        406807
+val_rows:          135603
+status:            ok
+--- aux_metrics ---
+val_rmse:          0.489015
+val_mae:           0.135257
+val_r2:            0.013159
+val_poisson_deviance: 0.444413
+calibration_ratio: 1.018450
+model_config: lgbm_poisson
+wall_seconds: 3.2003860473632812
+effective_trees: 200.0
+runner_status: ok
+runner_exit_code: 0

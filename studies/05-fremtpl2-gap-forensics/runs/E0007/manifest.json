@@ -1,0 +1,91 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2269,
+      "committed": true,
+      "sha256": "b6755f441459f0b2fc6f6871753cdf19fcf3850c51ea62689a6474cd2f20c674"
+    },
+    "models/best_glm_E0007_0.452926_79d1c6ff9447.joblib": {
+      "availability": "local",
+      "bytes": 8357,
+      "committed": false,
+      "sha256": "89da210610c37a9658bd9c997375d2a4fb93efe901e6e8dd541e646de34b173a"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 1142,
+      "committed": true,
+      "sha256": "9788156838345e2e25e46c46aa3407820939399ab5da708106c95e49dba52e82"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 482,
+      "committed": true,
+      "sha256": "89f5f79b50e21ea9c1090530f0956175c3bce055583471e0d4da74b69ca77e6c"
+    }
+  },
+  "base_commit": "5bffff2b4b1a38e33eac4e4d9539d2d1e522da9a",
+  "candidate_commit": "3bb72d1a08c2822958605f46f8f513010e8c13b9",
+  "code_patch_hash": "55207d6fa0f5f1806a13c03777022132d2ffa014815e130a7c5f7b413cd0c7db",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.453156 by minimum_delta=0.000539",
+  "description": "RQ5/M4: + top TRAIN-fold surrogate interaction VehAge x BonusMalus (rank 1/10, |resid corr| 0.1536; PD strength 0.029; DrivAge x BonusMalus ranked 8/10 - literature prior refuted in ranking). Screened 10 pairs, adopting 1. Predicted: closes >= 2x glm floor 0.000539 beyond E0004's 0.453156; did not improve track frontier 0.453156 by minimum_delta=0.000539",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T16:37:47.236462Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0004",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.021118,
+    "primary_metric": 0.452926,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.2,
+    "train_rows": 406807.0,
+    "training_seconds": 0.7,
+    "val_mae": 0.137069,
+    "val_poisson_deviance": 0.452926,
+    "val_r2": 0.007749,
+    "val_rmse": 0.490354,
+    "val_rows": 135603.0,
+    "wall_seconds": 1.1222200393676758
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 5,
+  "primary_metric": 0.452926,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:37:45.301742Z",
+  "timed_out": false,
+  "track": "glm",
+  "transaction": {
+    "committed_at": "2026-07-31T16:37:47.308722Z",
+    "evidence_commit": "939f90f6096f2e3dc093b55f2c10205f8415ba9d",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 1.934631333919242
+}

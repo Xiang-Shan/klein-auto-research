@@ -1,0 +1,80 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2890,
+      "committed": true,
+      "sha256": "90a91a0ee5a8108a8a5de2da194bc5f2018980389c5c4c53d7a2913176d6761f"
+    },
+    "runs/E0009/run.log": {
+      "availability": "recorded",
+      "bytes": 501,
+      "committed": true,
+      "sha256": "4c435b888251f165da69f5e3de8bb14e18787bb779ce6b4cef4a697b9b1b13e7"
+    }
+  },
+  "base_commit": "b5c1139944c00be3522c2f8575a4c822426ebc8b",
+  "candidate_commit": "b87d6a5e470e6db69fd2fdf4370ef5cd4810460f",
+  "code_patch_hash": "685d0c398232db966871f02295a3a775ad924d70b50b66d07d1f1b37086023bb",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "description": "RQ7/M3: monotone +1 BonusMalus on the NATIVE-categorical HGBT. Constraint cost read TWO ways per method-card R2: vs same-encoding unconstrained control (study-04 E0004 native 0.445343, tag v1.0.0, same split/prep) and vs the OHE incumbent 0.444689 (total cost incl. encoding). Prediction: constraint component < 1x gbdt floor 0.000573 - filability nearly free; did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T16:41:22.755739Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0009",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.014181,
+    "effective_trees": 53.0,
+    "primary_metric": 0.447455,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.7,
+    "train_rows": 406807.0,
+    "training_seconds": 1.1,
+    "val_mae": 0.13564,
+    "val_poisson_deviance": 0.447455,
+    "val_r2": 0.011189,
+    "val_rmse": 0.489503,
+    "val_rows": 135603.0,
+    "wall_seconds": 1.5690057277679443
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 2400.0,
+  "phase_experiment_limit": 3,
+  "primary_metric": 0.447455,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:41:20.380851Z",
+  "timed_out": false,
+  "track": "gbdt",
+  "transaction": {
+    "committed_at": "2026-07-31T16:41:22.823556Z",
+    "evidence_commit": "893e303f0539d001535041c9dfa310c5b2205bc5",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 2.374803917016834
+}

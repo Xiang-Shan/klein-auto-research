@@ -1,0 +1,208 @@
+<h2>The Method</h2>
+
+<p>Four things had to be taught before a single number could be believed: what the metric
+is, what "different" means on it, how to interrogate a black box for structure, and what
+a shape constraint actually constrains.</p>
+
+<h3>1. The metric &mdash; and why exposure is a weight, not an offset</h3>
+
+<p>The response is a <strong>rate</strong>: <code>y<sub>i</sub> = n<sub>i</sub> /
+e<sub>i</sub></code>, claims divided by exposure-years, with the exposure
+<code>e<sub>i</sub></code> serving as the fitting <em>and</em> scoring weight. Every model
+on both tracks is driven that way &mdash; no per-library offset plumbing anywhere.</p>
+
+<pre><code>unit Poisson deviance   d(y, mu) = 2 * ( y*log(y/mu) - y + mu ),      0*log 0 := 0
+
+fold deviance           D(m) = SUM_i w_i * d(y_i, mu_m(x_i))  /  SUM_i w_i      (w_i = e_i)
+
+the gap                 Delta = D(GLM) - D(GBDT)      -- positive means GBDT is better</code></pre>
+
+<p>That the exposure-weighted rate form is <em>identical</em> to the textbook offset form
+is the load-bearing step, so the method card derives it rather than citing it:</p>
+
+<pre><code>log Pois(n | e*mu) = n*log(e*mu) - e*mu - log n!
+substitute n = e*y, drop theta-free terms   ->   e * ( y*log mu - mu )
+
+and              e * d(y,mu) / 2  =  e * ( y*log y - y*log mu - y + mu )
+whose theta-dependent part is        - e * ( y*log mu - mu )
+
+=>   argmax SUM log Pois(n_i | e_i * mu_theta)  ==  argmin SUM e_i * d(y_i, mu_theta)
+        (count likelihood, offset log e)            (exposure-weighted rate deviance)
+
+both give the same score equation:
+        SUM_i ( n_i - e_i * mu_theta(x_i) ) * grad_theta eta_theta(x_i) = 0</code></pre>
+
+<p>For a GBDT the equality holds at the level of the loss <em>and its gradients</em>, so
+it propagates into every split gain and every leaf value. This is why
+<code>PoissonRegressor</code>, <code>HistGradientBoostingRegressor</code>,
+<code>LGBMRegressor(objective="poisson")</code> and <code>CatBoostRegressor(loss_function="Poisson")</code>
+can all be handed the identical <code>(y_rate, sample_weight=Exposure)</code> pair and
+still be comparing like with like. One caveat worth carrying into a filing memo: the
+equivalence is for the fitted <em>function</em>; dispersion-based standard errors differ
+unless &phi; is handled consistently. Irrelevant here &mdash; the metric is a deviance,
+not a Wald test.</p>
+
+<h3>2. Three floors, not one &mdash; the metrology that governs every verdict</h3>
+
+<p>A delta is only evidence if it exceeds the noise of the comparison that produced it.
+This study measured <strong>four</strong> distinct floors and they differ by more than a
+factor of four. Getting this wrong is the single most common way a gap becomes a
+fiction.</p>
+
+<table>
+<thead><tr><th>Floor</th><th>Value</th><th>What it governs</th></tr></thead>
+<tbody>
+<tr><td>glm fit-seed std (k = 5)</td><td><strong>exactly 0</strong></td><td><em>nothing</em> &mdash; <code>PoissonRegressor</code> is deterministic. The degenerate value IS a finding: quoting a seed floor for a GLM is meaningless.</td></tr>
+<tr><td>gbdt fit-seed std (k = 5)</td><td>0.000210</td><td>HGBT re-fit reproducibility only</td></tr>
+<tr><td>glm paired-bootstrap SE (B = 1000, CRN)</td><td>0.000270 &rarr; <code>minimum_delta</code> <strong>0.000539</strong></td><td>within-<code>glm</code>-track comparisons</td></tr>
+<tr><td>gbdt paired-bootstrap SE (B = 1000, CRN)</td><td>0.000287 &rarr; <code>minimum_delta</code> <strong>0.000573</strong></td><td>within-<code>gbdt</code>-track comparisons</td></tr>
+<tr><td><strong>cross-track</strong> paired SE (development)</td><td><strong>0.000963</strong></td><td>the headline GLM&harr;GBDT gap on development</td></tr>
+<tr><td><strong>cross-track</strong> paired SE (sealed)</td><td><strong>0.001028</strong></td><td>the headline gap on the sealed test</td></tr>
+</tbody>
+</table>
+
+<p><strong>Why the paired floor is the one that governs.</strong> A seed floor asks "if I
+re-fit this model, how much does its score move?" &mdash; which says nothing about
+whether <em>two different models</em> differ. The paired bootstrap asks the right
+question: resample the evaluation rows <em>once</em> with <strong>common random
+numbers</strong>, score <em>both</em> models on the same resample, and take the standard
+deviation of the <strong>difference</strong> across B = 1000 draws. Shared row-level
+noise cancels; only the disagreement between the models survives. Bootstrapping the two
+levels separately and differencing their SEs would overstate the comparison noise
+several-fold.</p>
+
+<p>Note the asymmetry that follows: the <strong>cross-track SE (0.000963) is 4.6&times;
+the GBDT seed floor</strong> and is the <em>only</em> one of the four that legitimately
+bands the headline gap. It is an uncertainty band, <strong>not</strong> a
+<code>minimum_delta</code> &mdash; it never gates a keep/discard decision. Track
+frontiers are gated by the within-track deltas; the gap is <em>reported</em> against the
+cross-track SE.</p>
+
+<h3>3. The forensics instruments &mdash; how to ask a black box <em>where</em></h3>
+
+<p>Three tools, all off-ledger (descriptive analysis, never evidence), all reading
+artifacts the sanctioned loop already produced.</p>
+
+<h4>M4 &mdash; train-fold surrogate distillation</h4>
+
+<p>Knowledge distillation trains a small <em>student</em> on a big <em>teacher</em>'s
+outputs. Here the machinery is repurposed as a <strong>measurement instrument</strong>,
+and that changes how you read it:</p>
+
+<blockquote>The GBDT's log-prediction surface is a smooth function of the rating factors.
+Fit a <strong>GLM-shaped surrogate</strong> &mdash; main effects only, in a basis the
+real GLM could actually use &mdash; to that surface. Whatever the surrogate
+<strong>cannot</strong> reproduce is, by construction, the part of the teacher's
+structure that is <strong>not representable as GLM main effects</strong>. Correlate that
+residual against candidate two-way products and the largest correlations name
+<em>which interactions the GBDT found</em>.</blockquote>
+
+<pre><code>teacher's log-score      F(x)     = log mu_GBDT(x)      -- TRAIN fold only
+main-effects surrogate   g(x; th) = per-column cubic basis (x, x^2, x^3), weighted LS
+
+th_hat = argmin_th  SUM_{i in TRAIN}  w_i * ( F(x_i) - g(x_i; th) )^2
+
+r_i    = F(x_i) - g(x_i; th_hat)                   <-- the non-additive remainder
+
+R2_main   = 1 - SUM w*r^2 / SUM w*(F - Fbar_w)^2
+
+score(a,b) = | SUM_i w_i * z_i^ab * r_i / SUM_i w_i |
+             ---------------------------------------------   in [0, 1]
+                sqrt( SUM_i w_i * r_i^2 / SUM_i w_i )</code></pre>
+
+<p><code>score(a,b)</code> is the weighted correlation between the standardised product
+column <code>z<sup>ab</sup></code> and the residual. Five numeric factors give
+C(5,2) = <strong>10</strong> candidate pairs; rank them, promote the top-K into the real
+GLM as design-matrix columns, and measure development deviance. <em>The instrument and
+the intervention are the same object</em> &mdash; the column that scored highest IS the
+column you add, so a screening hit is immediately falsifiable by one refit.</p>
+
+<p>Three properties make this a screen rather than a fishing expedition:</p>
+<ol>
+<li><strong>It never touches evaluation labels.</strong> The surrogate's target is the
+teacher's <em>train-fold predictions</em>, not <code>y</code>. Derivation lives entirely
+inside train; development is spent only on the adopt/reject decision; the sealed fold
+confirms.</li>
+<li><strong>Multiplicity is fixed in advance and published.</strong> 10 screened, at most
+2 adopted, both counts reported either way. A screen you report is a screen; a screen you
+hide is p-hacking.</li>
+<li><strong><code>R&sup2;_main</code> is itself a headline number.</strong> It answers
+RQ5's real question &mdash; <em>is the gap an interaction gap at all?</em> &mdash; before
+a single interaction is adopted.</li>
+</ol>
+
+<p><strong>Read it correctly.</strong> <code>R&sup2;_main</code> lives on the
+<em>log-score surface</em>, not on deviance. It is a diagnostic, not a bound on
+recoverable deviance. A high value with a stubborn gap would have meant the gap lives in
+basis/knot curvature the scoped splines do not span &mdash; a different, equally
+reportable answer.</p>
+
+<h4>M4 cross-check &mdash; the manual two-way partial dependence</h4>
+
+<p>A single instrument that names an interaction is a hypothesis; two instruments
+agreeing is evidence. The cross-check is model-agnostic and computed by hand on the log
+scale (GLM additivity <em>is</em> log-scale additivity):</p>
+
+<pre><code>strength(a,b) = std[  PD2(a,b)  -  ( PD1(a) + PD1(b) )  ]
+
+              all surfaces mean-centred, 8x8 quantile grid, evaluated on log(mu)</code></pre>
+
+<p>If a pair is genuinely additive, the 2-D partial-dependence surface equals the sum of
+the two 1-D curves and the residual surface is flat. Its standard deviation is the pair's
+non-additivity in log-rate units. A pair is adopted only if the surrogate ranking and the
+PD signature agree on it.</p>
+
+<h4>M5 &mdash; segment deviance decomposition</h4>
+
+<p>The weighted deviance is a <strong>sum of per-row contributions</strong>, so
+<em>any</em> disjoint partition of the evaluation rows partitions the total
+<strong>exactly</strong> &mdash; no cross terms, no residual, nothing approximated:</p>
+
+<pre><code>D(m)  = SUM_k D_k(m)          for ANY disjoint partition {S_1 ... S_K} of the eval rows
+
+Delta = SUM_k [ D_k(GLM) - D_k(GBDT) ] = SUM_k Delta_k
+
+gap share_k = Delta_k / Delta                         SUM_k gap share_k = 1</code></pre>
+
+<p>That identity is what converts a leaderboard row into a <strong>WHERE</strong>
+answer. "72% of the gap sits in three segments covering 11% of exposure" is a completely
+different business story from "the gap is spread evenly across the book" &mdash; and both
+produce the same headline number. Discipline: individual &Delta;<sub>k</sub> may be
+<em>negative</em> (segments where the GLM wins), so shares can exceed 1; always print
+each segment's <strong>exposure share</strong> next to its gap share, or a 1%-exposure
+segment will look decisive when it is noise.</p>
+
+<h3>4. Monotone constraints &mdash; and the distinction that explains their price</h3>
+
+<p>A monotone constraint is not a post-hoc smoothing. It is enforced <em>inside split
+finding</em>: every node carries a value band <code>[&ell;, u]</code> inherited from its
+ancestors, and a split on the constrained feature is admissible only if</p>
+
+<pre><code>v_left &lt;= v_right ,    with  v_left, v_right  in  [l, u]
+
+              (the children's bands are tightened so the ordering
+               can never be undone deeper in the tree)</code></pre>
+
+<p>Additive stagewise composition preserves the property, so the whole ensemble inherits
+the guarantee scikit-learn states as
+<code>x1 &le; x1' &rArr; F(x1, x2) &le; F(x1', x2)</code>.</p>
+
+<p>Read that guarantee slowly, because it is the entire finding of RQ7. It is quantified
+over <strong>every value of <code>x2</code></strong> &mdash; i.e. monotonicity is
+enforced <strong>pointwise in every conditioning context</strong>, not on the marginal
+curve. So:</p>
+
+<blockquote><strong>Marginal monotonicity does not imply conditional monotonicity, and it
+is the conditional version the library enforces.</strong></blockquote>
+
+<p>A factor can be perfectly non-decreasing when you plot mean frequency against it, and
+the constraint can still be expensive &mdash; because it forbids the model from letting
+that factor's <em>slope vary</em> with another factor. Section 5 shows exactly that
+happening, for exactly the reason the surrogate screen predicted.</p>
+
+<p>Encoding note: <code>+1</code> increase, <code>0</code> unconstrained, <code>-1</code>
+decrease, one entry per <em>input</em> feature. Categorical features cannot be
+constrained (categories are unordered), so <code>hgbt_monotone</code> puts <code>0</code>
+on every categorical position and <code>+1</code> on BonusMalus only &mdash; which is why
+that config also switches to the native-categorical encoder, and why RQ7 needed a
+same-encoding control.</p>
