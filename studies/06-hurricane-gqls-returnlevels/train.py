@@ -38,7 +38,7 @@ CONVENTION = "inverted_cdf"     # inverted_cdf | hazen | weibull | median_unbias
 K = 8                    # quantile levels per fit; Tables 6.9/6.10 use k = 8
 ESTIMATOR = "gqls"
 FAMILY = "lognormal"
-TRIM = (0.05, 0.95)      # decision modes only: the (a, b) quantile trim
+TRIM = (0.10, 0.90)      # decision modes only: the (a, b) quantile trim
 # -------------------------------------------------------------------
 
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
