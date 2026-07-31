@@ -116,6 +116,17 @@ base commit.
   HGBT's 67); CatBoost +0.001643 (2.9× gbdt floor, deficit real-looking);
   scoped-splines closure only 16.8% vs leaky study-04 shaping's 18% — RQ4's
   30-45% prior now DOUBTED, honest-no candidate.
+- 2026-07-31 — FRICTION F2 (this study): E0012 (gbdt sealed run) refused with
+  "sealed final-test state is missing for track 'gbdt'". Cause: `klein new`
+  scaffolds a single track, and `initial_state` derives `final_holdout_access`
+  keys from the tracks AT SCAFFOLD TIME; adding a second track by editing
+  study.yaml (the only way to make a two-track study today) leaves the state map
+  stale, and `load_state` performs no reconciliation. Fix applied: added the
+  missing `gbdt: {count: 0, accessed_at: null, experiment: null}` entry — byte-
+  identical in shape to what `initial_state` generates — via an atomic scripted
+  edit, committed with this note. Framework-fix candidate for findings §⑦:
+  `load_state` should top-up `final_holdout_access` (and any per-track maps)
+  from the current contract, or `klein new` should accept repeated `--track`.
 - 2026-07-31 — FRICTION F1 (this study): E0001 printed the anchor-exact metric
   (0.454861) but was dispositioned discard — "guardrail metric 'wall_seconds'
   missing". Cause: `evaluate_regression` writes wall_seconds into aux_metrics.tsv
