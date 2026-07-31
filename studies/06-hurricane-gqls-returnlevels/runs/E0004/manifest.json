@@ -1,0 +1,91 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 12385,
+      "committed": true,
+      "sha256": "577b88f8d6498df2e8ed00876dac708265ea5e0c2d507dac3dd546dd7d4c9f55"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 3941,
+      "committed": true,
+      "sha256": "51a2e0c941c829041fb955c94812c2769b3d6ae7d3fe21f0e38c29272ac05c03"
+    }
+  },
+  "base_commit": "76bd9d4cc21884e3a7411b5092051beac5dd7e7b",
+  "candidate_commit": "1fb45f1e0aa69ead4e0ea5b5353fd1f3d73f95ad",
+  "code_patch_hash": "61ded898facb5824704062980c729c75bbea4c261e940e57c3f29c897c904cdf",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.002754 by minimum_delta=0.005",
+  "description": "RQ2: W_out in both modes (chi2_23 reference vs the thesis's prescribed B=1000 parametric bootstrap) across the 18 cells - prediction REVISED at method gate: 16/18 published p-values sit within 0.005 of chi2_23 (tighter than bootstrap MC error allows, suggesting the published values are chi2-derived despite the prescription) while 2/18 diverge (log-Logistic (0.02,0.98) delta 0.434; log-Laplace (0.10,0.90) delta 0.100); our bootstrap-vs-chi2 agreement quantified in aux; did not improve track frontier 0.002754 by minimum_delta=0.005",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T18:44:34.559730Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_abs_param_deviation",
+  "metrics": {
+    "cells_pub_p_within_res_of_chi2_of_published_W": 16.0,
+    "cells_pub_p_within_res_of_our_chi2": 16.0,
+    "divergent_laplace_10_90_p_boot": 0.486,
+    "divergent_laplace_10_90_p_chi2": 0.4496,
+    "divergent_laplace_10_90_pub_p": 0.55,
+    "divergent_logistic_02_98_p_boot": 0.534,
+    "divergent_logistic_02_98_p_chi2": 0.5939,
+    "divergent_logistic_02_98_pub_p": 0.16,
+    "max_abs_p_deviation": 0.00485721199461997,
+    "max_abs_param_deviation": 0.018687121207129564,
+    "max_abs_w_deviation": 0.005006716286982016,
+    "mean_abs_dev_trim_002_098": 0.002272808971628487,
+    "mean_abs_dev_trim_005_095": 0.0025893035425136276,
+    "mean_abs_dev_trim_010_090": 0.003399129645231702,
+    "n_cells": 18.0,
+    "n_params": 36.0,
+    "p_boot_vs_chi2_max_abs": 0.2868721662299357,
+    "p_boot_vs_chi2_mean_abs": 0.08142958905867023,
+    "params_within_resolution": 35.0,
+    "primary_metric": 0.002754,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.0,
+    "w_out_bootstrap_B": 1000.0,
+    "w_out_bootstrap_seed": 20260731.0,
+    "w_out_r": 25.0,
+    "wall_seconds": 0.9879469871520996
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 0.002754,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:44:32.950544Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "ready_at": "2026-07-31T18:44:34.560477Z",
+    "status": "pending"
+  },
+  "wall_seconds": 1.6090994999976829
+}
