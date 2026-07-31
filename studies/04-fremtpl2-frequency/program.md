@@ -60,3 +60,11 @@ the ranked survivors into playbook.md "Next-best candidates".
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+- 2026-07-31 — Phase-0 noise floor, three views (soak F4): HGBT fit-seed sweep
+  k=5 std 0.000210 (suggested 0.00042); marginal dev-fold bootstrap SE 0.005391
+  (suggested 0.01078); PAIRED-difference bootstrap (GLM vs HGBT, same rows,
+  n_boot=200) SE 0.000893. minimum_delta set to 0.001786 = 2x paired SE — the
+  correct floor for a COMPARISON study; the marginal SE overstates comparison
+  noise 6x because both models share each bootstrap row's shot noise. Preview
+  from the measurement (not a ledger row): HGBT baseline ~0.4449 vs GLM 0.4549,
+  paired delta 0.0101 = 11.3 paired SEs. Consult re-recorded.

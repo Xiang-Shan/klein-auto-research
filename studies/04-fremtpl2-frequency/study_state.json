@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "xiang",
-      "timestamp": "2026-07-31T02:24:28.868267Z"
+      "timestamp": "2026-07-31T02:29:29.133273Z"
     },
     "data": {
       "by": "xiang",
@@ -17,7 +17,7 @@
     "data_card.md": "f13bc60bafb422b3f4d524df861d71b32ab53f3ec250950f1bf8493904391944",
     "method_card.md": "0b8bb36eee40584d35ee4b54a5d6c5db1823e677595a732dab0e04fe2c1c9206",
     "research_plan.md": "ac48b09fca87c254401ca508013c63473b98342f573a11c206a232040a97c17e",
-    "study.yaml": "27312af68eebbfbd3696a166862ca6a51aaf89221e150154e15a6baf94155b2a"
+    "study.yaml": "9caa469d8252719120693a656e33c198e8d5bac9546136f9d4c846b649e0c307"
   },
   "created_at": "2026-07-31T02:20:43.189099Z",
   "current_phase": "adaptive-1",
@@ -34,14 +34,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-07-31T02:24:28.868267Z",
+      "acknowledged_at": "2026-07-31T02:29:29.133273Z",
       "acknowledged_by": "xiang",
       "artifacts": {
-        "program.md": "93efbba363d885b844ea7cdcd8d695b6f10e9139e765bce57e9383dd83de40bd",
+        "program.md": "13bfdc516991ae0c10d7c0444f3bd108fcb5648bb334b01b4d795b1aca43bf37",
         "research_plan.md": "ac48b09fca87c254401ca508013c63473b98342f573a11c206a232040a97c17e",
-        "study.yaml": "27312af68eebbfbd3696a166862ca6a51aaf89221e150154e15a6baf94155b2a"
+        "study.yaml": "9caa469d8252719120693a656e33c198e8d5bac9546136f9d4c846b649e0c307"
       },
-      "note": "ack basis: user-commissioned soak brief 2026-07-31 (freMTPL2, frequency, GLM vs GBDT, full lifecycle)",
+      "note": "minimum_delta = 2x paired-difference bootstrap SE (comparison floor); three floor views recorded in program.md",
       "status": "recorded"
     },
     "data": {
@@ -73,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "04-fremtpl2-frequency",
-  "updated_at": "2026-07-31T02:27:28.611987Z"
+  "updated_at": "2026-07-31T02:29:29.133607Z"
 }
