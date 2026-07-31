@@ -32,7 +32,7 @@ from kleinlib.eval import evaluate_scalar
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 
 # ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
-MODE = "grid"          # anchor | grid | gof_redundancy | oqls_mle_arms | sensitivity
+MODE = "anchor"          # anchor | grid | gof_redundancy | oqls_mle_arms | sensitivity
                          # | decision | sealed_repro | sealed_decision
 CONVENTION = "hazen"     # inverted_cdf | hazen | weibull | median_unbiased | normal_unbiased
 K = 8                    # quantile levels per fit; Tables 6.9/6.10 use k = 8

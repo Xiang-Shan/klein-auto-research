@@ -1,0 +1,83 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 4563,
+      "committed": true,
+      "sha256": "5d6aa14869a86f878a9d4219b74122a0c26e3ffc7dae44bd5416dd3bf3ce2e1a"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 3657,
+      "committed": true,
+      "sha256": "2fa94dda47fc51d3d6b6b1ea4b849ceec3597aedba382cc07576a0b7c5687410"
+    }
+  },
+  "base_commit": "47f04e477aa13f24ae5d5de80c9f401f838a4ad0",
+  "candidate_commit": "717e414fd4f9c5a636ae3bdb88ddd783ce144371",
+  "code_patch_hash": "3a786aca6903d5210b2c7fe80c88e3085797c575cefa76ca242ab72486a1f8d0",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "guardrails failed: max_abs_param_deviation=0.03127860951692235 > max 0.02; max_abs_w_deviation=1.2855176512015198 > max 0.1; max_abs_p_deviation=0.15813481258285722 > max 0.02",
+  "description": "full 18-cell gQLS grid under the registered hazen default vs Table 6.9: predicted mean ~0.0093 with max_abs_param_deviation ~0.032 BREACHING the 0.02 guardrail - the descriptive convention cannot reproduce the thesis's estimation tables (discard predicted; the fix is the thesis's own ch.2 definition); guardrails failed: max_abs_param_deviation=0.03127860951692235 > max 0.02; max_abs_w_deviation=1.2855176512015198 > max 0.1; max_abs_p_deviation=0.15813481258285722 > max 0.02",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T18:43:53.281446Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": null,
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_abs_param_deviation",
+  "metrics": {
+    "gumbel_g3_dev_vs_table_6_10": 0.006269936454497582,
+    "gumbel_g3_dev_vs_table_6_9": 0.026269936454497156,
+    "gumbel_g3_mu_hat": 22.366269936454497,
+    "k": 8.0,
+    "max_abs_p_deviation": 0.15813481258285722,
+    "max_abs_param_deviation": 0.03127860951692235,
+    "max_abs_w_deviation": 1.2855176512015198,
+    "mean_abs_dev_trim_002_098": 0.010384080111620694,
+    "mean_abs_dev_trim_005_095": 0.006389660881187341,
+    "mean_abs_dev_trim_010_090": 0.011136549895061604,
+    "n_cells": 18.0,
+    "n_params": 36.0,
+    "params_within_resolution": 13.0,
+    "primary_metric": 0.009303,
+    "runner_exit_code": 0.0,
+    "sigma_star_cond_max": 27302.621191579718,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.004985809326171875
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 0.009303,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:43:52.653152Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "ready_at": "2026-07-31T18:43:53.282223Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6282171671045944
+}
