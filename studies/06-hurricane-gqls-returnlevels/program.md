@@ -122,8 +122,9 @@ base commit.
   registered RQ5 prediction (< ⅓ of MLE) is REFUTED and the punchline lands**:
   PERFECT contamination robustness (0.0% under 5× — parameters unmoved) coexists
   with the worst leave-k-out instability (62.9%) and an absurd family-
-  conditional level (clean 1-in-100 ≈ $4.1e16 bn-scale — tan(0.49π)=31.8
-  amplification made real). Robust-to-outliers ≠ robust-to-resampling; the
+  conditional level (clean 1-in-100 ≈ 4.08e7 $bn, i.e. ≈ $4.1e16 —
+  tan(0.49π)=31.8 amplification made real; unit label corrected at synthesis,
+  see findings). Robust-to-outliers ≠ robust-to-resampling; the
   best-FITTING family is the least decision-stable. E0008 KEEP gQLS lognormal
   (0.05,0.95) 41.33 — the bounded transform (z=2.33) lets the trimmed-quantile
   robustness REACH the decision: 0.0% under 5× (vs MLE's +58.1% under the same
