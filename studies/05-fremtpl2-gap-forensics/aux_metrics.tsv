@@ -48,3 +48,11 @@ E0006	val_poisson_deviance	0.446331752095872
 E0006	calibration_ratio	1.0163718229920276
 E0006	model_config	catboost_poisson
 E0006	effective_trees	200.0
+E0007	val_rmse	0.49035379762332115
+E0007	val_mae	0.13706911680365755
+E0007	val_r2	0.007749105998343664
+E0007	wall_seconds	1.1222200393676758
+E0007	val_poisson_deviance	0.45292607203569313
+E0007	calibration_ratio	1.021117512380206
+E0007	model_path	models/best_glm_E0007_0.452926_79d1c6ff9447.joblib
+E0007	model_config	glm_interactions
