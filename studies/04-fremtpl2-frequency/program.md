@@ -35,7 +35,20 @@ base commit.
 
 ## Decisions (append-only)
 
-- 2026-07-31 — schema-v2 study scaffolded; gates pending.
+- 2026-07-31 — schema-v2 study scaffolded; gates pending. Ack basis for consult
+  and phase boundaries: the user commissioned this exact study as the Stage-2
+  soak ("freMTPL2, claim frequency, GLM vs GBDT, full lifecycle") — logged
+  friction goes to ~/../SOAK_LOG (outside the repo).
+- 2026-07-31 — metric registry has no deviance metrics (soak F1): study runs as
+  task_type simulation with the custom scalar metric val_poisson_deviance
+  (exposure-weighted mean Poisson deviance, computed in pipeline.py).
+- 2026-07-31 — prepare.py: hub table carried 46 derived/leakage/dummy columns
+  (incl. Frequency = the target); kept the 12 raw columns. 678,013 rows,
+  26,406 claims, 358,360 exposure-years. Null-model dev deviance 0.473037
+  (the reference cell). Zero rows needed the literature caps — this Kaggle
+  variant ships pre-clipped (provenance nuance on the data card).
+- 2026-07-31 — off-ledger train.py smoke polluted aux_metrics.tsv (soak F2);
+  sidecar truncated back to header before any ledger run.
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
