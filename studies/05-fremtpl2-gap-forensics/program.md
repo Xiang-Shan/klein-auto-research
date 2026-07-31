@@ -183,6 +183,17 @@ instruments agree on the set, disagree mildly on order; R7 blind-spot caveat
 **Dev waterfall: 0.454861 → 0.453156 (splines, 16.8%) → [products sub-floor,
 rejected] → 0.444689 (HGBT). Irreducible non-additive residue ≈ 83% of the gap.**
 
+### confirmation outcome (2026-07-31) — the headline
+
+E0011 sealed glm incumbent 0.459231; E0012 sealed gbdt incumbent 0.449667
+(bit-identical to study 04's sealed confirmation — cross-study consistency).
+Off-ledger join of the two exported prediction tables (135,603 rows, y/weights
+verified identical): **SEALED GAP = 0.009564 = 9.3× the sealed paired-bootstrap
+SE (0.001028, B=1000 CRN row bootstrap)**; |sealed − dev incumbent gap 0.008467|
+= 0.001097 = **1.07× SE → RQ1 CONFIRMED** (within the pre-registered 2-SE band).
+Study 04's §⑥ protocol caveat is closed: the freMTPL2 GLM→GBDT gap is now a
+difference of two sealed numbers.
+
 ### adaptive-3 outcome (2026-07-31)
 
 E0009 discard hgbt_monotone 0.447455 (effective_trees 53): constraint cost
