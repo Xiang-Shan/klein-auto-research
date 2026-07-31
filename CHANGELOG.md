@@ -4,6 +4,86 @@ All notable changes to Klein Auto Research. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [SemVer](https://semver.org/) with 0.x meaning the contract may still move.
 
+## [0.4.0] — 2026-07-31
+
+The integration release: a real-data soak (study 04) filed six frictions
+[F1–F6, `docs/reviews/2026-07-31-v0.3-soak.md`] and every one is closed here —
+plus the optional-accelerator seams that let a personal research harness
+compose with Klein without Klein depending on it.
+
+### Added
+
+- **Exposure-weighted deviance metrics** [F1]: `val_poisson_deviance` /
+  `val_gamma_deviance` / `val_tweedie_deviance` join the registry under the
+  exposure-weighted-rate convention (y = rate, `sample_weight` = exposure);
+  `evaluate_regression` threads optional strictly-positive weights into
+  RMSE/MAE/R² too, refuses out-of-domain values with clip-in-train.py guidance,
+  and reports `calibration_ratio` on deviance primaries. Tweedie declares its
+  `power` in the track contract (1 < power < 2, validated) and the evaluator
+  echoes it as an aux line, so drift is manifest-visible.
+- **Sanctioned smoke mode** [F2]: `KLEIN_SMOKE=1 python train.py` executes the
+  full path while evaluators skip every sidecar/snapshot write; the scaffold's
+  refusal message now teaches this instead of listing fakeable variables, and
+  `run-one` force-clears the flag in the child so ambient smoke can never
+  suppress real evidence.
+- **Empty-diff guard + restore anchor** [F5]: `run-one` refuses an accidental
+  rerun of the incumbent configuration before any experiment id, run dir, or
+  commit exists (`--allow-rerun` makes intentional replication first-class;
+  sealed final tests and `--command` overrides stay exempt; executed empty
+  diffs carry `empty_candidate_diff: true`), and after every non-keep the CLI
+  names the base commit train.py was restored to and the incumbent whose kept
+  config that equals (now recorded in manifests as `incumbent`).
+- **Real-data noise-floor recipe** [F4]: the consult protocol distinguishes the
+  fit-seed floor, the marginal fold-bootstrap floor, and the paired-difference
+  bootstrap floor for comparison studies (common-random-numbers language), and
+  the `noise_floor:` block gains an optional `method:` provenance field
+  (`seed-sweep` | `paired-bootstrap`) emitted by `klein noise-floor`.
+- **Comparison-study guidance** [F6]: decide at CONSULT how a gap gets its
+  sealed number — one track per model family, or pre-registered
+  exploratory-by-construction; the CLI and summaries label the sealed
+  confirmation "sealed" while its recorded disposition stays `discard`.
+- **`kleinlib.eval.save_holdout_predictions`**: the per-row holdout table hook
+  (`y_true`/`y_pred`/`weight` + rating dims + optional second model) under the
+  new gitignored `predictions/` convention — the export path for external
+  eval tooling, complementing `models/latest_val_preds.npz`.
+- **Optional-accelerator seams**, each existence-checked with the bundled
+  fallback named (the dataset-profiler pattern): a pricing eval-card generator
+  at SYNTHESIZE (worked example: `docs/integrations/pricing-eval-example/`,
+  built from study 04's incumbent; fallback `standard_regression_report`),
+  knowledge-vault Q&A and paper-filing at METHOD, practice-leg satisfaction by
+  citation of a from-scratch nano, a corpus synthesizer for cross-study
+  writeups, and outward promotion from `knowledge/` to personal vaults with
+  typed claim citations intact.
+- **Model backends note** (`AGENTS.md`): any driver runs over a subscription
+  agent CLI or a local model behind an OpenAI-compatible /
+  Anthropic-Messages-compatible server; Klein itself calls no model APIs and
+  requires no keys.
+- **Study `04-fremtpl2-frequency`** — the real-data soak exhibit (678k-row
+  freMTPL2 claim frequency, GLM vs GBDT): the paired-floor methodology live
+  (three defensible floors differing 25×), a keep decided by 0.000002 over the
+  declared delta, an accidental bit-identical replication proving end-to-end
+  determinism, and a sealed level confirmation at 0.65× the fold SE.
+
+### Fixed
+
+- **Leakage audit covers simulation and deviance studies** [F3]: real split
+  kinds on simulation contracts reproduce as regression-shaped splits,
+  `kind: none` reports N/A instead of failing, custom simulation metrics get
+  their declared direction, and the deviance family gains chance scorers
+  (constant train-mean = the null model; shuffled must not beat it). Study
+  04's committed contract now audits clean end to end, as-is.
+- **Gate records sweep `sweeps/`** [papercut]: measurement-sweep sidecars are
+  filed by the next gate/phase/finalize state commit instead of stranding the
+  tree dirty for the following `run-one`.
+
+### Docs
+
+- `docs/lineage/` — the agent-smith ancestry archive (quality audit +
+  campaign optimization notes, verbatim) with the ancestry README.
+- The v0.3 soak review joins the review series in-repo.
+- Data-auditor profiler fallback harmonized to the module CLI
+  (`python -m kleinlib.profile_fallback`, csv/parquet).
+
 ## [0.3.0] — 2026-07-30
 
 The distillation release: v0.2's hardening adopted, audited live, and slimmed —
