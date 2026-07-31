@@ -65,9 +65,10 @@ Rules for good drafting:
   carve-out in `sweep-rules.md`). Then `klein noise-floor --study <dir>` prints the
   per-track `noise_floor:` block; set `minimum_delta = max(2×std, range/2)` in
   `study.yaml` and re-record the consult gate with
-  `--note "minimum_delta set from the measured noise floor"`. Preflight fails a
-  `minimum_delta` set inside a declared floor, and findings must report any delta
-  under 2× the floor std as within-noise.
+  `--note "minimum_delta set from the measured noise floor"`. (That formula is the
+  single-model fit-noise default — for real-data comparison studies see the next
+  bullet.) Preflight fails a `minimum_delta` set inside a declared floor, and
+  findings must report any delta under 2× the floor std as within-noise.
 - **Real data has more than one floor — pick the one that matches the question.**
   A seed-only sweep measures FIT noise (optimizer/subsampling randomness); on real
   data three defensible floors can differ by an order of magnitude: the fit-seed

@@ -69,7 +69,7 @@ try:
 except ImportError as _exc:  # pragma: no cover — reachable only outside the repo
     print("[FAIL] schema source: kleinlib is not importable — the schema lives only in kleinlib.schema.")
     print("       In a foreign repo, install the engine first, e.g.:")
-    print('       uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v0.3.0"')
+    print('       uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v0.4.0"')
     print(f"       ({_exc})")
     sys.exit(1)
 

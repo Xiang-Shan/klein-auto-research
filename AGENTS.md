@@ -105,7 +105,10 @@ The loop has three layers. Keep them straight and the rest follows:
    (metric, direction, `minimum_delta`, guardrails), restores `train.py` to the
    pre-candidate base commit on a non-keep (the candidate commit stays
    resolvable — negative evidence is evidence), and files the evidence commit.
-   It never proposes, schedules, or retries an experiment.
+   It never proposes, schedules, or retries an experiment. It refuses an
+   unchanged `train.py` before any id or commit exists — pass `--allow-rerun`
+   for an intentional identical replication (sealed final tests and `--command`
+   overrides stay exempt).
 3. **The state files are receipts — generated, never hand-edited.**
    `runs/E####/manifest.json`, `study_state.json`, the append-only self-verifying
    `events.jsonl`, and the derived `results.tsv` record what layer 1 decided and
@@ -129,6 +132,10 @@ The standing rules around those layers:
   changes are rare, deliberate, and never part of the per-experiment diff.
 - Status honesty: `keep` / `discard` / `crash` — a crash is logged as a crash with
   `NA` metric, not silently retried into oblivion.
+- `KLEIN_SMOKE=1 python train.py` is the ONE sanctioned off-loop smoke check —
+  the canonical block prints, no sidecar/snapshot writes happen, and `run-one`
+  force-clears the flag in its child so ambient smoke can never suppress real
+  evidence.
 - The ONE sanctioned escape-hatch is the sweep protocol
   (`references/sweep-rules.md`): every trial to a sidecar TSV, exactly one winner
   transaction / derived row, winner config snapshotted into train.py, winner model
@@ -213,6 +220,8 @@ protocols always spell out both paths.
   this manual.
 - **Gemini CLI / Qwen Code**: point the context file at `AGENTS.md` (e.g. the
   `contextFileName` setting), or start the session with "read AGENTS.md first".
+- **GLM and other Anthropic-compatible CLIs**: they load `CLAUDE.md`, which points
+  here.
 - **Model backends.** Any driver above runs over any backend that speaks its
   protocol — a subscription agent CLI, or a **local model** behind an
   OpenAI-compatible or Anthropic-Messages-compatible server (llama.cpp's server
@@ -220,8 +229,6 @@ protocols always spell out both paths.
   OpenAI-style servers). Klein itself calls no model APIs and requires no API
   keys — the framework is plain Python + git; the driving agent brings its own
   model.
-- **GLM and other Anthropic-compatible CLIs**: they load `CLAUDE.md`, which points
-  here.
 - **No agent at all**: follow the stage map by hand — each protocol is a
   human-readable runbook and each helper is a plain CLI.
 

@@ -2,7 +2,7 @@
 
 ## Supported development line
 
-Security fixes target the current repository development line (`0.3.0` in
+Security fixes target the current repository development line (`0.4.0` in
 package metadata — see `CHANGELOG.md`). The shipped v0.1 studies are immutable research evidence, not
 a separately supported executable distribution.
 

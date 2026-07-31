@@ -52,6 +52,8 @@ transaction discipline it references lives in `.claude/skills/klein/SKILL.md` Ha
 9. Rerun that exact winner through `klein run-one --track <track> --description
    "<name> sweep; see sweeps/<name>.sidecar.tsv"`. The workflow commits the candidate
    first, creates its manifest, derives exactly one result, and restores a non-keep.
+   If the winner equals the incumbent config the diff is empty — add `--allow-rerun`
+   for the confirmation transaction.
 10. Pickle a kept winner via `kleinlib.snapshot` → `models/best_<exp>_<metric>.pkl`
    (+ manifest), same as a normal experiment.
 11. Put the winner's secondary metrics (wall_seconds, brier, ...) in `aux_metrics.tsv`
