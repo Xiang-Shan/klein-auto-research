@@ -28,9 +28,9 @@
       "experiment": null
     },
     "reproduction": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-07-31T18:47:42.348427Z",
+      "count": 1,
+      "experiment": "E0010"
     }
   },
   "fingerprints": {
@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 9,
+  "last_experiment": 10,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -97,5 +97,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "06-hurricane-gqls-returnlevels",
-  "updated_at": "2026-07-31T18:47:41.616931Z"
+  "updated_at": "2026-07-31T18:47:42.966275Z"
 }
