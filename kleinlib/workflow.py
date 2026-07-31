@@ -1476,7 +1476,8 @@ def _relative(repo: Path, path: Path) -> str:
 
 
 #: Study files a CLI verb may (re)write outside a run transaction: contract and
-#: narrative docs, machine state, and regenerable derived views. Never train.py —
+#: narrative docs, machine state, regenerable derived views, and sweep sidecars
+#: (measurement evidence the next state commit must file). Never train.py —
 #: committing it here would silently move run-one's restore anchor.
 _STATE_WRITE_PATHS = (
     "study.yaml",
@@ -1491,6 +1492,7 @@ _STATE_WRITE_PATHS = (
     "results_summary.md",
     "progress.svg",
     "figures",
+    "sweeps",
 )
 
 

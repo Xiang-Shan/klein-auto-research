@@ -553,6 +553,25 @@ def test_gate_records_and_derived_views_do_not_block_the_loop(ready_study) -> No
     assert git(repo, "status", "--porcelain") == ""
 
 
+def test_gate_records_sweep_measurement_sidecars(ready_study) -> None:
+    repo, study = ready_study
+    # A Phase-0 noise-floor sweep leaves sweeps/ untracked; the next gate
+    # record must file it (the papercut: consult re-record used to strand it,
+    # and the following run-one refused on a dirty tree).
+    sweeps = study / "sweeps"
+    sweeps.mkdir(exist_ok=True)
+    (sweeps / "noise_floor.py").write_text("# measurement sweep\n", encoding="utf-8")
+    (sweeps / "noise_floor.sidecar.tsv").write_text(
+        "trial\tparams_json\tprimary_metric\twall_seconds\tstatus\terror\n",
+        encoding="utf-8",
+    )
+    record_gate(study, "consult", acknowledged_by="tester", note="floor measured")
+    assert git(repo, "status", "--porcelain") == ""
+    tracked = git(repo, "ls-files", "studies/03-demo/sweeps")
+    assert "studies/03-demo/sweeps/noise_floor.py" in tracked
+    assert "studies/03-demo/sweeps/noise_floor.sidecar.tsv" in tracked
+
+
 def test_playbook_is_scaffolded_wired_into_evidence_and_phase_acks(ready_study) -> None:
     repo, study = ready_study
     playbook = study / "playbook.md"
