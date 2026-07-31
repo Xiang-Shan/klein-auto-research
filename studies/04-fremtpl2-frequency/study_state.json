@@ -63,7 +63,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
@@ -73,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "04-fremtpl2-frequency",
-  "updated_at": "2026-07-31T02:27:20.940637Z"
+  "updated_at": "2026-07-31T02:27:28.611987Z"
 }
