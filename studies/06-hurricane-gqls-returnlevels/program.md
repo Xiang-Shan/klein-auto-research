@@ -56,6 +56,25 @@ base commit.
   with a generator-shape zero entry immediately, before any gate or run (the
   framework fix — load_state top-up from the contract — remains queued in study
   05's findings §⑦).
+- 2026-07-31 — DATA gate recorded (GO-WITH-CAUTIONS; clean-room audit 7/7
+  mechanized clean; identity gate live-verified: 8 statistics + 4 MLE anchors,
+  max dev 3.3e-5, prep deterministic sha a0e6a5d9…). Standing rules adopted:
+  (a) only `log_damage_usd` is consumed; `rank` is a target bijection (Spearman
+  −1.0) and must never be a covariate; (b) Hazen is DESCRIPTIVE-only — the
+  thesis's defined fitting convention is inverted_cdf, and the difference
+  (0.0084 vs 0.0020 mean dev) exceeds both the 0.005 resolution and, for Hazen,
+  the 0.02 guardrail; (c) every return level is FAMILY-CONDITIONAL extrapolation
+  (fitted lognormal 1-in-100 = $55.5bn < the largest observed event $72.3bn;
+  support tops out at p=0.9667) — say so alongside every figure; (d) σ̂ carries
+  a ±25% bootstrap band at n=30 — instability numbers are ordering devices on a
+  fixed sample, never population claims; (e) sealed evidence = independent
+  PUBLISHED TARGETS, not independent data — confirmation wording is
+  "implementation fidelity + within-sample robustness", never out-of-sample
+  generalization; (f) the 1900–1995 exchangeability rests wholly on the
+  Pielke-Landsea normalization — inherited assumption, stated not established.
+  Audit previews (to be formalized on-ledger): MLE-lognormal 1-in-100 moves
+  −25.7/−36.5/−44.6% under leave-top-1/2/3 and +99.4% under the exact 10×
+  modification.
 - 2026-07-31 — Metric-registry note: both primaries are custom scalar names
   (simulation task type, evaluate_scalar path, study-03 precedent
   `mean_final_gap`); directions declared explicitly in the contract; guardrail
