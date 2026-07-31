@@ -68,6 +68,26 @@ Rules for good drafting:
   `--note "minimum_delta set from the measured noise floor"`. Preflight fails a
   `minimum_delta` set inside a declared floor, and findings must report any delta
   under 2× the floor std as within-noise.
+- **Real data has more than one floor — pick the one that matches the question.**
+  A seed-only sweep measures FIT noise (optimizer/subsampling randomness); on real
+  data three defensible floors can differ by an order of magnitude: the fit-seed
+  spread, the marginal dev-fold bootstrap SE (sampling noise of the level), and the
+  **paired-difference bootstrap SE** (sampling noise of a comparison). For a
+  COMPARISON study the honest floor is the paired one: both models predict the SAME
+  dev rows (common random numbers), resample the per-row prediction differences,
+  and take 2× that SE — the marginal floor overstates comparison noise because the
+  shared-sample correlation cancels. Set
+  `minimum_delta = max(2×std_fit, 2×SE_paired)` and record the recipe in the
+  block's `method:` field (`seed-sweep` | `paired-bootstrap`); the paired analysis
+  itself lives in `program.md`.
+- **When the research question is a comparison, decide at CONSULT how the gap gets
+  its sealed number.** One sealed access per track means a single-track study can
+  confirm only the incumbent's LEVEL — the losing family never gets a sealed value,
+  so the headline gap stays exploratory. EITHER declare each model family its own
+  track (each track owns a sealed final-test access, so the gap is a difference of
+  two sealed numbers) OR pre-register the gap as exploratory-by-construction in
+  `study.yaml` and say so in findings. Choosing after the loop is how sealed
+  vocabulary gets stretched.
 - Set budgets from the problem class (see `defaults-and-scaffolding.md`).
 
 ## Confirm — and STOP for ack

@@ -40,6 +40,14 @@ Verify EACH reference — do not cite from memory:
 - **If the `alphaxiv-paper-lookup` skill is available** (check for its SKILL.md under
   `~/.claude/skills/` or `.agents/skills/`), use it for the lit-scan — worker agents
   without the Skill tool read that SKILL.md and drive its scripts via Bash.
+- **If personal knowledge-base skills are available** (check
+  `~/.claude/skills/ask-vault/SKILL.md` and `~/.claude/skills/arxiv-into-vault/SKILL.md`
+  — example bindings from the author's harness; any grounded note store works the
+  same way): a vault Q&A answers method questions with citations into the user's own
+  study notes — useful for part 1's intuition and part 4's regime table; a
+  paper-filing skill files each paper cited on the card so the papers leg leaves a
+  durable trace outside the study. Neither replaces per-reference verification;
+  UNVERIFIED marking rules are unchanged.
 - **Else** use `WebSearch`/`WebFetch` (arxiv.org, publisher pages) and confirm venue,
   year, and arXiv id.
 - Mark anything you could not verify as ⚠️ UNVERIFIED, explicitly. An unverified
@@ -86,3 +94,11 @@ the card's `triad:` frontmatter; `klein gate record method` refuses while any le
 is false unless the `--note` names the missing leg and why it is acceptable
 (e.g. `--note "papers pending: preprint only, flagged UNVERIFIED"`). Self-asserted,
 machine-surfaced: the gate makes the assertion explicit and auditable, nothing more.
+
+The practice leg may also be satisfied **by citation** when a from-scratch
+implementation already exists elsewhere: cite a nano-research-style repo
+(`nano_repos/NNN-slug/` with `final_summary.md` and `tutorial/index.html` as the
+citable endpoints — the author's harness keeps a registry of these; any runnable
+from-scratch repo with a measured-results summary counts). Name the exact nano and
+the measured result relied on; a bare link with no measured result does not
+satisfy the leg.

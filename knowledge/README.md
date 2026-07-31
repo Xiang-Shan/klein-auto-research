@@ -46,3 +46,9 @@ stable claim ID in that study's `findings.md`. Optional frontmatter `claims:` ma
 list the IDs a doc leans on. Everything stays greppable:
 `grep -rn "#C[0-9]" knowledge/`. Two lines citing claims that refute each other is
 a contradiction to surface in prose, never to keep silently.
+
+Promotion can continue outward: a finding that belongs in a personal topic vault
+(the author's harness registers note vaults with Q&A and concept-page skills; any
+equivalent store works) travels **with** its typed claim citations —
+`(supports <study_id>#Cn)` — so a vault line stays greppably traceable back to
+study evidence, exactly like lines in this directory.

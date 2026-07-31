@@ -32,8 +32,8 @@ value-pattern check encodes a real war story (`references/war-stories.md`, story
    (`~/.claude/skills/dataset-profiler/SKILL.md` or `.claude/skills/dataset-profiler/`);
    if present, read its SKILL.md and execute its procedure via Bash on the prepared data
    (or the `data_hub` name). Else fall back to the bundled profiler:
-   `uv run --locked python -c "import pandas as pd; from kleinlib import profile_fallback; df = pd.read_parquet(...); print(profile_fallback.profile_dataframe(df, target='...'))"`
-   (adapt the read call to the prepared format).
+   `uv run --locked python -m kleinlib.profile_fallback <prepared.(csv|parquet)> --target <col>`
+   (the module CLI reads csv, csv.gz, and parquet directly).
 4. Run the MANDATORY value-pattern check on EVERY column. Never trust
    `dtype == "object"` or `dtype == "string"` — inspect ACTUAL values. Flag
    string-encoded booleans (`"Yes"`/`"No"`), numbers-in-strings (`"120bhp@3000rpm"`),
