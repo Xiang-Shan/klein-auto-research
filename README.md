@@ -239,6 +239,9 @@ its own input.
 
 The public repository history begins in July 2026; the shipped
 v0.1 studies were executed in the development lab before that public history.
+Two ancestor design documents (the agent-smith quality audit and the
+215-experiment campaign's optimization notes) are archived verbatim in
+[`docs/lineage/`](docs/lineage/).
 
 Release history: [`CHANGELOG.md`](CHANGELOG.md).
 To cite Klein, see [`CITATION.cff`](CITATION.cff). To contribute, see
