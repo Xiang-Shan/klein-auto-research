@@ -1,0 +1,188 @@
+<h2>Next Steps</h2>
+
+<p>Five follow-ups, each with a prediction that could falsify it. They are ordered by
+information per unit of effort, not by ambition.</p>
+
+<h3>1. Full-sample replication on <code>extRemes::damage</code> (n = 144)</h3>
+
+<p><strong>The highest-information follow-up, and the one that converts every claim here from
+within-sample to out-of-sample.</strong> This study's structural limitation is that sealing gave
+independent <em>targets</em> and not independent <em>data</em> (limitation 3). R's
+<code>extRemes::damage</code> carries the complete Pielke-Landsea normalized series, not just the
+top 30 &mdash; a genuinely larger sample from the same generating process, on which the
+<em>same</em> estimators can be refitted and the <em>same</em> stresses re-run.</p>
+
+<p><strong>Predictions to falsify.</strong> (a) The gQLS&rarr;MLE efficiency gap becomes visible
+at n = 144, so the trim's cost stops being free &mdash; lever 8 came out the <em>good</em> way at
+n = 30 and should not at n = 144. (b) The convention and k sensitivities fall by roughly
+√(30/144) ≈ 0.46 in parameter units, testing the grid-resolution mechanism directly. (c) The
+log-Cauchy 1-in-100 stays economically absurd, because that is a property of the transform and not
+of the sample size.</p>
+
+<p class="note">Note the sample is <em>not</em> the thesis's &mdash; the identity gate will and
+should <strong>fail</strong>. This is a new study, not an extension of this ledger.</p>
+
+<h3>2. A GPD / peaks-over-threshold arm on the same data</h3>
+
+<p><strong>The comparison an EVT reviewer asks for first.</strong> Every fit here is a full-sample
+log-location-scale law extrapolated to p = 0.99; the standard alternative models only exceedances
+over a threshold with a generalized Pareto tail and <em>estimates</em> the shape ξ rather than
+choosing it by family selection.</p>
+
+<p><strong>Prediction to falsify:</strong> a GPD tail fitted above the ~1-in-10 threshold gives a
+1-in-100 within a factor of 2 of the gQLS-lognormal <strong>$56.66bn</strong> &mdash; i.e. the
+lognormal answer is the defensible one and log-Cauchy's is an artefact of forcing one family to
+describe both body and tail. If instead the GPD lands an order of magnitude higher, C10 strengthens
+sharply: family-conditionality is not a caveat but the dominant term. Pair it with robust GPD
+estimators so the comparison is robust-vs-robust rather than robust-vs-MLE.</p>
+
+<h3>3. Frequency × severity: the annual aggregate series and a compound model</h3>
+
+<p>The 1-in-100 <em>event</em> loss is not the 1-in-100 <em>year</em> &mdash; and the year is what
+a reinsurance programme or a capital model needs. The Pielke-Landsea data supports the annual
+aggregate series that Katz (2002) models as compound Poisson&ndash;lognormal.</p>
+
+<p><strong>Prediction to falsify:</strong> the annual-aggregate 1-in-100 is <em>less</em> sensitive
+to the single corrupted record than the per-event 1-in-100, because frequency uncertainty (a
+Poisson count over ~96 years) dominates severity uncertainty at the aggregate level. That would
+make the <strong>+99.4%</strong> headline an <em>upper bound</em> on what data quality costs a real
+capital number, and would mean C9's trim advice matters most for per-event layers.</p>
+
+<h3>4. Framework fix &mdash; per-track sealed-access maps should be topped up from the contract</h3>
+
+<p><code>klein new</code> scaffolds one track and derives <code>final_holdout_access</code> keys at
+scaffold time; a second track added by editing <code>study.yaml</code> &mdash; still the only way to
+build a two-track study &mdash; leaves that map stale and the sealed run is refused. Study 05 lost a
+real experiment slot to it. <strong>This study avoided it only because a human remembered the lesson
+and hand-topped the map before Gate 0</strong>, which is a workaround, not a fix. <em>Do:</em> have
+<code>load_state</code> reconcile the map against the current contract, <strong>or</strong> let
+<code>klein new</code> accept repeated <code>--track</code>. Cheap, and it is now two studies deep.</p>
+
+<h3>5. Send the author one gentle question about the <code>W_out</code> p-value route</h3>
+
+<p>C2 and surprise 3 should reach the source as a <em>question</em>, not as an erratum. The
+<code>W_out</code> <strong>statistics</strong> reproduce to ≤0.005 across all 18 cells, and 16/18
+p-values match a χ²₂₃ reference more closely than a B = 1000 bootstrap's own Monte-Carlo error
+permits, while the text prescribes the bootstrap. The useful message is one sentence &mdash;
+<em>&ldquo;could you confirm which reference distribution produced the Table 6.9 p-column, so that
+replicators can reproduce it?&rdquo;</em> &mdash; plus an offer of the two divergent cells
+((0.02,&nbsp;0.98) log-Logistic and (0.10,&nbsp;0.90) log-Laplace) and the log-Gumbel μ̂ that Table
+6.10 already corrects. This is exactly the small, citable clarification a reproduction study exists
+to generate, and <strong>the tone is the point: the thesis reproduced, in full, at the resolution it
+reports.</strong></p>
+
+<h3>Where this sits in the literature</h3>
+
+<p>Three findings sit <em>alongside</em> the thesis rather than against it: the
+two-conventions-in-one-chapter subtlety, the Table 6.9 log-Gumbel μ̂ typo that Table 6.10 itself
+corrects, and the <code>W_out</code> p-value route that could not be reconstructed as prescribed.
+The reproduction is essentially exact under the thesis's own stated convention &mdash; 35/36 adaptive
+and 119/120 sealed parameters inside the reporting resolution.</p>
+
+<p>The extension is genuinely new. The thesis's §7.2 names extending the estimators to risk measures
+as open, and §6.2.2 stops at parameters and p-values &mdash; <strong>no published work carries these
+fits through to a 1-in-100 event loss, and none runs a leave-top-k-out stress on this sample</strong>.
+RQ4, RQ5 and RQ6 are therefore not re-derivations, and RQ5 came back refuted.</p>
+
+<p>One inherited verdict is corrected. Klein's own study 02 concluded &ldquo;skip the diagonal
+plug-in GLS &mdash; it added noise.&rdquo; Here Σ★ is <strong>exact, full, and parameter-free</strong>
+rather than a plug-in, and the GLS weighting is the single largest effect in the method (ARE
+0.232&nbsp;&rarr;&nbsp;0.995 for the Cauchy member; the 2.11× split reproduced at E0005). The
+correction belongs in the knowledge card at promotion: <em>plug-in diagonal GLS ≠ closed-form
+full-covariance GLS, and the ARE table says exactly where the difference lives.</em></p>
+
+<p>The neighbouring robust-severity literature fails <em>differently</em> rather than worse. The
+trimmed- and Winsorized-moment estimators of the same school trim <strong>moments</strong>; QLS trims
+the <strong>quantile grid</strong>. The family that fits best here has no moments at all, so every
+moment-based robust estimator is inapplicable to it by construction &mdash; while gQLS fits it
+without complaint, and then C5 shows that fitting it is not the same as being able to price it.</p>
+
+<h3>Verified references</h3>
+
+<p>Every entry below is carried from the method card's verified reference table &mdash; authors,
+venue, year and identifier confirmed against the live web on 2026-07-31 and cross-checked against
+the thesis's own bibliography. Two <strong>page-level</strong> caveats are marked ⚠️: in both cases
+the <em>reference</em> is verified and only an interior page range rests on the thesis's own
+citation. No unverified reference is promoted.</p>
+
+<ol>
+<li><cite>Adjieteh, Mohammed Adjei (2024). Robust-Efficient Fitting of Loss Models via Quantile Least
+Squares.</cite> PhD dissertation (Mathematics), University of Wisconsin&ndash;Milwaukee, August 2024;
+advisor Vytaras Brazauskas. MINDS@UW,
+<code>minds.wisc.edu/bitstream/handle/1793/93605/Adjieteh_uwm_0263D_13880.pdf</code> &mdash;
+<strong>the reproduction target</strong> (§6.2.2, Tables 6.8/6.9/6.10, Fig. 6.8). ✅ <em>corrected at
+the method gate: the given name is Mohammed Adjei, not &ldquo;Michael&rdquo; as the study brief had
+it.</em></li>
+
+<li><cite>Adjieteh, M. &amp; Brazauskas, V. (2025). Quantile Least Squares: A Flexible Approach for
+Robust Estimation and Validation of Location-Scale Families.</cite> <em>Statistics and Computing</em>
+<strong>35</strong>, art. 106 &mdash; DOI 10.1007/s11222-025-10626-6; arXiv:2402.07837. ✅ DOI
+resolves; the arXiv entry is the same paper. The peer-reviewed form of the estimator; its ARE table
+is why the &ldquo;generalized&rdquo; matters.</li>
+
+<li><cite>Serfling, R. J. (2002a). Approximation Theorems of Mathematical Statistics.</cite> Wiley
+(orig. 1980, ISBN 0-471-02403-1; 2002 Wiley-Interscience paperback, ISBN 0-471-21927-4).
+<strong>Theorem B</strong> is the source of the closed-form Σ★; the sample-quantile influence function
+is the source of the boundedness result. ✅ book verified · ⚠️ <em>the thesis's interior page cites
+were not independently checked against the 2002 pagination.</em></li>
+
+<li><cite>Serfling, R. (2002b). Efficient and robust fitting of lognormal distributions (with
+discussion).</cite> <em>North American Actuarial Journal</em> <strong>6</strong>(4), 95&ndash;109;
+Discussion <strong>7</strong>(3), 112&ndash;116; Reply <strong>7</strong>(3), 116. ✅ &mdash; note this
+is <em>not</em> the Statistica Neerlandica &ldquo;Quantile functions for multivariate analysis&rdquo;
+paper, a different Serfling 2002.</li>
+
+<li><cite>Ali, M. M. &amp; Umbach, D. (1989). A Shapiro-Wilk type goodness-of-fit test using a few
+order statistics.</cite> <em>JSPI</em> <strong>22</strong>(2), 251&ndash;261. ✅ &mdash; the precursor
+that eq. (5.2) improves on: it estimated σ² by the sample variance, so it needs a finite second
+moment, which the winning family here does not have.</li>
+
+<li><cite>Ali, M. M. &amp; Umbach, D. (1998). Optimal linear inference using selected order statistics
+in location-scale models.</cite> <em>Handbook of Statistics, Vol. 17: Order Statistics &mdash;
+Applications</em> (Balakrishnan &amp; Rao, eds.), 183&ndash;213, Elsevier. ✅ volume verified (ISBN
+9780444829221) · ⚠️ <em>the 183&ndash;213 range rests on the thesis's bibliography.</em></li>
+
+<li><cite>Pielke, R. A. Jr. &amp; Landsea, C. W. (1998). Normalized Hurricane Damages in the United
+States: 1925&ndash;95.</cite> <em>Weather and Forecasting</em> <strong>13</strong>(3), 621&ndash;631
+&mdash; DOI 10.1175/1520-0434(1998)013&lt;0621:NHDITU&gt;2.0.CO;2. ✅ &mdash; <strong>the data
+source</strong>, and the provenance trap: the &ldquo;1925&ndash;95&rdquo; label is a mislabel, and
+Table 8 carries three supplemental pre-1925 storms that the reproduction depends on.</li>
+
+<li><cite>Brazauskas, V. &amp; Serfling, R. (2000). Robust estimation of tail parameters for
+two-parameter Pareto and exponential models via generalized quantile statistics.</cite>
+<em>Extremes</em> <strong>3</strong>(3), 231&ndash;249 &mdash; DOI 10.1023/A:1011455027066. ✅ &mdash;
+the one the thesis cites, not their NAAJ 4(4) single-parameter-Pareto paper of the same year.</li>
+
+<li><cite>Genton, M. G. &amp; de Luna, X. (2000). Robust simulation-based estimation.</cite>
+<em>Statistics and Probability Letters</em> <strong>48</strong>(3), 253&ndash;259. ✅ &mdash; the
+indirect-estimator influence-function result behind the robustness equations.</li>
+
+<li><cite>Genton, M. G. &amp; Ronchetti, E. (2003). Robust indirect inference.</cite> <em>JASA</em>
+<strong>98</strong>(461), 67&ndash;76 &mdash; DOI 10.1198/016214503388619102. ✅</li>
+
+<li><cite>Xu, Y., Iglewicz, B. &amp; Chervoneva, I. (2014). Robust estimation of the parameters of
+g-and-h distributions, with applications to outlier detection.</cite> <em>CSDA</em>
+<strong>75</strong>, 66&ndash;80 &mdash; DOI 10.1016/j.csda.2014.01.003. ✅ &mdash; the paper whose
+argument the thesis generalizes from g-and-h to location-scale.</li>
+
+<li><cite>knowledge/method_cards/quantile-least-squares.md</cite> &mdash; Klein's own validated card,
+distilled from study 02 (<code>02-rqls-pv-severity</code>, archived at tag v1.0.0). ✅ read in full;
+this study's method card extends rather than duplicates it, and corrects its GLS verdict.</li>
+</ol>
+
+<p class="note"><strong>Study lineage.</strong> Study 02 was the wind tunnel: on synthetic
+known-truth severity it measured a <strong>1.083×</strong> clean-data robustness cost and, at 10%
+contamination, a naive-MLE premium error of <strong>352%</strong> against <strong>50%</strong> for the
+trimmed estimator. On real data with a real published contamination, this study finds
+<strong>+99.4% vs 0.0%</strong> on the 1-in-100 &mdash; the same qualitative gap, on a decision unit,
+against third-party published targets rather than a generator. From study 05 two protocol disciplines
+carried over and paid: <em>measure the floor that governs your comparison</em> (here one floor's
+<em>pathology</em> became the RQ5 finding) and <em>report the structure, not the level</em>.</p>
+
+<p class="note"><strong>Honest positioning.</strong> gQLS is not a frontier architecture and this
+report makes no claim that it is. What the study contributes is a <strong>reproduction carried past
+the point where the source stops</strong> &mdash; 156 published parameters rebuilt from scratch, a
+convention subtlety and a typo localized on the way, and then the fits pushed into a decision unit
+the source names as future work, where the method's headline claim came apart in a way nobody had
+measured. The most valuable result is a refutation, and it was registered as a prediction before the
+loop ran.</p>

@@ -1,0 +1,266 @@
+<h2>The Method</h2>
+
+<p>The whole method fits in one sentence, and the sentence is worth memorizing before any
+of the algebra:</p>
+
+<blockquote><strong>gQLS is a Q-Q plot fitted by generalized least squares.</strong></blockquote>
+
+<p>You already do the first half by hand. Take your losses, plot the empirical quantiles
+against the theoretical quantiles of a candidate law, and eyeball whether the points fall
+on a line. If they do, the <em>intercept</em> of that line is your location parameter and
+the <em>slope</em> is your scale parameter. Quantile least squares (QLS) stops eyeballing
+and runs the regression. The <strong>g</strong> &mdash; generalized &mdash; runs it with the
+right error covariance instead of pretending the plotted points are equally reliable and
+mutually independent.</p>
+
+<h3>Why a small set of quantiles buys robustness</h3>
+
+<p>Point maximum likelihood at the 30 hurricane losses and <em>every</em> observation gets
+a vote, weighted by the score function &mdash; including the 1926 Great Miami storm at
+$72.303bn, which is <strong>2.185&times;</strong> the second-largest loss in the sample and
+<strong>20.5%</strong> of the total damage mass on its own. The MLE has no mechanism
+for saying &ldquo;that one is unusual.&rdquo; Inflate that single number tenfold and the
+lognormal σ̂ moves from <strong>0.833868 to 1.097494</strong> &mdash; a
+<strong>+31.6%</strong> shift in the one parameter that governs the entire tail, from
+<em>one</em> corrupted record out of thirty.</p>
+
+<p>QLS never looks at that observation. It reads the sample at <strong>k = 8 probability
+levels</strong> between <code>a = 0.05</code> and <code>b = 0.95</code> and fits the
+quantile curve through those eight points. The largest observation sits above
+<code>p = 0.95</code>; nothing in the estimating equations consults it. Corrupt it, delete
+it, multiply it by a million &mdash; the estimate does not move. That is not a heuristic.
+It is the definition of a <strong>breakdown point</strong>:</p>
+
+<blockquote><code>BP = min{a, 1 &minus; b}</code> &mdash; the fraction of the sample you may
+corrupt <em>arbitrarily</em> before the estimate can be driven anywhere.</blockquote>
+
+<p>Read it as a count, because that is what makes it actionable. At
+<code>(a, b) = (0.05, 0.95)</code> the breakdown point is 5%, and 5% of 30 events is 1.5
+&mdash; so <strong>one</strong> corrupted event is tolerated and <strong>two</strong> are
+not. At <code>(0.10, 0.90)</code> it is 10%, so three are tolerated. <strong>The trim you
+choose <em>is</em> the number of bad records you are buying protection against.</strong>
+There is no free lunch: the same trim that ignores the corrupted maximum also ignores the
+<em>genuine</em> maximum.</p>
+
+<p>The figure below makes the trim visible. Hollow marks are all 30 order statistics at
+their display positions; <strong>filled marks are the eight estimation-grid levels the
+gQLS fit actually consults.</strong> Everything outside the filled marks is what the trim
+protects you from &mdash; and, symmetrically, what it declines to learn from.</p>
+
+<figure>
+<img data-fig="figures/qq_panels.png" alt="Six Q-Q panels reproducing thesis Figure 6.8: the same 30 log-dollar losses plotted against standard Cauchy, logistic, Laplace, normal, Gumbel and exponential quantiles, with the fitted gQLS line and the eight estimation-grid points highlighted; W p-values 0.82, 0.53, 0.60, 0.52, 0.20 and 0.01 all match the published values.">
+<figcaption>Visual reproduction of thesis Fig. 6.8 &mdash; the same 30 losses against six
+standard members, fitted by gQLS at (0.05,&nbsp;0.95) from E0003. Every panel's
+<code>W</code> p-value matches the published value to the printed digits (0.82, 0.53, 0.60,
+0.52, 0.20, 0.01). Note the log-Cauchy panel: <strong>best fit of the six</strong>, and two
+of its 30 display points lie so far out on the standard-Cauchy axis (|standard quantile| up
+to 19) that they are off the window &mdash; the trim never reads them. Note also
+<code>pareto1</code>: μ is the left boundary of the support, not a centre, which is why its
+panel looks nothing like the other five.</figcaption>
+</figure>
+
+<h3>Why the &ldquo;generalized&rdquo; matters</h3>
+
+<p>Ordinary QLS (<code>oQLS</code>) runs plain OLS on that Q-Q plot. That silently assumes
+the eight plotted points are equally reliable and mutually independent. <strong>They are
+neither.</strong> Sample quantiles in the sparse tail wobble far more than sample quantiles
+near the median, and adjacent quantiles from the same sample are strongly positively
+correlated &mdash; they share order statistics.</p>
+
+<p>The fix is generalized least squares: down-weight the noisy points and account for the
+correlation. GLS normally stalls right here, because you would have to <em>estimate</em>
+the error covariance from the data &mdash; and estimating a k&times;k covariance from 30
+points is worse than the disease. <strong>In this problem you do not have to.</strong>
+Serfling's joint asymptotic normality theorem hands you the covariance of the empirical
+quantile vector in closed form, and after standardization it depends only on the
+<em>standard</em> member of the family &mdash; no unknown parameters at all. You can write
+<code>Σ★</code> down before seeing a single data point.</p>
+
+<p>How much does that buy? The thesis's asymptotic relative efficiencies (k = 25,
+(0.05,&nbsp;0.95)) answer bluntly:</p>
+
+<table>
+<thead><tr><th>Standard member</th><th>oQLS ARE</th><th>gQLS ARE</th></tr></thead>
+<tbody>
+<tr><td>Normal</td><td>0.936</td><td>0.911</td></tr>
+<tr><td>Gumbel</td><td>0.902</td><td>0.893</td></tr>
+<tr><td>Logistic</td><td>0.704</td><td>0.955</td></tr>
+<tr><td>Laplace</td><td>0.757</td><td>0.947</td></tr>
+<tr><td><strong>Cauchy</strong></td><td><strong>0.232</strong></td><td><strong>0.995</strong></td></tr>
+</tbody>
+</table>
+
+<p>For a heavy standard member, ordinary QLS throws away roughly 77% of the available
+information and gQLS throws away almost none. <strong>That is the single largest effect in
+this method.</strong> And it is directly visible in the data being reproduced: on the
+hurricane sample at (0.05,&nbsp;0.95), log-Cauchy's σ̂ is <strong>0.229912 under oQLS and
+0.485055 under gQLS</strong> &mdash; a factor of <strong>2.11</strong> from the weighting
+alone. That split is this study's specification falsifier: if a from-scratch
+<code>Σ★</code> is wrong, those two numbers will not separate that way. Section 4 shows it
+passing at a deviation of 8.8e&minus;05.</p>
+
+<p>Read the Normal row too, because it is the honest counterweight: gQLS is very slightly
+<em>worse</em> than oQLS there. For a light, well-behaved member the identity-matrix
+pretence costs almost nothing, and the GLS weighting's finite-sample overhead is not repaid.
+<strong>The gain is concentrated exactly where the tail is heavy</strong> &mdash; which is
+where loss data lives.</p>
+
+<h3>The five load-bearing equations</h3>
+
+<p><strong>(3.8) &mdash; the grid.</strong> Fix the endpoints for robustness, then space the
+rest evenly:</p>
+
+<pre><code>p_i = a + (i &minus; 1)/(k &minus; 1) · (b &minus; a),      i = 1, …, k</code></pre>
+
+<p>For k = 8 and (a,&nbsp;b) = (0.05,&nbsp;0.95) that is
+<code>[0.05, 0.178571, 0.307143, 0.435714, 0.564286, 0.692857, 0.821429, 0.95]</code>. The
+three trims the thesis reports are (0.02,&nbsp;0.98), (0.05,&nbsp;0.95) and
+(0.10,&nbsp;0.90).</p>
+
+<p><strong>(2.1) &mdash; the quantile covariance (Serfling's Theorem B).</strong> The
+empirical quantile vector is asymptotically normal about the true quantiles with covariance
+<code>σ_ij / n</code>:</p>
+
+<pre><code>σ_ij = p_i (1 &minus; p_j) / [ f(F⁻¹(p_i)) · f(F⁻¹(p_j)) ]   for i &le; j,   σ_ij = σ_ji otherwise</code></pre>
+
+<p>Two facts make this usable. First, once the family is fixed, replacing <code>f, F⁻¹</code>
+by the <strong>standard</strong> <code>f★, F★⁻¹</code> removes every unknown &mdash;
+<code>Σ★</code> becomes a matrix of pure numbers. Second, for a <strong>log</strong>-location-scale
+family the Jacobian of the <code>log</code> transform is diagonal with entries
+<code>1/F⁻¹(p_i)</code>, and the <code>F⁻¹(p_i)F⁻¹(p_j)</code> factors cancel exactly against
+the matching factors in the numerator. <strong>The log family inherits the very same
+<code>Σ★</code>.</strong> That cancellation is the reason six different loss laws share one
+piece of code.</p>
+
+<p><strong>(3.4) / (3.6) &mdash; the two estimators.</strong> With <code>Y = Xβ + ε</code>,
+<code>ε ~ AN(0, σ²Σ★/n)</code>:</p>
+
+<pre><code>oQLS:   β̂ = (X′X)⁻¹ X′Y                  &mdash; pretends Σ★ = I_k
+gQLS:   β̂ = (X′Σ★⁻¹X)⁻¹ X′Σ★⁻¹Y           &mdash; uses the known Σ★</code></pre>
+
+<p><strong>Numerically, never form <code>Σ★⁻¹</code>.</strong> Factor
+<code>Σ★ = LL′</code> and run OLS on the whitened system <code>L⁻¹X</code>,
+<code>L⁻¹Y</code> &mdash; mathematically identical, numerically far safer.
+<code>Σ★</code>'s condition number runs from about <strong>35</strong> for the normal member
+at k = 8, (0.05,&nbsp;0.95) up to <strong>2.7e4</strong> for log-Cauchy across the reported
+trims, and grows sharply as <code>a &rarr; 0</code>. Section 6 shows the implementation
+logging that condition number on every fit rather than hiding it.</p>
+
+<p><strong>(5.2) &mdash; in-sample goodness of fit.</strong> The gQLS residuals support a
+quadratic form that decomposes orthogonally, leaving</p>
+
+<pre><code>W = (n / σ̂²_gQLS) · (Y &minus; Xβ̂)′ Σ★⁻¹ (Y &minus; Xβ̂)   ~   χ²_{k&minus;2}   under H₀</code></pre>
+
+<p>Here k = 8, so <strong><code>W ~ χ²₆</code></strong> and the p-value is
+<code>P(χ²₆ &gt; W)</code>. This is the guardrail the decision track uses. One detail matters
+enormously for this data: an earlier test of the same shape estimated <code>σ²</code> by the
+<strong>sample variance</strong>, which requires a finite second moment. Equation (5.2) uses
+<code>σ̂²_gQLS</code> instead and therefore <em>survives Cauchy-type tails</em> &mdash; a small
+change with large consequences here, where the best-fitting family has no moments at all.</p>
+
+<p><strong>(5.3) &mdash; out-of-sample goodness of fit.</strong> <code>W</code> has a
+structural flaw for model <em>comparison</em>: it scores residuals only on the estimation
+grid, so a more aggressive trim shrinks the very interval being scored and looks better for
+free. The fix is a <strong>universal</strong> grid of <code>r = 25</code> levels spanning
+0.01 to 0.99, the same for every (a,&nbsp;b), giving <code>W_out</code> with <code>β̂</code>
+still taken from the estimation grid. Because the two grids overlap only partially, the
+thesis calls the null distribution &ldquo;a major challenge&rdquo; and prices the p-value by
+<strong>parametric bootstrap</strong> (B = 1000). This study implements both that bootstrap
+and a naive <code>χ²_{r&minus;2} = χ²₂₃</code> reference, because RQ2 asks whether the
+expensive one earns its keep. Section 4 reports what happened, and it is more interesting
+than either registered answer.</p>
+
+<p><strong>(2.4) / (2.5) &mdash; why it is robust, formally.</strong> The influence function
+of each sample quantile is a <em>bounded</em> step function, and both estimators are fixed
+linear maps applied to that bounded vector. <strong>Boundedness</strong> is what &ldquo;one
+bad record cannot move it far&rdquo; means; <strong>positivity of BP</strong> is what
+&ldquo;several bad records still cannot&rdquo; means. They are different guarantees, and this
+study tests both &mdash; contamination for the first (RQ3), deletion for the second (RQ4).
+Section 5 shows the distinction turning out to matter far more than expected.</p>
+
+<h3>The log-location-scale unification &mdash; and Pareto I's disguise</h3>
+
+<p>A law is <strong>log-location-scale</strong> when <code>log X</code> is location-scale:</p>
+
+<pre><code>F⁻¹(u) = exp( μ + σ F★⁻¹(u) )    so    log F⁻¹(u) = μ + σ F★⁻¹(u)</code></pre>
+
+<p>&mdash; <strong>linear in the parameters</strong>, which is the entire reason a closed-form
+regression exists. Six families become one code path with six <code>(f★, F★⁻¹)</code> pairs:
+log-Cauchy <code>tan(π(u &minus; 0.5))</code>, log-Gumbel <code>&minus;log(&minus;log u)</code>,
+log-Laplace, log-Logistic <code>&minus;log(1/u &minus; 1)</code>, lognormal
+<code>Φ⁻¹(u)</code>, and Pareto I <code>&minus;log(1 &minus; u)</code>.</p>
+
+<p><strong>Pareto I is the one worth staring at.</strong> Written the usual way &mdash;
+<code>S(x) = (θ/x)^α</code>, <code>x &gt; θ</code> &mdash; it looks nothing like a
+location-scale law. Reparametrize <code>μ = log θ</code>, <code>σ = 1/α</code> and
+<code>log X</code> becomes a two-parameter exponential. Three consequences, all
+load-bearing:</p>
+
+<ol>
+<li>Its Q-Q plot is against <strong>standard exponential</strong> quantiles &mdash; which is
+why the bottom-right panel above looks anomalous next to the five symmetric ones.</li>
+<li><code>μ</code> is not a centre; it is the <strong>left boundary of the support</strong>.
+Its MLE is the boundary estimator <code>μ̂ = min(x)</code>, and <code>σ̂ = mean(x) &minus; min(x)</code>.</li>
+<li>Because <code>μ̂</code> depends only on the <em>minimum</em>, Pareto I's MLE is perfectly
+insensitive to a contaminated <em>maximum</em>. Section 5 records the sealed grid confirming
+this to the digit: μ̂ = 21.541282 unchanged, σ̂ moving 1.258900 &rarr; 1.335653, which is
+exactly <code>log(10)/30 = 0.076753</code>. <strong>Robustness by accident of
+parametrization</strong> &mdash; predicted at the method gate, produced by the sealed run.</li>
+</ol>
+
+<h3>The catch this study exists to expose</h3>
+
+<p>Everything above is about <strong>parameters</strong>. An actuary does not sell a
+parameter; they sell a number like &ldquo;the 1-in-100 event loss.&rdquo; Getting from one
+to the other means pushing the estimate through the quantile transform</p>
+
+<pre><code>return level = exp( μ̂ + σ̂ · F★⁻¹(0.99) )</code></pre>
+
+<p>and <strong>that transform is not gentle</strong>. For the lognormal,
+<code>F★⁻¹(0.99) = 2.326</code>. For <strong>log-Cauchy</strong> &mdash; the family that fits
+this data <em>best</em> &mdash; <code>F★⁻¹(0.99) = tan(0.49π) = 31.82</code>. A 13.7&times;
+amplifier sitting in an exponent. The same 0.04 wobble in σ̂ moves a lognormal return level
+by about 10% and a log-Cauchy return level by a factor of <strong>3.6</strong>.</p>
+
+<p>So the method's headline claim (&ldquo;robust parameters&rdquo;) and the decision-maker's
+actual question (&ldquo;stable 1-in-100&rdquo;) can come apart &mdash; and they may come apart
+<em>worst</em> for the best-fitting model. That is RQ5 and RQ6, and it was genuinely open when
+the loop began.</p>
+
+<h3>The floors that govern every comparison in this report</h3>
+
+<p>Klein forbids guessing a <code>minimum_delta</code>. Phase <code>adaptive-1</code>
+<em>measured</em> the floors before any comparison was allowed. Cite these; never re-derive
+them.</p>
+
+<table>
+<thead><tr><th>Floor</th><th>Value</th><th>What it governs</th></tr></thead>
+<tbody>
+<tr><td>numerical (solver-route)</td><td><strong>8.8e&minus;17</strong></td>
+<td>Nothing &mdash; and recording ≈0 <em>is</em> the finding. The arithmetic is exact to machine
+precision, so <strong>every</strong> disagreement with the published tables is a
+<em>modeling</em> choice, not a numerical artefact.</td></tr>
+<tr><td>reporting resolution</td><td><strong>0.005</strong></td>
+<td>The reproduction track's <code>minimum_delta</code>: half the last published digit. This
+is what &ldquo;reproduces&rdquo; means on this track.</td></tr>
+<tr><td>quantile-convention spread (k = 5 sidecar)</td><td><strong>0.018498</strong> range
+(std 0.00664603)</td>
+<td><strong>3.7&times; the resolution</strong> &mdash; a <em>specification</em> spread,
+deliberately <strong>not</strong> folded into <code>minimum_delta</code> because it becomes
+constant once a kept candidate fixes the convention. Reported, not hidden.</td></tr>
+<tr><td>paired log-return-level bootstrap SE</td><td><strong>3.461</strong> (block spread 0.104)</td>
+<td>The decision track's stated uncertainty band. <strong>3.59 of it comes from the log-Cauchy
+arm alone</strong>; its literal 2&times;SE on the return-level scale exceeds the metric's own
+range.</td></tr>
+<tr><td>decision <code>minimum_delta</code></td><td><strong>1.0 pp</strong></td>
+<td>Kept at the measured floor's resolution as an <strong>ordering device</strong> on the fixed
+30-event sample &mdash; never quietly shrunk to manufacture a significant-looking delta.</td></tr>
+</tbody>
+</table>
+
+<p>The fourth row deserves a second read, because it is where the study's punchline arrives
+early and in disguise. A bootstrap standard error so large that <em>twice</em> it exceeds the
+range of the metric it measures is not a nuisance number &mdash; it is a statement that
+<strong>at n = 30 the log-Cauchy 1-in-100 is not estimable to useful precision</strong>. The
+metrology knew RQ5's answer before the ranking did. What the loop added was the
+<em>mechanism</em>.</p>

@@ -1,0 +1,165 @@
+<h2>The Data</h2>
+
+<p>Thirty rows. That is the entire dataset, and it is not a sample of a bigger file &mdash;
+<strong>30 rows <em>is</em> the dataset</strong>. Pielke &amp; Landsea (1998), Table 8,
+&ldquo;Top 30 Damaging Hurricanes,&rdquo; each loss normalized to 1995 dollars for inflation,
+personal-property increase, and coastal-county population change. Transcribed from NOAA
+AOML/HRD, byte-verified against the <code>data_hub</code> source, and bundled inside the study
+directory so a bare clone reproduces every number.</p>
+
+<table>
+<thead><tr><th>Property</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Rows × cols</td><td>30 × 8 (6 source + 2 derived by <code>prepare.py</code>)</td></tr>
+<tr><td>Target</td><td><code>damage_bn_1995</code> &mdash; mean 11.7499, sd 13.6251, range 2.266 &ndash; 72.303 bn</td></tr>
+<tr><td>Fitting column</td><td><code>log_damage_usd = log(damage_bn_1995 × 1e9)</code>, range 21.541282 &ndash; 25.004131 nats</td></tr>
+<tr><td>Missing cells</td><td><strong>0 of 240</strong></td></tr>
+<tr><td>Prepared artifact</td><td><code>sha256 a0e6a5d9…62db8fd</code> &mdash; byte-identical across re-runs, so prep is deterministic</td></tr>
+<tr><td>Decision</td><td><strong>GO-WITH-CAUTIONS</strong> &mdash; zero BLOCKERs</td></tr>
+</tbody>
+</table>
+
+<h3>The value-pattern check &mdash; and the trap that was not there</h3>
+
+<p>Klein's standing war story is that <code>dtype == "object"</code> is a lie: pandas string
+dtypes have silently broken that check before, so every column is audited <strong>by value,
+never by dtype</strong>. All eight columns were checked that way: <strong>0 sentinels</strong>
+(<code>""</code>, <code>NA</code>, <code>null</code>, <code>?</code>, <code>-</code>,
+<code>unknown</code>, <code>-999</code>, <code>-1</code>, <code>9999</code>,
+<code>nan</code> all absent), <strong>0 string-encoded booleans</strong>, <strong>0
+numbers-in-strings</strong>, <strong>0 mixed-type columns</strong>, <strong>0 duplicate
+rows</strong>.</p>
+
+<p>The interesting result is a negative one. <code>pre1925_flag</code> is exactly the column
+shaped like the classic trap &mdash; a flag that a careless export would have written as
+<code>"Yes"</code>/<code>"No"</code> strings. Here it holds genuine integers 0/1, sums to 3,
+and its three set bits are <em>exactly and only</em> the three <code>year &lt; 1925</code>
+rows (set equality verified). <strong>Recording that the trap is absent is worth as much as
+catching it</strong>, because the next reader does not have to re-check.</p>
+
+<p>Two more columns are exact by construction and were verified rather than assumed:
+<code>damage_usd = damage_bn_1995 × 1e9</code> and <code>log_damage_usd</code> both reproduce
+to <code>max|dev| 0.000e+00</code>. The unit chain was pinned end-to-end because a
+millions-versus-billions misread is <em>not</em> silently survivable:
+<code>mean(log_damage_usd) = 22.800182</code> equals the published MLE-lognormal
+μ̂ = 22.8002, and <code>sd(ddof=0) = 0.833868</code> equals σ̂ = 0.8339. A misread would have
+placed μ̂ at 15.8924, off by <code>log(1000) = 6.9078</code>.</p>
+
+<h3>Four of eight columns are the target in disguise</h3>
+
+<p>The leakage audit &mdash; run clean-room, in a fresh context, from <code>study.yaml</code>,
+<code>prepare.py</code>, the prepared artifact and the estimator module only &mdash; returned
+<strong>7/7 mechanized checks clean</strong>. But it flagged something that would be fatal in
+a different study:</p>
+
+<blockquote><code>rank</code> is a <strong>deterministic bijection of the target</strong>:
+<code>rank == 31 &minus; rankdata(damage)</code> exactly, Spearman
+<strong>&minus;1.000000</strong>. So are <code>damage_usd</code> and
+<code>log_damage_usd</code>. Four of eight columns are the target under different
+encodings.</blockquote>
+
+<p><strong>Why that is a non-issue here.</strong> This is univariate loss-model fitting. There
+is no feature matrix, no design matrix over covariates, and nothing to predict damage
+<em>from</em>; the estimators consume <code>log_damage_usd</code> as a <em>sample</em>, via
+sorted order statistics and a quantile grid. <code>rank</code> is precisely that sort order,
+so it carries no information the sample does not already contain. <strong>Why it must
+nevertheless be a standing rule:</strong> any model that regressed damage on rank would
+recover an identity (R² = 1) and report a triumphant, meaningless fit. The rule adopted at the
+data gate and honoured throughout: <em>only <code>log_damage_usd</code> is consumed, and only
+as the sample being fitted.</em></p>
+
+<h3>The three WARNs &mdash; properties of the research object, not defects to fix</h3>
+
+<p>No BLOCKERs. Three WARNs, each carried verbatim into the findings and into this report,
+because each one constrains what may be <em>said</em> rather than what may be <em>run</em>.</p>
+
+<h4>WARN 1 &mdash; n = 30, and one observation dominates every tail fit</h4>
+
+<blockquote><em>&ldquo;max = 72.303 is 2.185× the second-largest (33.094) … Parametric
+bootstrap at n = 30 puts σ̂ = 0.8339 in a 95% interval of [0.617, 1.034] &mdash; a ±25%
+relative sampling band on the single parameter that drives the tail.&rdquo;</em></blockquote>
+
+<p>That single observation is 20.5% of total damage mass; the top three are 37.5%. Deleting
+the maximum alone moves the mean &minus;17.8% and the sd &minus;44.7%. The consequence for
+this report is a wording rule, stated in the data card and repeated wherever it can erode:
+the declared 1.0 pp <code>minimum_delta</code> is <em>&ldquo;far smaller than the ±25% band on
+the estimand &mdash; treat it as an ordering device between estimators on a fixed sample,
+never as a claim about the population.&rdquo;</em></p>
+
+<h4>WARN 2 &mdash; the decision functional is out-of-sample by construction</h4>
+
+<blockquote><em>&ldquo;The largest of 30 sits at plotting position p = 0.9667 ≈ 1-in-30. Every
+1-in-100 quantile is therefore pure parametric extrapolation … the fitted lognormal 1-in-100
+(55.52 bn) is below the largest observation actually seen (72.303 bn) &mdash; the &lsquo;100-year
+loss&rsquo; is an artifact of the assumed family, not a data-supported number.&rdquo;</em></blockquote>
+
+<p>Sit with that sentence. The number a committee would act on is <em>smaller</em> than an
+event that has already happened, and that is not a bug in the fit &mdash; it is what a
+lognormal tail implies given these thirty points. The prescribed action was to word every
+return-level claim as <strong>family-conditional</strong> and report the GoF-passing families
+side by side with the empirical 1-in-30 anchor, never a single number as &ldquo;the&rdquo;
+answer. Section 5 does exactly that, and the spread across four fits that all pass the same
+goodness-of-fit test spans <strong>nearly six orders of magnitude</strong>.</p>
+
+<h4>WARN 3 &mdash; the sealed evidence is independent TARGETS, not independent DATA</h4>
+
+<blockquote><em>&ldquo;the same 30 observations underlie both the adaptive and the sealed
+evaluation … it establishes implementation fidelity + within-sample robustness, never
+out-of-sample generalization. Sampling error is fully common-mode between adaptive and sealed
+evaluation and the sealed test cannot detect it.&rdquo;</em></blockquote>
+
+<p>The audit's own assessment was even-handed and is worth quoting in both directions.
+<strong>Strength:</strong> the targets are third-party numbers fixed in print before this study
+existed, unmovable by anything the study does, and adaptively unoverfittable because the
+contract confined adaptive work to Table 6.9 while the sealed target is Table 6.10 &mdash; a
+stronger anti-peeking guarantee than a random fold, which an analyst can in principle inspect.
+<strong>Weakness:</strong> if these 30 draws are unrepresentative, the adaptive and sealed
+evaluations are wrong together, identically, and the sealed test is blind to it. A residual soft
+coupling also remains &mdash; a specification tuned until it hits Table 6.9 has thereby made much
+of Table 6.10 predictable &mdash; which the design bounds but does not eliminate.</p>
+
+<h3>Two NOTEs that turned into findings</h3>
+
+<p><strong>The &ldquo;1925&ndash;1995&rdquo; period label is a mislabel &mdash; and it is
+load-bearing.</strong> Three rows fall outside that window: rank 3 (1900 Galveston, 26.619),
+rank 4 (1915 Galveston, 22.602) and rank 22 (1919 S Texas, 5.368). They are <strong>15.5% of
+total damage</strong> and two of them are the <strong>#3 and #4 largest events in the
+sample</strong>. The published Table 6.8 statistics reproduce <strong>only with them
+included</strong> &mdash; which is exactly why R's <code>extRemes::damage</code> top-30, a
+genuinely 1925&ndash;95 set, does <em>not</em> reproduce the thesis. A replicator who
+&ldquo;fixes&rdquo; the period silently breaks the reproduction. <code>pre1925_flag</code>
+identifies the three rows exactly, and <code>prepare.py</code>'s identity gate makes
+substituting the wrong 30-row set impossible to miss.</p>
+
+<p><strong>Two quantile conventions coexist in one thesis chapter.</strong> The data card
+flagged this as a live methodological sensitivity, <em>not</em> a data defect, before any
+model ran &mdash; and it is the seed of the whole detective story in section 4. The
+descriptive Table 6.8 quartiles (q1 = 4.0560, q3 = 12.4340) reproduce <strong>only</strong>
+under Hazen plotting positions; every alternative misses (<code>normal_unbiased</code> 0.0851,
+<code>median_unbiased</code> 0.1134, <code>linear</code> 0.3280, <code>weibull</code> 0.3402,
+<code>inverted_cdf</code> 0.6195). But the thesis's Chapter 2 <em>defines</em> the estimator's
+empirical quantile as <code>F̂⁻¹(p) = X_(⌈np⌉)</code> &mdash; NumPy's
+<code>inverted_cdf</code>. The card's verdict: <em>Hazen for the descriptive table,
+<code>⌈np⌉</code> for the estimators</em>, exported as two separately named constants so the
+two can never be confused.</p>
+
+<h3>The identity gate &mdash; what plays the role of a chance-level probe</h3>
+
+<p>With no partition and no predictor, the usual eval-harness sanity checks (constant and
+shuffled predictors scoring at chance) are inapplicable. What replaces them is a
+<strong>data-identity gate</strong> that <code>prepare.py</code> runs and that
+<code>train.py</code> <strong>re-verifies on every single run before any fitting happens</strong>.
+It checks 8 published Table-6.8 statistics plus 4 MLE-anchor scalars &mdash; 12 quantities &mdash;
+and it was re-run live for the audit:</p>
+
+<pre><code>n 0.00e+00 · min 0.00e+00 · q1 0.00e+00 · q2 8.88e-16 · q3 0.00e+00
+max 0.00e+00 · mean 3.33e-05 · std_dev 2.82e-05
+mle_lognormal_original    μ 22.8002 / σ 0.8339   &mdash; both exact at 0.00e+00
+mle_lognormal_modified    μ 22.8769 / σ 1.0975   &mdash; both exact at 0.00e+00</code></pre>
+
+<p>That single gate pins four things at once: <strong>the sample</strong> (this is the AOML
+Table 8 top-30, not <code>extRemes::damage</code> and not the annual aggregate series),
+<strong>the period trap</strong>, <strong>the quantile convention</strong> used for the
+descriptive table, and <strong>the ×1e9 unit chain</strong>. Everything downstream rests on
+it, which is why section 6 argues it belongs inside the per-run code path rather than in a
+one-off setup script.</p>
