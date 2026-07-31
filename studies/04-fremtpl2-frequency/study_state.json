@@ -28,6 +28,16 @@
       "experiment": "E0006"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "primary": "E0006"
+    },
+    "timestamp": "2026-07-31T02:34:11.437570Z"
+  },
   "fingerprints": {
     "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
     "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
@@ -78,7 +88,7 @@
     "sha256": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10"
   },
   "schema_version": 2,
-  "status": "active",
+  "status": "finalized",
   "study_id": "04-fremtpl2-frequency",
-  "updated_at": "2026-07-31T02:32:18.586273Z"
+  "updated_at": "2026-07-31T02:34:11.437574Z"
 }
