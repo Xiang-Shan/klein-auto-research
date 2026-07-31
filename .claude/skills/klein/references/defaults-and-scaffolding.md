@@ -13,7 +13,7 @@ different tasks become explicit tracks with independent metric contracts/frontie
 Scaffold it — never hand-create the tree:
 
 ```bash
-uv run --locked klein new 04-my-study \
+uv run --locked klein new 05-my-study \
     --goal "does X beat baseline B on my data?" \
     --domain insurance --metric val_auc --goal-direction higher \
     --data "data_hub:insurance-claims"
@@ -96,7 +96,7 @@ Studies run on `experiments/<study-slug>` — NEVER on `main`. Branch before the
 experiment:
 
 ```bash
-git switch -c experiments/04-my-study
+git switch -c experiments/05-my-study
 ```
 
 `main` stays the stable baseline; merge the study branch at study end. Preflight treats

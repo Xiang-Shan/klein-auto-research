@@ -105,19 +105,19 @@ New studies default to `schema_version: 2` and are driven through the packaged
 `klein` command. Run `--help` on any command for its complete arguments.
 
 ```bash
-klein new 04-my-question --metric val_auc --goal-direction higher
-git switch -c experiments/04-my-question   # the loop refuses to run on main
+klein new 05-my-question --metric val_auc --goal-direction higher
+git switch -c experiments/05-my-question   # the loop refuses to run on main
 # author data_card.md / method_card.md at their gates (templates in assets/), then:
-klein gate record consult --study studies/04-my-question --acknowledged-by <name>
-klein gate record data --study studies/04-my-question --acknowledged-by <name>
-klein gate record method --study studies/04-my-question --acknowledged-by <name>
-klein preflight --study studies/04-my-question
-klein run-one --study studies/04-my-question --description "registered baseline"
-klein noise-floor --study studies/04-my-question   # Phase 0: measure minimum_delta
-klein status --study studies/04-my-question
-klein recover --study studies/04-my-question
-klein finalize --study studies/04-my-question
-klein verify --study studies/04-my-question
+klein gate record consult --study studies/05-my-question --acknowledged-by <name>
+klein gate record data --study studies/05-my-question --acknowledged-by <name>
+klein gate record method --study studies/05-my-question --acknowledged-by <name>
+klein preflight --study studies/05-my-question
+klein run-one --study studies/05-my-question --description "registered baseline"
+klein noise-floor --study studies/05-my-question   # Phase 0: measure minimum_delta
+klein status --study studies/05-my-question
+klein recover --study studies/05-my-question
+klein finalize --study studies/05-my-question
+klein verify --study studies/05-my-question
 ```
 
 Gate records, `finalize`, and `recover` commit their own state writes — the loop
@@ -148,9 +148,9 @@ New here? Reading order: this README → [`AGENTS.md`](AGENTS.md) →
 [`studies/00-glm-claims-quickstart/`](studies/00-glm-claims-quickstart/) → the
 stage protocols as you need them.
 
-## The shipped studies — immutable v0.1 legacy evidence
+## The shipped studies — five executed exhibits
 
-The three executed studies predate the public v0.2 transaction contract. Their
+The first three studies predate the public v0.2 transaction contract. Their
 `results.tsv`, `program.md`, and `findings.md` ship verbatim as scientific
 exhibits; their private-lab commit hashes are candidly unresolved in this public
 history. Compatibility tools read them with explicit deprecation/provenance
@@ -169,7 +169,7 @@ resolves in this repository, and they exercised the whole hardened contract live
 | Study | Question | Headline findings |
 |---|---|---|
 | [`03-noisy-rosenbrock-dfo`](studies/03-noisy-rosenbrock-dfo/) | At 200 noisy evaluations, do restarts beat Nelder-Mead — and does SPSA beat both? | Restarts win 2.96× the measured floor and the sealed fresh-seed run replicates (confirmed); random search ties them — found by the DATA gate before any run; "textbook" SPSA diverges to 1e178 because the method card's own tuning rule went unapplied |
-| [`04-fremtpl2-frequency`](studies/04-fremtpl2-frequency/) | On 678k freMTPL2 policies, does a GBDT beat a shaped GLM at claim frequency by more than the honest noise floor? | GBDT wins by 0.0101 deviance = 11.3× the paired-bootstrap SE — while three defensible floors differ by 25×, and the naive marginal one would have called the gap borderline; one keep decided by 0.000002; the sealed test confirms the incumbent's level (0.65× fold SE) |
+| [`04-fremtpl2-frequency`](studies/04-fremtpl2-frequency/) | On 678k freMTPL2 policies, does a GBDT beat a shaped GLM at claim frequency by more than the honest noise floor? | GBDT wins by 0.0102 deviance = 11.4× the paired-bootstrap SE — while three defensible floors differ by 25×, and the naive marginal one would have called the gap borderline; one keep decided by 0.000002; the sealed test confirms the incumbent's level (0.65× fold SE) |
 
 Open a tutorial to see what "closing the loop" means:
 `open studies/01-dae-claims/report/index.html` — method taught, journey annotated,
@@ -180,17 +180,18 @@ coding pitfalls included, works offline.
 The pitch is *your* data, so that path is first-class:
 
 1. Scaffold:
-   `klein new 04-my-question --data csv:/path/to/my.csv --metric val_auc --goal-direction higher`
+   `klein new 05-my-question --data csv:/path/to/my.csv --metric val_auc --goal-direction higher`
 2. Point `prepare.py` at your file (`kleinlib.data.load_prepared`) and keep its
    output stable; the CONSULT protocol (≤6 questions) turns your goal into
    research questions with registered predictions.
 3. Pass the DATA gate — the profiler ranks go/no-go issues before any modeling.
-4. Create the exact `experiments/04-my-question` branch, record the required gate
+4. Create the exact `experiments/05-my-question` branch, record the required gate
    acknowledgements, pass `klein preflight`, then run one candidate at a time with
    `klein run-one`; SYNTHESIZE and TUTORIAL close it.
 
-Evaluator shapes today: **binary classification, point regression, and
-scalar/simulation** (`task_type: simulation` gives math/optimization labs custom
+Evaluator shapes today: **binary classification, point/rate regression (incl.
+Poisson/Gamma/Tweedie deviance with exposure weights), and scalar/simulation**
+(`task_type: simulation` gives math/optimization labs custom
 scalar metrics and seed-block splits; everything non-primary goes to
 `aux_metrics.tsv`). Multiclass/survival/ranking are documented extension
 points — see *Limitations* in `.claude/skills/klein/SKILL.md`. If you keep a

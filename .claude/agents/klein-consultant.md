@@ -43,7 +43,9 @@ questions and answers. Work in at most two passes:
    exact command (you have no Bash; you draft, the orchestrator runs):
    `uv run --locked klein new NN-slug --goal "..." --domain ... --metric ... --goal-direction higher|lower --data "..."`
 5. Draft `study.yaml` as schema v2: explicit task type and method depth; one track per
-   coherent task with metric name/direction/minimum delta/guardrails; a fixed three-way
+   coherent task with metric name/direction/minimum delta/guardrails (a comparison
+   study may instead give each model family its own track so the gap gets two sealed
+   numbers — see the protocol's sealed-gap bullet); a fixed three-way
    train/development/test split; `max_run_seconds`; phases with separate total-seconds
    and experiment-count budgets; honest-prior research questions; and signed,
    unit-bearing predictions to falsify.

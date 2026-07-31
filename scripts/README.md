@@ -1,7 +1,7 @@
 # scripts/
 
 Repo-level tooling that isn't part of the `klein` skill itself (that lives under
-`.claude/skills/klein/scripts/` — `preflight.py`, `new_study.py`, `summarize_results.py`,
+`.claude/skills/klein/scripts/` — `preflight.py`, `new_study.py`, `summarize_results.py`, `build_tutorial.py`,
 `make_figures.py`).
 
 ## `verify_e2e.sh`

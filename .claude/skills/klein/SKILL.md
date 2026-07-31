@@ -37,7 +37,7 @@ optional accelerators; a solo session follows the protocols directly.
 | `consult` | Gate 0: ≤6-question interview (or fast-path) | `references/consult-protocol.md` | `klein gate record consult` after the **user ack** | klein-consultant |
 | `data` | Gate 1: profile → clean-room leakage audit → ranked go/no-go → data_card.md | `references/data-gate-protocol.md` | `python -m kleinlib.leakage`; `klein gate record data` (or `gate override data --reason`) | klein-data-auditor |
 | `method` | Gate 2: intuition→math→impl→refs → method_card.md | `references/method-gate-protocol.md` | `klein gate record method` | klein-method-scholar |
-| `run` | One candidate transaction (edit → commit → run → retain evidence) | Hard Rules below; phase starts: `references/phase-ritual.md`; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one` (each candidate); `klein recover` after interruption | klein-experimenter / klein-sweeper |
+| `run` | One candidate transaction (edit → commit → run → retain evidence) | Hard Rules below; phase starts: `references/phase-ritual.md`; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one` (each candidate); `klein noise-floor` at Phase 0; `klein recover` after interruption | klein-experimenter / klein-sweeper |
 | `synthesize` | Mine trajectory → 7-section findings; close the study | `references/synthesis-protocol.md` | `klein finalize` (labels exploratory/confirmed) | klein-synthesist |
 | `tutorial` | Build self-contained teaching HTML | `references/tutorial-spec.md` | — (`.claude/skills/klein/scripts/build_tutorial.py`) | klein-tutor |
 | `status` | Summarize results + phase telemetry | `.claude/skills/klein/scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation | — |
@@ -123,6 +123,9 @@ uv run --locked klein recover --study studies/NN-slug
 `keep` means a track-specific improvement of at least `minimum_delta` with every
 configured guardrail satisfied. `discard` is valid scientific evidence. `crash` has
 an `NA` primary metric. Every disposition keeps a resolvable candidate commit.
+run-one refuses an unchanged `train.py` before any id or commit exists (an
+accidental rerun burns a phase slot); pass `--allow-rerun` for an intentional
+identical replication — sealed final tests and `--command` overrides are exempt.
 
 ### 2. One foreground run, with a real timeout and exit status
 

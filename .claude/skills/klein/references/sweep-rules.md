@@ -46,7 +46,8 @@ Uses `kleinlib.sweep.SweepRunner`.
    `klein run-one` compare its confirmation metric with the track frontier. If it does
    not clear the configured minimum delta and guardrails, it is a `discard` and the
    workflow restores `train.py`. The candidate commit and sidecar remain resolvable —
-   a null result is a result.
+   a null result is a result. If the winning trial EQUALS the incumbent config the
+   candidate diff is empty — pass `--allow-rerun` for that confirmation transaction.
 
 ## Forbidden
 

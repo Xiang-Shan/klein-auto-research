@@ -20,7 +20,7 @@ every invocation; it is the source of truth, this file only orients you.
   (tracks, RQs, predictions_to_falsify), and `data_card.md`.
 - Stage context: why the loop stopped, anything the user flagged as important.
 
-## Steps — mine four sources, in this order
+## Steps — mine five sources, in this order
 
 1. **manifests + results.tsv — track frontiers and the discards.**
    - Partition by track. List `status=keep` development experiments in order and
@@ -49,6 +49,9 @@ every invocation; it is the source of truth, this file only orients you.
 4. **method_card.md — the priors.** Pull the falsifiable priors from part 4. Each
    becomes a verdict in section ① and a row in section ②. Where results CONTRADICT a
    prior, say so explicitly — a refuted prior is the most valuable kind of finding.
+5. **playbook.md — the pre-clustered map.** The Ruled-out table seeds the
+   discard-cluster analysis (theme + evidence IDs already named); Current-best
+   cross-checks each track's frontier; untested open hypotheses feed ⑦.
 
 ## Write findings.md — EXACTLY seven sections
 
