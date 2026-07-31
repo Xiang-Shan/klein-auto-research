@@ -94,7 +94,7 @@ def main() -> None:
         metric_goal="lower",
         sample_weight=w_ev,
         study_dir=".",
-        extra={"model_config": MODEL}
+        extra={"model_config": MODEL, "wall_seconds": time.time() - t0}
         | ({"effective_trees": n_trees} if math.isfinite(n_trees := effective_trees(model)) else {}),
     )
 
