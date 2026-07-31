@@ -1,0 +1,89 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2601,
+      "committed": true,
+      "sha256": "85e7954948c14e337f9d4cd4912b656c6e7fa28b495558fa5281486868594f74"
+    },
+    "models/best_glm_E0008_0.452913_9190b076b94c.joblib": {
+      "availability": "local",
+      "bytes": 8451,
+      "committed": false,
+      "sha256": "b197527196eca3375f7486ddda3aad3c25121680ca5888d0edc76b37d199006d"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 1353,
+      "committed": true,
+      "sha256": "a405715a56d86dac1a1880d1a013366e74b48b95ef5b03ab8b28d41b1af5d918"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 481,
+      "committed": true,
+      "sha256": "c351506ef650415a5b0e2824c10e9cf584df8a02c041e5436c547dd5a8ac86db"
+    }
+  },
+  "base_commit": "580a49a29da9225de7a496c507c36f381084680c",
+  "candidate_commit": "d53e3cc82cb855c835770ba9a0908e96906ba143",
+  "code_patch_hash": "698b6bbb3b71c9e14cba8e3839988d4c06d249a502d6dd931d99ff02c1a7a6fc",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.453156 by minimum_delta=0.000539",
+  "description": "RQ5/M4-c ceiling: + BOTH top surrogate pairs (VehAge x BonusMalus 0.1536, BonusMalus x logDensity 0.0985; PD strengths 0.029/0.043). Screened 10, adopted 2, rejections reported. E0007 showed pair 1 alone buys 0.43x floor; prediction now honest-uncertain: two products still < 1x glm floor beyond E0004 -> the scoped-spline model IS the practical GLM ceiling; did not improve track frontier 0.453156 by minimum_delta=0.000539",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T16:38:30.002075Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0004",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.021393,
+    "primary_metric": 0.452913,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.2,
+    "train_rows": 406807.0,
+    "training_seconds": 0.7,
+    "val_mae": 0.13703,
+    "val_poisson_deviance": 0.452913,
+    "val_r2": 0.007759,
+    "val_rmse": 0.490351,
+    "val_rows": 135603.0,
+    "wall_seconds": 1.136228084564209
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 5,
+  "primary_metric": 0.452913,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:38:28.030558Z",
+  "timed_out": false,
+  "track": "glm",
+  "transaction": {
+    "ready_at": "2026-07-31T16:38:30.003478Z",
+    "status": "pending"
+  },
+  "wall_seconds": 1.9714167499914765
+}
