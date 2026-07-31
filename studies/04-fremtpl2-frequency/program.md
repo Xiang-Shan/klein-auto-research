@@ -85,3 +85,10 @@ severity track. Survivors mirrored to playbook.md.
   dummy columns too, not just the numerics as intended; gain may understate
   proper scoped shaping. Follow-up (column-scoped splines) queued for ⑦ —
   adaptive slots are reserved for RQ1/RQ3 per the slate.
+- 2026-07-31 — E0003 KEEP 0.444689 (RQ1: 4.7x floor over shaped GLM; 5.7x over
+  plain GLM = 11.4 paired SEs). E0004 discard 0.445343 (RQ3 tie held: 0.37x
+  floor from OHE). E0005: DRIVER ERROR became evidence — intended capacity
+  probe, but the post-discard restore reset train.py and the edit failed
+  halfway; run-one executed an empty diff: bit-identical rerun of the
+  incumbent, honest discard (soak F5). Capacity probe (max_leaf 63) moves to
+  ⑦. adaptive-1 full (5/5) — phase boundary STOP; playbook refreshed.

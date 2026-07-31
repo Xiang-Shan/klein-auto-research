@@ -10,12 +10,14 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary | E0001 | 0.454861 | glm_ohe, alpha 1e-4 | anchor |
+| primary | E0003 | 0.444689 | hgbt_ohe, lr .1, 200 iters, leaf 31 | adaptive-1 (5.7x floor over plain GLM; 11.4 paired SEs) |
 
 ## Ruled out (evidence, not opinion)
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
+| Native categoricals for HGBT here | E0004 | 0.37x floor from OHE — the predicted tie at <=22 levels |
+| Post-hoc spline shaping as a GLM rescue | E0002 | kept by 0.000002 — closed 18% of the gap, not the predicted "large part" (scope caveat in program.md) |
 
 ## Open hypotheses
 
@@ -27,8 +29,5 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. HGBT poisson baseline (sum 9) — RQ1; paired-floor preview says ~11 SEs
-2. GLM + shaping (sum 8) — RQ2, run first (cheaper, orders the GLM story)
-3. HGBT native categoricals (sum 8) — RQ3
-4. HGBT max_leaf 63 (sum 7) — capacity probe
-5. DEFERRED: Area×VehGas GLM interactions; Tweedie pure-premium (new track, needs severity)
+1. Sealed final test of E0003's config — the only remaining move
+2. NEXT STUDY queue: capacity/lr sweep via SweepRunner; column-scoped splines (E0002 caveat); Area×VehGas interactions; Tweedie pure-premium track
