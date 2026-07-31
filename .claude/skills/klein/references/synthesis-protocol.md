@@ -21,7 +21,10 @@ source of truth; Claude Code ships it pre-wired as the `klein-synthesist` worker
   patch/data/split/environment fingerprints, exit status, and artifact hashes. The
   derived TSV is an index, not the full evidence record.
 - **Confirmation status.** Separate development runs from the one sealed final-test
-  run per track. A final-test value does not become another adaptive keep.
+  run per track. A final-test value does not become another adaptive keep. A sealed
+  confirmation appears as a discard row BY DESIGN (it must never enter the adaptive
+  frontier); the CLI and summary label it "sealed" so the vocabulary reads as
+  confirmation evidence, not failure.
 
 ### 2. aux_metrics.tsv — the tradeoffs
 - Rank-vs-calibration: did the best-AUC model also have the best brier/logloss, or did

@@ -746,6 +746,7 @@ def build_summary(
     track: str | None = None,
     noise_floor: dict[str, object] | None = None,
     minimum_delta: float | None = None,
+    sealed_count: int = 0,
 ) -> str:
     valid_rows = [row for row in rows if row.metric is not None and row.status == "keep"]
     frontier = running_frontier(rows, goal)
@@ -787,7 +788,13 @@ def build_summary(
         f"- goal: `{goal}`",
         f"- total experiments: {len(rows)}",
         f"- keep: {counts.get('keep', 0)}",
-        f"- discard: {counts.get('discard', 0)}",
+        f"- discard: {counts.get('discard', 0)}"
+        + (
+            f" (of which {sealed_count} sealed final-test "
+            f"confirmation{'s' if sealed_count != 1 else ''})"
+            if sealed_count
+            else ""
+        ),
         f"- crash: {counts.get('crash', 0)}",
         "",
         "## Overview",
@@ -989,8 +996,13 @@ def main(argv: list[str] | None = None) -> int:
         phases = _load_phases(study_yaml_path)
     except Exception:
         phases = None
-    phase_section = build_phase_section(
-        phases, aux_table, _load_run_manifests(study_yaml_path.parent)
+    run_manifests = _load_run_manifests(study_yaml_path.parent)
+    phase_section = build_phase_section(phases, aux_table, run_manifests)
+    sealed_count = sum(
+        1
+        for m in run_manifests
+        if m.get("evaluation_kind") == "final_test"
+        and (not track or m.get("track") == track)
     )
 
     summary_out = args.summary_out or results_path.with_name("results_summary.md")
@@ -1040,6 +1052,7 @@ def main(argv: list[str] | None = None) -> int:
         track=track,
         noise_floor=track_floor,
         minimum_delta=track_minimum_delta,
+        sealed_count=sealed_count,
     )
     summary_out.write_text(summary_text, encoding="utf-8")
     plot_out.write_text(build_plot_svg(title, metric_label, goal, rows), encoding="utf-8")

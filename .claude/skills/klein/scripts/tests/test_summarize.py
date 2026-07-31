@@ -102,6 +102,20 @@ class TestSummary:
         assert "- best metric: 0.669402" in summary
         assert "- total improvement: 0.043938" in summary
 
+    def test_sealed_confirmation_annotates_the_discard_count(
+        self, summarize_module, tmp_path
+    ):
+        # A sealed final test is recorded as a discard by design; the summary
+        # names it so the count reads as confirmation evidence, not failure.
+        path = write_tsv(tmp_path, CANONICAL)
+        _, rows = summarize_module.read_results(path, "val_auc")
+        summary = summarize_module.build_summary(
+            path, "val_auc", "higher", rows, sealed_count=1
+        )
+        assert "- discard: 1 (of which 1 sealed final-test confirmation)" in summary
+        plain = summarize_module.build_summary(path, "val_auc", "higher", rows)
+        assert "sealed final-test" not in plain
+
     def test_lower_is_better_frontier(self, summarize_module, tmp_path):
         content = (
             "experiment\tval_rmse\tstatus\tcommit\tdescription\n"
