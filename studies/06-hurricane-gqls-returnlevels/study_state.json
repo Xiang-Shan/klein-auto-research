@@ -33,6 +33,18 @@
       "experiment": "E0010"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "decision": 1,
+      "reproduction": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "decision": "E0011",
+      "reproduction": "E0010"
+    },
+    "timestamp": "2026-07-31T19:19:27.173510Z"
+  },
   "fingerprints": {
     "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
     "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
@@ -95,7 +107,7 @@
     "sha256": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96"
   },
   "schema_version": 2,
-  "status": "active",
+  "status": "finalized",
   "study_id": "06-hurricane-gqls-returnlevels",
-  "updated_at": "2026-07-31T18:48:09.817080Z"
+  "updated_at": "2026-07-31T19:19:27.173514Z"
 }
