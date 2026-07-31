@@ -20,7 +20,7 @@
     "study.yaml": "9caa469d8252719120693a656e33c198e8d5bac9546136f9d4c846b649e0c307"
   },
   "created_at": "2026-07-31T02:20:43.189099Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "primary": {
       "accessed_at": null,
@@ -65,7 +65,14 @@
   },
   "last_experiment": 5,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-07-31T02:32:14.077711Z",
+      "acknowledged_by": "xiang",
+      "note": "5/5 run; incumbent E0003 hgbt_ohe 0.444689; ack basis = soak brief; STOP journaled",
+      "playbook_sha256": "77bf2aa011d730781ed2c61ea7df0abf520da919ae9550f6eee64d31eaa1203b"
+    }
+  },
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/04-fremtpl2-frequency/data/prepared/fremtpl2_frequency.csv",
     "sha256": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10"
@@ -73,5 +80,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "04-fremtpl2-frequency",
-  "updated_at": "2026-07-31T02:31:27.148047Z"
+  "updated_at": "2026-07-31T02:32:14.077993Z"
 }
