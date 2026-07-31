@@ -1,0 +1,73 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 157,
+      "committed": true,
+      "sha256": "d2b21c0532047e58227d2b3ecf6068be28ca2d5b149de14de579fe4a8e0c49d9"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 628,
+      "committed": true,
+      "sha256": "0b2fa7f452ae493ce99bb323466fd7baead9ed72af9651873abd2f46921ab65b"
+    }
+  },
+  "base_commit": "dd7f90e6c8cacfd4fba22f402fd2291fc76950fe",
+  "candidate_commit": "093f398748bcd24f9a974a98efa6f66443de7907",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "GLM baseline (OHE): anchor asserts null-deviance identity, then plain PoissonRegressor; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-07-31T02:27:28.610605Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "268122b4e560333c61caafd7b0791c1d00b0a29fa2425a7ecfb522d72ba9385a"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "d0a88b3be235846ebfff96384ca24b893439b1c68fd053ba1a1f805566596d18",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "max_run_seconds": 300.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.0216178666329916,
+    "eval_claims": 5175.0,
+    "n_eval_rows": 135603.0,
+    "primary_metric": 0.454861,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.9,
+    "wall_seconds": 1.8827829360961914
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 5,
+  "primary_metric": 0.454861,
+  "schema_version": 2,
+  "started_at": "2026-07-31T02:27:22.419627Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-07-31T02:27:28.658344Z",
+    "evidence_commit": "c068e06ca158120e810627322ae80e757cdc7162",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 6.190851749968715
+}
