@@ -32,9 +32,9 @@ from kleinlib.eval import evaluate_scalar
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 
 # ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
-MODE = "anchor"          # anchor | grid | gof_redundancy | oqls_mle_arms | sensitivity
+MODE = "grid"          # anchor | grid | gof_redundancy | oqls_mle_arms | sensitivity
                          # | decision | sealed_repro | sealed_decision
-CONVENTION = "hazen"     # inverted_cdf | hazen | weibull | median_unbiased | normal_unbiased
+CONVENTION = "inverted_cdf"     # inverted_cdf | hazen | weibull | median_unbiased | normal_unbiased
 K = 8                    # quantile levels per fit; Tables 6.9/6.10 use k = 8
 ESTIMATOR = "mle"        # decision modes only: mle | gqls | oqls
 FAMILY = "lognormal"     # decision modes only: any of estimators.FAMILIES
