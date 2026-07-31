@@ -218,8 +218,10 @@ protocols always spell out both paths.
   following the stage map in AGENTS.md".
 - **Claude Code**: the `/klein` skill routes the same stages; `CLAUDE.md` imports
   this manual.
-- **Gemini CLI / Qwen Code**: point the context file at `AGENTS.md` (e.g. the
-  `contextFileName` setting), or start the session with "read AGENTS.md first".
+- **Gemini CLI / Qwen Code**: add `AGENTS.md` to the context files — the
+  settings.json `context.fileName` key takes a string or list (e.g.
+  `["AGENTS.md", "GEMINI.md"]`) — or start the session with "read AGENTS.md
+  first".
 - **GLM and other Anthropic-compatible CLIs**: they load `CLAUDE.md`, which points
   here.
 - **Model backends.** Any driver above runs over any backend that speaks its
@@ -231,6 +233,10 @@ protocols always spell out both paths.
   model.
 - **No agent at all**: follow the stage map by hand — each protocol is a
   human-readable runbook and each helper is a plain CLI.
+
+This matrix is re-verified at each release — live driver smokes and official-doc
+citations are filed under `docs/reviews/` (latest:
+`docs/reviews/2026-07-31-v1.0-driver-matrix.md`).
 
 ## Run commands
 

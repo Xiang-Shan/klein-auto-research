@@ -140,9 +140,14 @@ points to are plain markdown that any tool (or human) can follow.
 |---|---|
 | **Codex, Copilot coding agent, Cursor, Jules, …** (tools that auto-read `AGENTS.md`) | Just ask: *"run a Klein study on `<your data>` — follow the stage map in AGENTS.md"* |
 | **Claude Code** | The `/klein` skill routes the same stages: *"use /klein — start with `studies/00-glm-claims-quickstart`"* |
-| **Gemini CLI / Qwen Code** | Point the context file at `AGENTS.md` (e.g. the `contextFileName` setting), or open with *"read AGENTS.md first"* |
+| **Gemini CLI / Qwen Code** | Add `AGENTS.md` to the context files (settings.json `context.fileName`), or open with *"read AGENTS.md first"* |
 | **GLM & other Anthropic-compatible CLIs** | They load `CLAUDE.md`, which imports `AGENTS.md` |
 | **No agent** | `AGENTS.md` doubles as a human runbook — follow the stage map by hand; every helper script is a plain CLI |
+
+This matrix is re-verified at each release — live driver smokes (Codex CLI and
+Copilot CLI drove `klein verify` end to end; a local GGUF model did the same
+over llama.cpp's native Anthropic endpoint) and official-doc citations:
+[`docs/reviews/2026-07-31-v1.0-driver-matrix.md`](docs/reviews/2026-07-31-v1.0-driver-matrix.md).
 
 New here? Reading order: this README → [`AGENTS.md`](AGENTS.md) →
 [`studies/00-glm-claims-quickstart/`](studies/00-glm-claims-quickstart/) → the
