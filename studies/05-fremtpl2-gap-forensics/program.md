@@ -102,6 +102,18 @@ base commit.
   Eight additional predictions-to-falsify levers (M1-a…M5-a) are queued to enter
   study.yaml together with the measured floors at the consult re-record (one
   yaml edit, one hash re-bind).
+- 2026-07-31 — FRICTION F1 (this study): E0001 printed the anchor-exact metric
+  (0.454861) but was dispositioned discard — "guardrail metric 'wall_seconds'
+  missing". Cause: `evaluate_regression` writes wall_seconds into aux_metrics.tsv
+  but does NOT print it in the canonical/aux block, and the runner's guardrail
+  check reads the PRINTED metrics; study 04 avoided this by passing wall_seconds
+  explicitly via `extra` (now understood as load-bearing, not decorative). Fix =
+  E0002's candidate diff (one line: wall_seconds into extra); adaptive-1
+  max_experiments raised 2→3 to un-burn the slot, recorded in the contract
+  description; consult re-recorded. Framework-improvement candidate for the
+  study's findings §⑦: evaluate_regression should print wall_seconds, or
+  preflight should warn when a declared guardrail metric is not among the
+  printed keys.
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):

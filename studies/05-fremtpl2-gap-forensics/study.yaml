@@ -46,9 +46,9 @@ data:
 max_run_seconds: 420
 phases:
   - id: adaptive-1
-    description: "anchors + metrology: E0001 GLM-OHE must reproduce study-04's 0.454861 to 1e-9, E0002 HGBT-OHE must reproduce 0.444689; then the three measurement floor sweeps (fit-seed x2, paired bootstrap) set minimum_delta"
+    description: "anchors + metrology: GLM-OHE must reproduce study-04's 0.454861 to 1e-9 and HGBT-OHE 0.444689; then the three measurement floor sweeps (fit-seed x2, paired bootstrap) set minimum_delta. max_experiments raised 2->3: E0001 was burned by a harness-visibility bug (wall_seconds guardrail metric not printed to the canonical block), not by evidence"
     budget_seconds: 1800
-    max_experiments: 2
+    max_experiments: 3
   - id: adaptive-2
     description: "slate ritual, then the forensics ladder: GBDT-library equivalence (LGBM, CatBoost) on the gbdt track; column-scoped splines and surrogate-derived interactions on the glm track"
     budget_seconds: 3600
