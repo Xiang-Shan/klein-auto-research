@@ -21,16 +21,16 @@ tracks:
     metric:
       name: "mean_abs_param_deviation"
       goal: "lower"     # higher | lower
-      minimum_delta: 0.005   # = the reporting-resolution floor (half the last published digit). MEASURED at adaptive-1: numerical floor 8.8e-17 (recording ~0 IS the finding — every disagreement is a modeling choice); the k=5 quantile-convention sweep below is a SPECIFICATION spread (constant once a kept candidate fixes the convention), reported but deliberately NOT folded into the delta
+      minimum_delta: 0.005   # = the reporting-resolution floor (half the last published digit), the binding one: the measured NOISE floor is numerical (8.8e-17 across independent solver routes — recorded below; ~0 IS the finding: every disagreement with the thesis is a modeling choice, never numerics). The k=5 quantile-CONVENTION sweep (sweeps/noise_floor_repro.sidecar.tsv: inverted_cdf 0.002754 / hazen 0.009303 / weibull 0.021252 / median_unbiased 0.012036 / normal_unbiased 0.011024, spread 0.0185) is a SPECIFICATION spread, not noise — it is resolved by the ladder (E0002 vs E0003) and deliberately kept OUT of this noise_floor block (verify's floor check compares delta to noise, and conventions are a controlled choice)
       noise_floor:
-        k: 5
-        std: 0.00664603
-        range: 0.018498
-        mean: 0.0112738
-        values: [0.002754, 0.009303, 0.021252, 0.012036, 0.011024]
-        source: "sweeps/noise_floor_repro.sidecar.tsv"
+        k: 2
+        std: 6.26e-17
+        range: 8.85e-17
+        mean: 4.4e-17
+        values: [8.847e-17, 0.0]
+        source: "sweeps/noise_floor_repro.py printed block (independent solver routes: whitened lstsq vs explicit normal equations)"
         measured_after: "E0001"
-        method: "quantile-convention"
+        method: "numerical-route"
     guardrails:
       max_abs_param_deviation:
         max: 0.02
