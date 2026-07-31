@@ -1,0 +1,77 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 604,
+      "committed": true,
+      "sha256": "71d9a6bd07daa3fc73e1a40b06670d1f8663db0b9b15c395aa72e3a789805b76"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 473,
+      "committed": true,
+      "sha256": "d1b8881781a806309a234dfaef1f0951837e169ff49a548a53a95c6b83b65b5d"
+    }
+  },
+  "base_commit": "a0a7a6e176b3a2fb1000d6b0711ea2a42708f7c5",
+  "candidate_commit": "58c69704a217fe005bcde911658f4076dfe7fa0a",
+  "code_patch_hash": "150be740c602acf7edb28acc740cddca4a5ba6a406fe03ed903851659733c643",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "GLM-OHE anchor rerun after F1 harness fix (wall_seconds now printed via extra): registry val_poisson_deviance must reproduce study-04's 0.454861 to 1e-9 - STOP on mismatch; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-07-31T16:28:39.836106Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": null,
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.021618,
+    "primary_metric": 0.454861,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.7,
+    "train_rows": 406807.0,
+    "training_seconds": 1.1,
+    "val_mae": 0.137129,
+    "val_poisson_deviance": 0.454861,
+    "val_r2": 0.006292,
+    "val_rmse": 0.490714,
+    "val_rows": 135603.0,
+    "wall_seconds": 1.5171818733215332
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 3,
+  "primary_metric": 0.454861,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:28:37.349390Z",
+  "timed_out": false,
+  "track": "glm",
+  "transaction": {
+    "ready_at": "2026-07-31T16:28:39.836945Z",
+    "status": "pending"
+  },
+  "wall_seconds": 2.4866139160003513
+}
