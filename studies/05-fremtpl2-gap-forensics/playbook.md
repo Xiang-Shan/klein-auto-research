@@ -18,29 +18,39 @@
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
 | Guardrail metrics via aux-tsv only | E0001 | wall_seconds must be PRINTED (extra) — runner reads the printed block; F1 in program.md |
+| LGBM as a better GBDT here | E0005 | 0.444413 = 0.48× floor better than HGBT — a tie, even at 200 vs 67 effective trees (conservative) |
+| CatBoost CTR+symmetric package | E0006 | 0.446332 = +2.9× floor deficit at cardinality ≤22 — does not pay |
+| Raw-product interactions into the GLM | E0007, E0008 | best pair 0.43× floor, both pairs 0.45× floor — sub-floor; screened 10, adopted 0 |
+| RQ4's 30–45% closure prior | E0004 | scoped splines close 16.8% (≈ study-04's leaky 17.6%) — additive shaping tops out ~17% |
+| M4-a "gap is mostly additive" | forensics | surrogate R²_main 0.66 < 0.90 — the gap IS non-additive |
+| M4-b "DrivAge×BonusMalus first" | forensics | ranks 8/10; VehAge×BonusMalus (0.154) and BM×logDensity (0.099) lead |
+| M5-a concentration prior | forensics | gap is DIFFUSE: BM top-3 bins = 87% of gap on 89% of exposure (proportional, not localized) |
 
 ## Open hypotheses
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
-| RQ2/M1 | LGBM ≈ HGBT at matched capacity — but E0003 shows HGBT stops at 67 effective trees vs LGBM's full 200; pre-loop delta −0.000276 = 0.96× paired SE | tie survives capacity accounting | E: lgbm_poisson candidate; verdict must cite effective_trees; M1-b if it breaks |
-| RQ3/M2 | CatBoost CTR+symmetric package loses ~0.92× provisional floor at cardinality ≤22 (pre-loop 0.446332) | no pay | E: catboost_poisson candidate; M2-a isolation only if surprising |
-| RQ4 | Scoped splines close ≥30% of gap — pre-loop signal says only ~16.8% (0.001705/0.010172), BELOW the leaky study-04 version's 18% | prior now DOUBTED — honest-no candidate | E: glm_scoped_splines candidate (formal); then surrogate interactions are the main hope for closure |
-| RQ5 | +2 surrogate interactions add ≥2× glm floor | uninformed | forensics.surrogate_glm on train fold (off-ledger) → top pair into glm_interactions |
-| RQ7/M3 | monotone BonusMalus costs <1× gbdt floor | cheap | E in adaptive-3; control = study-04 E0004 native 0.445343 (+ in-study native control if close) |
-| RQ6 | gap collapses below 2× paired floor only under ~10-15% train | uninformed | sweeps/data_volume.py (measurement, off-ledger) |
+| RQ7/M3 | monotone BonusMalus costs <1× gbdt floor | cheap | E0009; control = study-04 E0004 native 0.445343 (same split/prep, tag v1.0.0) |
+| M1-b | LGBM at n_estimators=67 (matched effective capacity) still ties HGBT | tie is algorithmic | E0010 |
+| RQ1 | sealed gap within 2 sealed-paired SEs of dev gap 0.010172 | yes | confirmation: E0011 glm sealed (incumbent E0004), E0012 gbdt sealed (incumbent E0003) + off-ledger join |
+| RQ6 | gap collapses below 2× paired floor only under ~10-15% train | uninformed | sweeps/data_volume.py (measurement, off-ledger, before synthesis) |
 
-## Metrology (fixed this phase — cite, don't remeasure)
+## Waterfall (dev fold — the study's central artifact, pending sealed confirmation)
+
+anchor 0.454861 → +scoped splines 0.453156 (16.8% of gap, 3.2× floor, KEEP) →
+[+products: sub-floor, rejected ×2] → HGBT 0.444689. **Irreducible non-additive
+residue ≈ 83% of the gap**; corroborated by surrogate R²_main 0.66 and the
+diffuse M5 profile. GLM ceiling = E0004.
+
+## Metrology (fixed — cite, don't remeasure)
 
 - glm minimum_delta 0.000539 (2× paired SE; fit-seed floor EXACTLY 0 — deterministic solver, itself a finding)
 - gbdt minimum_delta 0.000573 (max of 2× fit-seed 0.000420, 2× paired 0.000573)
 - Headline-gap band: cross paired SE 0.000963 → dev gap +0.010172 = 10.6× SE (study 04 said 11.4× with its block-1-like SE 0.000893 — consistent)
 - Three floors differ: 0 (glm seed) / 0.000210 (gbdt seed) / 0.000963 (cross paired) — the 25×-spread lesson, now per-track
 
-## Next-best candidates (ranked — adaptive-2 slate to be scored at phase start)
+## Next-best candidates (ranked — adaptive-3)
 
-1. [gbdt] lgbm_poisson formal run (RQ2; cite effective_trees 67 vs ~200)
-2. [gbdt] catboost_poisson formal run (RQ3; wording = CTR+symmetric package)
-3. [glm] glm_scoped_splines formal run (RQ4; prior doubted — either verdict informs)
-4. [glm] glm_interactions with top surrogate pair (RQ5; provenance in description)
-5. [glm] glm_interactions second pair + binned BM (RQ5 ceiling)
+1. [gbdt] hgbt_monotone (RQ7; cost vs incumbent 0.444689 AND vs study-04 native 0.445343 — encoding confound stated)
+2. [gbdt] lgbm_poisson n_estimators=67 (M1-b matched effective capacity)
+3. (slot spare — confirmation follows)

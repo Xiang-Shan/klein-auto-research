@@ -150,3 +150,24 @@ Chosen order: #3 → #1 → #2 → (off-ledger surrogate forensics) → #4 → #
 to adaptive-3 reserve. Rationale: #3's verdict decides whether the translate-back
 story is "splines + interactions" or "interactions are the only hope" — highest
 information first; the two gbdt library rows are independent of it and cheap.
+
+### adaptive-2 outcome (2026-07-31)
+
+E0004 keep glm 0.453156 (scoped splines; 16.8% closure = 3.2× floor; RQ4's 30-45%
+prior REFUTED — and the "leak fix" closed slightly LESS than study-04's leaky
+17.6%, so the spline-basis leak was never the binding constraint). E0005 discard
+lgbm 0.444413 (0.48× floor better than HGBT = tie, conservative given 200 vs 67
+effective trees; RQ2 tie CONFIRMED as predicted). E0006 discard catboost 0.446332
+(+2.9× floor deficit; RQ3 no-pay CONFIRMED; wording = CTR+symmetric package).
+E0007 discard glm+VehAge×BM product 0.452926 (0.43× floor — sub-floor). E0008
+discard glm+both-pairs 0.452913 (0.45× floor; screened 10 / adopted 0 — M4-c).
+Off-ledger forensics: surrogate R²_main 0.6647 (M4-a REFUTED — the gap IS
+non-additive); ranking led by VehAge×BonusMalus 0.1536 then BM×logDensity 0.0985
+with DrivAge×BM at rank 8/10 (M4-b REFUTED — the literature's favorite pair is
+not where this GBDT's edge lives); M5 profile DIFFUSE (BM top-3 bins: 87% of gap
+on 89% of exposure; M5-a concentration prior REFUTED). PD cross-check orders the
+top set {VehAge×BM 0.029, BM×logDensity 0.043, VehAge×DrivAge 0.016} — both
+instruments agree on the set, disagree mildly on order; R7 blind-spot caveat
+(numeric-only basis) stands for findings.
+**Dev waterfall: 0.454861 → 0.453156 (splines, 16.8%) → [products sub-floor,
+rejected] → 0.444689 (HGBT). Irreducible non-additive residue ≈ 83% of the gap.**
