@@ -236,6 +236,42 @@ def test_simulation_contract_accepts_custom_scalar_metric_and_kind_none(tmp_path
     )
 
 
+def test_tweedie_contract_declares_its_power(tmp_path: Path) -> None:
+    """Tweedie deviance is a different metric at every power — the power is
+    part of the metric identity and must live in the contract, not train.py."""
+    study = scaffold_study(
+        tmp_path,
+        "05-pure-premium",
+        goal="tweedie pure premium",
+        domain="insurance",
+        target="pure_premium",
+        task_type="regression",
+        family="glm",
+        metric_name="val_tweedie_deviance",
+        metric_goal="lower",
+        data_source="csv:fixture.csv",
+        data_path="data/prepared/fixture.csv",
+    )
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    metric = contract["tracks"]["primary"]["metric"]
+
+    def power_problems(c):
+        return [p for p in validate_contract(c, study) if "power" in p]
+
+    # scaffolded without power: refused with the actionable endpoint hint
+    assert any("1 < power < 2" in p for p in power_problems(contract))
+    metric["power"] = 1.5
+    assert power_problems(contract) == []
+    for bad in (1.0, 2.0, "high"):
+        metric["power"] = bad
+        assert any("1 < power < 2" in p for p in power_problems(contract))
+    # power on a non-tweedie metric is refused
+    metric.pop("power")
+    metric["name"] = "val_poisson_deviance"
+    metric["power"] = 1.5
+    assert any("applies only to val_tweedie_deviance" in p for p in power_problems(contract))
+
+
 def test_generated_train_executes_through_workflow_with_durable_identity(ready_study) -> None:
     _, study = ready_study
     train = study / "train.py"
