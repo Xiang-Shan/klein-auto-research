@@ -44,7 +44,10 @@ from sklearn.metrics import (
     brier_score_loss,
     log_loss,
     mean_absolute_error,
+    mean_gamma_deviance,
+    mean_poisson_deviance,
     mean_squared_error,
+    mean_tweedie_deviance,
     r2_score,
     roc_auc_score,
 )
@@ -106,7 +109,89 @@ _METRIC_SPECS: dict[str, MetricSpec] = {
     "val_rmse": MetricSpec("val_rmse", "lower", "regression"),
     "val_mae": MetricSpec("val_mae", "lower", "regression"),
     "val_r2": MetricSpec("val_r2", "higher", "regression"),
+    "val_poisson_deviance": MetricSpec("val_poisson_deviance", "lower", "regression"),
+    "val_gamma_deviance": MetricSpec("val_gamma_deviance", "lower", "regression"),
+    "val_tweedie_deviance": MetricSpec("val_tweedie_deviance", "lower", "regression"),
 }
+
+#: The deviance family follows the exposure-weighted-rate convention: the
+#: target is a RATE (e.g. claim counts / exposure) and ``sample_weight`` is
+#: the exposure base. This is the standard actuarial formulation (and the one
+#: study 04 hand-rolled before the registry carried it).
+DEVIANCE_METRICS = frozenset(
+    {"val_poisson_deviance", "val_gamma_deviance", "val_tweedie_deviance"}
+)
+
+
+def _validate_sample_weight(sample_weight: Any, n: int) -> np.ndarray | None:
+    """Return validated weights (1-D, length n, finite, strictly positive)."""
+    if sample_weight is None:
+        return None
+    w = np.asarray(sample_weight, dtype=float)
+    if w.ndim != 1 or w.size != n:
+        raise ValueError(
+            f"sample_weight must be 1-D with length {n}, got shape {w.shape}"
+        )
+    if not np.all(np.isfinite(w)):
+        raise ValueError("sample_weight must contain only finite values")
+    if np.any(w <= 0):
+        raise ValueError(
+            "sample_weight must be strictly positive — drop zero-exposure rows "
+            "in prepare.py rather than weighting them to nothing"
+        )
+    return w
+
+
+def _deviance_value(
+    name: str,
+    y_true: np.ndarray,
+    pred: np.ndarray,
+    *,
+    sample_weight: np.ndarray | None,
+    tweedie_power: float | None,
+) -> float:
+    """Compute one deviance metric with actionable domain guards.
+
+    The evaluator never clips: a non-positive prediction is the model's
+    problem to fix in train.py (e.g. ``np.clip(pred, 1e-6, None)``), not
+    something the evidence layer should paper over silently.
+    """
+    if name == "val_tweedie_deviance":
+        if tweedie_power is None:
+            raise ValueError(
+                "val_tweedie_deviance requires tweedie_power= (the contract's "
+                "metric.power); use val_poisson_deviance (p=1) or "
+                "val_gamma_deviance (p=2) for the endpoints"
+            )
+        power = float(tweedie_power)
+        if not np.isfinite(power) or not 1.0 < power < 2.0:
+            raise ValueError(
+                f"tweedie_power must satisfy 1 < power < 2, got {tweedie_power!r}"
+            )
+    elif tweedie_power is not None:
+        raise ValueError("tweedie_power applies only to val_tweedie_deviance")
+    if name == "val_gamma_deviance":
+        if np.any(y_true <= 0):
+            raise ValueError(
+                "val_gamma_deviance requires strictly positive targets; "
+                "filter zero rows in prepare.py or use val_tweedie_deviance"
+            )
+    elif np.any(y_true < 0):
+        raise ValueError(f"{name} requires non-negative targets")
+    if np.any(pred <= 0):
+        raise ValueError(
+            f"{name} requires strictly positive predictions; clip in train.py "
+            "(e.g. np.clip(pred, 1e-6, None))"
+        )
+    if name == "val_poisson_deviance":
+        return float(mean_poisson_deviance(y_true, pred, sample_weight=sample_weight))
+    if name == "val_gamma_deviance":
+        return float(mean_gamma_deviance(y_true, pred, sample_weight=sample_weight))
+    return float(
+        mean_tweedie_deviance(
+            y_true, pred, sample_weight=sample_weight, power=float(tweedie_power)
+        )
+    )
 
 
 def get_metric_spec(
@@ -469,16 +554,30 @@ def evaluate_regression(
     val_n: int,
     metric_name: str = "val_rmse",
     metric_goal: str = "lower",
+    sample_weight: Any = None,
+    tweedie_power: float | None = None,
     extra: dict[str, Any] | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
 ) -> float:
     """Regression/severity twin of :func:`evaluate`.
 
-    Computes the primary metric (RMSE) plus aux metrics (MAE, R^2). Same
-    canonical-block format, aux sidecar, and `maybe_save_best` wiring as
+    Computes the primary metric (RMSE by default) plus aux metrics (MAE, R^2).
+    Same canonical-block format, aux sidecar, and `maybe_save_best` wiring as
     :func:`evaluate` — there is no `min_proba_std` guard here since there is
     no probability output to collapse.
+
+    ``sample_weight`` (optional, strictly positive) threads into every metric;
+    with ``None`` the numbers are bit-identical to the unweighted history.
+    The deviance family (``val_poisson_deviance`` / ``val_gamma_deviance`` /
+    ``val_tweedie_deviance``) uses the **exposure-weighted-rate convention**:
+    ``y_va`` is the rate (e.g. claim counts / exposure) and ``sample_weight``
+    is the exposure. Tweedie additionally requires ``tweedie_power`` (the
+    contract's ``metric.power``, 1 < power < 2), echoed as an aux line so the
+    manifest records it. A deviance primary also reports ``calibration_ratio``
+    (sum of weighted predictions over weighted actuals — the pricing A/E
+    sanity number). Deviance-family metrics are computed only when selected
+    as the primary.
     """
     spec = get_metric_spec(metric_name, goal=metric_goal, task="regression")
     pred = np.asarray(model.predict(X_va), dtype=float)
@@ -490,15 +589,31 @@ def evaluate_regression(
         )
     if not np.all(np.isfinite(pred)) or not np.all(np.isfinite(y_true)):
         raise ValueError("regression predictions and targets must contain only finite values")
+    weights = _validate_sample_weight(sample_weight, y_true.size)
+    if spec.name not in DEVIANCE_METRICS and tweedie_power is not None:
+        raise ValueError("tweedie_power applies only to val_tweedie_deviance")
 
-    val_rmse = float(np.sqrt(mean_squared_error(y_true, pred)))
-    val_mae = float(mean_absolute_error(y_true, pred))
-    val_r2 = float(r2_score(y_true, pred))
+    val_rmse = float(np.sqrt(mean_squared_error(y_true, pred, sample_weight=weights)))
+    val_mae = float(mean_absolute_error(y_true, pred, sample_weight=weights))
+    val_r2 = float(r2_score(y_true, pred, sample_weight=weights))
     metric_values = {
         "val_rmse": val_rmse,
         "val_mae": val_mae,
         "val_r2": val_r2,
     }
+    calibration_ratio: float | None = None
+    if spec.name in DEVIANCE_METRICS:
+        metric_values[spec.name] = _deviance_value(
+            spec.name,
+            y_true,
+            pred,
+            sample_weight=weights,
+            tweedie_power=tweedie_power,
+        )
+        w_eff = weights if weights is not None else np.ones_like(y_true)
+        observed = float(np.sum(w_eff * y_true))
+        if observed != 0.0:
+            calibration_ratio = float(np.sum(w_eff * pred) / observed)
     for name, value in metric_values.items():
         _METRIC_SPECS[name].validate_value(value)
     primary_value = spec.validate_value(metric_values[spec.name])
@@ -519,6 +634,12 @@ def evaluate_regression(
     print(f"val_rmse:          {val_rmse:.6f}")
     print(f"val_mae:           {val_mae:.6f}")
     print(f"val_r2:            {val_r2:.6f}")
+    if spec.name in DEVIANCE_METRICS:
+        print(f"{spec.name}: {primary_value:.6f}")
+        if calibration_ratio is not None:
+            print(f"calibration_ratio: {calibration_ratio:.6f}")
+        if spec.name == "val_tweedie_deviance":
+            print(f"tweedie_power: {float(tweedie_power):.6g}")
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -539,6 +660,12 @@ def evaluate_regression(
             "val_r2": val_r2,
             "wall_seconds": total_seconds,
         }
+        if spec.name in DEVIANCE_METRICS:
+            aux_rows[spec.name] = primary_value
+            if calibration_ratio is not None:
+                aux_rows["calibration_ratio"] = calibration_ratio
+            if spec.name == "val_tweedie_deviance":
+                aux_rows["tweedie_power"] = float(tweedie_power)
         if model_path is not None:
             aux_rows["model_path"] = model_path
         if extra:
