@@ -1,0 +1,91 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 18070,
+      "committed": true,
+      "sha256": "86def030775bbda0532aac01df91699c71bab60531dd12cd42857fe6cbcd58da"
+    },
+    "runs/E0006/run.log": {
+      "availability": "recorded",
+      "bytes": 1698,
+      "committed": true,
+      "sha256": "5717842ca531a9842fd2d6e8886ade501c5aaabe58294cefffb3fb5c1aa993bb"
+    }
+  },
+  "base_commit": "fc22ea02a043150b4b5608c2ac36064cb17fe37d",
+  "candidate_commit": "bcc56e2854de8d1e50186653d1a620215e35fcf9",
+  "code_patch_hash": "8827d273dbec9cb20e819d050d9eb6c45a16be2e7592334e38fe6d38c4cee0c4",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "RQ5 baseline: MLE-lognormal 1-in-100 instability under the adaptive stress set (leave-top-1/2/3, 5x max) - audit preview says leave-1 alone moves -25.7%; prediction: instability_pct > 40; w_pvalue guardrail from the clean fit; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-07-31T18:45:57.652065Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0006",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": null,
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "return_level_instability_pct",
+  "metrics": {
+    "baseline_return_level_bn": 55.522182140986054,
+    "breakdown_point": 0.05,
+    "k": 8.0,
+    "mu_hat": 22.800182463304523,
+    "n_stress_cases": 4.0,
+    "pct_change_inflate_max_x5": 58.06394769725969,
+    "pct_change_leave_top_1_out": 25.682250675084475,
+    "pct_change_leave_top_2_out": 36.45783182818616,
+    "pct_change_leave_top_3_out": 44.55564480720707,
+    "primary_metric": 58.063948,
+    "return_level_1in100_bn": 55.522182140986054,
+    "return_level_1in10_bn": 23.232702701707115,
+    "return_level_1in25_bn": 34.35532142155143,
+    "rl_bn_inflate_max_x5": 87.76055293970546,
+    "rl_bn_leave_top_1_out": 41.26283614326103,
+    "rl_bn_leave_top_2_out": 35.27999834868615,
+    "rl_bn_leave_top_3_out": 30.78391587703775,
+    "runner_exit_code": 0.0,
+    "sigma_hat": 0.8338675459533283,
+    "stress_inflate_factor": 5.0,
+    "total_seconds": 0.0,
+    "w_chi2_calibrated": 0.0,
+    "w_df": 6.0,
+    "w_pvalue": 0.5373549076307742,
+    "w_statistic": 5.050482242082086,
+    "wall_seconds": 0.0018811225891113281
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 58.063948,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:45:57.053539Z",
+  "timed_out": false,
+  "track": "decision",
+  "transaction": {
+    "ready_at": "2026-07-31T18:45:57.652746Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.598452499951236
+}
