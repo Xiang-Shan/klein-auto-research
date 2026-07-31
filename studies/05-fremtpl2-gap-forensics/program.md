@@ -102,6 +102,20 @@ base commit.
   Eight additional predictions-to-falsify levers (M1-a…M5-a) are queued to enter
   study.yaml together with the measured floors at the consult re-record (one
   yaml edit, one hash re-bind).
+- 2026-07-31 — adaptive-1 (anchors + metrology) COMPLETE. E0002 keep glm anchor
+  0.454861 (registry path, anchor-exact); E0003 keep gbdt anchor 0.444689
+  (anchor-exact) with the phase's headline discovery: **effective_trees = 67** —
+  sklearn early_stopping="auto" truncated the nominal-200 config (method-card R1
+  CONFIRMED; M1-a lever resolved). Floors measured (sweeps committed):
+  glm fit-seed std EXACTLY 0 (k=5, deterministic — the degenerate floor is the
+  finding); gbdt fit-seed std 0.000210 (= study 04's); paired CRN bootstrap
+  B=1000: glm-pair SE 0.000270, gbdt-pair SE 0.000287, cross SE 0.000963.
+  minimum_delta set: glm 0.000539, gbdt 0.000573 (max rule). Dev gap +0.010172 =
+  10.6× cross paired SE. Pre-loop signals for the slate: LGBM−HGBT −0.000276
+  (0.96× SE, tie prior alive but capacity-confounded — LGBM built 200 trees vs
+  HGBT's 67); CatBoost +0.001643 (2.9× gbdt floor, deficit real-looking);
+  scoped-splines closure only 16.8% vs leaky study-04 shaping's 18% — RQ4's
+  30-45% prior now DOUBTED, honest-no candidate.
 - 2026-07-31 — FRICTION F1 (this study): E0001 printed the anchor-exact metric
   (0.454861) but was dispositioned discard — "guardrail metric 'wall_seconds'
   missing". Cause: `evaluate_regression` writes wall_seconds into aux_metrics.tsv

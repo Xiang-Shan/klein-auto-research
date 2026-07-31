@@ -16,11 +16,16 @@ tracks:
     metric:
       name: "val_poisson_deviance"
       goal: "lower"     # higher | lower
-      minimum_delta: 0.001786   # PROVISIONAL = study-04 paired-bootstrap floor; re-measured at anchor-0, then consult re-recorded
-      # noise_floor:                # measured at Phase 0, never guessed —
-      #   k: 5                      # klein noise-floor prints this block
-      #   std: ...
-      #   range: ...
+      minimum_delta: 0.000539   # = 2x within-track paired-bootstrap SE (glm_ohe vs glm_scoped_splines, CRN row bootstrap B=1000; sweeps/paired_floor.py) — the fit-seed floor is EXACTLY 0 (deterministic solver), so the paired floor governs
+      noise_floor:
+        k: 5
+        std: 0
+        range: 0
+        mean: 0.454861
+        values: [0.454861, 0.454861, 0.454861, 0.454861, 0.454861]
+        source: "sweeps/noise_floor_glm.sidecar.tsv"
+        measured_after: "E0002"
+        method: "seed-sweep"
     guardrails:
       wall_seconds:
         max: 400
@@ -28,10 +33,23 @@ tracks:
     metric:
       name: "val_poisson_deviance"
       goal: "lower"
-      minimum_delta: 0.001786   # PROVISIONAL = study-04 paired-bootstrap floor; re-measured at anchor-0, then consult re-recorded
+      minimum_delta: 0.000573   # = max(2x fit-seed std 0.000420, 2x paired-bootstrap SE 0.000573 from hgbt_ohe vs lgbm_poisson CRN row bootstrap; sweeps/paired_floor.py)
+      noise_floor:
+        k: 5
+        std: 0.000210143
+        range: 0.000512
+        mean: 0.444913
+        values: [0.444689, 0.445201, 0.444912, 0.444737, 0.445025]
+        source: "sweeps/noise_floor_gbdt.sidecar.tsv"
+        measured_after: "E0003"
+        method: "seed-sweep"
     guardrails:
       wall_seconds:
         max: 400
+
+# Headline-gap uncertainty (NOT a minimum_delta): cross-track paired-bootstrap SE
+# glm_ohe vs hgbt_ohe = 0.000963 (2xSE 0.001925); dev gap +0.010172 = 10.6x SE.
+# Source: sweeps/paired_floor.py, 2026-07-31; see program.md.
 
 data:
   source: "data_hub:freMTPL2"
@@ -98,6 +116,22 @@ predictions_to_falsify:
     predicted_delta: "closes a further >=2x glm floor; total closure <=70% (KEEP, ceiling stated)"
   - lever: "HGBT -> HGBT with monotone BonusMalus (RQ7)"
     predicted_delta: "within 1x gbdt floor -> DISCARD (constraint is free; that IS the finding)"
+  - lever: "M1-a: HGBT early_stopping='auto' at 406,807 train rows"
+    predicted_delta: "fitted n_iter_ < 200 (capacity NOT matched at nominal max_iter=200) — CONFIRMED at E0003: effective_trees=67"
+  - lever: "M1-b: LGBM vs HGBT after matching effective tree count"
+    predicted_delta: "|delta| stays < 2x floor_gbdt -> RQ2 tie is algorithmic, not an artefact"
+  - lever: "M2-a: catboost_poisson with one_hot_max_size=32 (CTRs off for Region/VehBrand/Area)"
+    predicted_delta: "moves dev deviance < 0.5x floor_gbdt -> any CatBoost deficit is symmetric-tree capacity, not categorical handling"
+  - lever: "M3-a: empirical BonusMalus -> frequency direction, 8 quantile bins on train"
+    predicted_delta: "non-decreasing over >= 90% of exposure -> +1 is the correct monotone sign"
+  - lever: "M4-a: train-fold surrogate R2_main vs HGBT log-score"
+    predicted_delta: "> 0.90 -> the gap is mostly NOT an interaction gap"
+  - lever: "M4-b: top-ranked surrogate residual pair"
+    predicted_delta: "(BonusMalus, DrivAge) ranks first"
+  - lever: "M4-c: multiplicity budget"
+    predicted_delta: "10 pairs screened, <= 2 adopted, none below 1x floor_glm, all rejections reported"
+  - lever: "M5-a: 8-bin BonusMalus gap decomposition"
+    predicted_delta: "top-3 segments carry >= 50% of the gap on <= 25% of exposure"
 
 deliverables:
   - findings.md
