@@ -15,3 +15,7 @@ E0004	wall_seconds	2.2106242179870605
 E0004	calibration_ratio	1.0128291324440328
 E0004	n_eval_rows	135603.0
 E0004	eval_claims	5175.0
+E0005	wall_seconds	3.459771156311035
+E0005	calibration_ratio	1.0148587723803848
+E0005	n_eval_rows	135603.0
+E0005	eval_claims	5175.0
