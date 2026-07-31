@@ -80,3 +80,10 @@ E0010	val_poisson_deviance	0.44443110676532754
 E0010	calibration_ratio	1.0197475239999005
 E0010	model_config	lgbm_poisson
 E0010	effective_trees	67.0
+E0011	val_rmse	0.48403989175152806
+E0011	val_mae	0.1390323362526214
+E0011	val_r2	0.00851653385156459
+E0011	wall_seconds	0.919320821762085
+E0011	val_poisson_deviance	0.4592308087178836
+E0011	calibration_ratio	0.9962263197816353
+E0011	model_config	glm_scoped_splines

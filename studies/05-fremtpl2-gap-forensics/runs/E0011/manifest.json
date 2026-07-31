@@ -1,0 +1,78 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3442,
+      "committed": true,
+      "sha256": "21772968225c4b547526b4a98f1e5cb4df8f7a320ebc99452d1d0f1331f853c9"
+    },
+    "runs/E0011/run.log": {
+      "availability": "recorded",
+      "bytes": 613,
+      "committed": true,
+      "sha256": "e5e9dea184cbbf195604dff3ae5030508109bfb3e560befb85ab38e81772ae12"
+    }
+  },
+  "base_commit": "0e32944e32beae8fc1580578c025414ee6c196f0",
+  "candidate_commit": "9aa393226553039f0ea6b3b8b2a74bfb7280214e",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "sealed confirmation of the glm incumbent (E0004 scoped splines) + holdout prediction export for the off-ledger sealed-gap computation; sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-07-31T16:44:18.632316Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0011",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0004",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 0.996226,
+    "primary_metric": 0.459231,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.0,
+    "train_rows": 406807.0,
+    "training_seconds": 0.7,
+    "val_mae": 0.139032,
+    "val_poisson_deviance": 0.459231,
+    "val_r2": 0.008517,
+    "val_rmse": 0.48404,
+    "val_rows": 135603.0,
+    "wall_seconds": 0.919320821762085
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 2,
+  "primary_metric": 0.459231,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:44:16.295512Z",
+  "timed_out": false,
+  "track": "glm",
+  "transaction": {
+    "ready_at": "2026-07-31T16:44:18.633620Z",
+    "status": "pending"
+  },
+  "wall_seconds": 2.33657383301761
+}
