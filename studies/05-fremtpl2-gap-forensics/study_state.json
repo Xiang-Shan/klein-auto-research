@@ -33,6 +33,18 @@
       "experiment": "E0011"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "gbdt": 1,
+      "glm": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "gbdt": "E0012",
+      "glm": "E0011"
+    },
+    "timestamp": "2026-07-31T17:10:18.285470Z"
+  },
   "fingerprints": {
     "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
     "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
@@ -95,7 +107,7 @@
     "sha256": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10"
   },
   "schema_version": 2,
-  "status": "active",
+  "status": "finalized",
   "study_id": "05-fremtpl2-gap-forensics",
-  "updated_at": "2026-07-31T16:46:28.959992Z"
+  "updated_at": "2026-07-31T17:10:18.285473Z"
 }
