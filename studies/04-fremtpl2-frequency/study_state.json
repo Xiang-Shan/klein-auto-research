@@ -3,9 +3,14 @@
     "consult": {
       "by": "xiang",
       "timestamp": "2026-07-31T02:24:28.868267Z"
+    },
+    "data": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T02:26:40.771575Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "f13bc60bafb422b3f4d524df861d71b32ab53f3ec250950f1bf8493904391944",
     "research_plan.md": "ac48b09fca87c254401ca508013c63473b98342f573a11c206a232040a97c17e",
     "study.yaml": "27312af68eebbfbd3696a166862ca6a51aaf89221e150154e15a6baf94155b2a"
   },
@@ -19,7 +24,7 @@
     }
   },
   "fingerprints": {
-    "data": null,
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
     "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
   },
   "gates": {
@@ -35,9 +40,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-07-31T02:26:40.771575Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "data_card.md": "f13bc60bafb422b3f4d524df861d71b32ab53f3ec250950f1bf8493904391944"
+      },
+      "note": "GO; target-in-disguise columns dropped by allowlist; manual clean-room audit (leakage.py blocked by F3) all PASS",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -50,10 +59,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/04-fremtpl2-frequency/data/prepared/fremtpl2_frequency.csv",
-    "sha256": null
+    "sha256": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10"
   },
   "schema_version": 2,
   "status": "active",
   "study_id": "04-fremtpl2-frequency",
-  "updated_at": "2026-07-31T02:24:28.868589Z"
+  "updated_at": "2026-07-31T02:26:40.783280Z"
 }
