@@ -46,7 +46,7 @@ base commit.
   seminar 2026-08-28 but stands alone), budget (420 s/run; four phases), deliverable
   form (findings + tutorial + claim-cited checklist). Two-track sealed-gap design
   chosen over single-track to close study 04's protocol caveat. RQ1-RQ7 + six
-  predictions-to-falsify recorded in study.yaml. Acknowledged by xiang.
+  predictions-to-falsify recorded in study.yaml. Acknowledged by Xiang.
 - 2026-07-31 — Anchor comparability decision: prep is study 04's byte-for-byte
   (SHA-256 asserted); the 4,872 duplicate feature profiles straddling train/dev and
   the pre-clipped hub Exposure are recorded as data-card NOTEs and findings
