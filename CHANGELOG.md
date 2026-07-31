@@ -6,6 +6,22 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [Unreleased]
+
+### Added
+
+- Study `05-fremtpl2-gap-forensics` (third public exhibit): the two-track
+  sealed-gap redesign that study 04 (archived at [1.0.0]) queued as future
+  work, executed. Each track owns one sealed final-test access, so the
+  GLM-vs-GBDT headline is a difference of two sealed numbers (0.009564 = 9.3×
+  the sealed paired-bootstrap SE; confirmed). Forensics layer: train-fold
+  surrogate distillation, segment deviance attribution, manual 2-way partial
+  dependence; deliverables include a claim-cited
+  dataset-characteristics → method-choice `checklist.md`. Two framework
+  frictions filed from the run (guardrail-metric print visibility; post-scaffold
+  track top-up in `final_holdout_access`) — see the study's `program.md` and
+  findings §⑦.
+
 ## [1.1.0] — 2026-07-31
 
 The slim release: public `main` becomes the reader-first product — two executed

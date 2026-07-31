@@ -153,11 +153,12 @@ New here? Reading order: this README → [`AGENTS.md`](AGENTS.md) →
 [`studies/00-glm-claims-quickstart/`](studies/00-glm-claims-quickstart/) → the
 stage protocols as you need them.
 
-## The shipped studies — two executed exhibits
+## The shipped studies — three executed exhibits
 
 One exhibit per audience: an ML study on bundled real data you can re-run from a
-bare clone, and a math/optimization study under the full schema-v2 evidence
-contract.
+bare clone, a math/optimization study under the full schema-v2 evidence
+contract, and a two-track actuarial comparison study whose headline is a
+difference of two SEALED numbers.
 
 The quickstart study predates the public v0.2 transaction contract: its
 `results.tsv`, `program.md`, and `findings.md` ship verbatim as a scientific
@@ -175,6 +176,15 @@ this repository's history, and it exercised the whole hardened contract live:
 | Study | Question | Headline findings |
 |---|---|---|
 | [`03-noisy-rosenbrock-dfo`](studies/03-noisy-rosenbrock-dfo/) | At 200 noisy evaluations, do restarts beat Nelder-Mead — and does SPSA beat both? | Restarts win 2.96× the measured floor and the sealed fresh-seed run replicates (confirmed); random search ties them — found by the DATA gate before any run; "textbook" SPSA diverges to 1e178 because the method card's own tuning rule went unapplied |
+
+The third study is the sequel the freMTPL2 soak (archived at v1.0.0) explicitly
+queued: two tracks, one sealed final-test access each, so the GLM-vs-GBDT
+headline is a **difference of two sealed numbers** — plus the forensics that
+say WHERE the gap lives and what a filed GLM can buy back:
+
+| Study | Question | Headline findings |
+|---|---|---|
+| [`05-fremtpl2-gap-forensics`](studies/05-fremtpl2-gap-forensics/) | On 678k-row freMTPL2 frequency, WHERE does the GBDT's edge live, how much transfers back into a GLM, and does the gap survive two sealed tests? | Sealed gap 0.009564 = 9.3× its sealed paired SE (confirmed, 1.07× SE from dev); scoped splines buy back only 16.8% and the top-10 product interactions all fall below the measured floor — ≈83% of the gap is non-additive (surrogate R² 0.66, led by VehAge×BonusMalus, not the literature's DrivAge×BonusMalus); a monotone BonusMalus constraint costs 3.7× the floor; and below ~20–40k training rows the GLM wins outright |
 
 Three further executed exhibits — the 58k-row DAE honest-no, the robust-QLS
 known-truth severity lab, and the 678k-row freMTPL2 frequency soak — are
