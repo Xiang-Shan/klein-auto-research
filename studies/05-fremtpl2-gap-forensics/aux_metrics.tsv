@@ -72,3 +72,11 @@ E0009	val_poisson_deviance	0.4474553449044678
 E0009	calibration_ratio	1.0141811842476987
 E0009	model_config	hgbt_monotone
 E0009	effective_trees	53.0
+E0010	val_rmse	0.4890017717170379
+E0010	val_mae	0.1356455703415679
+E0010	val_r2	0.013213321553398494
+E0010	wall_seconds	2.154860019683838
+E0010	val_poisson_deviance	0.44443110676532754
+E0010	calibration_ratio	1.0197475239999005
+E0010	model_config	lgbm_poisson
+E0010	effective_trees	67.0
