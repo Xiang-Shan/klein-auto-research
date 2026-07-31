@@ -13,11 +13,15 @@ tracks:
     metric:
       name: "val_poisson_deviance"
       goal: "lower"     # higher | lower
-      minimum_delta: 0
-      # noise_floor:                # measured at Phase 0, never guessed —
-      #   k: 5                      # klein noise-floor prints this block
-      #   std: ...
-      #   range: ...
+      minimum_delta: 0.001786   # = 2x PAIRED-difference bootstrap SE (see program.md 2026-07-31)
+      noise_floor:
+        k: 5
+        seeds: [0, 1, 2, 3, 4]
+        std: 0.000210143          # HGBT fit-seed spread (the sweep)
+        range: 0.000512
+        mean: 0.444913
+        source: "sweeps/noise_floor.sidecar.tsv"
+        measured_after: "E0001"
     guardrails:
       wall_seconds:
         max: 240
