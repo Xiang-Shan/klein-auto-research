@@ -79,6 +79,29 @@ base commit.
   at 1/365.25 (prepare's counter counts only outside-(0,1] rows — under-reports
   by design, recorded); (e) Density has a real censoring ceiling: 1.55% of rows
   pinned at exactly 27,000.
+- 2026-07-31 — METHOD gate recorded (full card, triad complete, 18/18 refs
+  verified). Loop disciplines adopted from card risks R1-R9: (R1) HGBT
+  early_stopping="auto" engages >10k rows → nominal max_iter is NOT matched
+  capacity; effective_trees now logged to aux on every GBDT row; RQ2's verdict
+  must cite effective counts, with M1-b (match effective tree count) as the
+  follow-up lever if the tie breaks. (R2) hgbt_monotone confounds
+  native-encoding with the constraint → study 04's E0004 hgbt_native 0.445343
+  (same split/prep, tag v1.0.0) is the unconstrained control; an in-study native
+  control is the designated reserve-slot use if the comparison gets close. (R3)
+  CatBoost on CPU defaults boosting_type=Plain → RQ3's claim is about the
+  CTR+symmetric-tree package, NOT ordered boosting; M2-a (one_hot_max_size=32)
+  is the isolation lever. (R4) never inline a raw CatBoostRegressor in train.py
+  (RawFormulaVal trap — wrapper only). (R5) all three models carry ~+2% A/E
+  (calibration 1.02) → reported every row, never recalibrated (would break
+  anchors). (R6) segment shares: ≥8 quantile bins, exposure share alongside,
+  bootstrap before quoting. (R7) surrogate basis is numeric-only → categorical
+  interactions invisible; cross-check with two_way_pd_gap; state the blind spot
+  explicitly if forensics localises the gap categorically. (R8) R²_main is a
+  log-score diagnostic, not a deviance bound. (R9) 26.54% dev twin straddle →
+  the GAP is robust, the levels are optimistic — RQ1 wording fixed accordingly.
+  Eight additional predictions-to-falsify levers (M1-a…M5-a) are queued to enter
+  study.yaml together with the measured floors at the consult re-record (one
+  yaml edit, one hash re-bind).
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):

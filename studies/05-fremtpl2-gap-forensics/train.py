@@ -17,8 +17,10 @@ from __future__ import annotations
 import os
 import time
 
+import math
+
 from kleinlib.eval import evaluate_regression, save_holdout_predictions
-from pipeline import fit_model, null_dev_deviance, read_reference
+from pipeline import effective_trees, fit_model, null_dev_deviance, read_reference
 
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
@@ -92,7 +94,8 @@ def main() -> None:
         metric_goal="lower",
         sample_weight=w_ev,
         study_dir=".",
-        extra={"model_config": MODEL},
+        extra={"model_config": MODEL}
+        | ({"effective_trees": n_trees} if math.isfinite(n_trees := effective_trees(model)) else {}),
     )
 
     if evaluation_kind == "final_test" and not SMOKE:

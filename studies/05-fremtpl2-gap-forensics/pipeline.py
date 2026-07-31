@@ -223,5 +223,20 @@ def fit_model(model: str, *, evaluation_kind: str = "development",
     return clipped, X_ev, frequency(y_ev, w_ev), w_ev.to_numpy(), fit_seconds, len(X_tr)
 
 
+def effective_trees(clipped: ClippedRegressor) -> float:
+    """Fitted tree count — method-card risk R1: HGBT's early_stopping='auto'
+    engages above 10k samples, so nominal max_iter is NOT matched capacity
+    across libraries; every GBDT row logs the effective count to aux."""
+    inner = clipped.inner
+    est = inner.steps[-1][1] if isinstance(inner, Pipeline) else inner
+    if isinstance(est, HistGradientBoostingRegressor):
+        return float(est.n_iter_)
+    if isinstance(inner, CatBoostPoisson):
+        return float(inner.model.tree_count_)
+    if hasattr(est, "booster_"):  # LightGBM sklearn wrapper
+        return float(est.booster_.num_trees())
+    return float("nan")  # deterministic GLMs: no tree count
+
+
 def read_reference() -> dict:
     return json.loads(REFERENCE.read_text(encoding="utf-8"))
