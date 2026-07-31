@@ -239,6 +239,20 @@ def main(argv: list[str] | None = None) -> int:
                 f"{manifest['experiment']}: {manifest['disposition']} "
                 f"metric={manifest['primary_metric']} commit={manifest['candidate_commit']}"
             )
+            restored = (
+                manifest["disposition"] != "keep"
+                or manifest.get("evaluation_kind") == "final_test"
+            )
+            if restored:
+                anchor = manifest.get("incumbent")
+                holder = (
+                    f"(= {anchor}'s kept config)" if anchor else "(pre-candidate scaffold state)"
+                )
+                print(
+                    f"train.py restored to pre-candidate base "
+                    f"{manifest['base_commit'][:12]} {holder}; "
+                    f"candidate stays resolvable at {manifest['candidate_commit'][:12]}"
+                )
             return 0 if manifest["disposition"] != "crash" else 1
         if args.command_name == "recover":
             recovered = recover(study)

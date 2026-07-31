@@ -1723,6 +1723,7 @@ def run_one(
             )
         timeout = min(timeout, remaining_budget)
         manifests = load_manifests(study_dir)
+        incumbent = _incumbent(manifests, track)
         number = len(manifests) + 1
         run_id = f"E{number:04d}"
 
@@ -1758,6 +1759,7 @@ def run_one(
             "experiment": run_id,
             "track": track,
             "phase": phase_id,
+            "incumbent": (incumbent or {}).get("experiment"),
             "evaluation_kind": "final_test" if final_test else "development",
             "started_at": utc_now(),
             "ended_at": None,
@@ -1845,7 +1847,7 @@ def run_one(
                     primary_metric=primary,
                     track_spec=tracks[track],
                     metrics=metrics,
-                    incumbent=_incumbent(manifests, track),
+                    incumbent=incumbent,
                     final_test=final_test,
                 )
                 manifest.update(
