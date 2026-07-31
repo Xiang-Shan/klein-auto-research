@@ -1820,6 +1820,10 @@ def run_one(
                 "KLEIN_EVALUATION_KIND": "final_test" if final_test else "development",
                 "KLEIN_EXPERIMENT_ID": run_id,
                 "KLEIN_TRACK": track,
+                # A real run force-clears ambient smoke mode: an exported
+                # KLEIN_SMOKE=1 in the driving shell must never silently
+                # suppress evidence writes.
+                "KLEIN_SMOKE": "",
             },
         )
         manifest.update(

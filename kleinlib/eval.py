@@ -357,6 +357,21 @@ def _positive_class_probabilities(model: Any, X: Any, y_true: Any) -> np.ndarray
     return raw_proba[:, int(positive[0])]
 
 
+def _smoke_mode() -> bool:
+    """True under ``KLEIN_SMOKE=1`` — the sanctioned pre-run syntax check.
+
+    Smoke runs print the canonical block (that is the point) but skip every
+    sidecar and snapshot write, so an off-loop `train.py` execution can never
+    pollute the evidence ledger (the soak's F2 friction). `klein run-one`
+    force-clears the variable in the child environment, so a forgotten
+    ``export KLEIN_SMOKE=1`` can never silently suppress real evidence.
+    """
+    return os.environ.get("KLEIN_SMOKE") == "1"
+
+
+_SMOKE_NOTICE = "smoke mode: no sidecar/snapshot writes (KLEIN_SMOKE=1)"
+
+
 def _fmt_num(x: float | None, spec: str = ".6f") -> str:
     return "NA" if x is None else format(x, spec)
 
@@ -510,7 +525,9 @@ def evaluate(
         for k, v in extra.items():
             print(f"{k}: {v}")
 
-    if study_dir is not None:
+    if study_dir is not None and _smoke_mode():
+        print(_SMOKE_NOTICE)
+    elif study_dir is not None:
         model_path = snapshot.maybe_save_best(
             model,
             exp_id=exp_id,
@@ -644,7 +661,9 @@ def evaluate_regression(
         for k, v in extra.items():
             print(f"{k}: {v}")
 
-    if study_dir is not None:
+    if study_dir is not None and _smoke_mode():
+        print(_SMOKE_NOTICE)
+    elif study_dir is not None:
         model_path = snapshot.maybe_save_best(
             model,
             exp_id=exp_id,
@@ -717,7 +736,9 @@ def evaluate_scalar(
         for k, v in extra.items():
             print(f"{k}: {v}")
 
-    if study_dir is not None:
+    if study_dir is not None and _smoke_mode():
+        print(_SMOKE_NOTICE)
+    elif study_dir is not None:
         aux_rows: dict[str, Any] = {"wall_seconds": total_seconds}
         if extra:
             aux_rows.update(extra)

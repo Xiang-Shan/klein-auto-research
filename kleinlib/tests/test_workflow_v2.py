@@ -954,6 +954,78 @@ def test_final_test_env_is_not_ambiently_inherited(tmp_path: Path, monkeypatch) 
     assert log.read_text(encoding="utf-8").splitlines()[0] == "final_test"
 
 
+def test_run_one_force_clears_ambient_smoke(ready_study, monkeypatch) -> None:
+    """An exported KLEIN_SMOKE=1 in the driving shell must never suppress a
+    real run's evidence writes — run-one clears it in the child env."""
+    monkeypatch.setenv("KLEIN_SMOKE", "1")
+    _, study = ready_study
+    train = study / "train.py"
+    train.write_text(train.read_text(encoding="utf-8") + "\nCANDIDATE = 1\n", encoding="utf-8")
+    probe = (
+        "import os; assert os.environ.get('KLEIN_SMOKE') == '', os.environ.get('KLEIN_SMOKE'); "
+    )
+    command = metric_command(0.9)
+    command[-1] = probe + command[-1]
+    manifest = run_one(study, description="smoke cleared", command=command, echo=False)
+    assert manifest["disposition"] == "keep"
+
+
+def test_scaffolded_train_smoke_mode_runs_without_klein_env(tmp_path: Path, monkeypatch) -> None:
+    """KLEIN_SMOKE=1 is the sanctioned off-loop path: the scaffolded train.py
+    executes end to end with no KLEIN_* variables and writes nothing."""
+    study = scaffold_study(
+        tmp_path,
+        "07-smoke",
+        goal="smoke",
+        domain="test",
+        target="y",
+        task_type="classification",
+        metric_name="val_auc",
+        metric_goal="higher",
+        data_source="csv:fixture.csv",
+        data_path="data/prepared/fixture.csv",
+    )
+    train = study / "train.py"
+    source = train.read_text(encoding="utf-8")
+    source = source.replace(
+        '    raise NotImplementedError("implement the fixed three-way split declared in study.yaml")',
+        "    return (\n"
+        "        [[0.0], [0.1], [0.2], [0.8], [0.9], [1.0]],\n"
+        "        [[0.15], [0.25], [0.75], [0.85]],\n"
+        "        [0, 0, 0, 1, 1, 1],\n"
+        "        [0, 0, 1, 1],\n"
+        "    )",
+    )
+    source = source.replace(
+        '    raise NotImplementedError("build this candidate")',
+        "    from sklearn.linear_model import LogisticRegression\n"
+        "    return LogisticRegression(random_state=RANDOM_SEED)",
+    )
+    train.write_text(source, encoding="utf-8")
+    for var in ("KLEIN_EVALUATION_KIND", "KLEIN_EXPERIMENT_ID", "KLEIN_TRACK"):
+        monkeypatch.delenv(var, raising=False)
+
+    # without smoke: the refusal message teaches the sanctioned path
+    bare = subprocess.run(
+        [sys.executable, "-u", "train.py"], cwd=study, text=True, capture_output=True
+    )
+    assert bare.returncode != 0
+    assert "KLEIN_SMOKE=1" in bare.stderr
+
+    monkeypatch.setenv("KLEIN_SMOKE", "1")
+    smoke = subprocess.run(
+        [sys.executable, "-u", "train.py"], cwd=study, text=True, capture_output=True,
+        env={**__import__("os").environ},
+    )
+    assert smoke.returncode == 0, smoke.stderr
+    assert "primary_metric:" in smoke.stdout
+    assert "smoke mode: no sidecar/snapshot writes" in smoke.stdout
+    # the scaffolded sidecar stays header-only and no snapshot was pickled
+    aux_lines = (study / "aux_metrics.tsv").read_text(encoding="utf-8").splitlines()
+    assert aux_lines == ["experiment\tmetric\tvalue"]
+    assert list((study / "models").glob("*.joblib")) == []
+
+
 def test_manifest_integrity_resolves_commits_and_detects_hash_tampering(ready_study) -> None:
     repo, study = ready_study
     train = study / "train.py"
