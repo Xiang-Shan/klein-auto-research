@@ -466,6 +466,9 @@ def _noise_floor_problems(floor: Any) -> list[str]:
     unknown = set(floor) - ALLOWED_KEYS
     if unknown:
         problems.append(f"metric.noise_floor has unknown keys: {sorted(unknown)}")
+    method = floor.get("method")
+    if method is not None and (not isinstance(method, str) or not method.strip()):
+        problems.append("metric.noise_floor.method must be a non-empty string")
     try:
         k = int(floor.get("k", 0))
         if k < 3:

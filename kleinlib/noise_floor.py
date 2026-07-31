@@ -23,9 +23,12 @@ from pathlib import Path
 __all__ = ["NoiseFloor", "summarize_noise", "floor_from_sidecar", "yaml_block"]
 
 #: Keys a study.yaml ``metric.noise_floor`` block may carry (validated in
-#: kleinlib.workflow.validate_contract).
+#: kleinlib.workflow.validate_contract). ``method`` is free-text provenance for
+#: HOW the floor was measured — the consult protocol's vocabulary is
+#: ``seed-sweep`` (the Phase-0 k-seed ladder) and ``paired-bootstrap`` (the
+#: real-data comparison recipe).
 ALLOWED_KEYS = frozenset(
-    {"k", "seeds", "std", "range", "mean", "values", "source", "measured_after"}
+    {"k", "seeds", "std", "range", "mean", "values", "source", "measured_after", "method"}
 )
 
 
@@ -85,7 +88,14 @@ def floor_from_sidecar(path: Path, *, metric: str = "primary_metric") -> NoiseFl
     return summarize_noise(values)
 
 
-def yaml_block(track: str, floor: NoiseFloor, *, source: str, measured_after: str | None = None) -> str:
+def yaml_block(
+    track: str,
+    floor: NoiseFloor,
+    *,
+    source: str,
+    measured_after: str | None = None,
+    method: str | None = None,
+) -> str:
     """The paste-able ``study.yaml`` snippet (indented for tracks.<t>.metric)."""
     lines = [
         f"# tracks.{track}.metric — set minimum_delta from the measured floor:",
@@ -105,6 +115,8 @@ def yaml_block(track: str, floor: NoiseFloor, *, source: str, measured_after: st
     ]
     if measured_after:
         lines.append(f'        measured_after: "{measured_after}"')
+    if method:
+        lines.append(f'        method: "{method}"')
     return "\n".join(lines) + "\n"
 
 
@@ -124,23 +136,38 @@ def _main(argv: list[str] | None = None) -> int:
     group.add_argument("--values", help="comma-separated metric values")
     parser.add_argument("--seeds", help="comma-separated seeds (with --values)")
     parser.add_argument("--measured-after", help="anchor experiment id, e.g. E0001")
+    parser.add_argument(
+        "--method",
+        help="how the floor was measured (default: seed-sweep for a sidecar; "
+        "the consult protocol also names paired-bootstrap)",
+    )
     args = parser.parse_args(argv)
     if args.sidecar is not None:
         floor = floor_from_sidecar(args.sidecar)
         source = str(args.sidecar)
+        method = args.method or "seed-sweep"
     else:
         seeds = [int(s) for s in args.seeds.split(",")] if args.seeds else None
         floor = summarize_noise(
             [float(v) for v in args.values.split(",")], seeds=seeds
         )
         source = "--values"
+        method = args.method
     print(
         f"k={floor.k}  mean={floor.mean:.6g}  std={floor.std:.6g}  "
         f"range={floor.value_range:.6g}  suggested minimum_delta="
         f"{floor.suggested_minimum_delta:.6g}"
     )
     print()
-    print(yaml_block(args.track, floor, source=source, measured_after=args.measured_after))
+    print(
+        yaml_block(
+            args.track,
+            floor,
+            source=source,
+            measured_after=args.measured_after,
+            method=method,
+        )
+    )
     print(
         "next: edit study.yaml, then re-record the consult gate --note "
         '"minimum_delta set from the measured noise floor"'

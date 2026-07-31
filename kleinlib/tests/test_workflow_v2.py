@@ -645,6 +645,19 @@ def test_noise_floor_contract_validation_and_preflight_honesty(ready_study) -> N
     assert "noise_floor.std" in problems
     assert "unknown keys" in problems
 
+    # method: is optional provenance — accepted as a non-empty string, refused otherwise
+    metric["noise_floor"] = {
+        "k": 5, "std": 0.002, "range": 0.005, "method": "paired-bootstrap",
+    }
+    metric["minimum_delta"] = 0.004
+    assert not any(
+        "noise_floor" in p for p in validate_contract(contract, study)
+    )
+    metric["noise_floor"]["method"] = "  "
+    assert any(
+        "noise_floor.method" in p for p in validate_contract(contract, study)
+    )
+
     # a declared floor with minimum_delta inside it fails preflight
     metric["noise_floor"] = {"k": 5, "std": 0.002, "range": 0.005, "mean": 0.67}
     metric["minimum_delta"] = 0.001

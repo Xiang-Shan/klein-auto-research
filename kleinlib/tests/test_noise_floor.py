@@ -64,3 +64,14 @@ def test_yaml_block_round_trips_through_safe_load() -> None:
     assert parsed["noise_floor"]["seeds"] == [1, 2, 3]
     assert parsed["noise_floor"]["measured_after"] == "E0001"
     assert parsed["minimum_delta"] == pytest.approx(floor.suggested_minimum_delta, rel=1e-4)
+    # method: is omitted unless given, and round-trips when it is
+    assert "method" not in parsed["noise_floor"]
+    with_method = yaml_block(
+        "primary", floor, source="--values", method="paired-bootstrap"
+    )
+    parsed_method = yaml.safe_load(
+        "\n".join(
+            line[6:] for line in with_method.splitlines() if line.startswith("      ")
+        )
+    )
+    assert parsed_method["noise_floor"]["method"] == "paired-bootstrap"

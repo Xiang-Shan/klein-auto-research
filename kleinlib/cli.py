@@ -114,6 +114,11 @@ def build_parser() -> argparse.ArgumentParser:
     floor.add_argument("--values", help="comma-separated metric values (instead of --sidecar)")
     floor.add_argument("--seeds", help="comma-separated seeds (with --values)")
     floor.add_argument("--measured-after", help="anchor experiment id, e.g. E0001")
+    floor.add_argument(
+        "--method",
+        help="how the floor was measured (default: seed-sweep for a sidecar; "
+        "the consult protocol also names paired-bootstrap)",
+    )
 
     verify = sub.add_parser(
         "verify",
@@ -169,6 +174,7 @@ def main(argv: list[str] | None = None) -> int:
                     [float(v) for v in args.values.split(",")], seeds=seeds
                 )
                 source = "--values"
+                method = args.method
             else:
                 study = resolve_study(args.study)
                 sidecar = args.sidecar or (study / "sweeps" / "noise_floor.sidecar.tsv")
@@ -177,6 +183,7 @@ def main(argv: list[str] | None = None) -> int:
                     source = str(sidecar.resolve().relative_to(study.resolve()))
                 except ValueError:
                     source = str(sidecar)
+                method = args.method or "seed-sweep"
             print(
                 f"k={floor_stats.k}  mean={floor_stats.mean:.6g}  std={floor_stats.std:.6g}  "
                 f"range={floor_stats.value_range:.6g}  suggested minimum_delta="
@@ -189,6 +196,7 @@ def main(argv: list[str] | None = None) -> int:
                     floor_stats,
                     source=source,
                     measured_after=args.measured_after,
+                    method=method,
                 )
             )
             print(
