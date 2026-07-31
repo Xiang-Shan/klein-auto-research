@@ -2,7 +2,55 @@
 
 All notable changes to Klein Auto Research. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
-[SemVer](https://semver.org/) with 0.x meaning the contract may still move.
+[SemVer](https://semver.org/); since 1.0.0 the study schema (v2), the `klein`
+CLI surface, and the ledger formats are stable — breaking changes mean a major
+version.
+
+## [1.0.0] — 2026-07-31
+
+The universality release: what v0.4.0 could do, now proven portable and frozen.
+The driver matrix is re-verified live
+[`docs/reviews/2026-07-31-v1.0-driver-matrix.md`], a CI guard keeps normative
+text machine-agnostic, and the pre-1.0 caveats are retired: the study schema
+(v2), the `klein` CLI surface, and the ledger formats are stable from here.
+
+### Added
+
+- **Universality guard** (`scripts/tests/test_universality.py`, riding the core
+  and integration CI jobs): tracked `*.md`/`*.py` must contain no machine-local
+  strings — absolute home paths, the author's machine username, local workspace
+  names. `docs/lineage/` archives and the frozen study ledgers stay exempt per
+  the evidence doctrine: immutable records are never edited.
+- **Driver-matrix evidence doc**
+  (`docs/reviews/2026-07-31-v1.0-driver-matrix.md`): two NEW live smokes —
+  Codex CLI 0.145.0 derived the doctrine-correct locked command from
+  `AGENTS.md` alone; Copilot CLI 1.0.75 drove the same verification through
+  `.github/copilot-instructions.md` under a granular shell-only permission —
+  both returning grounded 15-check reports with clean trees; plus the two
+  prior live proofs (Claude Code provenance; local Qwen-GGUF over llama.cpp's
+  native Anthropic endpoint) and doc-verified rows for Gemini CLI, Qwen Code,
+  and the `AGENTS.md` auto-reader ecosystem, sources cited with access dates.
+
+### Changed
+
+- **Stability of record**: version 1.0.0; classifier
+  `Development Status :: 5 - Production/Stable`; the preamble's "0.x means the
+  contract may still move" clause retired. Breaking changes to the study
+  schema, the CLI surface, or the ledger formats now require a major version.
+- **Foreign-repo pins** point at `v1.0.0` (the SKILL.md install line — now
+  carrying the stability statement — plus the study pyproject template and the
+  preflight hint).
+- `CITATION.cff` cites 1.0.0 and gains the previously missing `date-released`.
+
+### Docs
+
+- README and `AGENTS.md` driver rows for Gemini CLI / Qwen Code updated to the
+  current nested `context.fileName` settings key (per both CLIs' official
+  docs — the legacy flat `contextFileName` key is gone); both files now link
+  the driver-matrix evidence doc.
+- README states the 1.0 stability promise at the pin advice and under
+  § Lineage & citing; `SECURITY.md` clarifies that "supported" means receiving
+  security fixes.
 
 ## [0.4.0] — 2026-07-31
 
@@ -194,6 +242,7 @@ war stories; tool-neutral `AGENTS.md`; seed `knowledge/` base; bundled
 Apache-2.0 insurance-claims dataset; three executed exemplar studies
 (GLM quickstart, DAE honest-no, robust-QLS synthetic lab).
 
+[1.0.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v1.0.0
 [0.4.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v0.4.0
 [0.3.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v0.2.0
