@@ -1,0 +1,121 @@
+schema_version: 2
+study_id: "06-hurricane-gqls-returnlevels"
+goal: "On the 30 most-damaging US hurricanes (Pielke-Landsea 1998, normalized 1995 USD), does a from-scratch gQLS reproduce Adjieteh (2024) Table 6.9 within the published reporting resolution; does its robustness advantage over MLE survive the thesis's 10x contamination and leave-top-k-out stress; and does that advantage carry into per-event return levels - the thesis's own declared future work?"
+domain: "insurance"
+target: "damage_bn_1995"
+task_type: "simulation"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "loss-models-gqls"
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+# Track `reproduction`: distance-to-published — a property of OUR implementation,
+# not of the data (a GoF statistic would measure the model instead; wrong object).
+# Mean over the 36 published Table-6.9 parameters keeps the frontier well-behaved
+# as specification bugs are fixed; the max guardrail stops one broken cell hiding
+# behind a good average. Track `decision`: the actuarial decision unit — max |%
+# change| of the fitted 1-in-100 event loss across the adaptive stress set; the
+# W_pvalue guardrail (in-sample GoF must PASS) blocks the degenerate winner that
+# predicts nothing ("among models that FIT, which gives the most stable 1-in-100").
+tracks:
+  reproduction:
+    metric:
+      name: "mean_abs_param_deviation"
+      goal: "lower"     # higher | lower
+      minimum_delta: 0.005   # PROVISIONAL = the reporting-resolution floor (half the last published digit); the quantile-convention sweep re-measures at adaptive-1, then consult re-recorded
+      # noise_floor:                # measured at Phase 0, never guessed —
+      #   k: 5                      # klein noise-floor prints this block
+      #   std: ...
+      #   range: ...
+    guardrails:
+      max_abs_param_deviation:
+        max: 0.02
+      max_abs_w_deviation:
+        max: 0.10
+      max_abs_p_deviation:
+        max: 0.02
+      wall_seconds:
+        max: 120
+  decision:
+    metric:
+      name: "return_level_instability_pct"
+      goal: "lower"
+      minimum_delta: 1.0     # PROVISIONAL (percentage points); paired-bootstrap floor re-measured at adaptive-1, then consult re-recorded
+    guardrails:
+      w_pvalue:
+        min: 0.10
+      wall_seconds:
+        max: 120
+
+data:
+  source: "data_hub:hurricane_top30_pl1998"
+  prepared_path: "data/prepared/hurricane_top30.csv"
+  split:
+    kind: none           # n=30, no partitions; sealed evidence = pre-registered
+    seed: 42             # PUBLISHED third-party targets never touched adaptively:
+    # reproduction sealed = the full Table 6.10 grid (MLE/o2/o3/g2/g3 arms,
+    # original AND 10x-modified data; adaptive work touches Table 6.9 only);
+    # decision sealed = the thesis's exact modification (72.303 -> 723.03).
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 180
+phases:
+  - id: adaptive-1
+    description: "data-identity anchor (six Table-6.8 statistics exact under Hazen+ddof1; single-cell gQLS lognormal (0.05,0.95) within 0.005 of published 22.79/0.82 - STOP on miss), then the two floor sweeps (quantile-convention k=5; decision paired bootstrap)"
+    budget_seconds: 1800
+    max_experiments: 1
+  - id: adaptive-2
+    description: "reproduction fidelity: full 18-cell gQLS grid vs Table 6.9; GoF reimplementation (W ~ chi2_k-2; W_out bootstrap-vs-chi2_r-2 redundancy); oQLS+MLE arms on original data (Sigma-star falsifier o2-vs-g2 log-Cauchy 0.23/0.49); k- and quantile-convention sensitivity"
+    budget_seconds: 3600
+    max_experiments: 4
+  - id: adaptive-3
+    description: "decision units: MLE-lognormal 1-in-100 instability under leave-top-k-out; gQLS log-Cauchy (best-fitting, tan(0.49*pi)=31.8 amplification - genuinely uncertain); lighter-tailed GoF-passing families; instability vs breakdown point across the three trims"
+    budget_seconds: 3600
+    max_experiments: 4
+  - id: confirmation
+    description: "two sealed evaluations against pre-registered published truth: reproduction -> the full Table 6.10 grid (original + modified); decision -> the thesis's exact 10x modification"
+    budget_seconds: 900
+    max_experiments: 2
+
+research_questions:
+  - id: RQ1
+    question: "Does a from-scratch gQLS (eq. 3.6, quantile grid eq. 3.8, Sigma-star from eq. 2.1 + Table 3.1 standard members) reproduce all 36 parameters of Table 6.9 within the 0.005 reporting resolution?"
+    prior: "Yes - the specification is complete once eq. 3.8 and Table 3.1 are used; single-cell pre-verification hit 22.80/0.83 exactly on the MLE arm. (source: thesis eqs. 3.4/3.6/3.8/2.1; plan-stage verification 2026-07-31)"
+  - id: RQ2
+    question: "Is the thesis's B=1000 parametric bootstrap for W_out necessary, or are its published p-values indistinguishable from a chi-square r-2 reference?"
+    prior: "Indistinguishable to <=0.02 - five families cross-checked at (0.05,0.95) during planning. (source: thesis Table 6.9 p-values vs chi2_23; plan-stage verification)"
+  - id: RQ3
+    question: "Does the thesis's 10x contamination (72.303 -> 723.03) move gQLS parameter estimates by less than the reporting resolution while MLE-lognormal sigma-hat moves 0.83 -> 1.10?"
+    prior: "Yes for gQLS - breakdown point min{a,1-b} = 0.05 > 1/30 for the middle trim. (source: thesis Table 6.10)"
+  - id: RQ4
+    question: "Under leave-top-k-out (k=1,2,3) - a stress the thesis does not run - does gQLS parameter stability degrade exactly where the breakdown point predicts (k=2: 2/30 = 0.067 > 0.05)?"
+    prior: "k<=1 stable at (0.05,0.95); k=2 breaches that trim but not (0.10,0.90). (source: thesis eq. 2.5 breakdown theory; uninformed on magnitudes)"
+  - id: RQ5
+    question: "Among configurations that PASS the in-sample GoF test (W p >= 0.10), which estimator x family gives the most stable 1-in-100 event loss under the adaptive stress set?"
+    prior: "Genuinely uncertain: log-Cauchy fits best but its quantile transform amplifies sigma-hat by tan(0.49*pi) = 31.8 at p=0.99 - a 0.04 move in sigma-hat multiplies the return level by ~3.6x. The best-FITTING model may be the least decision-stable. (source: uninformed; the study's sharpest open question)"
+  - id: RQ6
+    question: "Does robustness at the parameter level transfer to robustness at the decision (return-level) level?"
+    prior: "Partially - the quantile transform can undo parameter robustness for heavy-tailed families. (source: uninformed)"
+
+predictions_to_falsify:
+  - lever: "full 18-cell gQLS grid vs Table 6.9 (RQ1)"
+    predicted_delta: "mean |dtheta| <= 0.01 and max <= 0.02 (KEEP on the reproduction frontier)"
+  - lever: "W_out bootstrap vs chi2_23 reference (RQ2)"
+    predicted_delta: "all published p-values within 0.02 of the chi2 reference -> the bootstrap is redundant ON THIS DATA"
+  - lever: "oQLS/MLE arms, original data (Sigma-star falsifier)"
+    predicted_delta: "o2 log-Cauchy sigma-hat 0.23 vs g2 0.49 reproduced - else Sigma-star is mis-specified, STOP"
+  - lever: "quantile-convention sweep (hazen/linear/weibull/median_unbiased/normal_unbiased)"
+    predicted_delta: "convention spread EXCEEDS the 0.005 reporting resolution -> at n=30 the quantile DEFINITION is the dominant reproduction uncertainty"
+  - lever: "MLE-lognormal 1-in-100 under leave-top-1-out (RQ5 baseline)"
+    predicted_delta: "moves > 40%"
+  - lever: "gQLS log-Cauchy decision stability (RQ5)"
+    predicted_delta: "instability < 1/3 of MLE-lognormal's - REFUTATION would be the seminar punchline (robust parameters, unstable decisions)"
+  - lever: "lighter-tailed GoF-passing families (lognormal/log-logistic) decision stability (RQ6)"
+    predicted_delta: "materially more stable 1-in-100 than log-Cauchy despite slightly worse fit - fit quality and decision stability are different axes"
+  - lever: "instability vs breakdown point across trims (RQ4/RQ6)"
+    predicted_delta: "monotone decreasing in min{a,1-b}, at a GoF cost < 1x the W floor"
+
+deliverables:
+  - findings.md
+  - report/index.html
+  - verdict_card.md       # adopt/reject with ADOPT-FOR / DO-NOT-ADOPT-FOR, rows claim-cited
+  - reference/thesis_tables.json   # Tables 6.8/6.9/6.10 transcribed with provenance (committed)
