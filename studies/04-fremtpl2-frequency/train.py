@@ -18,7 +18,7 @@ EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID")
 TRACK = os.environ.get("KLEIN_TRACK")
 
 # ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
-MODEL = "glm_ohe"        # glm_ohe | glm_shaped | hgbt_ohe | hgbt_native
+MODEL = "glm_shaped"     # glm_ohe | glm_shaped | hgbt_ohe | hgbt_native
 HGBT_SEED = 0
 HGBT_LR = 0.1
 HGBT_MAX_ITER = 200
