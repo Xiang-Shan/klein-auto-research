@@ -1,6 +1,14 @@
 {
-  "acknowledgements": {},
-  "artifact_hashes": {},
+  "acknowledgements": {
+    "consult": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T02:24:28.868267Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "ac48b09fca87c254401ca508013c63473b98342f573a11c206a232040a97c17e",
+    "study.yaml": "27312af68eebbfbd3696a166862ca6a51aaf89221e150154e15a6baf94155b2a"
+  },
   "created_at": "2026-07-31T02:20:43.189099Z",
   "current_phase": "adaptive-1",
   "final_holdout_access": {
@@ -16,9 +24,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-07-31T02:24:28.868267Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "program.md": "93efbba363d885b844ea7cdcd8d695b6f10e9139e765bce57e9383dd83de40bd",
+        "research_plan.md": "ac48b09fca87c254401ca508013c63473b98342f573a11c206a232040a97c17e",
+        "study.yaml": "27312af68eebbfbd3696a166862ca6a51aaf89221e150154e15a6baf94155b2a"
+      },
+      "note": "ack basis: user-commissioned soak brief 2026-07-31 (freMTPL2, frequency, GLM vs GBDT, full lifecycle)",
+      "status": "recorded"
     },
     "data": {
       "acknowledged_at": null,
@@ -41,5 +55,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "04-fremtpl2-frequency",
-  "updated_at": "2026-07-31T02:20:43.189103Z"
+  "updated_at": "2026-07-31T02:24:28.868589Z"
 }
