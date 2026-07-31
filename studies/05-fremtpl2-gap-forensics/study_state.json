@@ -23,9 +23,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "gbdt": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-07-31T16:46:24.389692Z",
+      "count": 1,
+      "experiment": "E0012"
     },
     "glm": {
       "accessed_at": "2026-07-31T16:44:16.295257Z",
@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 11,
+  "last_experiment": 12,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -97,5 +97,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "05-fremtpl2-gap-forensics",
-  "updated_at": "2026-07-31T16:44:18.634204Z"
+  "updated_at": "2026-07-31T16:46:28.959992Z"
 }
