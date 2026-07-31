@@ -1,0 +1,144 @@
+<h2>The Question</h2>
+
+<p>A catastrophe pricing actuary has thirty numbers: the thirty most damaging hurricanes
+to hit the United States between 1900 and 1995, each normalized to 1995 dollars for
+inflation, wealth and coastal population. From those thirty numbers a committee wants one
+number &mdash; <strong>the 1-in-100 event loss</strong> &mdash; and that number will set a
+catastrophe layer, a capital charge, or a solvency return.</p>
+
+<p>Now suppose one of the thirty rows is wrong. Not missing, not obviously absurd &mdash;
+just wrong by a factor of ten, the way a decimal-point slip or a double-counted recovery
+makes a number wrong. No data-quality process catches it, because $723bn for the 1926
+Great Miami hurricane is only implausible if you already know the answer.</p>
+
+<blockquote><strong>How much does the 1-in-100 move? And is there an estimator that would
+not have moved at all?</strong></blockquote>
+
+<p>A 2024 doctoral thesis says yes and shows the parameters standing still. It never
+carries those parameters through to a return level. That gap &mdash; between a robust
+<em>parameter</em> and a stable <em>decision</em> &mdash; is what this study exists to
+measure. The registered goal:</p>
+
+<blockquote>On the 30 most-damaging US hurricanes (Pielke-Landsea 1998, normalized 1995
+USD), does a from-scratch gQLS reproduce Adjieteh (2024) Table 6.9 within the published
+reporting resolution; does its robustness advantage over MLE survive the thesis's 10&times;
+contamination and leave-top-k-out stress; and does that advantage carry into per-event
+return levels &mdash; the thesis's own declared future work?</blockquote>
+
+<h3>Two tracks, because there are two different objects here</h3>
+
+<p>The goal contains two questions that a single leaderboard would silently blend. Klein
+answers that with <strong>tracks</strong>: independent metric frontiers that are never
+merged, each owning its own direction, its own measured <code>minimum_delta</code>, and its
+own guardrails.</p>
+
+<table>
+<thead><tr><th>Track</th><th>Metric</th><th>What it measures</th><th><code>minimum_delta</code></th><th>Guardrails</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>reproduction</code></td>
+  <td><code>mean_abs_param_deviation</code> (lower)</td>
+  <td><strong>Distance-to-published.</strong> Mean |Δθ| over the 36 published Table-6.9
+  parameters &mdash; a property of <em>our implementation</em>, not of the data.</td>
+  <td><strong>0.005</strong> &mdash; half the last published digit</td>
+  <td>max&nbsp;|Δθ|&nbsp;&le;&nbsp;0.02 · max&nbsp;|ΔW|&nbsp;&le;&nbsp;0.10 ·
+  max&nbsp;|Δp|&nbsp;&le;&nbsp;0.02 · <code>wall_seconds</code>&nbsp;&le;&nbsp;120</td>
+</tr>
+<tr>
+  <td><code>decision</code></td>
+  <td><code>return_level_instability_pct</code> (lower)</td>
+  <td><strong>Decision stability.</strong> Max |% change| of the fitted 1-in-100 event
+  loss across the adaptive stress set &mdash; the actuarial decision unit.</td>
+  <td><strong>1.0 pp</strong> &mdash; an ordering device, see below</td>
+  <td><code>w_pvalue</code>&nbsp;&ge;&nbsp;0.10 ·
+  <code>wall_seconds</code>&nbsp;&le;&nbsp;120</td>
+</tr>
+</tbody>
+</table>
+
+<p>Two design choices in that table are load-bearing and worth stating explicitly.</p>
+
+<p><strong>Why the reproduction metric is not a goodness-of-fit statistic.</strong> The
+obvious metric for "did we implement this right" is something like a W statistic or an
+AIC. It would be the wrong object. A GoF statistic measures whether the <em>model</em>
+fits the <em>data</em>; this track asks whether <em>our code</em> reproduces <em>their
+printed table</em>. Those are different questions with different failure modes, and only
+the second one can be answered against 156 numbers that were fixed in print before this
+study existed. The <em>mean</em> over 36 parameters keeps the frontier well-behaved as
+specification bugs get fixed; the <em>max</em> guardrail exists so that one broken cell
+cannot hide behind a good average. Section 4 shows the max guardrail earning its keep
+twice &mdash; once on a real bug, once on something that turned out not to be ours at
+all.</p>
+
+<p><strong>The <code>w_pvalue</code> guardrail is an anti-degeneracy device.</strong> On
+a stability metric, the trivially optimal model is one that predicts nothing: an estimator
+whose 1-in-100 never moves because it never responds to anything would score
+<code>0.0</code> and win. Requiring the in-sample goodness-of-fit test to PASS
+(<code>W</code> p&nbsp;&ge;&nbsp;0.10) turns the question into the one an actuary actually
+asks: <em>among models that FIT, which gives the most stable 1-in-100?</em> Without it,
+the decision track would have been a race to the most useless model.</p>
+
+<h3>Six research questions, each with a prior registered before the loop</h3>
+
+<p>Every prior below was written into <code>study.yaml</code> before any experiment ran,
+so every one of them could come out wrong. Three did &mdash; including the one the study
+was built to ask.</p>
+
+<table>
+<thead><tr><th>RQ</th><th>Question</th><th>Registered prior</th></tr></thead>
+<tbody>
+<tr><td><strong>RQ1</strong></td><td>Does a from-scratch gQLS reproduce all 36 parameters of Table 6.9 within the 0.005 reporting resolution?</td><td>Yes &mdash; the specification is complete once eq. 3.8 and the standard-member table are used (pre-verified at the method gate)</td></tr>
+<tr><td><strong>RQ2</strong></td><td>Is the thesis's B=1000 parametric bootstrap for <code>W_out</code> necessary, or are its published p-values indistinguishable from a χ²<sub>r&minus;2</sub> reference?</td><td>Indistinguishable to &le; 0.02 &mdash; five families cross-checked during planning</td></tr>
+<tr><td><strong>RQ3</strong></td><td>Does the thesis's 10&times; contamination move gQLS parameters by less than the reporting resolution while MLE-lognormal σ̂ moves 0.83 &rarr; 1.10?</td><td>Yes for gQLS &mdash; breakdown point min{a, 1&minus;b} = 0.05 &gt; 1/30</td></tr>
+<tr><td><strong>RQ4</strong></td><td>Under leave-top-k-out (k = 1,2,3) &mdash; a stress the thesis never runs &mdash; does gQLS stability degrade exactly where the breakdown point predicts?</td><td>k&nbsp;&le;&nbsp;1 stable at (0.05,&nbsp;0.95); k&nbsp;=&nbsp;2 breaches that trim but not (0.10,&nbsp;0.90)</td></tr>
+<tr><td><strong>RQ5</strong></td><td>Among configurations that PASS the in-sample GoF test, which estimator&nbsp;&times;&nbsp;family gives the most stable 1-in-100 event loss?</td><td><strong>Genuinely uncertain.</strong> log-Cauchy fits best but its quantile transform amplifies σ̂ by tan(0.49π) = 31.8 at p = 0.99. The best-<em>fitting</em> model may be the least decision-stable &mdash; the study's sharpest open question</td></tr>
+<tr><td><strong>RQ6</strong></td><td>Does robustness at the parameter level transfer to robustness at the decision (return-level) level?</td><td>Partially &mdash; the quantile transform can undo parameter robustness for heavy-tailed families (uninformed)</td></tr>
+</tbody>
+</table>
+
+<p>RQ1&ndash;RQ3 are <em>reproduction</em>: they ask whether the published work can be
+rebuilt from its own description. RQ4&ndash;RQ6 are <em>extension</em>: no published work
+carries these fits through to a 1-in-100 event loss, and none runs a leave-top-k-out
+stress on this sample. The thesis's own §7.2 names risk measures as future work, so the
+second half of the study is genuinely new rather than a re-derivation.</p>
+
+<h3>The sealed design &mdash; and the honesty it demands</h3>
+
+<p>Klein seals a final-test partition and allows each track exactly <strong>one</strong>
+access to it. With n = 30 there is no partition to hold out; you cannot spare six
+hurricanes. So this study seals something else: <strong>published third-party
+numbers</strong>. Adaptive work was contractually confined to <strong>Table 6.9</strong>
+(36 parameters). The sealed reproduction target was the <em>full</em>
+<strong>Table 6.10</strong> grid &mdash; 5 estimator arms × 6 families × original
+<em>and</em> 10×-modified data = 60 cells, <strong>120 parameters</strong> the loop never
+touched. The sealed decision target was the thesis's <em>exact</em> modification
+(72.303&nbsp;&rarr;&nbsp;723.03); adaptive stress was capped at 5&times;.</p>
+
+<p>That is a genuinely strong anti-peeking guarantee in one direction. The targets are
+third-party numbers fixed in print before the study existed: they cannot be moved by
+anything the study does, and unlike a random fold, an analyst cannot in principle inspect
+them ahead of time without breaking the contract. But the design is structurally blind in
+another direction, and the data card wrote the constraint before any modeling began. It is
+carried here verbatim because it is exactly the sentence that erodes first in a slide
+deck:</p>
+
+<blockquote><strong>Standing rule (e).</strong> <em>&ldquo;Sealed evidence = independent
+PUBLISHED TARGETS, not independent data &mdash; confirmation wording is &lsquo;implementation
+fidelity + within-sample robustness&rsquo;, never out-of-sample generalization.&rdquo;</em>
+The same 30 observations underlie both the adaptive and the sealed evaluation, so sampling
+error is <strong>fully common-mode</strong> and the sealed test is structurally blind to
+it.</blockquote>
+
+<p>Read every <code>confirmed</code> label in section 5 through that rule. It means <em>our
+implementation reproduces their published numbers on their sample, and the estimator is
+robust within that sample</em>. It never means the next hurricane sample will behave the
+same way.</p>
+
+<p>One further consequence, registered up front rather than discovered later: the decision
+track's <code>minimum_delta</code> of <strong>1.0 pp</strong> is an <strong>ordering
+device</strong> on a fixed 30-event sample, not a confidence statement. At n = 30 a
+parametric bootstrap puts σ̂ = 0.8339 inside [0.617, 1.034] &mdash; a <strong>±25%</strong>
+relative band on the single parameter that drives the entire tail. Every instability
+percentage in this report ranks estimators on <em>these</em> thirty events under <em>this</em>
+stress. Section 2 explains why that delta was kept at 1.0 rather than quietly shrunk to
+manufacture significance.</p>

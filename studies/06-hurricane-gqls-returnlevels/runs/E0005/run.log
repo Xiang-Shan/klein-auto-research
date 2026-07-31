@@ -1,0 +1,45 @@
+identity anchor OK: 12 statistics, max |deviation| 3.53e-05
+---
+primary_metric:    0.002754
+metric_name:       mean_abs_param_deviation
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+max_abs_param_deviation: 0.018687121207129564
+max_abs_w_deviation: 0.005006716286982016
+max_abs_p_deviation: 0.00485721199461997
+n_cells: 18
+n_params: 36
+params_within_resolution: 35
+worst_param_cell: 0.10_0.90/log-gumbel
+worst_w_cell: 0.10_0.90/log-laplace
+mean_abs_dev_trim_002_098: 0.002272808971628487
+mean_abs_dev_trim_005_095: 0.0025893035425136276
+mean_abs_dev_trim_010_090: 0.003399129645231702
+t610_original_mean_abs_dev: 0.002015704920717038
+t610_original_max_abs_dev: 0.004945427779280143
+t610_original_n_params: 60
+t610_mean_abs_dev_arm_mle: 0.0021359202564885382
+t610_mean_abs_dev_arm_o2: 0.0019354612441417087
+t610_mean_abs_dev_arm_o3: 0.0014665634497312424
+t610_mean_abs_dev_arm_g2: 0.0025893035425136276
+t610_mean_abs_dev_arm_g3: 0.0019512761107100725
+falsifier_o2_logcauchy_sigma: 0.22991155438000638
+falsifier_g2_logcauchy_sigma: 0.48505457222071985
+falsifier_published_o2_sigma: 0.23
+falsifier_published_g2_sigma: 0.49
+falsifier_o2_dev: 8.844561999363232e-05
+falsifier_g2_dev: 0.004945427779280143
+falsifier_ratio_ours: 2.1097442167652156
+falsifier_ratio_published: 2.1304347826086953
+falsifier_verdict: sigma_star_reproduced
+arm_table: {"MLE/log-cauchy":{"mu":22.79493,"pub_mu":22.79,"pub_sigma":0.49,"sigma":0.49192},"MLE/log-gumbel":{"mu":22.399555,"pub_mu":22.4,"pub_sigma":0.72,"sigma":0.719648},"MLE/log-laplace":{"mu":22.759735,"pub_mu":22.76,"pub_sigma":0.66,"sigma":0.663158},"MLE/log-logistic":{"mu":22.77479,"pub_mu":22.77,"pub_sigma":0.48,"sigma":0.47666},"MLE/lognormal":{"mu":22.800182,"pub_mu":22.8,"pub_sigma":0.83,"sigma":0.833868},"MLE/pareto1":{"mu":21.541282,"pub_mu":21.54,"pub_sigma":1.26,"sigma":1.2589},"g2/log-cauchy":{"mu":22.813116,"pub_mu":22.81,"pub_sigma":0.49,"sigma":0.485055},"g2/log-gumbel":{"mu":22.419468,"pub_mu":22.42,"pub_sigma":0.73,"sigma":0.734805},"g2/log-laplace":{"mu":22.801264,"pub_mu":22.8,"pub_sigma":0.68,"sigma":0.676863},"g2/log-logistic":{"mu":22.783164,"pub_mu":22.78,"pub_sigma":0.48,"sigma":0.478089},"g2/lognormal":{"mu":22.79105,"pub_mu":22.79,"pub_sigma":0.82,"sigma":0.818165},"g2/pareto1":{"mu":21.528531,"pub_mu":21.53,"pub_sigma":1.34,"sigma":1.336158},"g3/log-cauchy":{"mu":22.819895,"pub_mu":22.82,"pub_sigma":0.53,"sigma":0.528453},"g3/log-gumbel":{"mu":22.358687,"pub_mu":22.36,"pub_sigma":0.81,"sigma":0.80668},"g3/log-laplace":{"mu":22.801264,"pub_mu":22.8,"pub_sigma":0.75,"sigma":0.749788},"g3/log-logistic":{"mu":22.754046,"pub_mu":22.75,"pub_sigma":0.51,"sigma":0.513947},"g3/lognormal":{"mu":22.739331,"pub_mu":22.74,"pub_sigma":0.87,"sigma":0.86876},"g3/pareto1":{"mu":21.448281,"pub_mu":21.45,"pub_sigma":1.42,"sigma":1.424033},"o2/log-cauchy":{"mu":22.802438,"pub_mu":22.8,"pub_sigma":0.23,"sigma":0.229912},"o2/log-gumbel":{"mu":22.433574,"pub_mu":22.43,"pub_sigma":0.65,"sigma":0.65063},"o2/log-laplace":{"mu":22.802438,"pub_mu":22.8,"pub_sigma":0.61,"sigma":0.613016},"o2/log-logistic":{"mu":22.802438,"pub_mu":22.8,"pub_sigma":0.46,"sigma":0.463385},"o2/lognormal":{"mu":22.802438,"pub_mu":22.8,"pub_sigma":0.81,"sigma":0.811455},"o2/pareto1":{"mu":21.981196,"pub_mu":21.98,"pub_sigma":0.83,"sigma":0.829868},"o3/log-cauchy":{"mu":22.740499,"pub_mu":22.74,"pub_sigma":0.4,"sigma":0.398139},"o3/log-gumbel":{"mu":22.389187,"pub_mu":22.39,"pub_sigma":0.71,"sigma":0.709479},"o3/log-laplace":{"mu":22.740499,"pub_mu":22.74,"pub_sigma":0.73,"sigma":0.729816},"o3/log-logistic":{"mu":22.740499,"pub_mu":22.74,"pub_sigma":0.51,"sigma":0.514206},"o3/lognormal":{"mu":22.740499,"pub_mu":22.74,"pub_sigma":0.87,"sigma":0.867388},"o3/pareto1":{"mu":21.91252,"pub_mu":21.91,"pub_sigma":0.93,"sigma":0.932888}}
+wall_seconds: 0.008346080780029297
+mode: oqls_mle_arms
+convention: inverted_cdf
+runner_status: ok
+runner_exit_code: 0

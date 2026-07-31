@@ -1,0 +1,37 @@
+identity anchor OK: 12 statistics, max |deviation| 3.53e-05
+---
+primary_metric:    0.003090
+metric_name:       mean_abs_param_deviation
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+identity_stats_verified: 12
+identity_max_abs_deviation: 3.5299737664473696e-05
+identity_sha256_ok: 1
+max_abs_param_deviation: 0.004890479783545398
+max_abs_w_deviation: 0.4939943004986853
+max_abs_p_deviation: 0.059403995101279694
+cell: 0.05_0.95/lognormal
+mu_hat: 22.788709732599234
+sigma_hat: 0.8248904797835453
+published_mu: 22.79
+published_sigma: 0.82
+d_mu: 0.0012902674007655435
+d_sigma: 0.004890479783545398
+w_statistic: 4.726005699501314
+w_df: 6
+w_pvalue: 0.5794039951012797
+published_w: 5.22
+published_p_w: 0.52
+sigma_star_cond: 34.97906048259985
+within_reporting_resolution: 1
+k: 8
+wall_seconds: 0.0022361278533935547
+mode: anchor
+convention: hazen
+runner_status: ok
+runner_exit_code: 0

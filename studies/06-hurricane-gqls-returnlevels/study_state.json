@@ -1,0 +1,113 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T19:45:51.186653Z"
+    },
+    "data": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T18:31:20.442818Z"
+    },
+    "method": {
+      "by": "xiang",
+      "timestamp": "2026-07-31T18:23:03.220722Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "63ab0cc957897d45f90f4b9131f4fe357d8611bb50cd3de3b81bf16a30ec0331",
+    "method_card.md": "1353420a08e7cba1a83dc9a9fee737afd42ca1f0aef33794f5e3478b854de4e7",
+    "research_plan.md": "0d39c2537dccb310b14a9bcecab5f496f4f84271f355974625e3633497c1c559",
+    "study.yaml": "203ddc7e0d038276043e1fab89d9382ef3b5213ba45dd995201700cfac2a7329"
+  },
+  "created_at": "2026-07-31T17:43:27.649816Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "decision": {
+      "accessed_at": "2026-07-31T18:48:09.198755Z",
+      "count": 1,
+      "experiment": "E0011"
+    },
+    "reproduction": {
+      "accessed_at": "2026-07-31T18:47:42.348427Z",
+      "count": 1,
+      "experiment": "E0010"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "decision": 1,
+      "reproduction": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "decision": "E0011",
+      "reproduction": "E0010"
+    },
+    "timestamp": "2026-07-31T19:19:27.173510Z"
+  },
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-07-31T19:45:51.186653Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "program.md": "d553ae0ea07d95171351cf076c7180e32aa2fd4f0bf399883f1b3d8582d36b3b",
+        "research_plan.md": "0d39c2537dccb310b14a9bcecab5f496f4f84271f355974625e3633497c1c559",
+        "study.yaml": "203ddc7e0d038276043e1fab89d9382ef3b5213ba45dd995201700cfac2a7329"
+      },
+      "note": "noise_floor k=3 (schema minimum): three numerical routes of the grid primary, std 5.1e-17; delta 0.005 resolution-governed, unchanged",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-07-31T18:31:20.442818Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "data_card.md": "63ab0cc957897d45f90f4b9131f4fe357d8611bb50cd3de3b81bf16a30ec0331"
+      },
+      "note": "GO-WITH-CAUTIONS: 7/7 mechanized clean; cautions accepted - n=30 with 2.185x dominating max (sigma bootstrap band +/-25%; instability numbers are ordering devices on a fixed sample), 1-in-100 = family-conditional extrapolation (state alongside every return level), sealed = independent published targets not independent data (confirmation wording: implementation fidelity + within-sample robustness only); standing rules: only log_damage_usd consumed, rank never a covariate, Hazen descriptive-only",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-07-31T18:23:03.220722Z",
+      "acknowledged_by": "xiang",
+      "artifacts": {
+        "method_card.md": "1353420a08e7cba1a83dc9a9fee737afd42ca1f0aef33794f5e3478b854de4e7"
+      },
+      "note": "full-depth card, triad complete (20/20 tests as practice leg), 11/12 refs verified; PDF-wins corrections adopted: inverted_cdf convention lever queued for the ladder, Table 3.4 members, 6.9 log-Gumbel typo documented, RQ2 prior revision",
+      "status": "recorded"
+    }
+  },
+  "last_experiment": 11,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-07-31T18:43:37.534996Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "61fad221c83b4452343ce64c7be45381b3314eac9af41f487c33e2275a034d72"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-07-31T18:45:56.326798Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "61fad221c83b4452343ce64c7be45381b3314eac9af41f487c33e2275a034d72"
+    },
+    "adaptive-3": {
+      "acknowledged_at": "2026-07-31T18:47:41.616195Z",
+      "acknowledged_by": "xiang",
+      "note": "",
+      "playbook_sha256": "61fad221c83b4452343ce64c7be45381b3314eac9af41f487c33e2275a034d72"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/06-hurricane-gqls-returnlevels/data/prepared/hurricane_top30.csv",
+    "sha256": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96"
+  },
+  "schema_version": 2,
+  "status": "finalized",
+  "study_id": "06-hurricane-gqls-returnlevels",
+  "updated_at": "2026-07-31T19:45:51.187359Z"
+}

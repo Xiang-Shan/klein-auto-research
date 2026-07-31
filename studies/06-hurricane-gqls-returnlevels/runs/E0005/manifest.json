@@ -1,0 +1,96 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 16526,
+      "committed": true,
+      "sha256": "d675ff58664ea41ed133aaf1d546c079c11e4dcb0bdfbfc3d16a34a9dcb4ad8d"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 4009,
+      "committed": true,
+      "sha256": "754371bd8d0c5526a2e69c18c6c7829f040f44497a3b8333446efeea216344d0"
+    }
+  },
+  "base_commit": "585266df92e3733720f8e036d08d3e1f89ce4bfe",
+  "candidate_commit": "3b358d70ff29c61fcfa2ef96bc7fdd509f0a31ab",
+  "code_patch_hash": "9ef59a0837dedca50c972b4e4dd358ee4597286edb4f909752ad64fe73ace4bd",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.002754 by minimum_delta=0.005",
+  "description": "oQLS (o2/o3) + MLE arms, all six families, ORIGINAL data, vs the corresponding Table 6.10 original rows - the Sigma-star falsifier: our o2 log-Cauchy sigma vs published 0.23 and g2 vs 0.49; MLE arms vs published (lognormal already anchor-exact 22.8002/0.8339); did not improve track frontier 0.002754 by minimum_delta=0.005",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T18:44:50.440207Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_abs_param_deviation",
+  "metrics": {
+    "falsifier_g2_dev": 0.004945427779280143,
+    "falsifier_g2_logcauchy_sigma": 0.48505457222071985,
+    "falsifier_o2_dev": 8.844561999363232e-05,
+    "falsifier_o2_logcauchy_sigma": 0.22991155438000638,
+    "falsifier_published_g2_sigma": 0.49,
+    "falsifier_published_o2_sigma": 0.23,
+    "falsifier_ratio_ours": 2.1097442167652156,
+    "falsifier_ratio_published": 2.1304347826086953,
+    "max_abs_p_deviation": 0.00485721199461997,
+    "max_abs_param_deviation": 0.018687121207129564,
+    "max_abs_w_deviation": 0.005006716286982016,
+    "mean_abs_dev_trim_002_098": 0.002272808971628487,
+    "mean_abs_dev_trim_005_095": 0.0025893035425136276,
+    "mean_abs_dev_trim_010_090": 0.003399129645231702,
+    "n_cells": 18.0,
+    "n_params": 36.0,
+    "params_within_resolution": 35.0,
+    "primary_metric": 0.002754,
+    "runner_exit_code": 0.0,
+    "t610_mean_abs_dev_arm_g2": 0.0025893035425136276,
+    "t610_mean_abs_dev_arm_g3": 0.0019512761107100725,
+    "t610_mean_abs_dev_arm_mle": 0.0021359202564885382,
+    "t610_mean_abs_dev_arm_o2": 0.0019354612441417087,
+    "t610_mean_abs_dev_arm_o3": 0.0014665634497312424,
+    "t610_original_max_abs_dev": 0.004945427779280143,
+    "t610_original_mean_abs_dev": 0.002015704920717038,
+    "t610_original_n_params": 60.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.008346080780029297
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "primary_metric": 0.002754,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:44:49.842233Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "committed_at": "2026-07-31T18:44:50.507525Z",
+    "evidence_commit": "070a7272640a31e6afe2788ca6ebfe101dac0ab0",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.5978717089165002
+}

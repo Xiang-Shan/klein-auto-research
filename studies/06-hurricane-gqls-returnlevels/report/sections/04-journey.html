@@ -1,0 +1,309 @@
+<h2>The Journey</h2>
+
+<p>Eleven ledger rows across two tracks and four phases. Every candidate was committed
+<em>before</em> it ran, so discards and crashes stay exactly as resolvable as keeps &mdash;
+negative evidence is evidence. Total measured compute for the entire study, all four phases:
+<strong>7.7 seconds</strong>. Every fit is a two-parameter least-squares solve on eight
+points.</p>
+
+<table>
+<thead><tr><th>Phase</th><th>Experiments (used/max)</th><th>Seconds (used/budget)</th><th>What it was for</th></tr></thead>
+<tbody>
+<tr><td><code>adaptive-1</code></td><td>1 / 1</td><td>0.6 / 1800</td><td>data-identity anchor + the two floor sweeps</td></tr>
+<tr><td><code>adaptive-2</code></td><td>4 / 4</td><td>3.5 / 3600</td><td>reproduction fidelity: the grid, the GoF route, the Σ★ falsifier</td></tr>
+<tr><td><code>adaptive-3</code></td><td>4 / 4</td><td>2.4 / 3600</td><td>decision units: the stability ladder</td></tr>
+<tr><td><code>confirmation</code></td><td>2 / 2</td><td>1.2 / 900</td><td>one sealed access per track</td></tr>
+</tbody>
+</table>
+
+<h3>Two tracks, two frontiers</h3>
+
+<p>Each track's development frontier is a step function of <strong>keeps</strong>; discards
+sit off it as retained evidence; the purple star is that track's single sealed final-test
+access, drawn deliberately <strong>off</strong> the frontier because sealed evidence is
+excluded from adaptive selection.</p>
+
+<figure>
+<img data-fig="figures/plot_decision_trajectory__reproduction.png" alt="reproduction track decision trajectory: E0001 discard at 0.00309 in adaptive-1, E0002 discard at 0.009303, E0003 keep at 0.002754, E0004 and E0005 discards at the same 0.002754 frontier value, and the sealed E0010 star at 0.002026, all against the 0.005 minimum_delta band and the 0.00664603 noise-floor band.">
+<figcaption>The <code>reproduction</code> track. <strong>One keep out of five adaptive
+runs</strong> &mdash; E0003, the moment the convention was corrected. E0002 is the only
+point above the resolution band; E0004 and E0005 sit exactly on the frontier value because
+they changed the <em>measurement</em>, not the fit, and so could not improve it by
+<code>minimum_delta</code>. The sealed star lands <em>below</em> the whole adaptive
+trajectory at 0.002026, over 120 parameters the loop never saw.</figcaption>
+</figure>
+
+<figure>
+<img data-fig="figures/plot_decision_trajectory__decision.png" alt="decision track decision trajectory: E0006 keep at 58.06, E0007 discard at 62.94 above the frontier, E0008 keep at 41.33, E0009 keep at 27.58, and the sealed E0011 star at 0.0 in the confirmation phase band.">
+<figcaption>The <code>decision</code> track. A genuine three-step frontier
+(58.06&nbsp;&rarr;&nbsp;41.33&nbsp;&rarr;&nbsp;27.58 = 30.479351 total improvement, 293.1×
+the measured seed std), with the study's punchline sitting <em>above</em> the baseline as a
+discard: E0007, the best-fitting family, at 62.94. The sealed star at
+<strong>0.0</strong> is the incumbent under the thesis's exact 10&times; modification.</figcaption>
+</figure>
+
+<!--LEDGER-->
+
+<h3><code>adaptive-1</code> &mdash; an honest discard that asked the right question</h3>
+
+<p>Nothing may be compared before the ruler is calibrated. E0001 did two jobs: prove the
+pipeline is looking at the thesis's sample, and fit one single cell &mdash; gQLS lognormal at
+(0.05,&nbsp;0.95) &mdash; against the published 22.79/0.82.</p>
+
+<p><strong>Both halves passed. The run was still discarded.</strong> The identity gate
+verified 12 quantities at <code>max |dev| 3.53e-05</code>; the single cell landed inside the
+0.005 resolution (μ̂ 22.788710, σ̂ 0.824890, worst parameter deviation 0.004890). But the
+<code>max_abs_w_deviation</code> guardrail came in at <strong>0.4940</strong> against a limit
+of 0.10, and <code>max_abs_p_deviation</code> at 0.059404 against 0.02. The parameters
+matched and the goodness-of-fit statistic did not.</p>
+
+<p>That is not a contradiction &mdash; it is a diagnostic. <code>W</code> is a quadratic form
+in the residuals, so it is far more sensitive to the exact position of the eight grid points
+than a two-parameter regression line through them is. <strong>A discard that fails on the
+sensitive quantity while passing on the insensitive one is telling you the grid itself is
+slightly wrong.</strong> The registered default convention was <code>hazen</code> &mdash;
+because that is what the data-identity gate demanded. The guardrail had just said it could
+not also be what the estimators use.</p>
+
+<p>The same phase measured the floors: the numerical floor at <strong>8.8e&minus;17</strong>
+(recording ≈0 <em>is</em> the finding), the k = 5 quantile-convention sweep at a spread of
+<strong>0.018498</strong> = 3.7× the resolution, and the decision track's paired
+log-return-level bootstrap SE at <strong>3.461</strong> &mdash; of which 3.59 comes from the
+log-Cauchy arm alone.</p>
+
+<h3><code>adaptive-2</code> &mdash; the convention, as a detective story</h3>
+
+<p>This is the part worth reading slowly, because it is a reproduction failure that turned
+into the study's most transferable finding.</p>
+
+<p><strong>The first clue: a table that fit too well.</strong> Before any modeling, the data
+card had noted that Table 6.8's descriptive quartiles reproduce <em>only</em> under Hazen
+plotting positions &mdash; MATLAB's <code>quantile</code> default &mdash; and under nothing
+else, by margins up to 0.62. A descriptive table that matches one convention exactly is not
+a coincidence; <strong>it silently identifies the software that produced it</strong>. So the
+study registered <code>hazen</code> as its default. That was the right call on the evidence
+available, and it was wrong.</p>
+
+<p><strong>The second clue: a guardrail breach that would not go away.</strong> E0001's
+<code>W</code> deviation of 0.4940 was the first warning. <strong>E0002</strong> scaled the
+same convention to the full 18-cell grid and the problem scaled with it: mean
+<strong>0.009303</strong> &mdash; passing the mean prediction &mdash; but
+<code>max_abs_param_deviation</code> <strong>0.031279</strong>, breaching the 0.02 guardrail
+outright, with <code>max |ΔW|</code> at 1.2855 and <code>max |Δp|</code> at 0.15813. Only 13
+of 36 parameters were inside the resolution. <strong>The descriptive convention cannot
+reproduce the estimation tables.</strong> Recorded as a predicted discard, not a surprise
+&mdash; the prediction was written into the candidate description before the run.</p>
+
+<p><strong>The resolution: the thesis had already answered.</strong> Not in its results, in
+its <em>definitions</em>. Chapter 2's opening paragraph <em>defines</em> the empirical
+quantile as <code>F̂⁻¹(p) = X_(⌈np⌉)</code> &mdash; NumPy's <code>inverted_cdf</code>. The
+descriptive table was produced by one piece of software; the estimators were specified by the
+mathematics. Both statements are in the same chapter, and neither says the other exists.</p>
+
+<p><strong>E0003 changed one configuration line</strong> &mdash;
+<code>CONVENTION = "inverted_cdf"</code> &mdash; and the track's only KEEP landed:</p>
+
+<table>
+<thead><tr><th>Quantity</th><th>E0002 (<code>hazen</code>)</th><th>E0003 (<code>inverted_cdf</code>)</th><th>Limit</th></tr></thead>
+<tbody>
+<tr><td>mean |Δθ| over 36 parameters</td><td>0.009303</td><td><strong>0.002754</strong> = 0.55× the resolution</td><td>0.005 (<code>minimum_delta</code>)</td></tr>
+<tr><td>max |Δθ|</td><td><strong>0.031279 &mdash; BREACH</strong></td><td>0.018687</td><td>0.02</td></tr>
+<tr><td>max |ΔW|</td><td><strong>1.2855 &mdash; BREACH</strong></td><td>0.005007</td><td>0.10</td></tr>
+<tr><td>max |Δp|</td><td><strong>0.15813 &mdash; BREACH</strong></td><td>0.004857</td><td>0.02</td></tr>
+<tr><td>parameters inside resolution</td><td>13 / 36</td><td><strong>35 / 36</strong></td><td>&mdash;</td></tr>
+</tbody>
+</table>
+
+<p><strong>The mechanism, stated so it generalizes.</strong> At n = 3,000 the nine NumPy
+quantile conventions agree to four decimals and nobody notices. At <strong>n = 30 they
+disagree in the second decimal</strong> &mdash; which is exactly the decimal a paper reporting
+<code>22.79 / 0.82</code> is claiming. The convention sweep measured the whole spread on the
+track metric: <code>inverted_cdf</code> 0.002754 · <code>hazen</code> 0.009303 ·
+<code>normal_unbiased</code> 0.011024 · <code>median_unbiased</code> 0.012036 ·
+<code>weibull</code> 0.021252. Only one of the five lands inside the resolution the paper
+prints at.</p>
+
+<figure>
+<img data-fig="figures/reproduction_scorecard.png" alt="A 6-family by 3-trim scorecard of all 36 Table 6.9 parameters from E0003, coloured green where the absolute deviation is inside the 0.005 reporting resolution and amber where it is outside; 35 of 36 cells are green, and the single amber cell is log-Gumbel at trim (0.10, 0.90) with mu deviation 0.0187.">
+<figcaption>E0003's full scorecard: 36 published parameters, 35 of them inside the 0.005
+reporting resolution, mean |dev| 0.002754. <strong>One amber cell</strong> &mdash; and it is
+not ours.</figcaption>
+</figure>
+
+<h3>The one cell that missed &mdash; and how the max guardrail earned its keep</h3>
+
+<p>The single over-resolution parameter of 36 is the (0.10,&nbsp;0.90) log-Gumbel μ̂. Table 6.9
+prints <strong>22.34</strong>; our fit gives <strong>22.358687</strong>, a deviation of
+0.018687 &mdash; inside the 0.02 guardrail, but 3.7× the resolution.</p>
+
+<p>The discriminating evidence is <em>internal to the thesis</em>. <strong>Table 6.10's
+<code>g3</code> column prints 22.36 for the same fit</strong> &mdash; 0.0013 away from ours.
+So the reproduction does not disagree with the thesis; it disagrees with <em>one printing</em>
+of the thesis and agrees with the other. The study's own ledger records the verdict as a
+named aux metric: <code>gumbel_g3_typo_verdict = table_6_9_is_the_typo</code>.</p>
+
+<p><strong>Why this is worth a paragraph.</strong> A replicator without a max-deviation
+guardrail would never have seen it. That cell moves the <em>mean</em> by 0.0005 &mdash; one
+tenth of the resolution &mdash; so it would have been averaged away without a trace. The
+guardrail that exists to &ldquo;stop one broken cell hiding behind a good average&rdquo;
+earned its keep on a cell that turned out not to be a bug at all. <strong>Both outcomes are
+wins:</strong> if it had been our bug, the guardrail catches it; because it was not, the
+guardrail produced a small, citable correction to the published record.</p>
+
+<h3>E0004 &mdash; the p-values that were too good to be a bootstrap</h3>
+
+<p>RQ2 asked a cost question: the thesis prescribes a B = 1000 parametric bootstrap for the
+<code>W_out</code> p-value, which is expensive; is a plain <code>χ²₂₃</code> reference
+indistinguishable? E0004 implemented <em>both</em> honestly (r = 25, B = 1000, seed 20260731)
+and returned two measurements that pull in opposite directions.</p>
+
+<ol>
+<li><strong>The bootstrap is not numerically redundant.</strong> Our honest bootstrap departs
+from the χ²₂₃ reference by mean <strong>0.0814</strong> and max <strong>0.2869</strong>
+across the 18 cells &mdash; far beyond the registered 0.02 tolerance. The registered prediction
+is <strong>falsified</strong>.</li>
+<li><strong>And yet 16 of 18 published p-values sit within 0.005 of the χ² reference</strong>
+&mdash; <em>tighter than a B = 1000 bootstrap's own Monte-Carlo standard error</em> (≈0.016
+near p = 0.5) can be. Agreement that tight is not something a bootstrap <em>can</em>
+produce.</li>
+</ol>
+
+<p>The two divergent cells are (0.02,&nbsp;0.98) log-Logistic, which prints 0.16 against a χ²
+reference of 0.5939 (our bootstrap: 0.534), and (0.10,&nbsp;0.90) log-Laplace, printing 0.55
+against 0.4496 (our bootstrap: 0.486).</p>
+
+<p><strong>Wording discipline, applied deliberately.</strong> This is an observation about the
+<em>reproducibility of printed numbers</em> and nothing more. The published <code>W_out</code>
+<strong>statistics</strong> reproduce essentially exactly &mdash; 20.7905 against a printed
+20.79, 23.1927 against 23.19 &mdash; so the fits and the test statistic are reproduced. It is
+only the <em>route from statistic to p-value</em> that cannot be reconstructed from the text
+as prescribed. Section 7 turns it into a one-sentence question for the author rather than an
+erratum.</p>
+
+<h3>E0005 &mdash; the Σ★ falsifier, the study's hardest gate</h3>
+
+<p>A wrong <code>Σ★</code> fails <em>silently</em>. It still produces a fit, still produces
+plausible parameters, and nothing in the arithmetic complains. The pre-registered falsifier
+was therefore a specific number, with a STOP attached: reproduce the log-Cauchy σ̂ split
+between ordinary and generalized QLS &mdash; published as 0.23 versus 0.49 &mdash; or declare
+the covariance mis-specified and halt the study.</p>
+
+<table>
+<thead><tr><th>Quantity</th><th>Ours</th><th>Published</th><th>Deviation</th></tr></thead>
+<tbody>
+<tr><td>o2 log-Cauchy σ̂ (ordinary QLS, (0.05,&nbsp;0.95))</td><td>0.229912</td><td>0.23</td><td><strong>8.84e&minus;05</strong></td></tr>
+<tr><td>g2 log-Cauchy σ̂ (generalized QLS, same trim)</td><td>0.485055</td><td>0.49</td><td>0.004945</td></tr>
+<tr><td>ratio g2/o2</td><td><strong>2.1097</strong></td><td>2.1304</td><td>&mdash;</td></tr>
+</tbody>
+</table>
+
+<p>Passed exactly. Whole-arm means against the Table 6.10 originals: o2 0.0019355, o3
+0.0014666, g2 0.0025893, g3 0.0019513, MLE 0.0021359. The closed-form covariance built from
+Serfling's theorem &mdash; written down before any data was seen &mdash; reproduces a
+published 2.11&times; efficiency split on real data. <strong>That is the moment the
+implementation became trustworthy.</strong></p>
+
+<p>The same phase ran an <strong>off-ledger</strong> k-sensitivity measurement, recorded in
+<code>program.md</code> and flagged in the findings as descriptive evidence with no run
+manifest. It refuted both halves of its registered prediction: parameters move by
+<strong>0.1223</strong> across k ∈ {8,&nbsp;10,&nbsp;15,&nbsp;25} and <strong>0.1040</strong>
+across six conventions &mdash; <strong>24.5× and 20.8× the reporting resolution</strong>.
+<em>k moves things more than the convention does</em>, and neither is a nuisance. The thesis
+pins k = 8 with <code>inverted_cdf</code>; under that pin, reproduction is exact.</p>
+
+<h3><code>adaptive-3</code> &mdash; from parameters to decisions</h3>
+
+<p>The reproduction track had answered its questions. The decision track now asked the one
+nobody had answered: <strong>among models that FIT, which gives the most stable 1-in-100?</strong>
+Four runs, each a different rung.</p>
+
+<table>
+<thead><tr><th>Run</th><th>Configuration</th><th>W p</th><th>Clean 1-in-100</th><th>Instability</th><th>Disposition</th></tr></thead>
+<tbody>
+<tr><td><strong>E0006</strong></td><td>MLE-lognormal, no trim &mdash; <em>the incumbent of practice</em></td><td>0.5374</td><td>$55.52bn</td><td><strong>58.06</strong></td><td>keep (baseline)</td></tr>
+<tr><td><strong>E0007</strong></td><td>gQLS log-Cauchy (0.05,&nbsp;0.95) &mdash; <em>the best-fitting family</em></td><td><strong>0.8176</strong></td><td><strong>4.08e7 $bn</strong></td><td><strong>62.94</strong></td><td>discard</td></tr>
+<tr><td><strong>E0008</strong></td><td>gQLS lognormal (0.05,&nbsp;0.95) &mdash; <em>bounded transform</em></td><td>0.5153</td><td>$53.04bn</td><td>41.33</td><td>keep</td></tr>
+<tr><td><strong>E0009</strong></td><td>gQLS lognormal (0.10,&nbsp;0.90) &mdash; <em>the widest trim</em></td><td>0.7310</td><td>$56.66bn</td><td><strong>27.58</strong></td><td>keep &mdash; incumbent</td></tr>
+</tbody>
+</table>
+
+<p><strong>E0006</strong> set the baseline and already falsified one registered prediction:
+leave-top-1-out alone moves the MLE 1-in-100 by <strong>&minus;25.68%</strong>
+(55.522&nbsp;&rarr;&nbsp;41.263 $bn), not the predicted &gt;40%. The &gt;40% level is first
+reached at leave-top-3 (&minus;44.56%) and by 5&times; contamination (+58.06%), so the
+run-level metric held at 58.06 while the specific prediction did not.</p>
+
+<p><strong>E0007 is the study's punchline, and it arrived as a discard.</strong> The registered
+prediction was that gQLS log-Cauchy would be under &frac13; of MLE's instability &mdash; below
+19.35. It came in at <strong>62.94</strong>: 3.25× the predicted ceiling, and 1.08× the
+MLE baseline it was supposed to beat. The <em>worst</em> of the four contenders. Section 5
+takes the refutation apart in three parts, because any one of them alone misleads.</p>
+
+<p><strong>E0008 isolated the mechanism</strong> by changing exactly one thing. Same
+estimator, same trim, same data, same GoF gate &mdash; only the family changes, log-Cauchy to
+lognormal, which changes only the standard quantile at p = 0.99 from 31.82 to 2.326.
+Instability: <strong>62.94 &rarr; 41.33</strong>, a 21.62 pp move = 21.6× the ordering
+delta.</p>
+
+<p><strong>E0009 widened the trim</strong> from (0.05,&nbsp;0.95) to (0.10,&nbsp;0.90),
+raising the breakdown point from 0.05 to 0.10 &mdash; from &ldquo;one bad record in thirty&rdquo;
+to &ldquo;three.&rdquo; Instability fell again to <strong>27.58</strong>, and the leave-top-1
+stress collapsed from <strong>19.02% to 5.66%</strong>. And the fit got <em>better</em>:
+<code>W</code> p rose from 0.5153 to <strong>0.7310</strong>, matching the published 0.73 at
+that trim. The registered prediction had budgeted a goodness-of-fit <em>cost</em> for the
+wider trim; the cost came out negative.</p>
+
+<h3>Sealed confirmation &mdash; labelled separately, as it must be</h3>
+
+<p>Two runs, one per track, each spending that track's single sealed access against
+pre-registered published truth. <strong>Neither is on the adaptive frontier</strong>; both are
+excluded from selection by construction, which is why both appear as <code>discard</code> in
+the ledger despite being the study's strongest evidence.</p>
+
+<h4>E0010 &mdash; the full Table 6.10 grid (reproduction)</h4>
+
+<p>Five estimator arms × six families × original <em>and</em> 10×-modified data =
+<strong>60 cells, 120 parameters</strong> that adaptive work never touched.</p>
+
+<ul>
+<li>Mean |Δθ| <strong>0.002026</strong>, max <strong>0.005195</strong>,
+<strong>119/120</strong> inside the reporting resolution &mdash; <em>better</em> than the
+adaptive frontier, on four times as many parameters.</li>
+<li><strong>Every QLS arm's parameters are unchanged by the contamination, exactly.</strong>
+<code>o2*</code>, <code>o3*</code> and <code>g3*</code> are byte-identical to their unstarred
+twins (arm means 0.0019355 / 0.0014666 / 0.0019513 in <em>both</em> columns);
+<code>g2*</code> differs from <code>g2</code> only through the published print (0.0026218 vs
+0.0025893).</li>
+<li><strong>MLE moves as published.</strong> MLE*/lognormal reproduces at μ̂
+<strong>22.876935</strong> (printed 22.88) and σ̂ <strong>1.097494</strong> (printed 1.10)
+against the clean 22.800182 / 0.833868 &mdash; a <strong>+31.6%</strong> move in σ̂ from one
+corrupted record in thirty.</li>
+<li>The single over-resolution cell of 120 is <code>g2*</code>/log-Gumbel at 0.005195, and it
+is a <strong>printing artefact</strong>: our σ̂ = 0.734805 does <em>not</em> move under
+contamination, and Table 6.10 prints that same unchanged estimate as <strong>0.73</strong> in
+one column and <strong>0.74</strong> in the next &mdash; a last-digit rounding boundary.</li>
+<li>A pleasing bonus the method card predicted in advance: <strong>Pareto I's contaminated σ̂
+moves by exactly <code>log(10)/30 = 0.076753</code></strong> (1.258900 &rarr; 1.335653), with
+μ̂ = 21.541282 unchanged because its MLE is the boundary estimator <code>min(x)</code>.</li>
+</ul>
+
+<h4>E0011 &mdash; the thesis's exact 10× modification (decision)</h4>
+
+<p>The incumbent from E0009 &mdash; gQLS lognormal at (0.10,&nbsp;0.90) &mdash; run against the
+one contamination never used adaptively: 72.303&nbsp;&rarr;&nbsp;723.03. Adaptive stress had
+been capped at 5&times; precisely so that this 10&times; remained sealed.</p>
+
+<pre><code>μ̂  clean 22.739330897318172   modified 22.739330897318172
+σ̂  clean  0.8687601378283524  modified  0.8687601378283524
+1-in-10   22.860853 bn         22.860853 bn
+1-in-25   34.363376 bn         34.363376 bn
+1-in-100  56.661976 bn         56.661976 bn        &mdash;  0.0% movement</code></pre>
+
+<p><strong>Bit-identical.</strong> Not &ldquo;within tolerance&rdquo; &mdash; identical, because
+the trimmed quantile grid never reads the corrupted observation at all. The metric printed
+<code>0</code>, and a metric of exactly zero is the rare case where the floor discussion is
+moot.</p>
+
+<p>Paired with E0010's sealed MLE* parameters, that is the money number section 5 opens with:
+under the same single corrupted record, the incumbent of practice doubles and the study's
+incumbent does not move.</p>

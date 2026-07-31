@@ -1,0 +1,240 @@
+{
+  "_provenance": {
+    "transcribed_by": "klein-method-scholar (Gate 2, study 06-hurricane-gqls-returnlevels)",
+    "transcription_date": "2026-07-31",
+    "method": "read directly from the PDF page images with the Read tool; every cell typed by hand from the rendered table, not from a text extractor",
+    "source": {
+      "author": "Adjieteh, Mohammed Adjei",
+      "author_note": "verified from the dissertation title page (2026-07-31) -- the given name is Mohammed Adjei, NOT 'Michael'; the study brief carried the wrong first name",
+      "year": 2024,
+      "month": "August",
+      "title": "Robust-Efficient Fitting of Loss Models via Quantile Least Squares",
+      "type": "PhD dissertation (Doctor of Philosophy in Mathematics)",
+      "institution": "University of Wisconsin-Milwaukee",
+      "advisor": "Vytaras Brazauskas",
+      "repository_url": "https://minds.wisc.edu/bitstream/handle/1793/93605/Adjieteh_uwm_0263D_13880.pdf",
+      "journal_version": "Adjieteh, M. & Brazauskas, V. (2025). Quantile Least Squares: A Flexible Approach for Robust Estimation and Validation of Location-Scale Families. Statistics and Computing 35, art. 106. DOI 10.1007/s11222-025-10626-6; arXiv:2402.07837",
+      "local_pdf": "/Users/xiang/Claude/Auto_research/references/Adjieteh_2024_QLS_thesis_uwm.pdf",
+      "section": "6.2.2 Hurricane Damages"
+    },
+    "page_map": {
+      "note": "printed page number = PDF page number - 11",
+      "table_6_8": {"printed": 68, "pdf": 79},
+      "table_6_9": {"printed": 69, "pdf": 80},
+      "table_6_10": {"printed": 71, "pdf": 82},
+      "table_3_1_location_scale_members": {"printed": 11, "pdf": 22},
+      "table_3_4_log_location_scale_members": {"printed": 20, "pdf": 31},
+      "eq_2_1_quantile_covariance": {"printed": 6, "pdf": 17},
+      "eq_2_4_breakdown_point": {"printed": 8, "pdf": 19},
+      "eq_2_5_influence_function": {"printed": 8, "pdf": 19},
+      "eq_3_4_oqls": {"printed": 12, "pdf": 23},
+      "eq_3_6_gqls": {"printed": 12, "pdf": 23},
+      "eq_3_8_quantile_grid": {"printed": 13, "pdf": 24},
+      "eq_5_2_W": {"printed": 48, "pdf": 59},
+      "eq_5_3_W_out": {"printed": 49, "pdf": 60},
+      "bootstrap_procedure_for_W_out": {"printed": 50, "pdf": 61}
+    },
+    "data": {
+      "description": "normalized damage amounts (billions of 1995 USD) of the 30 most damaging US hurricanes, Pielke & Landsea (1998)",
+      "n": 30,
+      "modification_for_the_starred_rows": "the largest observation 72.303 is replaced by 723.03 (a 10x inflation of the single most extreme point); starred (*) estimator rows in Table 6.10 are fitted to that modified sample",
+      "fitting_scale": "log-dollars, x = log(damage_bn_1995 * 1e9); the thesis reports mu on that scale (mu ~ 22.8 <=> exp(22.8) ~ $8.0e9)"
+    },
+    "cell_counts": {
+      "table_6_8": 8,
+      "table_6_9": 108,
+      "table_6_10": 120,
+      "total": 236
+    },
+    "estimator_key": {
+      "MLE": "maximum likelihood",
+      "o2": "oQLS, eq. (3.4), (a2, b2) = (0.05, 0.95), k = 8",
+      "o3": "oQLS, eq. (3.4), (a3, b3) = (0.10, 0.90), k = 8",
+      "g2": "gQLS, eq. (3.6), (a2, b2) = (0.05, 0.95), k = 8",
+      "g3": "gQLS, eq. (3.6), (a3, b3) = (0.10, 0.90), k = 8",
+      "*": "same estimator fitted to the MODIFIED data (72.303 -> 723.03)"
+    },
+    "reproduction_notes": [
+      "QUANTILE CONVENTION (load-bearing). The thesis defines the empirical quantile as Fhat^{-1}(p) = X_(ceil(np)) (chapter 2, opening paragraph, printed p.6 / PDF p.17) -- the inverse-ECDF convention, numpy method='inverted_cdf'. Fitting under that convention reproduces every Table 6.9 / 6.10 QLS cell to <= 0.0052 (i.e. inside the 0.005 half-digit reporting resolution up to one cell). Table 6.8's QUARTILES, by contrast, reproduce only under HAZEN plotting positions (MATLAB's quantile default). Both conventions therefore coexist inside one chapter: hazen for the descriptive table, ceil(np) for the estimators.",
+      "TABLE 6.9 vs TABLE 6.10 INTERNAL DISAGREEMENT. The (a,b) = (0.10, 0.90) log-Gumbel gQLS mu-hat is printed as 22.34 in Table 6.9 but as 22.36 in the g3 row of Table 6.10. A from-scratch fit under the thesis's own quantile convention gives 22.3587 -> 22.36, i.e. it agrees with Table 6.10; the Table 6.9 entry appears to be a typo. Both values are transcribed as printed; see 'known_discrepancies'.",
+      "W_out P-VALUES. Section 5.2 prescribes a B=1000 parametric bootstrap for the p-value of W_out because the null distribution is 'a major challenge'. In fact 16 of the 18 published W_out p-values equal the chi2_{r-2} = chi2_23 survival function of the published W_out statistic to within 0.005 -- far tighter than a B=1000 bootstrap could be (binomial MC s.e. ~ 0.016 near p = 0.5). The two exceptions are recorded in 'known_discrepancies'."
+    ],
+    "known_discrepancies": [
+      {
+        "where": "Table 6.9, (a,b) = (0.10, 0.90), log-Gumbel, mu",
+        "printed": 22.34,
+        "table_6_10_g3_prints": 22.36,
+        "from_scratch_reproduction": 22.3587,
+        "reading": "Table 6.9 cell is very likely a typo for 22.36"
+      },
+      {
+        "where": "Table 6.9, (a,b) = (0.02, 0.98), log-Logistic, p_Wout",
+        "printed": 0.16,
+        "chi2_23_sf_of_printed_W_out": 0.5939,
+        "reading": "the only cell whose published p-value is far from the chi2_23 reference; either a genuine bootstrap p-value or a transcription error in the thesis"
+      },
+      {
+        "where": "Table 6.9, (a,b) = (0.10, 0.90), log-Laplace, p_Wout",
+        "printed": 0.55,
+        "chi2_23_sf_of_printed_W_out": 0.4497,
+        "reading": "second-largest departure from the chi2_23 reference (0.100)"
+      }
+    ],
+    "anchor_checks_at_transcription_time": {
+      "note": "recomputed from the bundled CSV before this file was committed; both hit the printed cells exactly",
+      "mle_lognormal_original": {"mu": 22.8002, "sigma": 0.8339, "table_6_10_prints": [22.8, 0.83]},
+      "mle_lognormal_modified": {"mu": 22.8769, "sigma": 1.0975, "table_6_10_prints": [22.88, 1.1]}
+    }
+  },
+
+  "table_6_8": {
+    "_caption": "Summary statistics of the normalized damage amounts (in billions) from the most damaging hurricanes in the United States from 1925-1995.",
+    "_pdf_page": 79,
+    "_printed_page": 68,
+    "_units": "billions of 1995 USD",
+    "_conventions": {"quartiles": "hazen plotting positions", "std_dev": "ddof = 1"},
+    "n": 30,
+    "min": 2.266,
+    "q1": 4.056,
+    "q2": 7.6885,
+    "q3": 12.434,
+    "max": 72.303,
+    "mean": 11.7499,
+    "std_dev": 13.6251
+  },
+
+  "table_6_9": {
+    "_caption": "Parameter estimates and goodness-of-fit test statistics for several log-location-scale families fitted to the hurricane data from 1925-1995. The quantiles are selected according to (3.8) with k = 8 and quantile levels for model validation, r = 25.",
+    "_pdf_page": 80,
+    "_printed_page": 69,
+    "_estimator": "gQLS, eq. (3.6)",
+    "_k": 8,
+    "_r": 25,
+    "_fields": ["mu", "sigma", "W", "p_W", "W_out", "p_Wout"],
+    "_data": "original (unmodified) hurricane sample",
+    "trims": {
+      "0.02_0.98": {
+        "a": 0.02,
+        "b": 0.98,
+        "log-cauchy":   {"mu": 22.80, "sigma": 0.53, "W": 3.00,  "p_W": 0.81, "W_out": 17.89, "p_Wout": 0.76},
+        "log-gumbel":   {"mu": 22.43, "sigma": 0.72, "W": 6.43,  "p_W": 0.38, "W_out": 26.31, "p_Wout": 0.29},
+        "log-laplace":  {"mu": 22.78, "sigma": 0.69, "W": 5.23,  "p_W": 0.51, "W_out": 26.59, "p_Wout": 0.27},
+        "log-logistic": {"mu": 22.78, "sigma": 0.48, "W": 4.23,  "p_W": 0.65, "W_out": 20.79, "p_Wout": 0.16},
+        "lognormal":    {"mu": 22.81, "sigma": 0.84, "W": 5.57,  "p_W": 0.47, "W_out": 19.93, "p_Wout": 0.65},
+        "pareto1":      {"mu": 21.51, "sigma": 1.35, "W": 12.51, "p_W": 0.05, "W_out": 33.86, "p_Wout": 0.07}
+      },
+      "0.05_0.95": {
+        "a": 0.05,
+        "b": 0.95,
+        "log-cauchy":   {"mu": 22.81, "sigma": 0.49, "W": 2.93,  "p_W": 0.82, "W_out": 21.54, "p_Wout": 0.55},
+        "log-gumbel":   {"mu": 22.42, "sigma": 0.73, "W": 8.58,  "p_W": 0.20, "W_out": 25.04, "p_Wout": 0.35},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.68, "W": 4.60,  "p_W": 0.60, "W_out": 28.24, "p_Wout": 0.21},
+        "log-logistic": {"mu": 22.78, "sigma": 0.48, "W": 5.07,  "p_W": 0.53, "W_out": 21.42, "p_Wout": 0.56},
+        "lognormal":    {"mu": 22.79, "sigma": 0.82, "W": 5.22,  "p_W": 0.52, "W_out": 21.09, "p_Wout": 0.58},
+        "pareto1":      {"mu": 21.53, "sigma": 1.34, "W": 16.40, "p_W": 0.01, "W_out": 34.38, "p_Wout": 0.06}
+      },
+      "0.10_0.90": {
+        "a": 0.10,
+        "b": 0.90,
+        "log-cauchy":   {"mu": 22.82, "sigma": 0.53, "W": 3.30,  "p_W": 0.77, "W_out": 18.04, "p_Wout": 0.76},
+        "log-gumbel":   {"mu": 22.34, "sigma": 0.81, "W": 6.57,  "p_W": 0.36, "W_out": 21.50, "p_Wout": 0.55},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.75, "W": 3.48,  "p_W": 0.75, "W_out": 23.19, "p_Wout": 0.55},
+        "log-logistic": {"mu": 22.75, "sigma": 0.51, "W": 3.57,  "p_W": 0.73, "W_out": 18.58, "p_Wout": 0.73},
+        "lognormal":    {"mu": 22.74, "sigma": 0.87, "W": 3.60,  "p_W": 0.73, "W_out": 18.85, "p_Wout": 0.71},
+        "pareto1":      {"mu": 21.45, "sigma": 1.42, "W": 13.18, "p_W": 0.04, "W_out": 39.58, "p_Wout": 0.02}
+      }
+    }
+  },
+
+  "table_6_10": {
+    "_caption": "Parameter estimates of original and modified hurricane data with k = 8 selected according to (3.8) in all cases for QLS estimators. oQLS and gQLS estimators are abbreviated 'o' and 'g' respectively with (a2, b2) = (0.05, 0.95) and (a3, b3) = (0.10, 0.90).",
+    "_pdf_page": 82,
+    "_printed_page": 71,
+    "_k": 8,
+    "_fields": ["mu", "sigma"],
+    "_rows": ["MLE", "MLE*", "o2", "o2*", "o3", "o3*", "g2", "g2*", "g3", "g3*"],
+    "_star_means": "fitted to the modified data (72.303 -> 723.03)",
+    "estimators": {
+      "MLE": {
+        "log-cauchy":   {"mu": 22.79, "sigma": 0.49},
+        "log-gumbel":   {"mu": 22.40, "sigma": 0.72},
+        "log-laplace":  {"mu": 22.76, "sigma": 0.66},
+        "log-logistic": {"mu": 22.77, "sigma": 0.48},
+        "lognormal":    {"mu": 22.80, "sigma": 0.83},
+        "pareto1":      {"mu": 21.54, "sigma": 1.26}
+      },
+      "MLE*": {
+        "log-cauchy":   {"mu": 22.79, "sigma": 0.49},
+        "log-gumbel":   {"mu": 22.42, "sigma": 0.77},
+        "log-laplace":  {"mu": 22.76, "sigma": 0.74},
+        "log-logistic": {"mu": 22.78, "sigma": 0.53},
+        "lognormal":    {"mu": 22.88, "sigma": 1.10},
+        "pareto1":      {"mu": 21.54, "sigma": 1.34}
+      },
+      "o2": {
+        "log-cauchy":   {"mu": 22.80, "sigma": 0.23},
+        "log-gumbel":   {"mu": 22.43, "sigma": 0.65},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.61},
+        "log-logistic": {"mu": 22.80, "sigma": 0.46},
+        "lognormal":    {"mu": 22.80, "sigma": 0.81},
+        "pareto1":      {"mu": 21.98, "sigma": 0.83}
+      },
+      "o2*": {
+        "log-cauchy":   {"mu": 22.80, "sigma": 0.23},
+        "log-gumbel":   {"mu": 22.43, "sigma": 0.65},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.61},
+        "log-logistic": {"mu": 22.80, "sigma": 0.46},
+        "lognormal":    {"mu": 22.80, "sigma": 0.81},
+        "pareto1":      {"mu": 21.98, "sigma": 0.83}
+      },
+      "o3": {
+        "log-cauchy":   {"mu": 22.74, "sigma": 0.40},
+        "log-gumbel":   {"mu": 22.39, "sigma": 0.71},
+        "log-laplace":  {"mu": 22.74, "sigma": 0.73},
+        "log-logistic": {"mu": 22.74, "sigma": 0.51},
+        "lognormal":    {"mu": 22.74, "sigma": 0.87},
+        "pareto1":      {"mu": 21.91, "sigma": 0.93}
+      },
+      "o3*": {
+        "log-cauchy":   {"mu": 22.74, "sigma": 0.40},
+        "log-gumbel":   {"mu": 22.39, "sigma": 0.71},
+        "log-laplace":  {"mu": 22.74, "sigma": 0.73},
+        "log-logistic": {"mu": 22.74, "sigma": 0.51},
+        "lognormal":    {"mu": 22.74, "sigma": 0.87},
+        "pareto1":      {"mu": 21.91, "sigma": 0.93}
+      },
+      "g2": {
+        "log-cauchy":   {"mu": 22.81, "sigma": 0.49},
+        "log-gumbel":   {"mu": 22.42, "sigma": 0.73},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.68},
+        "log-logistic": {"mu": 22.78, "sigma": 0.48},
+        "lognormal":    {"mu": 22.79, "sigma": 0.82},
+        "pareto1":      {"mu": 21.53, "sigma": 1.34}
+      },
+      "g2*": {
+        "log-cauchy":   {"mu": 22.81, "sigma": 0.49},
+        "log-gumbel":   {"mu": 22.42, "sigma": 0.74},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.68},
+        "log-logistic": {"mu": 22.78, "sigma": 0.48},
+        "lognormal":    {"mu": 22.79, "sigma": 0.82},
+        "pareto1":      {"mu": 21.53, "sigma": 1.34}
+      },
+      "g3": {
+        "log-cauchy":   {"mu": 22.82, "sigma": 0.53},
+        "log-gumbel":   {"mu": 22.36, "sigma": 0.81},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.75},
+        "log-logistic": {"mu": 22.75, "sigma": 0.51},
+        "lognormal":    {"mu": 22.74, "sigma": 0.87},
+        "pareto1":      {"mu": 21.45, "sigma": 1.42}
+      },
+      "g3*": {
+        "log-cauchy":   {"mu": 22.82, "sigma": 0.53},
+        "log-gumbel":   {"mu": 22.36, "sigma": 0.81},
+        "log-laplace":  {"mu": 22.80, "sigma": 0.75},
+        "log-logistic": {"mu": 22.75, "sigma": 0.51},
+        "lognormal":    {"mu": 22.74, "sigma": 0.87},
+        "pareto1":      {"mu": 21.45, "sigma": 1.42}
+      }
+    }
+  }
+}

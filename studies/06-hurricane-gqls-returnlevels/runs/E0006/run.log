@@ -1,0 +1,44 @@
+identity anchor OK: 12 statistics, max |deviation| 3.53e-05
+---
+primary_metric:    58.063948
+metric_name:       return_level_instability_pct
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+w_pvalue: 0.5373549076307742
+w_statistic: 5.050482242082086
+w_df: 6
+w_chi2_calibrated: 0
+estimator: mle
+family: lognormal
+trim: 0.05_0.95
+k: 8
+breakdown_point: 0.05
+mu_hat: 22.800182463304523
+sigma_hat: 0.8338675459533283
+return_level_1in10_bn: 23.232702701707115
+return_level_1in25_bn: 34.35532142155143
+return_level_1in100_bn: 55.522182140986054
+return_level_support_caveat: n=30 events: empirical support tops out near 1-in-30; the 1-in-100 is extrapolation governed entirely by the fitted family's tail, not by the data
+baseline_return_level_bn: 55.522182140986054
+worst_case: inflate_max_x5
+n_stress_cases: 4
+stress_inflate_factor: 5.0
+pct_change_leave_top_1_out: 25.682250675084475
+rl_bn_leave_top_1_out: 41.26283614326103
+pct_change_leave_top_2_out: 36.45783182818616
+rl_bn_leave_top_2_out: 35.27999834868615
+pct_change_leave_top_3_out: 44.55564480720707
+rl_bn_leave_top_3_out: 30.78391587703775
+pct_change_inflate_max_x5: 58.06394769725969
+rl_bn_inflate_max_x5: 87.76055293970546
+stress_table: {"inflate_max_x5":{"pct_change":58.063948,"return_level_bn":87.760553},"leave_top_1_out":{"pct_change":25.682251,"return_level_bn":41.262836},"leave_top_2_out":{"pct_change":36.457832,"return_level_bn":35.279998},"leave_top_3_out":{"pct_change":44.555645,"return_level_bn":30.783916}}
+wall_seconds: 0.0018811225891113281
+mode: decision
+convention: inverted_cdf
+runner_status: ok
+runner_exit_code: 0

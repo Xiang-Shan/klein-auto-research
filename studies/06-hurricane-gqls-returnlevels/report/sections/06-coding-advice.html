@@ -1,0 +1,340 @@
+<h2>Coding Advice</h2>
+
+<p>This is the section that makes the artifact useful. Below is the <strong>actual winning
+<code>train.py</code></strong>, byte-for-byte as committed at E0009 &mdash; the configuration
+that produced the decision track's best frontier value (27.584597) and became the incumbent
+for the sealed run &mdash; followed by what it does that matters, and the traps that actually
+fired in this study.</p>
+
+<h3>The winning <code>train.py</code>, verbatim</h3>
+
+<pre><code>"""The only per-candidate mutable surface in a Klein v2 study.
+
+Study 06 — hurricane gQLS reproduction and return levels. Every computation lives in
+`analysis.py` (the stable study library); this file selects ONE mode and its arguments,
+re-verifies the data-identity anchor, and hands the result to the v2 evaluator.
+
+Two tracks, two primary metric names — the printed name MUST match the track being run
+or `klein run-one` refuses the result:
+
+    KLEIN_TRACK=reproduction  -&gt;  mean_abs_param_deviation      (lower)
+    KLEIN_TRACK=decision      -&gt;  return_level_instability_pct  (lower)
+
+Guardrails are read by the runner off the PRINTED block, so `extra` carries every
+guardrail key of the running track with its measured value — `analysis.check_extra`
+asserts that before a mode may return (study 05, lesson F1). Guardrail `wall_seconds`
+is added here, the only place that knows `t0`.
+
+Sealed evidence: `sealed_repro` / `sealed_decision` read pre-registered published truth
+(the full Table 6.10 grid; the exact 72.303 -&gt; 723.03 modification) and may run ONLY
+under `klein run-one --final-test`, once per track. The guard below is what enforces it.
+"""
+
+from __future__ import annotations
+
+import os
+import time
+
+import analysis
+
+from kleinlib.eval import evaluate_scalar
+
+SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
+
+# ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
+MODE = "decision"          # anchor | grid | gof_redundancy | oqls_mle_arms | sensitivity
+                         # | decision | sealed_repro | sealed_decision
+CONVENTION = "inverted_cdf"     # inverted_cdf | hazen | weibull | median_unbiased | normal_unbiased
+K = 8                    # quantile levels per fit; Tables 6.9/6.10 use k = 8
+ESTIMATOR = "gqls"
+FAMILY = "lognormal"
+TRIM = (0.10, 0.90)      # decision modes only: the (a, b) quantile trim
+# -------------------------------------------------------------------
+
+EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
+TRACK = os.environ.get("KLEIN_TRACK") or (
+    analysis.MODE_TRACK.get(MODE) if SMOKE else None
+)
+
+DECISION_MODES = {"decision", "sealed_decision"}
+
+
+def main() -&gt; None:
+    t0 = time.time()
+    evaluation_kind = os.environ.get("KLEIN_EVALUATION_KIND") or (
+        "development" if SMOKE else None
+    )
+    missing = [
+        name
+        for name, value in (
+            ("KLEIN_EVALUATION_KIND", evaluation_kind),
+            ("KLEIN_EXPERIMENT_ID", EXPERIMENT_ID),
+            ("KLEIN_TRACK", TRACK),
+        )
+        if value is None
+    ]
+    if missing:
+        raise RuntimeError(
+            "train.py must be invoked through `klein run-one`. For a pre-run "
+            "syntax/shape check use `KLEIN_SMOKE=1 python train.py` — it prints the "
+            "canonical block, writes no sidecars or snapshots, and is not evidence. "
+            "Missing: " + ", ".join(missing)
+        )
+    if evaluation_kind not in {"development", "final_test"}:
+        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
+
+    # ---- contract checks: mode, track, and sealed access must agree ----
+    if MODE not in analysis.MODES:
+        raise RuntimeError(
+            f"unknown MODE={MODE!r}; expected one of {sorted(analysis.MODES)}"
+        )
+    if TRACK not in analysis.TRACK_METRIC:
+        raise RuntimeError(
+            f"invalid KLEIN_TRACK={TRACK!r}; expected one of {sorted(analysis.TRACK_METRIC)}"
+        )
+    if analysis.MODE_TRACK[MODE] != TRACK:
+        raise RuntimeError(
+            f"MODE={MODE!r} belongs to track {analysis.MODE_TRACK[MODE]!r}, but this run "
+            f"is on track {TRACK!r} — the primary metric name would not match the contract"
+        )
+    sealed = MODE in analysis.SEALED_MODES
+    if evaluation_kind == "final_test" and not sealed:
+        raise RuntimeError(
+            f"--final-test spends a track's one sealed access, but MODE={MODE!r} is an "
+            f"adaptive mode; sealed modes are {sorted(analysis.SEALED_MODES)}"
+        )
+    if sealed and evaluation_kind != "final_test":
+        message = (
+            f"MODE={MODE!r} reads PRE-REGISTERED SEALED evidence and must run through "
+            "`klein run-one --final-test`, once per track"
+        )
+        if not SMOKE:
+            raise RuntimeError(message)
+        print(f"[smoke] {message} — shape check only, not evidence")
+
+    # ---- data-identity anchor: re-verified on EVERY run, before any fitting ----
+    identity = analysis.verify_identity()
+    print(
+        f"identity anchor OK: {identity['identity_stats_verified']} statistics, "
+        f"max |deviation| {identity['identity_max_abs_deviation']:.2e}"
+    )
+
+    if MODE in DECISION_MODES:
+        primary, extra = analysis.MODES[MODE](ESTIMATOR, FAMILY, TRIM, CONVENTION, K)
+    else:
+        primary, extra = analysis.MODES[MODE](CONVENTION, K)
+
+    evaluate_scalar(
+        primary,
+        exp_id=EXPERIMENT_ID,
+        metric_name=analysis.TRACK_METRIC[TRACK],
+        metric_goal="lower",
+        study_dir=".",
+        t0=t0,
+        extra={
+            **extra,
+            "wall_seconds": time.time() - t0,
+            "mode": MODE,
+            "convention": CONVENTION,
+        },
+    )
+
+
+if __name__ == "__main__":
+    main()
+</code></pre>
+
+<h3>Annotated: seven things this file does that matter</h3>
+
+<ol>
+<li><strong>The mutable surface is a nine-line CONFIG block, and nothing else.</strong>
+<code>MODE</code>, <code>CONVENTION</code>, <code>K</code>, <code>ESTIMATOR</code>,
+<code>FAMILY</code>, <code>TRIM</code>. Every computation lives in <code>analysis.py</code>,
+the stable study library. That is what made E0003 possible: the fix that turned a
+guardrail-breaching discard into the track's only KEEP was <strong>one word</strong> &mdash;
+<code>hazen</code> &rarr; <code>inverted_cdf</code> &mdash; and the diff proves nothing else
+changed. If the convention had been buried in the estimator module, the same fix would have
+been an unfalsifiable multi-line edit.</li>
+
+<li><strong>It refuses to run outside the harness.</strong> The <code>missing</code> check
+demands <code>KLEIN_EVALUATION_KIND</code>, <code>KLEIN_EXPERIMENT_ID</code> and
+<code>KLEIN_TRACK</code> from the environment and raises with the exact remedy
+(<code>KLEIN_SMOKE=1</code> for a shape check) rather than defaulting. A train.py that
+&ldquo;works&rdquo; when run by hand is a train.py that will one day produce a number with no
+manifest behind it.</li>
+
+<li><strong>Mode, track and metric name are cross-checked before any fitting.</strong> Two
+tracks mean two primary metric <em>names</em>, and <code>klein run-one</code> refuses a result
+whose printed metric name does not match the track being run. Rather than discover that after a
+run, <code>analysis.MODE_TRACK[MODE] != TRACK</code> raises immediately with a message naming
+both. This is cheap defensive code that pays for itself the first time you edit
+<code>MODE</code> and forget the <code>--track</code> flag.</li>
+
+<li><strong>The sealed-mode guard is in the code, not in the discipline.</strong>
+<code>sealed_repro</code> and <code>sealed_decision</code> read pre-registered published truth
+and <em>may only</em> run under <code>klein run-one --final-test</code>. The file enforces both
+directions: a sealed mode without <code>--final-test</code> raises, and
+<code>--final-test</code> on an adaptive mode raises too (&ldquo;<code>--final-test</code> spends
+a track's one sealed access&rdquo;). A single sealed access per track is a contract you cannot
+un-spend, so the guard belongs where it cannot be forgotten.</li>
+
+<li><strong>The data-identity anchor is re-verified on EVERY run, before any fitting.</strong>
+Twelve published quantities, checked in three lines &mdash; E0001's <em>entire</em> run, identity
+gate plus fit, took 2.2 ms. It is tempting to run this once in
+<code>prepare.py</code> and trust it thereafter. Don't: it is the only thing standing between
+this study and a silent substitution of <code>extRemes::damage</code>'s genuinely-1925&ndash;95
+top-30, which looks like the same dataset, is not, and would break every published comparison
+while raising no error. <strong>The gate is cheap; the failure it prevents is invisible.</strong></li>
+
+<li><strong>Guardrails are printed, not merely written.</strong> The runner reads guardrail
+values off the <em>printed</em> canonical block, so <code>extra</code> must carry every
+guardrail key of the running track with its measured value &mdash;
+<code>analysis.check_extra</code> asserts that before a mode may return, and
+<code>wall_seconds</code> is added here because this file is the only place that knows
+<code>t0</code>. This is study 05's lesson F1 imported as code: there, a metric that was written
+to <code>aux_metrics.tsv</code> but not printed cost a real experiment slot.</li>
+
+<li><strong>The convention and the mode are recorded in <code>extra</code> on every run.</strong>
+<code>"mode": MODE, "convention": CONVENTION</code> &mdash; two strings that turn every ledger
+row into a self-describing record. When section 4's detective story needed to prove that E0002
+and E0003 differed <em>only</em> in the convention, the evidence was already in
+<code>aux_metrics.tsv</code>; nobody had to reconstruct it from commit messages.</li>
+</ol>
+
+<h3>War stories &mdash; the traps that actually fired</h3>
+
+<h4>Never form Σ★⁻¹ &mdash; factor and whiten</h4>
+
+<p>The textbook GLS formula <code>β̂ = (X′Σ⁻¹X)⁻¹X′Σ⁻¹Y</code> invites you to compute
+<code>Σ★⁻¹</code>. Do not. <code>Σ★</code>'s condition number runs to <strong>2.7e4</strong> for
+log-Cauchy across the reported trims (against about 35 for the normal member at k = 8,
+(0.05,&nbsp;0.95)), and it grows sharply as <code>a &rarr; 0</code>; on the r = 25 validation grid
+it is far worse still, since the standard Cauchy density at the 0.01 quantile is ≈3e&minus;4. The
+mathematically identical, numerically safe route is Cholesky whitening:</p>
+
+<pre><code>L = cholesky(Sig, lower=True)
+mu, sigma = lstsq(solve_tri(L, X), solve_tri(L, Y))[0]
+
+# and the GoF statistic uses the SAME factor - a squared norm, again no inverse
+r = Y - X @ [mu, sigma]
+W = n / sigma**2 * (solve_tri(L, r) ** 2).sum()</code></pre>
+
+<p><strong>And log the condition number on every fit.</strong> The study's estimator returns
+<code>sigma_star_cond</code> with each gQLS result, so the loop can see conditioning degrade
+rather than infer it from a bad answer. E0002 and E0003 both recorded
+<code>sigma_star_cond_max = 27302.62</code> on the log-Cauchy family &mdash; identical across the
+two conventions, which is itself evidence that the convention change moved the <em>data</em>
+vector and not the covariance.</p>
+
+<h4>Make the code refuse what the mathematics refuses</h4>
+
+<p>log-Cauchy has no finite moments. In this implementation, <code>mean_loss()</code> and
+<code>cte()</code> <strong>raise <code>NotImplementedError</code></strong> for such families
+rather than returning a number. The ledger carries the reason as a first-class aux metric on
+E0007:</p>
+
+<blockquote><code>moment_note</code>: <em>&ldquo;log-Cauchy has NO finite moments:
+<code>mean_loss()</code> and <code>cte()</code> raise <code>NotImplementedError</code> by design,
+so this family can only ever be priced through QUANTILES &mdash; any mean/CTE/TVaR number for it
+is a truncation artifact.&rdquo;</em></blockquote>
+
+<p>This is the cheapest control in the study and the one most likely to matter in production. A
+numerical quadrature would have returned a large float that is an artefact of where it was
+truncated, and it would have looked exactly like an estimate. <strong>The refusal fires at the
+moment of misuse and converts a silent pricing error into a stack trace.</strong> Note the
+corollary: a <em>moment</em>-based robust estimator (trimmed or Winsorized moments) has nothing to
+trim on a family with no moments &mdash; which is precisely the gap the quantile grid fills.</p>
+
+<h4>Export both conventions under different names, so they can never be confused</h4>
+
+<p>This study needs two quantile conventions for two different jobs, and mixing them up costs a
+guardrail breach. The implementation exports them as separately named constants &mdash;
+<code>SUMMARY_QUANTILE_METHOD</code> (Hazen, for the descriptive identity gate) and
+<code>THESIS_QUANTILE_METHOD</code> (<code>inverted_cdf</code>, for the estimators) &mdash; and
+takes <code>method=</code> everywhere, so a pre-registered convention sweep is still possible. One
+further wrinkle is exposed as <code>quantile_space=</code>: the thesis writes
+<code>Y = log F̂⁻¹(p)</code> (quantile the <em>dollars</em>, then log), which is identical to
+quantiling the log-dollars under order-statistic conventions but <em>not</em> under interpolating
+ones.</p>
+
+<h4>A guardrail that fails while the metric passes is a signal, not a nuisance</h4>
+
+<p>E0001 produced parameters inside the reporting resolution and was discarded on a
+<code>max_abs_w_deviation</code> of 0.4940. The temptation in that moment is to widen the
+guardrail, because the headline number looked fine. The correct reading is that <code>W</code> is
+a quadratic form in the residuals and therefore far more sensitive to the exact grid than a
+two-parameter regression line through it &mdash; so <strong>the insensitive quantity passing while
+the sensitive one fails localizes the bug to the grid.</strong> That single discard is what sent
+the study back to Chapter 2's definition and produced its only reproduction KEEP.</p>
+
+<h4>Predict the disposition in the candidate description</h4>
+
+<p>Every candidate description in this study's ledger states the expected metric <em>and the
+expected disposition</em> before the run: E0002's says &ldquo;predicted mean ~0.0093 with
+max_abs_param_deviation ~0.032 BREACHING the 0.02 guardrail … discard predicted&rdquo;. Two
+benefits, both real. A prediction that lands makes the discard <em>informative</em> rather than
+disappointing &mdash; E0002 was a deliberate measurement of a convention, not a failed attempt.
+And a prediction that misses is caught immediately, while the reasoning is still in your head
+rather than three phases later.</p>
+
+<h3>Five transferable rules</h3>
+
+<ol>
+<li><strong>Pin the quantile convention AND k in any filing, paper, or model document whose
+parameters come from a quantile-based fit &mdash; and reproduce the source's descriptive table
+first to find out which convention it used.</strong> A gQLS specification is five things
+&mdash; <code>(family, a, b, k, quantile convention)</code> &mdash; and the last two are usually
+left to a library default. At n = 30 the convention alone moves a fitted parameter by up to
+<strong>0.1040</strong> and k by up to <strong>0.1223</strong>: <strong>20.8× and 24.5× the
+0.005 reporting resolution</strong>. Swapping <code>hazen</code> for <code>inverted_cdf</code> is
+the whole difference between a discard at 0.009303 with a breached guardrail and a keep at
+0.002754. <em>(C7)</em></li>
+
+<li><strong>Price a moment-free fit through quantiles only &mdash; and make the code refuse the
+rest.</strong> The best-fitting family on this data has no finite mean. An actuary who follows the
+goodness-of-fit test into a TVaR-loaded premium gets a confident number with no meaning; the
+<code>NotImplementedError</code> is the control. <em>(C8)</em></li>
+
+<li><strong>Treat the trim as the robustness knob, price it explicitly, and buy it before you need
+it.</strong> Moving from (0.05,&nbsp;0.95) to (0.10,&nbsp;0.90) cut 1-in-100 instability from
+<strong>41.33 to 27.58</strong> and <em>raised</em> the in-sample GoF from W p 0.5153 to
+<strong>0.7310</strong>. The knob has a directly readable meaning: <code>BP = min{a, 1&minus;b}</code>
+is the number of corrupted records you are buying protection against &mdash; 5% of 30 events is
+1.5, so one bad record is tolerated and two are not; 10% tolerates three. Because the breakdown
+point is <strong>a guarantee with a cliff, not a slope</strong>, widen the trim while the sample is
+still clean; past the cliff there is no partial credit. And check the cost on <em>your</em> data:
+the classical efficiency argument says a wider trim must cost fit, and here it did not.
+<em>(C9)</em></li>
+
+<li><strong>State family-conditionality next to every return level, and anchor it to the empirical
+support.</strong> With n = 30 the largest observation sits at plotting position p = 0.9667 ≈ 1-in-30,
+so <em>every</em> 1-in-100 here is parametric extrapolation. The numbers make the point better than
+the caveat does: on the same data and the same estimator the 1-in-100 is <strong>$53.04bn</strong>
+(gQLS-lognormal 0.05/0.95), <strong>$56.66bn</strong> (gQLS-lognormal 0.10/0.90),
+<strong>$55.52bn</strong> (MLE-lognormal) and <strong>$4.08e7bn</strong> (gQLS log-Cauchy). All four
+pass the in-sample GoF test; three sit <em>below</em> the largest event actually observed and one
+sits five orders of magnitude above any loss in recorded history. Report the GoF-passing families
+side by side with the empirical 1-in-30 anchor, never a single number as &ldquo;the&rdquo; answer.
+<em>(C10)</em></li>
+
+<li><strong>When your &ldquo;held-out&rdquo; evidence is published targets rather than held-out
+data, say exactly that in the claim, not in a footnote.</strong> This study's sealed evidence is
+unusually strong on one axis &mdash; 120 third-party parameters fixed in print before the study
+existed, unmovable by anything the study does &mdash; and structurally blind on another: the same
+30 observations underlie both evaluations, so sampling error is fully common-mode. The permitted
+claim is <em>&ldquo;our implementation reproduces their published numbers on their sample, and the
+estimator is robust within that sample&rdquo;</em>. The forbidden claim is any statement about
+generalization to another hurricane sample, another period, or predictive accuracy. Carry the
+wording verbatim into slides and verdict cards, <strong>where it is most likely to erode</strong>.
+<em>(C11)</em></li>
+</ol>
+
+<h3>What the implementation cost</h3>
+
+<p>About <strong>970 lines</strong> of numpy/scipy (<code>estimators.py</code> 802 +
+<code>stress.py</code> 171) covering six standard members, oQLS + gQLS + MLE, both goodness-of-fit
+tests and the B = 1000 parametric bootstrap, backed by <strong>20/20 tests in 0.69 s</strong>. The
+mathematical core is about fifteen lines: grid &rarr; design matrix &rarr; known Σ★ &rarr;
+Cholesky-whitened least squares. <strong>There is no released R or Python package for gQLS</strong>
+&mdash; adoption means owning the code and its tests. Budget for the tests that pin your Σ★
+specifically, because a wrong Σ★ fails silently and only the o2-versus-g2 split catches it.</p>

@@ -1,0 +1,351 @@
+<h2>Findings</h2>
+
+<p>Start with the number a committee can act on.</p>
+
+<figure>
+<img data-fig="figures/return_level_dumbbell.png" alt="Dumbbell chart: MLE-lognormal 1-in-100 moves from a clean $55.5bn to $110.7bn under the thesis's exact 10x modification, +99.4%; the gQLS-lognormal (0.10,0.90) incumbent stays at $56.7bn, 0.0%; a separate log-scale panel shows gQLS log-Cauchy, the best-fitting family, also at 0.0% movement but on a clean 1-in-100 level of 4.08e7 bn with no finite mean.">
+<figcaption>One corrupted record out of thirty. Left panel, linear $bn scale: the incumbent
+of practice doubles; the study's incumbent does not move at all. Right panel, on its own log
+scale because it cannot share an axis with anything: the <em>best-fitting</em> family is
+equally immune to the contamination and produces a level with no economic content. The dotted
+line marks the largest event ever actually observed ($72.3bn ≈ 1-in-30).</figcaption>
+</figure>
+
+<blockquote><strong>Take one record out of thirty &mdash; the 1926 Great Miami hurricane at
+$72.303bn &mdash; and multiply it by ten, the way a decimal-point slip or a double-counted
+recovery does.</strong> On maximum likelihood with a lognormal, the fitted 1-in-100 event loss
+goes from <strong>$55.5bn to $110.7bn, +99.4%</strong>. On gQLS-lognormal at trim
+(0.10,&nbsp;0.90), the same corruption produces <strong>$56.7bn &rarr; $56.7bn,
+0.0%</strong> &mdash; bit-identical in μ̂, σ̂ and all three return levels.</blockquote>
+
+<p>Both halves of that pair are on-ledger and sealed. The <strong>0.0%</strong> is E0011, the
+decision track's single sealed access, run against the thesis's exact modification. The
+<strong>+99.4%</strong> is formed from E0006's clean MLE fit (55.522182) and E0010's sealed
+MLE* parameters (μ̂ 22.876935, σ̂ 1.097494), which give 110.700 &mdash; <em>derived on-ledger,
+never re-fitted for the page</em>.</p>
+
+<h3>The verdicts</h3>
+
+<table>
+<thead><tr><th>Claim</th><th>RQ</th><th>Verdict</th><th>Evidence level</th><th>Key numbers</th></tr></thead>
+<tbody>
+<tr>
+<td><strong>C1</strong></td><td>RQ1 &mdash; does a from-scratch gQLS reproduce Table 6.9?</td>
+<td><strong>supported</strong></td><td><strong>confirmed</strong> (E0010)</td>
+<td>Adaptive mean |Δθ| <strong>0.002754</strong> = 0.55× the resolution, <strong>35/36</strong>
+inside, all guardrails passing (0.018687 / 0.005007 / 0.004857). Sealed:
+<strong>0.002026</strong> over <strong>120</strong> parameters, <strong>119/120</strong>
+inside, max 0.005195. <em>Prerequisite, on ledger:</em> the convention must be the thesis's
+own ch.2 definition; under the registered <code>hazen</code> default the same code gives
+0.009303 with max 0.031279 and breaches the guardrail.</td>
+</tr>
+<tr>
+<td><strong>C2</strong></td><td>RQ2 &mdash; is the B=1000 bootstrap necessary?</td>
+<td><strong>prediction refuted; a two-sided finding replaces it</strong></td><td>exploratory</td>
+<td>Our honest bootstrap departs from χ²₂₃ by mean <strong>0.0814</strong> / max
+<strong>0.2869</strong> &mdash; not redundant. <em>Yet</em> 16/18 published p-values sit within
+<strong>0.005</strong> of the χ² reference, tighter than a B=1000 bootstrap's own MC error
+(≈0.016) permits. The <code>W_out</code> <strong>statistics</strong> reproduce exactly (20.7905
+vs 20.79; 23.1927 vs 23.19) &mdash; it is the route from statistic to p-value that cannot be
+reconstructed as prescribed.</td>
+</tr>
+<tr>
+<td><strong>C3</strong></td><td>RQ3 &mdash; does 10× contamination leave gQLS parameters alone?</td>
+<td><strong>supported</strong></td><td><strong>confirmed</strong> (E0010)</td>
+<td>Every starred QLS arm reproduces its unstarred twin: <code>o2*</code>, <code>o3*</code>,
+<code>g3*</code> <strong>byte-identical</strong>; <code>g2*</code> differs only through the
+print. MLE moves as published: σ̂ <strong>0.833868 &rarr; 1.097494, +31.6%</strong> from one
+corrupted record in thirty.</td>
+</tr>
+<tr>
+<td><strong>C4</strong></td><td>RQ4 &mdash; does stability degrade where the breakdown point predicts?</td>
+<td><strong>direction and ordering yes; the predicted <em>cliff</em> is absent, for a reason</strong></td><td>exploratory</td>
+<td>Monotone in BP at every k: leave-1 <strong>19.02 &rarr; 5.66</strong>, leave-2
+<strong>30.66 &rarr; 26.96</strong>, leave-3 <strong>41.33 &rarr; 27.58</strong> as the trim
+widens. On the track metric that is &minus;13.74 pp = 13.7× the ordering delta. But crossing
+2/30 = 0.067 past BP = 0.05 costs only <strong>+3.70 pp</strong> &mdash; no cliff.</td>
+</tr>
+<tr>
+<td><strong>C5</strong></td><td>RQ5 &mdash; which GoF-passing configuration gives the most stable 1-in-100?</td>
+<td><strong>REFUTED &mdash; and the refutation is the punchline</strong></td><td>exploratory (ranking); the winner's contamination number confirmed at E0011</td>
+<td>Predicted &lt; 19.35. Observed <strong>62.94</strong> &mdash; <strong>3.25×</strong> the
+predicted ceiling and <strong>1.08×</strong> MLE-lognormal's own 58.06. The worst of four
+contenders, from the <em>best-fitting</em> family (W p 0.8176, highest of six).</td>
+</tr>
+<tr>
+<td><strong>C6</strong></td><td>RQ6 &mdash; does parameter robustness transfer to decisions?</td>
+<td><strong>refined: yes, if and only if the quantile transform is bounded</strong></td><td><strong>confirmed for the incumbent</strong> (E0011); exploratory in general</td>
+<td>Holding the estimator fixed and changing only the family:
+<strong>62.94 &rarr; 41.33</strong> (&minus;21.62 pp = 21.6× the delta); widening the trim:
+<strong>&rarr; 27.58</strong>, total &minus;35.36 pp. Sealed: 0.0% for the incumbent against
+<strong>+99.4%</strong> for MLE under the same corrupted record.</td>
+</tr>
+</tbody>
+</table>
+
+<p class="note"><strong>Evidence-level discipline.</strong> C1 and C3 are <code>confirmed</code>
+because the reproduction track's single sealed access was spent on exactly those two questions,
+against 120 parameters the loop never touched. C6's <em>incumbent</em> statement is confirmed by
+the decision track's single access; its general &ldquo;iff bounded transform&rdquo; form, and the
+whole of C4 and C5, remain development-stress comparisons and stay exploratory. C2 is exploratory
+by construction &mdash; it is a statement about published p-values, not about a frontier.
+<strong>Nothing here is a population claim.</strong></p>
+
+<h3>The RQ5 punchline, in three parts that must be quoted together</h3>
+
+<p>gQLS log-Cauchy is the family the thesis's <em>own</em> goodness-of-fit test ranks first on
+this data (W p = 0.8176, the highest of six). Here is what it does. Quote any one of these
+alone and you will mislead someone:</p>
+
+<table>
+<thead><tr><th>#</th><th>Measurement</th><th>What it says on its own</th></tr></thead>
+<tbody>
+<tr>
+<td><strong>i</strong></td>
+<td><strong>0.0% contamination movement.</strong> Inflate the largest loss 5× (or 10×) and the
+parameters do not move at all.</td>
+<td>&ldquo;Perfect robustness.&rdquo; True, and the trim genuinely never reads the corrupted
+point.</td>
+</tr>
+<tr>
+<td><strong>ii</strong></td>
+<td><strong>62.94% resample instability.</strong> Delete the top observation and the 1-in-100
+moves 62.94%; at k = 2, 47.21%; at k = 3, 61.32%.</td>
+<td>&ldquo;The worst of the four contenders&rdquo; &mdash; worse than the untrimmed MLE it was
+supposed to beat.</td>
+</tr>
+<tr>
+<td><strong>iii</strong></td>
+<td><strong>A clean 1-in-100 of 4.08e7 $bn</strong> (≈ $4.1e16) &mdash; about
+<strong>5.6e5×</strong> the largest event ever recorded &mdash; because
+<code>tan(0.49π) = 31.82</code> multiplies σ̂ in the exponent.</td>
+<td>&ldquo;The level is meaningless.&rdquo; And it passes every diagnostic an analyst would
+normally run.</td>
+</tr>
+</tbody>
+</table>
+
+<p><strong>The mechanism &mdash; why (i) and (ii) are not a contradiction.</strong> The two
+stresses act through different channels. <em>Inflation</em> changes a value the trimmed grid
+never reads, so nothing propagates: the influence function is bounded and the breakdown point
+does its job. <em>Deletion</em> changes <strong>which order statistics the fixed probability
+levels land on</strong> &mdash; the estimator is asked for the same probability levels of a
+genuinely different sample &mdash; so σ̂ moves a little. And then <code>tan(0.49π) = 31.82</code>
+sits in the exponent and turns &ldquo;a little&rdquo; into a factor: a 0.04 move in σ̂ multiplies
+the return level by about 3.6.</p>
+
+<p><strong>Robust-to-outliers ≠ robust-to-resampling.</strong> A bounded influence function
+protects the <em>parameters</em>; only a bounded quantile transform protects the
+<em>decision</em>. That sentence is the study's single most transferable result.</p>
+
+<p><strong>And the metrology said it first.</strong> The decision track's paired
+log-return-level bootstrap SE is 3.461, of which <strong>3.59 comes from the log-Cauchy arm
+alone</strong> &mdash; a standard error whose literal 2× on the return-level scale exceeds the
+metric's own range. At n = 30 this family's 1-in-100 <strong>is not estimable to useful
+precision</strong>, and the floor sweep in <code>adaptive-1</code> knew that before the ranking
+in <code>adaptive-3</code> confirmed it.</p>
+
+<p><strong>One consequence the code enforces rather than documents.</strong> log-Cauchy has
+<strong>no finite moments</strong>. In this study's implementation <code>mean_loss()</code> and
+<code>cte()</code> <strong>raise <code>NotImplementedError</code> by design</strong>. A numerical
+CTE would return a large float that is an artefact of where the quadrature was truncated and
+would look exactly like an estimate. An actuary who follows the goodness-of-fit test into a
+TVaR-loaded premium gets a confident number with no meaning; the refusal converts a silent
+pricing error into a stack trace.</p>
+
+<h3>The breakdown-point ladder</h3>
+
+<figure>
+<img data-fig="figures/stability_ladder.png" alt="1-in-100 instability plotted against breakdown point min{a,1-b}: solid black line for the decision track's primary metric falls 58.1 percent at BP 0 (MLE, no trim) to 41.3 at BP 0.05 to 27.6 at BP 0.10; a dashed line shows deletion-only stress 44.6 to 41.3 to 27.6; a dotted line shows contamination-only stress dropping from 58.1 for MLE to exactly 0.0 for both gQLS trims; a red cross marks gQLS log-Cauchy at 62.9 percent, the best-fitting family with the worst decisions.">
+<figcaption>The trim is the knob &mdash; but only for the stress it was designed for. Solid = the
+decision metric (the max over both stresses). Dashed = deletion only. Dotted = contamination
+only, where both gQLS trims sit at exactly 0.0 while the MLE moves 58.1. The x-axis is labelled
+in the units that matter to a practitioner: <strong>the number of corrupted records you are
+buying protection against.</strong></figcaption>
+</figure>
+
+<p>Read the solid line first: <strong>58.06 &rarr; 41.33 &rarr; 27.58</strong> as the breakdown
+point goes 0 &rarr; 0.05 &rarr; 0.10. Monotone, and the total move of 30.479351 pp is 30.5× the
+ordering delta. Now read the dashed line: on <em>deletion alone</em> it is
+<strong>44.56 &rarr; 41.33 &rarr; 27.58</strong>. The MLE's binding stress is contamination; for
+gQLS, contamination is free and deletion is the whole cost.</p>
+
+<p>The most striking rung is the leave-top-1 stress specifically, which collapses
+<strong>19.02% &rarr; 5.66%</strong> between the two trims. Widening the trim by five percentage
+points at each end cut the single most likely real-world perturbation by more than two-thirds.</p>
+
+<p><strong>Why the cliff is missing, and why that is informative.</strong> The registered
+prediction was that k = 2 (2/30 = 0.067, past BP = 0.05) would <em>breach</em> the narrow trim.
+It cost only <strong>+3.70 pp</strong> relative to the wider trim. The reason is that
+<code>BP = min{a, 1&minus;b}</code> guarantees an estimate cannot be driven <em>arbitrarily</em>
+by <strong>corruption in place</strong> &mdash; and deletion is a different stress, because
+dropping the top k <em>re-indexes every order statistic</em>. The cliff-shaped guarantee shows
+up on the stress BP actually governs: under 5× inflation of the maximum, both gQLS trims sit at
+<strong>exactly 0.0%</strong> while the MLE moves <strong>+58.06%</strong>.</p>
+
+<p><strong>And the trim was free here.</strong> Prediction 8 budgeted a goodness-of-fit
+<em>cost</em> for the wider trim. Instead W p rose from <strong>0.5153 to 0.7310</strong>
+(matching the published 0.73). The mechanism: <code>W</code> is scored only on the estimation
+grid, so a wider trim scores a <em>wider</em> interval &mdash; the very structural flaw the
+universal <code>W_out</code> grid exists to fix &mdash; and the extreme levels a narrow trim
+reaches are precisely where a 30-point sample is noisiest. <strong>Check this on your own data
+rather than assuming it</strong>: the classical efficiency argument says a wider trim must cost
+fit, and on this sample it did not.</p>
+
+<h3>Surprises</h3>
+
+<ol>
+<li><strong>The thesis uses two different quantile conventions in one chapter, and never says
+so.</strong> Section 4 tells it as a detective story. The generalizable form is C7 in section 6:
+a gQLS specification is <em>five</em> things &mdash; (family, a, b, k, quantile convention)
+&mdash; and the last two are usually left to a library default.</li>
+
+<li><strong>The reproduction localized a typo in the published table &mdash; and proved it was a
+typo.</strong> Table 6.9's (0.10,&nbsp;0.90) log-Gumbel μ̂ prints 22.34; our fit gives 22.358687;
+<strong>Table 6.10 prints 22.36 for the same fit</strong>, 0.0013 from ours. The reproduction
+does not disagree with the thesis &mdash; it disagrees with one printing and agrees with the
+other.</li>
+
+<li><strong>The published p-values are <em>too close</em> to a χ² reference to have come from the
+prescribed bootstrap.</strong> 16 of 18 within 0.005, when a B=1000 bootstrap's own MC standard
+error near p = 0.5 is ≈0.016 and our honest bootstrap wanders from χ² by mean 0.0814. Agreement
+that tight is not something a bootstrap <em>can</em> produce. Stated as a reproducibility
+observation about printed numbers, and sent to section 7 as a question rather than an
+erratum.</li>
+
+<li><strong>The best-fitting family is perfectly contamination-robust and catastrophically
+resample-unstable at the same time</strong> &mdash; 0.0% and 62.94% from the same fit. Detailed
+above; it is the study's headline.</li>
+
+<li><strong>k moves the estimates more than the convention does, and both are ~20× the reporting
+resolution.</strong> Max parameter movement <strong>0.1223</strong> across
+k ∈ {8,&nbsp;10,&nbsp;15,&nbsp;25} versus <strong>0.1040</strong> across six conventions. The
+mechanism: at n = 30, asking for k = 25 distinct quantile levels on (0.05,&nbsp;0.95) requests
+more resolution than 30 order statistics contain &mdash; levels collapse onto repeated order
+statistics and the design matrix starts describing ties rather than the distribution. (The
+measurement reports the k ≤ 15 restriction separately and it is the same 0.1223, so this is not
+a k = 25 artefact.)</li>
+
+<li><strong>Widening the trim made the in-sample fit <em>better</em>, not worse</strong> &mdash;
+and one &ldquo;over-resolution&rdquo; sealed cell turned out to be a rounding boundary
+(<code>g2*</code>/log-Gumbel: our unchanged σ̂ = 0.734805 printed as 0.73 in one column and 0.74
+in the next). Two different reproduction &ldquo;failures&rdquo;, both resolved by looking at what
+was typeset. A pleasing confirmation in the same grid: <strong>Pareto I's contaminated σ̂ moves by
+exactly <code>log(10)/30 = 0.076753</code></strong>, with μ̂ unchanged because its MLE is the
+boundary estimator &mdash; the method card predicted the number before the sealed run produced
+it.</li>
+</ol>
+
+<h3>What it is worth</h3>
+
+<p><strong>The value proposition as one number a committee can act on:</strong> the difference
+between the two methods is a <strong>doubling of the modelled 100-year loss</strong>, caused by
+one bad row that no data-quality process caught. For a catastrophe layer, a capital charge, or a
+solvency return, a 100% error in the 1-in-100 is not a modelling nuance; it is the difference
+between two different companies. Quantile trimming is, in this specific and quantifiable sense,
+<strong>data-quality insurance</strong>: it costs a defined amount of statistical efficiency and
+it pays out exactly when a record is wrong.</p>
+
+<p><strong>And the honest version is more useful than the inflated one.</strong> The +99.4% and
+the 0.0% are properties of <em>this</em> fixed 30-event sample under <em>this</em> stress. σ̂
+carries a ±25% bootstrap band at n = 30, and the 1.0 pp <code>minimum_delta</code> is an ordering
+device, not a confidence statement. What transfers is not &ldquo;gQLS gives you a 0.0%
+number&rdquo;; it is the <strong>structure</strong> &mdash; an estimator that never reads the
+corrupted observation cannot be moved by it, and an estimator that reads every observation can be
+moved arbitrarily. The first is a theorem; the second is arithmetic. The <em>sizing</em> on your
+own book is a measurement you must repeat.</p>
+
+<p><strong>The counter-lesson costs more to learn the hard way.</strong> The best-fitting family
+by the thesis's own test produces a 1-in-100 of <strong>$4.08e7bn</strong> &mdash; roughly 400×
+world GDP &mdash; while passing every diagnostic an analyst would normally run <em>and</em> being
+perfectly robust at the parameter level. An analyst who selects a severity family by GoF p-value
+and quotes its 1-in-100 has done everything the textbook asks and produced a number with no
+economic content. Three cheap guardrails would have caught it: refuse moments on moment-free
+families; print the return level next to the empirical maximum; and treat any extrapolation more
+than an order of magnitude beyond observed support as a modelling failure rather than a tail
+estimate. <strong>The GoF test answers &ldquo;does this shape fit the middle of my data&rdquo;; it
+does not answer &ldquo;is the tail I am about to sell defensible&rdquo;.</strong></p>
+
+<p><strong>Adoption economics.</strong> A method published in an August 2024 dissertation was
+implemented from scratch (six families, two estimators, two goodness-of-fit tests, a parametric
+bootstrap), validated against <strong>156 published parameters</strong> (36 adaptive + 120
+sealed) to a mean deviation of about 0.002, stressed beyond anything the source publishes,
+carried into the decision unit the source explicitly names as future work, and closed with a full
+audit trail &mdash; inside <strong>one session and 11 experiments</strong>, with total measured
+compute of <strong>7.7 seconds</strong>. The transferable claim is not that gQLS is cheap to run.
+It is that <strong>the evaluation of a frontier method is now cheap enough that &ldquo;we don't
+know if it works on our data&rdquo; has stopped being a reason to defer it.</strong> The binding
+constraint is whether anyone writes down, in advance, what would have to be true for the method
+to be rejected. That is what the eight registered predictions and the two sealed accesses bought
+&mdash; and three of the eight came back refuted, including the one the study existed to ask.</p>
+
+<h3>Limitations</h3>
+
+<p>Carried in the spirit of the data card's own wording rules, which were written before any
+modeling and are quoted where they are load-bearing.</p>
+
+<ol>
+<li><strong>n = 30, and one observation dominates every tail fit.</strong> <em>&ldquo;max = 72.303
+is 2.185× the second-largest (33.094) … Parametric bootstrap at n = 30 puts σ̂ = 0.8339 in a 95%
+interval of [0.617, 1.034] &mdash; a ±25% relative sampling band on the single parameter that
+drives the tail.&rdquo;</em> Consequently the 1.0 pp <code>minimum_delta</code> is <em>&ldquo;far
+smaller than the ±25% band on the estimand &mdash; treat it as an ordering device between
+estimators on a fixed sample, never as a claim about the population.&rdquo;</em> Every
+decision-track number above is such an ordering.</li>
+
+<li><strong>The decision functional is out-of-sample by construction.</strong> <em>&ldquo;The
+largest of 30 sits at plotting position p = 0.9667 ≈ 1-in-30. Every 1-in-100 quantile is therefore
+pure parametric extrapolation … the fitted lognormal 1-in-100 (55.52 bn) is below the largest
+observation actually seen (72.303 bn) &mdash; the &lsquo;100-year loss&rsquo; is an artifact of the
+assumed family, not a data-supported number.&rdquo;</em> The four GoF-passing 1-in-100s here span
+nearly six orders of magnitude &mdash; $53.04bn, $55.52bn, $56.66bn and $4.08e7bn &mdash; on the
+<em>same</em> data.</li>
+
+<li><strong>The sealed evidence is independent TARGETS, not independent DATA.</strong>
+<em>&ldquo;the same 30 observations underlie both the adaptive and the sealed evaluation … it
+establishes implementation fidelity + within-sample robustness, never out-of-sample generalization.
+Sampling error is fully common-mode between adaptive and sealed evaluation and the sealed test
+cannot detect it.&rdquo;</em> A residual soft coupling also remains &mdash; a specification tuned
+until it hits Table 6.9 has thereby made much of Table 6.10 predictable &mdash; which the design
+bounds but does not eliminate.</li>
+
+<li><strong>Stationarity is inherited, not established.</strong> The 30 events span 1900&ndash;1995
+and are treated as exchangeable draws from one severity distribution <em>solely</em> because of the
+Pielke-Landsea normalization for inflation, wealth and coastal population. Anything that
+normalization fails to remove &mdash; building codes, warning lead times, insurance penetration,
+any trend in storm intensity &mdash; is absorbed silently into σ̂ and therefore into every return
+level here. The observed r(year, log damage) = &minus;0.42 is equally consistent with sampling
+noise and with over-normalization, and cannot be distinguished at n = 30.</li>
+
+<li><strong>The MLE baseline's GoF gate is heuristic.</strong> The <code>w_pvalue ≥ 0.10</code>
+guardrail admitted E0006 on W p = 0.5374 with <code>w_chi2_calibrated = 0</code>: the χ²<sub>k&minus;2</sub>
+calibration is established for gQLS residuals and the implementation correctly flags that it is
+<em>not</em> established for an MLE fit. The MLE arm passed a comparable-<em>looking</em> screen
+rather than a calibrated one. This does not affect C5's ordering (log-Cauchy loses on its own
+calibrated fit), but the MLE row of any comparison table should carry the flag.</li>
+
+<li><strong>The k-sensitivity result is off-ledger.</strong> It is a <code>program.md</code>-recorded
+measurement with no run manifest and no experiment-level uncertainty. It was re-verified at
+synthesis and reproduces exactly (0.12227960638 across k; 0.10393799264 across conventions), but it
+is descriptive evidence and no verdict rests on it alone.</li>
+
+<li><strong>The playbook was never filled &mdash; and that is a process finding, not a
+footnote.</strong> All four of <code>playbook.md</code>'s tables remained at their scaffolded
+headers, so the pre-clustered discard map the synthesis protocol expects to mine <em>did not
+exist</em>; the synthesis reconstructed the clusters from <code>program.md</code>'s decision log and
+the ledgers instead. All three phase acknowledgements recorded the same (scaffold) hash, so the
+gap was visible in the audit trail rather than hidden by it. The record is silent on why, and
+<strong>nothing is inferred</strong>. Two things are worth saying about it. First, the reconstruction
+worked <em>because</em> the journal and the ledgers are append-only and complete &mdash; the
+redundancy in the protocol is what made a missing artifact recoverable rather than fatal. Second, a
+future study on this ladder should treat the playbook as load-bearing: the reconstruction cost real
+synthesis effort and, on a longer study with more discards, would not have been possible at the same
+fidelity. <strong>Reporting the gap is cheaper than the gap.</strong></li>
+
+<li><strong>Two GoF-passing families were never carried into the decision track.</strong>
+log-Logistic and log-Laplace pass comfortably (W p 0.5349 and 0.5965 at (0.05,&nbsp;0.95)) and their
+standard quantiles at p = 0.99 are bounded (4.60 and 3.91), so they are plausible middle rungs
+between lognormal (2.326) and log-Cauchy (31.82). The <code>adaptive-3</code> budget went to the trim
+ladder instead. C6's &ldquo;iff bounded&rdquo; is therefore supported by a two-point contrast, not
+by a curve.</li>
+</ol>

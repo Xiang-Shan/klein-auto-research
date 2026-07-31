@@ -1,0 +1,89 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 29579,
+      "committed": true,
+      "sha256": "a8303e70d537b958cdf9b229dc4a507ec1515fcac78145de9c0570d6f1715a98"
+    },
+    "runs/E0010/run.log": {
+      "availability": "recorded",
+      "bytes": 6274,
+      "committed": true,
+      "sha256": "1a69e363b686c18eb5ccd0e9eb40a9a601aafc145216f87e3ffe54b63a069884"
+    }
+  },
+  "base_commit": "3de54967718cc8fdd9f599d0fec279f32559cb2a",
+  "candidate_commit": "346dc4e8331a505e8bc480467fc5fce2fecf6420",
+  "code_patch_hash": "e776c2e0368f076a348e9bc948a28ceebb1f876b6526dc9ee5c82da35015473f",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "sealed reproduction confirmation vs the FULL published Table 6.10 grid: all five estimator arms (mle, o2, o3, g2, g3) x six families on ORIGINAL and 10x-MODIFIED data - 120 published parameters never touched adaptively (adaptive work was confined to Table 6.9); sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T18:47:42.965090Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0010",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "mean_abs_param_deviation",
+  "metrics": {
+    "k": 8.0,
+    "max_abs_p_deviation": 0.00485721199461997,
+    "max_abs_param_deviation": 0.005194765138046953,
+    "max_abs_w_deviation": 0.005006716286982016,
+    "mean_abs_dev_arm_g2": 0.0025893035425136276,
+    "mean_abs_dev_arm_g2_star": 0.002621764398854786,
+    "mean_abs_dev_arm_g3": 0.0019512761107100725,
+    "mean_abs_dev_arm_g3_star": 0.0019512761107100725,
+    "mean_abs_dev_arm_mle": 0.0021359202564885382,
+    "mean_abs_dev_arm_mle_star": 0.0022101778317900334,
+    "mean_abs_dev_arm_o2": 0.0019354612441417087,
+    "mean_abs_dev_arm_o2_star": 0.0019354612441417087,
+    "mean_abs_dev_arm_o3": 0.0014665634497312424,
+    "mean_abs_dev_arm_o3_star": 0.0014665634497312424,
+    "n_cells": 60.0,
+    "n_params": 120.0,
+    "params_within_resolution": 119.0,
+    "primary_metric": 0.002026,
+    "runner_exit_code": 0.0,
+    "sealed_top_bn": 723.0300000000019,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.01411128044128418
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 2,
+  "primary_metric": 0.002026,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:47:42.348700Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "committed_at": "2026-07-31T18:47:43.031759Z",
+    "evidence_commit": "fcc5aede98a056be45e530ac0676a134363676a6",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6162907500984147
+}

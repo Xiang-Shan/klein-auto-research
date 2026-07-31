@@ -1,0 +1,45 @@
+identity anchor OK: 12 statistics, max |deviation| 3.53e-05
+---
+primary_metric:    62.941400
+metric_name:       return_level_instability_pct
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+w_pvalue: 0.8176478997462225
+w_statistic: 2.9294517700262483
+w_df: 6
+w_chi2_calibrated: 1
+estimator: gqls
+family: log-cauchy
+trim: 0.05_0.95
+k: 8
+breakdown_point: 0.05
+mu_hat: 22.813116138827095
+sigma_hat: 0.48505457222071985
+return_level_1in10_bn: 35.9703422823807
+return_level_1in25_bn: 375.9486644374198
+return_level_1in100_bn: 40814054.60549047
+return_level_support_caveat: n=30 events: empirical support tops out near 1-in-30; the 1-in-100 is extrapolation governed entirely by the fitted family's tail, not by the data
+baseline_return_level_bn: 40814054.60549047
+worst_case: leave_top_1_out
+n_stress_cases: 4
+stress_inflate_factor: 5.0
+pct_change_leave_top_1_out: 62.941399968253315
+rl_bn_leave_top_1_out: 66502991.957993545
+pct_change_leave_top_2_out: 47.213685827669416
+rl_bn_leave_top_2_out: 21544235.09052076
+pct_change_leave_top_3_out: 61.315797622990566
+rl_bn_leave_top_3_out: 15788591.481851071
+pct_change_inflate_max_x5: 0.0
+rl_bn_inflate_max_x5: 40814054.60549047
+stress_table: {"inflate_max_x5":{"pct_change":0.0,"return_level_bn":40814054.60549},"leave_top_1_out":{"pct_change":62.9414,"return_level_bn":66502991.957994},"leave_top_2_out":{"pct_change":47.213686,"return_level_bn":21544235.090521},"leave_top_3_out":{"pct_change":61.315798,"return_level_bn":15788591.481851}}
+moment_note: log-Cauchy has NO finite moments: mean_loss() and cte() raise NotImplementedError by design, so this family can only ever be priced through QUANTILES — any mean/CTE/TVaR number for it is a truncation artifact
+wall_seconds: 0.002112865447998047
+mode: decision
+convention: inverted_cdf
+runner_status: ok
+runner_exit_code: 0
