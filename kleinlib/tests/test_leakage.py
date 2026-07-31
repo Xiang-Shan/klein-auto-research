@@ -174,3 +174,97 @@ def test_bad_chance_margin_raises(tmp_path):
     prepared, study = _write_fixture(tmp_path, _make_frame(n=60))
     with pytest.raises(ValueError, match="chance_margin"):
         audit_split(prepared, target="claim", study_dir=study, chance_margin=1.5)
+
+
+POISSON_YAML = (
+    STUDY_YAML.replace("task_type: classification", "task_type: regression")
+    .replace(
+        "metric: {name: val_auc, goal: higher, minimum_delta: 0.002}",
+        "metric: {name: val_poisson_deviance, goal: lower, minimum_delta: 0.002}",
+    )
+    .replace("kind: stratified", "kind: random")
+)
+
+
+def _make_counts_frame(n: int = 600, seed: int = 7) -> pd.DataFrame:
+    """Deterministic claim-counts frame (zeros included) with unique rows."""
+    rng = np.random.default_rng(seed)
+    x1 = rng.normal(size=n).round(6)
+    x2 = rng.normal(size=n).round(6)
+    counts = rng.poisson(np.exp(0.3 * x1)).astype(float)
+    frame = pd.DataFrame({"x1": x1, "x2": x2, "claims": counts})
+    assert (counts == 0).any()
+    return frame
+
+
+def test_poisson_frequency_study_audits_clean_end_to_end(tmp_path):
+    """The soak F1 target shape: task_type regression + registry deviance."""
+    prepared, study = _write_fixture(tmp_path, _make_counts_frame(), POISSON_YAML)
+    checks = audit_split(prepared, target="claims", study_dir=study)
+    assert all(c.ok for c in checks), [(c.name, c.message) for c in checks]
+    by_name = {c.name: c for c in checks}
+    assert "matches the canonical registry" in by_name["metric-direction[primary]"].message
+    assert "shuffled-chance[primary]" in by_name
+
+
+def test_leaky_poisson_predictor_fails_shuffled_chance(tmp_path):
+    df = _make_counts_frame()
+    prepared, study = _write_fixture(tmp_path, df, POISSON_YAML)
+
+    def leaky_predictor(X_tr, y_shuffled, X_dev):
+        return df.loc[X_dev.index, "claims"].to_numpy(dtype=float)
+
+    checks = {
+        c.name: c
+        for c in audit_split(
+            prepared, target="claims", study_dir=study, shuffled_predictor=leaky_predictor
+        )
+    }
+    leaked = checks["shuffled-chance[primary]"]
+    assert not leaked.ok
+    assert "decisively beats the no-information baseline" in leaked.message
+
+
+def test_simulation_with_real_split_audits_like_regression(tmp_path):
+    """The soak F3 fix: study 04's committed shape — task_type simulation,
+    registry deviance metric, real random split — must audit end to end."""
+    yaml_text = POISSON_YAML.replace("task_type: regression", "task_type: simulation")
+    prepared, study = _write_fixture(tmp_path, _make_counts_frame(), yaml_text)
+    checks = audit_split(prepared, target="claims", study_dir=study)
+    assert all(c.ok for c in checks), [(c.name, c.message) for c in checks]
+    names = {c.name for c in checks}
+    assert "shuffled-chance[primary]" in names  # chance rows really ran
+
+
+def test_simulation_custom_metric_gets_direction_and_na_chance(tmp_path):
+    yaml_text = (
+        STUDY_YAML.replace("task_type: classification", "task_type: simulation")
+        .replace(
+            "metric: {name: val_auc, goal: higher, minimum_delta: 0.002}",
+            "metric: {name: mean_final_gap, goal: lower, minimum_delta: 0.002}",
+        )
+        .replace("kind: stratified", "kind: random")
+    )
+    prepared, study = _write_fixture(tmp_path, _make_counts_frame(), yaml_text)
+    checks = {c.name: c for c in audit_split(prepared, target="claims", study_dir=study)}
+    assert checks["split-reproduces"].ok
+    direction = checks["metric-direction[primary]"]
+    assert direction.ok and "custom simulation metric" in direction.message
+    chance = checks["chance-level[primary]"]
+    assert chance.ok and "no bundled chance scorer" in chance.message
+
+
+def test_simulation_kind_none_reports_na_and_exits_zero(tmp_path, capsys):
+    yaml_text = (
+        STUDY_YAML.replace("task_type: classification", "task_type: simulation")
+        .replace(
+            "metric: {name: val_auc, goal: higher, minimum_delta: 0.002}",
+            "metric: {name: mean_final_gap, goal: lower, minimum_delta: 0.002}",
+        )
+        .replace("kind: stratified", "kind: none")
+    )
+    prepared, study = _write_fixture(tmp_path, _make_counts_frame(n=30), yaml_text)
+    assert main([str(prepared), "--target", "claims", "--study", str(study)]) == 0
+    out = capsys.readouterr().out
+    assert "[FAIL]" not in out
+    assert "N/A — split kind 'none'" in out

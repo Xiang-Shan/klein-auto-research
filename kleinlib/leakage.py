@@ -19,10 +19,17 @@ Contract-driven and hope-free: the audit reads the prepared artifact and the
   (``strip().casefold()``): the same entity under a dirty key (``"G7"`` vs
   ``"g7 "``) is precisely the leak a by-construction split cannot see.
 - **metric-direction / constant-chance / shuffled-chance** (per track) — the
-  contract's metric direction must match the canonical registry, and two
+  contract's metric direction must match the canonical registry (a custom
+  simulation metric's declared direction is accepted as-is), and two
   no-information predictors — the train-target mean, and a label shuffle —
   must score at chance on the development partition.  A "shuffled" predictor
   scoring far from chance means the harness is showing it the answers.
+
+Simulation studies with a REAL split kind (random/group/time) audit like
+regression studies; ``kind: none`` has no partitions, so checks report N/A.
+The audit's chance scorers are deliberately **unweighted** — they test that
+the harness carries no label information, not the study's exact
+exposure-weighted value.
 
 CLI (one ``[OK]``/``[FAIL]`` line per check; any FAIL is a BLOCKER at the
 DATA gate and the exit code is 1)::
@@ -39,9 +46,19 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from sklearn.metrics import (
+    mean_gamma_deviance,
+    mean_poisson_deviance,
+    mean_tweedie_deviance,
+)
 
 from .data import RANDOM_SEED, load_prepared, three_way_split
-from .eval import _classification_metric_values, get_metric_spec
+from .eval import (
+    _METRIC_SPECS,
+    DEVIANCE_METRICS,
+    _classification_metric_values,
+    get_metric_spec,
+)
 from .workflow import Check, WorkflowError, load_contract, normalize_tracks, resolve_study
 
 __all__ = ["CHANCE_ANCHORS", "audit_split", "main"]
@@ -74,10 +91,15 @@ def _split_partitions(df: pd.DataFrame, *, target: str, contract: Mapping[str, A
             if column not in df.columns:
                 raise ValueError(f"{option} {column!r} is not a prepared-artifact column")
             kwargs[argument] = df[column]
+    task = contract.get("task_type")
+    if task == "simulation":
+        # three_way_split deliberately refuses "simulation": a simulation lab's
+        # REAL split reproduces as an unstratified regression-shaped split.
+        task = "regression"
     return three_way_split(
         df.drop(columns=[target]),
         df[target],
-        task=contract.get("task_type"),
+        task=task,
         strategy=kind,
         development_size=float(split.get("development_size", 0.2)),
         test_size=float(split.get("test_size", 0.2)),
@@ -141,12 +163,24 @@ def _group_check(df: pd.DataFrame, positions: Mapping[str, np.ndarray],
     return Check("group-overlap", True, f"{total} normalized group ids each stay in one partition")
 
 
-def _score(spec, y_true: pd.Series, scores: Any) -> float:
+def _score(spec, y_true: pd.Series, scores: Any, *, power: float | None = None) -> float:
     values = np.asarray(scores, dtype=float)
     if spec.task == "classification":
         computed, _ = _classification_metric_values(y_true, np.clip(values, 0.0, 1.0))
         return computed[spec.name]
     y_arr = np.asarray(y_true, dtype=float)
+    if spec.name in DEVIANCE_METRICS:
+        # Unweighted by design (see module docstring); predictions clipped to
+        # stay in-domain — a shuffled counts target contains zeros, and the
+        # audit needs a huge-but-finite deviance there, not an exception.
+        preds = np.clip(values, 1e-9, None)
+        if spec.name == "val_poisson_deviance":
+            return float(mean_poisson_deviance(y_arr, preds))
+        if spec.name == "val_gamma_deviance":
+            return float(mean_gamma_deviance(y_arr, preds))
+        if power is None:
+            raise ValueError("val_tweedie_deviance requires metric.power in study.yaml")
+        return float(mean_tweedie_deviance(y_arr, preds, power=float(power)))
     residual = y_arr - values
     if spec.name == "val_rmse":
         return float(np.sqrt(np.mean(residual**2)))
@@ -156,6 +190,14 @@ def _score(spec, y_true: pd.Series, scores: Any) -> float:
         total = float(np.sum((y_arr - y_arr.mean()) ** 2))
         return 1.0 - float(np.sum(residual**2)) / total if total > 0 else 0.0
     raise ValueError(f"no chance scorer for metric {spec.name!r}")
+
+
+def _has_chance_scorer(spec) -> bool:
+    return (
+        spec.task == "classification"
+        or spec.name in {"val_rmse", "val_mae", "val_r2"}
+        or spec.name in DEVIANCE_METRICS
+    )
 
 
 def _chance_check(name: str, spec, value: float, *, baseline: float | None,
@@ -180,14 +222,14 @@ def _chance_check(name: str, spec, value: float, *, baseline: float | None,
     return Check(name, True, f"{spec.name}={value:.4f} for the {label} predictor ({reference})")
 
 
-def _track_checks(contract: Mapping[str, Any], parts: tuple, *,
+def _track_checks(contract: Mapping[str, Any], parts: tuple | None, *,
                   shuffled_predictor: ShuffledPredictor | None,
                   chance_margin: float, seed: int) -> list[Check]:
-    X_tr, X_dev, _X_te, y_tr, y_dev, _y_te = parts
     tracks = normalize_tracks(contract)
     if not tracks:
         return [Check("metric-direction", False,
                       "study.yaml declares no tracks — no metric contract to audit")]
+    simulation = contract.get("task_type") == "simulation"
     checks: list[Check] = []
     rng = np.random.default_rng(seed)
     for track, spec_dict in tracks.items():
@@ -196,15 +238,40 @@ def _track_checks(contract: Mapping[str, Any], parts: tuple, *,
         try:
             if not isinstance(goal, str):
                 raise ValueError(f"track {track!r}: metric.goal is missing from the contract")
-            spec = get_metric_spec(str(metric.get("name")), goal=goal,
-                                   task=str(contract.get("task_type")))
+            spec = get_metric_spec(
+                str(metric.get("name")),
+                goal=goal,
+                task="scalar" if simulation else str(contract.get("task_type")),
+                allow_custom=simulation,
+            )
         except ValueError as exc:
             checks.append(Check(f"metric-direction[{track}]", False, str(exc)))
             continue
-        checks.append(Check(
-            f"metric-direction[{track}]", True,
-            f"{spec.name}: contract direction {spec.goal!r} matches the canonical registry",
-        ))
+        if spec.name in _METRIC_SPECS:
+            direction_message = (
+                f"{spec.name}: contract direction {spec.goal!r} matches the canonical registry"
+            )
+        else:
+            direction_message = (
+                f"{spec.name}: contract-declared direction {spec.goal!r} accepted "
+                "(custom simulation metric)"
+            )
+        checks.append(Check(f"metric-direction[{track}]", True, direction_message))
+        if parts is None:
+            checks.append(Check(
+                f"chance-level[{track}]", True,
+                "N/A — split kind 'none': no development partition to score",
+            ))
+            continue
+        if not _has_chance_scorer(spec):
+            checks.append(Check(
+                f"chance-level[{track}]", True,
+                f"N/A — no bundled chance scorer for custom metric {spec.name!r}; "
+                "reproduce checklist row 4 by hand",
+            ))
+            continue
+        X_tr, X_dev, _X_te, y_tr, y_dev, _y_te = parts
+        power = metric.get("power")
         constant = np.full(len(y_dev), float(np.asarray(y_tr, dtype=float).mean()))
         if shuffled_predictor is None:
             shuffled: Any = rng.permutation(np.asarray(y_dev, dtype=float))
@@ -213,8 +280,8 @@ def _track_checks(contract: Mapping[str, Any], parts: tuple, *,
                                    index=y_tr.index, name=y_tr.name)
             shuffled = shuffled_predictor(X_tr, y_shuffled, X_dev)
         try:
-            constant_score = _score(spec, y_dev, constant)
-            shuffled_score = _score(spec, y_dev, shuffled)
+            constant_score = _score(spec, y_dev, constant, power=power)
+            shuffled_score = _score(spec, y_dev, shuffled, power=power)
         except (KeyError, RuntimeError, TypeError, ValueError) as exc:
             checks.append(Check(f"chance-level[{track}]", False,
                                 f"cannot score {spec.name} on the development partition: {exc}"))
@@ -247,6 +314,18 @@ def audit_split(
         raise ValueError("chance_margin must be between 0 and 1")
     contract = load_contract(resolve_study(study_dir))
     df = load_prepared(prepared_path).reset_index(drop=True)
+    data = contract.get("data")
+    split = data.get("split") if isinstance(data, Mapping) else None
+    if isinstance(split, Mapping) and split.get("kind") == "none":
+        checks = [
+            Check("split-reproduces", True,
+                  "N/A — split kind 'none' (simulation lab): no partitions to audit"),
+            Check("duplicate-rows", True, "N/A — no partitions"),
+            Check("group-overlap", True, "N/A — no partitions"),
+        ]
+        checks.extend(_track_checks(contract, None, shuffled_predictor=shuffled_predictor,
+                                    chance_margin=chance_margin, seed=seed))
+        return checks
     if target not in df.columns:
         return [Check("split-reproduces", False,
                       f"target column {target!r} is not in the prepared artifact")]
