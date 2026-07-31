@@ -1,0 +1,78 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1935,
+      "committed": true,
+      "sha256": "d6b3ca09873537a425daebc1adb5f3f6939a20abd4abcca077ed855a4aa9aea1"
+    },
+    "runs/E0006/run.log": {
+      "availability": "recorded",
+      "bytes": 504,
+      "committed": true,
+      "sha256": "9ba0fc6bb650afe95ff8445d1c34193063bcd5db07984d4a270705f625afd595"
+    }
+  },
+  "base_commit": "2a53bfdc0d485db9721b717d2c3de5f1fddc17b4",
+  "candidate_commit": "d1285986164e88736ef4cebc9b57f5608fbc4abb",
+  "code_patch_hash": "2bca8a174d92e8877cd8b418ce65961eaec365d855013d2e6855b46dceda2ee7",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "description": "RQ3/M2: CatBoost Poisson (CTR categorical statistics + symmetric trees, boosting_type=Plain on CPU, depth 6, 200 iters, Exponent predictions) vs HGBT-OHE incumbent at cardinality <=22 (Region 22, VehBrand 11): prior says NO pay - pre-loop deficit +0.001643 = 2.9x gbdt floor; wording per method-card R3: this tests the CTR+symmetric package, NOT ordered boosting; did not improve track frontier 0.444689 by minimum_delta=0.000573",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T16:36:10.397314Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0006",
+  "fingerprints": {
+    "data": "604f7d102423be85c4a824d72bb04864877bf1276e9a85662f3108aea11a0a10",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "169674d94a637bee2293183841fe1bc6fc1f0b468d6f3d8fe9a4e9c1707a8f5b"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 420.0,
+  "metric_goal": "lower",
+  "metric_name": "val_poisson_deviance",
+  "metrics": {
+    "calibration_ratio": 1.016372,
+    "effective_trees": 200.0,
+    "primary_metric": 0.446332,
+    "runner_exit_code": 0.0,
+    "total_seconds": 7.2,
+    "train_rows": 406807.0,
+    "training_seconds": 6.7,
+    "val_mae": 0.135535,
+    "val_poisson_deviance": 0.446332,
+    "val_r2": 0.010897,
+    "val_rmse": 0.489575,
+    "val_rows": 135603.0,
+    "wall_seconds": 7.141233205795288
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 5,
+  "primary_metric": 0.446332,
+  "schema_version": 2,
+  "started_at": "2026-07-31T16:36:02.477199Z",
+  "timed_out": false,
+  "track": "gbdt",
+  "transaction": {
+    "ready_at": "2026-07-31T16:36:10.398685Z",
+    "status": "pending"
+  },
+  "wall_seconds": 7.919995166012086
+}

@@ -40,3 +40,11 @@ E0005	calibration_ratio	1.018450124314406
 E0005	model_path	models/best_gbdt_E0005_0.444413_3beed7044c5b.joblib
 E0005	model_config	lgbm_poisson
 E0005	effective_trees	200.0
+E0006	val_rmse	0.4895752431239978
+E0006	val_mae	0.1355354429284004
+E0006	val_r2	0.01089747813305586
+E0006	wall_seconds	7.141233205795288
+E0006	val_poisson_deviance	0.446331752095872
+E0006	calibration_ratio	1.0163718229920276
+E0006	model_config	catboost_poisson
+E0006	effective_trees	200.0

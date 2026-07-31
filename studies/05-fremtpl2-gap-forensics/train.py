@@ -27,7 +27,7 @@ EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else 
 TRACK = os.environ.get("KLEIN_TRACK") or ("glm" if SMOKE else None)
 
 # ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
-MODEL = "catboost_poisson"    # glm_ohe | glm_scoped_splines | glm_interactions |
+MODEL = "glm_scoped_splines"  # glm_ohe | glm_scoped_splines | glm_interactions |
                               # hgbt_ohe | hgbt_monotone | lgbm_poisson | catboost_poisson
 SEED = 0
 LR = 0.1
