@@ -20,6 +20,9 @@
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
+| H1 | HGBT beats plain GLM by several x floor (RQ1) | high (gbdt-tabular card; N-S-W case study) | hgbt_ohe baseline |
+| H2 | GLM shaping closes much of the gap (RQ2) | medium-high (glm-pricing card) | glm_shaped |
+| H3 | native-cat ~ OHE for HGBT here (RQ3) | medium (encoder-comparison) | hgbt_native |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 

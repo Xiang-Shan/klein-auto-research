@@ -21,7 +21,12 @@ exploratory or confirmed.
 
 ## Experiment ladder
 
-1. Reproduce a split-identity anchor.
-2. Establish an honest baseline.
-3. Test the proposed method and ablations inside phase limits.
-4. Run the chosen track candidate once on the sealed final test.
+1. E0001: GLM baseline (OHE) — the anchor asserts the null-model dev deviance
+   matches prepare.py's reference cell to 1e-9 first, every development run.
+2. Noise-floor measurement sweep (no ledger row): HGBT baseline config across
+   k=5 random_states -> `klein noise-floor` -> set minimum_delta; ALSO record a
+   dev-fold bootstrap SE for the deterministic-GLM view of the floor (real-data
+   gap in the protocol — soak friction) and take the larger.
+3. adaptive-1 (slate first): GLM + shaping (RQ2) -> HGBT poisson baseline (RQ1)
+   -> HGBT native categoricals vs OHE (RQ3) -> one HGBT capacity lever probe.
+4. confirmation: incumbent once on the sealed test fold; `klein finalize`.

@@ -18,7 +18,9 @@ tracks:
       #   k: 5                      # klein noise-floor prints this block
       #   std: ...
       #   range: ...
-    guardrails: {}
+    guardrails:
+      wall_seconds:
+        max: 240
 
 data:
   source: "data_hub:freMTPL2"
@@ -36,22 +38,32 @@ data:
 max_run_seconds: 300
 phases:
   - id: adaptive-1
-    description: "split-identity anchor, baseline, then bounded adaptive work"
+    description: "anchor (null-deviance identity, STOP if off), noise-floor sweep, slate, then GLM-vs-GBDT ladder"
     budget_seconds: 3600
-    max_experiments: 4
+    max_experiments: 5
   - id: confirmation
-    description: "one sealed final-test evaluation per track"
-    budget_seconds: 900
+    description: "one sealed final-test evaluation of the incumbent"
+    budget_seconds: 600
     max_experiments: 1
 
 research_questions:
   - id: RQ1
-    question: "{{RQ1_QUESTION}}"
-    prior: "{{RQ1_PRIOR}}"
+    question: "Does HGBT with Poisson loss beat the plain OHE GLM on development Poisson deviance by more than minimum_delta?"
+    prior: "Yes, by several times the floor: boosted trees dominate raw GLMs on this exact dataset in the literature. (source: knowledge/method_cards/gbdt-tabular.md; Noll-Salzmann-Wuthrich case study)"
+  - id: RQ2
+    question: "Does GLM feature shaping (log-density, spline age/bonus-malus) close a material part of the GLM-to-GBDT gap?"
+    prior: "Yes, a large part but not all — GLM+shaping approaches but does not reach GBDT. (source: knowledge/method_cards/glm-pricing.md)"
+  - id: RQ3
+    question: "Does native categorical handling beat one-hot encoding for HGBT at freMTPL2's cardinality?"
+    prior: "Roughly a tie — within 2x the noise floor at moderate cardinality. (source: knowledge/encoder-comparison.md)"
 
 predictions_to_falsify:
-  - lever: "{{LEVER_1}}"
-    predicted_delta: "{{DELTA_1}}"
+  - lever: "GLM baseline -> HGBT poisson baseline (RQ1)"
+    predicted_delta: "val_poisson_deviance improves by >= 3x the measured noise-floor std (KEEP)"
+  - lever: "GLM baseline -> GLM + shaping (RQ2)"
+    predicted_delta: "improves by > minimum_delta but stays > 2x floor short of HGBT (KEEP, not incumbent for long)"
+  - lever: "HGBT OHE -> HGBT native categoricals (RQ3)"
+    predicted_delta: "within 2x noise-floor std -> DISCARD by the measured minimum_delta"
 
 deliverables:
   - findings.md

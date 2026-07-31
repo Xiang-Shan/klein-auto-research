@@ -1,31 +1,29 @@
-"""The only per-candidate mutable surface in a Klein v2 study."""
+"""The only per-candidate mutable surface in a Klein v2 study.
+
+freMTPL2 claim frequency, GLM vs GBDT. The CONFIG block is the experiment
+surface; pipeline.py is the stable study library. Metric: exposure-weighted
+mean Poisson deviance on the development fold (computed in-study — registry
+gap logged as soak friction F1).
+"""
 
 from __future__ import annotations
 
 import os
 import time
 
-import kleinlib
+from kleinlib.eval import evaluate_scalar
+from pipeline import fit_and_deviance, null_dev_deviance, read_reference
 
-RANDOM_SEED = 42
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID")
 TRACK = os.environ.get("KLEIN_TRACK")
 
-
-def load_split(evaluation_kind: str):
-    """Select development or the sealed final-test partition explicitly.
-
-    The workflow sets KLEIN_EVALUATION_KIND. Implement this function so
-    ``development`` returns train/development and ``final_test`` returns the frozen
-    chosen training data/final test. Never choose the partition from experiment code.
-    """
-    if evaluation_kind not in {"development", "final_test"}:
-        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
-    raise NotImplementedError("implement the fixed three-way split declared in study.yaml")
-
-
-def build_model():
-    raise NotImplementedError("build this candidate")
+# ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
+MODEL = "glm_ohe"        # glm_ohe | glm_shaped | hgbt_ohe | hgbt_native
+HGBT_SEED = 0
+HGBT_LR = 0.1
+HGBT_MAX_ITER = 200
+HGBT_MAX_LEAF = 31
+# --------------------------------------------------------------------
 
 
 def main() -> None:
@@ -45,23 +43,41 @@ def main() -> None:
             "train.py must be invoked through `klein run-one`; missing "
             + ", ".join(missing)
         )
-    X_tr, X_dev, y_tr, y_dev = load_split(evaluation_kind)
-    model = build_model()
-    fit_start = time.time()
-    model.fit(X_tr, y_tr)
-    fit_seconds = time.time() - fit_start
-    kleinlib.eval.evaluate(
-        model,
-        X_dev,
-        y_dev,
+    if evaluation_kind not in {"development", "final_test"}:
+        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
+
+    if evaluation_kind == "development":
+        # Split-identity anchor: the null-model development deviance must match
+        # prepare.py's reference cell exactly, every run, before any model fits.
+        reference = read_reference()["null_dev_deviance"]
+        recomputed = null_dev_deviance()
+        if abs(reference - recomputed) > 1e-9:
+            raise RuntimeError(
+                f"split-identity anchor FAILED: reference {reference!r} vs "
+                f"recomputed {recomputed!r} — split or data drifted, STOP"
+            )
+
+    result = fit_and_deviance(
+        MODEL,
+        evaluation_kind=evaluation_kind,
+        seed=HGBT_SEED,
+        learning_rate=HGBT_LR,
+        max_iter=HGBT_MAX_ITER,
+        max_leaf_nodes=HGBT_MAX_LEAF,
+    )
+    evaluate_scalar(
+        result["val_poisson_deviance"],
         exp_id=EXPERIMENT_ID,
-        study_dir=".",
-        t0=t0,
-        fit_seconds=fit_seconds,
-        train_n=len(X_tr),
-        val_n=len(X_dev),
         metric_name="val_poisson_deviance",
         metric_goal="lower",
+        study_dir=".",
+        t0=t0,
+        extra={
+            "calibration_ratio": result["calibration_ratio"],
+            "n_eval_rows": float(result["n_eval_rows"]),
+            "eval_claims": result["eval_claims"],
+            "wall_seconds": time.time() - t0,
+        },
     )
 
 
