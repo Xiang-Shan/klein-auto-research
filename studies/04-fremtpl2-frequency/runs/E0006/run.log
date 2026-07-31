@@ -1,0 +1,16 @@
+---
+primary_metric:    0.449667
+metric_name:       val_poisson_deviance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     3.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+calibration_ratio: 0.9904566015536475
+n_eval_rows: 135603.0
+eval_claims: 5341.0
+wall_seconds: 2.9922680854797363
+runner_status: ok
+runner_exit_code: 0
