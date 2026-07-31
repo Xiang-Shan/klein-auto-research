@@ -135,7 +135,18 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase adaptive-2 slate (2026-07-31)
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | [gbdt] lgbm_poisson at nominal-matched config: \|Δ\| vs HGBT < 2× floor 0.000573 (RQ2 tie), verdict must cite effective_trees (67 vs ~200 confound) | 2 | 3 | 3 | 8 |
+| 2 | [gbdt] catboost_poisson (CTR+symmetric package): pre-loop deficit +0.001643 = 2.9× floor is REAL (RQ3 "no-pay" prior) | 2 | 3 | 3 | 8 |
+| 3 | [glm] glm_scoped_splines: closes ≥30% of gap (RQ4) — pre-loop signal says ~16.8%, prior DOUBTED; either verdict redirects the translate-back program | 3 | 3 | 3 | 9 |
+| 4 | [glm] glm_interactions + top surrogate pair (RQ5; pair + ranking provenance in description; derive-on-train only) | 3 | 2 | 3 | 8 |
+| 5 | [glm] glm_interactions + two pairs (RQ5 practical ceiling; screened-vs-adopted reported) | 2 | 2 | 2 | 6 |
+| 6 | [gbdt] hgbt at max_iter=67-matched LGBM (M1-b) — HELD for adaptive-3 unless #1 breaks the tie | 2 | 3 | 2 | 7 |
+
+Chosen order: #3 → #1 → #2 → (off-ledger surrogate forensics) → #4 → #5; #6 falls
+to adaptive-3 reserve. Rationale: #3's verdict decides whether the translate-back
+story is "splines + interactions" or "interactions are the only hope" — highest
+information first; the two gbdt library rows are independent of it and cheap.
