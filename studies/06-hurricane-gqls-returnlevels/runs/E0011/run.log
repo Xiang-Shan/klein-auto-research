@@ -1,0 +1,35 @@
+identity anchor OK: 12 statistics, max |deviation| 3.53e-05
+---
+primary_metric:    0.000000
+metric_name:       return_level_instability_pct
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+w_pvalue: 0.731022968038227
+w_statistic: 3.5969982119580926
+w_chi2_calibrated: 1
+estimator: gqls
+family: lognormal
+trim: 0.1_0.9
+k: 8
+return_level_1in100_clean_bn: 56.66197552261015
+return_level_1in100_modified_bn: 56.66197552261015
+return_level_1in10_clean_bn: 22.860853076176465
+return_level_1in10_modified_bn: 22.860853076176465
+return_level_1in25_clean_bn: 34.363375548260294
+return_level_1in25_modified_bn: 34.363375548260294
+return_level_support_caveat: n=30 events: empirical support tops out near 1-in-30; the 1-in-100 is extrapolation governed entirely by the fitted family's tail, not by the data
+mu_hat_clean: 22.739330897318172
+sigma_hat_clean: 0.8687601378283524
+mu_hat_modified: 22.739330897318172
+sigma_hat_modified: 0.8687601378283524
+sealed_modification: 72.303bn -> 723.03bn (single largest observation x10)
+wall_seconds: 0.002135038375854492
+mode: sealed_decision
+convention: inverted_cdf
+runner_status: ok
+runner_exit_code: 0

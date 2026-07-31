@@ -1,0 +1,83 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 30597,
+      "committed": true,
+      "sha256": "dd62dec042de312aaa88dd91f1f78d3d2044ad88bd6030eeed9a1a0ac1593bbf"
+    },
+    "runs/E0011/run.log": {
+      "availability": "recorded",
+      "bytes": 1242,
+      "committed": true,
+      "sha256": "4b1547fbd5eddf19b277e9a1252fba7b081f50f436d2e5a58b93601977895ed8"
+    }
+  },
+  "base_commit": "0bcb78e58c98370ee02b4c673e8c0c5201e3f8d0",
+  "candidate_commit": "0f00ed4a73fcd9b02c98f9dd2273df149ab6d36a",
+  "code_patch_hash": "795a9069a4546f60032450411b9ff0df2ddf3a23ad8844703d1f880fba1a1e97",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "sealed decision confirmation: the incumbent (gQLS lognormal, trim (0.10,0.90)) under the thesis's EXACT 10x modification (72.303 -> 723.03) - the one contamination never used adaptively (adaptive stress capped at 5x); MLE-lognormal moves +99.4% under this same stress per the audit preview; the incumbent's trimmed quantiles are predicted to sit at 0.0%; sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "ended_at": "2026-07-31T18:48:09.815803Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "68c41b4c40ea91cd4c7e5eb9a8446a05042b6a3d76c264f536c8aaef030743b1"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0011",
+  "fingerprints": {
+    "data": "02a67c36a621500435adae4ab0ef13b69e7a327a36957f2f30a3f5816b4a9b96",
+    "environment": "709b007fc8952c8fa48cf0bccad233695dfacf0eebd8c6793911c46fbbe37c80",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": "E0009",
+  "max_run_seconds": 180.0,
+  "metric_goal": "lower",
+  "metric_name": "return_level_instability_pct",
+  "metrics": {
+    "k": 8.0,
+    "mu_hat_clean": 22.739330897318172,
+    "mu_hat_modified": 22.739330897318172,
+    "primary_metric": 0.0,
+    "return_level_1in100_clean_bn": 56.66197552261015,
+    "return_level_1in100_modified_bn": 56.66197552261015,
+    "return_level_1in10_clean_bn": 22.860853076176465,
+    "return_level_1in10_modified_bn": 22.860853076176465,
+    "return_level_1in25_clean_bn": 34.363375548260294,
+    "return_level_1in25_modified_bn": 34.363375548260294,
+    "runner_exit_code": 0.0,
+    "sigma_hat_clean": 0.8687601378283524,
+    "sigma_hat_modified": 0.8687601378283524,
+    "total_seconds": 0.0,
+    "w_chi2_calibrated": 1.0,
+    "w_pvalue": 0.731022968038227,
+    "w_statistic": 3.5969982119580926,
+    "wall_seconds": 0.002135038375854492
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 2,
+  "primary_metric": 0.0,
+  "schema_version": 2,
+  "started_at": "2026-07-31T18:48:09.199029Z",
+  "timed_out": false,
+  "track": "decision",
+  "transaction": {
+    "ready_at": "2026-07-31T18:48:09.816481Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6166850000154227
+}

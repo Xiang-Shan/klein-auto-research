@@ -23,9 +23,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "decision": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-07-31T18:48:09.198755Z",
+      "count": 1,
+      "experiment": "E0011"
     },
     "reproduction": {
       "accessed_at": "2026-07-31T18:47:42.348427Z",
@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 10,
+  "last_experiment": 11,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -97,5 +97,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "06-hurricane-gqls-returnlevels",
-  "updated_at": "2026-07-31T18:47:42.966275Z"
+  "updated_at": "2026-07-31T18:48:09.817080Z"
 }
