@@ -1,0 +1,7 @@
+experiment	track	primary_metric	status	commit	description
+E0001	primary	0.454861	keep	093f398748bcd24f9a974a98efa6f66443de7907	GLM baseline (OHE): anchor asserts null-deviance identity, then plain PoissonRegressor; first valid result on this track
+E0002	primary	0.453073	keep	251f119696b1c60e019aeb0ecfffd6c571bd9fe7	GLM + shaping: log-density + cubic splines on standardized numerics — RQ2; frontier improvement over 0.454861 with minimum_delta=0.001786
+E0003	primary	0.444689	keep	116fd1b0da805e2ed4e536cfffebfd23b237902c	HGBT poisson baseline (OHE, seed 0, lr .1, 200 iters) — RQ1: prediction >=3x floor; frontier improvement over 0.453073 with minimum_delta=0.001786
+E0004	primary	0.445343	discard	4693d77a62e2799c7c8e1387ec270dc20e9919b7	HGBT native categoricals vs OHE — RQ3: prediction within 2x floor (discard); did not improve track frontier 0.444689 by minimum_delta=0.001786
+E0005	primary	0.444689	discard	78ab8c5fb6f62e63a35142b5be95c8c165b61ac1	HGBT capacity probe: max_leaf_nodes 31 -> 63 — expect small; decided by the paired floor; did not improve track frontier 0.444689 by minimum_delta=0.001786
+E0006	primary	0.449667	discard	237507c20adeaff1aaf82d128d3aff587cc1f1b9	sealed confirmation: incumbent hgbt_ohe on the untouched test fold; sealed final-test evidence; excluded from the adaptive frontier
