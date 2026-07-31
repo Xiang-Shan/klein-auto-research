@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
@@ -78,5 +78,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "06-hurricane-gqls-returnlevels",
-  "updated_at": "2026-07-31T18:42:04.072113Z"
+  "updated_at": "2026-07-31T18:42:06.024203Z"
 }
