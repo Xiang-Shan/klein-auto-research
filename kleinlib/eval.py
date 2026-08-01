@@ -18,6 +18,12 @@ existing summarizer keeps parsing it unchanged. All three evaluator shapes
 below (:func:`evaluate`, :func:`evaluate_regression`, :func:`evaluate_scalar`)
 share that same canonical-block format via `_print_canonical_block`.
 
+The ONE sanctioned addition since the campaign source: every evaluator also
+prints a ``wall_seconds:`` aux line (via `_print_wall_seconds`) unless the
+caller already supplies ``wall_seconds`` through ``extra`` — the runner's
+guardrail check reads the PRINTED block only, and the sidecar-only
+``wall_seconds`` cost study 05 an anchor-exact candidate (E0001).
+
 Hard guard (the MPS collapse war story): on Apple Silicon, torch
 `DataLoader` + `TensorDataset` silently collapsed every prediction to a
 near-constant value. ``evaluate`` now rejects non-finite output and detects
@@ -411,6 +417,21 @@ def _print_canonical_block(
     print(f"status:            {status}")
 
 
+def _print_wall_seconds(total_seconds: float, extra: dict[str, Any] | None) -> None:
+    """Print the framework's ``wall_seconds:`` aux line unless the caller supplies its own.
+
+    ``wall_seconds`` has always been written to the aux sidecar but never
+    printed, and ``klein run-one`` reads guardrails off the PRINTED block
+    only — so a declared ``wall_seconds`` guardrail scored "missing" and
+    discarded an anchor-exact candidate (study 05, E0001). Callers that
+    already pass ``wall_seconds`` in ``extra`` keep byte-identical output:
+    their value prints once, from the ``extra`` loop, and that is the value
+    the runner parses.
+    """
+    if not (extra and "wall_seconds" in extra):
+        print(f"wall_seconds:      {total_seconds:.6f}")
+
+
 def _append_aux_rows(
     study_dir: str | Path, exp_id: int | str, rows: dict[str, Any]
 ) -> None:
@@ -522,6 +543,7 @@ def evaluate(
     print(f"val_lift_top10:    {val_lift10:.4f}")
     print(f"val_best_threshold: {val_best_threshold:.4f}")
     print(f"val_f1_at_best:    {val_f1_at_best:.4f}")
+    _print_wall_seconds(total_seconds, extra)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -658,6 +680,7 @@ def evaluate_regression(
             print(f"calibration_ratio: {calibration_ratio:.6f}")
         if spec.name == "val_tweedie_deviance":
             print(f"tweedie_power: {float(tweedie_power):.6g}")
+    _print_wall_seconds(total_seconds, extra)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -733,6 +756,7 @@ def evaluate_scalar(
         status=status,
     )
     print("--- aux_metrics ---")
+    _print_wall_seconds(total_seconds, extra)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")

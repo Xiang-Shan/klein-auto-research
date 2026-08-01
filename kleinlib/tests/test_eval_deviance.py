@@ -9,6 +9,7 @@ These tests are fully synthetic — no $DATA_HUB, no committed study touched.
 from __future__ import annotations
 
 import math
+import re
 import time
 
 import numpy as np
@@ -197,7 +198,9 @@ def test_weights_thread_into_the_classic_regression_metrics(freq):
 
 def test_unweighted_output_is_byte_stable(freq, capsys):
     """No weights, classic primary: the printed block must be exactly the
-    pre-deviance shape — no new lines, old formulas bit-for-bit."""
+    pre-deviance shape plus the ONE sanctioned addition — the framework
+    `wall_seconds:` aux line (study 05, F1). Old formulas bit-for-bit; any
+    other new line is a regression this test exists to catch."""
     X, _, _, rate, pred = freq
     result = klein_eval.evaluate_regression(
         _StubModel(pred),
@@ -210,11 +213,14 @@ def test_unweighted_output_is_byte_stable(freq, capsys):
     assert result == pytest.approx(math.sqrt(mean_squared_error(rate, pred)), rel=1e-15)
     out = capsys.readouterr().out
     aux = out.split("--- aux_metrics ---\n", 1)[1]
-    assert aux == (
-        f"val_rmse:          {math.sqrt(mean_squared_error(rate, pred)):.6f}\n"
-        f"val_mae:           {mean_absolute_error(rate, pred):.6f}\n"
-        f"val_r2:            {aux.splitlines()[2].split()[-1]}\n"
-    )
+    lines = aux.splitlines()
+    assert lines[:3] == [
+        f"val_rmse:          {math.sqrt(mean_squared_error(rate, pred)):.6f}",
+        f"val_mae:           {mean_absolute_error(rate, pred):.6f}",
+        f"val_r2:            {lines[2].split()[-1]}",
+    ]
+    assert len(lines) == 4
+    assert re.fullmatch(r"wall_seconds:      \d+\.\d{6}", lines[3])
     assert "calibration_ratio" not in out
     assert "deviance" not in aux
 

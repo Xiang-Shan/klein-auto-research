@@ -158,3 +158,40 @@ AUX_SIDECAR: str = "aux_metrics.tsv"
 #: Column order for the sidecar. Everything that is not THE primary
 #: metric (PR-AUC, brier, wall_seconds, model_path, ...) goes here.
 AUX_COLUMNS: tuple[str, ...] = ("experiment", "metric", "value")
+
+#: Numeric metric keys the framework itself prints on every run — the
+#: canonical block, each evaluator's aux block, and the runner footer.
+#: `klein preflight` treats these as guaranteed-visible when checking that
+#: every declared guardrail metric will appear in the printed block the
+#: runner parses. Non-numeric lines (``metric_name``, ``metric_goal``,
+#: ``status``, ``runner_status``) are deliberately excluded:
+#: ``parse_metric_log`` drops non-float values, so a guardrail declared on
+#: one of them could never pass.
+AUTO_PRINTED_METRIC_KEYS: frozenset[str] = frozenset({
+    # canonical block (kleinlib.eval._print_canonical_block)
+    "primary_metric",
+    "training_seconds",
+    "total_seconds",
+    "train_rows",
+    "val_rows",
+    # printed by every evaluator since 1.2.0 (the study-05 F1 lesson)
+    "wall_seconds",
+    # classification aux block (kleinlib.eval.evaluate)
+    "val_pr_auc",
+    "val_logloss",
+    "val_brier",
+    "val_lift_top10",
+    "val_best_threshold",
+    "val_f1_at_best",
+    # regression aux block (kleinlib.eval.evaluate_regression)
+    "val_rmse",
+    "val_mae",
+    "val_r2",
+    "val_poisson_deviance",
+    "val_gamma_deviance",
+    "val_tweedie_deviance",
+    "calibration_ratio",
+    "tweedie_power",
+    # runner footer (kleinlib.runner.run_logged)
+    "runner_exit_code",
+})
