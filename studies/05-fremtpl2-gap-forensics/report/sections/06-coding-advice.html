@@ -13,120 +13,7 @@ lives in the framework registry, and the per-experiment surface is a nine-line
 <code>CONFIG</code> block. That is the point &mdash; a 5&ndash;15 line diff per candidate
 is only possible if everything else is already immovable.</p>
 
-<pre><code>"""The only per-candidate mutable surface in a Klein v2 study.
-
-freMTPL2 claim frequency, sealed two-track GLM vs GBDT. The CONFIG block is the
-experiment surface; pipeline.py is the stable study library. Metric: exposure-
-weighted mean Poisson deviance on the scoring fold, computed by the v0.4.0
-registry (`kleinlib.eval.evaluate_regression`) — predictions are clipped positive
-by the ClippedRegressor wrapper because the registry refuses pred &lt;= 0 by contract.
-
-A sealed final-test run additionally exports the per-row holdout prediction table
-(`save_holdout_predictions`) so the off-ledger sealed-gap + paired-SE computation
-and the pricing-eval double-lift card can be built after BOTH tracks have spent
-their one sealed access.
-"""
-
-from __future__ import annotations
-
-import os
-import time
-
-import math
-
-from kleinlib.eval import evaluate_regression, save_holdout_predictions
-from pipeline import effective_trees, fit_model, null_dev_deviance, read_reference
-
-SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
-EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
-TRACK = os.environ.get("KLEIN_TRACK") or ("glm" if SMOKE else None)
-
-# ---- CONFIG: the per-experiment surface (keep diffs 5-15 lines) ----
-MODEL = "hgbt_ohe"            # glm_ohe | glm_scoped_splines | glm_interactions |
-                              # hgbt_ohe | hgbt_monotone | lgbm_poisson | catboost_poisson
-SEED = 0
-LR = 0.1
-MAX_ITER = 200
-MAX_LEAF = 31
-INTERACTIONS = ()        # e.g. (("BonusMalus", "DrivAge"),) — surrogate-derived only
-# --------------------------------------------------------------------
-
-PRED_DIMS = ["DrivAge", "BonusMalus", "VehGas", "Region"]
-
-
-def main() -&gt; None:
-    t0 = time.time()
-    evaluation_kind = os.environ.get("KLEIN_EVALUATION_KIND") or (
-        "development" if SMOKE else None
-    )
-    missing = [
-        name
-        for name, value in (
-            ("KLEIN_EVALUATION_KIND", evaluation_kind),
-            ("KLEIN_EXPERIMENT_ID", EXPERIMENT_ID),
-            ("KLEIN_TRACK", TRACK),
-        )
-        if value is None
-    ]
-    if missing:
-        raise RuntimeError(
-            "train.py must be invoked through `klein run-one`; missing "
-            + ", ".join(missing)
-        )
-    if evaluation_kind not in {"development", "final_test"}:
-        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
-
-    if evaluation_kind == "development":
-        # Split-identity anchor: the null-model development deviance must match
-        # prepare.py's reference cell exactly, every run, before any model fits.
-        reference = read_reference()["null_dev_deviance"]
-        recomputed = null_dev_deviance()
-        if abs(reference - recomputed) &gt; 1e-9:
-            raise RuntimeError(
-                f"split-identity anchor FAILED: reference {reference!r} vs "
-                f"recomputed {recomputed!r} — split or data drifted, STOP"
-            )
-
-    model, X_ev, y_rate_ev, w_ev, fit_seconds, train_n = fit_model(
-        MODEL,
-        evaluation_kind=evaluation_kind,
-        seed=SEED,
-        learning_rate=LR,
-        max_iter=MAX_ITER,
-        max_leaf_nodes=MAX_LEAF,
-        interactions=INTERACTIONS,
-    )
-    evaluate_regression(
-        model,
-        X_ev,
-        y_rate_ev,
-        exp_id=EXPERIMENT_ID,
-        t0=t0,
-        fit_seconds=fit_seconds,
-        train_n=train_n,
-        val_n=len(X_ev),
-        metric_name="val_poisson_deviance",
-        metric_goal="lower",
-        sample_weight=w_ev,
-        study_dir=".",
-        extra={"model_config": MODEL, "wall_seconds": time.time() - t0}
-        | ({"effective_trees": n_trees} if math.isfinite(n_trees := effective_trees(model)) else {}),
-    )
-
-    if evaluation_kind == "final_test" and not SMOKE:
-        save_holdout_predictions(
-            ".",
-            EXPERIMENT_ID,
-            y_true=y_rate_ev,
-            y_pred=model.predict(X_ev),
-            weight=w_ev,
-            dims=X_ev[PRED_DIMS],
-        )
-        print(f"holdout predictions exported: predictions/{EXPERIMENT_ID}_holdout.csv.gz")
-
-
-if __name__ == "__main__":
-    main()</code></pre>
+<pre data-code="train.py" data-lang="python"></pre>
 
 <h3>Annotated: the five things this file does that matter</h3>
 
@@ -161,7 +48,7 @@ and what a pricing-eval double-lift card would consume.</li>
 writes <code>wall_seconds</code> to <code>aux_metrics.tsv</code>, but the runner's
 guardrail check reads the <em>printed</em> canonical block. One experiment slot, gone.</p>
 
-<pre><code># the one-line fix that un-burned the slot (E0002's candidate diff):
+<pre><code class="language-python"># the one-line fix that un-burned the slot (E0002's candidate diff):
 extra={"model_config": MODEL, "wall_seconds": time.time() - t0}
 #                              ^^^^^^^^^^^^^^ not decorative</code></pre>
 
@@ -188,7 +75,7 @@ Tweedie if you ask. Handing raw scores to a Poisson deviance produces a nonsense
 or gets rejected by the positivity guard, which is the <em>lucky</em> outcome. The call
 site is frozen in the study library and never inlined in <code>train.py</code>:</p>
 
-<pre><code>class CatBoostPoisson:
+<pre><code class="language-python">class CatBoostPoisson:
     """CatBoost with Poisson loss on the raw frame (native categoricals).
     predict() must return expected counts (exp space), not the raw score."""
 
@@ -202,7 +89,7 @@ than silently clipping. That is the right contract, but it means every estimator
 wrapper &mdash; which is also the natural place to <em>replay</em> the stateless
 frame-level transform at predict time, so that fit and predict can never diverge:</p>
 
-<pre><code>class ClippedRegressor:
+<pre><code class="language-python">class ClippedRegressor:
     def predict(self, X: pd.DataFrame) -&gt; np.ndarray:
         X = _transform_frame(X, shaped=self.shaped, interactions=self.interactions)
         return np.clip(np.asarray(self.inner.predict(X), dtype=float), MIN_PRED, None)</code></pre>
@@ -212,7 +99,7 @@ frame-level transform at predict time, so that fit and predict can never diverge
 <p>Study 04 splined everything the transformer was handed, including the one-hot dummies.
 The scoped version puts the spline pipeline on the three continuous rating factors only:</p>
 
-<pre><code>("spline", Pipeline([("scale", StandardScaler()),
+<pre><code class="language-python">("spline", Pipeline([("scale", StandardScaler()),
                      ("spline", SplineTransformer(n_knots=6, degree=3))]), SPLINED),
 ("num",    StandardScaler(), rest + inter_cols),
 ("cat",    OneHotEncoder(handle_unknown="ignore", min_frequency=20), CATEGORICAL),</code></pre>
@@ -230,7 +117,7 @@ encoder so the index order is the raw <code>NUMERIC + CATEGORICAL</code> order t
 assumes. That is <em>two</em> changes at once, which is exactly why RQ7 needed a
 same-encoding control:</p>
 
-<pre><code>pre = build_preprocessor(NUMERIC, CATEGORICAL, kind="native")
+<pre><code class="language-python">pre = build_preprocessor(NUMERIC, CATEGORICAL, kind="native")
 cst = [1 if c == "BonusMalus" else 0 for c in NUMERIC] + [0] * len(CATEGORICAL)</code></pre>
 
 <h4>The effective-capacity probe</h4>
@@ -238,7 +125,7 @@ cst = [1 if c == "BonusMalus" else 0 for c in NUMERIC] + [0] * len(CATEGORICAL)<
 <p>Three libraries, three different attributes, one aux column. Without this the RQ2
 verdict would have compared 67 trees to 200 and called it "matched capacity":</p>
 
-<pre><code>def effective_trees(clipped) -&gt; float:
+<pre><code class="language-python">def effective_trees(clipped) -&gt; float:
     if isinstance(est, HistGradientBoostingRegressor): return float(est.n_iter_)
     if isinstance(inner, CatBoostPoisson):             return float(inner.model.tree_count_)
     if hasattr(est, "booster_"):                       return float(est.booster_.num_trees())

@@ -6,7 +6,7 @@
 <li><strong>Tensor-product spline / GAM interactions on the <code>glm</code> track &mdash;
 the real test of RQ5.</strong> E0007/E0008 tested <em>raw standardised products</em>, the
 crudest possible interaction basis, and found 0.43&ndash;0.45&times; floor. The surrogate
-says the structure exists (<code>R&sup2;_main</code> = 0.6647) and names where it is
+says the structure exists (<span data-math="R^2_{\text{main}}"></span> = 0.6647) and names where it is
 (VehAge&times;BonusMalus). Fit a tensor-product spline basis, or a bivariate smooth, on
 that one pair inside the scoped-spline GLM. <strong>Highest-information follow-up:</strong>
 it decides whether "83% non-additive" means <em>GLM-unrepresentable</em> or merely
@@ -62,7 +62,7 @@ to run before trusting it. Its 15-minute protocol:</p>
 
 <ol>
 <li>Count your rows. Under ~40k, stop and build the GLM well.</li>
-<li>Fit one default GBDT, distil it, read <code>R&sup2;_main</code>. This single number
+<li>Fit one default GBDT, distil it, read <span data-math="R^2_{\text{main}}"></span>. This single number
 tells you whether an interpretable rebuild can <em>ever</em> close the gap.</li>
 <li>If the gap is non-additive and you must file an interpretable model, run the screen
 with a published multiplicity budget, and price your shape constraints.</li>
@@ -131,7 +131,7 @@ Model.</cite> SSRN 4389797 &mdash; the tooling line this study does not follow.<
 <ol start="13">
 <li><cite>scikit-learn user guide — Ensembles: gradient boosting, v1.9.0</cite> &mdash;
 the <code>+1 / 0 / -1</code> monotone encoding, the guarantee
-<code>x1 &le; x1' &rArr; F(x1,x2) &le; F(x1',x2)</code>,
+<span data-math="x_1 \le x_1' \;\Longrightarrow\; F(x_1, x_2) \le F(x_1', x_2)"></span>,
 and "it is not possible to enforce monotonic constraints on categorical features".</li>
 <li><cite>scikit-learn API — HistGradientBoostingRegressor, v1.9.0</cite> &mdash;
 <strong><code>early_stopping='auto'</code> = "early stopping is enabled if the sample size
