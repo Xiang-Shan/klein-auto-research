@@ -6,14 +6,13 @@ The idea in one breath: a finite-difference gradient in d dimensions costs 2d
 evaluations, but if you nudge <em>all</em> coordinates at once with a random &plusmn;1
 vector &Delta; and take just two measurements, the quantity</p>
 
-<p style="text-align:center"><code>&#285;(&theta;) = [y(&theta; + c&Delta;) &minus;
-y(&theta; &minus; c&Delta;)] / (2c) &middot; &Delta;</code></p>
+<div data-math-display="\hat{g}(\theta) = \frac{y(\theta + c\Delta) - y(\theta - c\Delta)}{2c}\,\Delta"></div>
 
 <p>is a wrong gradient whose wrongness has <em>mean zero</em> &mdash; so gradient descent
 on it still walks downhill, at two evaluations per step regardless of dimension. The
-catch is the gain sequences a<sub>k</sub> = a&#8320;/(k+1+A)<sup>0.602</sup> and
-c<sub>k</sub> = c&#8320;/(k+1)<sup>0.101</sup>: SPSA's guarantees are asymptotic, and its
-first steps are only as sane as a&#8320; is matched to your gradient magnitudes. Spall's
+catch is the gain sequences <span data-math="a_k = a_0/(k+1+A)^{0.602}"></span> and
+<span data-math="c_k = c_0/(k+1)^{0.101}"></span>: SPSA's guarantees are asymptotic, and its
+first steps are only as sane as <span data-math="a_0"></span> is matched to your gradient magnitudes. Spall's
 1998 implementation paper says exactly how to size it &mdash; from the desired magnitude
 of the <em>first step</em>. Remember that sentence; the journey section shows what
 happens to a researcher who reads it and then doesn't apply it.</p>

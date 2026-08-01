@@ -225,3 +225,291 @@ def test_missing_fragment_fails_listing_name(build_module, tmp_path, capsys):
     rc = build_module.main([str(study)])
     assert rc == 2
     assert "05-findings.html" in capsys.readouterr().err
+
+
+# ---------------------------------------------------------------------------
+# Build-time math (LaTeX -> inline SVG) — v1.2.0
+# ---------------------------------------------------------------------------
+
+
+def test_inline_math_renders_svg(build_module, tmp_path):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = (
+        '<h2>The Method</h2><p>Minimize <span data-math="x^2 + y^2"></span> here.</p>'
+    )
+    study = scaffold(tmp_path / "00-mathinline", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert 'class="kmath"' in page
+    assert "<svg" in page and 'd="' in page
+    assert "vertical-align:" in page
+    assert "data-math=" not in page  # consumed
+    assert 'data-latex="x^2 + y^2"' in page  # the source survives, greppable
+
+
+def test_display_math_renders_svg(build_module, tmp_path):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = (
+        '<h2>The Method</h2><div data-math-display="\\sum_{i=1}^{n} x_i^2"></div>'
+    )
+    study = scaffold(tmp_path / "00-mathdisplay", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert 'class="kmath-display"' in page
+    assert "data-math-display" not in page
+    assert "<title>" in page  # accessible source
+
+
+def test_math_attribute_escaping_round_trips(build_module, tmp_path):
+    import html as html_mod
+    import re as re_mod
+
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = (
+        '<h2>The Method</h2>'
+        '<div data-math-display="F(x) &lt; \\tfrac{1}{2},\\quad y &gt; 0"></div>'
+    )
+    study = scaffold(tmp_path / "00-mathescape", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    m = re_mod.search(r'data-latex="([^"]*)"', page)
+    assert m is not None
+    assert html_mod.unescape(m.group(1)) == "F(x) < \\tfrac{1}{2},\\quad y > 0"
+
+
+def test_latex_source_survives_into_the_artifact(build_module, tmp_path):
+    """Digits typeset as SVG paths must stay greppable — the number-integrity
+    property rides on data-latex carrying the verbatim source."""
+    frags = dict(FRAGMENTS)
+    frags["05-findings.html"] = (
+        '<h2>Findings</h2><p>Anchor <span data-math="\\hat{\\mu} = 0.833868"></span>.</p>'
+    )
+    study = scaffold(tmp_path / "00-mathnumbers", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert "0.833868" in page
+
+
+def test_unparseable_math_fails_with_exit_5(build_module, tmp_path, capsys):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = '<h2>M</h2><span data-math="\\frac{1}{"></span>'
+    study = scaffold(tmp_path / "00-mathbad", fragments=frags)
+    rc = build_module.main([str(study)])
+    assert rc == 5
+    err = capsys.readouterr().err
+    assert "02-method.html" in err
+    assert not (study / "report" / "index.html").exists()
+
+
+def test_nonempty_math_element_fails(build_module, tmp_path, capsys):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = '<h2>M</h2><span data-math="x^2">fallback text</span>'
+    study = scaffold(tmp_path / "00-mathnonempty", fragments=frags)
+    rc = build_module.main([str(study)])
+    assert rc == 5
+    assert "unconsumed data-math" in capsys.readouterr().err
+
+
+def test_unescaped_quote_in_math_is_caught(build_module, tmp_path, capsys):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = '<h2>M</h2><span data-math="a "b""></span>'
+    study = scaffold(tmp_path / "00-mathquote", fragments=frags)
+    rc = build_module.main([str(study)])
+    assert rc == 5
+    assert "unconsumed data-math" in capsys.readouterr().err
+
+
+def test_math_inside_pre_is_left_alone(build_module, tmp_path):
+    """A code block SHOWING the authoring convention must survive verbatim."""
+    frags = dict(FRAGMENTS)
+    frags["06-coding-advice.html"] = (
+        "<h2>Coding Advice</h2>"
+        '<pre><code>write &lt;span data-math="x^2"&gt;&lt;/span&gt; and '
+        'data-fig="figures/x.png" in fragments</code></pre>'
+    )
+    study = scaffold(tmp_path / "00-mathmasked", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert 'data-math="x^2"' in page  # literal demo survived, un-rendered
+    assert 'data-fig="figures/x.png"' in page  # inline_figures masked too
+
+
+def test_math_svg_uses_currentcolor_and_no_xmlns(build_module, tmp_path):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = '<h2>M</h2><span data-math="\\sigma^2"></span>'
+    study = scaffold(tmp_path / "00-mathcolor", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert 'fill="currentColor"' in page
+    assert 'fill="black"' not in page
+    assert "xmlns=" not in page
+    assert 'id="g' not in page  # svg2=False: no symbol ids, no <use> refs
+    assert "<use" not in page
+
+
+# ---------------------------------------------------------------------------
+# Build-time code highlighting + include-by-reference — v1.2.0
+# ---------------------------------------------------------------------------
+
+TRAIN_PY = (
+    "import math\n"
+    "\n"
+    "\n"
+    "def objective(x):\n"
+    '    """Toy objective for the include test."""\n'
+    "    return math.sqrt(x) - 0.5\n"
+)
+
+
+def test_language_class_paste_is_highlighted(build_module, tmp_path):
+    frags = dict(FRAGMENTS)
+    frags["06-coding-advice.html"] = (
+        "<h2>Coding Advice</h2>"
+        '<pre><code class="language-python">def f(x):\n    return x + 1</code></pre>'
+    )
+    study = scaffold(tmp_path / "00-highlight", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert 'class="klein-code"' in page
+    assert '<span class="k">def</span>' in page  # a real Pygments token
+
+
+def test_plain_pre_code_is_untouched(build_module, tmp_path):
+    study = scaffold(tmp_path / "00-plainpre")  # 02-method has a plain paste
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert "<pre><code>model.fit(X, y)</code></pre>" in page  # byte-identical
+
+
+def test_include_by_reference_matches_source_bytes(build_module, tmp_path):
+    import html as html_mod
+    import re as re_mod
+
+    frags = dict(FRAGMENTS)
+    frags["06-coding-advice.html"] = (
+        '<h2>Coding Advice</h2><pre data-code="train.py" data-lang="python"></pre>'
+    )
+    study = scaffold(tmp_path / "00-include", fragments=frags)
+    (study / "train.py").write_text(TRAIN_PY, encoding="utf-8")
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    m = re_mod.search(
+        r'<pre class="klein-code" data-code-source="train\.py"><code[^>]*>(.*?)</code></pre>',
+        page,
+        re_mod.DOTALL,
+    )
+    assert m is not None
+    recovered = html_mod.unescape(re_mod.sub(r"<[^>]+>", "", m.group(1)))
+    assert recovered == TRAIN_PY  # the ACTUAL winning train.py, byte-for-byte
+
+
+def test_missing_included_file_fails_with_exit_6(build_module, tmp_path, capsys):
+    frags = dict(FRAGMENTS)
+    frags["06-coding-advice.html"] = '<h2>C</h2><pre data-code="train.py"></pre>'
+    study = scaffold(tmp_path / "00-includemissing", fragments=frags)
+    rc = build_module.main([str(study)])
+    assert rc == 6
+    err = capsys.readouterr().err
+    assert "train.py" in err
+    assert not (study / "report" / "index.html").exists()
+
+
+def test_included_path_escaping_study_dir_is_rejected(build_module, tmp_path, capsys):
+    for bad in ("../../etc/passwd", "/etc/passwd"):
+        frags = dict(FRAGMENTS)
+        frags["06-coding-advice.html"] = f'<h2>C</h2><pre data-code="{bad}"></pre>'
+        study = scaffold(tmp_path / f"00-esc{abs(hash(bad)) % 100}", fragments=frags)
+        rc = build_module.main([str(study)])
+        assert rc == 6, bad
+        assert "relative path inside the study dir" in capsys.readouterr().err
+
+
+def test_language_inferred_from_suffix(build_module, tmp_path):
+    frags = dict(FRAGMENTS)
+    frags["06-coding-advice.html"] = '<h2>C</h2><pre data-code="run.sh"></pre>'
+    study = scaffold(tmp_path / "00-suffix", fragments=frags)
+    (study / "run.sh").write_text("echo done\n", encoding="utf-8")
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert 'class="language-bash"' in page
+
+
+def test_pygments_css_is_dual_theme(build_module, tmp_path):
+    study = scaffold(tmp_path / "00-css")
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert page.count("@media (prefers-color-scheme:dark)") >= 2  # base + pygments
+    assert "pre.klein-code{background:var(--code-bg)" in page
+    css = build_module.render_css()
+    assert build_module.PYG_LIGHT_STYLE == "default"
+    assert build_module.PYG_DARK_STYLE == "github-dark"
+    assert ".kmath svg *,.kmath-display svg *{fill:currentColor}" in css
+
+
+# ---------------------------------------------------------------------------
+# Contract invariants with the new pipeline — v1.2.0
+# ---------------------------------------------------------------------------
+
+
+def test_csp_is_byte_identical_after_math_and_code(build_module, tmp_path):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = '<h2>M</h2><span data-math="e^{i\\pi} + 1 = 0"></span>'
+    frags["06-coding-advice.html"] = (
+        '<h2>C</h2><pre><code class="language-python">x = 1</code></pre>'
+    )
+    study = scaffold(tmp_path / "00-cspmath", fragments=frags)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    policy = build_module.content_security_policy()
+    assert "font-src 'none'" in policy  # engine D: no fonts, gate unchanged
+    assert "script-src 'sha256-" in policy
+    assert build_module.csp_meta_tag() in page
+
+
+def test_acceptance_gates_still_pass_with_math_and_code(build_module, tmp_path):
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = (
+        '<h2>M</h2><div data-math-display="\\hat{\\beta} = (X\'X)^{-1}X\'y"></div>'
+    )
+    frags["06-coding-advice.html"] = (
+        '<h2>C</h2><pre data-code="train.py" data-lang="python"></pre>'
+    )
+    study = scaffold(tmp_path / "00-gates", fragments=frags)
+    (study / "train.py").write_text(TRAIN_PY, encoding="utf-8")
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert build_module.acceptance_violations(page) == []
+
+
+def test_build_is_byte_deterministic(build_module, tmp_path):
+    """Two builds of the same study must be byte-identical (same process,
+    fixed git state — tmp studies have no git history, so no date either).
+    NOTE: rebuilding a COMMITTED study is only byte-identical at a fixed git
+    state (git_last_date embeds the last commit date); build-twice is the
+    gate, rebuild-and-diff-the-checkout is not."""
+    frags = dict(FRAGMENTS)
+    frags["02-method.html"] = (
+        '<h2>M</h2><span data-math="\\sigma_{ij}"></span>'
+        '<pre><code class="language-python">y = f(x)</code></pre>'
+    )
+    study = scaffold(tmp_path / "00-determinism", fragments=frags)
+    (study / "train.py").write_text(TRAIN_PY, encoding="utf-8")
+    assert build_module.main([str(study)]) == 0
+    first = (study / "report" / "index.html").read_bytes()
+    assert build_module.main([str(study)]) == 0
+    second = (study / "report" / "index.html").read_bytes()
+    assert first == second
+
+
+def test_missing_renderer_dependency_exits_7(build_module, tmp_path, capsys):
+    study = scaffold(tmp_path / "00-nodeps")
+    saved = build_module.ziamath
+    try:
+        build_module.ziamath = None
+        rc = build_module.main([str(study)])
+    finally:
+        build_module.ziamath = saved
+    assert rc == 7
+    err = capsys.readouterr().err
+    assert "uv sync --locked" in err
+    assert not (study / "report" / "index.html").exists()

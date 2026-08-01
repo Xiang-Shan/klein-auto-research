@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build_tutorial.py — Route B assembler for the Klein TUTORIAL stage.
+"""build_tutorial.py — the assembler for the Klein TUTORIAL stage.
 
 Design split: the tutor agent authors CONTENT (seven HTML fragments); this
 script does deterministic ASSEMBLY into one self-contained ``report/index.html``
@@ -16,6 +16,20 @@ Fragment contract
 - Figures are referenced as ``<img data-fig="figures/<name>.png">``; the builder
   reads the PNG from ``<study_dir>`` and inlines it as a ``data:`` URI. A missing
   figure FAILS the build (listing the name).
+- Math is authored as LaTeX in EMPTY elements — ``<span data-math="…"></span>``
+  (inline) / ``<div data-math-display="…"></div>`` (display) — and rendered at
+  BUILD time to inline SVG glyph paths (ziamath; no fonts, no runtime script).
+  Inside the attribute, escape exactly ``& " < >`` as entities; backslashes are
+  literal. The LaTeX source survives into the page as ``data-latex`` (greppable
+  numbers, copyable source) and as the SVG ``<title>``. An unparseable formula,
+  a non-empty element, or a leftover ``data-math`` FAILS the build.
+- Code is highlighted at build time (Pygments, dual-theme CSS classes):
+  ``<pre><code class="language-python">…escaped…</code></pre>`` is highlighted
+  in place; a ``<pre><code>`` with no language class is left untouched. The
+  winning train.py is included BY REFERENCE — ``<pre data-code="train.py"
+  data-lang="python"></pre>`` reads the file from ``<study_dir>``, guaranteeing
+  the page carries the actual bytes. Paths outside the study dir or a missing
+  file FAIL the build.
 - A ``<!--LEDGER-->`` marker (used in 04-journey) is replaced with an
   auto-generated experiment ledger table read from ``results.tsv``.
 
@@ -26,11 +40,16 @@ Acceptance guard (runs on the assembled page; non-zero exit lists violations):
 - ``href`` values are local fragments and ``src`` values are inlined PNGs only.
   Plain-text URLs inside <cite>/<code>/reference lists remain allowed.
 
-Stdlib only. PyYAML is used opportunistically for study.yaml (same graceful
-fallback pattern as summarize_results.py) but never required.
+Exit codes: 2 missing fragment(s) · 3 missing figure(s) · 4 acceptance guard ·
+5 math render failure · 6 code include failure · 7 renderer dependency missing.
+(argparse itself also exits 2 on a usage error — pre-existing collision, kept.)
+
+Dependencies: pygments + ziamath + latex2mathml (declared in pyproject.toml).
+PyYAML is used opportunistically for study.yaml (same graceful fallback pattern
+as summarize_results.py) but never required.
 
 Usage:
-    uv run python .claude/skills/klein/scripts/build_tutorial.py <study_dir> [--title "..."]
+    uv run --locked python .claude/skills/klein/scripts/build_tutorial.py <study_dir> [--title "..."]
 """
 
 from __future__ import annotations
@@ -38,6 +57,7 @@ from __future__ import annotations
 import argparse
 import base64
 import csv
+import functools
 import hashlib
 import html
 import re
@@ -49,6 +69,26 @@ try:
     import yaml  # type: ignore
 except ImportError:  # pragma: no cover - exercised via the tiny fallback parser
     yaml = None  # type: ignore
+
+# The renderer dependencies are REQUIRED (exit 7 with instructions when absent):
+# a builder that silently degrades would emit different bytes on different
+# machines, and determinism is part of the tutorial contract.
+try:
+    import latex2mathml.converter as latex2mathml_converter
+    import ziamath
+    from pygments import highlight as pygments_highlight
+    from pygments.formatters import HtmlFormatter
+    from pygments.lexers import get_lexer_by_name
+    from pygments.util import ClassNotFound
+except ImportError as exc:  # pragma: no cover - exercised via a monkeypatched sentinel
+    _RENDERER_IMPORT_ERROR: Exception | None = exc
+    ziamath = None  # type: ignore
+else:
+    _RENDERER_IMPORT_ERROR = None
+    # svg2=False is MANDATORY, not cosmetic: the default emits <symbol id=…> +
+    # <use href=…> whose glyph ids collide across the many formulas of one
+    # page; plain per-glyph <path> output has no ids and no hrefs.
+    ziamath.config.svg2 = False
 
 # (fragment filename, anchor id, nav title) — the fixed seven-section arc.
 SECTIONS: tuple[tuple[str, str, str], ...] = (
@@ -63,6 +103,41 @@ SECTIONS: tuple[tuple[str, str, str], ...] = (
 
 FIG_RE = re.compile(r"""data-fig\s*=\s*(["'])(.*?)\1""")
 ATTR_URL_RE = re.compile(r"""(?:src|href)\s*=\s*(["'])(.*?)\1""", re.IGNORECASE)
+
+# Math/code authoring idioms. The element forms are deliberately STRICT — the
+# data attribute is the element's only attribute and the element is empty — so
+# that an unescaped quote or stray content can never half-match: it simply
+# fails to match, survives the pass, and the leftover probe turns it into a
+# hard build error naming the fragment.
+MATH_INLINE_RE = re.compile(r'<span\s+data-math="([^"]*)"\s*>\s*</span\s*>')
+MATH_DISPLAY_RE = re.compile(r'<div\s+data-math-display="([^"]*)"\s*>\s*</div\s*>')
+MATH_PROBE_RE = re.compile(r"data-math(?:-display)?\s*=")
+CODE_INCLUDE_RE = re.compile(
+    r'<pre\s+data-code="([^"]*)"(?:\s+data-lang="([^"]*)")?\s*>\s*</pre\s*>'
+)
+CODE_PROBE_RE = re.compile(r"data-code\s*=")
+LANG_CLASS_RE = re.compile(
+    r'<pre([^>]*)><code\s+class="language-([A-Za-z0-9_+-]+)"\s*>(.*?)</code></pre>',
+    re.DOTALL,
+)
+PRE_SPAN_RE = re.compile(r"<pre\b.*?</pre\s*>", re.DOTALL | re.IGNORECASE)
+SVG_VIEWBOX_RE = re.compile(
+    r'viewBox="(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)"'
+)
+
+#: Pinned Pygments styles — named constants so a Pygments upgrade cannot
+#: silently reskin every shipped report (the pair is also what the dual-theme
+#: CSS test asserts).
+PYG_LIGHT_STYLE = "default"
+PYG_DARK_STYLE = "github-dark"
+
+LANG_BY_SUFFIX = {
+    ".py": "python",
+    ".sh": "bash",
+    ".yaml": "yaml",
+    ".yml": "yaml",
+    ".json": "json",
+}
 
 
 # --------------------------------------------------------------------------
@@ -229,6 +304,208 @@ def build_ledger(study_dir: Path) -> str:
 
 
 # --------------------------------------------------------------------------
+# Build-time rendering: math (LaTeX → inline SVG) and code (Pygments)
+# --------------------------------------------------------------------------
+
+
+def outside_pre(text: str, fn) -> str:
+    """Apply ``fn`` to every region OUTSIDE ``<pre>…</pre>`` spans.
+
+    Fragments legitimately contain raw quotes inside code blocks, and a code
+    block SHOWING an authoring idiom (``data-math=``, ``data-fig=``) must
+    survive verbatim — so every attribute-scanning pass masks pre spans first.
+    """
+    parts: list[str] = []
+    last = 0
+    for m in PRE_SPAN_RE.finditer(text):
+        parts.append(fn(text[last : m.start()]))
+        parts.append(m.group(0))
+        last = m.end()
+    parts.append(fn(text[last:]))
+    return "".join(parts)
+
+
+def _render_one_math(latex: str, display: bool) -> str:
+    """One LaTeX expression → theme-aware inline SVG with the source as <title>."""
+    mathml = latex2mathml_converter.convert(
+        latex, display="block" if display else "inline"
+    )
+    svg = ziamath.Math(mathml).svg()
+    # ziamath hard-codes black; currentColor follows the page's --fg in both
+    # colour schemes (the CSS re-asserts it for every child as well).
+    svg = svg.replace('fill="black"', 'fill="currentColor"')
+    svg = svg.replace('stroke="black"', 'stroke="currentColor"')
+    # Inline SVG in an HTML document needs no namespace declarations, and
+    # stripping them keeps the built page free of ``http://`` strings.
+    svg = svg.replace(' xmlns="http://www.w3.org/2000/svg"', "", 1)
+    svg = svg.replace(' xmlns:xlink="http://www.w3.org/1999/xlink"', "", 1)
+    return svg.replace(">", f' role="img"><title>{html.escape(latex)}</title>', 1)
+
+
+def _inline_math_style(svg: str) -> str:
+    """Baseline alignment for inline math, computed from the viewBox.
+
+    ziamath puts the baseline at y=0, so the descent (box below the baseline)
+    is ``min_y + height``; width/height attributes are emitted 1:1 with
+    viewBox units, so the CSS pixel shift equals the unit count.
+    """
+    m = SVG_VIEWBOX_RE.search(svg)
+    if not m:
+        return ""
+    descent = float(m.group(2)) + float(m.group(4))
+    return f' style="vertical-align:{-descent:.3f}px"'
+
+
+def render_math(content: str, fragment: str, errors: list[str]) -> str:
+    """Replace the two strict math idioms with rendered SVG.
+
+    A render failure records the error and DROPS the element — safe because
+    any recorded error aborts the build before ``index.html`` is written.
+    Non-matching uses (unescaped quote, non-empty element) simply survive the
+    pass and are turned into hard errors by the leftover probe.
+    """
+
+    def repl_inline(match: re.Match[str]) -> str:
+        return _emit(match.group(1), display=False)
+
+    def repl_display(match: re.Match[str]) -> str:
+        return _emit(match.group(1), display=True)
+
+    def _emit(raw: str, *, display: bool) -> str:
+        latex = html.unescape(raw)
+        try:
+            svg = _render_one_math(latex, display)
+        except Exception as exc:  # noqa: BLE001 - any renderer failure is a build error
+            errors.append(f"{fragment}: {latex!r} → {type(exc).__name__}: {exc}")
+            return ""
+        source = html.escape(latex, quote=True)
+        if display:
+            return f'<div class="kmath-display" data-latex="{source}">{svg}</div>'
+        return (
+            f'<span class="kmath" data-latex="{source}"{_inline_math_style(svg)}>'
+            f"{svg}</span>"
+        )
+
+    content = MATH_INLINE_RE.sub(repl_inline, content)
+    return MATH_DISPLAY_RE.sub(repl_display, content)
+
+
+def _highlight_source(source: str, lang: str) -> str:
+    lexer = get_lexer_by_name(lang)
+    highlighted = pygments_highlight(source, lexer, HtmlFormatter(nowrap=True))
+    # Pygments guarantees a trailing newline; keep the byte-for-byte round trip.
+    if highlighted.endswith("\n") and not source.endswith("\n"):
+        highlighted = highlighted[:-1]
+    return highlighted
+
+
+def highlight_code(content: str, fragment: str, errors: list[str]) -> str:
+    """Highlight literal ``<pre><code class="language-…">`` pastes in place.
+
+    A ``<pre><code>`` with no language class is untouched — the escape hatch
+    for console dumps and not-code monospace blocks.
+    """
+
+    def repl(match: re.Match[str]) -> str:
+        pre_attrs, lang, body = match.group(1), match.group(2), match.group(3)
+        try:
+            highlighted = _highlight_source(html.unescape(body), lang)
+        except ClassNotFound:
+            errors.append(f"{fragment}: unknown language class 'language-{lang}'")
+            return match.group(0)
+        # An author-supplied class on the <pre> would produce a duplicate
+        # class attribute beside ours; fold it out (klein-code wins).
+        pre_attrs = re.sub(r'\sclass="[^"]*"', "", pre_attrs)
+        return (
+            f'<pre class="klein-code"{pre_attrs}><code class="language-{lang}">'
+            f"{highlighted}</code></pre>"
+        )
+
+    return LANG_CLASS_RE.sub(repl, content)
+
+
+def include_code(content: str, study_dir: Path, fragment: str, errors: list[str]) -> str:
+    """Resolve ``<pre data-code="…"></pre>`` includes against the study dir.
+
+    This is what turns the spec's "the page carries the ACTUAL winning
+    train.py" from a checklist promise into a build-time guarantee.
+    """
+
+    def repl(match: re.Match[str]) -> str:
+        rel, lang = match.group(1), match.group(2)
+        if Path(rel).is_absolute() or ".." in Path(rel).parts:
+            errors.append(
+                f"{fragment}: data-code={rel!r} must be a relative path inside the study dir"
+            )
+            return ""
+        path = study_dir / rel
+        if not path.is_file():
+            errors.append(f"{fragment}: data-code={rel!r} not found under {study_dir}")
+            return ""
+        source = path.read_text(encoding="utf-8")
+        resolved_lang = lang or LANG_BY_SUFFIX.get(path.suffix, "text")
+        try:
+            highlighted = _highlight_source(source, resolved_lang)
+        except ClassNotFound:
+            errors.append(f"{fragment}: data-lang={resolved_lang!r} is not a known lexer")
+            return ""
+        return (
+            f'<pre class="klein-code" data-code-source="{html.escape(rel, quote=True)}">'
+            f'<code class="language-{html.escape(resolved_lang, quote=True)}">'
+            f"{highlighted}</code></pre>"
+        )
+
+    return CODE_INCLUDE_RE.sub(repl, content)
+
+
+def probe_leftovers(
+    content: str,
+    fragment: str,
+    math_errors: list[str],
+    code_errors: list[str],
+) -> None:
+    """Any ``data-math``/``data-code`` surviving outside <pre> is an authoring
+    error (unescaped quote, non-empty element, malformed attributes)."""
+
+    def scan(segment: str) -> str:
+        for probe, hint, sink in (
+            (MATH_PROBE_RE, "data-math", math_errors),
+            (CODE_PROBE_RE, "data-code", code_errors),
+        ):
+            for m in probe.finditer(segment):
+                snippet = segment[m.start() : m.start() + 80].splitlines()[0]
+                sink.append(
+                    f"{fragment}: unconsumed {hint} (unescaped quote or non-empty "
+                    f"element?): {snippet!r}"
+                )
+        return segment
+
+    outside_pre(content, scan)
+
+
+def render_css() -> str:
+    """Pygments dual-theme classes + math styling, appended to the base CSS."""
+    light = HtmlFormatter(style=PYG_LIGHT_STYLE).get_style_defs("pre.klein-code")
+    dark = HtmlFormatter(style=PYG_DARK_STYLE).get_style_defs("pre.klein-code")
+    return (
+        "\n/* Pygments (build-time highlighting; styles pinned in-module) */\n"
+        + light
+        + "\n@media (prefers-color-scheme:dark){\n"
+        + dark
+        + "\n}\n"
+        # get_style_defs emits its own container background; the theme wins:
+        + "pre.klein-code{background:var(--code-bg);border:1px solid var(--rule)}\n"
+        + "@media (prefers-color-scheme:dark){pre.klein-code{background:var(--code-bg)}}\n"
+        + "/* Build-time math (inline SVG glyph paths) */\n"
+        + ".kmath{display:inline-block}\n"
+        + ".kmath svg{display:block;margin:0;border:0;background:none}\n"
+        + ".kmath-display{margin:18px 0;text-align:center;overflow-x:auto}\n"
+        + ".kmath-display svg{display:inline-block;margin:0;border:0;background:none;max-width:none}\n"
+        + ".kmath svg *,.kmath-display svg *{fill:currentColor}\n"
+    )
+
+
+# --------------------------------------------------------------------------
 # Page assembly
 # --------------------------------------------------------------------------
 
@@ -267,7 +544,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:
 background:var(--code-bg);padding:1px 5px;border-radius:4px}
 pre{background:var(--code-bg);border:1px solid var(--rule);border-radius:8px;
 padding:14px 16px;overflow-x:auto;margin:0 0 16px}
-pre code{background:none;padding:0;font-size:14px;line-height:1.55}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.4;tab-size:4}
 img{max-width:100%;height:auto;display:block;margin:16px auto;border:1px solid var(--rule);
 border-radius:8px;background:var(--card)}
 figure{margin:20px 0}figcaption{font-size:14px;color:var(--muted);text-align:center;margin-top:6px}
@@ -342,14 +619,35 @@ def csp_meta_tag() -> str:
     )
 
 
-def assemble(study_dir: Path, title: str, meta: dict[str, str | None], missing: list[str]) -> str:
+def assemble(
+    study_dir: Path,
+    title: str,
+    meta: dict[str, str | None],
+    missing: list[str],
+    math_errors: list[str],
+    code_errors: list[str],
+) -> str:
     study_id = study_dir.name
     ledger = build_ledger(study_dir)
 
     body_sections: list[str] = []
     for filename, anchor, _title in SECTIONS:
         frag = (study_dir / "report" / "sections" / filename).read_text(encoding="utf-8")
-        frag = inline_figures(frag, study_dir, missing)
+        # Order matters: literal pastes are highlighted BEFORE includes are
+        # resolved (an include target is an EMPTY <pre>, so the paste pass
+        # cannot double-process it, and the include emits final form); math
+        # and figures scan attributes, so both run masked outside <pre>.
+        frag = highlight_code(frag, filename, code_errors)
+        frag = include_code(frag, study_dir, filename, code_errors)
+        frag = outside_pre(
+            frag,
+            functools.partial(render_math, fragment=filename, errors=math_errors),
+        )
+        frag = outside_pre(
+            frag,
+            functools.partial(inline_figures, study_dir=study_dir, missing=missing),
+        )
+        probe_leftovers(frag, filename, math_errors, code_errors)
         frag = frag.replace("<!--LEDGER-->", ledger)
         body_sections.append(f'<section id="{anchor}">\n{frag}\n</section>')
 
@@ -374,7 +672,7 @@ def assemble(study_dir: Path, title: str, meta: dict[str, str | None], missing: 
         f"{csp_meta_tag()}\n"
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         f"<title>{html.escape(title)}</title>\n"
-        f"<style>{CSS}</style>\n</head>\n<body>\n"
+        f"<style>{CSS}{render_css()}</style>\n</head>\n<body>\n"
         '<header class="site-header"><div class="wrap">\n'
         '<p class="kicker">Klein Auto Research · Tutorial</p>\n'
         f"<h1>{html.escape(title)}</h1>\n"
@@ -424,7 +722,7 @@ def acceptance_violations(page: str) -> list[str]:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Assemble a Klein study tutorial (Route B).")
+    p = argparse.ArgumentParser(description="Assemble a Klein study tutorial.")
     p.add_argument("study_dir", type=Path, help="Path to studies/NN-<name>/")
     p.add_argument("--title", help="Page title (default: the study id).")
     return p.parse_args(argv)
@@ -434,6 +732,23 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     study_dir = args.study_dir.resolve()
     sections_dir = study_dir / "report" / "sections"
+
+    if ziamath is None:
+        print(
+            "[build_tutorial] FAIL: the tutorial renderer needs pygments + "
+            "ziamath + latex2mathml.",
+            file=sys.stderr,
+        )
+        print("       In this repo:      uv sync --locked", file=sys.stderr)
+        print(
+            "       In a foreign repo: uv add "
+            '"klein-auto-research @ git+https://github.com/Xiang-Shan/'
+            'klein-auto-research@v1.2.0"',
+            file=sys.stderr,
+        )
+        print("       Or directly:       uv add pygments ziamath latex2mathml", file=sys.stderr)
+        print(f"       ({_RENDERER_IMPORT_ERROR})", file=sys.stderr)
+        return 7
 
     absent = [name for name, _a, _t in SECTIONS if not (sections_dir / name).exists()]
     if absent:
@@ -445,13 +760,27 @@ def main(argv: list[str] | None = None) -> int:
     meta = load_study_meta(study_dir)
     title = args.title or study_dir.name
     missing_figs: list[str] = []
-    page = assemble(study_dir, title, meta, missing_figs)
+    math_errors: list[str] = []
+    code_errors: list[str] = []
+    page = assemble(study_dir, title, meta, missing_figs, math_errors, code_errors)
 
     if missing_figs:
         print("[build_tutorial] missing figure(s) referenced via data-fig:", file=sys.stderr)
         for rel in dict.fromkeys(missing_figs):  # dedupe, keep order
             print(f"  - {rel}", file=sys.stderr)
         return 3
+
+    if math_errors:
+        print("[build_tutorial] math render FAILED:", file=sys.stderr)
+        for err in math_errors:
+            print(f"  - {err}", file=sys.stderr)
+        return 5
+
+    if code_errors:
+        print("[build_tutorial] code include/highlight FAILED:", file=sys.stderr)
+        for err in code_errors:
+            print(f"  - {err}", file=sys.stderr)
+        return 6
 
     violations = acceptance_violations(page)
     if violations:

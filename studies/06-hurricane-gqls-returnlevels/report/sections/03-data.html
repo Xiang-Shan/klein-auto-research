@@ -138,9 +138,9 @@ descriptive Table 6.8 quartiles (q1 = 4.0560, q3 = 12.4340) reproduce <strong>on
 under Hazen plotting positions; every alternative misses (<code>normal_unbiased</code> 0.0851,
 <code>median_unbiased</code> 0.1134, <code>linear</code> 0.3280, <code>weibull</code> 0.3402,
 <code>inverted_cdf</code> 0.6195). But the thesis's Chapter 2 <em>defines</em> the estimator's
-empirical quantile as <code>F̂⁻¹(p) = X_(⌈np⌉)</code> &mdash; NumPy's
+empirical quantile as <span data-math="\hat{F}^{-1}(p) = X_{(\lceil np \rceil)}"></span> &mdash; NumPy's
 <code>inverted_cdf</code>. The card's verdict: <em>Hazen for the descriptive table,
-<code>⌈np⌉</code> for the estimators</em>, exported as two separately named constants so the
+<span data-math="\lceil np \rceil"></span> for the estimators</em>, exported as two separately named constants so the
 two can never be confused.</p>
 
 <h3>The identity gate &mdash; what plays the role of a chance-level probe</h3>

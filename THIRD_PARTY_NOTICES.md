@@ -32,3 +32,17 @@ Runtime and optional Python packages are installed from their upstream
 distributions and retain their own licenses. The resolved versions and artifact
 hashes are recorded in `uv.lock`; package metadata supplies the corresponding
 license terms.
+
+## Tutorial math rendering (ziamath + bundled typefaces)
+
+Generated tutorials typeset mathematics at build time via
+[ziamath](https://github.com/cdelker/ziamath) and
+[ziafont](https://github.com/cdelker/ziafont) (both MIT, © Collin J. Delker;
+their MIT texts ship in the installed distributions recorded in `uv.lock`).
+ziamath bundles the **STIX Two Math** typeface (SIL Open Font License 1.1,
+© The STIX Fonts project; license text at
+`https://scripts.sil.org/OFL` and in the upstream STIX repository), and
+ziafont bundles **DejaVu Sans** (Bitstream Vera license terms) as a fallback.
+Rendered `report/index.html` pages embed glyph OUTLINES as static SVG paths —
+rendered artwork, not the font programs themselves. The font names are not
+used to promote this software, and this notice travels with the repository.

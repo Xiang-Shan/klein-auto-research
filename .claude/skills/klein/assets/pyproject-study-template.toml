@@ -16,7 +16,7 @@ dependencies = [
     "joblib>=1.4",
     # kleinlib — the Klein engine. Pick ONE (pin a tag: an unpinned engine can
     # drift under a running study, breaking seed-for-seed reproducibility):
-    #   uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v1.1.0"
+    #   uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v1.2.0"
     #   or clone the repo next to this study and add it as a path dependency:
     #   uv add --editable ../klein-auto-research
     # NOTE: the git install ships the kleinlib package ONLY — bundled datasets/

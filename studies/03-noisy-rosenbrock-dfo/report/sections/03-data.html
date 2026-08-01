@@ -1,7 +1,7 @@
 <h2>The Data</h2>
 
 <p>A synthetic lab's "data" is its generator plus its seed discipline. The generator is
-fixed: true Rosenbrock plus N(0, 0.5&sup2;) per evaluation, hard 200-evaluation budget,
+fixed: true Rosenbrock plus <span data-math="N(0,\ 0.5^{2})"></span> per evaluation, hard 200-evaluation budget,
 R = 40 independent repetitions per experiment, each rep scored as
 <code>true f(answer) &minus; f*</code> &mdash; the optimizer never sees the truth it is
 scored on. The seed contract does the work a train/test split does elsewhere:

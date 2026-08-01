@@ -21,7 +21,11 @@ interrogate. The six axes, with example phrasings:
    about? Frontier / unfamiliar methods get a full METHOD gate (intuition → math → refs)."
 4. **Metric & decision use.** "For each distinct task, what primary metric should its
    track optimize, higher or lower, what minimum delta matters, and which guardrails
-   must hold?" Never combine unrelated tasks into one global frontier.
+   must hold?" Never combine unrelated tasks into one global frontier. Declare
+   guardrails on keys the run will PRINT: `wall_seconds` prints on every run, and
+   the CALLING evaluator's own aux metrics print for it (a key another evaluator
+   would print, or a conditional one, does not count); anything else must be
+   routed through `evaluate*(..., extra={...})` — `klein preflight` warns.
 5. **Compute / time budget.** "What are the maximum seconds for one run, each phase's
    total budget, and its experiment-count cap?" These are separate controls.
 6. **Deliverable form.** "Besides the always-on `findings.md` + HTML tutorial, do you

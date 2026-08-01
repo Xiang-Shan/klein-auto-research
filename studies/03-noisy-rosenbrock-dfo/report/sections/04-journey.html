@@ -28,19 +28,19 @@ std, clearing the measured bar almost exactly as the registered prediction
 random-sampling component; the local polish buys nothing the noise doesn't take back.</p>
 
 <p><strong>E0004</strong> falsified our crash prediction in the most educational way
-possible: SPSA at a&#8320; = 50 diverged as predicted &mdash; to a mean gap of
-<strong>1.1&times;10&sup1;&#8313;&#8310;</strong> &mdash; and stayed <em>finite</em>,
+possible: SPSA at <span data-math="a_0 = 50"></span> diverged as predicted &mdash; to a mean gap of
+<strong><span data-math="1.1\times 10^{196}"></span></strong> &mdash; and stayed <em>finite</em>,
 so the arithmetic filed a discard, not a crash. Divergence saturates: the decaying gains
-strangle the step size before float overflow. Off-ledger probes at a&#8320; = 500 and
+strangle the step size before float overflow. Off-ledger probes at <span data-math="a_0 = 500"></span> and
 5000 confirmed the ceiling moves (1e81, 1e97) but never breaks. The re-registered
-<strong>E0005</strong> found the true crash where it structurally must live: c&#8320; = 0
+<strong>E0005</strong> found the true crash where it structurally must live: <span data-math="c_0 = 0"></span>
 divides the estimator by its own perturbation size &mdash; ZeroDivisionError, honest
 crash, NA metric, candidate commit retained.</p>
 
-<p><strong>E0006</strong> supplied the humility: "textbook" SPSA (a&#8320; = 0.1) ALSO
-diverged, to 1.9&times;10&sup1;&#8311;&#8312; &mdash; because Spall 1998's own
-first-step rule, quoted in this study's method card, prescribes a&#8320; &asymp;
-2&times;10&#8315;&#8309; for gradients this steep. The cure was in the card; the
+<p><strong>E0006</strong> supplied the humility: "textbook" SPSA (<span data-math="a_0 = 0.1"></span>) ALSO
+diverged, to <span data-math="1.9\times 10^{178}"></span> &mdash; because Spall 1998's own
+first-step rule, quoted in this study's method card, prescribes <span data-math="a_0 \approx 2\times 10^{-5}"></span>
+for gradients this steep. The cure was in the card; the
 researcher didn't apply it. Finally <strong>E0007</strong> spent the track's one sealed
 evaluation: the incumbent on fresh noise scored <strong>0.3121</strong> &mdash;
 replicating the development result within 0.33&times; the floor std. Confirmed.</p>

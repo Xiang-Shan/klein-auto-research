@@ -49,16 +49,22 @@ every invocation; it is the source of truth, this file only orients you.
    metric-vs-experiment trajectory for section 4. Before any figure lands in the
    page, run the figure critique in `tutorial-spec.md` (axis labels, scale
    honesty, legend readability, chart-type-fits-claim).
-3. **Route A (preferred):** if the global `nano-tutorial-html` skill is installed (Glob
-   for its SKILL.md under `~/.claude/skills/` or `.claude/skills/`), read it and drive
-   its harvest/spec/render pipeline via Bash on `studies/NN-slug/`, steering the focus
-   to the seven-section arc above.
-4. **Route B (bundled fallback):** if the skill is absent, build it by hand — plain
-   HTML + inline CSS, `<pre>` blocks for the train.py walkthrough, every figure
-   base64-inlined as a `data:` URI. A stdlib script that reads results.tsv +
-   findings.md + figures/ and emits ONE file is enough. Keep it simple and offline.
-5. Write the single file `studies/NN-slug/report/index.html`.
+3. Author the seven fragments under `studies/NN-slug/report/sections/` to the
+   conventions in `tutorial-spec.md` (§ Math and code in fragments): math as LaTeX
+   in empty `data-math` / `data-math-display` elements (escape `& " < >` in the
+   attribute; statements only, not prose typography); the winning train.py via
+   `<pre data-code="train.py" data-lang="python"></pre>`; snippets as
+   `<pre><code class="language-…">`; console dumps classless; figures as
+   `<img data-fig="figures/<name>.png">`; the `<!--LEDGER-->` marker in 04-journey.
+4. Build with the bundled assembler:
+   `uv run --locked python .claude/skills/klein/scripts/build_tutorial.py
+   studies/NN-slug [--title "…"]` — it typesets the math to inline SVG, highlights
+   the code, inlines figures, and enforces the acceptance guard (exit 5 = a bad
+   formula, 6 = a bad code include, listed per fragment). Iterate to exit 0.
+5. The built file is `studies/NN-slug/report/index.html`.
 6. Run the acceptance checklist (below) and FIX failures before reporting done.
+   (An external renderer may exist as an optional accelerator, but its output must
+   pass the same gates — see the spec; the bundled builder is the route of record.)
 
 ## Acceptance checklist — run it, don't assume it
 
@@ -67,10 +73,15 @@ every invocation; it is the source of truth, this file only orients you.
       asset refs (src=, href= stylesheets, @import, url(...)); none may fetch.
 - [ ] A restrictive CSP meta tag is present; a browser load records zero network
       requests and zero CSP console errors.
-- [ ] Section 6 contains the ACTUAL winning train.py (diff the embedded code against
-      the committed file).
+- [ ] Section 6 uses `<pre data-code="train.py">` — the builder guarantees the bytes
+      match the committed file.
+- [ ] Every mathematical EXPRESSION is typeset (`data-math`/`data-math-display`) —
+      grep the page: no ASCII pseudo-math, no `<sub>`/`<sup>`-built formulas. Bare
+      symbols or cited values named mid-sentence may stay Unicode prose.
+- [ ] Every code block is highlighted (`class="klein-code"`) or deliberately
+      classless console output.
 - [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md —
-      extract the numerals and spot-check each.
+      extract the numerals and spot-check each (formula digits live in `data-latex`).
 - [ ] Every figure is base64-inlined (`data:image/png;base64,...`); no file-path or
       remote `<img>` refs.
 - [ ] References match the method card; UNVERIFIED entries stay marked or are dropped.

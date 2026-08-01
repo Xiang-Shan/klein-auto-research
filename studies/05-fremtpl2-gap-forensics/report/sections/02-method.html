@@ -6,31 +6,45 @@ a shape constraint actually constrains.</p>
 
 <h3>1. The metric &mdash; and why exposure is a weight, not an offset</h3>
 
-<p>The response is a <strong>rate</strong>: <code>y<sub>i</sub> = n<sub>i</sub> /
-e<sub>i</sub></code>, claims divided by exposure-years, with the exposure
-<code>e<sub>i</sub></code> serving as the fitting <em>and</em> scoring weight. Every model
+<p>The response is a <strong>rate</strong>: <span data-math="y_i = n_i / e_i"></span>, claims divided by exposure-years, with the exposure
+<span data-math="e_i"></span> serving as the fitting <em>and</em> scoring weight. Every model
 on both tracks is driven that way &mdash; no per-library offset plumbing anywhere.</p>
 
-<pre><code>unit Poisson deviance   d(y, mu) = 2 * ( y*log(y/mu) - y + mu ),      0*log 0 := 0
+<p><strong>Unit Poisson deviance</strong> &mdash; the per-row loss:</p>
+<div data-math-display="d(y, \mu) = 2\Big(y\log\tfrac{y}{\mu} - y + \mu\Big), \qquad 0 \log 0 := 0"></div>
 
-fold deviance           D(m) = SUM_i w_i * d(y_i, mu_m(x_i))  /  SUM_i w_i      (w_i = e_i)
+<p><strong>Fold deviance</strong> &mdash; the exposure-weighted mean across the fold (<span data-math="w_i = e_i"></span>):</p>
+<div data-math-display="D(m) = \frac{\sum_i w_i\, d(y_i, \mu_m(x_i))}{\sum_i w_i}"></div>
 
-the gap                 Delta = D(GLM) - D(GBDT)      -- positive means GBDT is better</code></pre>
+<p><strong>The gap</strong> &mdash; positive means GBDT is better:</p>
+<div data-math-display="\Delta = D(\mathrm{GLM}) - D(\mathrm{GBDT})"></div>
 
 <p>That the exposure-weighted rate form is <em>identical</em> to the textbook offset form
 is the load-bearing step, so the method card derives it rather than citing it:</p>
 
-<pre><code>log Pois(n | e*mu) = n*log(e*mu) - e*mu - log n!
-substitute n = e*y, drop theta-free terms   ->   e * ( y*log mu - mu )
+<div data-math-display="\log \mathrm{Pois}(n \mid e\mu) = n\log(e\mu) - e\mu - \log n!"></div>
 
-and              e * d(y,mu) / 2  =  e * ( y*log y - y*log mu - y + mu )
-whose theta-dependent part is        - e * ( y*log mu - mu )
+<p>Substitute <span data-math="n = e\,y"></span> and drop the &theta;-free terms:</p>
 
-=>   argmax SUM log Pois(n_i | e_i * mu_theta)  ==  argmin SUM e_i * d(y_i, mu_theta)
-        (count likelihood, offset log e)            (exposure-weighted rate deviance)
+<div data-math-display="e\,(y\log \mu - \mu)"></div>
 
-both give the same score equation:
-        SUM_i ( n_i - e_i * mu_theta(x_i) ) * grad_theta eta_theta(x_i) = 0</code></pre>
+<p>And:</p>
+
+<div data-math-display="e\,d(y,\mu)/2 = e\,(y\log y - y\log \mu - y + \mu)"></div>
+
+<p>&hellip;whose &theta;-dependent part is:</p>
+
+<div data-math-display="-\,e\,(y\log \mu - \mu)"></div>
+
+<p>Hence:</p>
+
+<div data-math-display="\arg\max_{\theta} \sum_i \log \mathrm{Pois}\big(n_i \mid e_i \mu_\theta(x_i)\big) \;=\; \arg\min_{\theta} \sum_i e_i\, d\big(y_i, \mu_\theta(x_i)\big)"></div>
+
+<p class="note">Left: the count likelihood with offset <span data-math="\log e"></span>. Right: the exposure-weighted rate deviance.</p>
+
+<p>Both give the same score equation:</p>
+
+<div data-math-display="\sum_i \big(n_i - e_i\,\mu_\theta(x_i)\big)\,\nabla_\theta \eta_\theta(x_i) = 0"></div>
 
 <p>For a GBDT the equality holds at the level of the loss <em>and its gradients</em>, so
 it propagates into every split gain and every leaf value. This is why
@@ -97,21 +111,21 @@ structure that is <strong>not representable as GLM main effects</strong>. Correl
 residual against candidate two-way products and the largest correlations name
 <em>which interactions the GBDT found</em>.</blockquote>
 
-<pre><code>teacher's log-score      F(x)     = log mu_GBDT(x)      -- TRAIN fold only
-main-effects surrogate   g(x; th) = per-column cubic basis (x, x^2, x^3), weighted LS
+<p><strong>Teacher's log-score</strong> (train fold only):</p>
+<div data-math-display="F(x) = \log \hat{\mu}_{\mathrm{GBDT}}(x)"></div>
 
-th_hat = argmin_th  SUM_{i in TRAIN}  w_i * ( F(x_i) - g(x_i; th) )^2
+<p><strong>Main-effects surrogate</strong> <span data-math="g(x; \theta)"></span> &mdash; a per-column cubic basis <span data-math="(x,\, x^2,\, x^3)"></span>, fit by weighted least squares:</p>
 
-r_i    = F(x_i) - g(x_i; th_hat)                   <-- the non-additive remainder
+<div data-math-display="\hat{\theta} = \arg\min_{\theta} \sum_{i \in \mathrm{TRAIN}} w_i \big(F(x_i) - g(x_i; \theta)\big)^2"></div>
 
-R2_main   = 1 - SUM w*r^2 / SUM w*(F - Fbar_w)^2
+<div data-math-display="r_i = F(x_i) - g(x_i; \hat{\theta}) \qquad \text{(the non-additive remainder)}"></div>
 
-score(a,b) = | SUM_i w_i * z_i^ab * r_i / SUM_i w_i |
-             ---------------------------------------------   in [0, 1]
-                sqrt( SUM_i w_i * r_i^2 / SUM_i w_i )</code></pre>
+<div data-math-display="R^2_{\text{main}} = 1 - \frac{\sum_i w_i r_i^2}{\sum_i w_i\,(F_i - \bar{F}_w)^2}"></div>
 
-<p><code>score(a,b)</code> is the weighted correlation between the standardised product
-column <code>z<sup>ab</sup></code> and the residual. Five numeric factors give
+<div data-math-display="\mathrm{score}(a,b) = \frac{\big|\sum_i w_i\, z^{ab}_i\, r_i \big/ \sum_i w_i\big|}{\sqrt{\sum_i w_i r_i^2 \big/ \sum_i w_i}} \;\in [0,1]"></div>
+
+<p><span data-math="\mathrm{score}(a,b)"></span> is the weighted correlation between the standardised product
+column <span data-math="z^{ab}"></span> and the residual. Five numeric factors give
 C(5,2) = <strong>10</strong> candidate pairs; rank them, promote the top-K into the real
 GLM as design-matrix columns, and measure development deviance. <em>The instrument and
 the intervention are the same object</em> &mdash; the column that scored highest IS the
@@ -126,12 +140,12 @@ confirms.</li>
 <li><strong>Multiplicity is fixed in advance and published.</strong> 10 screened, at most
 2 adopted, both counts reported either way. A screen you report is a screen; a screen you
 hide is p-hacking.</li>
-<li><strong><code>R&sup2;_main</code> is itself a headline number.</strong> It answers
+<li><strong><span data-math="R^2_{\text{main}}"></span> is itself a headline number.</strong> It answers
 RQ5's real question &mdash; <em>is the gap an interaction gap at all?</em> &mdash; before
 a single interaction is adopted.</li>
 </ol>
 
-<p><strong>Read it correctly.</strong> <code>R&sup2;_main</code> lives on the
+<p><strong>Read it correctly.</strong> <span data-math="R^2_{\text{main}}"></span> lives on the
 <em>log-score surface</em>, not on deviance. It is a diagnostic, not a bound on
 recoverable deviance. A high value with a stubborn gap would have meant the gap lives in
 basis/knot curvature the scoped splines do not span &mdash; a different, equally
@@ -143,9 +157,9 @@ reportable answer.</p>
 agreeing is evidence. The cross-check is model-agnostic and computed by hand on the log
 scale (GLM additivity <em>is</em> log-scale additivity):</p>
 
-<pre><code>strength(a,b) = std[  PD2(a,b)  -  ( PD1(a) + PD1(b) )  ]
+<div data-math-display="\mathrm{strength}(a,b) = \mathrm{std}\Big[\,\mathrm{PD}_2(a,b) - \big(\mathrm{PD}_1(a) + \mathrm{PD}_1(b)\big)\,\Big]"></div>
 
-              all surfaces mean-centred, 8x8 quantile grid, evaluated on log(mu)</code></pre>
+<p class="note">All surfaces mean-centred, on an 8&times;8 quantile grid, evaluated on <span data-math="\log(\mu)"></span>.</p>
 
 <p>If a pair is genuinely additive, the 2-D partial-dependence surface equals the sum of
 the two 1-D curves and the residual surface is flat. Its standard deviation is the pair's
@@ -158,16 +172,16 @@ PD signature agree on it.</p>
 <em>any</em> disjoint partition of the evaluation rows partitions the total
 <strong>exactly</strong> &mdash; no cross terms, no residual, nothing approximated:</p>
 
-<pre><code>D(m)  = SUM_k D_k(m)          for ANY disjoint partition {S_1 ... S_K} of the eval rows
+<div data-math-display="D(m) = \sum_k D_k(m) \qquad \text{for any disjoint partition } \{S_1,\dots,S_K\} \text{ of the eval rows}"></div>
 
-Delta = SUM_k [ D_k(GLM) - D_k(GBDT) ] = SUM_k Delta_k
+<div data-math-display="\Delta = \sum_k \big[D_k(\mathrm{GLM}) - D_k(\mathrm{GBDT})\big] = \sum_k \Delta_k"></div>
 
-gap share_k = Delta_k / Delta                         SUM_k gap share_k = 1</code></pre>
+<div data-math-display="\text{gap share}_k = \frac{\Delta_k}{\Delta} \qquad \sum_k \text{gap share}_k = 1"></div>
 
 <p>That identity is what converts a leaderboard row into a <strong>WHERE</strong>
 answer. "72% of the gap sits in three segments covering 11% of exposure" is a completely
 different business story from "the gap is spread evenly across the book" &mdash; and both
-produce the same headline number. Discipline: individual &Delta;<sub>k</sub> may be
+produce the same headline number. Discipline: individual <span data-math="\Delta_k"></span> may be
 <em>negative</em> (segments where the GLM wins), so shares can exceed 1; always print
 each segment's <strong>exposure share</strong> next to its gap share, or a 1%-exposure
 segment will look decisive when it is noise.</p>
@@ -175,20 +189,19 @@ segment will look decisive when it is noise.</p>
 <h3>4. Monotone constraints &mdash; and the distinction that explains their price</h3>
 
 <p>A monotone constraint is not a post-hoc smoothing. It is enforced <em>inside split
-finding</em>: every node carries a value band <code>[&ell;, u]</code> inherited from its
+finding</em>: every node carries a value band <span data-math="[\ell, u]"></span> inherited from its
 ancestors, and a split on the constrained feature is admissible only if</p>
 
-<pre><code>v_left &lt;= v_right ,    with  v_left, v_right  in  [l, u]
+<div data-math-display="v_{\mathrm{left}} \le v_{\mathrm{right}}, \qquad v_{\mathrm{left}}, v_{\mathrm{right}} \in [\ell, u]"></div>
 
-              (the children's bands are tightened so the ordering
-               can never be undone deeper in the tree)</code></pre>
+<p class="note">The children's bands are tightened so the ordering can never be undone deeper in the tree.</p>
 
 <p>Additive stagewise composition preserves the property, so the whole ensemble inherits
 the guarantee scikit-learn states as
-<code>x1 &le; x1' &rArr; F(x1, x2) &le; F(x1', x2)</code>.</p>
+<span data-math="x_1 \le x_1' \;\Longrightarrow\; F(x_1, x_2) \le F(x_1', x_2)"></span>.</p>
 
 <p>Read that guarantee slowly, because it is the entire finding of RQ7. It is quantified
-over <strong>every value of <code>x2</code></strong> &mdash; i.e. monotonicity is
+over <strong>every value of <span data-math="x_2"></span></strong> &mdash; i.e. monotonicity is
 enforced <strong>pointwise in every conditioning context</strong>, not on the marginal
 curve. So:</p>
 

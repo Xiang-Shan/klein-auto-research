@@ -9,6 +9,9 @@ Every study is ONE directory: `studies/NN-slug/` — a two-digit ordinal plus a 
 slug (`00-glm-claims-quickstart`, `03-noisy-rosenbrock-dfo`). The ordinal orders the research
 narrative; the slug says what it is. One study has one coherent goal; materially
 different tasks become explicit tracks with independent metric contracts/frontiers.
+`klein new` scaffolds one track; add further tracks by editing `study.yaml`
+afterwards — supported: state loading reconciles the per-track sealed-test map
+against the current contract, so a post-scaffold track needs no hand-patching.
 
 Scaffold it — never hand-create the tree:
 

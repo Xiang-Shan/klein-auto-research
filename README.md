@@ -23,7 +23,8 @@ The last two stages are what make it *research*, not just experiment-running:
 every study must end with `findings.md` — verdicts on the research questions,
 surprises, practical advice, literature tie-back, every claim citing experiment
 IDs — and a self-contained HTML tutorial that teaches the method, the journey,
-and the coding pitfalls back to you.
+and the coding pitfalls back to you, with typeset mathematics and highlighted
+code rendered at build time (no CDN, no fonts, no runtime scripts).
 
 ## Why Klein
 
@@ -204,8 +205,9 @@ preserved intact (ledgers, figures, tutorials) at tag
 where every recorded candidate commit resolves.
 
 Open a tutorial to see what "closing the loop" means:
-`open studies/03-noisy-rosenbrock-dfo/report/index.html` — method taught, journey
-annotated, coding pitfalls included, works offline.
+`open studies/03-noisy-rosenbrock-dfo/report/index.html` — method taught with
+typeset math, journey annotated, the winning train.py included verbatim with
+highlighting, works offline.
 
 ## Run it on your own data
 

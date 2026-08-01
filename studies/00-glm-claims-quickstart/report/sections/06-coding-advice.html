@@ -11,7 +11,7 @@ whole thing honest.</p>
 — data loading, the fixed split, metrics, model saving — lives in <code>kleinlib</code>, so
 <code>train.py</code> is a thin, readable surface. The knobs sit right at the top:</p>
 
-<pre><code>RANDOM_SEED = 42
+<pre><code class="language-python">RANDOM_SEED = 42
 EXPERIMENT_ID = 6          # bump per experiment; matches the results.tsv row
 MIN_FREQUENCY = 20         # campaign OneHotEncoder rarity threshold
 
@@ -26,7 +26,7 @@ DROP_REDUNDANT = [
 split — the same seed, ratio, and stratification every experiment, because comparability
 depends on never re-shuffling:</p>
 
-<pre><code>def load_split():
+<pre><code class="language-python">def load_split():
     X, y = kleinlib.data.load_xy(PREPARED_PATH, TARGET_COLUMN)
     X = X.drop(columns=DROP_REDUNDANT, errors="ignore")
     return kleinlib.data.fixed_split(X, y)   # seed=42, test_size=0.2, stratify=True</code></pre>
@@ -35,7 +35,7 @@ depends on never re-shuffling:</p>
 winner's <code>learning_rate=0.06</code> (was 0.05). That one-line delta <em>is</em> the
 experiment:</p>
 
-<pre><code>def build_model(numeric_cols, categorical_cols):
+<pre><code class="language-python">def build_model(numeric_cols, categorical_cols):
     preprocessor = kleinlib.encoders.build_preprocessor(
         numeric_cols, categorical_cols, kind="ohe", min_frequency=MIN_FREQUENCY
     )
@@ -52,13 +52,20 @@ fits, then hands the fitted model to <code>kleinlib.eval.evaluate</code>, which 
 every metric, writes the aux sidecar, and (if it is a new best) pickles the model. The
 experiment author writes none of that plumbing:</p>
 
-<pre><code>def main():
+<pre><code class="language-python">def main():
     X_tr, X_va, y_tr, y_va = load_split()
     numeric_cols, categorical_cols = kleinlib.data.feature_column_groups(X_tr)
     model = build_model(numeric_cols, categorical_cols)
     model.fit(X_tr, y_tr)
     kleinlib.eval.evaluate(model, X_va, y_va, exp_id=EXPERIMENT_ID,
                            metric_name="val_auc", metric_goal="higher", study_dir=".")</code></pre>
+
+<h3>The complete file</h3>
+
+<p>And the whole thing at once &mdash; included by reference at build time, so these
+are the actual bytes of the winning <code>train.py</code>:</p>
+
+<pre data-code="train.py" data-lang="python"></pre>
 
 <h3>The three details that bit the LR reconstruction — copy these exactly</h3>
 
@@ -67,7 +74,7 @@ three constructor kwargs that <em>look</em> optional and are not. If you build s
 linear model, set all three deliberately — leaving them at sklearn's defaults cost 0.026
 AUC (the entire difference between the failed E2 and the recovered E5):</p>
 
-<pre><code>SplineTransformer(
+<pre><code class="language-python">SplineTransformer(
     n_knots=5, degree=3,
     knots="quantile",       # place knots where the data lives (default "uniform" wastes them)
     include_bias=False,     # the regression already has an intercept; the default duplicates it

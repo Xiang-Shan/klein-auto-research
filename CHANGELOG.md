@@ -6,9 +6,35 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
-## [Unreleased]
+## [1.2.0] — 2026-08-01
+
+The typeset release: the two frictions the 05/06 arc filed are fixed in the
+engine, and generated tutorials gain build-time typeset mathematics and
+highlighted code — with the zero-network CSP contract byte-identical. All four
+public exhibits are re-authored to the new convention and rebuilt; their prose
+numbers are unchanged (verified by numeric-multiset diff against the previous
+pages).
 
 ### Added
+
+- Tutorial builder: build-time math and code rendering. LaTeX authored in empty
+  `data-math` / `data-math-display` elements is typeset to inline SVG glyph
+  paths (ziamath, STIX Two Math outlines; no fonts shipped, no runtime script —
+  `font-src 'none'` and the single-hash `script-src` stand, and the browser
+  netlog CI fixture now exercises math and code forever). Pygments highlights
+  `language-…` code blocks with pinned dual-theme styles, and
+  `<pre data-code="train.py">` includes the winning script BY REFERENCE — the
+  included bytes are guaranteed to be the committed file's, so a hand-paste
+  can no longer drift (using the idiom remains the spec checklist's job). New
+  builder exit codes: 5 math render, 6 code include, 7 renderer dependency
+  missing. New dependencies: `pygments`, `ziamath`, `latex2mathml`.
+- `klein preflight` check `"guardrail visibility"`: warns when a declared
+  guardrail metric is neither auto-printed by the framework
+  (`kleinlib.schema.AUTO_PRINTED_METRIC_KEYS`) nor named anywhere in the
+  study's Python sources.
+- A ledger-derived seal guard in `klein run-one --final-test`: a sealed access
+  recorded in the hash-committed manifests refuses a second access even if
+  `study_state.json` was edited afterwards.
 
 - Study `06-hurricane-gqls-returnlevels` (fourth public exhibit): from-scratch
   reproduction of Adjieteh (2024) §6.2.2 — gQLS loss-model fitting on the 30
@@ -35,6 +61,31 @@ version.
   frictions filed from the run (guardrail-metric print visibility; post-scaffold
   track top-up in `final_holdout_access`) — see the study's `program.md` and
   findings §⑦.
+
+### Fixed
+
+- F1 (study 05, E0001): every evaluator now prints a `wall_seconds:` aux line
+  — the runner's guardrail check reads the PRINTED block, and the sidecar-only
+  `wall_seconds` discarded an anchor-exact candidate. Callers that already
+  pass `wall_seconds` via `extra=` keep byte-identical stdout.
+- F2 (study 05, E0012; hand-patched again in study 06): `load_state` now tops
+  up `final_holdout_access` from the current contract in memory (never
+  deleting or overwriting a recorded access), so a track added to `study.yaml`
+  after scaffolding no longer strands the sealed gate.
+
+### Changed
+
+- All four exhibits' report fragments re-authored to the typeset convention
+  (three divergent math notations retired); reports rebuilt. Studies 00 and 03
+  additionally gain the full winning `train.py` by reference — study 03's
+  coding-advice section previously shipped no code at all.
+- Report code typography: `pre code` line-height 1.55 → 1.4, 14px → 13.5px
+  (the prose-tuned spacing read as "double-spaced" in code blocks).
+- `tutorial-spec.md` reworked: the bundled builder is the route of record (all
+  shipped exhibits were built by it); the external-renderer route is optional
+  and currently non-conforming (runtime KaTeX, no CSP); new authoring
+  conventions + validated LaTeX subset documented; war story №6 added (the
+  unprinted guardrail).
 
 ## [1.1.0] — 2026-07-31
 
@@ -315,6 +366,7 @@ war stories; tool-neutral `AGENTS.md`; seed `knowledge/` base; bundled
 Apache-2.0 insurance-claims dataset; three executed exemplar studies
 (GLM quickstart, DAE honest-no, robust-QLS synthetic lab).
 
+[1.2.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v1.0.0
 [0.4.0]: https://github.com/Xiang-Shan/klein-auto-research/releases/tag/v0.4.0

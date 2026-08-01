@@ -29,7 +29,11 @@ from typing import Any
 import yaml
 
 from .runner import run_logged
-from .schema import V2_RESULTS_COLUMNS
+from .schema import (
+    AUTO_PRINTED_METRIC_KEYS,
+    EVALUATOR_PRINTED_KEYS,
+    V2_RESULTS_COLUMNS,
+)
 
 SCHEMA_VERSION = 2
 RUN_ID_RE = re.compile(r"^E([0-9]{4,})$")
@@ -572,11 +576,49 @@ def initial_state(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, Any
         "fingerprints": {"data": None, "split": split_fingerprint(contract)},
         "prepared_data": {"path": str(prepared_data_path(study_dir, contract)), "sha256": None},
         "final_holdout_access": {
-            name: {"count": 0, "accessed_at": None, "experiment": None}
+            name: _sealed_access_zero()
             for name in tracks
         },
         "last_experiment": 0,
     }
+
+
+def _sealed_access_zero() -> dict[str, Any]:
+    """The unused-seal entry `initial_state` generates."""
+    return {"count": 0, "accessed_at": None, "experiment": None}
+
+
+def reconcile_state(state: dict[str, Any], contract: Mapping[str, Any]) -> list[str]:
+    """Top up contract-derived per-track maps for tracks added after scaffolding.
+
+    `initial_state` keys `final_holdout_access` by the tracks declared AT
+    SCAFFOLD TIME. A track added to study.yaml afterwards — today the only
+    way to build a multi-track study — otherwise leaves that map stale and
+    `run-one --final-test` refuses with "sealed final-test state is missing
+    for track ..." (study 05, E0012; hand-patched again in study 06).
+
+    Adds an unused-seal entry for every contract track that has none. NEVER
+    deletes, renames, or overwrites an existing entry: a track dropped from
+    the contract keeps its recorded access, a spent seal stays spent, and a
+    corrupt non-mapping entry is left to fail the sealed gate rather than
+    being silently repaired. In-memory only; callers that persist state
+    carry the top-up into their own commit. Returns the track names added.
+    """
+    added: list[str] = []
+    holdout = state.get("final_holdout_access")
+    if holdout is None:
+        holdout = {}
+        state["final_holdout_access"] = holdout
+    elif not isinstance(holdout, dict):
+        # A corrupt CONTAINER is left exactly as found — replacing it with a
+        # fresh zero map would silently re-arm every seal; the sealed gate's
+        # isinstance check refuses loudly instead.
+        return added
+    for track in normalize_tracks(contract):
+        if track not in holdout:
+            holdout[track] = _sealed_access_zero()
+            added.append(track)
+    return added
 
 
 def state_path(study_dir: Path) -> Path:
@@ -597,6 +639,7 @@ def load_state(study_dir: Path, contract: Mapping[str, Any], *, create: bool = F
         raise WorkflowError(f"invalid study_state.json: {exc}") from exc
     if not isinstance(value, dict) or value.get("schema_version") != SCHEMA_VERSION:
         raise WorkflowError("study_state.json must be a schema_version 2 object")
+    reconcile_state(value, contract)
     return value
 
 
@@ -1315,7 +1358,77 @@ def preflight_checks(
                 )
             else:
                 checks.append(Check("train.py", True, "syntax valid"))
+
+    # Guardrail visibility (the study-05 F1 lesson): `klein run-one` reads
+    # guardrails off the PRINTED metric block, so a declared key the run
+    # never prints scores "missing" and discards the candidate. A key is
+    # considered visible when the framework auto-prints it, or when it
+    # appears textually anywhere in the study's Python sources (the
+    # escape hatch for keys printed via `extra=` — naming it in a comment
+    # is enough). Advisory only: ok stays True, the message carries [WARN].
+    tracks = normalize_tracks(contract)
+    sources = _study_python_sources(study_dir)
+    # Universal keys plus the aux keys of exactly the evaluator(s) this
+    # study's sources actually call — a flat union would bless keys the
+    # calling evaluator prints as NA (or not at all), turning this check
+    # into a false all-clear on the very failure it exists to catch.
+    visible = set(AUTO_PRINTED_METRIC_KEYS)
+    for evaluator, keys in EVALUATOR_PRINTED_KEYS.items():
+        pattern = re.compile(rf"\b{evaluator}\s*\(")
+        if any(pattern.search(text) for text in sources.values()):
+            visible |= keys
+    invisible: list[str] = []
+    for track_name, track_spec in tracks.items():
+        entries, _ = _guardrail_entries(track_spec.get("guardrails", {}))
+        for key, _spec in entries:
+            if key in visible:
+                continue
+            if any(key in text for text in sources.values()):
+                continue
+            invisible.append(f"track {track_name!r} declares {key!r}")
+    if invisible:
+        named = ", ".join(sorted(sources)) if sources else "no study .py files found"
+        checks.append(
+            Check(
+                "guardrail visibility",
+                True,
+                "[WARN] "
+                + "; ".join(invisible)
+                + f" — not auto-printed by the evaluator and not named in {named}. "
+                "`klein run-one` reads guardrails off the PRINTED block, so an "
+                "unprinted guardrail scores \"missing\" and discards the candidate. "
+                "Print it via evaluate*(..., extra={<key>: value}).",
+            )
+        )
+    else:
+        checks.append(
+            Check(
+                "guardrail visibility",
+                True,
+                "every declared guardrail metric is printed by the evaluator "
+                "or named in the study's Python sources",
+            )
+        )
     return checks
+
+
+def _study_python_sources(study_dir: Path) -> dict[str, str]:
+    """The study's Python sources (top level + lib/), for textual scans.
+
+    Wider than train.py on purpose: study 06 declares guardrail keys that
+    are computed in analysis.py and only routed through train.py's `extra=`.
+    """
+    sources: dict[str, str] = {}
+    for path in sorted(study_dir.glob("*.py")) + sorted(study_dir.glob("lib/**/*.py")):
+        try:
+            # errors="replace": a non-UTF-8 study file must degrade to a
+            # weaker textual scan, never abort the whole preflight report.
+            sources[str(path.relative_to(study_dir))] = path.read_text(
+                encoding="utf-8", errors="replace"
+            )
+        except OSError:
+            continue
+    return sources
 
 
 def run_subprocess(
@@ -1400,7 +1513,10 @@ def _guardrails_pass(
     for name, spec in entries:
         value = metrics.get(name)
         if value is None:
-            failures.append(f"guardrail metric {name!r} missing")
+            failures.append(
+                f"guardrail metric {name!r} missing from the printed block — "
+                f"print it from train.py via evaluate*(..., extra={{{name!r}: ...}})"
+            )
             continue
         if "min" in spec and value < float(spec["min"]):
             failures.append(f"{name}={value} < min {spec['min']}")
@@ -1677,10 +1793,11 @@ def run_one(
             raise WorkflowError("prepared-data fingerprint differs from the recorded DATA gate")
         if split_fingerprint(contract) != fingerprints.get("split"):
             raise WorkflowError("split policy differs from the recorded fingerprint")
+        ledger = load_manifests(study_dir)
         if any(
             not isinstance(m.get("transaction"), Mapping)
             or m.get("transaction", {}).get("status") != "complete"
-            for m in load_manifests(study_dir)
+            for m in ledger
         ):
             raise WorkflowError("an interrupted transaction exists; run `klein recover` first")
 
@@ -1688,6 +1805,20 @@ def run_one(
         phase = _phase_spec(contract, phase_id)
         final_phase_id = _phase_ids(contract)[-1]
         if final_test:
+            # The ledger is the tamper-evident record (manifests are
+            # hash-committed; study_state.json is not): a sealed access
+            # recorded there refuses a second one even if the state map was
+            # edited or a topped-up entry re-zeroed the counter.
+            spent = [
+                m for m in ledger
+                if str(m.get("track")) == track
+                and m.get("evaluation_kind") == "final_test"
+            ]
+            if spent:
+                raise WorkflowError(
+                    f"sealed final test for track {track!r} has already been accessed by "
+                    f"{spent[0].get('experiment')} (recorded in the ledger)"
+                )
             holdout = state.get("final_holdout_access")
             access = holdout.get(track) if isinstance(holdout, Mapping) else None
             if not isinstance(access, Mapping):
