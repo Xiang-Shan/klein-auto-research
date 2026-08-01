@@ -24,8 +24,9 @@ dependencies = [
     "pyyaml>=6",
     "joblib>=1.4",
     # tutorial renderer (build_tutorial.py): build-time LaTeX -> inline SVG
-    # and syntax highlighting; the TUTORIAL stage is mandatory, so these are
-    # main dependencies (foreign repos consume the builder through the wheel).
+    # and syntax highlighting. The TUTORIAL stage is mandatory, so these are
+    # main dependencies: the builder script travels by skill-directory copy,
+    # and its imports must arrive with the klein wheel every consumer installs.
     "pygments>=2.17",
     "ziamath>=0.13",
     "latex2mathml>=3.81",

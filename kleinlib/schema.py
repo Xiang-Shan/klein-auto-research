@@ -159,39 +159,52 @@ AUX_SIDECAR: str = "aux_metrics.tsv"
 #: metric (PR-AUC, brier, wall_seconds, model_path, ...) goes here.
 AUX_COLUMNS: tuple[str, ...] = ("experiment", "metric", "value")
 
-#: Numeric metric keys the framework itself prints on every run — the
-#: canonical block, each evaluator's aux block, and the runner footer.
-#: `klein preflight` treats these as guaranteed-visible when checking that
-#: every declared guardrail metric will appear in the printed block the
-#: runner parses. Non-numeric lines (``metric_name``, ``metric_goal``,
-#: ``status``, ``runner_status``) are deliberately excluded:
-#: ``parse_metric_log`` drops non-float values, so a guardrail declared on
-#: one of them could never pass.
+#: Numeric metric keys printed on EVERY run regardless of which evaluator a
+#: study calls: the canonical block's unconditional numerics, the
+#: `wall_seconds` line every evaluator prints since 1.2.0 (the study-05 F1
+#: lesson), and the runner footer. `klein preflight` treats these as
+#: guaranteed-visible when checking that every declared guardrail metric
+#: will appear in the printed block the runner parses. Deliberately
+#: excluded: non-numeric lines (``metric_name``, ``status``,
+#: ``runner_status`` — ``parse_metric_log`` drops non-floats, so a
+#: guardrail on one could never pass) and every key that prints ``NA`` or
+#: nothing on at least one evaluator path (``training_seconds``/row counts
+#: are ``NA`` for :func:`kleinlib.eval.evaluate_scalar`;
+#: ``calibration_ratio``/``tweedie_power`` are conditional even within
+#: regression). A blessed-but-unreachable key would turn the visibility
+#: check into a false all-clear on exactly the failure it exists to catch.
+#: Note: this ``wall_seconds`` is the EVALUATOR's total (identical to the
+#: aux-sidecar row); the manifest's top-level ``wall_seconds`` measures the
+#: whole subprocess and is a different, larger quantity.
 AUTO_PRINTED_METRIC_KEYS: frozenset[str] = frozenset({
-    # canonical block (kleinlib.eval._print_canonical_block)
     "primary_metric",
-    "training_seconds",
     "total_seconds",
-    "train_rows",
-    "val_rows",
-    # printed by every evaluator since 1.2.0 (the study-05 F1 lesson)
     "wall_seconds",
-    # classification aux block (kleinlib.eval.evaluate)
-    "val_pr_auc",
-    "val_logloss",
-    "val_brier",
-    "val_lift_top10",
-    "val_best_threshold",
-    "val_f1_at_best",
-    # regression aux block (kleinlib.eval.evaluate_regression)
-    "val_rmse",
-    "val_mae",
-    "val_r2",
-    "val_poisson_deviance",
-    "val_gamma_deviance",
-    "val_tweedie_deviance",
-    "calibration_ratio",
-    "tweedie_power",
-    # runner footer (kleinlib.runner.run_logged)
     "runner_exit_code",
 })
+
+#: Aux keys each evaluator prints unconditionally FOR ITSELF (numeric on
+#: every one of its runs). `klein preflight` adds the union of the sets
+#: whose evaluator name appears in the study's Python sources.
+EVALUATOR_PRINTED_KEYS: dict[str, frozenset[str]] = {
+    "evaluate": frozenset({
+        "training_seconds",
+        "train_rows",
+        "val_rows",
+        "val_pr_auc",
+        "val_logloss",
+        "val_brier",
+        "val_lift_top10",
+        "val_best_threshold",
+        "val_f1_at_best",
+    }),
+    "evaluate_regression": frozenset({
+        "training_seconds",
+        "train_rows",
+        "val_rows",
+        "val_rmse",
+        "val_mae",
+        "val_r2",
+    }),
+    "evaluate_scalar": frozenset(),
+}

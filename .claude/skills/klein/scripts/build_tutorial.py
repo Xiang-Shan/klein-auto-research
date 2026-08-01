@@ -413,6 +413,9 @@ def highlight_code(content: str, fragment: str, errors: list[str]) -> str:
         except ClassNotFound:
             errors.append(f"{fragment}: unknown language class 'language-{lang}'")
             return match.group(0)
+        # An author-supplied class on the <pre> would produce a duplicate
+        # class attribute beside ours; fold it out (klein-code wins).
+        pre_attrs = re.sub(r'\sclass="[^"]*"', "", pre_attrs)
         return (
             f'<pre class="klein-code"{pre_attrs}><code class="language-{lang}">'
             f"{highlighted}</code></pre>"
@@ -719,7 +722,7 @@ def acceptance_violations(page: str) -> list[str]:
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
-    p = argparse.ArgumentParser(description="Assemble a Klein study tutorial (Route B).")
+    p = argparse.ArgumentParser(description="Assemble a Klein study tutorial.")
     p.add_argument("study_dir", type=Path, help="Path to studies/NN-<name>/")
     p.add_argument("--title", help="Page title (default: the study id).")
     return p.parse_args(argv)

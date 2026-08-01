@@ -24,9 +24,10 @@ pages).
   netlog CI fixture now exercises math and code forever). Pygments highlights
   `language-…` code blocks with pinned dual-theme styles, and
   `<pre data-code="train.py">` includes the winning script BY REFERENCE — the
-  spec's "ACTUAL winning train.py" checklist item is now a build-time
-  guarantee. New builder exit codes: 5 math render, 6 code include, 7 renderer
-  dependency missing. New dependencies: `pygments`, `ziamath`, `latex2mathml`.
+  included bytes are guaranteed to be the committed file's, so a hand-paste
+  can no longer drift (using the idiom remains the spec checklist's job). New
+  builder exit codes: 5 math render, 6 code include, 7 renderer dependency
+  missing. New dependencies: `pygments`, `ziamath`, `latex2mathml`.
 - `klein preflight` check `"guardrail visibility"`: warns when a declared
   guardrail metric is neither auto-printed by the framework
   (`kleinlib.schema.AUTO_PRINTED_METRIC_KEYS`) nor named anywhere in the

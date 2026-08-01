@@ -29,7 +29,11 @@ from typing import Any
 import yaml
 
 from .runner import run_logged
-from .schema import AUTO_PRINTED_METRIC_KEYS, V2_RESULTS_COLUMNS
+from .schema import (
+    AUTO_PRINTED_METRIC_KEYS,
+    EVALUATOR_PRINTED_KEYS,
+    V2_RESULTS_COLUMNS,
+)
 
 SCHEMA_VERSION = 2
 RUN_ID_RE = re.compile(r"^E([0-9]{4,})$")
@@ -602,9 +606,14 @@ def reconcile_state(state: dict[str, Any], contract: Mapping[str, Any]) -> list[
     """
     added: list[str] = []
     holdout = state.get("final_holdout_access")
-    if not isinstance(holdout, dict):
+    if holdout is None:
         holdout = {}
         state["final_holdout_access"] = holdout
+    elif not isinstance(holdout, dict):
+        # A corrupt CONTAINER is left exactly as found — replacing it with a
+        # fresh zero map would silently re-arm every seal; the sealed gate's
+        # isinstance check refuses loudly instead.
+        return added
     for track in normalize_tracks(contract):
         if track not in holdout:
             holdout[track] = _sealed_access_zero()
@@ -1359,11 +1368,20 @@ def preflight_checks(
     # is enough). Advisory only: ok stays True, the message carries [WARN].
     tracks = normalize_tracks(contract)
     sources = _study_python_sources(study_dir)
+    # Universal keys plus the aux keys of exactly the evaluator(s) this
+    # study's sources actually call — a flat union would bless keys the
+    # calling evaluator prints as NA (or not at all), turning this check
+    # into a false all-clear on the very failure it exists to catch.
+    visible = set(AUTO_PRINTED_METRIC_KEYS)
+    for evaluator, keys in EVALUATOR_PRINTED_KEYS.items():
+        pattern = re.compile(rf"\b{evaluator}\s*\(")
+        if any(pattern.search(text) for text in sources.values()):
+            visible |= keys
     invisible: list[str] = []
     for track_name, track_spec in tracks.items():
         entries, _ = _guardrail_entries(track_spec.get("guardrails", {}))
         for key, _spec in entries:
-            if key in AUTO_PRINTED_METRIC_KEYS:
+            if key in visible:
                 continue
             if any(key in text for text in sources.values()):
                 continue
@@ -1403,7 +1421,11 @@ def _study_python_sources(study_dir: Path) -> dict[str, str]:
     sources: dict[str, str] = {}
     for path in sorted(study_dir.glob("*.py")) + sorted(study_dir.glob("lib/**/*.py")):
         try:
-            sources[str(path.relative_to(study_dir))] = path.read_text(encoding="utf-8")
+            # errors="replace": a non-UTF-8 study file must degrade to a
+            # weaker textual scan, never abort the whole preflight report.
+            sources[str(path.relative_to(study_dir))] = path.read_text(
+                encoding="utf-8", errors="replace"
+            )
         except OSError:
             continue
     return sources

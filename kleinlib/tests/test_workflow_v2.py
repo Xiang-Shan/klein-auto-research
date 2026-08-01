@@ -1339,3 +1339,55 @@ def test_status_lists_every_contract_track_after_a_top_up(ready_study) -> None:
     text = status_summary(study)
     assert "primary=0/1" in text
     assert "gbdt=0/1" in text
+
+
+def test_preflight_does_not_bless_keys_the_calling_evaluator_never_prints(
+    ready_study,
+) -> None:
+    """The reviewer's false-all-clear scenario: a scalar-shaped study declares
+    a guardrail on training_seconds — which evaluate_scalar prints as NA — and
+    the visibility check must WARN, not bless it (a green here reproduces the
+    E0001 failure class with the check's own endorsement)."""
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    contract["tracks"]["primary"]["guardrails"] = {"training_seconds": {"max": 30}}
+    (study / "study.yaml").write_text(
+        yaml.safe_dump(contract, sort_keys=False), encoding="utf-8"
+    )
+    (study / "train.py").write_text(
+        "from kleinlib.eval import evaluate_scalar\n"
+        "evaluate_scalar(0.5, exp_id='E0001', metric_name='premium_error_pct',\n"
+        "                metric_goal='lower')\n",
+        encoding="utf-8",
+    )
+    checks = preflight_checks(study, require_clean=False, require_branch=False)
+    vis = next(c for c in checks if c.name == "guardrail visibility")
+    assert vis.ok is True
+    assert "[WARN]" in vis.message
+    assert "training_seconds" in vis.message
+
+
+def test_preflight_blesses_the_calling_evaluators_own_aux_keys(ready_study) -> None:
+    """The scaffolded study calls the classification evaluator, whose aux keys
+    (val_pr_auc) really do print numerically on every one of its runs."""
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    contract["tracks"]["primary"]["guardrails"] = {"val_pr_auc": {"min": 0.05}}
+    (study / "study.yaml").write_text(
+        yaml.safe_dump(contract, sort_keys=False), encoding="utf-8"
+    )
+    checks = preflight_checks(study, require_clean=False, require_branch=False)
+    vis = next(c for c in checks if c.name == "guardrail visibility")
+    assert vis.ok is True
+    assert "[WARN]" not in vis.message
+
+
+def test_reconcile_leaves_a_corrupt_container_for_the_gate_to_refuse(
+    ready_study,
+) -> None:
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    state = {"final_holdout_access": "corrupt-container"}
+    added = workflow.reconcile_state(state, contract)
+    assert added == []
+    assert state["final_holdout_access"] == "corrupt-container"
