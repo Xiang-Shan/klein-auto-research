@@ -1144,3 +1144,198 @@ def test_recover_refuses_a_tampered_completed_manifest(ready_study) -> None:
     )
     assert not ledger.ok
     assert "manifest differs from its HEAD blob" in ledger.message
+
+
+# ---------------------------------------------------------------------------
+# F2 (study 05, E0012): post-scaffold track additions and the sealed-state map
+# ---------------------------------------------------------------------------
+
+
+def add_track_post_scaffold(repo: Path, study: Path, name: str) -> None:
+    """Study 05's exact move: a second track added by editing study.yaml
+    AFTER scaffolding — still the only way to build a multi-track study."""
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    contract["tracks"][name] = yaml.safe_load(
+        yaml.safe_dump(contract["tracks"]["primary"])
+    )
+    # one sealed slot per track, as a real two-track study declares
+    phases = contract.get("phases", [])
+    if phases:
+        phases[-1]["max_experiments"] = max(
+            int(phases[-1].get("max_experiments", 1)), len(contract["tracks"])
+        )
+    (study / "study.yaml").write_text(
+        yaml.safe_dump(contract, sort_keys=False), encoding="utf-8"
+    )
+    # study.yaml is a consult-gate artifact: re-acknowledge the edited contract
+    record_gate(study, "consult", acknowledged_by="tester")
+    commit_all(repo, f"add {name} track post-scaffold")
+
+
+def test_load_state_tops_up_a_track_added_after_scaffolding(ready_study) -> None:
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    contract["tracks"]["gbdt"] = yaml.safe_load(
+        yaml.safe_dump(contract["tracks"]["primary"])
+    )
+    state_file = study / "study_state.json"
+    before = state_file.read_bytes()
+    state = load_state(study, contract)
+    assert state["final_holdout_access"]["gbdt"] == {
+        "count": 0,
+        "accessed_at": None,
+        "experiment": None,
+    }
+    assert state["final_holdout_access"]["primary"]["count"] == 0
+    # In-memory only: a write here would dirty the tree that preflight's own
+    # clean-tree check inspects in the same call.
+    assert state_file.read_bytes() == before
+
+
+def test_reconcile_never_deletes_a_stale_or_spent_entry(ready_study) -> None:
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    state = {
+        "final_holdout_access": {
+            "retired": {"count": 1, "accessed_at": "t", "experiment": "E0007"},
+            "primary": {"count": 1, "accessed_at": "t2", "experiment": "E0009"},
+        }
+    }
+    added = workflow.reconcile_state(state, contract)
+    assert added == []
+    assert state["final_holdout_access"]["retired"]["experiment"] == "E0007"
+    assert state["final_holdout_access"]["primary"]["count"] == 1
+
+
+def test_reconcile_leaves_a_corrupt_entry_for_the_gate_to_refuse(ready_study) -> None:
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    state = {"final_holdout_access": {"primary": "corrupt"}}
+    added = workflow.reconcile_state(state, contract)
+    assert added == []
+    assert state["final_holdout_access"]["primary"] == "corrupt"
+
+
+def test_sealed_gate_passes_after_the_top_up(ready_study) -> None:
+    """Study 05's E0012: the gbdt sealed run was refused with 'sealed
+    final-test state is missing'. The same sequence now completes, and the
+    run's own state write persists the topped-up map to disk."""
+    repo, study = ready_study
+    train = study / "train.py"
+    add_track_post_scaffold(repo, study, "gbdt")
+    train.write_text(train.read_text() + "\nGBDT_BASELINE = True\n", encoding="utf-8")
+    kept = run_one(
+        study,
+        track="gbdt",
+        description="gbdt baseline",
+        command=metric_command(
+            0.70, expected_kind="development", expected_track="gbdt"
+        ),
+        echo=False,
+    )
+    assert kept["disposition"] == "keep"
+    record_gate(
+        study, "phase", phase="adaptive-1", acknowledged_by="tester", note="reviewed"
+    )
+    commit_all(repo, "acknowledge adaptive phase")
+    final = run_one(
+        study,
+        track="gbdt",
+        final_test=True,
+        description="gbdt confirmation",
+        command=metric_command(
+            0.69, expected_kind="final_test", expected_track="gbdt"
+        ),
+        echo=False,
+    )
+    assert final["disposition"] == "discard"
+    state = json.loads((study / "study_state.json").read_text(encoding="utf-8"))
+    assert state["final_holdout_access"]["gbdt"]["count"] == 1
+    assert state["final_holdout_access"]["primary"]["count"] == 0
+
+
+def test_second_sealed_access_is_refused_from_the_ledger_even_if_state_is_wiped(
+    ready_study,
+) -> None:
+    """The coupled safety guard: reconciliation must not let a deleted SPENT
+    entry re-arm the one-access seal — manifests are hash-committed and are
+    the tamper-evident record; study_state.json is not."""
+    repo, study = ready_study
+    train = study / "train.py"
+    train.write_text(train.read_text() + "\nKEEP = True\n", encoding="utf-8")
+    run_one(study, description="baseline", command=metric_command(0.70), echo=False)
+    record_gate(
+        study, "phase", phase="adaptive-1", acknowledged_by="tester", note="reviewed"
+    )
+    commit_all(repo, "acknowledge adaptive phase")
+    final = run_one(
+        study,
+        final_test=True,
+        command=metric_command(0.69, expected_kind="final_test"),
+        echo=False,
+    )
+    assert final["evaluation_kind"] == "final_test"
+    state_file = study / "study_state.json"
+    state = json.loads(state_file.read_text(encoding="utf-8"))
+    del state["final_holdout_access"]["primary"]
+    state_file.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    commit_all(repo, "wipe the spent seal entry (tamper simulation)")
+    with pytest.raises(
+        WorkflowError,
+        match=r"already been accessed by E0002 \(recorded in the ledger\)",
+    ):
+        run_one(
+            study,
+            final_test=True,
+            command=metric_command(0.69, expected_kind="final_test"),
+            echo=False,
+        )
+
+
+def test_preflight_warns_when_a_declared_guardrail_is_never_printed(
+    ready_study,
+) -> None:
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    contract["tracks"]["primary"]["guardrails"] = {"custom_latency_key": {"max": 1.0}}
+    (study / "study.yaml").write_text(
+        yaml.safe_dump(contract, sort_keys=False), encoding="utf-8"
+    )
+    checks = preflight_checks(study, require_clean=False, require_branch=False)
+    vis = [c for c in checks if c.name == "guardrail visibility"]
+    assert len(vis) == 1
+    assert vis[0].ok is True  # advisory only — never blocks
+    assert vis[0].message.startswith("[WARN]")
+    assert "custom_latency_key" in vis[0].message
+    assert "PRINTED" in vis[0].message
+
+
+def test_preflight_accepts_auto_printed_and_source_named_guardrails(
+    ready_study,
+) -> None:
+    _repo, study = ready_study
+    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
+    contract["tracks"]["primary"]["guardrails"] = {
+        "wall_seconds": {"max": 400},
+        "max_abs_param_deviation": {"max": 0.02},
+    }
+    (study / "study.yaml").write_text(
+        yaml.safe_dump(contract, sort_keys=False), encoding="utf-8"
+    )
+    # the study-06 shape: the key is computed in analysis.py, not train.py
+    (study / "analysis.py").write_text(
+        "# routes max_abs_param_deviation into evaluate extra=\n", encoding="utf-8"
+    )
+    checks = preflight_checks(study, require_clean=False, require_branch=False)
+    vis = [c for c in checks if c.name == "guardrail visibility"]
+    assert len(vis) == 1
+    assert vis[0].ok is True
+    assert "[WARN]" not in vis[0].message
+
+
+def test_status_lists_every_contract_track_after_a_top_up(ready_study) -> None:
+    repo, study = ready_study
+    add_track_post_scaffold(repo, study, "gbdt")
+    text = status_summary(study)
+    assert "primary=0/1" in text
+    assert "gbdt=0/1" in text
