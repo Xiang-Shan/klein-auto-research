@@ -118,7 +118,7 @@ supposed to beat.</td>
 <td><strong>iii</strong></td>
 <td><strong>A clean 1-in-100 of 4.08e7 $bn</strong> (≈ $4.1e16) &mdash; about
 <strong>5.6e5×</strong> the largest event ever recorded &mdash; because
-<code>tan(0.49π) = 31.82</code> multiplies σ̂ in the exponent.</td>
+<span data-math="\tan(0.49\pi) = 31.82"></span> multiplies σ̂ in the exponent.</td>
 <td>&ldquo;The level is meaningless.&rdquo; And it passes every diagnostic an analyst would
 normally run.</td>
 </tr>
@@ -130,7 +130,7 @@ stresses act through different channels. <em>Inflation</em> changes a value the 
 never reads, so nothing propagates: the influence function is bounded and the breakdown point
 does its job. <em>Deletion</em> changes <strong>which order statistics the fixed probability
 levels land on</strong> &mdash; the estimator is asked for the same probability levels of a
-genuinely different sample &mdash; so σ̂ moves a little. And then <code>tan(0.49π) = 31.82</code>
+genuinely different sample &mdash; so σ̂ moves a little. And then <span data-math="\tan(0.49\pi) = 31.82"></span>
 sits in the exponent and turns &ldquo;a little&rdquo; into a factor: a 0.04 move in σ̂ multiplies
 the return level by about 3.6.</p>
 
@@ -177,7 +177,7 @@ points at each end cut the single most likely real-world perturbation by more th
 <p><strong>Why the cliff is missing, and why that is informative.</strong> The registered
 prediction was that k = 2 (2/30 = 0.067, past BP = 0.05) would <em>breach</em> the narrow trim.
 It cost only <strong>+3.70 pp</strong> relative to the wider trim. The reason is that
-<code>BP = min{a, 1&minus;b}</code> guarantees an estimate cannot be driven <em>arbitrarily</em>
+<span data-math="\mathrm{BP} = \min\{a,\,1-b\}"></span> guarantees an estimate cannot be driven <em>arbitrarily</em>
 by <strong>corruption in place</strong> &mdash; and deletion is a different stress, because
 dropping the top k <em>re-indexes every order statistic</em>. The cliff-shaped guarantee shows
 up on the stress BP actually governs: under 5× inflation of the maximum, both gQLS trims sit at
@@ -318,7 +318,7 @@ level here. The observed r(year, log damage) = &minus;0.42 is equally consistent
 noise and with over-normalization, and cannot be distinguished at n = 30.</li>
 
 <li><strong>The MLE baseline's GoF gate is heuristic.</strong> The <code>w_pvalue ≥ 0.10</code>
-guardrail admitted E0006 on W p = 0.5374 with <code>w_chi2_calibrated = 0</code>: the χ²<sub>k&minus;2</sub>
+guardrail admitted E0006 on W p = 0.5374 with <code>w_chi2_calibrated = 0</code>: the <span data-math="\chi^{2}_{k-2}"></span>
 calibration is established for gQLS residuals and the implementation correctly flags that it is
 <em>not</em> established for an MLE fit. The MLE arm passed a comparable-<em>looking</em> screen
 rather than a calibrated one. This does not affect C5's ordering (log-Cauchy loses on its own

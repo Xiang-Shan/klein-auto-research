@@ -31,7 +31,7 @@ quantile curve through those eight points. The largest observation sits above
 it, multiply it by a million &mdash; the estimate does not move. That is not a heuristic.
 It is the definition of a <strong>breakdown point</strong>:</p>
 
-<blockquote><code>BP = min{a, 1 &minus; b}</code> &mdash; the fraction of the sample you may
+<blockquote><span data-math="\mathrm{BP} = \min\{a,\,1-b\}"></span> &mdash; the fraction of the sample you may
 corrupt <em>arbitrarily</em> before the estimate can be driven anywhere.</blockquote>
 
 <p>Read it as a count, because that is what makes it actionable. At
@@ -74,7 +74,7 @@ points is worse than the disease. <strong>In this problem you do not have to.</s
 Serfling's joint asymptotic normality theorem hands you the covariance of the empirical
 quantile vector in closed form, and after standardization it depends only on the
 <em>standard</em> member of the family &mdash; no unknown parameters at all. You can write
-<code>Σ★</code> down before seeing a single data point.</p>
+<span data-math="\Sigma^{\star}"></span> down before seeing a single data point.</p>
 
 <p>How much does that buy? The thesis's asymptotic relative efficiencies (k = 25,
 (0.05,&nbsp;0.95)) answer bluntly:</p>
@@ -96,7 +96,7 @@ this method.</strong> And it is directly visible in the data being reproduced: o
 hurricane sample at (0.05,&nbsp;0.95), log-Cauchy's σ̂ is <strong>0.229912 under oQLS and
 0.485055 under gQLS</strong> &mdash; a factor of <strong>2.11</strong> from the weighting
 alone. That split is this study's specification falsifier: if a from-scratch
-<code>Σ★</code> is wrong, those two numbers will not separate that way. Section 4 shows it
+<span data-math="\Sigma^{\star}"></span> is wrong, those two numbers will not separate that way. Section 4 shows it
 passing at a deviation of 8.8e&minus;05.</p>
 
 <p>Read the Normal row too, because it is the honest counterweight: gQLS is very slightly
@@ -110,7 +110,7 @@ where loss data lives.</p>
 <p><strong>(3.8) &mdash; the grid.</strong> Fix the endpoints for robustness, then space the
 rest evenly:</p>
 
-<pre><code>p_i = a + (i &minus; 1)/(k &minus; 1) · (b &minus; a),      i = 1, …, k</code></pre>
+<div data-math-display="p_i = a + \frac{i-1}{k-1}(b-a),\qquad i = 1,\dots,k"></div>
 
 <p>For k = 8 and (a,&nbsp;b) = (0.05,&nbsp;0.95) that is
 <code>[0.05, 0.178571, 0.307143, 0.435714, 0.564286, 0.692857, 0.821429, 0.95]</code>. The
@@ -119,54 +119,60 @@ three trims the thesis reports are (0.02,&nbsp;0.98), (0.05,&nbsp;0.95) and
 
 <p><strong>(2.1) &mdash; the quantile covariance (Serfling's Theorem B).</strong> The
 empirical quantile vector is asymptotically normal about the true quantiles with covariance
-<code>σ_ij / n</code>:</p>
+<span data-math="\sigma_{ij}/n"></span>:</p>
 
-<pre><code>σ_ij = p_i (1 &minus; p_j) / [ f(F⁻¹(p_i)) · f(F⁻¹(p_j)) ]   for i &le; j,   σ_ij = σ_ji otherwise</code></pre>
+<div data-math-display="\sigma_{ij} = \frac{p_i(1-p_j)}{f(F^{-1}(p_i))\,f(F^{-1}(p_j))}"></div>
+<p class="note">for i &le; j; σ_ij = σ_ji otherwise.</p>
 
-<p>Two facts make this usable. First, once the family is fixed, replacing <code>f, F⁻¹</code>
-by the <strong>standard</strong> <code>f★, F★⁻¹</code> removes every unknown &mdash;
-<code>Σ★</code> becomes a matrix of pure numbers. Second, for a <strong>log</strong>-location-scale
+<p>Two facts make this usable. First, once the family is fixed, replacing <span data-math="f, F^{-1}"></span>
+by the <strong>standard</strong> <span data-math="f^{\star}, F^{\star-1}"></span> removes every unknown &mdash;
+<span data-math="\Sigma^{\star}"></span> becomes a matrix of pure numbers. Second, for a <strong>log</strong>-location-scale
 family the Jacobian of the <code>log</code> transform is diagonal with entries
-<code>1/F⁻¹(p_i)</code>, and the <code>F⁻¹(p_i)F⁻¹(p_j)</code> factors cancel exactly against
+<span data-math="1/F^{-1}(p_i)"></span>, and the <span data-math="F^{-1}(p_i)F^{-1}(p_j)"></span> factors cancel exactly against
 the matching factors in the numerator. <strong>The log family inherits the very same
-<code>Σ★</code>.</strong> That cancellation is the reason six different loss laws share one
+<span data-math="\Sigma^{\star}"></span>.</strong> That cancellation is the reason six different loss laws share one
 piece of code.</p>
 
-<p><strong>(3.4) / (3.6) &mdash; the two estimators.</strong> With <code>Y = Xβ + ε</code>,
-<code>ε ~ AN(0, σ²Σ★/n)</code>:</p>
+<p><strong>(3.4) / (3.6) &mdash; the two estimators.</strong> With <span data-math="Y = X\beta + \varepsilon"></span>,
+<span data-math="\varepsilon \sim \mathrm{AN}(0, \sigma^{2}\Sigma^{\star}/n)"></span>:</p>
 
-<pre><code>oQLS:   β̂ = (X′X)⁻¹ X′Y                  &mdash; pretends Σ★ = I_k
-gQLS:   β̂ = (X′Σ★⁻¹X)⁻¹ X′Σ★⁻¹Y           &mdash; uses the known Σ★</code></pre>
+<p class="note"><em>oQLS:</em></p>
+<div data-math-display="\hat{\beta} = (X'X)^{-1}X'Y"></div>
+<p class="note">&mdash; pretends Σ★ = I_k</p>
+<p class="note"><em>gQLS:</em></p>
+<div data-math-display="\hat{\beta} = (X'\Sigma^{\star-1}X)^{-1}X'\Sigma^{\star-1}Y"></div>
+<p class="note">&mdash; uses the known Σ★</p>
 
-<p><strong>Numerically, never form <code>Σ★⁻¹</code>.</strong> Factor
-<code>Σ★ = LL′</code> and run OLS on the whitened system <code>L⁻¹X</code>,
-<code>L⁻¹Y</code> &mdash; mathematically identical, numerically far safer.
-<code>Σ★</code>'s condition number runs from about <strong>35</strong> for the normal member
+<p><strong>Numerically, never form <span data-math="\Sigma^{\star-1}"></span>.</strong> Factor
+<span data-math="\Sigma^{\star} = LL'"></span> and run OLS on the whitened system <span data-math="L^{-1}X"></span>,
+<span data-math="L^{-1}Y"></span> &mdash; mathematically identical, numerically far safer.
+<span data-math="\Sigma^{\star}"></span>'s condition number runs from about <strong>35</strong> for the normal member
 at k = 8, (0.05,&nbsp;0.95) up to <strong>2.7e4</strong> for log-Cauchy across the reported
-trims, and grows sharply as <code>a &rarr; 0</code>. Section 6 shows the implementation
+trims, and grows sharply as <span data-math="a \to 0"></span>. Section 6 shows the implementation
 logging that condition number on every fit rather than hiding it.</p>
 
 <p><strong>(5.2) &mdash; in-sample goodness of fit.</strong> The gQLS residuals support a
 quadratic form that decomposes orthogonally, leaving</p>
 
-<pre><code>W = (n / σ̂²_gQLS) · (Y &minus; Xβ̂)′ Σ★⁻¹ (Y &minus; Xβ̂)   ~   χ²_{k&minus;2}   under H₀</code></pre>
+<div data-math-display="W = \frac{n}{\hat{\sigma}^{2}_{\mathrm{gQLS}}}(Y-X\hat{\beta})'\Sigma^{\star-1}(Y-X\hat{\beta}) \sim \chi^{2}_{k-2}"></div>
+<p class="note">under H₀.</p>
 
-<p>Here k = 8, so <strong><code>W ~ χ²₆</code></strong> and the p-value is
-<code>P(χ²₆ &gt; W)</code>. This is the guardrail the decision track uses. One detail matters
-enormously for this data: an earlier test of the same shape estimated <code>σ²</code> by the
+<p>Here k = 8, so <strong><span data-math="W \sim \chi^{2}_{6}"></span></strong> and the p-value is
+<span data-math="P(\chi^{2}_{6} &gt; W)"></span>. This is the guardrail the decision track uses. One detail matters
+enormously for this data: an earlier test of the same shape estimated <span data-math="\sigma^{2}"></span> by the
 <strong>sample variance</strong>, which requires a finite second moment. Equation (5.2) uses
-<code>σ̂²_gQLS</code> instead and therefore <em>survives Cauchy-type tails</em> &mdash; a small
+<span data-math="\hat{\sigma}^{2}_{\mathrm{gQLS}}"></span> instead and therefore <em>survives Cauchy-type tails</em> &mdash; a small
 change with large consequences here, where the best-fitting family has no moments at all.</p>
 
 <p><strong>(5.3) &mdash; out-of-sample goodness of fit.</strong> <code>W</code> has a
 structural flaw for model <em>comparison</em>: it scores residuals only on the estimation
 grid, so a more aggressive trim shrinks the very interval being scored and looks better for
 free. The fix is a <strong>universal</strong> grid of <code>r = 25</code> levels spanning
-0.01 to 0.99, the same for every (a,&nbsp;b), giving <code>W_out</code> with <code>β̂</code>
+0.01 to 0.99, the same for every (a,&nbsp;b), giving <code>W_out</code> with <span data-math="\hat{\beta}"></span>
 still taken from the estimation grid. Because the two grids overlap only partially, the
 thesis calls the null distribution &ldquo;a major challenge&rdquo; and prices the p-value by
 <strong>parametric bootstrap</strong> (B = 1000). This study implements both that bootstrap
-and a naive <code>χ²_{r&minus;2} = χ²₂₃</code> reference, because RQ2 asks whether the
+and a naive <span data-math="\chi^{2}_{r-2} = \chi^{2}_{23}"></span> reference, because RQ2 asks whether the
 expensive one earns its keep. Section 4 reports what happened, and it is more interesting
 than either registered answer.</p>
 
@@ -182,26 +188,28 @@ Section 5 shows the distinction turning out to matter far more than expected.</p
 
 <p>A law is <strong>log-location-scale</strong> when <code>log X</code> is location-scale:</p>
 
-<pre><code>F⁻¹(u) = exp( μ + σ F★⁻¹(u) )    so    log F⁻¹(u) = μ + σ F★⁻¹(u)</code></pre>
+<div data-math-display="F^{-1}(u) = \exp(\mu + \sigma F^{\star-1}(u))"></div>
+<p class="note">so</p>
+<div data-math-display="\log F^{-1}(u) = \mu + \sigma F^{\star-1}(u)"></div>
 
 <p>&mdash; <strong>linear in the parameters</strong>, which is the entire reason a closed-form
-regression exists. Six families become one code path with six <code>(f★, F★⁻¹)</code> pairs:
-log-Cauchy <code>tan(π(u &minus; 0.5))</code>, log-Gumbel <code>&minus;log(&minus;log u)</code>,
-log-Laplace, log-Logistic <code>&minus;log(1/u &minus; 1)</code>, lognormal
-<code>Φ⁻¹(u)</code>, and Pareto I <code>&minus;log(1 &minus; u)</code>.</p>
+regression exists. Six families become one code path with six <span data-math="(f^{\star}, F^{\star-1})"></span> pairs:
+log-Cauchy <span data-math="\tan(\pi(u-0.5))"></span>, log-Gumbel <span data-math="-\log(-\log u)"></span>,
+log-Laplace, log-Logistic <span data-math="-\log(1/u - 1)"></span>, lognormal
+<span data-math="\Phi^{-1}(u)"></span>, and Pareto I <span data-math="-\log(1-u)"></span>.</p>
 
 <p><strong>Pareto I is the one worth staring at.</strong> Written the usual way &mdash;
-<code>S(x) = (θ/x)^α</code>, <code>x &gt; θ</code> &mdash; it looks nothing like a
-location-scale law. Reparametrize <code>μ = log θ</code>, <code>σ = 1/α</code> and
+<span data-math="S(x) = (\theta/x)^{\alpha}"></span>, <span data-math="x &gt; \theta"></span> &mdash; it looks nothing like a
+location-scale law. Reparametrize <span data-math="\mu = \log \theta"></span>, <span data-math="\sigma = 1/\alpha"></span> and
 <code>log X</code> becomes a two-parameter exponential. Three consequences, all
 load-bearing:</p>
 
 <ol>
 <li>Its Q-Q plot is against <strong>standard exponential</strong> quantiles &mdash; which is
 why the bottom-right panel above looks anomalous next to the five symmetric ones.</li>
-<li><code>μ</code> is not a centre; it is the <strong>left boundary of the support</strong>.
-Its MLE is the boundary estimator <code>μ̂ = min(x)</code>, and <code>σ̂ = mean(x) &minus; min(x)</code>.</li>
-<li>Because <code>μ̂</code> depends only on the <em>minimum</em>, Pareto I's MLE is perfectly
+<li><span data-math="\mu"></span> is not a centre; it is the <strong>left boundary of the support</strong>.
+Its MLE is the boundary estimator <span data-math="\hat{\mu} = \min(x)"></span>, and <span data-math="\hat{\sigma} = \mathrm{mean}(x) - \min(x)"></span>.</li>
+<li>Because <span data-math="\hat{\mu}"></span> depends only on the <em>minimum</em>, Pareto I's MLE is perfectly
 insensitive to a contaminated <em>maximum</em>. Section 5 records the sealed grid confirming
 this to the digit: μ̂ = 21.541282 unchanged, σ̂ moving 1.258900 &rarr; 1.335653, which is
 exactly <code>log(10)/30 = 0.076753</code>. <strong>Robustness by accident of
@@ -214,11 +222,12 @@ parametrization</strong> &mdash; predicted at the method gate, produced by the s
 parameter; they sell a number like &ldquo;the 1-in-100 event loss.&rdquo; Getting from one
 to the other means pushing the estimate through the quantile transform</p>
 
-<pre><code>return level = exp( μ̂ + σ̂ · F★⁻¹(0.99) )</code></pre>
+<p class="note">return level:</p>
+<div data-math-display="\exp(\hat{\mu} + \hat{\sigma}\,F^{\star-1}(0.99))"></div>
 
 <p>and <strong>that transform is not gentle</strong>. For the lognormal,
-<code>F★⁻¹(0.99) = 2.326</code>. For <strong>log-Cauchy</strong> &mdash; the family that fits
-this data <em>best</em> &mdash; <code>F★⁻¹(0.99) = tan(0.49π) = 31.82</code>. A 13.7&times;
+<span data-math="F^{\star-1}(0.99) = 2.326"></span>. For <strong>log-Cauchy</strong> &mdash; the family that fits
+this data <em>best</em> &mdash; <span data-math="F^{\star-1}(0.99) = \tan(0.49\pi) = 31.82"></span>. A 13.7&times;
 amplifier sitting in an exponent. The same 0.04 wobble in σ̂ moves a lognormal return level
 by about 10% and a log-Cauchy return level by a factor of <strong>3.6</strong>.</p>
 
