@@ -552,12 +552,15 @@ version = "1.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "joblib" },
+    { name = "latex2mathml" },
     { name = "matplotlib" },
     { name = "pandas" },
+    { name = "pygments" },
     { name = "pyyaml" },
     { name = "scikit-learn" },
     { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "scipy", version = "1.18.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "ziamath" },
 ]
 
 [package.optional-dependencies]
@@ -589,15 +592,18 @@ requires-dist = [
     { name = "catboost", marker = "extra == 'gbdt'", specifier = ">=1.2" },
     { name = "category-encoders", marker = "extra == 'encoders'", specifier = ">=2.8" },
     { name = "joblib", specifier = ">=1.4" },
+    { name = "latex2mathml", specifier = ">=3.81" },
     { name = "lightgbm", marker = "extra == 'gbdt'", specifier = ">=4.3" },
     { name = "matplotlib", specifier = ">=3.9" },
     { name = "pandas", specifier = ">=2.2" },
     { name = "pyarrow", marker = "extra == 'parquet'", specifier = ">=16" },
+    { name = "pygments", specifier = ">=2.17" },
     { name = "pyyaml", specifier = ">=6" },
     { name = "scikit-learn", specifier = ">=1.5" },
     { name = "scipy", specifier = ">=1.13" },
     { name = "torch", marker = "extra == 'deep'", specifier = ">=2.3" },
     { name = "xgboost", marker = "extra == 'gbdt'", specifier = ">=2.0" },
+    { name = "ziamath", specifier = ">=0.13" },
 ]
 provides-extras = ["encoders", "parquet", "gbdt", "deep"]
 
@@ -606,6 +612,15 @@ dev = [
     { name = "pytest", specifier = ">=8" },
     { name = "pytest-cov", specifier = ">=5" },
     { name = "ruff", specifier = ">=0.6" },
+]
+
+[[package]]
+name = "latex2mathml"
+version = "3.81.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/3b/62/35bb816c5c19d4d0cde5bdfb82ebb996306243d5f94e03f201658c629960/latex2mathml-3.81.0.tar.gz", hash = "sha256:4b959cdc3cac8686bc0e3e5aece8127dfb1b81ca1241bed8e00ef31b82bb4022", size = 77584, upload-time = "2026-04-15T00:55:27.977Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl", hash = "sha256:d317710393fe20579aea39cfe8928fa2ad9b8780896e585326c75e89c1d1d1a4", size = 79185, upload-time = "2026-04-15T00:55:29.301Z" },
 ]
 
 [[package]]
@@ -1911,4 +1926,26 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/47/3a/a0adcd1ee28f525bd5c9dc3ebe78a7599bf97c22866d6449f967b829e338/xgboost-3.3.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:624a83aeb1e7ba081719795db179f4ce6fff12e79de05cd9baf15ee48fd22f0e", size = 98180629, upload-time = "2026-06-17T21:24:00.804Z" },
     { url = "https://files.pythonhosted.org/packages/47/1f/8b3e578cfd8e3bcdb4374e2bbe0b40b4e5320accb5cbdcf535ecc512eb5c/xgboost-3.3.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:f59edaf28eccd1c519788607c72ed907ee6cedfa933d706620bc1612d24b354e", size = 98716607, upload-time = "2026-06-17T21:26:21.058Z" },
     { url = "https://files.pythonhosted.org/packages/07/6b/087fd5d28fdbb90d385c50ee9308a820241b82feebdf42e72e19a48e4b32/xgboost-3.3.0-py3-none-win_amd64.whl", hash = "sha256:b06057f6a018fc04e6b3e0c15568ca636b8151a5b5f333478e500fcaf4fc7594", size = 69522696, upload-time = "2026-06-17T21:20:53.707Z" },
+]
+
+[[package]]
+name = "ziafont"
+version = "0.11"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f7/7e/a6ced696b3302868183ad56eac4d084bddbe57d757cfddde990e28845cdb/ziafont-0.11.tar.gz", hash = "sha256:b2a9991948b232640215236efdf603f372403b0e000598971a84cae35880d50c", size = 418874, upload-time = "2025-11-27T02:48:51.536Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/ea/c5d6e745660b1d95fd257e9fc7f906541ede9bb2edf2ee8fdb4bc151c129/ziafont-0.11-py3-none-any.whl", hash = "sha256:b62132be3da9667a80d048ab5498f107e49761722b69965788c2c747a38e7373", size = 420524, upload-time = "2025-11-27T02:48:46.266Z" },
+]
+
+[[package]]
+name = "ziamath"
+version = "0.13"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "latex2mathml" },
+    { name = "ziafont" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/88/15/d4f6231e568bb49f8340685efe3020077b1f93f2bb4b4e36471367438b91/ziamath-0.13.tar.gz", hash = "sha256:4f56e9d0b6489f01bcf19c05d68e6da84ed6601d2e1262a62d3a9a7e7c33a171", size = 848924, upload-time = "2026-02-06T17:47:15.055Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f8/0d/6e029024b14f3da85408601fd7607eff8d84081d1934b64785373ecb9be5/ziamath-0.13-py3-none-any.whl", hash = "sha256:67a9b9714101fc90c2d6d0328e578f3ac311fb007644f2bbb9314ba2bc1c1459", size = 856433, upload-time = "2026-02-06T17:47:09.471Z" },
 ]

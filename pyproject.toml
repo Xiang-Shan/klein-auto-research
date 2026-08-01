@@ -23,6 +23,12 @@ dependencies = [
     "scipy>=1.13",
     "pyyaml>=6",
     "joblib>=1.4",
+    # tutorial renderer (build_tutorial.py): build-time LaTeX -> inline SVG
+    # and syntax highlighting; the TUTORIAL stage is mandatory, so these are
+    # main dependencies (foreign repos consume the builder through the wheel).
+    "pygments>=2.17",
+    "ziamath>=0.13",
+    "latex2mathml>=3.81",
 ]
 
 [project.scripts]
