@@ -57,6 +57,11 @@ def test_build_fresh_tutorial_has_csp_and_inline_figure(tmp_path: Path) -> None:
     assert "metric: val_auc (primary)" in text
     assert "src=\"http" not in text
     assert "href=\"http" not in text
+    # v1.2.0: the fixture must keep exercising the build-time renderers, so
+    # the netlog job can never regress to a math-free/code-free page.
+    assert 'class="kmath"' in text
+    assert "<svg" in text
+    assert 'class="klein-code"' in text
 
 
 def test_page_initiated_urls_differences_out_browser_service_noise() -> None:

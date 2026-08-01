@@ -109,8 +109,25 @@ def build_fresh_tutorial(root: Path) -> Path:
             if index == 3
             else ""
         )
+        # Sections 2 and 6 exercise the v1.2.0 build-time renderers, so this
+        # job proves FOREVER that typeset math and highlighted code start
+        # zero network requests (SVG glyph paths, no fonts, no scripts).
+        math = (
+            "\n<p>Inline <span data-math=\"\\hat{\\beta} = (X'X)^{-1}X'y\"></span>.</p>"
+            '\n<div data-math-display="W = \\frac{n}{\\hat{\\sigma}^2}'
+            "(Y-X\\hat{\\beta})'\\Sigma^{-1}(Y-X\\hat{\\beta}) \\sim \\chi^2_{k-2}\"></div>"
+            if index == 2
+            else ""
+        )
+        code = (
+            '\n<pre data-code="train.py" data-lang="python"></pre>'
+            '\n<pre><code class="language-bash">uv run --locked klein status</code></pre>'
+            if index == 6
+            else ""
+        )
         (sections / name).write_text(
-            f"<h2>Section {index}</h2><p>Generated browser-isolation fixture.</p>{marker}{figure}",
+            f"<h2>Section {index}</h2><p>Generated browser-isolation fixture.</p>"
+            f"{marker}{figure}{math}{code}",
             encoding="utf-8",
         )
     (study / "figures" / "one-pixel.png").write_bytes(PNG_1PX)
