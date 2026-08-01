@@ -58,8 +58,9 @@ evidence experiment IDs; ② predictions-to-falsify table filled; ③ surprises 
 **TUTORIAL.** Build `report/index.html` — a self-contained TEACHING artifact, not a
 figure dump — with a fixed seven-section arc: the question → the method taught → the
 data story → the experiment journey → findings & insights → model coding advice →
-next steps + verified references. Base64-inlined figures, no CDN; must open from
-`file://`.
+next steps + verified references. Base64-inlined figures, build-time typeset math
+(LaTeX → inline SVG) and highlighted code, the winning train.py included by
+reference; no CDN, no fonts, no runtime rendering; must open from `file://`.
 
 ## The stage map
 
@@ -114,7 +115,10 @@ The loop has three layers. Keep them straight and the rest follows:
    `events.jsonl`, and the derived `results.tsv` record what layer 1 decided and
    layer 2 observed. Gate records, `klein finalize`, and `klein recover` commit
    their own state writes; if the tree is dirty at run time, it is your edit,
-   not Klein's.
+   not Klein's. Adding a track to `study.yaml` after scaffolding is supported:
+   state loading tops up the per-track sealed-test map from the current contract
+   in memory (never deleting a recorded access), and the next state-writing verb
+   persists it.
 
 The standing rules around those layers:
 
@@ -167,6 +171,10 @@ The standing rules around those layers:
 - Track metrics carry their own name, direction, minimum delta, and guardrails.
   `keep` means a frontier improvement on that track satisfying those guardrails;
   `discard` is retained evidence, and `crash` has `NA` as its primary metric.
+  Guardrails are evaluated on the PRINTED metric block: `wall_seconds` is printed
+  by every evaluator; any other declared guardrail key must be printed from
+  train.py via `evaluate*(..., extra={...})` — `klein preflight` warns when a
+  declared key is neither auto-printed nor named in the study's Python sources.
 - Everything that is not the one primary metric (PR-AUC, logloss, brier, lift@10,
   thresholds, wall_seconds, model_path, min_proba_std, ...) goes to
   `aux_metrics.tsv` in long format (`experiment  metric  value`), never into extra

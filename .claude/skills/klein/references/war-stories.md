@@ -1,8 +1,9 @@
 # War stories — why the guards exist
 
-Five failures — four from the ancestor campaign, one earned live by study 01 — each of
-which cost real time and each of which hardened into a guard you now inherit for free.
-Read them once; they explain rules that otherwise look like paranoia.
+Six failures — four from the ancestor campaign, one earned live by study 01, one by
+study 05 — each of which cost real time and each of which hardened into a guard you
+now inherit for free. Read them once; they explain rules that otherwise look like
+paranoia.
 
 ## 1. The string-dtype boolean (→ value-pattern check)
 
@@ -88,11 +89,27 @@ dispatches each framework's fit into its own `stage_*` subprocess, so torch and
 OpenMP never share a process (reference implementation: the archived study 01
 `train.py`, tag v1.0.0).
 
+## 6. The unprinted guardrail (→ wall_seconds prints + preflight visibility check)
+
+**The failure.** Study 05's first run printed the anchor-exact metric (0.454861) and
+was dispositioned `discard` anyway — "guardrail metric 'wall_seconds' missing". The
+contract declared a `wall_seconds` guardrail; the evaluator wrote `wall_seconds` to
+the aux sidecar but never PRINTED it, and the runner's guardrail arithmetic reads
+the printed block only. A healthy candidate burned a real slot on a bookkeeping
+mismatch — and study 06 avoided a repeat only because a human remembered the lesson.
+
+**The guard.** Every evaluator now prints `wall_seconds:` itself (a caller that
+already routes it through `extra=` keeps byte-identical output), and
+`klein preflight` warns when any declared guardrail key is neither auto-printed nor
+named anywhere in the study's Python sources. Declare guardrails on keys the run
+will print.
+
 ## The meta-lesson
 
 Every one of these failed SILENTLY — a wrong number that looked plausible, not a crash
 (story 5 is the loud-but-mute variant: a crash below Python that erased its own
-evidence).
+evidence; story 6 the plausible-but-wrong verdict: a healthy run scored discard by
+bookkeeping).
 That is the expensive kind. The guards all convert a silent lie into a loud failure:
 inspect values (not dtypes), raise on collapsed preds, single-source the schema, weigh
 calibration beside rank. When a guard fires, thank it — it just saved a campaign.

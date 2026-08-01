@@ -27,43 +27,85 @@ Every tutorial has these sections, in order:
 7. **Next steps + references.** What to try next, and the verified references from the
    method card.
 
-## Two routes to the HTML
+## The builder
 
-### Route A — the global nano-tutorial-html skill (preferred when present)
-If the `nano-tutorial-html` skill is available (check
-`~/.claude/skills/nano-tutorial-html/SKILL.md`; main sessions invoke the skill, worker
-agents read that SKILL.md and drive its harvest/render scripts via Bash), run it on the
-study directory in repo-profile mode. It harvests deterministically (frontmatter,
-results tables, figures, findings), authors a spec, and renders a vendor-inlined single
-file. Point it at `studies/NN/` and steer the focus to the seven-section arc above.
-Verify the output against the acceptance checklist — a klein study dir is neither a
-nano nor a plain repo, so if the harvest misses results.tsv/findings.md content, fall
-back to Route B rather than shipping a thin page.
-
-### Route B — the bundled fallback builder
-If the skill is absent, split the work: the tutor AUTHORS the content as seven HTML
-fragments, and the bundled assembler stitches them into one offline file. The concrete
-script is **`.claude/skills/klein/scripts/build_tutorial.py`** (stdlib only):
+Split the work: the tutor AUTHORS the content as seven HTML fragments, and the
+bundled assembler stitches them into one offline file with build-time typeset math
+and highlighted code. The concrete script is
+**`.claude/skills/klein/scripts/build_tutorial.py`** (dependencies: pygments +
+ziamath + latex2mathml, declared in pyproject.toml — every shipped exhibit is built
+this way):
 
 - Author `<study_dir>/report/sections/` with exactly the seven fragments (no
   `<html>`/`<head>`/`<body>` wrappers), named for the arc above:
   `01-question.html`, `02-method.html`, `03-data.html`, `04-journey.html`,
-  `05-findings.html`, `06-coding-advice.html`, `07-next-steps.html`. Use `<pre><code>`
-  for the train.py walkthrough; reference figures as `<img data-fig="figures/<name>.png">`
-  (the builder base64-inlines each PNG); drop a `<!--LEDGER-->` marker in 04-journey where
-  the auto-generated results.tsv ledger table should go.
+  `05-findings.html`, `06-coding-advice.html`, `07-next-steps.html`. Reference
+  figures as `<img data-fig="figures/<name>.png">` (the builder base64-inlines each
+  PNG); include the winning train.py by reference (see below); drop a
+  `<!--LEDGER-->` marker in 04-journey where the auto-generated results.tsv ledger
+  table should go.
 - Build: `uv run --locked python .claude/skills/klein/scripts/build_tutorial.py <study_dir>
   [--title "..."]` → writes `<study_dir>/report/index.html`. It reads study.yaml for the
-  header (goal/metric), inlines every figure, and runs its own acceptance guard (all seven
-  anchors present; zero `http://`/`https://` in `src`/`href` attributes) — a build that
-  references a missing figure or an external asset URL FAILS with a non-zero exit listing
-  the offenders. No CDN, no external fonts, no network.
+  header (goal/metric), inlines every figure, renders math and code, and runs its own
+  acceptance guard. Non-zero exits list the offenders: 2 missing fragments, 3 missing
+  figures, 4 acceptance guard (external asset URL / modified CSP), 5 math render
+  failure, 6 code include failure, 7 renderer dependency missing.
+
+## Math and code in fragments
+
+**Math** is authored as LaTeX in EMPTY elements and typeset at BUILD time into
+inline SVG glyph paths — no fonts, no runtime script, identical pixels everywhere:
+
+- Inline: `<span data-math="\hat{\sigma}^{2}_{\mathrm{gQLS}}"></span>`
+- Display: `<div data-math-display="d(y,\mu) = 2\Big(y\log\tfrac{y}{\mu} - y + \mu\Big)"></div>`
+- The data attribute is the element's ONLY attribute and the element is EMPTY.
+  Inside the attribute escape exactly four characters: `&`→`&amp;` `"`→`&quot;`
+  `<`→`&lt;` `>`→`&gt;`; backslashes are literal. An unescaped quote, a non-empty
+  element, or an unparseable formula is a HARD build error naming the fragment.
+- The LaTeX source survives into the built page as `data-latex` and as the SVG
+  `<title>` — numbers inside formulas stay greppable and the source stays copyable.
+- Validated LaTeX subset (the shipped-exhibit corpus): fractions (`\frac`/`\tfrac`),
+  sub/superscripts including `^{\star-1}` and negative exponents, `\hat`, Greek,
+  `\sum` with limits, `\big`/`\Big`/`\left`/`\right`, `\text`/`\mathrm`/`\mathbb`,
+  `\underbrace`, `\displaystyle`, `\sqrt`, `\nabla`, relations
+  (`\le`/`\sim`/`\approx`/`\in`/`\Longrightarrow`), `\dots`, spacing
+  (`\,`/`\;`/`\quad`/`\qquad`), primes as apostrophes. Multi-line derivations:
+  one display element per line with prose between — not alignment environments.
+- Convert self-contained mathematical STATEMENTS only; prose typography
+  (a `3.7×` multiplier, an arrow in a sentence) stays plain text.
+
+**Code** is highlighted at build time (Pygments, pinned dual-theme styles):
+
+- The winning train.py is included BY REFERENCE:
+  `<pre data-code="train.py" data-lang="python"></pre>` — the builder reads the file
+  from the study dir, so the page carries the ACTUAL bytes (a missing file or a path
+  outside the study dir fails the build). `data-lang` is optional (inferred from the
+  suffix). Deliberately NOT supported: line-range includes — ranges drift the moment
+  the file changes, which is the failure mode include-by-reference exists to remove;
+  keep snippets as literal pastes.
+- Literal snippets: `<pre><code class="language-python">…escaped…</code></pre>`
+  (also bash/yaml/json/diff/console/text). A `<pre><code>` with NO language class is
+  left byte-identical — the escape hatch for console dumps and not-code monospace.
+
+**Diagrams** ship as pre-rendered static figures like any other figure — see
+`docs/diagrams/src/` for the repo's matplotlib-to-PNG idiom. No diagram-description
+language is rendered at build time.
+
+## Optional: an external renderer
+
+Some protocols name a global `nano-tutorial-html` skill as an accelerator for
+harvest-and-render. If used, its output must still pass this spec's hard gates and
+the full acceptance checklist below. Today it renders math at RUNTIME via bundled
+KaTeX with no CSP, so it does not pass them, and no shipped exhibit uses it — the
+bundled builder above is the route of record.
 
 ## Self-contained: the hard requirement
 
 - Opens from `file://` with NO network. Strictly no CDN scripts, external stylesheets,
   remote images, or fonts.
 - All figures are base64-inlined PNGs (`<img src="data:image/png;base64,...">`).
+- Math is typeset at BUILD time into inline SVG; no math is rendered by script in
+  the browser, and no font is fetched or embedded — `font-src 'none'` stands.
 - One file: `report/index.html`. Everything it needs is inside it.
 - Include a restrictive Content-Security-Policy meta tag compatible with inline styles
   and `data:` images but with no remote/default connections.
@@ -103,8 +145,17 @@ failure:
 - [ ] All SEVEN sections are present and in order.
 - [ ] Opens offline from `file://` — verified in a browser with zero network requests.
 - [ ] Restrictive CSP is present and the browser console records no CSP errors.
-- [ ] Includes the model-coding-advice section with the ACTUAL winning train.py.
-- [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md.
-- [ ] Every figure is inlined (grep the file: no `http://` / `https://` asset refs).
+- [ ] Includes the model-coding-advice section with the ACTUAL winning train.py —
+      via `<pre data-code="train.py">`, so the builder guarantees the bytes.
+- [ ] Every mathematical EXPRESSION is typeset (`data-math` / `data-math-display`):
+      no ASCII pseudo-math (`SUM_i`, `sqrt()`, spelled-out operators) and no
+      HTML-built formulas (`<sub>`/`<sup>` constructions) anywhere. A bare symbol
+      or cited value named mid-sentence (a σ̂ or χ²₂₃ in prose) may stay Unicode
+      text — prose names symbols; formulas get typeset.
+- [ ] Every code block is highlighted or deliberately classless (console dumps).
+- [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md
+      (formula digits stay greppable via `data-latex`).
+- [ ] Every figure is inlined (no `http://` / `https://` in any `src`/`href`
+      attribute; plain-text URLs in citations are fine).
 - [ ] The references match the method card (no unverified refs promoted to verified).
 - [ ] Figure critique passed for every inlined figure.

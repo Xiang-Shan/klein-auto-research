@@ -122,7 +122,10 @@ uv run --locked klein recover --study studies/NN-slug
 
 `keep` means a track-specific improvement of at least `minimum_delta` with every
 configured guardrail satisfied. `discard` is valid scientific evidence. `crash` has
-an `NA` primary metric. Every disposition keeps a resolvable candidate commit.
+an `NA` primary metric. Guardrails read the PRINTED metric block: `wall_seconds`
+prints automatically; any other declared key must reach stdout via
+`evaluate*(..., extra={...})` (preflight warns when a declared key is neither
+auto-printed nor named in the study's Python sources). Every disposition keeps a resolvable candidate commit.
 run-one refuses an unchanged `train.py` before any id or commit exists (an
 accidental rerun burns a phase slot); pass `--allow-rerun` for an intentional
 identical replication — sealed final tests and `--command` overrides are exempt.
@@ -214,7 +217,7 @@ there and nowhere else, so nothing can drift. In the foreign repo, add the engin
 (see `assets/pyproject-study-template.toml`), then `uv sync --locked`:
 
 ```bash
-uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v1.1.0"  # pin a tag
+uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v1.2.0"  # pin a tag
 ```
 
 Tags are safe to pin: since v1.0.0 the study schema (v2), the `klein` CLI
