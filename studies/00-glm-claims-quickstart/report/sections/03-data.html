@@ -17,7 +17,7 @@ clothes: the seventeen <code>is_*</code> feature flags hold exactly <code>"Yes"<
 <code>"Automatic"</code>/<code>"Manual"</code>. The obvious way to find categorical columns
 is to check the dtype:</p>
 
-<pre><code># The bug. Looks reasonable. Silently wrong.
+<pre><code class="language-python"># The bug. Looks reasonable. Silently wrong.
 categorical = [c for c in df.columns if df[c].dtype == "object"]</code></pre>
 
 <p>Under this machine's <strong>pandas 3.0.3</strong>, every one of those nineteen columns
@@ -30,7 +30,7 @@ about two hours of confusion before anyone noticed the features had gone missing
 <p>The fix is a discipline, not a patch: <strong>never key on the dtype label; inspect the
 actual values.</strong></p>
 
-<pre><code># The fix. Detect by VALUE PATTERN, not by dtype.
+<pre><code class="language-python"># The fix. Detect by VALUE PATTERN, not by dtype.
 def detect_yes_no_columns(df):
     out = []
     for col in df.columns:

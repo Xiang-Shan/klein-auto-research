@@ -10,12 +10,12 @@ you feed it.</p>
 
 <p>The model scores each policy on the log-odds scale with a plain weighted sum:</p>
 
-<pre><code>&eta; = &beta;&#8320; + &beta;&#8321;&middot;x&#8321; + &beta;&#8322;&middot;x&#8322; + &hellip; + &beta;&#8342;&middot;x&#8342;      (the linear predictor)
-P(claim) = 1 / (1 + e^(&minus;&eta;))                (the logit link squashes it into [0,1])</code></pre>
+<div data-math-display="\eta = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k \qquad \text{(the linear predictor)}"></div>
+<div data-math-display="P(\text{claim}) = \frac{1}{1 + e^{-\eta}} \qquad \text{(the logit link squashes it into [0,1])}"></div>
 
-<p>Each coefficient <code>&beta;&#8323;</code> is a <strong>log odds-ratio</strong>: holding
-everything else fixed, a one-unit move in <code>x&#8323;</code> multiplies the odds of a claim
-by <code>e^&beta;&#8323;</code>. An underwriter — or a regulator — can read the coefficient
+<p>Each coefficient <span data-math="\beta_3"></span> is a <strong>log odds-ratio</strong>: holding
+everything else fixed, a one-unit move in <span data-math="x_3"></span> multiplies the odds of a claim
+by <span data-math="e^{\beta_3}"></span>. An underwriter — or a regulator — can read the coefficient
 table straight off. That transparency is the GLM's blessing.</p>
 
 <p>The curse is the flip side of the same coin. Because the score is a straight sum, the
@@ -74,7 +74,7 @@ recipe:</p>
 <p>Put together, the whole model is a short pipeline — the encoder, spline, and calibration
 choices <em>are</em> the experiment; everything else is library:</p>
 
-<pre><code>from sklearn.preprocessing import OneHotEncoder, SplineTransformer
+<pre><code class="language-python">from sklearn.preprocessing import OneHotEncoder, SplineTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.calibration import CalibratedClassifierCV
 
