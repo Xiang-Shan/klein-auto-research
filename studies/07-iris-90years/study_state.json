@@ -1,0 +1,45 @@
+{
+  "acknowledgements": {},
+  "artifact_hashes": {},
+  "created_at": "2026-08-24T19:01:42.439147Z",
+  "current_phase": "adaptive-1",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/07-iris-90years/data/prepared/iris_hard_pair.csv",
+    "sha256": null
+  },
+  "schema_version": 2,
+  "status": "active",
+  "study_id": "07-iris-90years",
+  "updated_at": "2026-08-24T19:01:42.439242Z"
+}
