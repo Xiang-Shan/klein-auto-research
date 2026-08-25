@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "Xiang",
-      "timestamp": "2026-08-25T07:56:48.443284Z"
+      "timestamp": "2026-08-25T07:57:31.514096Z"
     },
     "data": {
       "by": "Xiang",
@@ -17,7 +17,7 @@
     "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619",
     "method_card.md": "44978f8db32d8068910d625f65307e51eeb70e12426a873e7370fab5ba13fb7d",
     "research_plan.md": "55ff7c5d04c840fd9411d89e3481c8b55e8b82a29e418f297fd7979ba0f8d5f6",
-    "study.yaml": "d3dcc188ba227641801e504008ad5ec1a54217d410b2a398909456cf91d1dec4"
+    "study.yaml": "b4673e65f83c50eb76b63f152f9aa120f863f710c3c9b5a0e8ec33f4d48d3533"
   },
   "created_at": "2026-08-25T07:53:52.338950Z",
   "current_phase": "adaptive-1",
@@ -39,14 +39,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-08-25T07:56:48.443284Z",
+      "acknowledged_at": "2026-08-25T07:57:31.514096Z",
       "acknowledged_by": "Xiang",
       "artifacts": {
         "program.md": "299d512ae8af99979446efd10a1e678cde36fd64c720652e6cc573607cdc4a55",
         "research_plan.md": "55ff7c5d04c840fd9411d89e3481c8b55e8b82a29e418f297fd7979ba0f8d5f6",
-        "study.yaml": "d3dcc188ba227641801e504008ad5ec1a54217d410b2a398909456cf91d1dec4"
+        "study.yaml": "b4673e65f83c50eb76b63f152f9aa120f863f710c3c9b5a0e8ec33f4d48d3533"
       },
-      "note": "re-record after seed-namespace amendment (overflow crash, C19 reproduced; crash sidecar preserved; in-domain namespace registered before any floor stated)",
+      "note": "minimum_delta 0.029 set from the measured ledger-floor sweep (07 recipe, seeds 2026091001-020); headroom_declared = 0.029442/0.029 = 1.015 - the registered DOOR-AJAR branch fires: the parade is a live contest, no redraw",
       "status": "recorded"
     },
     "data": {
@@ -78,5 +78,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:56:48.681853Z"
+  "updated_at": "2026-08-25T07:57:31.514764Z"
 }
