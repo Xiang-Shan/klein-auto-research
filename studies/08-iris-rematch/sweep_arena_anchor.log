@@ -1,0 +1,13 @@
+non-sealed rows: 79  sealed (frozen out): 21
+wrote sweeps/arena_partitions.tsv  (max jaccard dev-vs-declared: 0.2903)
+wrote /Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/sweeps/headroom.tsv
+  rung 60: CLOSED       ceiling-closed  m=0.016680 sd=0.015505 delta=0.032
+  rung 45: CLOSED       ceiling-closed  m=0.018122 sd=0.016599 delta=0.034
+  rung 30: CLOSED       ceiling-closed  m=0.024306 sd=0.022704 delta=0.046
+  rung 20: CLOSED       ceiling-closed  m=0.027754 sd=0.030645 delta=0.062
+  rung 12: CLOSED       fog-closed      m=0.068712 sd=0.073455 delta=0.147
+  rung  8: CLOSED       fog-closed      m=0.129205 sd=0.125599 delta=0.252
+STAGE A COMPLETE — commit the three sweeps/ files BEFORE any challenger fit.
+MEASUREMENT SWEEP: no winner promoted, no results.tsv row (sweep-rules.md carve-out)
+runner_status: ok
+runner_exit_code: 0
