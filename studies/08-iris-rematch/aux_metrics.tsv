@@ -111,3 +111,14 @@ E0010	wall_seconds	0.03267621994018555
 E0010	min_proba_std	0.47452416202333375
 E0010	proba_range	1.0
 E0010	proba_unique_values	4
+E0011	val_auc	1.0
+E0011	val_pr_auc	1.0
+E0011	val_logloss	0.19502486815407427
+E0011	val_brier	0.06894174544892472
+E0011	val_lift_top10	2.5
+E0011	val_best_threshold	0.89
+E0011	val_f1_at_best	1.0
+E0011	wall_seconds	0.021912813186645508
+E0011	min_proba_std	0.46906000274989235
+E0011	proba_range	0.9959393050916611
+E0011	proba_unique_values	20
