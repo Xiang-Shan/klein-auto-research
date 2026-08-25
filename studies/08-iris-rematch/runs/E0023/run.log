@@ -1,0 +1,74 @@
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/svm/_base.py:239: FutureWarning: The `probability` parameter was deprecated in 1.9 and will be removed in version 1.11. Use `CalibratedClassifierCV(SVC(), ensemble=False)` instead of `SVC(probability=True)`
+  warnings.warn(
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/svm/_base.py:239: FutureWarning: The `probability` parameter was deprecated in 1.9 and will be removed in version 1.11. Use `CalibratedClassifierCV(SVC(), ensemble=False)` instead of `SVC(probability=True)`
+  warnings.warn(
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/svm/_base.py:239: FutureWarning: The `probability` parameter was deprecated in 1.9 and will be removed in version 1.11. Use `CalibratedClassifierCV(SVC(), ensemble=False)` instead of `SVC(probability=True)`
+  warnings.warn(
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/svm/_base.py:239: FutureWarning: The `probability` parameter was deprecated in 1.9 and will be removed in version 1.11. Use `CalibratedClassifierCV(SVC(), ensemble=False)` instead of `SVC(probability=True)`
+  warnings.warn(
+Traceback (most recent call last):
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/train.py", line 114, in <module>
+    main()
+    ~~~~^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/train.py", line 96, in main
+    model.fit(X_tr, y_tr)
+    ~~~~~~~~~^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/ensemble/_stacking.py", line 706, in fit
+    return super().fit(X, y_encoded, **fit_params)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/base.py", line 1403, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/ensemble/_stacking.py", line 253, in fit
+    predictions = Parallel(n_jobs=self.n_jobs)(
+        delayed(cross_val_predict)(
+    ...<10 lines>...
+        if est != "drop"
+    )
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/joblib/parallel.py", line 1986, in __call__
+    return output if self.return_generator else list(output)
+                                                ~~~~^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/joblib/parallel.py", line 1914, in _get_sequential_output
+    res = func(*args, **kwargs)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/model_selection/_validation.py", line 1240, in cross_val_predict
+    predictions = parallel(
+        delayed(_fit_and_predict)(
+    ...<8 lines>...
+        for train, test in splits
+    )
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/utils/parallel.py", line 91, in __call__
+    return super().__call__(iterable_with_config_and_warning_filters)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/joblib/parallel.py", line 1986, in __call__
+    return output if self.return_generator else list(output)
+                                                ~~~~^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/joblib/parallel.py", line 1914, in _get_sequential_output
+    res = func(*args, **kwargs)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/utils/parallel.py", line 184, in __call__
+    return self.function(*args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/model_selection/_validation.py", line 1328, in _fit_and_predict
+    estimator.fit(X_train, y_train, **fit_params)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/base.py", line 1403, in wrapper
+    return fit_method(estimator, *args, **kwargs)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/calibration.py", line 460, in fit
+    predictions = cross_val_predict(
+        estimator=this_estimator,
+    ...<5 lines>...
+        params=routed_params.estimator.fit,
+    )
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/utils/_param_validation.py", line 218, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/model_selection/_validation.py", line 1215, in cross_val_predict
+    raise ValueError("cross_val_predict only works for partitions")
+ValueError: cross_val_predict only works for partitions
+runner_status: crash
+runner_exit_code: 1
