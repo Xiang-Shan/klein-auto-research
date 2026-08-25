@@ -26,7 +26,7 @@ EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else 
 TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
 
 PREPARED = "data/prepared/iris_hard_pair.csv"
-TARGET = "is_virginica"
+TARGET = "species"  # E0002: Fisher's own taxonomy question, handed to the binary evaluator on purpose
 
 
 def load_split(evaluation_kind: str):
