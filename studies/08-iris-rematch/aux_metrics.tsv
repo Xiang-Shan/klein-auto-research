@@ -34,3 +34,14 @@ E0003	min_proba_std	0.4372430487803854
 E0003	proba_range	0.9975149208446621
 E0003	proba_unique_values	20
 E0003	model_path	models/best_primary_E0003_0.0247085_5da90e2d18fd.joblib
+E0004	val_auc	1.0
+E0004	val_pr_auc	1.0
+E0004	val_logloss	0.15123717836315378
+E0004	val_brier	0.04489086755314931
+E0004	val_lift_top10	2.5
+E0004	val_best_threshold	0.9400000000000001
+E0004	val_f1_at_best	1.0
+E0004	wall_seconds	0.00817108154296875
+E0004	min_proba_std	0.48062451589414257
+E0004	proba_range	0.9999950275286279
+E0004	proba_unique_values	20
