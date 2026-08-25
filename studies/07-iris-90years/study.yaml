@@ -33,15 +33,21 @@ tracks:
       # `noise_floor:` block here + set minimum_delta, (5) re-record the CONSULT
       # gate with --note "minimum_delta set from the measured split-lottery floor".
       # No challenger rung (E0003+) may run before step 5.
-      minimum_delta: 0
-      # noise_floor:                # filled at step (4) above; method: "split-lottery"
-      #   k: 20
-      #   std: ...                  # std of the ANCHOR's dev Brier across the 20 draws
-      #   range: ...
-      #   mean: ...
-      #   values: [...]
-      #   source: "sweeps/split_lottery.sidecar.tsv"
-      #   measured_after: "E0001"
+      # Measured 2026-08-25 after E0001, per the committed recipe. Escalation rule
+      # check (raise-only, pre-registered): recipe 2*std = 0.0326 -> ceil 3dp 0.033;
+      # klein default max(2*std, range/2) = max(0.0326, 0.0250) = 0.0326 -> 0.033.
+      # Equal: no raise. The k-seed fit-noise sweep ran first and was degenerate
+      # exactly as registered (std 0.0 - LDA is closed form).
+      minimum_delta: 0.033   # split-lottery floor, k=20
+      noise_floor:
+        k: 20
+        std: 0.0163144
+        range: 0.0499969
+        mean: 0.0187138
+        values: [0.0267442, 0.0209562, 0.0225965, 0.0313857, 0.0103791, 0.0329346, 0.0375327, 0.0040527, 0.00308982, 8.10667e-05, 0.0331621, 0.00422387, 0.0010755, 0.00106861, 0.0430575, 0.0323394, 0.0500779, 0.00385923, 0.000115228, 0.0155435]
+        source: "sweeps/split_lottery.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
       #   method: "split-lottery"
     guardrails:
       # wall_seconds is printed by every evaluator, so it is guardrail-legal with no
