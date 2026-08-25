@@ -43,8 +43,22 @@ tracks:
       # klein default max(2*std, range/2)), (4) paste the measured noise_floor
       # block into BOTH tracks + set minimum_delta, (5) re-record the CONSULT gate
       # with the measured value. No challenger rung may run before step 5.
-      minimum_delta: 0
-      # noise_floor:                # measured at Phase 1, never guessed
+      # MEASURED 2026-08-25: registered 2*std = 0.0283 -> ceil3dp 0.029; klein
+      # default max(2*std, range/2) = 0.0283 -> registered value LARGER after
+      # ceiling; no raise. headroom_declared = 0.029442/0.029 = 1.015 >= 1:
+      # the DOOR-AJAR branch fired (predictions row 2) - first time in either
+      # study a declared-split keep is arithmetically possible (needs Brier
+      # <= 0.000442). No redraw; the parade is a live contest.
+      minimum_delta: 0.029   # split-lottery floor, k=20, measured 2026-08-25
+      noise_floor:
+        k: 20
+        std: 0.0141522
+        range: 0.042236
+        mean: 0.0161125
+        values: [0.000111672, 0.0305885, 0.028676, 0.000208858, 0.00342994, 0.0202223, 0.0103878, 0.00602426, 0.0159908, 0.0335888, 0.0293664, 0.00949066, 0.00271394, 0.000121646, 0.0001713, 0.00619833, 0.0184598, 0.0249774, 0.0423477, 0.0391734]
+        source: "sweeps/ledger_floor.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
     guardrails:
       wall_seconds:
         max: 60
@@ -52,7 +66,16 @@ tracks:
     metric:
       name: "val_brier"
       goal: "lower"
-      minimum_delta: 0             # same measured floor pasted at Phase 1
+      minimum_delta: 0.029   # split-lottery floor, k=20, measured 2026-08-25
+      noise_floor:
+        k: 20
+        std: 0.0141522
+        range: 0.042236
+        mean: 0.0161125
+        values: [0.000111672, 0.0305885, 0.028676, 0.000208858, 0.00342994, 0.0202223, 0.0103878, 0.00602426, 0.0159908, 0.0335888, 0.0293664, 0.00949066, 0.00271394, 0.000121646, 0.0001713, 0.00619833, 0.0184598, 0.0249774, 0.0423477, 0.0391734]
+        source: "sweeps/ledger_floor.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
     guardrails:
       wall_seconds:
         max: 60

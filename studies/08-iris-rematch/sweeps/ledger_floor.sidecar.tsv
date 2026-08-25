@@ -1,0 +1,21 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"draw":1,"family":"anchor_lda4","seed":2026091001}	0.000112	0.006	ok	
+2	{"draw":2,"family":"anchor_lda4","seed":2026091002}	0.030589	0.001	ok	
+3	{"draw":3,"family":"anchor_lda4","seed":2026091003}	0.028676	0.001	ok	
+4	{"draw":4,"family":"anchor_lda4","seed":2026091004}	0.000209	0.001	ok	
+5	{"draw":5,"family":"anchor_lda4","seed":2026091005}	0.003430	0.001	ok	
+6	{"draw":6,"family":"anchor_lda4","seed":2026091006}	0.020222	0.001	ok	
+7	{"draw":7,"family":"anchor_lda4","seed":2026091007}	0.010388	0.001	ok	
+8	{"draw":8,"family":"anchor_lda4","seed":2026091008}	0.006024	0.001	ok	
+9	{"draw":9,"family":"anchor_lda4","seed":2026091009}	0.015991	0.001	ok	
+10	{"draw":10,"family":"anchor_lda4","seed":2026091010}	0.033589	0.001	ok	
+11	{"draw":11,"family":"anchor_lda4","seed":2026091011}	0.029366	0.001	ok	
+12	{"draw":12,"family":"anchor_lda4","seed":2026091012}	0.009491	0.001	ok	
+13	{"draw":13,"family":"anchor_lda4","seed":2026091013}	0.002714	0.001	ok	
+14	{"draw":14,"family":"anchor_lda4","seed":2026091014}	0.000122	0.001	ok	
+15	{"draw":15,"family":"anchor_lda4","seed":2026091015}	0.000171	0.001	ok	
+16	{"draw":16,"family":"anchor_lda4","seed":2026091016}	0.006198	0.001	ok	
+17	{"draw":17,"family":"anchor_lda4","seed":2026091017}	0.018460	0.001	ok	
+18	{"draw":18,"family":"anchor_lda4","seed":2026091018}	0.024977	0.001	ok	
+19	{"draw":19,"family":"anchor_lda4","seed":2026091019}	0.042348	0.001	ok	
+20	{"draw":20,"family":"anchor_lda4","seed":2026091020}	0.039173	0.001	ok	
