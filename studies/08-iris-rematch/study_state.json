@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 1,
+  "last_experiment": 2,
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
@@ -78,5 +78,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:54:52.898184Z"
+  "updated_at": "2026-08-25T07:55:06.474435Z"
 }
