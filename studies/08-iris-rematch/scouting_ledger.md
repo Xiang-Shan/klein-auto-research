@@ -12,7 +12,7 @@ predecessor: studies/07-iris-90years (finalized `confirmed` 2026-08-25, claims.l
 This is a PROSPECTIVELY LOCKED SECOND STUDY ON FULLY SCOUTED DATA. Study 07 published
 its entire ledger, both floor sidecars, its measured floor, and its one sealed value —
 so **every one of the 100 rows' values is public knowledge before this study begins**,
-and the new sealed 20 rows are *procedurally fresh only*: the registered protocol never
+and the new sealed rows (21 under the pre-committed seed) are *procedurally fresh only*: the registered protocol never
 conditions selection on them, but no one is blind to them. The integrity claim of this
 study is the LOCK (seeds, bars, eligibility, branch rules registered before any 08
 measurement), not blindness. Banned everywhere: 独立复现 / blind / untouched / virgin.
@@ -40,6 +40,10 @@ measurement), not blindness. Banned everywhere: 独立复现 / blind / untouched
   · svm_rbf 0.056963 · hgbt 0.099975 · lda_petal 0.069452 · lda_sepal 0.168936.
 - S8 k-seed fit-noise sweep (07): std exactly **0** — LDA closed form; registered
   degenerate companion.
+- S9b Declared-split geometry (measured at data-card authoring, pre-gate,
+  deterministic given the pre-committed seed): train 59 (30/29), dev 20 (12/8),
+  sealed 21 (8 versicolor / 13 virginica) with the twin pair together behind the
+  seal; non-sealed pool = 79 rows, no multi-row group.
 - S9 **Pre-gate smoke preview (this study, 2026-08-25)**: the standard KLEIN_SMOKE=1
   syntax/shape check on train.py printed the anchor's dev Brier on the FRESH declared
   split (seed 20260907): **0.029442**. Seen before the gates; disclosed here. The
@@ -82,7 +86,9 @@ measurement), not blindness. Banned everywhere: 独立复现 / blind / untouched
   arena's per-rung floors δ_n at every rung.
 - Every challenger's value on the seed-20260907 declared split (only the ANCHOR's
   smoke preview exists, S9).
-- The identity of the 20 sealed rows under seed 20260907 and every sealed value.
+- The sealed evaluations: no model has been scored on the 21 sealed rows of
+  seed 20260907 (their raw values are public via 07 — the disclosure — but no
+  T1/T2 sealed Brier exists).
 - Whether ANY rung below 60 comes out OPEN — the per-rung anchor means m_n and
   stds at n ∈ {45,30,20,12,8} have never been measured (07's lottery ran only at
   full train size).

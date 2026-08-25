@@ -1,7 +1,8 @@
 """ledger_floor.py — the LEDGER's noise floor (Phase 1 MEASUREMENT sweep).
 
 Study 08 adaptation of study 07's split_lottery.py: SAME registered recipe
-(GroupShuffleSplit test_size=0.25 over the 80 non-sealed rows, k=20, statistic
+(GroupShuffleSplit test_size=0.25 over the non-sealed rows — 80 in study 07,
+79 here (the 08 split sealed 21 rows, twin pair included) — k=20, statistic
 ceil3dp(2*std of the anchor), RAISE-ONLY escalation to klein's default
 max(2*std, range/2)) applied to the FRESH declared split (seed 20260907), with a
 fresh disjoint draw-seed namespace. Scope deviation from 07, registered: this
@@ -14,8 +15,8 @@ What it measures
 ----------------
 "How much does the incumbent's own score wobble when only the split changes?"
 
-k = 20 group-aware re-draws of the **80 non-sealed rows** (train + development of
-the declared seed-20260828 split). The 20 sealed test rows are frozen out of every
+k = 20 group-aware re-draws of the **79 non-sealed rows** (train + development of
+the declared seed-20260907 split; the sealed partition took 21 rows, twins included). The 20 sealed test rows are frozen out of every
 draw — they are not re-drawn, not scored, not seen. Each draw re-splits the 80 rows
 into ~60 train / ~20 development with `GroupShuffleSplit(test_size=0.25)`, the same
 primitive `kleinlib.data.three_way_split(strategy="group")` uses, so the twin group
@@ -194,7 +195,7 @@ def report(trials, draws: int) -> None:
 
     print()
     print("=" * 72)
-    print(f"LEDGER FLOOR (07 recipe, 08 split) — k={len(anchor_values)} group-aware re-draws of the 80 non-sealed rows")
+    print(f"LEDGER FLOOR (07 recipe, 08 split) — k={len(anchor_values)} group-aware re-draws of the 79 non-sealed rows")
     print("=" * 72)
     print(f"anchor ({families.ANCHOR}) development Brier across draws:")
     print(f"  mean {floor.mean:.6g}  std {floor.std:.6g}  range {floor.value_range:.6g}")

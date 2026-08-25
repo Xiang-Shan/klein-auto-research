@@ -1,7 +1,7 @@
 """rematch_arena.py — the study's PRIMARY EVIDENCE (measurement sweep, two stages).
 
 Registered estimand (study.yaml `estimand:`): under the registered lottery — 10
-seeded repeats of stratified group 4-fold over the 80 NON-SEALED rows, nested
+seeded repeats of stratified group 4-fold over the 79 NON-SEALED rows, nested
 quota subsampling to rung n — the mean paired dev-Brier improvement of family f
 over the 1936 anchor, both deterministic seeded fits on IDENTICAL train subsets.
 Conditional on these 100 flowers and this procedure; not a statement about new
@@ -19,10 +19,14 @@ Two stages, two sidecars, committed in ORDER (research_plan.md §4):
 
 Geometry (identical in both stages, deterministic):
   repeats j=1..10: StratifiedGroupKFold(n_splits=4, shuffle=True,
-                   random_state=20260901100+j) over the 80 non-sealed rows.
+                   random_state=20260901100+j) over the 79 non-sealed rows (the declared
+                   split's group wobble sealed 21 rows, twin pair included — the
+                   arena pool holds no multi-row group, so the twins-last rule is
+                   registered but idle and nesting holds trivially).
   Every row is scored in development exactly 10 times.
   rungs n in {60, 45, 30, 20, 12, 8}: the fold's train pool (~60 rows) is
-  subsampled by the NESTED QUOTA SCAN, seed 20260901000 + 100*j + k:
+  subsampled by the NESTED QUOTA SCAN, seed 20260901000 + 100*j + k
+  (pool ~59 after the 4-fold split; rung 60 = the full pool, n_actual recorded):
     - per class, a seeded permutation of that class's groups, with the size-2
       twins group PINNED LAST in its (virginica) permutation — a registered
       deviation from a pure shuffle: it makes the accepted sets provably nested

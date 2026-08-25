@@ -11,7 +11,8 @@ family: "anchor_lda4"
 # DISCLOSURE (binds every description of this study): every one of the 100 rows'
 # values appeared in study 07's public ledger and sidecars. The sealed 20 rows of
 # this study are PROCEDURALLY FRESH ONLY - the protocol never conditions selection
-# on them, but no one is blind to them. Never "blind", "untouched", "virgin".
+# on them (21 rows under seed 20260907, twin pair included), but no one is
+# blind to them. Never "blind", "untouched", "virgin".
 # Design brief: presentation task 20260828 reference/study08_design_brief_v1.md.
 # ------------------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ tracks:
       # ledger floor recipe runs. Sequence: (1) E0001 anchor, (2) the k-seed
       # fit-noise sweep (registered expectation: degenerate, LDA is closed form),
       # (3) sweeps/ledger_floor.py = STUDY 07'S EXACT RECIPE on the new split
-      # (GroupShuffleSplit test_size=0.25 over the 80 non-sealed rows, k=20, draw
+      # (GroupShuffleSplit test_size=0.25 over the 79 non-sealed rows, k=20, draw
       # seeds 20260901001-020, statistic ceil3dp(2*std), RAISE-ONLY escalation to
       # klein default max(2*std, range/2)), (4) paste the measured noise_floor
       # block into BOTH tracks + set minimum_delta, (5) re-record the CONSULT gate

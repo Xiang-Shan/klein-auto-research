@@ -33,7 +33,7 @@ study.yaml. Guardrails: max_run_seconds 120, wall_seconds ≤ 60.
 - E0002 lda_sepal positive control (registered: discard, large degradation).
 - k-seed fit-noise sweep: registered expectation degenerate (std exactly 0).
 - `sweeps/ledger_floor.py` = study 07's EXACT floor recipe on the new split
-  (GroupShuffleSplit test_size 0.25 over the 80 non-sealed rows, k=20, seeds
+  (GroupShuffleSplit test_size 0.25 over the 79 non-sealed rows, k=20, seeds
   20260901001–020, anchor only; statistic ceil3dp(2×std); RAISE-ONLY escalation
   to klein default max(2×std, range/2)). Measured block pasted into BOTH tracks;
   consult gate re-recorded. **No challenger transaction before that re-record.**
@@ -49,7 +49,7 @@ study.yaml. Guardrails: max_run_seconds 120, wall_seconds ≤ 60.
 two-stage commit order are registered in that file's docstring (part of this
 plan by reference). Key registered rules:
 
-- Stage A (anchor + control, 480 fold-evals) commits
+- Stage A (anchor + control, 480 fold-evals over the 79-row pool) commits
   `rematch_arena_anchor.sidecar.tsv`, `arena_partitions.tsv` (incl. the
   max-Jaccard dev-vs-declared disclosure; disclosure only, never exclusion), and
   `headroom.tsv` **before any challenger fit is summarized**.
