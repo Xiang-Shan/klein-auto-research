@@ -6,7 +6,7 @@
     },
     "data": {
       "by": "Xiang",
-      "timestamp": "2026-08-25T07:54:06.022316Z"
+      "timestamp": "2026-08-25T07:56:48.681090Z"
     },
     "method": {
       "by": "Xiang",
@@ -50,12 +50,12 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": "2026-08-25T07:54:06.022316Z",
+      "acknowledged_at": "2026-08-25T07:56:48.681090Z",
       "acknowledged_by": "Xiang",
       "artifacts": {
         "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619"
       },
-      "note": "GO: split measured 59/20/21, twin pair sealed together, 79-row arena pool with no multi-row group; procedural-freshness disclosure binds all deliverables; smoke preview 0.029442 enumerated as scouting",
+      "note": "re-record: gate-artifact hash refresh after co-located amendments (data card content unchanged in substance)",
       "status": "recorded"
     },
     "method": {
@@ -78,5 +78,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:56:48.562763Z"
+  "updated_at": "2026-08-25T07:56:48.681853Z"
 }
