@@ -23,9 +23,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "primary": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-08-25T02:38:38.065142Z",
+      "count": 1,
+      "experiment": "E0009"
     }
   },
   "fingerprints": {
@@ -63,7 +63,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 8,
+  "last_experiment": 9,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -86,5 +86,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:38:37.345307Z"
+  "updated_at": "2026-08-25T02:38:38.822249Z"
 }
