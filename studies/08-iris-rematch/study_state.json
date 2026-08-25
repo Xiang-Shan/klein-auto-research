@@ -88,6 +88,12 @@
       "acknowledged_by": "Xiang",
       "note": "Stage-B + frozen analysis complete: 1/113 guard-cleared (qda@n8 +0.073, fold-level sensitivity does not confirm), 0 Bar-2, 0 open rungs, capture 0.98, control alive at every rung, gpc/vote placeholders only at n60/45 (crash where data plentiful); coda manifest committed: BRANCH G",
       "playbook_sha256": "ca7560152987b6474dfb030c9543ac51d37db82a51fc451150754da38518c8dc"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-08-25T08:21:50.425509Z",
+      "acknowledged_by": "Xiang",
+      "note": "both seals spent: T1 anchor 0.077176 (|gap| 0.0477 <= 0.058, band HELD at 82% width, +1.65x delta vs dev); T2 tabpfn 0.066863 - g = T1-T2 = +0.010313 OUTSIDE the registered band [-0.0160,+0.0050]: a REGISTERED MISS, direction favoring the challenger at 0.36x delta (sub-floor); pre-committed OUTSIDE line fires verbatim; no coverage, no upgrade",
+      "playbook_sha256": "ca7560152987b6474dfb030c9543ac51d37db82a51fc451150754da38518c8dc"
     }
   },
   "prepared_data": {
@@ -97,5 +103,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T08:21:13.353821Z"
+  "updated_at": "2026-08-25T08:21:50.426190Z"
 }
