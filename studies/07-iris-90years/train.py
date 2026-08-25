@@ -18,7 +18,7 @@ from kleinlib.data import load_prepared, three_way_split
 import families
 
 #: The registered family this candidate runs. The ONE line the ladder edits.
-FAMILY = "anchor_lda4"
+FAMILY = "knn7"
 
 RANDOM_SEED = 42
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
