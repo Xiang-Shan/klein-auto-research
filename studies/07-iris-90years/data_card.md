@@ -104,6 +104,18 @@ three distinct rows. Also setosa; also outside this study.
 
 ## The twin rows — undecidable, ruled, not deleted
 
+> **PROVENANCE RESOLVED (2026-08-25, against the full 1936 scan):** the pair
+> (5.8, 2.7, 5.1, 1.9) appears TWICE in **Fisher's printed Table I itself** — printed
+> virginica rows 2 and 43, mapping exactly to sklearn rows 102/143 (print order =
+> sklearn order; the full 150×4 table diffs clean). The duplication is therefore
+> **original to the 1936 publication** (and to Anderson's 1935 measurements as
+> published) — NOT a digitization artifact. Duplicate-entry vs two-identical-flowers
+> remains undecidable at the 1936 print; the grouping ruling stands unchanged and is
+> now provenance-grounded. **Neither Bezdek et al. 1999 nor the UCI page mentions this
+> duplication — in the forensic sources we checked, this gate surfaced something the
+> literature had not recorded.** (Claim stays scoped exactly that way: "in the sources
+> we checked", never "never noticed by anyone".)
+
 Hard-pair positions 51 and 92 — **rows 102 and 143 of the full 150-row table, both
 virginica** — carry identical measurements **(5.8, 2.7, 5.1, 1.9)**. Verified: they are
 the **only** duplicated row-content in the hard pair (asserted in `prepare.py`), and

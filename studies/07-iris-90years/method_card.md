@@ -175,15 +175,15 @@ ways to be wrong. That is a hypothesis the ladder tests, not a conclusion.
 4. Dropping both sepal measurements degrades `val_brier` by **less** than the floor.
 5. Dropping both petal measurements degrades it by **at least 2×** the floor.
 
-## 5. Fisher's printed coefficients — a measured, recorded discrepancy
+## 5. Fisher's printed coefficients — RESOLVED 2026-08-25: we were comparing the wrong pair
 
 Reproduction has layers, and they do not all have the same answer. Recorded plainly:
 
 | Layer | Status |
 |---|---|
 | The **method** — from-scratch vs sklearn direction | **matches**, cosine ≥ 1 − 1e-12 on all three solvers (§3) |
-| The **group means** to 3 dp | **matches** the distributed measurements (§3); vs the printed 1936 table: verification-pending |
-| Fisher's **printed discriminant coefficients** | **does NOT match** under either plausible convention — scouted cosine **0.981 / 0.956** |
+| The **group means** to 3 dp | **matches** the distributed measurements (§3); the full 150×4 printed Table I diffed vs sklearn 2026-08-25: **zero mismatches** (one OCR artifact in the scan identified as such) |
+| Fisher's **printed discriminant coefficients** | **RESOLVED — matches digit-exact once compared to the RIGHT problem** (see resolution below) |
 
 The third row is a **discrepancy we record, not a match we claim**. Its two cosines come
 from the 2026-08-24 scouting (`scouting_ledger.md` S8) and are **design inputs**: they
@@ -207,22 +207,41 @@ plausible precision. Whatever produces Fisher's printed numbers is therefore som
 else — a different reported quantity, a different scaling of the compound, or a
 different subset/units of the measurements.
 
-**What this does NOT settle.** Which of those it is. That stays an **open question**,
-recorded as such. 复现有层次：方法对上了，均值表对上了，1936 年手算的系数差了 2%，这笔账
-记在案上。 ("Reproduction has layers: the method matches, the means table matches, the
-1936 hand-computed coefficients are off by 2 % — and that goes on the record.")
+**RESOLUTION (2026-08-25, citations verification against the full 1936 text).** The
+convention investigation's conclusion — "a different reported quantity" — was right, and
+the different quantity is now identified: **Fisher prints no versicolor-vs-virginica
+discriminant at all.** His worked §II discriminant is **I. setosa vs I. versicolor**:
+"X = x1 + 5.9037 x2 − 7.1299 x3 − 10.1036 x4" (p. 182). The scouted 0.981/0.956 compared
+our versicolor/virginica direction against THAT vector — a wrong-pair comparison, exactly
+reproduced by the verifier (0.9811 with 2-species pooled Sw, 0.9561 with 3-species
+pooled Sw; the 0.981-vs-0.956 spread is an Sw-convention artifact of the wrong-pair
+comparison, not a finding). The only other printed vector is §VI's three-species
+4:1:−5 allopolyploidy contrast (−3.308998, −2.759132, 8.866048, 9.392551, ×100), also
+not our pair.
 
-Deliberately **not** done: a two-vector side-by-side exhibit. It would dramatize a
-number whose provenance is still open.
+**The verified reproduction claim (replaces the discrepancy):** the from-scratch
+discriminant, run on Fisher's own §II problem (setosa vs versicolor, sklearn data =
+Fisher's printed table byte-for-byte), returns **(1, 5.90380, −7.12998, −10.10366)** —
+Fisher's printed compound **to every printed digit**, cosine 1.000000.
 
-## 6. References — citation-verification-pending (Tuesday)
+**Bonus primary-source fact for the study's framing** (§VI, verbatim): "there is some
+overlap of the distributions of I. virginica and I. versicolor, so that a certain
+diagnosis of these two species could not be based solely on these four measurements of
+a single flower taken on a plant growing wild." — **Fisher himself flagged our hard pair
+as unresolvable by these four measurements, in print, in 1936.** The 90-year ladder asks
+a question Fisher explicitly declined to answer.
+
+复现有层次，如今每一层都对上了：方法对上了(≥1−1e-12)，均值表对上了，1936 年印出来的判别式
+——放回它自己的问题里——每一位数字都对上了。之前记录的"差 2%"，是我们拿错了考卷。
+
+## 6. References — VERIFIED 2026-08-25 (citations agent, primary sources)
 
 Both rows are **⚠️ UNVERIFIED** tonight and are re-verified Tuesday morning against
 publisher/index records before the METHOD gate is recorded or `refs_verified` is set.
 
 | Reference | Where | Verified? |
 |---|---|---|
-| Fisher, R. A. (1936). "The use of multiple measurements in taxonomic problems." | *Annals of Eugenics* 7(2), 179–188; reprinted in *Contributions to Mathematical Statistics* (Wiley, 1950). Cited by scikit-learn's `load_iris` `DESCR` as the source of its copy. | ⚠️ **UNVERIFIED — citation-verification-pending-Tuesday** (venue name, volume/part, page range, and the printed discriminant coefficients all to be confirmed against the paper) |
+| Fisher, R. A. (1936). "The use of multiple measurements in taxonomic problems." | *Annals of Eugenics* 7(2), 179–188; reprinted in *Contributions to Mathematical Statistics* (Wiley, 1950). Cited by scikit-learn's `load_iris` `DESCR` as the source of its copy. | **VERIFIED 2026-08-25**: Annals of Eugenics 7(2):179–188, DOI 10.1111/j.1469-1809.1936.tb02137.x; open access via Rothamsted (repository.rothamsted.ac.uk/id/eprint/33079). Printed §II compound X = x1 + 5.9037x2 − 7.1299x3 − 10.1036x4 (setosa vs versicolor); §VI 4:1:−5 contrast. Anderson credited in §II |
 | Bezdek, J. C., Keller, J. M., Krishnapuram, R., Kuncheva, L. I., Pal, N. R. (1999). "Will the real iris data please stand up?" | *IEEE Transactions on Fuzzy Systems* 7(3), 368–369. | ⚠️ **UNVERIFIED — citation-verification-pending-Tuesday** (venue, volume/issue, pages; and whether it says anything about rows 102/143 — the twin-row provenance question left undecidable on the data card) |
 
 Corroborating primary sources already retrieved and committed under `reference/`
