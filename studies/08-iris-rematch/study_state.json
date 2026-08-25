@@ -28,9 +28,9 @@
       "experiment": null
     },
     "primary": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-08-25T08:09:27.482330Z",
+      "count": 1,
+      "experiment": "E0024"
     }
   },
   "fingerprints": {
@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 23,
+  "last_experiment": 24,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -97,5 +97,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T08:09:15.556972Z"
+  "updated_at": "2026-08-25T08:09:28.246464Z"
 }
