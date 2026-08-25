@@ -3,9 +3,14 @@
     "consult": {
       "by": "Xiang",
       "timestamp": "2026-08-25T07:54:05.904829Z"
+    },
+    "data": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T07:54:06.022316Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619",
     "research_plan.md": "8643b0d42d3573e73d1c2728bd7d52aaa2e0e0cf9dc55b074d172f273bb65531",
     "study.yaml": "2a679bc3e4615c046176f8ddd5cd4190a4e677ed26eaba0dbcbacf7cf9f96b1d"
   },
@@ -24,7 +29,7 @@
     }
   },
   "fingerprints": {
-    "data": null,
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
     "split": "007852a469e985c39451cad99c1fd03f96b50f6ffe586e617521ee3a0fdc3295"
   },
   "gates": {
@@ -40,9 +45,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-08-25T07:54:06.022316Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619"
+      },
+      "note": "GO: split measured 59/20/21, twin pair sealed together, 79-row arena pool with no multi-row group; procedural-freshness disclosure binds all deliverables; smoke preview 0.029442 enumerated as scouting",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -55,10 +64,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/data/prepared/iris_hard_pair.csv",
-    "sha256": null
+    "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
   },
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:54:05.905157Z"
+  "updated_at": "2026-08-25T07:54:06.023084Z"
 }
