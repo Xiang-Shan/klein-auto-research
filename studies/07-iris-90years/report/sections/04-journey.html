@@ -1,0 +1,65 @@
+<h2>The Journey</h2>
+
+<p>Nine ledger transactions, every one still resolvable to its exact candidate commit:
+one keep, one registered crash, seven discards (the sealed look is a discard <em>by
+design</em> &mdash; sealed evidence never enters the adaptive frontier). The whole run,
+end to end, cost &asymp; 9.2 s of compute. The two exhibits below carry the story: the
+lottery that priced the floor, and the ladder the floor judged.</p>
+
+<img data-fig="figures/floor_ladder.png" alt="Split lottery: 20 development Briers per family, anchor band, declared-split markers, sealed line, and the sub-zero keep bar">
+
+<img data-fig="figures/ladder_bars.png" alt="Declared-split ladder: keep, registered crash, and six discards, with the delta improvement bracket from the anchor">
+
+<!--LEDGER-->
+
+<p><strong>Metrology before combat.</strong> <strong>E0001</strong> anchored the
+frontier at <strong>0.026744</strong>. The k-seed sweep then returned five identical
+values to twelve decimals &mdash; std <strong>exactly 0</strong>, as registered: 1936
+has no random seed, and a closed form gives a seed nothing to perturb. Then the split
+lottery's <em>first</em> attempt crashed <strong>all 140 trials</strong>: the
+registered draw seeds 20260828001..020 exceed numpy's <span data-math="2^{32}-1"></span>
+bound (<code>ValueError: Seed must be between 0 and 2**32 - 1</code>). The crashed
+sidecar is preserved beside the good one, and the fix &mdash; <code>base + draw</code>
+instead of <code>base &times; 1000 + draw</code> &mdash; was committed <em>before any
+floor was stated</em>. A registered seed scheme is code, and code can be wrong in the
+ordinary way. The re-run measured anchor mean 0.0187138, std 0.0163144 across 20 draws
+&rarr; <strong>&delta; = 0.033</strong>.</p>
+
+<p><strong>E0002</strong> was the registered crash: hand the evaluator the
+<code>species</code> column and it must refuse. It did &mdash; exit 1, disposition
+<code>crash</code>, and the registered sentence verbatim: <code>binary classification
+evaluate() requires target labels exactly {0, 1}; got [1, 2]</code>. One honest
+correction: the column carries sklearn's 3-class <em>coding scheme</em> but only two
+labels are present ({1, 2}, setosa dropped); the predicted <em>mechanism</em> is
+exactly the mechanism observed.</p>
+
+<p><strong>The ladder lost, rung by rung.</strong> <strong>E0003</strong> logistic
++0.032334 (0.98&times;&delta;), <strong>E0004</strong> kNN-7 +0.018659
+(0.57&times;&delta;), <strong>E0005</strong> SVM-RBF +0.030219 (0.92&times;&delta;),
+<strong>E0006</strong> HGBT +0.073231 (<strong>2.22&times;&delta;</strong>) &mdash;
+four discards, zero keeps, every delta in the <em>worse</em> direction.
+<strong>E0007</strong> is the falsification that teaches most: the scouting-informed
+RQ2 prior said petal-only LDA degrades by <em>less</em> than the floor; the declared
+split measured <strong>+0.042708 = 1.29&times;&delta;</strong> &mdash; prior
+<strong>REFUTED</strong>. Across the 20 lottery draws the same comparison averaged
+0.71&times;&delta; with 13 of 20 draws inside &plusmn;&delta; &mdash; both numbers are
+true, they support opposite verdicts, and the contract had already ruled: <em>"the
+ledger judges the DECLARED-SPLIT delta (that is what klein's one scalar minimum_delta
+does). Findings report the declared-split delta AND the lottery spread, clearly
+labelled, so ledger and chart agree by construction."</em> <strong>E0008</strong>, the falsifiable positive control, degraded
+by <strong>+0.142192 = 4.31&times;&delta;</strong> against a pre-registered bar of
+2&times;&delta; &mdash; the instrument is alive, and its written-in-advance failure
+branch never fired.</p>
+
+<p><strong>Draw 15, the counterexample the lottery kept.</strong> On the second-hardest
+draw for the anchor, HGBT would have beaten it by 0.040245 (1.22&times;&delta;) and
+petal-only LDA by 0.037162 (1.13&times;&delta;) &mdash; two keep-sized improvements out
+of <strong>120 paired comparisons</strong>, both from the ladder's declared-split worst
+challenger and its refuted ablation. Which flowers land in a 20-row partition selects
+the winner as strongly as which method is fitted.</p>
+
+<p><strong>E0009</strong> spent the study's one sealed look: the incumbent, fit on
+train only, scored <strong>0.055198</strong> on the 20 sealed rows (base rate 7/13)
+&mdash; a move of +0.028454 = <strong>0.86&times;&delta;</strong> from its development
+value, inside the registered &plusmn;2&delta; band. The level held; the sentence for it
+was written before the run.</p>

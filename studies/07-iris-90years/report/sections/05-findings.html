@@ -1,0 +1,90 @@
+<h2>Findings</h2>
+
+<p>Verdicts against the registered questions (claim IDs are stable and citable as
+<code>07-iris-90years#C&lt;n&gt;</code>; every number traces to
+<code>results.tsv</code>, <code>claims.lock</code>, or the sweep sidecars):</p>
+
+<table>
+<tr><th>Claim</th><th>Question</th><th>Verdict</th><th>Evidence</th></tr>
+<tr><td><strong>[C1]</strong></td><td>Do any of the four post-1936 challengers earn a
+keep (improve val_brier by &ge; &delta; = 0.033)?</td>
+<td><strong>No &mdash; no keep earned.</strong> All four were worse on the declared
+split: logit +0.032334 (0.98&times;&delta;), kNN-7 +0.018659 (0.57&times;&delta;),
+SVM-RBF +0.030219 (0.92&times;&delta;), HGBT +0.073231 (2.22&times;&delta;) &mdash;
+HGBT at 15.1&times; the anchor's fit-and-score cost. No family improved by &ge; &delta;
+in more than 1 of 20 lottery draws. Exploratory by construction: the losing families
+never receive a sealed value.</td>
+<td>E0003&ndash;E0006 vs E0001</td></tr>
+<tr><td><strong>[C2]</strong></td><td>Is petal-only LDA within &delta; of the
+four-feature LDA?</td>
+<td><strong>No on the declared split &mdash; the registered prior is REFUTED.</strong>
++0.042708 = 1.29&times;&delta; (outside the floor) on the quantity the contract
+nominated; lottery mean +0.023445 = 0.71&times;&delta;, inside &plusmn;&delta; in 13 of
+20 draws. Both reported, the pre-registered one decides.</td>
+<td>E0007; lottery sidecar</td></tr>
+<tr><td><strong>[C3]</strong></td><td>Does the sepal-only positive control degrade by
+&ge; 2&times;&delta;?</td>
+<td><strong>Yes, resoundingly &mdash; the instrument is alive.</strong> +0.142192 =
+4.31&times;&delta; (bar: 2&times;&delta;); across the lottery, 20 of 20 draws worse
+than the anchor by more than &delta;.</td>
+<td>E0008; lottery sidecar</td></tr>
+<tr><td><strong>[C4]</strong></td><td>Does the incumbent's level hold on the 20 sealed
+rows?</td>
+<td><strong>Held &mdash; confirmed.</strong> Sealed 0.055198 vs development 0.026744:
++0.028454 = 0.86&times;&delta;, inside the registered &plusmn;2&delta; band, read
+against the sealed base rate 7/13. For scale, a constant predictor at that base rate
+scores 0.2275 &mdash; the sealed level sits at roughly a quarter of chance. The seal
+confirms the LEVEL only, nothing about the six gaps below it.</td>
+<td>E0009 (the one sealed access, spent)</td></tr>
+</table>
+
+<p><strong>The sentence the estimand licenses</strong> &mdash; and the ones it bans.
+The claims discipline forbids translating "did not clear the floor" into a statement of
+equality (population-level equivalence is unanswerable here: the design-phase paired
+intervals were wider than the floor band for all six comparisons, comparison family
+size 6, stated rather than corrected). The sanctioned line:
+<strong>"The incumbent stands &mdash; not because it won, but because nobody knocked it
+down."</strong></p>
+
+<p>The surprises that outrank the verdicts:</p>
+
+<ol>
+<li><strong>[C5] A one-split ablation verdict is a draw from a distribution wider than
+the floor that judges it.</strong> Petal-only's paired delta spans &minus;0.037162 to
++0.065156 across 20 draws &mdash; &asymp; 3.1&times;&delta; of span &mdash; and the
+declared split landed in its upper reaches. A prior correct about the central tendency
+was recorded as refuted; that is the protocol working, and being expensive about it.</li>
+<li><strong>[C6] The declared split IS lottery draw 1</strong> &mdash; by seed
+arithmetic (the inner split uses seed+1; the lottery's base is the declared seed), so
+the ensemble defining &delta; contains the split &delta; judges. Recorded, not
+smoothed; and the anchor's declared Brier 0.026744 ranks 13th of 20 &mdash; the
+incumbent was judged on a harder-than-median draw.</li>
+<li><strong>[C7] On draw 15, two of the six losers would have earned a keep</strong>
+(HGBT by 1.22&times;&delta;, petal-only by 1.13&times;&delta;) &mdash; 2 keep-sized
+improvements out of 120 paired comparisons, both in one draw. On 20 rows a single
+confidently-wrong flower moves the Brier by up to 0.05, more than &delta;.</li>
+<li><strong>[C9] The "Fisher's printed coefficients don't match" discrepancy was a
+wrong-pair comparison.</strong> Fisher prints no versicolor-vs-virginica discriminant
+at all; his worked compound is setosa-vs-versicolor. Run on <em>his</em> problem, the
+ten-line from-scratch discriminant returns (1, 5.90380, &minus;7.12998,
+&minus;10.10366) &mdash; every printed digit, cosine 1.000000. A reproduction gap is a
+claim about two objects; first verify they are the same object.</li>
+<li><strong>[C10] The twin rows are original to the 1936 print</strong> &mdash; printed
+twice in Fisher's own Table I &mdash; and unmentioned by Bezdek et al. (1999) or the
+UCI page <em>in the sources we checked</em>. The group ruling stands regardless of
+which explanation (duplicate entry vs two identical flowers) is true.</li>
+<li><strong>[C11] On the sealed rows every ranking gauge pegged and only the proper
+score moved:</strong> AUC 1.0, PR-AUC 1.0 (one float64 ULP), F1 1.0, lift 2.857 = 20/7
+(the maximum at a 7/13 base rate) &mdash; while val_brier moved 0.026744 &rarr;
+0.055198 and logloss 0.072157 &rarr; 0.238630. Had the study scored AUC, the sealed
+look would have read "1.000 &rarr; 1.000" with nothing to confirm or falsify.</li>
+</ol>
+
+<p><strong>Prior scorecard, scored by the rule fixed in advance.</strong> Only
+<em>uninformed</em> or <em>derived</em> predictions count; the three scouted RQ priors
+are excluded by construction. Score: <strong>4 / 4 held</strong> (derived: the k-seed
+std exactly 0, the E0002 crash sentence verbatim; uninformed: the sealed move inside
+&plusmn;2&delta;, the floor's magnitude inside 0.01&ndash;0.10). The disclosed-scouting
+RQ1/RQ3 confirmations are reported, never scored &mdash; and RQ2 cuts the other way:
+a prior written <em>with answers in context</em> still failed in public, at the one
+place it had to commit to a magnitude.</p>
