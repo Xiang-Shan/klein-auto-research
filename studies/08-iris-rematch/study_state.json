@@ -7,10 +7,15 @@
     "data": {
       "by": "Xiang",
       "timestamp": "2026-08-25T07:54:06.022316Z"
+    },
+    "method": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T07:54:06.138989Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619",
+    "method_card.md": "084d0943896b1b2633f682a37c132ece14a730934aba66613c6b0e55ce086bea",
     "research_plan.md": "8643b0d42d3573e73d1c2728bd7d52aaa2e0e0cf9dc55b074d172f273bb65531",
     "study.yaml": "2a679bc3e4615c046176f8ddd5cd4190a4e677ed26eaba0dbcbacf7cf9f96b1d"
   },
@@ -54,9 +59,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-08-25T07:54:06.138989Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "method_card.md": "084d0943896b1b2633f682a37c132ece14a730934aba66613c6b0e55ce086bea"
+      },
+      "note": "GO: 23-family roster + guard/failure policies + coda manifest mechanics + fallback map frozen; group-aware inner CV everywhere; frozen analysis hash-bound",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -69,5 +78,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:54:06.023084Z"
+  "updated_at": "2026-08-25T07:54:06.139768Z"
 }
