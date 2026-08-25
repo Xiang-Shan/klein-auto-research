@@ -70,7 +70,12 @@ from kleinlib.workflow import load_contract  # noqa: E402
 
 SWEEP_NAME = "split_lottery"
 DRAWS = 20
-DRAW_SEED_BASE = 20260828000
+# Per-draw seed = base + draw. Base is the declared split seed itself, NOT
+# base*1000: numpy/sklearn require seeds < 2**32, and 20260828000 overflows
+# that bound (every trial crashed with 'Seed must be between 0 and 2**32-1').
+# Mechanical fix committed before any floor was stated; draw seeds are
+# 20260829..20260848, disjoint from the declared split seed only in draw>0 use.
+DRAW_SEED_BASE = 20260828
 #: 0.25 of the 80 non-sealed rows -> ~20 development rows, ~60 train rows.
 DRAW_DEV_FRACTION = 0.25
 TARGET = "is_virginica"
