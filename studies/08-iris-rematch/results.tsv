@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	primary	0.029442	keep	dca9c11d0af4b5d2b41ed395054d352689588352	E0001 anchor: Fisher 1936 LDA, four features, fit train-only on the fresh declared split (seed 20260907); sets the frontier and the floor's subject (allow-rerun: the anchor IS the committed base configuration); first valid result on this track
