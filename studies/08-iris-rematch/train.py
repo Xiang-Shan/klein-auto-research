@@ -56,14 +56,17 @@ def load_split(evaluation_kind: str):
         seed=20260907,
         groups=df["group_id"],
     )
-    columns = list(families.REGISTRY[FAMILY][1])
+    columns = families.columns_for(FAMILY)
+    g_tr = x_tr["group_id"]
     if evaluation_kind == "development":
-        return x_tr[columns], x_dev[columns], y_tr, y_dev
-    return x_tr[columns], x_te[columns], y_tr, y_te
+        return x_tr[columns], x_dev[columns], y_tr, y_dev, g_tr
+    return x_tr[columns], x_te[columns], y_tr, y_te, g_tr
 
 
-def build_model():
-    return families.build(FAMILY)
+def build_model(y_tr, g_tr):
+    # CV families receive group-aware inner splits (twins never straddle an
+    # inner boundary — the gate law applied inside the estimators).
+    return families.build(FAMILY, y=y_tr, groups=g_tr)
 
 
 def main() -> None:
@@ -87,8 +90,8 @@ def main() -> None:
             "the canonical block, writes no sidecars or snapshots, and is not "
             "evidence. Missing: " + ", ".join(missing)
         )
-    X_tr, X_dev, y_tr, y_dev = load_split(evaluation_kind)
-    model = build_model()
+    X_tr, X_dev, y_tr, y_dev, g_tr = load_split(evaluation_kind)
+    model = build_model(y_tr, g_tr)
     fit_start = time.time()
     model.fit(X_tr, y_tr)
     fit_seconds = time.time() - fit_start

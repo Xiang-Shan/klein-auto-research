@@ -101,7 +101,7 @@ phases:
     budget_seconds: 3600
     max_experiments: 1
   - id: confirmation
-    description: "TWO sealed final-tests, one per track, per the registered branch rule in program.md: Branch W = anchor@n* and winner@n* (wrapper families, baked pre-registered train positions); Branch G = anchor_lda4 (primary) and tabpfn (challenger) at n=60 - the 1936-vs-2025 marquee gap. Band-check role only: the arena is the evidence; the seal is the discipline."
+    description: "TWO sealed final-tests, one per track, via the pre-registered registry entries coda_primary / coda_challenger which read the committed sweeps/coda_manifest.json (written by the frozen analysis; Branch W = anchor and winner on baked n* positions; Branch G = anchor_lda4 and tabpfn at n=60, the 1936-vs-2025 marquee gap). Band-check role only, no nominal coverage after selection: the arena is the evidence; the seal is the discipline."
     budget_seconds: 600
     max_experiments: 2
 
@@ -110,7 +110,7 @@ research_questions:
     question: "Is the declared-split door closed - headroom_declared = anchor_dev_brier / minimum_delta < 1, making a keep arithmetically impossible for every challenger before any runs?"
     prior: "yes, P~0.8 (source: scouting-study-07 (measured) - 4 of 20 lottery draws exceeded 0.033; the fresh declared split is one more draw from that lottery)"
   - id: RQ2
-    question: "Does ANY challenger family fire Bar-1 (repeat-level global max-t, adjusted p<=0.05) at rung 60?"
+    question: "Does ANY challenger family clear the Bar-1 selection guard (joint repeat-level sign-flip max-t diagnostic, adjusted score <= 0.05; a registered guard, not population inference) at rung 60?"
     prior: "classical lanes no (source: scouting-study-07 (measured) - all six 07 challenger lottery means are WORSE than the anchor); calibration + foundation lanes (source: uninformed) - genuinely open"
   - id: RQ3
     question: "(a) Does at least one rung below 60 come out OPEN (m_n > delta_n)? (b) If open, does any family clear Bar-2 there - a keep-sized mean improvement at an open rung?"
@@ -132,7 +132,7 @@ predictions_to_falsify:
   - lever: "sealed coda track primary (branch G form)"
     predicted_delta: "|sealed - declared dev| <= 2 x minimum_delta for the anchor (07 convention band)"
   - lever: "sealed coda track challenger (branch G form)"
-    predicted_delta: "the paired sealed gap (tabpfn - anchor) falls inside tabpfn's arena [p10, p90] fold-level paired-gap band at rung 60"
+    predicted_delta: "g_sealed = sealed_primary - sealed_challenger falls inside tabpfn's arena [p10, p90] band of fold-level g = anchor - tabpfn at rung 60 (registered sign convention)"
 
 deliverables:
   - findings.md
@@ -162,7 +162,7 @@ claims_discipline:
     - "no keep earned"
     - "open rung / closed rung; ceiling-closed / fog-closed"
     - "headroom"
-    - "detectable but not actionable (Bar-1 without Bar-2)"
+    - "detectable but not actionable (Bar-1 without Bar-2; detectable = cleared the registered guard in this lottery)"
     - "keep-sized"
     - "the door was ajar"
     - "procedurally fresh seal (all 100 values were published in study 07's ledger)"
