@@ -1,0 +1,19 @@
+---
+primary_metric:    0.050192
+metric_name:       val_brier
+metric_goal:       lower
+training_seconds:  0.1
+total_seconds:     0.1
+train_rows:        59
+val_rows:          20
+status:            ok
+--- aux_metrics ---
+val_pr_auc:        0.871528
+val_logloss:       0.521881
+val_brier:         0.050192
+val_lift_top10:    2.5000
+val_best_threshold: 0.0700
+val_f1_at_best:    0.9412
+wall_seconds:      0.141571
+runner_status: ok
+runner_exit_code: 0
