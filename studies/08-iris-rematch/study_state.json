@@ -10,7 +10,7 @@
     },
     "method": {
       "by": "Xiang",
-      "timestamp": "2026-08-25T07:56:48.561997Z"
+      "timestamp": "2026-08-25T08:01:37.933379Z"
     }
   },
   "artifact_hashes": {
@@ -59,12 +59,12 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": "2026-08-25T07:56:48.561997Z",
+      "acknowledged_at": "2026-08-25T08:01:37.933379Z",
       "acknowledged_by": "Xiang",
       "artifacts": {
         "method_card.md": "44978f8db32d8068910d625f65307e51eeb70e12426a873e7370fab5ba13fb7d"
       },
-      "note": "re-record after seed-namespace amendment in method_card (coda scan seed 2026096000)",
+      "note": "nested-context amendment: stack inner svm + coda bases cv=3 stratified (lawful - no multi-row group outside seal); parade crash mechanisms classified (E0018/E0022 GPC non-finite proba pathology; E0023 wiring, fixed for arena; ledger records stand)",
       "status": "recorded"
     }
   },
@@ -85,5 +85,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:59:21.621698Z"
+  "updated_at": "2026-08-25T08:01:37.934232Z"
 }
