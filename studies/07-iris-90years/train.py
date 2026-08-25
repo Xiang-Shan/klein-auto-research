@@ -1,4 +1,11 @@
-"""The only per-candidate mutable surface in a Klein v2 study."""
+"""The only per-candidate mutable surface in a Klein v2 study.
+
+E0001 — the anchor. Fisher 1936 LDA, all four measurements, fit on train only.
+Registered role (program.md ladder row 1): sets the frontier and the floor's subject.
+Candidate selection happens ONLY through FAMILY (families.py registry); feature
+columns come from the registry so `species` (a perfect target proxy) and `group_id`
+can never leak in (data_card WARN #1).
+"""
 
 from __future__ import annotations
 
@@ -6,27 +13,54 @@ import os
 import time
 
 import kleinlib
+from kleinlib.data import load_prepared, three_way_split
+
+import families
+
+#: The registered family this candidate runs. The ONE line the ladder edits.
+FAMILY = "anchor_lda4"
 
 RANDOM_SEED = 42
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
 TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
 
+PREPARED = "data/prepared/iris_hard_pair.csv"
+TARGET = "is_virginica"
+
 
 def load_split(evaluation_kind: str):
     """Select development or the sealed final-test partition explicitly.
 
-    The workflow sets KLEIN_EVALUATION_KIND. Implement this function so
-    ``development`` returns train/development and ``final_test`` returns the frozen
-    chosen training data/final test. Never choose the partition from experiment code.
+    Split = study.yaml's declaration verbatim: kind group (twins iris-102/143 share
+    one group id and always travel together), seed 20260828, 0.20/0.20.
+    ``final_test`` fits the SAME train-only incumbent and evaluates the sealed 20 —
+    the seal confirms the incumbent's LEVEL vs its development value (program.md
+    predictions row: sealed within ±2×minimum_delta of dev; base rate 7/13 noted).
     """
     if evaluation_kind not in {"development", "final_test"}:
         raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
-    raise NotImplementedError("implement the fixed three-way split declared in study.yaml")
+    df = load_prepared(PREPARED)
+    y = df[TARGET]
+    x_tr, x_dev, x_te, y_tr, y_dev, y_te = three_way_split(
+        df,
+        y,
+        task="classification",
+        strategy="group",
+        development_size=0.20,
+        test_size=0.20,
+        seed=20260828,
+        groups=df["group_id"],
+    )
+    columns = list(families.REGISTRY[FAMILY][1])
+    if evaluation_kind == "development":
+        return x_tr[columns], x_dev[columns], y_tr, y_dev
+    return x_tr[columns], x_te[columns], y_tr, y_te
 
 
 def build_model():
-    raise NotImplementedError("build this candidate")
+    model, _columns = families.build(FAMILY)
+    return model
 
 
 def main() -> None:
