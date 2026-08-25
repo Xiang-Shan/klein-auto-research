@@ -28,6 +28,16 @@
       "experiment": "E0009"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "primary": "E0009"
+    },
+    "timestamp": "2026-08-25T02:56:51.712960Z"
+  },
   "fingerprints": {
     "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
     "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
@@ -90,7 +100,7 @@
     "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
   },
   "schema_version": 2,
-  "status": "active",
+  "status": "finalized",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:40:19.225550Z"
+  "updated_at": "2026-08-25T02:56:51.712963Z"
 }
