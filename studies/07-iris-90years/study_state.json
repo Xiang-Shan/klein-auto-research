@@ -77,6 +77,12 @@
       "acknowledged_by": "Xiang",
       "note": "adaptive-2 complete: 7/7 transactions (1 registered crash, 6 discards); no keep earned; RQ2 prior falsified on the declared split (1.29x floor); control 4.31x",
       "playbook_sha256": "325e8b87b72d724bbd3240e0b07aae65348f07a2589033ac6de20f01c38744ce"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-08-25T02:40:19.224905Z",
+      "acknowledged_by": "Xiang",
+      "note": "confirmation complete: E0009 sealed 0.055198, +0.0285 = 0.86x delta vs dev, inside the registered +/-2x band; prediction HELD",
+      "playbook_sha256": "325e8b87b72d724bbd3240e0b07aae65348f07a2589033ac6de20f01c38744ce"
     }
   },
   "prepared_data": {
@@ -86,5 +92,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:40:07.314752Z"
+  "updated_at": "2026-08-25T02:40:19.225550Z"
 }
