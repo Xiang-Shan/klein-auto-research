@@ -10,12 +10,12 @@
     },
     "method": {
       "by": "Xiang",
-      "timestamp": "2026-08-25T07:54:06.138989Z"
+      "timestamp": "2026-08-25T07:56:48.561997Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619",
-    "method_card.md": "084d0943896b1b2633f682a37c132ece14a730934aba66613c6b0e55ce086bea",
+    "method_card.md": "44978f8db32d8068910d625f65307e51eeb70e12426a873e7370fab5ba13fb7d",
     "research_plan.md": "55ff7c5d04c840fd9411d89e3481c8b55e8b82a29e418f297fd7979ba0f8d5f6",
     "study.yaml": "d3dcc188ba227641801e504008ad5ec1a54217d410b2a398909456cf91d1dec4"
   },
@@ -59,12 +59,12 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": "2026-08-25T07:54:06.138989Z",
+      "acknowledged_at": "2026-08-25T07:56:48.561997Z",
       "acknowledged_by": "Xiang",
       "artifacts": {
-        "method_card.md": "084d0943896b1b2633f682a37c132ece14a730934aba66613c6b0e55ce086bea"
+        "method_card.md": "44978f8db32d8068910d625f65307e51eeb70e12426a873e7370fab5ba13fb7d"
       },
-      "note": "GO: 23-family roster + guard/failure policies + coda manifest mechanics + fallback map frozen; group-aware inner CV everywhere; frozen analysis hash-bound",
+      "note": "re-record after seed-namespace amendment in method_card (coda scan seed 2026096000)",
       "status": "recorded"
     }
   },
@@ -78,5 +78,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:56:48.443928Z"
+  "updated_at": "2026-08-25T07:56:48.562763Z"
 }
