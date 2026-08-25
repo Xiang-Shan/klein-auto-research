@@ -7,10 +7,15 @@
     "data": {
       "by": "Xiang",
       "timestamp": "2026-08-25T02:29:46.344337Z"
+    },
+    "method": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T02:29:46.459547Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "5d7b35952cf5c449917b1f362b876bf1ee47c55f1d8cf83e4eb269cc4d74319d",
+    "method_card.md": "74fa01e283f9ba621f574b4d0f15b1c0edaadfc5ac0026a1f823cbc1476c0066",
     "research_plan.md": "5be4e5a0c84b5ac22ed46aeee14f560bbffa902385a8dbbe2b22aee5dfcb4d23",
     "study.yaml": "bf7348a23f48dbff562fc52aab59757d8200400d4ee9ed76cadf5f440678c80d"
   },
@@ -49,9 +54,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-08-25T02:29:46.459547Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "method_card.md": "74fa01e283f9ba621f574b4d0f15b1c0edaadfc5ac0026a1f823cbc1476c0066"
+      },
+      "note": "papers leg pending: Fisher 1936 and Bezdek 1999 are citation-verification-pending and are verified this morning before any deliverable cites them",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -64,5 +73,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:29:46.345800Z"
+  "updated_at": "2026-08-25T02:29:46.460504Z"
 }
