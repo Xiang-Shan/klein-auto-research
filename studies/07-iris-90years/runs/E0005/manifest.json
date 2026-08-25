@@ -1,0 +1,78 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1553,
+      "committed": true,
+      "sha256": "e60a31c21791f3de50c924daca7f9fa605e1bf16c901def1ec2d9288b194224a"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 768,
+      "committed": true,
+      "sha256": "0819cd6fb87df124066daec96f289853e30be9b418330a9096fb8fce61d02f54"
+    }
+  },
+  "base_commit": "94930748b483e4e17d367435ca40d059e4ff7e2e",
+  "candidate_commit": "4a1769690d43bf15247f45c51a480463b486b419",
+  "code_patch_hash": "a21564b992f7cee7ce31c65a1dc5b990a5221aeb2c8398ecc33c64e25695badf",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.026744 by minimum_delta=0.033",
+  "description": "E0005 challenger: SVM-RBF (Cortes-Vapnik 1995) - registered prediction: no keep; did not improve track frontier 0.026744 by minimum_delta=0.033",
+  "disposition": "discard",
+  "ended_at": "2026-08-25T02:37:51.499533Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "38a4ff092be2dfd14e5310b7a62665a9e1c0256acf9340d35ab2a78311e4c9af"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "3bc2c1dde3d86b69230a8977b70d537313f0c118499590b04d1bb9a90bfb8ab8",
+    "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {
+    "primary_metric": 0.056963,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 60.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.26,
+    "val_brier": 0.056963,
+    "val_f1_at_best": 0.9524,
+    "val_lift_top10": 2.0,
+    "val_logloss": 0.194018,
+    "val_pr_auc": 0.990909,
+    "val_rows": 20.0,
+    "wall_seconds": 0.009204
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 7,
+  "primary_metric": 0.056963,
+  "schema_version": 2,
+  "started_at": "2026-08-25T02:37:50.781177Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-08-25T02:37:51.500080Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.7182639581151307
+}
