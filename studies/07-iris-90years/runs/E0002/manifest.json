@@ -1,0 +1,58 @@
+{
+  "artifacts": {
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 984,
+      "committed": true,
+      "sha256": "51878396e8b471fc14003d087e46aa4cc7d1f47732bbc03d7eab14b431f320b4"
+    }
+  },
+  "base_commit": "10b9ca5e369ce704d1cd8560a0b094d66fdae8f8",
+  "candidate_commit": "d6de40f6719cb96326b8e71e0bff4259ff852fa8",
+  "code_patch_hash": "f436d0730452be432e725d3f5e1a1e9165a26b368c006fbebae29b46a03538bb",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "process exit code 1",
+  "description": "E0002 registered crash: species target (taxonomy labels) handed to the binary evaluator - registered prediction: raises 'requires target labels exactly {0,1}'; process exit code 1",
+  "disposition": "crash",
+  "ended_at": "2026-08-25T02:37:29.776815Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "38a4ff092be2dfd14e5310b7a62665a9e1c0256acf9340d35ab2a78311e4c9af"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 1,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "3bc2c1dde3d86b69230a8977b70d537313f0c118499590b04d1bb9a90bfb8ab8",
+    "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {},
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 7,
+  "primary_metric": null,
+  "schema_version": 2,
+  "started_at": "2026-08-25T02:37:29.061750Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-08-25T02:37:29.777324Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.7149838749319315
+}

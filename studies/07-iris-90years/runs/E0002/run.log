@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/07-iris-90years/train.py", line 108, in <module>
+    main()
+    ~~~~^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/07-iris-90years/train.py", line 92, in main
+    kleinlib.eval.evaluate(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        model,
+        ^^^^^^
+    ...<9 lines>...
+        metric_goal="lower",
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/kleinlib/eval.py", line 515, in evaluate
+    _positive_class_probabilities(model, X_va, y_va),
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/kleinlib/eval.py", line 337, in _positive_class_probabilities
+    raise ValueError(
+    ...<2 lines>...
+    )
+ValueError: binary classification evaluate() requires target labels exactly {0, 1}; got [1, 2]
+runner_status: crash
+runner_exit_code: 1
