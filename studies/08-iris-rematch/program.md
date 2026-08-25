@@ -119,3 +119,10 @@ commits; the evidence transaction then restores `train.py` to the pre-candidate 
   sidecar preserved as ledger_floor.sidecar.crashed-seed-overflow.tsv; namespace
   amended in-domain (2026091000/2026092000/2026093000/2026095000/2026096000),
   fix committed BEFORE any floor was stated; consult+method gates re-recorded.
+
+- 2026-08-25 — CONFIRMATION SPENT (Branch G): T1 anchor sealed 0.077176 — band
+  |0.077176−0.029442| = 0.0477 ≤ 0.058 HELD (82% of width; +1.65×δ vs dev); the
+  pre-committed T1-HELD line is the spoken sentence. T2 tabpfn sealed 0.066863 —
+  g_sealed = +0.010313 vs band [−0.0160, +0.0050]: OUTSIDE, a registered MISS
+  (the one look favored the challenger by 0.36×δ, sub-floor); the pre-committed
+  T2-OUTSIDE line is the spoken sentence. One look each, no coverage, no upgrade.
