@@ -23,9 +23,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "challenger": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-08-25T08:21:11.940830Z",
+      "count": 1,
+      "experiment": "E0025"
     },
     "primary": {
       "accessed_at": "2026-08-25T08:09:27.482330Z",
@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 24,
+  "last_experiment": 25,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -97,5 +97,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T08:09:28.246464Z"
+  "updated_at": "2026-08-25T08:21:13.353821Z"
 }
