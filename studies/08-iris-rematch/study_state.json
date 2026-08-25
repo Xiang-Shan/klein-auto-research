@@ -1,6 +1,14 @@
 {
-  "acknowledgements": {},
-  "artifact_hashes": {},
+  "acknowledgements": {
+    "consult": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T07:54:05.904829Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "8643b0d42d3573e73d1c2728bd7d52aaa2e0e0cf9dc55b074d172f273bb65531",
+    "study.yaml": "2a679bc3e4615c046176f8ddd5cd4190a4e677ed26eaba0dbcbacf7cf9f96b1d"
+  },
   "created_at": "2026-08-25T07:53:52.338950Z",
   "current_phase": "adaptive-1",
   "final_holdout_access": {
@@ -21,9 +29,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-08-25T07:54:05.904829Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "program.md": "ef46de69745fbb5842c22e1d0f77fdf1268d8708f58324cb6df38a2fc8f7ee74",
+        "research_plan.md": "8643b0d42d3573e73d1c2728bd7d52aaa2e0e0cf9dc55b074d172f273bb65531",
+        "study.yaml": "2a679bc3e4615c046176f8ddd5cd4190a4e677ed26eaba0dbcbacf7cf9f96b1d"
+      },
+      "note": "roster/bars/branches/seeds frozen per research_plan + GPT-5.6-Sol red-team adjudication (9 items adopted); minimum_delta is the scaffold 0 pending the Phase-1 ledger-floor measurement per the registered sequence",
+      "status": "recorded"
     },
     "data": {
       "acknowledged_at": null,
@@ -46,5 +60,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T07:53:52.339064Z"
+  "updated_at": "2026-08-25T07:54:05.905157Z"
 }
