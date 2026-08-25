@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	primary	0.026744	keep	de974fdc1702dfd901bd8bc3618e5fbe2da807ad	E0001 anchor: Fisher 1936 LDA, four features, fit on train only - sets the frontier; first valid result on this track
