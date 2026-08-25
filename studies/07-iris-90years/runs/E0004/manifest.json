@@ -1,0 +1,78 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1185,
+      "committed": true,
+      "sha256": "e07f154a7ef4775ca5edeb650296fd1df07cad839ff7b9705910d30bb0306c5b"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 447,
+      "committed": true,
+      "sha256": "c344859b69b71616c7b7f4d394f22085c67269878097053e4edc1a1fcb52ac2c"
+    }
+  },
+  "base_commit": "5f7f3ca5b450781eb157a91c60337ea3968b2484",
+  "candidate_commit": "3d61e4376da535dc6701cb669319dd2356284a41",
+  "code_patch_hash": "a84aee14b30c82b591c0564e4ccb7da2a6349f5cf82e3c22a0bda2649bc23f85",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.026744 by minimum_delta=0.033",
+  "description": "E0004 challenger: kNN k=7 distance-weighted (Fix-Hodges 1951 / Cover-Hart 1967) - registered prediction: no keep; did not improve track frontier 0.026744 by minimum_delta=0.033",
+  "disposition": "discard",
+  "ended_at": "2026-08-25T02:37:49.946411Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "38a4ff092be2dfd14e5310b7a62665a9e1c0256acf9340d35ab2a78311e4c9af"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "3bc2c1dde3d86b69230a8977b70d537313f0c118499590b04d1bb9a90bfb8ab8",
+    "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {
+    "primary_metric": 0.045403,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 60.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.35,
+    "val_brier": 0.045403,
+    "val_f1_at_best": 0.9524,
+    "val_lift_top10": 2.0,
+    "val_logloss": 0.12012,
+    "val_pr_auc": 0.990909,
+    "val_rows": 20.0,
+    "wall_seconds": 0.010369
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 7,
+  "primary_metric": 0.045403,
+  "schema_version": 2,
+  "started_at": "2026-08-25T02:37:49.191244Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-08-25T02:37:49.947155Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.75507020810619
+}

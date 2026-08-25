@@ -63,7 +63,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 3,
+  "last_experiment": 4,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -80,5 +80,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:37:48.358788Z"
+  "updated_at": "2026-08-25T02:37:49.947766Z"
 }
