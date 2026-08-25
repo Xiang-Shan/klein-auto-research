@@ -1,0 +1,50 @@
+{
+  "acknowledgements": {},
+  "artifact_hashes": {},
+  "created_at": "2026-08-25T07:32:12.568771Z",
+  "current_phase": "adaptive-1",
+  "final_holdout_access": {
+    "challenger": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "007852a469e985c39451cad99c1fd03f96b50f6ffe586e617521ee3a0fdc3295"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/data/prepared/iris_hard_pair.csv",
+    "sha256": null
+  },
+  "schema_version": 2,
+  "status": "active",
+  "study_id": "08-iris-rematch",
+  "updated_at": "2026-08-25T07:32:12.568885Z"
+}
