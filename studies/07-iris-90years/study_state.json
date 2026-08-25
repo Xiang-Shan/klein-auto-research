@@ -3,9 +3,14 @@
     "consult": {
       "by": "Xiang",
       "timestamp": "2026-08-25T02:29:46.228476Z"
+    },
+    "data": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T02:29:46.344337Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "5d7b35952cf5c449917b1f362b876bf1ee47c55f1d8cf83e4eb269cc4d74319d",
     "research_plan.md": "5be4e5a0c84b5ac22ed46aeee14f560bbffa902385a8dbbe2b22aee5dfcb4d23",
     "study.yaml": "bf7348a23f48dbff562fc52aab59757d8200400d4ee9ed76cadf5f440678c80d"
   },
@@ -19,7 +24,7 @@
     }
   },
   "fingerprints": {
-    "data": null,
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
     "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
   },
   "gates": {
@@ -35,9 +40,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-08-25T02:29:46.344337Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "data_card.md": "5d7b35952cf5c449917b1f362b876bf1ee47c55f1d8cf83e4eb269cc4d74319d"
+      },
+      "note": "cautions accepted: species is a deliberate target proxy for the registered crash rung (never a feature); group_id is ID-like by construction; n=100 with a 20-row development partition; sealed partition is 7/13",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -50,10 +59,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/07-iris-90years/data/prepared/iris_hard_pair.csv",
-    "sha256": null
+    "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
   },
   "schema_version": 2,
   "status": "active",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:29:46.229201Z"
+  "updated_at": "2026-08-25T02:29:46.345800Z"
 }
