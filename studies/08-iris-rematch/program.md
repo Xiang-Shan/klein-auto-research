@@ -114,3 +114,8 @@ commits; the evidence transaction then restores `train.py` to the pre-candidate 
   two tracks, four phases); state regenerated pre-gate (07 precedent); gates pending.
 - 2026-08-25 — scouting_ledger.md committed before consult (07 corpus + smoke preview
   0.029442 + TabPFN v2 spike PASS: bit-identical CPU fits, 0.099 s warm).
+- 2026-08-25 — SEED-OVERFLOW CRASH, C19 reproduced: the registered 20260901xxx
+  namespace exceeds sklearn's 2**32−1 bound; all 20 ledger-floor trials crashed;
+  sidecar preserved as ledger_floor.sidecar.crashed-seed-overflow.tsv; namespace
+  amended in-domain (2026091000/2026092000/2026093000/2026095000/2026096000),
+  fix committed BEFORE any floor was stated; consult+method gates re-recorded.

@@ -79,10 +79,12 @@ from kleinlib.workflow import load_contract  # noqa: E402
 
 SWEEP_NAME = "ledger_floor"
 DRAWS = 20
-# Per-draw seed = base + draw -> 20260901001..20260901020 (design brief §1:
-# fresh namespace, disjoint from every study-07 seed and from seed 20260907;
-# comfortably < 2**32 — study 07's overflow lesson, claim C19).
-DRAW_SEED_BASE = 20260901000
+# Per-draw seed = base + draw -> 2026091001..2026091020. AMENDED 2026-08-25:
+# the registered namespace 20260901001+ OVERFLOWED sklearn's 2**32-1 bound and
+# all 20 trials crashed (sidecar preserved as *.crashed-seed-overflow.tsv) —
+# the exact failure study 07's claim C19 warns about, reproduced here and fixed
+# the same way: in-domain base, committed before any floor was stated.
+DRAW_SEED_BASE = 2026091000
 #: 0.25 of the 80 non-sealed rows -> ~20 development rows, ~60 train rows.
 DRAW_DEV_FRACTION = 0.25
 TARGET = "is_virginica"

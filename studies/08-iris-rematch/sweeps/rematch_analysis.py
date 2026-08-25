@@ -50,7 +50,7 @@ Sealed-coda branch + manifest: Branch W iff ≥1 Bar-2 cell — (f*, n*) = large
 t among Bar-2 cells, ties → larger n, then registry order. Else Branch G
 (anchor_lda4 / tabpfn at n=60). This script writes sweeps/coda_manifest.json:
 families, baked train positions (Branch W: the registered quota scan of the
-DECLARED train partition, seed 20260901999, ceiling class virginica, twins-last
+DECLARED train partition, seed 2026096000 (amended in-domain), ceiling class virginica, twins-last
 rule — identical code path to the arena's scan; Branch G: all train rows),
 position hashes, and the numeric bands. GAP SIGN CONVENTION (registered):
 g_sealed = sealed_primary − sealed_challenger (positive = challenger better on
@@ -64,7 +64,7 @@ finalize label `confirmed` records protocol completion (one successful sealed
 run per track); it is not a scientific-evidence upgrade.
 
 Sensitivity exhibit only (never a claim basis): fold-level max-t with 40 units,
-10,000 Monte-Carlo sign flips, seed 20260901550.
+10,000 Monte-Carlo sign flips, seed 2026095000 (amended in-domain).
 
 Run:  uv run --locked python -u sweeps/rematch_analysis.py
 """
@@ -96,8 +96,8 @@ from kleinlib.workflow import load_contract  # noqa: E402
 RUNGS = (60, 45, 30, 20, 12, 8)
 REPEATS = 10
 ALPHA = 0.05
-CODA_SUBSET_SEED = 20260901999
-SENS_SEED = 20260901550
+CODA_SUBSET_SEED = 2026096000
+SENS_SEED = 2026095000
 SENS_FLIPS = 10_000
 NEVER = float("-inf")
 

@@ -1,0 +1,6 @@
+non-sealed rows: 79  sealed (frozen out): 21
+non-sealed groups: 79
+WARNING: 20 trial(s) crashed; see the sidecar's error column
+need >= 3 successful anchor draws to state a floor, got 0
+runner_status: crash
+runner_exit_code: 1

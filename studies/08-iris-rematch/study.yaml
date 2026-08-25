@@ -37,7 +37,9 @@ tracks:
       # fit-noise sweep (registered expectation: degenerate, LDA is closed form),
       # (3) sweeps/ledger_floor.py = STUDY 07'S EXACT RECIPE on the new split
       # (GroupShuffleSplit test_size=0.25 over the 79 non-sealed rows, k=20, draw
-      # seeds 20260901001-020, statistic ceil3dp(2*std), RAISE-ONLY escalation to
+      # seeds 2026091001-020 (amended in-domain after the registered 20260901xxx
+      # namespace overflowed 2**32-1 - claim C19 reproduced; crash sidecar kept),
+      # statistic ceil3dp(2*std), RAISE-ONLY escalation to
       # klein default max(2*std, range/2)), (4) paste the measured noise_floor
       # block into BOTH tracks + set minimum_delta, (5) re-record the CONSULT gate
       # with the measured value. No challenger rung may run before step 5.
@@ -90,7 +92,7 @@ data:
 max_run_seconds: 120
 phases:
   - id: adaptive-1
-    description: "anchor + metrology: E0001 anchor_lda4 keep on the declared split; E0002 lda_sepal positive control; the k-seed fit-noise sweep (registered: degenerate, std exactly 0); sweeps/ledger_floor.py (07's exact recipe, new split, seeds 20260901001-020) -> paste noise_floor into BOTH tracks and re-record the consult gate; Stage-A arena (anchor+control only, all 6 rungs) -> commit sweeps/headroom.tsv BEFORE any challenger number exists; publish headroom_declared = anchor_dev/minimum_delta and fire the registered door-closed/door-ajar branch"
+    description: "anchor + metrology: E0001 anchor_lda4 keep on the declared split; E0002 lda_sepal positive control; the k-seed fit-noise sweep (registered: degenerate, std exactly 0); sweeps/ledger_floor.py (07's exact recipe, new split, seeds 2026091001-020 amended in-domain) -> paste noise_floor into BOTH tracks and re-record the consult gate; Stage-A arena (anchor+control only, all 6 rungs) -> commit sweeps/headroom.tsv BEFORE any challenger number exists; publish headroom_declared = anchor_dev/minimum_delta and fire the registered door-closed/door-ajar branch"
     budget_seconds: 1800
     max_experiments: 3
   - id: adaptive-2

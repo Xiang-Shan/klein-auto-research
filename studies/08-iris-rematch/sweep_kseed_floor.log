@@ -1,0 +1,21 @@
+declared split: train 59 rows, development 20 rows
+
+========================================================================
+K-SEED FIT-NOISE FLOOR — k=5, anchor config, seed varied and nothing else
+========================================================================
+values [0.02944192223, 0.02944192223, 0.02944192223, 0.02944192223, 0.02944192223]
+mean 0.0294419222304  std 0  range 0
+
+RESULT: DEGENERATE — std is exactly 0, as registered.
+  LDA is closed form (group means, pooled covariance, one solve): there is
+  no optimizer, no subsampling, no initialization for a seed to perturb.
+  Fisher's 1936 method has no random seed to vary.
+  The registered prediction HELD.
+
+DO NOT paste this block into study.yaml. A zero floor would let any
+difference count as a keep — the exact dishonesty the measurement prevents.
+The study's registered floor is sweeps/ledger_floor.py's (split noise).
+
+MEASUREMENT SWEEP: no winner promoted, no results.tsv row (sweep-rules.md carve-out)
+runner_status: ok
+runner_exit_code: 0

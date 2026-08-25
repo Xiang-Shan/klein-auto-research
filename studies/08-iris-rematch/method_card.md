@@ -83,7 +83,7 @@ measurement), estimator seed 20260907 throughout. Method-level laws:
 
 Registered in program.md §Sealed: mechanical branch rule (W iff ≥1 Bar-2 cell),
 `sweeps/coda_manifest.json` written by the frozen analysis (families, baked
-train positions from the registered quota scan seed 20260901999 under Branch W,
+train positions from the registered quota scan seed 2026096000 (amended in-domain) under Branch W,
 position hashes, numeric bands, sign convention g_sealed = sealed_primary −
 sealed_challenger vs the arena's [p10,p90] of g = anchor − f), executed via the
 pre-registered registry entries `coda_primary`/`coda_challenger` that READ the

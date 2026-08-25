@@ -21,10 +21,13 @@ And if anything wins anywhere — is it architecture, or just calibration (RQ4)?
 
 Declared split: group-aware 60/20/20, seed **20260907**, twins rows 102/143 one
 group (99 groups / 100 rows) — NO REDRAW under any outcome. Seed namespaces,
-all fresh and disjoint from every study-07 seed: ledger floor draws
-20260901001–020 · arena repeats 20260901100+j · arena subsampling
-20260901000+100j+k · analysis sensitivity MC 20260901550 · coda subset
-derivation 20260901999. Metric `val_brier` (lower) on BOTH tracks; rationale in
+all fresh, disjoint from every study-07 seed, and — AMENDED 2026-08-25 after
+the registered 20260901xxx namespace overflowed sklearn's 2**32−1 bound (all 20
+ledger-floor trials crashed; sidecar preserved; study 07 claim C19 reproduced
+verbatim in its successor) — inside the library's numeric domain: ledger floor
+draws 2026091001–020 · arena repeats 2026092000+j · arena subsampling
+2026093000+100j+k · analysis sensitivity MC 2026095000 · coda subset
+derivation 2026096000. Metric `val_brier` (lower) on BOTH tracks; rationale in
 study.yaml. Guardrails: max_run_seconds 120, wall_seconds ≤ 60.
 
 ## §3 Ledger protocol (declared split)
@@ -34,7 +37,7 @@ study.yaml. Guardrails: max_run_seconds 120, wall_seconds ≤ 60.
 - k-seed fit-noise sweep: registered expectation degenerate (std exactly 0).
 - `sweeps/ledger_floor.py` = study 07's EXACT floor recipe on the new split
   (GroupShuffleSplit test_size 0.25 over the 79 non-sealed rows, k=20, seeds
-  20260901001–020, anchor only; statistic ceil3dp(2×std); RAISE-ONLY escalation
+  2026091001–020 (amended in-domain), anchor only; statistic ceil3dp(2×std); RAISE-ONLY escalation
   to klein default max(2×std, range/2)). Measured block pasted into BOTH tracks;
   consult gate re-recorded. **No challenger transaction before that re-record.**
 - At the adaptive-1 phase boundary the phase note publishes
@@ -94,7 +97,7 @@ sensitivity exhibit only.
 Branch rules, band predictions, and the epistemic-status sentence are
 pre-committed in `program.md` §Sealed. Mechanics (post red-team): the frozen
 analysis writes `sweeps/coda_manifest.json` — branch, families, BAKED
-train-position lists (Branch W: the registered quota scan, seed 20260901999,
+train-position lists (Branch W: the registered quota scan, seed 2026096000,
 ceiling class virginica, twins-last, applied to the declared train partition;
 Branch G: all train rows), position hashes, and numeric bands with the
 registered sign convention g_sealed = sealed_primary − sealed_challenger
