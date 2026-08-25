@@ -10,12 +10,12 @@
     },
     "method": {
       "by": "Xiang",
-      "timestamp": "2026-08-25T02:29:46.459547Z"
+      "timestamp": "2026-08-25T02:40:07.195407Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "5d7b35952cf5c449917b1f362b876bf1ee47c55f1d8cf83e4eb269cc4d74319d",
-    "method_card.md": "74fa01e283f9ba621f574b4d0f15b1c0edaadfc5ac0026a1f823cbc1476c0066",
+    "method_card.md": "cfa1d38d6c1901add37f0d5849fb02c9d0b7e809f872448cb597021fdb07464c",
     "research_plan.md": "5be4e5a0c84b5ac22ed46aeee14f560bbffa902385a8dbbe2b22aee5dfcb4d23",
     "study.yaml": "5a7792f05b75ca4363768ffb020ed45f39ebbf15fb49b8b02ec4ebec290b846a"
   },
@@ -54,12 +54,12 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": "2026-08-25T02:29:46.459547Z",
+      "acknowledged_at": "2026-08-25T02:40:07.195407Z",
       "acknowledged_by": "Xiang",
       "artifacts": {
-        "method_card.md": "74fa01e283f9ba621f574b4d0f15b1c0edaadfc5ac0026a1f823cbc1476c0066"
+        "method_card.md": "cfa1d38d6c1901add37f0d5849fb02c9d0b7e809f872448cb597021fdb07464c"
       },
-      "note": "papers leg pending: Fisher 1936 and Bezdek 1999 are citation-verification-pending and are verified this morning before any deliverable cites them",
+      "note": "papers leg RESOLVED: Fisher 1936 + Bezdek 1999 verified against primary sources; scouted coefficient comparison identified as wrong-pair and replaced by the digit-exact setosa-versicolor reproduction",
       "status": "recorded"
     }
   },
@@ -86,5 +86,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:38:38.822249Z"
+  "updated_at": "2026-08-25T02:40:07.196373Z"
 }
