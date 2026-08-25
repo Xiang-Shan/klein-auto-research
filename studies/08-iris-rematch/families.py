@@ -323,10 +323,17 @@ def _vote_soft(splits=None) -> Any:
 
 
 def _stack_logit(splits=None) -> Any:
+    # NESTED-CONTEXT AMENDMENT (2026-08-25, committed before Stage B; parade
+    # E0023 recorded the original wiring's crash honestly): precomputed absolute
+    # splits cannot survive the stack's internal cross-fitting refits on row
+    # subsets ("cross_val_predict only works for partitions"). The inner svm
+    # therefore uses cv=3 stratified — LAWFUL THIS STUDY because the non-sealed
+    # pool contains no multi-row group (the twin pair sealed together; data
+    # card §NEW), so row-level and group-aware inner splits coincide.
     return StackingClassifier(
         estimators=[
             ("lda", _lda()),
-            ("svm", _svm_rbf_platt(splits)),
+            ("svm", _svm_rbf_platt(3)),
             ("hgbt", _hgbt()),
             ("gnb", _gnb()),
         ],
@@ -342,8 +349,12 @@ def _coda_entry(track_key: str) -> Callable[..., Any]:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         spec = manifest[track_key]
         base_builder, _cols = REGISTRY[spec["family"]]
+        # base built with cv=3 (not precomputed splits): under Branch W the
+        # wrapper refits on a baked subset, where absolute splits would break —
+        # same nested-context amendment and same no-multi-row-group lawfulness
+        # argument as _stack_logit.
         return _SubsetWrapper(
-            base=base_builder(splits),
+            base=base_builder(3),
             keep_positions=tuple(spec["train_positions"]),
         )
 
