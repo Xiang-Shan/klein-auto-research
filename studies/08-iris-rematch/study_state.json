@@ -33,6 +33,18 @@
       "experiment": "E0024"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "challenger": 1,
+      "primary": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "challenger": "E0025",
+      "primary": "E0024"
+    },
+    "timestamp": "2026-08-25T08:22:36.420262Z"
+  },
   "fingerprints": {
     "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
     "split": "007852a469e985c39451cad99c1fd03f96b50f6ffe586e617521ee3a0fdc3295"
@@ -101,7 +113,7 @@
     "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
   },
   "schema_version": 2,
-  "status": "active",
+  "status": "finalized",
   "study_id": "08-iris-rematch",
-  "updated_at": "2026-08-25T08:21:50.426190Z"
+  "updated_at": "2026-08-25T08:22:36.420265Z"
 }
