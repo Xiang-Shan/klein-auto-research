@@ -1,0 +1,44 @@
+<h2>Data</h2>
+
+<p>The same 100 flowers as study 07, prepared by the same script, byte-identical:
+Fisher's hard pair &mdash; <em>versicolor</em> against <em>virginica</em> &mdash; four
+measurements at 0.1&nbsp;cm print resolution, a 50/50 target, and two columns that are
+never features: the 3-class <code>species</code> code and the <code>group_id</code>.</p>
+
+<p><strong>The twins ruling, inherited.</strong> Hard-pair rows 51 and 92 (rows 102 and
+143 of the printed table) carry identical measurements &mdash; 5.8, 2.7, 5.1, 1.9, both
+<em>virginica</em> &mdash; and study 07 established that the duplication is original to
+Fisher's own printed Table&nbsp;I. Duplicate entry cannot be distinguished from two
+genuinely identical flowers at that resolution, so the rows are not deleted: they share
+one group id and always travel together. Ninety-nine groups over one hundred rows.</p>
+
+<p><strong>The twins drew the sealed ticket.</strong> The pre-committed split seed put
+them <em>behind the seal, together</em> &mdash; the ruling held automatically, and it
+reshaped the study's geometry. The measured partition is <strong>59 train / 20
+development / 21 sealed</strong> (the group machinery's &plusmn;1 wobble, documented not
+forced), with a sealed base rate of 13 <em>virginica</em> to 8 <em>versicolor</em> &mdash;
+a group split is not stratified, and that is a consequence, not a defect. The arena
+therefore works over <strong>79 rows containing no multi-row group at all</strong>, which
+made the subsampler's twins-last rule registered but idle for the whole study.</p>
+
+<p><strong>The split law applies inside the estimators too.</strong> This is the data
+lesson study 08 added. Calibration wrappers, the kNN tuner and the stacking meta-learner
+all run their own internal cross-validation, and by default that is <em>row-level</em>
+&mdash; which would let a multi-row group straddle an inner boundary and quietly violate
+the very ruling the outer split enforces. Every such estimator here receives
+precomputed, group-aware, stratified inner splits. For the same reason
+<code>SVC(probability=True)</code> &mdash; whose internal Platt calibration is row-level
+and not overridable &mdash; is banned in favour of an external calibration wrapper;
+scikit-learn 1.9 has since deprecated that parameter in favour of exactly the
+construction this study adopted. And every calibration wrapper runs with
+<code>ensemble=False</code>, so the base model is fit on all training rows and only the
+calibration map is learned out-of-fold: the pure calibration lane the mechanism question
+needs.</p>
+
+<p><strong>The external artifact.</strong> TabPFN's weights are the one thing in this
+study that did not come from the repository. They are pinned three ways &mdash; package
+version in the lockfile, checkpoint family selected in-factory rather than by the
+library's "auto" path, and offline mode exported for every study run so no fit can
+silently reach the network. A pre-gate spike on unrelated data confirmed bit-identical
+predictions across two fits at a fixed seed before the model was allowed onto the
+roster.</p>

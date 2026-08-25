@@ -1,0 +1,73 @@
+<h2>Findings</h2>
+
+<p>Twenty-one challengers, 113 guard cells, 4,520 arena fits, two sealed looks. Nothing
+cleared a bar that matters, and the one thing that flickered points back at Fisher.</p>
+
+<h3>The three bars</h3>
+
+<table>
+<thead><tr><th>Bar</th><th>Question</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td>Ledger keep</td><td>Anything better by <span data-math="\ge \delta"></span> on
+the declared split?</td><td><strong>0 of 21</strong> &mdash; on a door that was
+<em>ajar</em> (headroom 1.015; a keep needed 0.000442)</td></tr>
+<tr><td>Selection guard</td><td>Anything detectable across the registered
+lottery?</td><td><strong>1 of 113 cells</strong> &mdash; and the sensitivity exhibit does
+not confirm it</td></tr>
+<tr><td>Actionability</td><td>A keep-sized win at an open rung?</td>
+<td><strong>0</strong> &mdash; because <strong>no rung was ever open</strong></td></tr>
+</tbody>
+</table>
+
+<h3>The ladder never opens</h3>
+
+<p>All six rungs closed: ceiling-closed at 60, 45, 30 and 20 training rows, fog-closed at
+12 and 8. The ratio of the anchor's mean error to that rung's own floor stays near
+<strong>one-half at every rung</strong> &mdash; 0.52, 0.53, 0.53, 0.45, 0.47, 0.51. As
+the data shrinks, the incumbent gets worse and the bar for beating it gets worse faster.
+This is the study's central negative result, and it was measured and committed
+<em>before</em> any challenger number existed.</p>
+
+<h3>The one flicker, and where it points</h3>
+
+<p>Exactly one cell cleared the guard: a <strong>quadratic discriminant analysis at eight
+training rows</strong>, mean paired gain <strong>+0.0730</strong>. Three qualifiers
+travel with that sentence permanently, and all three were registered in advance. It is
+0.29&times; that rung's floor &mdash; <strong>detectable, not actionable</strong>. The
+fold-level sensitivity exhibit fires <em>zero</em> cells, so the detection is sensitive
+to the choice of analysis unit and is reported as such. And the capture ratio is
+<strong>0.98</strong>: the best LDA-family adjustment at that rung reaches +0.0711 of
+QDA's +0.0730. <strong>To within two percent, the one detectable improvement over
+Fisher's 1936 rule is available by adjusting Fisher's own family.</strong> Architecture
+never showed up. The 2025 foundation model landed mid-pack on the declared split,
+roughly twice the anchor's Brier, and cleared no guard cell at any rung.</p>
+
+<img data-fig="figures/arena_strip.png" alt="Arena fold-evaluations per rung for seven selected families against the anchor mean and its floor band">
+
+<h3>The instrument was alive the whole time</h3>
+
+<p>The sepal-only positive control separates at <em>every</em> measurable rung, from
+t&nbsp;=&nbsp;121.7 at 60 rows down to t&nbsp;=&nbsp;5.8 at 8 rows, every adjusted score
+at most 0.002. A degradation of the size the protocol was built to see remains visible
+even where the fog closes the rung. "Nothing cleared the bar" is therefore a statement
+about the challengers, not about a blind instrument.</p>
+
+<h3>The seals</h3>
+
+<p>The anchor's level held on the fresh seal, inside its registered band at 82% of the
+band's width. The 1936-versus-2025 gap fell outside the arena's predicted band &mdash; a
+<strong>recorded miss</strong> against a pre-registered prediction, in the direction of
+the challenger, at 0.36&times; the floor, on one look, with no coverage after selection.
+Both outcomes were written as sentences before the seals were broken, and both sentences
+are in the record. That is the whole point of writing them first: a surprise costs you
+nothing if you have already decided what you would say.</p>
+
+<h3>Prior scorecard</h3>
+
+<p>Only priors tagged <em>uninformed</em> are scorable &mdash; everything study 07
+measured is scouting for study 08 and is excluded by rule. Of the three scorable priors:
+"does any rung open" resolved <strong>no</strong>; "no actionable win at an open rung"
+<strong>held</strong>; "the LDA-family adjustment captures at least half" <strong>held,
+at 0.98</strong>. The excluded prior worth naming is the one the data contradicted: the
+declared split was expected to be closed with probability about 0.8, and it came up
+ajar.</p>
