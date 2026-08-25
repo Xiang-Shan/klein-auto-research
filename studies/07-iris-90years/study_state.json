@@ -20,7 +20,7 @@
     "study.yaml": "5a7792f05b75ca4363768ffb020ed45f39ebbf15fb49b8b02ec4ebec290b846a"
   },
   "created_at": "2026-08-24T19:01:42.439147Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "adaptive-2",
   "final_holdout_access": {
     "primary": {
       "accessed_at": null,
@@ -65,7 +65,14 @@
   },
   "last_experiment": 1,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-08-25T02:37:28.330052Z",
+      "acknowledged_by": "Xiang",
+      "note": "adaptive-1 complete: anchor E0001 + both floor sidecars; minimum_delta 0.033 in contract; ladder blanket-authorized by Xiang at the 2026-08-25 ack window",
+      "playbook_sha256": "325e8b87b72d724bbd3240e0b07aae65348f07a2589033ac6de20f01c38744ce"
+    }
+  },
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/07-iris-90years/data/prepared/iris_hard_pair.csv",
     "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
@@ -73,5 +80,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "07-iris-90years",
-  "updated_at": "2026-08-25T02:35:24.350660Z"
+  "updated_at": "2026-08-25T02:37:28.331247Z"
 }
