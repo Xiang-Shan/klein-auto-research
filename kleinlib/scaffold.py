@@ -42,6 +42,14 @@ tracks:
       #   k: 5                      # klein noise-floor prints this block
       #   std: ...
       #   range: ...
+      #   estimand: marginal-resplit  # or paired-comparison — name WHICH
+      #                             # question the floor answers (required once
+      #                             # metric.bound is declared; measure both
+      #                             # spreads before choosing)
+      # bound:                      # arms the headroom (detection-limit) audit:
+      #   ideal: 0.0                # best achievable score (0.0 brier/logloss,
+      #                             # 1.0 auc); h = (incumbent - ideal) / delta
+      #   on_infeasible: ack        # ack | warn | block when h < 1
     guardrails: {}
 
 data:

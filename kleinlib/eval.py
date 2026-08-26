@@ -121,6 +121,26 @@ _METRIC_SPECS: dict[str, MetricSpec] = {
     "val_tweedie_deviance": MetricSpec("val_tweedie_deviance", "lower", "regression"),
 }
 
+#: Best achievable value for each hard-bounded metric — the basis for the
+#: headroom (detection-limit) audit: with ``goal: lower`` and an ideal of 0,
+#: no challenger can beat an incumbent by more than the incumbent's own score.
+#: Declaring ``metric.bound.ideal`` in study.yaml arms the audit; this table
+#: only powers the preflight HINT for studies that have not declared it
+#: (``val_lift_top10`` is unbounded and deliberately absent).
+KNOWN_IDEALS: dict[str, float] = {
+    "val_auc": 1.0,
+    "val_pr_auc": 1.0,
+    "val_logloss": 0.0,
+    "val_brier": 0.0,
+    "val_f1_at_best": 1.0,
+    "val_rmse": 0.0,
+    "val_mae": 0.0,
+    "val_r2": 1.0,
+    "val_poisson_deviance": 0.0,
+    "val_gamma_deviance": 0.0,
+    "val_tweedie_deviance": 0.0,
+}
+
 #: The deviance family follows the exposure-weighted-rate convention: the
 #: target is a RATE (e.g. claim counts / exposure) and ``sample_weight`` is
 #: the exposure base. This is the standard actuarial formulation (and the one
