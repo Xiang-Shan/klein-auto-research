@@ -28,6 +28,14 @@ the sources we checked" until three checks pass: read the Bezdek et al. (1999) f
 text, check Anderson (1935) and the later iris-forensics literature for the 102/143
 pair, and confirm the Table I mapping against a second scan. If those hold, the honest
 form is a short data-provenance note &mdash; not a claim of discovery.</li>
+<li><strong>Done since this study shipped: the harness now runs the subtraction
+itself.</strong> The sub-zero keep bar was found by hand between studies &mdash; klein
+v1.3 makes it a first-class check: declare <code>metric.bound.ideal</code> and
+preflight/verify disclose headroom h = (incumbent &minus; ideal)/&delta; (here:
+0.026744 / 0.033 = 0.81), and <code>klein run-one</code> refuses further development
+transactions at h &lt; 1 until <code>klein headroom ack</code> puts the closed door on
+the record with a registered branch sentence. War story 7 in the repo carries the
+post-mortem.</li>
 </ol>
 
 <p><strong>The rematch.</strong> A successor study &mdash;

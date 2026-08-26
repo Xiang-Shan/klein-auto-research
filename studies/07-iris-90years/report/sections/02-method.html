@@ -45,6 +45,22 @@ score wobbles this much when only the split changes", conditional on these 100 f
 It is <em>not</em> a confidence interval and <em>not</em> a significance test; the
 registered estimand is a protocol-level decision claim, nothing more.</p>
 
+<p><strong>The subtraction nobody printed.</strong> Put the two registered numbers side
+by side and the tournament's arithmetic decides itself: on the declared split the
+anchor's <em>entire</em> Brier is <strong>0.026744</strong>, the floor is
+<strong>&delta; = 0.033</strong>, so a keep needed</p>
+
+<div data-math-display="\mathrm{Brier}_{\mathrm{challenger}} \;\le\; 0.026744 - 0.033 \;=\; -0.006256"></div>
+
+<p>&mdash; below the metric's hard zero. On the declared split, <em>not even a perfect
+score</em> could have kept: the instrument's smallest readable tick was wider than
+everything left to measure. Scoped deliberately &mdash; on 4 of the 20 lottery draws the
+anchor's own error exceeded &delta;, so a re-dealt split can open the door, and the
+rematch study measured exactly that. The floor-ladder figure's legend prints "below
+zero: unreachable"; this paragraph is the sentence the prose owed the reader beside it,
+and the harness now runs the subtraction itself (see the closing note in Next
+Steps).</p>
+
 <p><strong>Why <code>val_brier</code>.</strong> The primary metric is the proper score</p>
 
 <div data-math-display="\mathrm{Brier} = \frac{1}{n}\sum_{i=1}^{n}\,(p_i - y_i)^{2}"></div>

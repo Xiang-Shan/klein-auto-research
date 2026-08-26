@@ -292,6 +292,18 @@ on them, but nobody is blind to them. <strong>The lock, not blindness, is the in
 claim.</strong> Everything below &mdash; seeds, bars, eligibility, branch sentences
 &mdash; was registered and committed before the first challenger ran.</p>
 
+<p><strong>Postscript &mdash; the harness learned this trick.</strong> The headroom
+audit this study ran by hand is now a first-class check in klein itself (v1.3):
+declare <code>metric.bound.ideal</code> and the harness computes
+h = (incumbent &minus; ideal)/&delta; at preflight and verify, and
+<code>klein run-one</code> refuses development transactions on a keep-infeasible
+frontier until <code>klein headroom ack</code> records the closed door with a
+registered branch sentence &mdash; exactly the door-closed/door-ajar device
+pre-committed here. The floor's estimand must now be named too
+(<code>marginal-resplit</code> | <code>paired-comparison</code>): study 07's own
+lottery sidecar shows the paired spread <em>exceeding</em> the marginal for five of
+six families, so neither is "the sharper one" by default.</p>
+
 </section>
 <section id="method">
 <h2>Method</h2>
