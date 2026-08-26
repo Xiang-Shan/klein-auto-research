@@ -11,9 +11,9 @@ development transactions until the closed door is acknowledged on the record.
 
 from __future__ import annotations
 
-import yaml
-
 import pytest
+import yaml
+from test_workflow_v2 import commit_all, metric_command
 
 from kleinlib import cli
 from kleinlib.workflow import (
@@ -27,13 +27,6 @@ from kleinlib.workflow import (
     validate_contract,
     verify_event_chain,
     verify_study,
-)
-
-from test_workflow_v2 import (  # noqa: F401  (ready_study is a fixture)
-    commit_all,
-    git,
-    metric_command,
-    ready_study,
 )
 
 
