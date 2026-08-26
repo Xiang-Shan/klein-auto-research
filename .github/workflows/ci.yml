@@ -206,6 +206,7 @@ jobs:
           uv run --no-sync klein --help
           uv run --no-sync klein new --help
           uv run --no-sync klein gate --help
+          uv run --no-sync klein headroom --help
           uv run --no-sync klein preflight --help
           uv run --no-sync klein run-one --help
           uv run --no-sync klein recover --help

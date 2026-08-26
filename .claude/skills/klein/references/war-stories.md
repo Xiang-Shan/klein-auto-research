@@ -104,6 +104,29 @@ already routes it through `extra=` keeps byte-identical output), and
 named anywhere in the study's Python sources. Declare guardrails on keys the run
 will print.
 
+## 7. The sub-zero keep bar (→ metric.bound + headroom disclosure + `klein headroom ack`)
+
+**The failure.** Study 07 measured its floor honestly (split-lottery, k=20,
+2×std → delta = 0.033) — against an anchor whose whole Brier was 0.026744. The
+keep rule therefore demanded `challenger <= 0.026744 − 0.033 = −0.006256`, below
+the metric's hard zero: every challenger in the parade was arithmetically dead
+before it ran, and no check said so. The impossibility was found BY HAND between
+rounds (the repo owner did the subtraction), a full study later. The figure
+legend even printed "below zero: unreachable" — the prose never drew the
+conclusion.
+
+**The guard.** Declare `metric.bound.ideal` (0.0 for brier/logloss, 1.0 for AUC)
+and klein computes headroom `h = (incumbent − ideal) / minimum_delta` wherever an
+incumbent exists: disclosed at preflight/verify (`[WARN] ... NO keep is
+arithmetically possible`), enforced at run-one — the default posture refuses
+development transactions until `klein headroom ack` records the closed door with
+a registered branch (`re-scope: ...` or `run-anyway: ...`, study-08 style). Two
+wording clauses ride along: `h >= 1` is "not excluded", never "plausible"
+(study 08: h = 1.015, twenty-one challengers, zero keeps), and the floor must
+name its estimand (`marginal-resplit` | `paired-comparison`) — study 07's own
+sidecar shows the paired spread EXCEEDING the marginal for five of six families,
+so neither is "the sharp one" by default.
+
 ## The meta-lesson
 
 Every one of these failed SILENTLY — a wrong number that looked plausible, not a crash

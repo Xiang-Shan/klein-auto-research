@@ -131,6 +131,49 @@ gate. `klein run-one --final-test` permits one sealed final-test evaluation per
 track. `klein verify --study <legacy-study>` prints deprecation errata for v1
 studies without ever rewriting them.
 
+### Detection limit: audit headroom before spending challengers
+
+A measured floor can honestly outgrow the incumbent's entire distance to
+perfection. Study 07 registered `minimum_delta: 0.033` against an anchor Brier
+of 0.026744 — the keep bar sat below zero, so no challenger (not even a perfect
+score) could ever keep, and nothing in the harness said so. Declare the metric's
+best achievable value and klein does the subtraction for you:
+
+```yaml
+    metric:
+      name: "val_brier"
+      goal: "lower"
+      minimum_delta: 0.033
+      bound:
+        ideal: 0.0            # Brier's best achievable score
+        on_infeasible: ack    # ack | warn | block when h < 1
+      noise_floor:
+        estimand: marginal-resplit   # or paired-comparison — name the question
+        # ... measured block from `klein noise-floor`
+```
+
+With a declared bound, klein computes `h = (incumbent − ideal) / minimum_delta`
+wherever an incumbent exists and discloses it at preflight, verify, and run-one.
+`h < 1` means the tournament is decided before it runs; the default posture
+refuses further development transactions until the closed door is on the record:
+
+```bash
+klein headroom ack --study studies/NN-slug --track primary \
+  --acknowledged-by <name> --note "run-anyway: <pre-committed door-closed sentence>"
+```
+
+Two honesty clauses ship with the number. First, `h >= 1` means a keep is *not
+arithmetically excluded* — never that one is plausible: the attainable ceiling
+may sit well short of the ideal (study 08 stood at h = 1.015 and twenty-one
+challengers produced zero keeps). Second, name the floor's estimand: the
+**marginal-resplit** floor asks *"would the incumbent's own score survive a
+re-draw of the split?"*; the **paired-comparison** floor asks *"is this
+same-split edge larger than the pair's joint noise?"* — and neither is the
+sharp one a priori (in study 07 the paired spread exceeded the marginal for
+five of six families, because challenger fit-variance dominates). A study that
+registers a delta without naming which question it answers has not registered a
+decision rule.
+
 ## Drive it with your agent — or none
 
 Klein is agent-agnostic. The operating manual is [`AGENTS.md`](AGENTS.md) — the

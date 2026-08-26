@@ -136,6 +136,14 @@ The standing rules around those layers:
   changes are rare, deliberate, and never part of the per-experiment diff.
 - Status honesty: `keep` / `discard` / `crash` — a crash is logged as a crash with
   `NA` metric, not silently retried into oblivion.
+- Detection-limit honesty: once a track declares `metric.bound.ideal` and holds an
+  incumbent, klein computes headroom `h = (incumbent − ideal) / minimum_delta` and
+  discloses it at preflight/verify. `h < 1` means no keep is arithmetically
+  possible — the default posture refuses further development runs until
+  `klein headroom ack` puts the closed door on the record (`re-scope: ...` or
+  `run-anyway: ...`). Read `h >= 1` as "not excluded", never "plausible"
+  (irreducible Bayes risk; study 08: door ajar at 1.015, twenty-one challengers,
+  zero keeps).
 - `KLEIN_SMOKE=1 python train.py` is the ONE sanctioned off-loop smoke check —
   the canonical block prints, no sidecar/snapshot writes happen, and `run-one`
   force-clears the flag in its child so ambient smoke can never suppress real
