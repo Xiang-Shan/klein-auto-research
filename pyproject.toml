@@ -54,6 +54,9 @@ gbdt = [
 deep = [
     "torch>=2.3",
 ]
+foundation = [
+    "tabpfn==8.4.0",
+]
 [dependency-groups]
 dev = [
     "pytest>=8",

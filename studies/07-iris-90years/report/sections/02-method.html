@@ -1,0 +1,73 @@
+<h2>The Method</h2>
+
+<p><strong>The 1936 anchor, taught.</strong> You have two clouds of flowers in
+four-dimensional measurement space. Project every flower onto one direction &mdash; a
+weighted sum of the four measurements &mdash; and the problem collapses to one
+dimension. Fisher's criterion picks the direction as a <em>signal-to-noise ratio</em>:
+maximize the squared gap between the projected class means divided by the within-class
+spread along that same direction,</p>
+
+<div data-math-display="J(w) = \frac{\big(w^{\mathrm{T}}(\mu_1-\mu_0)\big)^{2}}{w^{\mathrm{T}} S_W\, w} \quad\Longrightarrow\quad w^{\star} = c\, S_W^{-1}(\mu_1-\mu_0)"></div>
+
+<p>where the within-class scatter sums squared deviations about each class mean. Only
+the direction is determined, which is why any comparison against printed 1936
+coefficients must be a cosine, not a difference. The consequence this study leans on:
+<strong>there is nothing random in it</strong> &mdash; one mean per class, one scatter
+matrix, one linear solve. The METHOD gate proved the ten-line from-scratch
+implementation and sklearn's LDA are the same object: cosine &ge; 1 &minus; 1e-12 on
+all three solvers (the <code>svd</code> residual is one float64 ULP).</p>
+
+<p><strong>The instrument.</strong> klein's lifecycle as used here: three recorded
+gates before any run (CONSULT freezes the contract by hash; DATA writes the provenance
+and leakage audit; METHOD proves the anchor from scratch), then an append-only ledger
+where every candidate is committed <em>before</em> it executes, then one sealed look.
+Because a 2026-08-24 design panel had already measured this same dataset, the study
+adds a <strong>scouting ledger</strong>, committed before the first gate &mdash;
+disclosure, not blindness. Its own words: <em>"We scouted first, and everything we
+scouted is on the record. The registered predictions only count for the part we did
+not scout."</em> A fresh split seed buys exactly one thing, stated no wider: this
+partition, and therefore these 20 sealed rows, were never scored during scouting.</p>
+
+<p><strong>The floor, measured not guessed.</strong> The protocol-prescribed k-seed
+fit-noise sweep ran first and returned <strong>std exactly 0.0</strong> over 5 seeds
+&mdash; registered in advance, because a closed-form estimator gives a seed nothing to
+perturb. The honest noise for a deterministic method is <em>split</em> noise, so the
+committed recipe re-draws the 80 non-sealed rows 20 times (group-aware, sealed 20
+frozen out of every draw), refits every family per draw, and sets</p>
+
+<div data-math-display="\delta = 2\,\hat{\sigma}_{\mathrm{anchor}} = 2 \times 0.0163144 = 0.0326288 \;\Longrightarrow\; 0.033"></div>
+
+<p>(rounded <em>up</em> to 3 decimal places). klein's protocol default max(2&times;std,
+range/2) = 0.0326288 did not exceed it, so the pre-registered raise-only rule left the
+floor at <strong>&delta; = 0.033</strong>.
+Read &delta; as an <strong>actionability threshold</strong> &mdash; "the incumbent's own
+score wobbles this much when only the split changes", conditional on these 100 flowers.
+It is <em>not</em> a confidence interval and <em>not</em> a significance test; the
+registered estimand is a protocol-level decision claim, nothing more.</p>
+
+<p><strong>The subtraction nobody printed.</strong> Put the two registered numbers side
+by side and the tournament's arithmetic decides itself: on the declared split the
+anchor's <em>entire</em> Brier is <strong>0.026744</strong>, the floor is
+<strong>&delta; = 0.033</strong>, so a keep needed</p>
+
+<div data-math-display="\mathrm{Brier}_{\mathrm{challenger}} \;\le\; 0.026744 - 0.033 \;=\; -0.006256"></div>
+
+<p>&mdash; below the metric's hard zero. On the declared split, <em>not even a perfect
+score</em> could have kept: the instrument's smallest readable tick was wider than
+everything left to measure. Scoped deliberately &mdash; on 4 of the 20 lottery draws the
+anchor's own error exceeded &delta;, so a re-dealt split can open the door, and the
+rematch study measured exactly that. The floor-ladder figure's legend prints "below
+zero: unreachable"; this paragraph is the sentence the prose owed the reader beside it,
+and the harness now runs the subtraction itself (see the closing note in Next
+Steps).</p>
+
+<p><strong>Why <code>val_brier</code>.</strong> The primary metric is the proper score</p>
+
+<div data-math-display="\mathrm{Brier} = \frac{1}{n}\sum_{i=1}^{n}\,(p_i - y_i)^{2}"></div>
+
+<p>locked at CONSULT with the reasons written down: on a 20-row development partition
+AUC lives on a 101-point lattice and the anchor's scouted AUC pegged at 1.000 on 14 of
+20 lottery draws &mdash; a gauge reading full scale cannot rank challengers (on the
+sealed rows AUC, PR-AUC and F1 all sat at 1.0 again); and kNN's scouted logloss was
+~92% clipping epsilon, a machine constant, not a property of the flowers. Both are
+still recorded on every run as auxiliaries &mdash; evidence, never the verdict.</p>

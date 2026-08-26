@@ -1,0 +1,69 @@
+<h2>Method</h2>
+
+<p>Two frontiers, two sealed looks, one measured floor. The study declares a
+<code>primary</code> track (the anchor lane) and a <code>challenger</code> track, each
+scored on <code>val_brier</code> &mdash; inherited from study 07 so the two studies are
+comparable, and chosen for reasons worth repeating: AUC pegs at 1.000 on this pair
+(a ceiling cannot be beaten), takes only about 101 distinct values on 20 evaluation rows,
+and is <em>invariant under monotone recalibration</em> &mdash; which would have made the
+entire calibration lane of this roster indistinguishable from its raw versions and the
+mechanism question unanswerable. Log-loss was rejected in study 07 as a
+clipping-epsilon artifact.</p>
+
+<p><strong>The ledger floor.</strong> Study 07's exact recipe, re-run on the new split:
+twenty group-aware re-draws of the non-sealed rows, floor =
+<span data-math="\lceil 2\sigma \rceil_{0.001}"></span> of the anchor's development Brier
+across those draws, with a pre-registered raise-only escalation to klein's default
+<span data-math="\max(2\sigma,\, \mathrm{range}/2)"></span>. It measured
+<strong>0.029</strong>.</p>
+
+<p><strong>The arena</strong> is the primary evidence, and it is a measurement sweep, not
+a ledger: ten seeded repeats of stratified group 4-fold over the 79 non-sealed rows, so
+every row is scored in development exactly ten times. Inside each fold the training pool
+is subsampled by a nested quota scan to each rung
+<span data-math="n \in \{60, 45, 30, 20, 12, 8\}"></span>, and <em>the same subset is
+served to every family</em> &mdash; pairing is exact by construction, not by adjustment.
+The sweep runs in two stages, committed in order: <strong>Stage A</strong> fits the
+anchor and the control only and commits the headroom table <em>before any challenger
+number exists</em>; <strong>Stage B</strong> then runs the roster.</p>
+
+<p><strong>Open and closed rungs.</strong> Per rung, the floor is
+<span data-math="\delta_n = \max\!\left(\lceil 2 s_n \rceil_{0.001},\; 0.005\right)"></span>,
+where 0.005 is a fixed materiality floor &mdash; a registered constant, not an estimated
+noise quantity. A rung is <strong>OPEN</strong> when
+<span data-math="m_n \ge \delta_n"></span>: the anchor's own mean error is at least as
+large as the bar, so a perfect oracle could clear it. Open is necessary and nowhere near
+sufficient. Closure carries a descriptive label &mdash; <em>ceiling-closed</em> when the
+anchor is simply too close to perfect, <em>fog-closed</em> when the split-lottery floor
+has outgrown the error.</p>
+
+<p><strong>The guard, named honestly.</strong> The study's Bar-1 is a
+<strong>selection guard</strong>, not a significance test. Per cell it forms the paired
+improvement over the anchor, summarises each repeat, and computes a t-statistic; one
+joint test then applies Rademacher sign flips at the <em>repeat</em> level &mdash; all
+1024 enumerated &mdash; simultaneously across every cell in a <em>fixed</em> 113-cell
+family, and a cell clears when its max-t adjusted score is at most 0.05. Its registered
+status is written into the analysis file itself: this is a randomization diagnostic under
+a registered symmetry assumption, an assumption <em>not</em> derivable from the partition
+lottery alone, because every cell shares one anchor and the fits are deterministic given
+the partition. It is therefore never described as exact, never as family-wise error
+control, and never as a statement about irises in general. In this study,
+<strong>"detectable" always abbreviates "cleared this registered guard in this
+lottery."</strong></p>
+
+<p><strong>Bar-2</strong>, the actionability bar, requires all three: the guard cleared,
+the mean gain at least <span data-math="\delta_n"></span>, and the rung open. And the
+mechanism question gets a decision rule of its own: if the best <em>LDA-family
+adjustment</em> at a rung &mdash; two calibration maps and a covariance-shrinkage
+estimator &mdash; captures at least half of the best cleared challenger's gain, the
+claim for that rung downgrades. That ratio is reported as an observed quantity; it does
+not decompose mechanisms causally, and the study says so.</p>
+
+<p><strong>The sealed coda</strong> spends one look per track, and its role is written
+down before it is spent: a band-check, never estimation. The frozen analysis picks the
+branch mechanically and writes a manifest &mdash; families, baked training positions,
+hashes, numeric bands, and the sign convention &mdash; which the two pre-registered
+registry entries then read. No code is edited after selection. The band carries
+<em>no nominal coverage</em> once a winner has been selected against the same folds that
+produced it, and klein's <code>confirmed</code> label records protocol completion, not
+an evidence upgrade.</p>

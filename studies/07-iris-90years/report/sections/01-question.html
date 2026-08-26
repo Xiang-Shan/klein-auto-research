@@ -1,0 +1,33 @@
+<h2>The Question</h2>
+
+<p>In 1936, R. A. Fisher printed 150 iris flowers &mdash; four measurements each &mdash;
+and a closed-form rule for telling species apart. Two of his three species,
+<em>versicolor</em> and <em>virginica</em>, overlap: this is the <strong>hard pair</strong>,
+and Fisher said so in print &mdash; <em>"there is some overlap of the distributions of
+I. virginica and I. versicolor, so that a certain diagnosis of these two species could
+not be based solely on these four measurements of a single flower taken on a plant
+growing wild."</em> Ninety years later this study asks the question he declined:
+<strong>on his own hard pair, judged honestly, does anything beat Fisher's 1936
+rule?</strong></p>
+
+<p>The study's motto, written before any run:
+「让 AI 通宵做研究不难；难的是天亮之后，你敢在结论上签字。」 &mdash;
+<em>"Overnight AI research is easy. The hard part is a conclusion you dare to sign the
+next morning."</em></p>
+
+<img data-fig="figures/hook_scatter.png" alt="Fisher's hard pair in petal space: 100 flowers, the overlap region, and the printed twins ringed">
+
+<p>The contenders are a 90-year ladder of method history, all pre-registered: logistic
+regression (Berkson 1944 / Cox 1958), k-nearest neighbours (Fix&ndash;Hodges 1951 /
+Cover&ndash;Hart 1967), SVM-RBF (Cortes&ndash;Vapnik 1995), and histogram gradient
+boosting (Friedman 2001 / sklearn 2019) &mdash; plus two LDA ablations (petal-only,
+sepal-only) and one rung that is <em>designed to crash</em>.</p>
+
+<p>The real subject is the <strong>discipline</strong> that makes the answer signable:
+three gates before any run, a scouting ledger that discloses every number the design
+was shaped by, a <strong>measured</strong> floor (&delta; = 0.033) instead of a guessed
+significance bar, an append-only 9-transaction ledger where discards and crashes stay
+as evidence, and exactly <strong>one sealed look</strong> at 20 rows nothing was ever
+tuned on. On 100 flowers and a 20-row development partition, the question "which method
+is better" turns out to be mostly a question about <em>which split you drew</em> &mdash;
+and the protocol is what keeps that fact from choosing the winner.</p>

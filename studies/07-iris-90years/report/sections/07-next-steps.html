@@ -1,0 +1,55 @@
+<h2>Next Steps</h2>
+
+<ol>
+<li><strong>A lottery whose draws are disjoint from the declared split.</strong> [C6]
+found the declared split is draw 1 of its own floor ensemble; re-run with draw seeds
+from a <code>SeedSequence</code> disjoint from {seed, seed+1}, plus the deferred
+stratified-within-group counterfactual. Predictions to falsify: &delta; moves by less
+than 0.005, and a stratified lottery gives a <em>smaller</em> anchor std than the group
+lottery &mdash; which would make the group-aware floor the conservative choice, as
+intended.</li>
+<li><strong>The falsified-RQ2 follow-up: petal-only at k = 100, with the lottery mean
+pre-registered as the verdict quantity.</strong> At k = 20 the mean's standard error
+(&asymp; 0.0054) cannot settle the declared-split-vs-mean disagreement; k = 100 brings
+it to &asymp; 0.0024. Predictions: the mean paired delta stays within &plusmn;0.008 of
++0.023445, and the fraction of draws inside &plusmn;&delta; stays near 13/20. RQ2 then
+becomes a study about the verdict quantity rather than about petals.</li>
+<li><strong>The ladder as a function of n.</strong> Refit the seven families on nested
+group-aware subsamples (train 20/40/60, same sealed rows frozen out) and measure
+&delta; at each size. Prediction: &delta; shrinks roughly as 1/&radic;n and the first
+challenger to clear it is <strong>SVM-RBF, not HGBT</strong> &mdash; its lottery paired
+spread (std 0.012015) is under a third of HGBT's (0.040144). If HGBT crosses first, the
+"a closed form has no fitting variance to spend" mechanism is weaker than the method
+card claims.</li>
+<li><strong>Publishing decision &mdash; pending, gated on verification not yet
+done.</strong> [C10] (the 1936-original twin printing) and [C9] (the wrong-pair
+coefficient artifact) have an audience beyond this repo, but both stay scoped to "in
+the sources we checked" until three checks pass: read the Bezdek et al. (1999) full
+text, check Anderson (1935) and the later iris-forensics literature for the 102/143
+pair, and confirm the Table I mapping against a second scan. If those hold, the honest
+form is a short data-provenance note &mdash; not a claim of discovery.</li>
+<li><strong>Done since this study shipped: the harness now runs the subtraction
+itself.</strong> The sub-zero keep bar was found by hand between studies &mdash; klein
+v1.3 makes it a first-class check: declare <code>metric.bound.ideal</code> and
+preflight/verify disclose headroom h = (incumbent &minus; ideal)/&delta; (here:
+0.026744 / 0.033 = 0.81), and <code>klein run-one</code> refuses further development
+transactions at h &lt; 1 until <code>klein headroom ack</code> puts the closed door on
+the record with a registered branch sentence. War story 7 in the repo carries the
+post-mortem.</li>
+</ol>
+
+<p><strong>The rematch.</strong> A successor study &mdash;
+<code>08-iris-rematch</code>, on its own branch &mdash; re-asks this question at scale:
+a 21-challenger roster, a data ladder, and a selection guard for the many-comparisons
+problem a bigger roster creates. It is still running; no number from it appears here.</p>
+
+<p><strong>Verified references</strong> (per the method card's citations pass,
+2026-08-25): Fisher, R. A. (1936), "The use of multiple measurements in taxonomic
+problems", <em>Annals of Eugenics</em> 7(2):179&ndash;188, DOI
+10.1111/j.1469-1809.1936.tb02137.x (open access via the Rothamsted repository, eprint
+33079). Bezdek, Keller, Krishnapuram, Kuncheva &amp; Pal (1999), "Will the real iris
+data please stand up?", <em>IEEE Transactions on Fuzzy Systems</em>
+7(3):368&ndash;369 &mdash; bibliographic record verified; full text unread, which is
+exactly why it sits inside step 4's gate. Study code and ledger:
+github.com/Xiang-Shan/klein-auto-research (plain-text pointer, not a loaded
+asset).</p>

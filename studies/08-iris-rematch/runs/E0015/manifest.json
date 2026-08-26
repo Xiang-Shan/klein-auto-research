@@ -1,0 +1,80 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 5309,
+      "committed": true,
+      "sha256": "983cd09d327ac2b6625e568ed3fb1621c40b440e9df1d037cb2a908441166d8e"
+    },
+    "runs/E0015/run.log": {
+      "availability": "recorded",
+      "bytes": 447,
+      "committed": true,
+      "sha256": "ed743d8870801b21f7ccd085c352862d0d508a45e5beee3cabb516a551d00be9"
+    }
+  },
+  "base_commit": "92363175474a011ef7d173f9d47ec1e70b00cddc",
+  "candidate_commit": "751f2dccf23e0a3e8b5bd4c9ad9c98ff3419582c",
+  "code_patch_hash": "7b3e24518c01d096e3611d6a16b33363a92147e47ee4fb4de60d4409e4ca8d2e",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.029442 by minimum_delta=0.029",
+  "description": "verification parade: extratrees - registered challenger, declared split, door-ajar contest (keep needs dev Brier <= 0.000442); did not improve track frontier 0.029442 by minimum_delta=0.029",
+  "disposition": "discard",
+  "ended_at": "2026-08-25T07:59:05.909230Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "ecdcb68cb4d711f8df47fa61c388884e3abd8e1de8c1aae327ec3a549da1eebd"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0015",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "be375e0c6f7fd1a078195d734ba5755414cd7a264816203d19ad9884d6dfac6c",
+    "split": "007852a469e985c39451cad99c1fd03f96b50f6ffe586e617521ee3a0fdc3295"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {
+    "primary_metric": 0.046714,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.1,
+    "train_rows": 59.0,
+    "training_seconds": 0.1,
+    "val_best_threshold": 0.65,
+    "val_brier": 0.046714,
+    "val_f1_at_best": 1.0,
+    "val_lift_top10": 2.5,
+    "val_logloss": 0.192511,
+    "val_pr_auc": 1.0,
+    "val_rows": 20.0,
+    "wall_seconds": 0.076883
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 26,
+  "primary_metric": 0.046714,
+  "schema_version": 2,
+  "started_at": "2026-08-25T07:59:05.098487Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-08-25T07:59:05.978435Z",
+    "evidence_commit": "7a1bcaecf0fd14786280dc349b3f84d63cc7b46a",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.810656082816422
+}

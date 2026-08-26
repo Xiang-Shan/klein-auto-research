@@ -1,0 +1,42 @@
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/gaussian_process/_gpc.py:506: ConvergenceWarning: lbfgs failed to converge after 4 iteration(s) (status=2):
+ABNORMAL: 
+
+You might also want to scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+  _check_optimize_result("lbfgs", opt_res)
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/gaussian_process/_gpc.py:323: RuntimeWarning: invalid value encountered in sqrt
+  np.sqrt(np.pi / alpha)
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/gaussian_process/_gpc.py:324: RuntimeWarning: invalid value encountered in sqrt
+  * erf(gamma * np.sqrt(alpha / (alpha + LAMBDAS**2)))
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/gaussian_process/_gpc.py:325: RuntimeWarning: invalid value encountered in sqrt
+  / (2 * np.sqrt(latent_var * 2 * np.pi))
+Traceback (most recent call last):
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/train.py", line 114, in <module>
+    main()
+    ~~~~^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/train.py", line 98, in main
+    kleinlib.eval.evaluate(
+    ~~~~~~~~~~~~~~~~~~~~~~^
+        model,
+        ^^^^^^
+    ...<9 lines>...
+        metric_goal="lower",
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/kleinlib/eval.py", line 514, in evaluate
+    p, proba_std, proba_range, proba_unique = _validate_probabilities(
+                                              ~~~~~~~~~~~~~~~~~~~~~~~^
+        _positive_class_probabilities(model, X_va, y_va),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        collapse_rtol=collapse_rtol,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        legacy_min_std=min_proba_std,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/kleinlib/eval.py", line 252, in _validate_probabilities
+    raise ValueError(f"predicted probabilities contain {bad} non-finite value(s)")
+ValueError: predicted probabilities contain 18 non-finite value(s)
+runner_status: crash
+runner_exit_code: 1

@@ -1,0 +1,31 @@
+{
+  "branch": "G",
+  "selection": {
+    "f_star": null,
+    "n_star": null,
+    "rule": "no Bar-2 cell \u2014 registered Branch G"
+  },
+  "primary": {
+    "family": "anchor_lda4",
+    "train_positions": [],
+    "positions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "band": {
+      "kind": "abs",
+      "center": 0.029442,
+      "half_width": 0.058,
+      "note": "|sealed \u2212 declared dev| \u2264 2\u00d7minimum_delta (07 convention)"
+    }
+  },
+  "challenger": {
+    "family": "tabpfn",
+    "train_positions": [],
+    "positions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "band": {
+      "kind": "interval",
+      "lo": -0.0160274,
+      "hi": 0.0050326000000000025,
+      "convention": "g_sealed = sealed_primary \u2212 sealed_challenger",
+      "note": "arena [p10,p90] of fold-level g for tabpfn@n60"
+    }
+  }
+}

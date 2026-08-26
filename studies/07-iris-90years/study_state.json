@@ -1,0 +1,106 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T02:35:24.350025Z"
+    },
+    "data": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T02:40:07.313833Z"
+    },
+    "method": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T02:40:07.195407Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "93b8f066ace0d4497665cbaff04d0528c4271feec5d92396bd1e92df80fad587",
+    "method_card.md": "cfa1d38d6c1901add37f0d5849fb02c9d0b7e809f872448cb597021fdb07464c",
+    "research_plan.md": "5be4e5a0c84b5ac22ed46aeee14f560bbffa902385a8dbbe2b22aee5dfcb4d23",
+    "study.yaml": "5a7792f05b75ca4363768ffb020ed45f39ebbf15fb49b8b02ec4ebec290b846a"
+  },
+  "created_at": "2026-08-24T19:01:42.439147Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": "2026-08-25T02:38:38.065142Z",
+      "count": 1,
+      "experiment": "E0009"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "primary": "E0009"
+    },
+    "timestamp": "2026-08-25T02:56:51.712960Z"
+  },
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-08-25T02:35:24.350025Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "program.md": "baf79e0d4a112c2c7992df7ec6cffaf33e48814e56ac8ed5494040655ade64f1",
+        "research_plan.md": "5be4e5a0c84b5ac22ed46aeee14f560bbffa902385a8dbbe2b22aee5dfcb4d23",
+        "study.yaml": "5a7792f05b75ca4363768ffb020ed45f39ebbf15fb49b8b02ec4ebec290b846a"
+      },
+      "note": "minimum_delta set from the measured split-lottery floor (0.033); mechanical re-record pre-authorized by Xiang at the 2026-08-25 gate-ack window",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-08-25T02:40:07.313833Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "data_card.md": "93b8f066ace0d4497665cbaff04d0528c4271feec5d92396bd1e92df80fad587"
+      },
+      "note": "twin-row provenance resolved: duplication is original to Fisher's printed Table I (virginica print-rows 2/43); grouping ruling unchanged, now provenance-grounded",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-08-25T02:40:07.195407Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "method_card.md": "cfa1d38d6c1901add37f0d5849fb02c9d0b7e809f872448cb597021fdb07464c"
+      },
+      "note": "papers leg RESOLVED: Fisher 1936 + Bezdek 1999 verified against primary sources; scouted coefficient comparison identified as wrong-pair and replaced by the digit-exact setosa-versicolor reproduction",
+      "status": "recorded"
+    }
+  },
+  "last_experiment": 9,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-08-25T02:37:28.330052Z",
+      "acknowledged_by": "Xiang",
+      "note": "adaptive-1 complete: anchor E0001 + both floor sidecars; minimum_delta 0.033 in contract; ladder blanket-authorized by Xiang at the 2026-08-25 ack window",
+      "playbook_sha256": "325e8b87b72d724bbd3240e0b07aae65348f07a2589033ac6de20f01c38744ce"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-08-25T02:38:37.345003Z",
+      "acknowledged_by": "Xiang",
+      "note": "adaptive-2 complete: 7/7 transactions (1 registered crash, 6 discards); no keep earned; RQ2 prior falsified on the declared split (1.29x floor); control 4.31x",
+      "playbook_sha256": "325e8b87b72d724bbd3240e0b07aae65348f07a2589033ac6de20f01c38744ce"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-08-25T02:40:19.224905Z",
+      "acknowledged_by": "Xiang",
+      "note": "confirmation complete: E0009 sealed 0.055198, +0.0285 = 0.86x delta vs dev, inside the registered +/-2x band; prediction HELD",
+      "playbook_sha256": "325e8b87b72d724bbd3240e0b07aae65348f07a2589033ac6de20f01c38744ce"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/07-iris-90years/data/prepared/iris_hard_pair.csv",
+    "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
+  },
+  "schema_version": 2,
+  "status": "finalized",
+  "study_id": "07-iris-90years",
+  "updated_at": "2026-08-25T02:56:51.712963Z"
+}

@@ -1,0 +1,196 @@
+schema_version: 2
+study_id: "07-iris-90years"
+goal: "On Fisher's 100 hard-pair iris rows (versicolor vs virginica, target is_virginica), does any of four pre-registered post-1936 challengers - logistic regression, kNN, SVM-RBF, HGBT - improve val_brier over the 1936 Fisher/LDA anchor by at least the measured split-lottery floor on the declared group-aware split, and is petal-only LDA within that floor of the all-four-feature LDA?"
+domain: "statistics-history"
+target: "is_virginica"
+task_type: "classification"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "linear-discriminant"
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+#
+# WHY val_brier AND NOT val_auc / val_logloss (locked at CONSULT, never switched
+# mid-run - study.yaml is a hash-frozen gate artifact):
+#   * val_auc PEGS. A 20-row development partition at 10 positives / 10 negatives
+#     gives AUC a 101-point lattice; the anchor scouted 1.000 on 14 of 20 lottery
+#     draws. A gauge that reads full scale cannot rank challengers.
+#   * val_logloss is version-bound here. kNN's scouted value was ~92% clipping
+#     epsilon - a machine constant, not a property of the flowers.
+#   * val_brier is a proper score, bounded, and moves on 20 rows without pegging.
+# val_auc and val_logloss are still recorded for EVERY run (see auxiliary_metrics
+# below), so results carry the whole picture rather than the flattering slice.
+tracks:
+  primary:
+    metric:
+      name: "val_brier"
+      goal: "lower"     # higher | lower
+      # TO BE MEASURED AT PHASE 0 - NOT YET A REAL THRESHOLD.
+      # 0 is the scaffold default and is deliberately left in place: it is the only
+      # honest value before the split-lottery has been run. The Phase-0 sequence is
+      # (1) E0001 anchor, (2) sweeps/kseed_floor.py (protocol-prescribed, expected
+      # degenerate - LDA is closed form), (3) sweeps/split_lottery.py (the real
+      # recipe, see noise_floor_protocol below), (4) paste the measured
+      # `noise_floor:` block here + set minimum_delta, (5) re-record the CONSULT
+      # gate with --note "minimum_delta set from the measured split-lottery floor".
+      # No challenger rung (E0003+) may run before step 5.
+      # Measured 2026-08-25 after E0001, per the committed recipe. Escalation rule
+      # check (raise-only, pre-registered): recipe 2*std = 0.0326 -> ceil 3dp 0.033;
+      # klein default max(2*std, range/2) = max(0.0326, 0.0250) = 0.0326 -> 0.033.
+      # Equal: no raise. The k-seed fit-noise sweep ran first and was degenerate
+      # exactly as registered (std 0.0 - LDA is closed form).
+      minimum_delta: 0.033   # split-lottery floor, k=20
+      noise_floor:
+        k: 20
+        std: 0.0163144
+        range: 0.0499969
+        mean: 0.0187138
+        values: [0.0267442, 0.0209562, 0.0225965, 0.0313857, 0.0103791, 0.0329346, 0.0375327, 0.0040527, 0.00308982, 8.10667e-05, 0.0331621, 0.00422387, 0.0010755, 0.00106861, 0.0430575, 0.0323394, 0.0500779, 0.00385923, 0.000115228, 0.0155435]
+        source: "sweeps/split_lottery.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
+      #   method: "split-lottery"
+    guardrails:
+      # wall_seconds is printed by every evaluator, so it is guardrail-legal with no
+      # extra plumbing. 30 s is far above the scouted cost of the slowest rung (HGBT).
+      wall_seconds:
+        max: 30
+
+data:
+  source: "csv:data/prepared/iris_hard_pair.csv"
+  prepared_path: "data/prepared/iris_hard_pair.csv"
+  split:
+    # GROUP-AWARE, not stratified. Hard-pair rows 51/92 (iris rows 102/143, both
+    # virginica) carry identical measurements. We cannot tell duplicate entry from
+    # two genuinely identical flowers at 0.1 cm resolution and we do not delete
+    # historical data - so both rows share one group id and always travel together.
+    # Every other row is its own group: 99 groups over 100 rows.
+    kind: group           # stratified | random | group | time | none (simulation)
+    # Fresh seed drawn by a pre-committed rule the scouting never touched (the talk
+    # date). Seed 42 - which the Monday scouting did score, sealed rows included -
+    # is recorded as scouted in scouting_ledger.md and is never used here.
+    seed: 20260828
+    development_size: 0.20
+    test_size: 0.20
+    group_column: "group_id"
+    # Measured at authoring time (2026-08-24) with this exact block:
+    # train 60 rows (33 virginica / 27 versicolor), development 20 (10/10),
+    # sealed test 20 (7 virginica / 13 versicolor). A group split is NOT
+    # stratified: the sealed partition's 7/13 base rate is a documented
+    # consequence, not a defect - see data_card.md.
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 60
+phases:
+  - id: adaptive-1
+    description: "anchor + metrology: E0001 LDA(1936, four features, fit on train only), then the two floor sidecars - the protocol-prescribed k-seed sweep (expected degenerate: LDA is closed-form, std exactly 0) and sweeps/split_lottery.py, which measures the study-level minimum_delta"
+    budget_seconds: 900
+    max_experiments: 1
+  - id: adaptive-2
+    description: "the 90-year ladder, 7 transactions: E0002 registered crash (3-class species target -> the binary evaluator refuses), E0003 logistic, E0004 kNN(k=7, distance), E0005 SVM-RBF, E0006 HGBT (sized for n=60), E0007 petal-only LDA, E0008 sepal-only LDA (falsifiable positive control)"
+    budget_seconds: 1800
+    max_experiments: 7
+  - id: confirmation
+    description: "E0009: one sealed --final-test look at the 20 untouched rows, confirming the INCUMBENT'S LEVEL only; the ladder gap stays exploratory by construction (single track, one seal)"
+    budget_seconds: 300
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "Do any of the four PRE-REGISTERED challengers (logistic 1944/58, kNN 1951/67, SVM-RBF 1995, HGBT 2001/19 sized for n=60: min_samples_leaf 5, max_leaf_nodes 4, early_stopping off) earn a `keep` against the 1936 anchor - i.e. improve val_brier by at least minimum_delta on the declared split?"
+    prior: "No. None of the four improves val_brier by >= the floor; the scouted seed-42 point deltas leaned the other way (development errors out of 20: LDA 0, LOGIT 1, SVM 1, HGBT 1, kNN 3). (source: scouting-2026-08-24 (measured))"
+  - id: RQ2
+    question: "Is petal-only LDA (two of the four measurements) within the measured floor of the all-four-feature LDA on val_brier?"
+    prior: "Yes - the observed degradation from dropping both sepal measurements is smaller than the floor. Stated descriptively as a protocol-scoped non-degradation observation, never as 'as good as'. (source: scouting-2026-08-24 (measured))"
+  - id: RQ3
+    question: "Sepal-only LDA is the study's falsifiable POSITIVE CONTROL: does the protocol detect a degradation that plainly matters - is the sepal-only val_brier worse than the anchor by at least 2x minimum_delta?"
+    prior: "Yes, degradation >= 2x the floor (scouted at roughly 2.4x the paired 2-sigma spreads). PRE-REGISTERED FAILURE INTERPRETATION: if sepal-only does NOT clear the floor, the instrument cannot resolve differences of this size at n=100, every within-floor claim in this study is downgraded accordingly, and THAT becomes the honest headline. (source: scouting-2026-08-24 (measured))"
+
+# Each prediction carries the SOURCE of its expectation. findings section 6 scores ONLY
+# predictions tagged (source: uninformed) or (source: derived ...); the scouting-informed
+# ones are excluded by construction - see scouting_ledger.md section 4.
+predictions_to_falsify:
+  - lever: "each of the four pre-registered challengers vs the LDA anchor (RQ1)"
+    predicted_delta: "no challenger improves val_brier by >= minimum_delta -> four DISCARDs, zero keeps (source: scouting-2026-08-24 (measured))"
+  - lever: "petal-only LDA, sepal measurements dropped (RQ2)"
+    predicted_delta: "val_brier degrades by < minimum_delta (within the floor) -> DISCARD by the measured threshold, reported as a non-degradation observation (source: scouting-2026-08-24 (measured))"
+  - lever: "sepal-only LDA, petal measurements dropped (RQ3 positive control)"
+    predicted_delta: "val_brier degrades by >= 2x minimum_delta -> a plainly-detected degradation; a smaller degradation FALSIFIES the instrument's resolution (source: scouting-2026-08-24 (measured))"
+  - lever: "3-class species column handed to the binary evaluator (E0002, registered crash)"
+    predicted_delta: "non-zero exit; kleinlib.eval raises 'binary classification evaluate() requires target labels exactly {0, 1}' -> disposition `crash`, primary metric NA (source: derived - kleinlib.eval source, not a data measurement)"
+  - lever: "k-seed sweep of the anchor config, seed varied and nothing else (Phase 0)"
+    predicted_delta: "std EXACTLY 0.0 across all seeds - LDA is closed-form, so the protocol-prescribed fit-noise floor is degenerate here; documented as a deviation, not silently skipped (source: derived - closed-form estimator, not a data measurement)"
+  - lever: "sealed 20-row confirmation of the incumbent (E0009)"
+    predicted_delta: "sealed val_brier within +/- 2x minimum_delta of the development value, i.e. no move; the sealed base rate is 7/13, so the LEVEL is confirmed, not the ladder gap (source: uninformed - this partition and these sealed rows were never scored)"
+  - lever: "magnitude of minimum_delta under the group-aware split-lottery recipe (Phase 0)"
+    predicted_delta: "the measured floor lands in 0.01-0.10 val_brier units; only the order of magnitude of the OLD non-group spreads is known (source: uninformed - this recipe's scope was never run)"
+
+# ---------------------------------------------------------------------------
+# Contract extensions (documentation keys; klein validates the blocks above).
+# ---------------------------------------------------------------------------
+
+# Auxiliary metrics. kleinlib.eval.evaluate() computes and persists these to
+# aux_metrics.tsv on every run; train.py ALSO passes val_auc and val_logloss
+# through evaluate(..., extra={...}) so both appear in the printed block and in
+# the stored run log. They are auxiliary evidence and NEVER guardrails: no
+# keep/discard decision may be made on them.
+auxiliary_metrics:
+  - val_auc
+  - val_logloss
+  - val_pr_auc
+  - val_lift_top10
+  - val_f1_at_best
+
+# The ONE study-level noise floor. Committed BEFORE any ladder run; measured at
+# Phase 0; never guessed, never per-method (a per-method floor lets an unstable
+# method buy itself a wide band and 'tie' a model it visibly loses to).
+noise_floor_protocol:
+  status: "to-be-measured-in-phase-0"
+  method: "split-lottery"
+  script: "sweeps/split_lottery.py"
+  k: 20
+  scope: "the 80 NON-SEALED rows (train + development). The sealed 20 test rows are frozen out of every draw - they are not re-drawn, not scored, not seen."
+  draw: "group-aware re-draw of the 80 non-sealed rows into ~60 train / ~20 development with sklearn GroupShuffleSplit(test_size=0.25) - the same primitive kleinlib.data.three_way_split(strategy='group') uses - draw seeds 20260828001 .. 20260828020. Group constraints make the 60/20 boundary wobble by +/-1 row; documented, never forced."
+  per_draw: "fit the anchor and each pre-registered family on the draw's train rows; record every family's development Brier and every paired delta vs the anchor"
+  statistic: "minimum_delta = 2 x std(anchor development Brier across the 20 draws), rounded UP to 3 decimal places"
+  cross_check: "the script also prints klein's protocol-default max(2*std, range/2). PRE-REGISTERED ESCALATION RULE, committed here BEFORE measurement: if the protocol default EXCEEDS the registered 2*std value, minimum_delta takes the LARGER number. A floor may be raised by a documented rule; it may never be lowered after seeing data."
+  interpretation: "an ACTIONABILITY THRESHOLD - 'the incumbent's own score wobbles this much when only the split changes' - conditional on these 100 flowers. It is NOT a confidence interval, NOT a significance test, and NOT a statement about population sampling uncertainty."
+  reported_alongside: "the paired-delta spread per family, from the same 20 draws, published in the sidecar and in findings; the merged floor exhibit shows the 20 dots per family, the anchor band, and the declared-split dot enlarged."
+  verdict_quantity: "the ledger judges the DECLARED-SPLIT delta (that is what klein's one scalar minimum_delta does). Findings report the declared-split delta AND the lottery spread, clearly labelled, so ledger and chart agree by construction."
+  degenerate_companion: "sweeps/kseed_floor.py - the protocol-prescribed k-seed fit-noise sweep. It runs FIRST and is expected to return std exactly 0 (LDA is closed-form). The degenerate result is committed as the documented deviation, not skipped."
+
+# Every headline claim in this study is a PROTOCOL-LEVEL DECISION CLAIM.
+estimand:
+  statement: "Under this pre-registered contract - this dataset (n=100, group-constrained splits), this declared split (seed 20260828), val_brier, and the actionability threshold delta = minimum_delta from the committed split-lottery recipe - challenger X did / did not produce an improvement of at least delta over the 1936 anchor."
+  answered_by: "klein's one-sided keep/discard disposition answers exactly this and nothing more."
+  not_claimed: "population-level equivalence or superiority of any method pair. At 20 development rows the population estimand is unanswerable: the design-phase paired bootstrap (refuter, 2026-08-24) produced intervals wider than the floor band for all six comparisons. That impossibility is ADOPTED as a documented limitation in findings, not discarded and not quietly answered anyway."
+  comparison_family_size: 6
+
+# Binds findings.md, the report, and every downstream deliverable. Checked by a
+# grep over deliverable text before the talk's G6 gate.
+claims_discipline:
+  banned:
+    - "tie"
+    - "equivalent"
+    - "no difference"
+    - "打平"
+    - "一样好"
+    - "等价"
+    - "独立复现"
+    - "blind replication"
+    - "untouched data"
+    - "virgin data"
+    - "any translation of 'did not clear the floor' into equality"
+  sanctioned:
+    - "did not improve by >= delta"
+    - "no keep earned"
+    - "没有一个挑战者的改进爬过地板"
+    - "for RQ2: observed degradation X < delta on the declared split; within +/- delta in k/20 lottery draws"
+    - "在位者站住了——不是打赢，是没人打倒它"
+  framing: "This study is a PROSPECTIVELY LOCKED, SEALED CONFIRMATION RUN AFTER DOCUMENTED SCOUTING. It is never described as an independent, blind, or untouched replication: the metric, the candidate set, the floor recipe, and both narratives were adaptively shaped by the 2026-08-24 scouting on this same finite dataset. The fresh seed's honest value is narrower and is stated as such - this specific partition, and therefore these specific sealed 20 rows, were never scored during scouting."
+  scouting_ledger: "scouting_ledger.md - committed to this study directory BEFORE the CONSULT gate is recorded. findings section 6 scores ONLY priors tagged (source: uninformed)."
+
+deliverables:
+  - findings.md
+  - report/index.html
+  - scouting_ledger.md
+  - claims.lock

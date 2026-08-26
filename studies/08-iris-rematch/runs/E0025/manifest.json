@@ -1,0 +1,92 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 7976,
+      "committed": true,
+      "sha256": "8c65ce5090b07b684af8133048f9ad819432a2fb937ef68852442a614ffbd5b3"
+    },
+    "models/best_challenger_E0025_0.0668626_657549522efa.joblib": {
+      "availability": "local",
+      "bytes": 29091923,
+      "committed": false,
+      "sha256": "e6d2fef2b54b1b2129ee986940a78fa27ff963b80b97773c310c69b792c7f4a3"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 719,
+      "committed": true,
+      "sha256": "98e8b0f0c192d616e65299ecb4cba29a36b1eaf09c0a69da46707c389b4e68ad"
+    },
+    "runs/E0025/run.log": {
+      "availability": "recorded",
+      "bytes": 447,
+      "committed": true,
+      "sha256": "dc7f485076750abb0e50deb5556d322844e1cc07165dcf0ebac23bae43c4f7a9"
+    }
+  },
+  "base_commit": "4fbc65fd331f59e923dc60e067a66bd677011d9f",
+  "candidate_commit": "c17d7cfa9182e127aaa218d8ef5c4f39e52b6805",
+  "code_patch_hash": "6830ba9eb5d1df2622172f2a2b052e2fa68743f58b4bc1f2e91058ccd04e1346",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "SEALED T2 (Branch G): coda_challenger = tabpfn v2 on all train rows - the 1936-vs-2025 marquee gap; registered prediction g = T1 - T2 inside arena band [-0.0160, +0.0050]; sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "ended_at": "2026-08-25T08:21:13.342146Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "ecdcb68cb4d711f8df47fa61c388884e3abd8e1de8c1aae327ec3a549da1eebd"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0025",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "be375e0c6f7fd1a078195d734ba5755414cd7a264816203d19ad9884d6dfac6c",
+    "split": "007852a469e985c39451cad99c1fd03f96b50f6ffe586e617521ee3a0fdc3295"
+  },
+  "incumbent": null,
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {
+    "primary_metric": 0.066863,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.6,
+    "train_rows": 59.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.61,
+    "val_brier": 0.066863,
+    "val_f1_at_best": 0.963,
+    "val_lift_top10": 1.6154,
+    "val_logloss": 0.249233,
+    "val_pr_auc": 0.982178,
+    "val_rows": 21.0,
+    "wall_seconds": 0.552807
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 2,
+  "primary_metric": 0.066863,
+  "schema_version": 2,
+  "started_at": "2026-08-25T08:21:11.941079Z",
+  "timed_out": false,
+  "track": "challenger",
+  "transaction": {
+    "committed_at": "2026-08-25T08:21:13.420934Z",
+    "evidence_commit": "b92af8b3df31f4baf5451b22d9d1710e405fad89",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 1.400976541917771
+}

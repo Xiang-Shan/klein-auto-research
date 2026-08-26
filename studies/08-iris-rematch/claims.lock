@@ -1,0 +1,186 @@
+{
+ "study": "08-iris-rematch",
+ "branch": "experiments/08-iris-rematch",
+ "git_head": "a41201e07bf07b9e4bc7d299b8ce66277c1f3e45",
+ "generated": "2026-08-25",
+ "law": "deck numbers.py reads ONLY this file (merged with study 07's lock under prefixed keys); any deck/script number not traceable fails the build",
+ "artifacts": {
+  "results": {
+   "path": "studies/08-iris-rematch/results.tsv",
+   "sha256": "21aa97064ec83e2bdc0991766edfa60e0706e3f1c9af16c60ff108ce5baab205"
+  },
+  "contract": {
+   "path": "studies/08-iris-rematch/study.yaml",
+   "sha256": "b4673e65f83c50eb76b63f152f9aa120f863f710c3c9b5a0e8ec33f4d48d3533"
+  },
+  "findings": {
+   "path": "studies/08-iris-rematch/findings.md",
+   "sha256": "f5a7eff69a6916809b6f58cf2e74e45431c2bfa24abd8eabb7c57beb01c09a58"
+  },
+  "headroom": {
+   "path": "studies/08-iris-rematch/sweeps/headroom.tsv",
+   "sha256": "c2343d269e6d22c79d886737f5764d599dfaff45e448b7bc501f29408beb23ce"
+  },
+  "verdicts": {
+   "path": "studies/08-iris-rematch/sweeps/rematch_verdicts.tsv",
+   "sha256": "8b2ffc1e220ddfc78fea267f3b4190ee11f634520a4e9bb0e547a53aa137a4cd"
+  },
+  "arena": {
+   "path": "studies/08-iris-rematch/sweeps/rematch_arena.sidecar.tsv",
+   "sha256": "d3a7adc3b4d47f7d1e5c3647ae0582662a7e27a04551e055e6da89c6b5c54238"
+  },
+  "arena_anchor": {
+   "path": "studies/08-iris-rematch/sweeps/rematch_arena_anchor.sidecar.tsv",
+   "sha256": "e851661fa7da7eef6fee7f960f55270da3eae1153e7b1775b03f3e09f0b788b8"
+  },
+  "ledger_floor": {
+   "path": "studies/08-iris-rematch/sweeps/ledger_floor.sidecar.tsv",
+   "sha256": "1a501b8feecad66502bedb3d31729d9330b94b8f1281610c3bbde0e1d8c0a9c0"
+  },
+  "coda_manifest": {
+   "path": "studies/08-iris-rematch/sweeps/coda_manifest.json",
+   "sha256": "259993d5208773c55b0ac43fa0db29dc830fc2137a68346dc816ef22c96a4017"
+  }
+ },
+ "claims": {
+  "minimum_delta": {
+   "value": 0.029,
+   "artifact": "contract",
+   "claim": "floor",
+   "note": "07 recipe on the 08 split, k=20 seeds 2026091001-020; ceil3dp(2x0.0141522); escalation no-raise"
+  },
+  "anchor_dev_brier": {
+   "value": 0.029442,
+   "artifact": "results",
+   "claim": "C1"
+  },
+  "headroom_declared": {
+   "value": 1.015,
+   "artifact": "contract",
+   "claim": "C1",
+   "note": "0.029442/0.029 - DOOR AJAR, the ~20% branch fired; keep needed <= 0.000442"
+  },
+  "parade": {
+   "value": "21 transactions E0003-E0023: 18 discard, 3 crash, 0 keep",
+   "artifact": "results",
+   "claim": "C2"
+  },
+  "parade_best": {
+   "value": {
+    "qda": 0.024709,
+    "lda_shrinkage": 0.026958,
+    "knn_tuned": 0.02867
+   },
+   "artifact": "results",
+   "claim": "C3",
+   "note": "three beat the anchor raw score; best improvement 0.004733 = 0.16x floor"
+  },
+  "tabpfn_declared": {
+   "value": {
+    "tabpfn": 0.055303,
+    "tabpfn_e16": 0.054707
+   },
+   "artifact": "results",
+   "claim": "C16"
+  },
+  "rungs_closed": {
+   "value": "ALL SIX (60/45/30/20 ceiling-closed; 12/8 fog-closed)",
+   "artifact": "headroom",
+   "claim": "C4"
+  },
+  "headroom_ratios": {
+   "value": {
+    "60": 0.52,
+    "45": 0.53,
+    "30": 0.53,
+    "20": 0.45,
+    "12": 0.47,
+    "8": 0.51
+   },
+   "artifact": "headroom",
+   "claim": "C4",
+   "note": "m_n/delta_n ~ 0.5 at every rung"
+  },
+  "rung_floors": {
+   "value": {
+    "60": 0.032,
+    "45": 0.034,
+    "30": 0.046,
+    "20": 0.062,
+    "12": 0.147,
+    "8": 0.252
+   },
+   "artifact": "headroom",
+   "claim": "C4"
+  },
+  "guard": {
+   "value": "1 of 113 cells cleared: qda@n8, mean gain +0.0730, adjusted score <= 0.05",
+   "artifact": "verdicts",
+   "claim": "C6",
+   "note": "fold-level sensitivity exhibit does NOT confirm (0 cells) - unit-choice-fragile, reported per registration"
+  },
+  "bar2": {
+   "value": "0 cells; 0 open rungs",
+   "artifact": "verdicts",
+   "claim": "C5"
+  },
+  "capture_ratio": {
+   "value": 0.98,
+   "artifact": "verdicts",
+   "claim": "C7",
+   "note": "LDA-family adjustment best +0.0711 of qda's +0.0730 at n8; non-causal observed ratio; downgrade fires"
+  },
+  "control": {
+   "value": "separates at every rung; t 121.7 (n60) .. 5.8 (n8), all p <= 0.002 vs Bonferroni 0.0083",
+   "artifact": "verdicts",
+   "claim": "C8"
+  },
+  "sealed_T1": {
+   "value": 0.077176,
+   "band": "|sealed-0.029442| = 0.047734 <= 0.058 HELD (82% of width; +1.65x delta)",
+   "artifact": "results",
+   "claim": "C9"
+  },
+  "sealed_T2": {
+   "value": 0.066863,
+   "gap": 0.010313,
+   "band": "[-0.0160, +0.0050] OUTSIDE - registered MISS, challenger-favoring, 0.36x delta sub-floor",
+   "artifact": "results",
+   "claim": "C10"
+  },
+  "seed_crash": {
+   "value": "20260901xxx > 2**32-1; all 20 ledger-floor trials crashed; C19 reproduced; sidecar preserved",
+   "artifact": "ledger_floor",
+   "claim": "C11"
+  },
+  "gpc_pathology": {
+   "value": "non-finite probabilities on near-separable 59/44-row fits; 160 arena crash rows + E0018/E0022; finite at n<=30",
+   "artifact": "arena",
+   "claim": "C12"
+  },
+  "stack_wiring": {
+   "value": "E0023 crash: precomputed absolute inner splits cannot survive nested refits; fixed pre-Stage-B; ledger stands",
+   "artifact": "results",
+   "claim": "C13"
+  },
+  "twins_sealed": {
+   "value": "the pre-committed seed put printed twins 102/143 behind the seal together; arena pool 79 rows, no multi-row group",
+   "artifact": "contract",
+   "claim": "C14"
+  },
+  "roster": {
+   "value": "23 families, era-tagged; 113-cell fixed guard family; TabPFN v2 checkpoint (tabpfn==8.4.0, Prior-Labs/TabPFN-v2-clf)",
+   "artifact": "contract",
+   "claim": "C16"
+  },
+  "n_transactions": {
+   "value": 25,
+   "detail": "E0001 keep + E0002 control + 21 parade (18 discard/3 crash) + 2 sealed",
+   "artifact": "results"
+  },
+  "klein_version": {
+   "value": "1.2.0",
+   "artifact": "contract"
+  }
+ }
+}

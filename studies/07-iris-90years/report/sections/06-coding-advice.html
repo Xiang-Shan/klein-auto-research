@@ -1,0 +1,56 @@
+<h2>Coding Advice</h2>
+
+<ol>
+<li><strong>Measure the floor before the first comparison &mdash; and measure the right
+kind of noise [C12].</strong> The protocol's k-seed sweep returned std exactly 0 here
+(five seeds, five identical values to twelve decimals: a closed form has nothing for a
+seed to perturb); pasting that zero into the contract would have made <em>every</em>
+difference a keep. The honest floor for a deterministic estimator is <em>split</em>
+noise: 20 group-aware re-draws gave &delta; = 0.033 &mdash; 1.2&times; the anchor's own
+score. Run the degenerate sweep anyway and commit it: the zero is the finding that
+tells you which floor you actually need.</li>
+<li><strong>Pre-register WHICH quantity decides, then report both [C13].</strong> RQ2's
+declared-split delta (1.29&times;&delta;) and lottery mean (0.71&times;&delta;, 13/20
+inside &plusmn;&delta;) are both true and support opposite verdicts. The only thing
+that keeps the verdict honest is that the contract named the declared-split delta
+<em>before</em> measurement. Report only the number that agrees with your prior and you
+have not made a measurement &mdash; you have made a choice.</li>
+<li><strong>Put a falsifiable positive control on the ladder, sized to fail [C14].</strong>
+"No keep earned" is indistinguishable from a dead instrument unless something scored
+the same way is <em>supposed</em> to break and does. Sepal-only LDA degraded by
+4.31&times;&delta; against a pre-registered 2&times;&delta; bar, with the failure
+branch written down in advance. Cost: one run, 0.0098 s. There is no cheaper insurance
+in an experimental protocol.</li>
+<li><strong>Register crash rungs [C18].</strong> E0002 deliberately handed the
+evaluator a target it must refuse and produced exit 1, disposition <code>crash</code>,
+and the registered sentence verbatim (<code>requires target labels exactly {0, 1}; got
+[1, 2]</code>). One transaction proves the guard is load-bearing rather than decorative
+&mdash; and it is the reason the perfect-proxy <code>species</code> column could be
+<em>kept</em>, documented and mitigated, instead of deleted and the guard left
+untested.</li>
+<li><strong>Keep seed schemes inside the numeric domain of the library that consumes
+them [C19].</strong> A date-shaped base times 1000 overflows numpy's
+<span data-math="2^{32}-1"></span> seed bound and took down all 140 lottery trials:
+<pre><code class="language-python"># registered: base * 1000 + draw  -&gt; 20260828001  (&gt; 2**32 - 1: every trial crashed)
+# committed fix, before any floor was stated:
+seed = DRAW_SEED_BASE + draw      # 20260829 .. 20260848</code></pre>
+Prefer <code>base + draw</code> or a recorded <code>SeedSequence</code>. When a
+registered detail must change, change it before any statistic is stated, commit the
+crashed evidence beside the good run, and say so in the script header &mdash; that is
+what makes "we fixed a seed" verifiable rather than asserted.</li>
+<li><strong>Make every downstream number trace to one locked file.</strong> This
+study's <code>claims.lock</code> carries its own law: "deck numbers.py reads ONLY this
+file; any deck/script number not traceable here fails the build." Slides, scripts and
+this tutorial all inherit the ledger's numbers instead of re-deriving them &mdash; a
+retype is a fork, and forks drift.</li>
+</ol>
+
+<h3>The winning train.py, verbatim</h3>
+
+<p>The exact bytes behind both the anchor (E0001) and the sealed confirmation (E0009)
+&mdash; included by reference at build time. Note the two disciplines it encodes: the
+family registry is the only way to select a model (so <code>species</code> and
+<code>group_id</code> can never leak in), and the sealed partition is reachable only
+through an explicit <code>evaluation_kind</code>:</p>
+
+<pre data-code="train.py" data-lang="python"></pre>

@@ -1,0 +1,80 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2702,
+      "committed": true,
+      "sha256": "babf7205da3a972dc58189bd9288e8553298db43581961453f7d99c66c392445"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 447,
+      "committed": true,
+      "sha256": "d7430a23244de244b805c2f633c228f952986a541221d100362855eeb68b7315"
+    }
+  },
+  "base_commit": "31343e1647219e87e365c7bd7f1352d2750bcef5",
+  "candidate_commit": "ab9cc460d880f0947f25a14d48462d07e1b02190",
+  "code_patch_hash": "a78bf3ccc61fbd1586b119936af3bbf6b1d1dc6ae89feaa1925cf63b5d78287b",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.026744 by minimum_delta=0.033",
+  "description": "E0008 positive control RQ3: LDA sepal-only - registered prediction: degradation >= 2x floor; a miss falsifies the instrument resolution; did not improve track frontier 0.026744 by minimum_delta=0.033",
+  "disposition": "discard",
+  "ended_at": "2026-08-25T02:37:56.428118Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "38a4ff092be2dfd14e5310b7a62665a9e1c0256acf9340d35ab2a78311e4c9af"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "3bc2c1dde3d86b69230a8977b70d537313f0c118499590b04d1bb9a90bfb8ab8",
+    "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {
+    "primary_metric": 0.168936,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 60.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.41,
+    "val_brier": 0.168936,
+    "val_f1_at_best": 0.7826,
+    "val_lift_top10": 2.0,
+    "val_logloss": 0.503458,
+    "val_pr_auc": 0.879458,
+    "val_rows": 20.0,
+    "wall_seconds": 0.009826
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 7,
+  "primary_metric": 0.168936,
+  "schema_version": 2,
+  "started_at": "2026-08-25T02:37:55.690437Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-08-25T02:37:56.494292Z",
+    "evidence_commit": "7ba582ed58fb9b03e230a38c176ae908bb5a6d34",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.7375989591237158
+}

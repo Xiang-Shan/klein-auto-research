@@ -1,0 +1,197 @@
+schema_version: 2
+study_id: "08-iris-rematch"
+goal: "Large-budget rematch: under a selection-honest registered protocol, can any of 21 modern challenger families (incl. the 2025 TabPFN v2 foundation model) beat the 1936 LDA anchor on the versicolor-virginica hard pair - at full n or anywhere down the data ladder"
+domain: "small-n tabular classification (Fisher 1936 iris hard pair, n=100)"
+target: "is_virginica"
+task_type: "classification"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "anchor_lda4"
+
+# ------------------------------------------------------------------------------
+# DISCLOSURE (binds every description of this study): every one of the 100 rows'
+# values appeared in study 07's public ledger and sidecars. The sealed 20 rows of
+# this study are PROCEDURALLY FRESH ONLY - the protocol never conditions selection
+# on them (21 rows under seed 20260907, twin pair included), but no one is
+# blind to them. Never "blind", "untouched", "virgin".
+# Design brief: presentation task 20260828 reference/study08_design_brief_v1.md.
+# ------------------------------------------------------------------------------
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+# Two tracks: the confirmation phase spends ONE sealed look per track (branch rule
+# in program.md, registered before any run). Both tracks share the same measured
+# floor - the ledger judges challenger transactions on the primary frontier; the
+# challenger track exists to carry the second registered sealed question.
+tracks:
+  primary:
+    metric:
+      name: "val_brier"
+      # Registered rationale (07 scouting, unchanged): AUC pegs at 1.000 on 14/20
+      # dev splits and ALL ranking gauges hit 1.0 on 07's sealed rows - a ceiling
+      # cannot be beaten; AUC takes ~101 lattice values on 20 rows; AUC is
+      # invariant under monotone recalibration, which would make the calibration
+      # lane of this roster identical to its raw versions and RQ4 unanswerable.
+      # Logloss rejected: ~92% clipping-epsilon artifact on kNN (07 scouting A2).
+      goal: "lower"     # higher | lower
+      # TO BE MEASURED AT PHASE 1 - scaffold 0 is the only honest value before the
+      # ledger floor recipe runs. Sequence: (1) E0001 anchor, (2) the k-seed
+      # fit-noise sweep (registered expectation: degenerate, LDA is closed form),
+      # (3) sweeps/ledger_floor.py = STUDY 07'S EXACT RECIPE on the new split
+      # (GroupShuffleSplit test_size=0.25 over the 79 non-sealed rows, k=20, draw
+      # seeds 2026091001-020 (amended in-domain after the registered 20260901xxx
+      # namespace overflowed 2**32-1 - claim C19 reproduced; crash sidecar kept),
+      # statistic ceil3dp(2*std), RAISE-ONLY escalation to
+      # klein default max(2*std, range/2)), (4) paste the measured noise_floor
+      # block into BOTH tracks + set minimum_delta, (5) re-record the CONSULT gate
+      # with the measured value. No challenger rung may run before step 5.
+      # MEASURED 2026-08-25: registered 2*std = 0.0283 -> ceil3dp 0.029; klein
+      # default max(2*std, range/2) = 0.0283 -> registered value LARGER after
+      # ceiling; no raise. headroom_declared = 0.029442/0.029 = 1.015 >= 1:
+      # the DOOR-AJAR branch fired (predictions row 2) - first time in either
+      # study a declared-split keep is arithmetically possible (needs Brier
+      # <= 0.000442). No redraw; the parade is a live contest.
+      minimum_delta: 0.029   # split-lottery floor, k=20, measured 2026-08-25
+      noise_floor:
+        k: 20
+        std: 0.0141522
+        range: 0.042236
+        mean: 0.0161125
+        values: [0.000111672, 0.0305885, 0.028676, 0.000208858, 0.00342994, 0.0202223, 0.0103878, 0.00602426, 0.0159908, 0.0335888, 0.0293664, 0.00949066, 0.00271394, 0.000121646, 0.0001713, 0.00619833, 0.0184598, 0.0249774, 0.0423477, 0.0391734]
+        source: "sweeps/ledger_floor.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
+    guardrails:
+      wall_seconds:
+        max: 60
+  challenger:
+    metric:
+      name: "val_brier"
+      goal: "lower"
+      minimum_delta: 0.029   # split-lottery floor, k=20, measured 2026-08-25
+      noise_floor:
+        k: 20
+        std: 0.0141522
+        range: 0.042236
+        mean: 0.0161125
+        values: [0.000111672, 0.0305885, 0.028676, 0.000208858, 0.00342994, 0.0202223, 0.0103878, 0.00602426, 0.0159908, 0.0335888, 0.0293664, 0.00949066, 0.00271394, 0.000121646, 0.0001713, 0.00619833, 0.0184598, 0.0249774, 0.0423477, 0.0391734]
+        source: "sweeps/ledger_floor.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
+    guardrails:
+      wall_seconds:
+        max: 60
+
+estimand:
+  # Ledger estimand (per track): the DECLARED-SPLIT paired delta vs the frontier,
+  # judged by the one scalar minimum_delta - conditional on these 100 flowers and
+  # split seed 20260907. NOT a population claim, NOT a CI, NOT a significance test.
+  # Arena estimand (sweeps, measurement-only): "Under the registered lottery - 10
+  # seeded repeats of stratified group 4-fold over the 80 non-sealed rows, nested
+  # quota subsampling to rung n - the mean paired dev-Brier improvement of family
+  # f over the 1936 anchor, both deterministic seeded fits on identical train
+  # subsets. Conditional on these 100 flowers and this procedure; not a statement
+  # about new irises." Verdict quantities, bars, and the open/closed-rung rule are
+  # registered in research_plan.md SS3-5 (mirrored from the design brief) and
+  # computed by the frozen sweeps/rematch_analysis.py.
+  comparison_family_size: 21       # challenger families judged on the ledger
+  arena_cell_family: "all eligible challenger x rung cells (113); ONE global max-t"
+
+data:
+  source: "csv:data/prepared/iris_hard_pair.csv"
+  prepared_path: "data/prepared/iris_hard_pair.csv"
+  split:
+    # GROUP-AWARE, inherited ruling from study 07: hard-pair rows 51/92 (iris
+    # rows 102/143, both virginica) carry identical measurements - both rows
+    # share one group id and always travel together. 99 groups over 100 rows.
+    kind: group           # stratified | random | group | time | none (simulation)
+    # Pre-committed fresh seed, disjoint from every study-07 seed namespace
+    # ({42, 20260828, 20260828001-020, 20260829-48}). NO REDRAW under any
+    # outcome: if the anchor lands high and the door is ajar, that IS the study.
+    seed: 20260907
+    development_size: 0.20
+    test_size: 0.20
+    group_column: "group_id"
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 120
+phases:
+  - id: adaptive-1
+    description: "anchor + metrology: E0001 anchor_lda4 keep on the declared split; E0002 lda_sepal positive control; the k-seed fit-noise sweep (registered: degenerate, std exactly 0); sweeps/ledger_floor.py (07's exact recipe, new split, seeds 2026091001-020 amended in-domain) -> paste noise_floor into BOTH tracks and re-record the consult gate; Stage-A arena (anchor+control only, all 6 rungs) -> commit sweeps/headroom.tsv BEFORE any challenger number exists; publish headroom_declared = anchor_dev/minimum_delta and fire the registered door-closed/door-ajar branch"
+    budget_seconds: 1800
+    max_experiments: 3
+  - id: adaptive-2
+    description: "the verification parade: one run-one per remaining registered family at the declared split, registry order (21 challenger transactions; slack for crash rows). Conditional registered prediction per the adaptive-1 branch. No arena challenger numbers exist at phase start."
+    budget_seconds: 3600
+    max_experiments: 26
+  - id: adaptive-3
+    description: "Stage-B arena (full 23-family roster, 6 rungs, 40 fold-evals) committed as sweeps/rematch_arena.sidecar.tsv; frozen sweeps/rematch_analysis.py computes headroom table, Bar-1 global sign-flip max-t (1024 enumerated repeat-level flips), Bar-2, control test, attribution rule; the sealed-coda branch (W or G) and, under W, the wrapper families are recorded/registered before the confirmation phase"
+    budget_seconds: 3600
+    max_experiments: 1
+  - id: confirmation
+    description: "TWO sealed final-tests, one per track, via the pre-registered registry entries coda_primary / coda_challenger which read the committed sweeps/coda_manifest.json (written by the frozen analysis; Branch W = anchor and winner on baked n* positions; Branch G = anchor_lda4 and tabpfn at n=60, the 1936-vs-2025 marquee gap). Band-check role only, no nominal coverage after selection: the arena is the evidence; the seal is the discipline."
+    budget_seconds: 600
+    max_experiments: 2
+
+research_questions:
+  - id: RQ1
+    question: "Is the declared-split door closed - headroom_declared = anchor_dev_brier / minimum_delta < 1, making a keep arithmetically impossible for every challenger before any runs?"
+    prior: "yes, P~0.8 (source: scouting-study-07 (measured) - 4 of 20 lottery draws exceeded 0.033; the fresh declared split is one more draw from that lottery)"
+  - id: RQ2
+    question: "Does ANY challenger family clear the Bar-1 selection guard (joint repeat-level sign-flip max-t diagnostic, adjusted score <= 0.05; a registered guard, not population inference) at rung 60?"
+    prior: "classical lanes no (source: scouting-study-07 (measured) - all six 07 challenger lottery means are WORSE than the anchor); calibration + foundation lanes (source: uninformed) - genuinely open"
+  - id: RQ3
+    question: "(a) Does at least one rung below 60 come out OPEN (m_n > delta_n)? (b) If open, does any family clear Bar-2 there - a keep-sized mean improvement at an open rung?"
+    prior: "(a) (source: uninformed); (b) no (source: uninformed, weakly held) - THE study question"
+  - id: RQ4
+    question: "If any Bar-1 winner exists, is >=50% of its paired gain captured by recalibrated-Fisher (lda_platt / lda_isotonic / lda_shrinkage at that rung)?"
+    prior: "yes, lean (source: uninformed) - calibration, not architecture, is the suspected mechanism"
+  - id: RQ5
+    question: "Does the sepal-only positive control separate (one-sided worsening sign-flip test, Bonferroni across measurable rungs) at every measurable rung?"
+    prior: "yes (source: scouting-study-07 (measured) - ~2.4x spreads scouted; a miss triggers instrument-downgrade language)"
+
+predictions_to_falsify:
+  - lever: "declared-split parade, branch DOOR-CLOSED (fires iff headroom_declared < 1 at the adaptive-1 boundary)"
+    predicted_delta: "every parade transaction discards; arithmetic closed the door before any challenger ran; we run all 21 anyway and publish where each lands"
+  - lever: "declared-split parade, branch DOOR-AJAR (fires iff headroom_declared >= 1)"
+    predicted_delta: "for the first time a keep is arithmetically possible on the declared split - the parade is a live contest and the ledger judges normally; no redraw, no re-registration"
+  - lever: "k-seed fit-noise sweep on anchor_lda4"
+    predicted_delta: "std exactly 0 (closed-form LDA); committed as the documented degenerate companion, exactly as in study 07"
+  - lever: "sealed coda track primary (branch G form)"
+    predicted_delta: "|sealed - declared dev| <= 2 x minimum_delta for the anchor (07 convention band)"
+  - lever: "sealed coda track challenger (branch G form)"
+    predicted_delta: "g_sealed = sealed_primary - sealed_challenger falls inside tabpfn's arena [p10, p90] band of fold-level g = anchor - tabpfn at rung 60 (registered sign convention)"
+
+deliverables:
+  - findings.md
+  - report/index.html
+  - scouting_ledger.md
+  - claims.lock
+
+claims_discipline:
+  banned:
+    - "tie"
+    - "equivalent"
+    - "no difference"
+    - "打平"
+    - "一样好"
+    - "等价"
+    - "独立复现"
+    - "blind replication"
+    - "untouched data"
+    - "virgin data"
+    - "any translation of 'did not clear the floor' into equality"
+    - "unscoped 'beat/beats Fisher' (every victory claim carries rung + bar scope)"
+    - "'significant' without the lottery-FWER qualifier"
+    - "generalizes / would hold on other data"
+    - "any coda description implying estimation rather than band-check"
+  sanctioned:
+    - "did not improve by >= delta"
+    - "no keep earned"
+    - "open rung / closed rung; ceiling-closed / fog-closed"
+    - "headroom"
+    - "detectable but not actionable (Bar-1 without Bar-2; detectable = cleared the registered guard in this lottery)"
+    - "keep-sized"
+    - "the door was ajar"
+    - "procedurally fresh seal (all 100 values were published in study 07's ledger)"
+    - "detectable in this lottery (never bare 'significant')"
+  framing: "This is a PROSPECTIVELY LOCKED SECOND STUDY ON FULLY SCOUTED DATA. Study 07's entire ledger, sidecars, floor, and sealed value are scouting for this study and are enumerated in scouting_ledger.md. The registered protocol - seeds, bars, eligibility, branch rules - was locked before any 08 measurement; that lock, not blindness, is the integrity claim."
+  scouting_ledger: "scouting_ledger.md - committed to this study directory BEFORE the CONSULT gate is recorded. findings prior scorecard counts ONLY priors tagged (source: uninformed)."

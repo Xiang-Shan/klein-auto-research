@@ -1,0 +1,135 @@
+{
+ "study": "07-iris-90years",
+ "branch": "experiments/07-iris-90years",
+ "git_head": "1c32260ac94b3f3f64ad13ae0ff2e2c358961432",
+ "generated": "2026-08-25",
+ "artifacts": {
+  "results": {
+   "path": "studies/07-iris-90years/results.tsv",
+   "sha256": "ca1ba88f047c46ff245628c75f3e3290dca3bf4083ca2cf69e6c865d5089ff92"
+  },
+  "contract": {
+   "path": "studies/07-iris-90years/study.yaml",
+   "sha256": "5a7792f05b75ca4363768ffb020ed45f39ebbf15fb49b8b02ec4ebec290b846a"
+  },
+  "findings": {
+   "path": "studies/07-iris-90years/findings.md",
+   "sha256": "0496cf36ddf4ff2027defad6e6a7aafeb3bcce6a39349b64885d28ef022ea2f1"
+  },
+  "lottery": {
+   "path": "studies/07-iris-90years/sweeps/split_lottery.sidecar.tsv",
+   "sha256": "8fbf796c951b05c25576fd58831e92c6a1dab9e938dd6528bb23580483b8bb09"
+  },
+  "kseed": {
+   "path": "studies/07-iris-90years/sweeps/kseed_floor.sidecar.tsv",
+   "sha256": "45e71c5a59cd7ae6f2390cc1feb1259ccb8a271118db2232177bb5e139e70939"
+  }
+ },
+ "claims": {
+  "anchor_dev_brier": {
+   "value": 0.026744,
+   "art": "results",
+   "claim": "C1"
+  },
+  "minimum_delta": {
+   "value": 0.033,
+   "art": "contract",
+   "claim": "floor"
+  },
+  "floor_recipe": {
+   "value": "2x std of anchor dev brier, k=20 group-aware draws of the 80 non-sealed rows; klein default equal, no raise",
+   "art": "contract"
+  },
+  "kseed_std": {
+   "value": 0.0,
+   "art": "kseed",
+   "claim": "C12"
+  },
+  "sealed_brier": {
+   "value": 0.055198,
+   "delta_vs_dev": 0.028454,
+   "x_delta": 0.86,
+   "band": "+/-2xdelta REGISTERED, HELD",
+   "base_rate": "7/13",
+   "art": "results",
+   "claim": "C4"
+  },
+  "ladder": {
+   "logit": {
+    "dev_brier": 0.059078,
+    "delta": 0.032334,
+    "x_delta": 0.98,
+    "disposition": "discard"
+   },
+   "knn7": {
+    "dev_brier": 0.045403,
+    "delta": 0.018659,
+    "x_delta": 0.57,
+    "disposition": "discard"
+   },
+   "svm_rbf": {
+    "dev_brier": 0.056963,
+    "delta": 0.030219,
+    "x_delta": 0.92,
+    "disposition": "discard"
+   },
+   "hgbt": {
+    "dev_brier": 0.099975,
+    "delta": 0.073231,
+    "x_delta": 2.22,
+    "disposition": "discard"
+   },
+   "lda_petal": {
+    "dev_brier": 0.069452,
+    "delta": 0.042708,
+    "x_delta": 1.29,
+    "disposition": "discard"
+   },
+   "lda_sepal": {
+    "dev_brier": 0.168936,
+    "delta": 0.142192,
+    "x_delta": 4.31,
+    "disposition": "discard"
+   }
+  },
+  "crash_rung": {
+   "exp": "E0002",
+   "mechanism": "binary evaluate() refuses labels [1,2]",
+   "registered": "HELD",
+   "art": "results"
+  },
+  "rq_verdicts": {
+   "RQ1": "confirmed - no keep earned",
+   "RQ2": "prior REFUTED on declared split (1.29xdelta); lottery mean 0.71xdelta, 13/20 draws within",
+   "RQ3": "confirmed - control 4.31xdelta"
+  },
+  "draw15_counterexample": {
+   "value": "HGBT -1.22xdelta and petal -1.13xdelta would each have earned a keep on draw 15; 2 keep-sized improvements / 120 paired comparisons",
+   "art": "lottery",
+   "claim": "C7"
+  },
+  "sealed_ceiling_note": {
+   "value": "AUC/PR-AUC/F1/lift all at ceiling on sealed; only the proper score moved",
+   "claim": "C11"
+  },
+  "reproduction_cos": {
+   "value": "1.000000 (Fisher 1936 SII setosa-versicolor compound, digit-exact: 1, 5.90380, -7.12998, -10.10366)",
+   "claim": "C9"
+  },
+  "twins": {
+   "value": "(5.8,2.7,5.1,1.9) virginica, Fisher printed rows 2/43 = sklearn 102/143; unmentioned by Bezdek 1999 / UCI in sources checked",
+   "claim": "C10"
+  },
+  "compute_total_seconds": {
+   "value": 9.2,
+   "detail": "6.839 ledger + 0.191 eval + 2.362 sweeps",
+   "art": "results"
+  },
+  "n_transactions": {
+   "value": 9,
+   "detail": "1 keep, 7 discard (incl. control+ablation), 1 crash; +1 sealed"
+  },
+  "klein_version": "1.2.0"
+ },
+ "law": "deck numbers.py reads ONLY this file; any deck/script number not traceable here fails the build (triage charter: no number/verdict/strength changes)"
+}

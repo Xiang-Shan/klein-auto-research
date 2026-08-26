@@ -1,0 +1,119 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T07:57:31.514096Z"
+    },
+    "data": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T07:56:48.681090Z"
+    },
+    "method": {
+      "by": "Xiang",
+      "timestamp": "2026-08-25T08:01:37.933379Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619",
+    "method_card.md": "44978f8db32d8068910d625f65307e51eeb70e12426a873e7370fab5ba13fb7d",
+    "research_plan.md": "55ff7c5d04c840fd9411d89e3481c8b55e8b82a29e418f297fd7979ba0f8d5f6",
+    "study.yaml": "b4673e65f83c50eb76b63f152f9aa120f863f710c3c9b5a0e8ec33f4d48d3533"
+  },
+  "created_at": "2026-08-25T07:53:52.338950Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "challenger": {
+      "accessed_at": "2026-08-25T08:21:11.940830Z",
+      "count": 1,
+      "experiment": "E0025"
+    },
+    "primary": {
+      "accessed_at": "2026-08-25T08:09:27.482330Z",
+      "count": 1,
+      "experiment": "E0024"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "challenger": 1,
+      "primary": 1
+    },
+    "label": "confirmed",
+    "successful_confirmation": {
+      "challenger": "E0025",
+      "primary": "E0024"
+    },
+    "timestamp": "2026-08-25T08:22:36.420262Z"
+  },
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "split": "007852a469e985c39451cad99c1fd03f96b50f6ffe586e617521ee3a0fdc3295"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-08-25T07:57:31.514096Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "program.md": "299d512ae8af99979446efd10a1e678cde36fd64c720652e6cc573607cdc4a55",
+        "research_plan.md": "55ff7c5d04c840fd9411d89e3481c8b55e8b82a29e418f297fd7979ba0f8d5f6",
+        "study.yaml": "b4673e65f83c50eb76b63f152f9aa120f863f710c3c9b5a0e8ec33f4d48d3533"
+      },
+      "note": "minimum_delta 0.029 set from the measured ledger-floor sweep (07 recipe, seeds 2026091001-020); headroom_declared = 0.029442/0.029 = 1.015 - the registered DOOR-AJAR branch fires: the parade is a live contest, no redraw",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-08-25T07:56:48.681090Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "data_card.md": "ab31ac2e71560f7d3da37c3093e813babd939523ad2511ac397a4c21d1534619"
+      },
+      "note": "re-record: gate-artifact hash refresh after co-located amendments (data card content unchanged in substance)",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-08-25T08:01:37.933379Z",
+      "acknowledged_by": "Xiang",
+      "artifacts": {
+        "method_card.md": "44978f8db32d8068910d625f65307e51eeb70e12426a873e7370fab5ba13fb7d"
+      },
+      "note": "nested-context amendment: stack inner svm + coda bases cv=3 stratified (lawful - no multi-row group outside seal); parade crash mechanisms classified (E0018/E0022 GPC non-finite proba pathology; E0023 wiring, fixed for arena; ledger records stand)",
+      "status": "recorded"
+    }
+  },
+  "last_experiment": 25,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-08-25T07:58:25.626185Z",
+      "acknowledged_by": "Xiang",
+      "note": "anchor E0001 keep 0.029442; control E0002 discard 0.178104; kseed degenerate std 0 as registered; ledger floor 0.029; headroom_declared 1.015 DOOR-AJAR (parade live, keep needs <=0.000442); Stage-A headroom: ALL SIX RUNGS CLOSED (ceiling at 60-20, fog at 12-8; ratio ~0.5 throughout) - Bar-2 arithmetically unreachable, coda branch mechanically G",
+      "playbook_sha256": "ca7560152987b6474dfb030c9543ac51d37db82a51fc451150754da38518c8dc"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-08-25T08:01:53.340257Z",
+      "acknowledged_by": "Xiang",
+      "note": "parade complete: 21 transactions E0003-E0023, 18 discard 3 crash 0 keep - the ajar door stood; nobody walked through (best: qda 0.024709, -0.16x floor below anchor raw; lda_shrinkage 0.026958 and knn_tuned 0.028670 also under the anchor raw score; every improvement laughably sub-floor). Crashes classified: E0018/E0022 GPC non-finite-probability pathology (genuine, registered config); E0023 stack wiring (nested splits) - fixed for arena pre-Stage-B, ledger record stands",
+      "playbook_sha256": "ca7560152987b6474dfb030c9543ac51d37db82a51fc451150754da38518c8dc"
+    },
+    "adaptive-3": {
+      "acknowledged_at": "2026-08-25T08:09:15.556290Z",
+      "acknowledged_by": "Xiang",
+      "note": "Stage-B + frozen analysis complete: 1/113 guard-cleared (qda@n8 +0.073, fold-level sensitivity does not confirm), 0 Bar-2, 0 open rungs, capture 0.98, control alive at every rung, gpc/vote placeholders only at n60/45 (crash where data plentiful); coda manifest committed: BRANCH G",
+      "playbook_sha256": "ca7560152987b6474dfb030c9543ac51d37db82a51fc451150754da38518c8dc"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-08-25T08:21:50.425509Z",
+      "acknowledged_by": "Xiang",
+      "note": "both seals spent: T1 anchor 0.077176 (|gap| 0.0477 <= 0.058, band HELD at 82% width, +1.65x delta vs dev); T2 tabpfn 0.066863 - g = T1-T2 = +0.010313 OUTSIDE the registered band [-0.0160,+0.0050]: a REGISTERED MISS, direction favoring the challenger at 0.36x delta (sub-floor); pre-committed OUTSIDE line fires verbatim; no coverage, no upgrade",
+      "playbook_sha256": "ca7560152987b6474dfb030c9543ac51d37db82a51fc451150754da38518c8dc"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/08-iris-rematch/data/prepared/iris_hard_pair.csv",
+    "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
+  },
+  "schema_version": 2,
+  "status": "finalized",
+  "study_id": "08-iris-rematch",
+  "updated_at": "2026-08-25T08:22:36.420265Z"
+}

@@ -1,0 +1,48 @@
+<h2>The Data</h2>
+
+<p>100 rows &times; 7 columns: the hard pair only (50 versicolor / 50 virginica),
+setosa dropped because it is linearly separable from both and would make every method
+look perfect. Four one-decimal measurements, zero missingness, every column checked by
+<em>value</em>, not dtype. Built deterministically by <code>prepare.py</code> from
+scikit-learn 1.9.0, with a byte-identical committed fixture.</p>
+
+<p><strong>There are three irises, and the DATA gate diffed them.</strong> Fisher's
+printed 1936 Table I, the UCI repository file, and scikit-learn's copy are not all the
+same dataset. A cell-level diff against committed UCI bytes found <strong>exactly rows
+35 and 38</strong> differing &mdash; three cells, six numbers across the two sources
+&mdash; matching UCI's own errata note verbatim, while sklearn's DESCR states its copy
+follows Fisher's paper rather than UCI (the corrected copy entered scikit-learn at
+v0.20, 2018, changelog #11082 &mdash; an external citation from the study's citations
+pass, not a measurement here). Both errata rows are <em>setosa</em>, which the prep
+drops &mdash; so the known errata <strong>provably cannot touch</strong> a single row
+of this study. That sentence is only available because the diff ran <em>before</em> the
+first model.</p>
+
+<p><strong>The printed twins.</strong> Hard-pair rows 51 and 92 &mdash; rows
+<strong>102 and 143</strong> of the full table, both virginica &mdash; carry identical
+measurements (5.8, 2.7, 5.1, 1.9), the only duplicated row-content in the hard pair.
+The 2026-08-25 check against the full 1936 scan found the same pair printed twice in
+<strong>Fisher's own Table I</strong> (printed virginica rows 2 and 43): the
+duplication is original to the 1936 publication, not a digitization artifact &mdash;
+and neither Bezdek et al. (1999) nor the UCI page mentions it, <em>in the sources we
+checked</em>. Duplicate record entry versus two genuinely identical flowers is
+<strong>undecidable</strong> at 0.1 cm resolution, so the ruling removed the leakage
+<em>mechanism</em> instead of asserting an explanation: both rows share one
+<code>group_id</code> and always travel into the same partition. Never delete
+historical data on a guess; n stays 100. The counterfactual that justified the care:
+under a stratified split the twins straddle partitions in <strong>16 of 20
+seeds</strong> &mdash; the leak would have been the normal case.</p>
+
+<p><strong>A column that exists to crash.</strong> The prepared frame keeps sklearn's
+3-class <code>species</code> code &mdash; a perfect proxy for the target, documented as
+a WARN and mitigated by naming feature columns literally in <code>families.py</code>.
+It is there on purpose: the registered crash rung (E0002) hands it to the binary
+evaluator to prove the guard is real, and it had to be present from the first write or
+the DATA fingerprint would move.</p>
+
+<p><strong>The declared split.</strong> Group-aware, seed <strong>20260828</strong>
+(the talk date &mdash; a pre-committed rule the scouting never touched; seed 42 is
+retired <em>because</em> it was scouted, sealed rows included): train 60 (33/27),
+development 20 (10/10), sealed test 20 at base rate <strong>7/13</strong>. A group
+split is not stratified &mdash; the drifted sealed base rate is a documented
+consequence, and the sealed value is read against it.</p>

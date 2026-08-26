@@ -1,0 +1,92 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 452,
+      "committed": true,
+      "sha256": "96e2f0e5d9a863fab72b72a516161735785798a7ce0d9ad29ff52783e61fdc16"
+    },
+    "models/best_primary_E0001_0.0267442_3356d31fb7e7.joblib": {
+      "availability": "local",
+      "bytes": 1547,
+      "committed": false,
+      "sha256": "bb24fcc86832e855d43dade49d419c33a42ef935b639e3e888e5e7aef7bbc677"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 293,
+      "committed": true,
+      "sha256": "a9f8865f2f963958909f135e3ea244f44c5619dc428c823c5e1f872c97f88095"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 447,
+      "committed": true,
+      "sha256": "56661c667a95db8dc0695f66583a5327b3b406b51becd1d7b0bd75dc9b4b4056"
+    }
+  },
+  "base_commit": "826ff262c773c96a5bde8ffff3dba9feb704d13f",
+  "candidate_commit": "de974fdc1702dfd901bd8bc3618e5fbe2da807ad",
+  "code_patch_hash": "d296f7e9436d7f8c6bb47c91aedbcdc5e00afa7eb0b871a5ed126321e47ed640",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "E0001 anchor: Fisher 1936 LDA, four features, fit on train only - sets the frontier; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-08-25T02:33:23.843177Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "38a4ff092be2dfd14e5310b7a62665a9e1c0256acf9340d35ab2a78311e4c9af"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "3bc2c1dde3d86b69230a8977b70d537313f0c118499590b04d1bb9a90bfb8ab8",
+    "split": "b2246319dd9e6de868158b4265aa9782c2e9bc744b39f53378a38df161580ef6"
+  },
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {
+    "primary_metric": 0.026744,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 60.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.73,
+    "val_brier": 0.026744,
+    "val_f1_at_best": 1.0,
+    "val_lift_top10": 2.0,
+    "val_logloss": 0.072157,
+    "val_pr_auc": 1.0,
+    "val_rows": 20.0,
+    "wall_seconds": 0.008361
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 1,
+  "primary_metric": 0.026744,
+  "schema_version": 2,
+  "started_at": "2026-08-25T02:33:23.117363Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-08-25T02:33:23.887820Z",
+    "evidence_commit": "1f32b172360dda6a294ae4a0e52f639a46222fe7",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.7257167920470238
+}
