@@ -387,6 +387,35 @@ def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None
                 f"track {name!r}: {problem}"
                 for problem in _noise_floor_problems(metric.get("noise_floor"))
             )
+        bound = metric.get("bound")
+        if bound is not None:
+            if not isinstance(bound, Mapping):
+                problems.append(f"track {name!r}: metric.bound must be a mapping")
+            else:
+                unknown_bound = set(bound) - {"ideal", "on_infeasible"}
+                if unknown_bound:
+                    problems.append(
+                        f"track {name!r}: metric.bound has unknown keys: {sorted(unknown_bound)}"
+                    )
+                try:
+                    ideal_value = float(bound.get("ideal"))
+                    if not math.isfinite(ideal_value):
+                        raise ValueError
+                except (TypeError, ValueError):
+                    problems.append(
+                        f"track {name!r}: metric.bound.ideal must be a finite number"
+                    )
+                if bound.get("on_infeasible", "ack") not in {"ack", "warn", "block"}:
+                    problems.append(
+                        f"track {name!r}: metric.bound.on_infeasible must be ack, warn, or block"
+                    )
+                floor_block = metric.get("noise_floor")
+                if isinstance(floor_block, Mapping) and floor_block.get("estimand") is None:
+                    problems.append(
+                        f"track {name!r}: metric.bound requires noise_floor.estimand "
+                        "(marginal-resplit | paired-comparison) — name which question "
+                        "the floor answers before arming the headroom audit"
+                    )
         for problem in _guardrail_contract_problems(spec.get("guardrails")):
             problems.append(f"track {name!r}: {problem}")
 
@@ -489,6 +518,11 @@ def _noise_floor_problems(floor: Any) -> list[str]:
     method = floor.get("method")
     if method is not None and (not isinstance(method, str) or not method.strip()):
         problems.append("metric.noise_floor.method must be a non-empty string")
+    estimand = floor.get("estimand")
+    if estimand is not None and estimand not in {"marginal-resplit", "paired-comparison"}:
+        problems.append(
+            "metric.noise_floor.estimand must be marginal-resplit or paired-comparison"
+        )
     try:
         k = int(floor.get("k", 0))
         if k < 3:
@@ -892,6 +926,84 @@ def record_gate(
         save_state(study_dir, state)
         _commit_state_writes(study_dir, f"klein: {gate} gate {status}")
         return state
+
+
+def acknowledge_headroom(
+    study_dir: Path,
+    *,
+    track: str,
+    acknowledged_by: str,
+    note: str,
+) -> dict[str, Any]:
+    """Register that a track's frontier is keep-infeasible (headroom h < 1).
+
+    The acknowledgement is the ledger's record that the closed door was seen
+    BEFORE further transactions were spent — the note must name the registered
+    branch: 're-scope: ...' (change delta/estimand/data) or 'run-anyway: ...'
+    (a pre-committed door-closed sentence, study-08 style).
+    """
+    contract = load_contract(study_dir)
+    if schema_version(contract) != SCHEMA_VERSION:
+        raise WorkflowError("headroom state is available only for schema_version 2 studies")
+    if not acknowledged_by.strip():
+        raise WorkflowError("--acknowledged-by is required")
+    if not note.strip():
+        raise WorkflowError(
+            "--note is required and must name the registered branch: "
+            "'re-scope: ...' or 'run-anyway: <pre-committed door-closed sentence>'"
+        )
+    tracks = normalize_tracks(contract)
+    if track not in tracks:
+        raise WorkflowError(f"unknown track {track!r}; choose one of {sorted(tracks)}")
+    metric = tracks[track]["metric"]
+    if not isinstance(metric.get("bound"), Mapping):
+        raise WorkflowError(
+            f"track {track!r} declares no metric.bound — declare bound.ideal first; "
+            "there is nothing to acknowledge"
+        )
+    with StudyLock(study_dir):
+        state = load_state(study_dir, contract)
+        context = _headroom_context(
+            tracks[track], _incumbent(load_manifests(study_dir), track)
+        )
+        if context is None:
+            raise WorkflowError(
+                f"track {track!r}: headroom is undefined — it needs a first keep "
+                "(incumbent) and a measured minimum_delta > 0"
+            )
+        if context["h"] >= 1:
+            raise WorkflowError(
+                f"track {track!r}: h = {context['h']:.3f} >= 1 — a keep is "
+                "arithmetically possible; nothing to acknowledge"
+            )
+        now = utc_now()
+        entry = {
+            "h": context["h"],
+            "incumbent": context["incumbent"],
+            "ideal": context["ideal"],
+            "minimum_delta": context["minimum_delta"],
+            "infeasible": True,
+            "acknowledged_at": now,
+            "acknowledged_by": acknowledged_by,
+            "note": note,
+        }
+        state.setdefault("headroom", {})[track] = entry
+        append_event(
+            study_dir,
+            "headroom_acknowledged",
+            track=track,
+            h=context["h"],
+            incumbent=context["incumbent"],
+            ideal=context["ideal"],
+            minimum_delta=context["minimum_delta"],
+            acknowledged_by=acknowledged_by,
+            note=note,
+        )
+        save_state(study_dir, state)
+        _commit_state_writes(
+            study_dir, f"klein: headroom infeasibility acknowledged ({track})"
+        )
+        return entry
 
 
 def _git(repo: Path, args: Sequence[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -1336,6 +1448,10 @@ def preflight_checks(
         checks.append(
             Check("transactions", not pending, f"pending={pending}" if pending else "none pending")
         )
+        for headroom_track, headroom_spec in normalize_tracks(contract).items():
+            checks.append(
+                _headroom_check(headroom_track, headroom_spec, manifests, state)
+            )
     train = study_dir / "train.py"
     if not train.is_file():
         checks.append(Check("train.py", False, "missing"))
@@ -1554,6 +1670,187 @@ def choose_disposition(
     if improved:
         return "keep", f"frontier improvement over {old:.12g} with minimum_delta={delta:.12g}"
     return "discard", f"did not improve track frontier {old:.12g} by minimum_delta={delta:.12g}"
+
+
+def track_headroom(
+    incumbent_score: float | None,
+    *,
+    ideal: float,
+    minimum_delta: float,
+    goal: str,
+) -> float | None:
+    """Distance from the incumbent to the metric's ideal, in minimum_delta units.
+
+    ``h < 1`` means no keep is arithmetically possible on this frontier: not
+    even a perfect score clears ``minimum_delta`` (the study-07 lesson —
+    anchor Brier 0.026744 against delta 0.033 put the keep bar below zero).
+    ``h >= 1`` says only that a keep is not arithmetically excluded, never
+    that one is plausible: the attainable ceiling may sit well short of the
+    ideal (irreducible Bayes risk — study 08 stood at h = 1.015 and twenty-one
+    challengers produced zero keeps). Signed on purpose: an incumbent past the
+    declared ideal reports h <= 0 (a mis-declared bound reads as infeasible,
+    never as spare room).
+    """
+    if incumbent_score is None or minimum_delta <= 0:
+        return None
+    distance = (
+        (incumbent_score - ideal) if goal == "lower" else (ideal - incumbent_score)
+    )
+    return distance / minimum_delta
+
+
+def _headroom_context(
+    track_spec: Mapping[str, Any],
+    incumbent: Mapping[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Resolve (h, posture, numbers) for a track, or None when not armed."""
+    metric = track_spec["metric"]
+    bound = metric.get("bound")
+    if not isinstance(bound, Mapping) or incumbent is None:
+        return None
+    try:
+        ideal = float(bound.get("ideal"))
+        minimum_delta = float(metric.get("minimum_delta", 0))
+    except (TypeError, ValueError):
+        return None
+    h = track_headroom(
+        float(incumbent["primary_metric"]),
+        ideal=ideal,
+        minimum_delta=minimum_delta,
+        goal=str(metric.get("goal")),
+    )
+    if h is None:
+        return None
+    return {
+        "h": h,
+        "ideal": ideal,
+        "minimum_delta": minimum_delta,
+        "incumbent": float(incumbent["primary_metric"]),
+        "posture": str(bound.get("on_infeasible", "ack")),
+    }
+
+
+def _headroom_ack(state: Mapping[str, Any], track: str) -> Mapping[str, Any] | None:
+    entry = state.get("headroom", {})
+    entry = entry.get(track) if isinstance(entry, Mapping) else None
+    if isinstance(entry, Mapping) and entry.get("acknowledged_at"):
+        return entry
+    return None
+
+
+def _headroom_check(
+    track_name: str,
+    track_spec: Mapping[str, Any],
+    manifests: Sequence[Mapping[str, Any]],
+    state: Mapping[str, Any],
+) -> Check:
+    """Detection-limit disclosure. Always ``ok=True`` — a FAIL here would
+    retro-fail ``klein verify`` on finalized studies (verify == preflight);
+    enforcement belongs to run-one, where a refusal burns nothing."""
+    from .eval import KNOWN_IDEALS
+
+    metric = track_spec["metric"]
+    name = metric.get("name")
+    if not isinstance(metric.get("bound"), Mapping):
+        known = KNOWN_IDEALS.get(name) if isinstance(name, str) else None
+        if known is not None:
+            return Check(
+                "headroom",
+                True,
+                f"track {track_name!r}: metric {name!r} has a known ideal ({known:g}) "
+                "but no metric.bound declared — headroom not audited (HINT: declare "
+                "metric.bound.ideal to arm the detection-limit check)",
+            )
+        return Check(
+            "headroom",
+            True,
+            f"track {track_name!r}: no metric.bound declared — not audited",
+        )
+    context = _headroom_context(track_spec, _incumbent(manifests, track_name))
+    if context is None:
+        return Check(
+            "headroom",
+            True,
+            f"track {track_name!r}: bound declared; no incumbent yet (or no measured "
+            "minimum_delta) — audited at first keep",
+        )
+    h = context["h"]
+    arithmetic = (
+        f"h = ({context['incumbent']:.6g} - {context['ideal']:g}) / "
+        f"{context['minimum_delta']:.6g} = {h:.3f}"
+    )
+    if h >= 1:
+        return Check(
+            "headroom",
+            True,
+            f"track {track_name!r}: {arithmetic} — a keep is arithmetically possible "
+            "(h >= 1 means not excluded, NOT plausible: the attainable ceiling may "
+            "sit short of the ideal)",
+        )
+    ack = _headroom_ack(state, track_name)
+    if ack:
+        return Check(
+            "headroom",
+            True,
+            f"track {track_name!r}: {arithmetic} < 1 — infeasible, acknowledged by "
+            f"{ack.get('acknowledged_by')} at {ack.get('acknowledged_at')}: "
+            f"{ack.get('note')}",
+        )
+    return Check(
+        "headroom",
+        True,
+        f"track {track_name!r}: [WARN] {arithmetic} < 1 — NO keep is arithmetically "
+        "possible: not even a perfect score clears minimum_delta "
+        f"(on_infeasible: {context['posture']}). Register awareness with "
+        "`klein headroom ack` or re-scope the contract",
+    )
+
+
+def _enforce_headroom(
+    state: Mapping[str, Any],
+    track_spec: Mapping[str, Any],
+    track: str,
+    incumbent: Mapping[str, Any] | None,
+    *,
+    echo: bool,
+) -> None:
+    """Development-run gate on a keep-infeasible frontier (posture-controlled).
+
+    Sealed final tests are exempt by construction (the caller gates on
+    ``not final_test``): confirmation evidence is not a frontier attempt.
+    """
+    context = _headroom_context(track_spec, incumbent)
+    if context is None or context["h"] >= 1:
+        return
+    detail = (
+        f"track {track!r}: headroom ({context['incumbent']:.6g} - {context['ideal']:g})"
+        f" / {context['minimum_delta']:.6g} = {context['h']:.3f} < 1 — no keep is "
+        "arithmetically possible on this frontier (not even a perfect score clears "
+        "minimum_delta)"
+    )
+    posture = context["posture"]
+    if posture == "block":
+        raise WorkflowError(
+            detail
+            + "; on_infeasible: block — re-scope the contract (minimum_delta, "
+            "estimand, or data) before further transactions"
+        )
+    ack = _headroom_ack(state, track)
+    if posture == "ack" and not ack:
+        raise WorkflowError(
+            detail
+            + "; register awareness first: klein headroom ack --track "
+            + str(track)
+            + ' --acknowledged-by <you> --note "re-scope: ... | run-anyway: '
+            '<pre-committed door-closed sentence>"'
+        )
+    if echo:
+        suffix = (
+            f"; acknowledged by {ack.get('acknowledged_by')}"
+            if ack
+            else "; on_infeasible: warn"
+        )
+        print(f"[headroom] {detail}{suffix}")
 
 
 def artifact_inventory(study_dir: Path) -> dict[str, dict[str, Any]]:
@@ -1855,6 +2152,8 @@ def run_one(
         timeout = min(timeout, remaining_budget)
         manifests = load_manifests(study_dir)
         incumbent = _incumbent(manifests, track)
+        if not final_test:
+            _enforce_headroom(state, tracks[track], track, incumbent, echo=echo)
         number = len(manifests) + 1
         run_id = f"E{number:04d}"
 

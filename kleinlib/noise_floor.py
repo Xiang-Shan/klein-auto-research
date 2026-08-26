@@ -27,8 +27,27 @@ __all__ = ["NoiseFloor", "summarize_noise", "floor_from_sidecar", "yaml_block"]
 #: HOW the floor was measured — the consult protocol's vocabulary is
 #: ``seed-sweep`` (the Phase-0 k-seed ladder) and ``paired-bootstrap`` (the
 #: real-data comparison recipe).
+#: ``estimand`` names WHICH question the floor answers — ``marginal-resplit``
+#: (spread of the incumbent's own score across split re-draws) or
+#: ``paired-comparison`` (spread of challenger-minus-incumbent differences on
+#: the same draws). Study 07 measured both: the paired spread EXCEEDED the
+#: marginal one for five of six families (challenger fit-variance dominates),
+#: so neither is "the sharp one" a priori — a delta without a named estimand
+#: is not a registered decision rule. Required once ``metric.bound`` is
+#: declared.
 ALLOWED_KEYS = frozenset(
-    {"k", "seeds", "std", "range", "mean", "values", "source", "measured_after", "method"}
+    {
+        "k",
+        "seeds",
+        "std",
+        "range",
+        "mean",
+        "values",
+        "source",
+        "measured_after",
+        "method",
+        "estimand",
+    }
 )
 
 

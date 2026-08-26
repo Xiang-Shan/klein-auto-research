@@ -191,6 +191,27 @@ uv run --locked klein gate record phase --study studies/NN-slug \
   --phase <current-phase> --acknowledged-by <actor>
 ```
 
+### 6. Detection-limit law — audit headroom before spending challengers
+
+Before spending a challenger budget, check the arithmetic the floor implies:
+`h = (incumbent − metric.bound.ideal) / minimum_delta`. If `h < 1`, the tournament
+is decided before it runs — not even a perfect score clears the bar (study 07:
+anchor Brier 0.026744 vs delta 0.033 put the keep bar below zero, and the
+impossibility was discovered by hand between rounds). Declare `metric.bound.ideal`
+so klein computes and discloses `h` at preflight/verify and refuses development
+runs on an infeasible frontier until it is acknowledged:
+
+```bash
+uv run --locked klein headroom ack --study studies/NN-slug --track <track> \
+  --acknowledged-by <actor> --note "re-scope: ... | run-anyway: <door-closed sentence>"
+```
+
+Name the floor's estimand in `noise_floor.estimand` (`marginal-resplit` |
+`paired-comparison`) — measure both spreads before choosing; neither is sharper
+a priori. And never read `h >= 1` as "a keep is plausible": it only means "not
+arithmetically excluded" (study 08 stood at h = 1.015 and twenty-one challengers
+produced zero keeps).
+
 ### Legacy v1 compatibility
 
 A missing `schema_version` means v1. Existing five-column ledgers and Python APIs stay

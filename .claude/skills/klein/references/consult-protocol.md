@@ -85,6 +85,17 @@ Rules for good drafting:
   `minimum_delta = max(2×std_fit, 2×SE_paired)` and record the recipe in the
   block's `method:` field (`seed-sweep` | `paired-bootstrap`); the paired analysis
   itself lives in `program.md`.
+- **After the floor lands, audit headroom — the floor can outgrow the prize.**
+  Compute `h = (incumbent − ideal) / minimum_delta` for every bounded metric
+  (Brier/logloss ideal 0, AUC ideal 1). `h < 1` means no keep is arithmetically
+  possible — re-scope (delta, estimand, data) or pre-commit a door-closed branch
+  BEFORE spending challengers. Declare `metric.bound.ideal` (+ `on_infeasible`)
+  and `noise_floor.estimand` in study.yaml so klein computes, discloses, and
+  gates this automatically (`klein headroom ack` records the run-anyway branch).
+  Study 07 ran a 4-challenger parade at h = 0.81 with no disclosure; study 08
+  registered the arithmetic first and its door-ajar frontier (h = 1.015) still
+  produced zero keeps in twenty-one attempts — `h >= 1` is "not excluded",
+  never "plausible".
 - **When the research question is a comparison, decide at CONSULT how the gap gets
   its sealed number.** One sealed access per track means a single-track study can
   confirm only the incumbent's LEVEL — the losing family never gets a sealed value,

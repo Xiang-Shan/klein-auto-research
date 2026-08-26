@@ -10,6 +10,7 @@ from . import __version__
 from .scaffold import scaffold_study
 from .workflow import (
     WorkflowError,
+    acknowledge_headroom,
     finalize,
     preflight_checks,
     record_gate,
@@ -74,6 +75,28 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--phase", help="phase id (required for 'record phase')")
         if action == "override":
             p.add_argument("--reason", required=True, help="why the gate's conclusion is being overridden")
+
+    headroom = sub.add_parser(
+        "headroom",
+        help="acknowledge a keep-infeasible frontier (headroom h < 1) before spending transactions",
+    )
+    headroom_sub = headroom.add_subparsers(dest="headroom_action", required=True)
+    headroom_ack = headroom_sub.add_parser(
+        "ack",
+        help="register awareness that no keep is arithmetically possible on a track",
+    )
+    _study_arg(headroom_ack)
+    headroom_ack.add_argument(
+        "--track", default="primary", help="track whose headroom is acknowledged"
+    )
+    headroom_ack.add_argument(
+        "--acknowledged-by", required=True, help="who acknowledged (user name or agent id)"
+    )
+    headroom_ack.add_argument(
+        "--note",
+        required=True,
+        help="registered branch: 're-scope: ...' or 'run-anyway: <pre-committed door-closed sentence>'",
+    )
 
     preflight = sub.add_parser("preflight", help="enforce gates, git, fingerprints, and ledger integrity")
     _study_arg(preflight)
@@ -221,6 +244,18 @@ def main(argv: list[str] | None = None) -> int:
             )
             past = {"record": "recorded", "override": "overridden"}[args.gate_action]
             print(f"{past} gate {args.gate}")
+            return 0
+        if args.command_name == "headroom":
+            entry = acknowledge_headroom(
+                study,
+                track=args.track,
+                acknowledged_by=args.acknowledged_by,
+                note=args.note,
+            )
+            print(
+                f"acknowledged: track {args.track!r} headroom h={entry['h']:.3f} < 1 — "
+                "the closed door is now on the record"
+            )
             return 0
         if args.command_name == "preflight":
             return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
