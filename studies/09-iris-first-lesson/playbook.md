@@ -65,3 +65,17 @@
   tabpfn 0.019730 vs anchor 0.026409. FOUR raw-better challengers (svm best,
   gap 0.0094 = 0.12×δ; and svm is h_c-closed at 0.958) — the two-level verdict
   law carries the reading: raw-better ≠ claimable.
+
+## Adaptive-3 outcomes (refreshed at the phase boundary)
+
+- Guard: 0/42 Bar-1, 0 Bar-2, 0 open rungs; fold-level sensitivity 0 — the
+  cleanest possible Branch B. Rung-60 lottery means: ONLY shrinkage positive
+  (+0.0042 = 0.15× its bar, p_guard 0.39); everyone else worse than the anchor
+  (the parade's raw-better impressions reverse under the lottery — the
+  split-lottery lesson at rung level).
+- Control separates at every rung (p=0.001 vs Bonferroni 0.0083).
+- RQ4: anchor AUC ceiling share 0.775 at rung 60 while family Briers span
+  0.029–0.215 — ranking silent, probability quality loud.
+- Sim lane: identity ≤ 8.3e-17; G1/G2/G3/G4 mechanism stories all landed; 400
+  recorded QDA×G2 failures (rank-deficient — itself the lesson).
+- Coda: Branch B manifest committed (one sealed look, band ±0.16).

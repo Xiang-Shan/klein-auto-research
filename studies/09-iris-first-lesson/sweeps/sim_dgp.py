@@ -608,7 +608,7 @@ def main() -> None:
         _print_summary(run)
 
     print("MEASUREMENT SWEEP: no winner promoted, no results.tsv row "
-          "(sweep-rules.md carve-out); simulation LANE — nothing written under studies/.")
+          "(sweep-rules.md carve-out); simulation LANE — outputs only under --out.")
 
 
 if __name__ == "__main__":

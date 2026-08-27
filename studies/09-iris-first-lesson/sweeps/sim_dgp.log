@@ -1,0 +1,20 @@
+seed domain OK: 2805 seeds, all < 2**32
+cells: 168   wall: 8.6s   recorded failures: 400
+in-worker fit+predict seconds per model (sums across cells):
+  lda                 1.4s
+  slda                3.6s
+  qda                 1.5s
+  logit_l2            3.8s
+  svm_rbf_platt      37.8s
+  hgbt               40.2s
+max |TOTAL-CHECK| over populated cells: 8.326672684688674e-17
+cells with recorded failures:
+  G2-irrelevant-dims   n=8    qda            k_effective=0 failed=100
+  G2-irrelevant-dims   n=12   qda            k_effective=0 failed=100
+  G2-irrelevant-dims   n=20   qda            k_effective=0 failed=100
+  G2-irrelevant-dims   n=30   qda            k_effective=0 failed=100
+wrote sweeps/sim_risk.tsv
+wrote sweeps/sim_cells_failed.tsv  (400 failure rows)
+MEASUREMENT SWEEP: no winner promoted, no results.tsv row (sweep-rules.md carve-out); simulation LANE — nothing written under studies/.
+runner_status: ok
+runner_exit_code: 0
