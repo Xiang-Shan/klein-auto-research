@@ -1,0 +1,198 @@
+{
+  "class_counts": {
+    "full150": {
+      "setosa": 50,
+      "versicolor": 50,
+      "virginica": 50
+    },
+    "hard_pair": {
+      "versicolor": 50,
+      "virginica": 50
+    }
+  },
+  "decimal_precision": {
+    "all_values_one_decimal": true,
+    "per_feature": {
+      "petal_length_cm": {
+        "all_values_one_decimal": true,
+        "distinct_tenths": 43,
+        "n_ending_in_zero_tenth": 13
+      },
+      "petal_width_cm": {
+        "all_values_one_decimal": true,
+        "distinct_tenths": 22,
+        "n_ending_in_zero_tenth": 13
+      },
+      "sepal_length_cm": {
+        "all_values_one_decimal": true,
+        "distinct_tenths": 35,
+        "n_ending_in_zero_tenth": 17
+      },
+      "sepal_width_cm": {
+        "all_values_one_decimal": true,
+        "distinct_tenths": 23,
+        "n_ending_in_zero_tenth": 28
+      }
+    },
+    "resolution_cm": 0.1
+  },
+  "duplicate_row_groups": {
+    "full150_indices_0based": [
+      [
+        101,
+        142
+      ]
+    ],
+    "hard_pair_full150_indices_0based": [
+      [
+        101,
+        142
+      ]
+    ],
+    "hard_pair_positions_0based": [
+      [
+        51,
+        92
+      ]
+    ],
+    "note": "identical at 0.1 cm resolution is NOT proof of duplicated record entry; the twins ruling groups rows 102/143 (1-based) rather than deleting historical data"
+  },
+  "full150_csv_convention": "pandas.DataFrame[sepal_length_cm,sepal_width_cm,petal_length_cm,petal_width_cm,species].to_csv(index=False, float_format='%.1f'), sklearn row order, LF line endings, utf-8",
+  "full150_sha256": "3a6fc062ef64e75ac2e711cf140609279c55c7d9e17c794fc15ddc46c77287a0",
+  "near_duplicates_one_feature_0p1cm": {
+    "definition": "unordered row pairs identical in three features and differing by exactly one tenth (0.1 cm) in the fourth",
+    "full150_count": 5,
+    "full150_pairs_0based": [
+      {
+        "a": 0,
+        "b": 17,
+        "feature": "petal_width_cm"
+      },
+      {
+        "a": 7,
+        "b": 39,
+        "feature": "sepal_length_cm"
+      },
+      {
+        "a": 9,
+        "b": 34,
+        "feature": "petal_width_cm"
+      },
+      {
+        "a": 10,
+        "b": 48,
+        "feature": "sepal_length_cm"
+      },
+      {
+        "a": 128,
+        "b": 132,
+        "feature": "petal_width_cm"
+      }
+    ],
+    "hard_pair_count": 1,
+    "hard_pair_pairs_positions_0based": [
+      {
+        "a": 78,
+        "b": 82,
+        "feature": "petal_width_cm"
+      }
+    ]
+  },
+  "per_feature": {
+    "full150": {
+      "petal_length_cm": {
+        "max": 6.9,
+        "min": 1.0,
+        "n_distinct": 43
+      },
+      "petal_width_cm": {
+        "max": 2.5,
+        "min": 0.1,
+        "n_distinct": 22
+      },
+      "sepal_length_cm": {
+        "max": 7.9,
+        "min": 4.3,
+        "n_distinct": 35
+      },
+      "sepal_width_cm": {
+        "max": 4.4,
+        "min": 2.0,
+        "n_distinct": 23
+      }
+    },
+    "hard_pair": {
+      "petal_length_cm": {
+        "max": 6.9,
+        "min": 3.0,
+        "n_distinct": 34
+      },
+      "petal_width_cm": {
+        "max": 2.5,
+        "min": 1.0,
+        "n_distinct": 16
+      },
+      "sepal_length_cm": {
+        "max": 7.9,
+        "min": 4.9,
+        "n_distinct": 28
+      },
+      "sepal_width_cm": {
+        "max": 3.8,
+        "min": 2.0,
+        "n_distinct": 16
+      }
+    }
+  },
+  "rows": {
+    "full150": 150,
+    "hard_pair": 100
+  },
+  "setosa_separability": {
+    "feature": "petal_length_cm",
+    "gap_others_min_minus_setosa_max": 1.1,
+    "note": "one-feature, one-threshold separation of setosa from the hard pair; descriptive census of these 150 rows, not a claim about new irises",
+    "others_max": 6.9,
+    "others_min": 3.0,
+    "separable_by_one_threshold": true,
+    "setosa_max": 1.9,
+    "setosa_min": 1.0
+  },
+  "sklearn_version": "1.9.0",
+  "uci_comparison": {
+    "cell_diff_count": 3,
+    "cell_diffs": [
+      {
+        "feature": "petal_width_cm",
+        "row_0based": 34,
+        "row_1based": 35,
+        "sklearn": 0.2,
+        "uci": 0.1
+      },
+      {
+        "feature": "sepal_width_cm",
+        "row_0based": 37,
+        "row_1based": 38,
+        "sklearn": 3.6,
+        "uci": 3.1
+      },
+      {
+        "feature": "petal_length_cm",
+        "row_0based": 37,
+        "row_1based": 38,
+        "sklearn": 1.4,
+        "uci": 1.5
+      }
+    ],
+    "note": "cell-level diff of the 150x4 measurement matrix only; sklearn's DESCR: 'the same as in R, but not as in the UCI Machine Learning Repository, which has two wrong data points'",
+    "reference_path": "../07-iris-90years/reference/uci_iris.data",
+    "reference_sha256": "6f608b71a7317216319b4d27b4d9bc84e6abd734eda7872b71a458569e2656c0",
+    "rows": 150,
+    "rows_differing_0based": [
+      34,
+      37
+    ],
+    "rows_in_agreement": 148,
+    "species_labels_agree": true
+  }
+}

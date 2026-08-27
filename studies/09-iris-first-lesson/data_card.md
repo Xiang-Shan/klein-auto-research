@@ -1,7 +1,7 @@
 <!--
-DATA gate artifact (Gate 1 hashes this file). Draft committed pre-CONSULT;
-every TBD-AT-GATE slot is filled from prepare.py / kleinlib.leakage output
-before `klein gate record data`. No slot may survive the ack.
+DATA gate artifact (Gate 1 hashes this file). Draft was committed pre-CONSULT;
+every slot below is now filled from prepare.py / kleinlib.leakage output,
+run 2026-08-27 under the registered split seed 20260912.
 -->
 
 # Data card — 09-iris-first-lesson
@@ -15,34 +15,48 @@ before `klein gate record data`. No slot may survive the ack.
   1.9.0, the locked env). Committed copy: `fixtures/iris_hard_pair.csv`,
   byte-identical to studies 07/08 (sha256
   9d67302e0fcd71bcfeb0d4cbeb739c5612f0b7d97c488842d1f8903c35f23f05, asserted
-  in-script). `species` (3-class code) is retained but NEVER a feature — the
-  registered perfect-proxy lineage from 07; features are the 4 measurement
-  columns only.
-- Setosa is dropped by registration: the full-150 audit records the separability
-  fact (TBD-AT-GATE: setosa/others petal gap from `fixtures/full150_audit.json`)
-  — with it in frame, every method looks perfect and no method question is
-  asked. The three-class problem and the 100-row hard pair answer DIFFERENT
-  questions; this study registers only the second.
+  in-script and re-verified by `--check` this run). `species` (3-class code) is
+  retained but NEVER a feature — the registered perfect-proxy lineage from 07;
+  features are the 4 measurement columns only.
+- Setosa is dropped by registration: the audit measures the separability fact —
+  setosa max petal_length 1.9 cm vs 3.0 cm minimum for the other two species, a
+  clean 1.1 cm one-feature gap — with it in frame every method looks perfect and
+  no method question gets asked. The three-class problem and the 100-row hard
+  pair answer DIFFERENT questions; this study registers only the second.
 
-## Full-150 audit (the study's data-quality question; `prepare.py --audit`)
+## Full-150 audit (the study's data-quality exhibit; `prepare.py --audit`)
 
-`fixtures/full150_audit.json`, deterministic. TBD-AT-GATE summary to record
-here after the run: full-150 sha256 · class counts · per-feature ranges +
-distinct-value counts · decimal-precision profile (expected: every value one
-decimal, 0.1 cm grid) · exact-duplicate row groups in the full table and in the
-hard pair (expected: iris rows 102/143 only, within the hard pair) ·
-near-duplicates (pairs differing in one feature by exactly 0.1) · UCI-vs-sklearn
-cell diff (expected: exactly 3 cells, setosa rows 35/38, from the committed
-07 reference bytes — errata cannot touch the hard pair).
+`fixtures/full150_audit.json` (sha256 66871dae…236702; byte-identical across
+independent processes). Measured 2026-08-27:
 
-## Provenance (inherited rulings + verification duty)
+- Full-150 canonical CSV sha256 `3a6fc062…c77287a0`; classes exactly 50/50/50.
+- **Precision:** every one of the 600 measurement values sits on the 0.1 cm
+  grid (all-one-decimal true per feature). Distinct tenths per feature —
+  full 150: sepal_length 35 · sepal_width 23 · petal_length 43 · petal_width 22;
+  hard pair: 28 · 16 · 34 · 16 (matches 07's profile). petal_width has only 22
+  distinct values over 150 flowers: the "continuous" features are coarse
+  lattices.
+- **Exact duplicates:** in the FULL 150 exactly one duplicated row-content
+  group — 0-based rows [101, 142] = iris rows 102/143, both virginica — i.e.
+  the twin pair, and nothing else. Within the hard pair: the same single pair.
+- **Near-duplicates** (identical in three features, exactly 0.1 cm apart in the
+  fourth): 5 pairs in the full 150 (four setosa–setosa, one virginica–virginica),
+  and exactly 1 inside the hard pair (virginica positions 78/82, petal_width) —
+  distinct flowers one lattice step apart; grouped-twin treatment is NOT
+  extended to them (they differ in a recorded measurement; registered ruling).
+- **UCI-vs-sklearn provenance diff**, recomputed from study 07's committed
+  read-only bytes (`../07-iris-90years/reference/uci_iris.data`): exactly
+  3 cells differ, on 0-based rows 34 and 37 (classic errata rows 35/38), both
+  setosa; 148/150 rows byte-agree. The errata cannot touch a single hard-pair
+  row — re-verified, not merely cited.
 
-Resolved and documented in study 07 (claims 07#C9/#C10/#C17) with committed
-UCI evidence at `../07-iris-90years/reference/` (read-only): sklearn ships the
-R/Fisher-corrected copy; UCI's classic file differs in 3 setosa cells; the twin
-pair is printed twice in **Fisher's own 1936 Table I** (scope qualifier binding:
-"in the forensic sources we checked", never "nobody ever noticed"). 09's audit
-RE-VERIFIES the mechanical parts from committed bytes rather than citing them.
+## Provenance (inherited rulings, re-verified where mechanical)
+
+Resolved and documented in study 07 (claims 07#C9/#C10/#C17) with committed UCI
+evidence: sklearn ships the R/Fisher-corrected copy; UCI's classic file differs
+in 3 setosa cells (re-verified above); the twin pair is printed twice in
+**Fisher's own 1936 Table I** (scope qualifier binding: "in the forensic
+sources we checked", never "nobody ever noticed").
 
 ## The twin rows — grouped, never deleted (inherited ruling, re-enforced)
 
@@ -55,33 +69,44 @@ all 20 metrology redraws, all arena folds and rung subsets, and every inner CV
 
 ## Declared split — materialized (seed 20260912, group-aware 60/20/20; 20260909 RETIRED pre-gate, scouting_ledger S10)
 
-TBD-AT-GATE from `prepare.py` + `three_way_split`: train n=? (class mix ?) ·
-development n=? (?) · sealed n=? (?; ±1 group wobble expected) · twins landed
-in: ? · **whether any multi-row group sits in the NON-SEALED pool: ?** (this
-line decides nothing — every inner CV is group-aware regardless — but it is the
-disclosure that 08's non-group cv=3 lawfulness argument does or does not port (under the retired 20260909 a staging measurement put the twins in TRAIN; 20260912 is measured fresh at this gate)).
-Split fingerprint + prepared-data sha256: recorded by the gate itself.
+Measured this run via the contract's `three_way_split`:
+
+- train n=60 (28 virginica / 32 versicolor) · development n=20 (11/9) ·
+  sealed n=20 (11/9) — the group machinery landed exactly on 60/20/20 this
+  time (no ±1 wobble under this seed).
+- **Twins landed in TRAIN** ⇒ a multi-row group (`twins102-143`) SITS IN THE
+  NON-SEALED POOL. Consequence, exactly as pre-registered: study 08's
+  "row-level cv=3 is lawful because no multi-row group is in the pool" argument
+  does NOT hold here; every inner CV in this study is group-aware by
+  construction (method card §2/§4), and that amendment is load-bearing, not
+  decorative.
+- Split fingerprint + prepared-data sha256: recorded by the DATA gate ack
+  itself (study_state.json `fingerprints`).
 
 ## Ranked go / no-go issues
 
 1. Fully scouted data (third study) — mitigated by the prospective lock, the
    disclosure header, and the procedurally-fresh-seal language. GO-able.
-2. Twin rows — ruled (grouped). 3. Sealed class imbalance under a group split —
+2. Twin rows — ruled (grouped). 3. Sealed class mix 11/9 under a group split —
    documented consequence, not a defect (07 precedent). 4. TabPFN checkpoint
    availability — spike PASSED pre-consult (scouting S7).
 
 ## Clean-room leakage audit
 
-Mechanized rows 3–4 via `uv run --no-sync python -m kleinlib.leakage
-data/prepared/iris_hard_pair.csv --target is_virginica --study .`:
-TBD-AT-GATE (expect 6/6 checks pass, exit 0 — split-reproduces, duplicate-rows
-non-straddle, group-overlap, metric-direction, constant-chance ~0.25,
-shuffled-chance ~0.5). Judgment rows 1–2: no target leakage (features are
-physical measurements; `species` excluded by the frozen feature list); no
+`uv run --no-sync python -m kleinlib.leakage data/prepared/iris_hard_pair.csv
+--target is_virginica --study .` → **9/9 checks passed, exit 0** (both tracks):
+split-reproduces (60/20/20 deterministic from study.yaml) · duplicate-rows
+(no row content straddles partitions) · group-overlap (99 normalized ids each
+in one partition) · metric-direction (val_brier lower, both tracks) ·
+constant-chance val_brier 0.2544 · shuffled-chance val_brier 0.5000 (primary
+stream) / 0.3000 (challenger stream; per-track RNG streams differ — tool
+output recorded as printed). Judgment rows 1–2: no target leakage (features
+are physical measurements; `species` excluded by the frozen feature list); no
 lookahead (no time axis).
 
 ## Go / no-go
 
-TBD-AT-GATE — the line below is written only after every slot above is filled:
-(expected form) **Decision: GO** — lineage re-verified from committed bytes,
-twins ruling enforced at every split, leakage audit 6/6, fingerprints frozen.
+**Decision: GO** — lineage re-verified from committed bytes (3-cell UCI diff,
+setosa-only), the single exact-duplicate group ruled and enforced at every
+split, leakage audit 9/9, fixture byte-identical to 07/08, fingerprints frozen
+at this ack.
