@@ -1,0 +1,26 @@
+/Users/xiang/Claude/Auto_research/klein-auto-research/.venv/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1403: FutureWarning: 'penalty' was deprecated in version 1.8 and will be removed in 1.10. To avoid this warning, leave 'penalty' set to its default value and use 'l1_ratio' or 'C' instead. Use l1_ratio=0 instead of penalty='l2', l1_ratio=1 instead of penalty='l1', l1_ratio set to a float between 0 and 1 instead of penalty='elasticnet', and C=np.inf instead of penalty=None.
+  warnings.warn(
+---
+primary_metric:    0.028349
+metric_name:       val_brier
+metric_goal:       lower
+training_seconds:  0.1
+total_seconds:     0.1
+train_rows:        60
+val_rows:          20
+status:            ok
+--- aux_metrics ---
+val_pr_auc:        1.000000
+val_logloss:       0.078366
+val_brier:         0.028349
+val_lift_top10:    3.3333
+val_best_threshold: 0.1000
+val_f1_at_best:    1.0000
+wall_seconds:      0.083734
+val_logloss: 0.0783670372592955
+val_accuracy: 0.95
+val_f1: 0.9090909090909091
+cal_intercept: 17.453582188005065
+cal_slope: 10.623607086818227
+runner_status: ok
+runner_exit_code: 0

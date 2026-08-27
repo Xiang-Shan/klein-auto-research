@@ -1,0 +1,372 @@
+{
+ "study": "09-iris-first-lesson",
+ "branch": "experiments/09-iris-first-lesson",
+ "git_head": "f6686f2811ee5a07dcf01428cc545435cf990e09",
+ "generated": "2026-08-27",
+ "law": "deck numbers.py reads ONLY this file (third lock beside 07/08 under R9_ keys); any deck/script number not traceable here fails the build; every claim carries exactly one class from claims_discipline.claim_classes; erratum tags re-scope, never delete",
+ "artifacts": {
+  "results": {
+   "path": "studies/09-iris-first-lesson/results.tsv",
+   "sha256": "28b9a61a95db6e742b31e247d29033713d35eb3b73ef1fd11cdfb13bebddbde3"
+  },
+  "contract": {
+   "path": "studies/09-iris-first-lesson/study.yaml",
+   "sha256": "44510480151c287ff528ad91287f95bb6813ac8e3f5780462c12b24c68b99361"
+  },
+  "findings": {
+   "path": "studies/09-iris-first-lesson/findings.md",
+   "sha256": "ec8cca197cde7550597925b9d4eaa81afea5a116c763b75ebbd8f4c33bb2e5d7"
+  },
+  "floors": {
+   "path": "studies/09-iris-first-lesson/sweeps/candidate_floors.tsv",
+   "sha256": "00c3a2bab119aa78c9430faa9e8a156db545fa6d8baca979c193a309c15b48e6"
+  },
+  "rq0": {
+   "path": "studies/09-iris-first-lesson/sweeps/rq0_headroom.tsv",
+   "sha256": "9b74bd8a26f6234ad56d7a1d202be05fd1b9a209e734e8963ed7d6b4d88e99e2"
+  },
+  "rungs": {
+   "path": "studies/09-iris-first-lesson/sweeps/headroom.tsv",
+   "sha256": "1fc461992106969d19a90b51a6c51e98473d4a53ba9b89744e09320eb4bb4d30"
+  },
+  "verdicts": {
+   "path": "studies/09-iris-first-lesson/sweeps/arena_verdicts.tsv",
+   "sha256": "06d815dd24dc9636bae8b3fe8258f84b058812738231cf8303a52d39ec769af7"
+  },
+  "rq4": {
+   "path": "studies/09-iris-first-lesson/sweeps/rq4_saturation.tsv",
+   "sha256": "74cef57c46aa7177fe24ecd539afc9211110fba8a4d7d7dd5ea4778a69ea2d9f"
+  },
+  "sim": {
+   "path": "studies/09-iris-first-lesson/sweeps/sim_risk.tsv",
+   "sha256": "bbd496aff87f6654abff33d6cce3698330877d839ca3b2982fb7947131bb8948"
+  },
+  "sim_failures": {
+   "path": "studies/09-iris-first-lesson/sweeps/sim_cells_failed.tsv",
+   "sha256": "463bdf59f235e8832b929136a4f062c142607b9fef658337440d45892480e96e"
+  },
+  "coda": {
+   "path": "studies/09-iris-first-lesson/sweeps/coda_manifest.json",
+   "sha256": "f4348e52326b3938490be8fc539af0915fd32894dae7452437ed3aa60741faf8"
+  },
+  "analysis_log": {
+   "path": "studies/09-iris-first-lesson/sweeps/analysis.log",
+   "sha256": "ce31edaeef1e91844300f02a4e63a9663d7cf3cce55a2fb0216ff646120098c3"
+  },
+  "verify_log": {
+   "path": "studies/09-iris-first-lesson/sweeps/klein_verify.capture.log",
+   "sha256": "e0d4a578849c274c895ab535eea13f27e80df0d811d6bb99e32f7c292b5901c0"
+  },
+  "audit": {
+   "path": "studies/09-iris-first-lesson/fixtures/full150_audit.json",
+   "sha256": "66871daeffb57544f30075f5605681158e0446dd1ea0a06b755653fb31236702"
+  },
+  "metrology": {
+   "path": "studies/09-iris-first-lesson/sweeps/metrology_paired.sidecar.tsv",
+   "sha256": "55facbbdd79ad71d1139d9d37047c94b66ee45adffae4da05bba2262d758f16b"
+  },
+  "partitions": {
+   "path": "studies/09-iris-first-lesson/sweeps/arena_partitions.tsv",
+   "sha256": "fb68eb35dab3c864131ac8236a05dce5c85c45dac9ec5ff1cac4f3dbdd9fad12"
+  }
+ },
+ "claims": {
+  "anchor_dev_brier": {
+   "value": 0.02640880749483023,
+   "artifact": "results",
+   "claim": "C1",
+   "class": "empirical-description",
+   "note": "E0001 anchor_lda4, declared split seed 20260912, keep [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
+  },
+  "minimum_delta": {
+   "value": 0.08,
+   "artifact": "floors",
+   "claim": "C1",
+   "class": "procedural-verdict",
+   "note": "ceil3dp(max over 7 challenger paired floors); binding hgbt 0.07959988633051922; controls excluded by registration"
+  },
+  "ledger_h": {
+   "value": 0.33011009368537786,
+   "artifact": "rq0",
+   "claim": "C1",
+   "class": "procedural-verdict",
+   "note": "h = anchor_declared_dev/delta; DOOR-CLOSED, pre-committed ack recorded BEFORE any challenger arena number [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
+  },
+  "permission_open": {
+   "value": {
+    "lda_shrinkage": 1.569404577368469,
+    "logit_l2": 1.3636722555538618,
+    "qda": 1.2882350463965764,
+    "tabpfn": 1.2277731014509294
+   },
+   "artifact": "rq0",
+   "claim": "C2",
+   "class": "empirical-description",
+   "note": "h_c = anchor_metrology_mean/floor_c; h>=1 means only not-arithmetically-excluded, never plausible"
+  },
+  "permission_closed": {
+   "value": {
+    "svm_rbf_platt": 0.9582177078285449,
+    "knn_tuned": 0.5897150727736206,
+    "hgbt": 0.5405679829909793
+   },
+   "artifact": "rq0",
+   "claim": "C2",
+   "class": "empirical-description",
+   "note": "measurement-closed: cannot be won at their own resolution; results descriptive only"
+  },
+  "anchor_metrology_mean": {
+   "value": 0.04302915,
+   "artifact": "floors",
+   "claim": "C2",
+   "class": "empirical-description",
+   "note": "anchor marginal mean Brier over the 20 paired redraws; the h_c numerator - NEVER conflate with anchor_dev_brier (ledger-h numerator)"
+  },
+  "paired_vs_marginal": {
+   "value": "2/7",
+   "artifact": "floors",
+   "claim": "C3",
+   "class": "empirical-description",
+   "note": "REGISTERED PREDICTION FALSIFIED (>=5/7 registered): only knn 0.0730 and hgbt 0.0796 exceed the anchor marginal 2*std 0.050083408940118666 on this geometry - floor width is geometry-dependent; measure both, name the estimand"
+  },
+  "parade": {
+   "value": {
+    "transactions": 7,
+    "keeps": 0,
+    "crashes": 0,
+    "raw_better": 4
+   },
+   "artifact": "results",
+   "claim": "C5",
+   "class": "empirical-description",
+   "note": "E0004-E0010 all discard under the acked DOOR-CLOSED scalar; svm 0.016995 qda 0.019434 tabpfn 0.01973 logit 0.025256 beat the anchor RAW on the one declared split [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
+  },
+  "parade_best_gap": {
+   "value": "0.0094 = 0.12x delta (svm_rbf_platt; its own comparison h_c-closed at 0.958)",
+   "artifact": "results",
+   "claim": "C5",
+   "class": "empirical-description",
+   "note": "raw-better is not claimable: best gap is 0.12x the scalar bar and 0.21x svm's own floor [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
+  },
+  "rung60_board": {
+   "value": {
+    "lda_shrinkage": 0.004171,
+    "tabpfn": -0.003983,
+    "qda": -0.005546,
+    "logit_l2": -0.006875,
+    "knn_tuned": -0.010625,
+    "svm_rbf_platt": -0.011733,
+    "hgbt": -0.059501
+   },
+   "artifact": "verdicts",
+   "claim": "C5",
+   "class": "empirical-description",
+   "note": "mean paired gain vs anchor across the rung-60 lottery (positive = challenger better): ONLY shrinkage positive, 0.15x its own bar, guard score 0.3916 - the declared-split impressions REVERSE under the lottery"
+  },
+  "guard": {
+   "value": {
+    "bar1_cleared": "0/42",
+    "bar2": 0,
+    "open_rungs": 0,
+    "sensitivity_cells": 0
+   },
+   "artifact": "verdicts",
+   "claim": "C4",
+   "class": "procedural-verdict",
+   "note": "repeat-level sign-flip max-t, full 1024 enumeration, adjusted <= 51/1024; a registered selection guard under a symmetry assumption - never FWER/population inference; 42-cell family NOT comparable to 08's 113"
+  },
+  "ladder": {
+   "value": {
+    "m60": 0.033239,
+    "m8": 0.105488,
+    "sd60": 0.033601,
+    "sd8": 0.086718,
+    "delta60": 0.068,
+    "delta8": 0.174
+   },
+   "artifact": "rungs",
+   "claim": "C6",
+   "class": "empirical-description",
+   "note": "nominal rungs (realized n_actual <= nominal, distribution in partitions); ALL SIX CLOSED: 60/45/30/20 ceiling-closed, 12/8 fog-closed; small n blinds the instrument faster than it separates the families"
+  },
+  "rung8_leaders": {
+   "value": {
+    "lda_shrinkage": 0.040481,
+    "qda": 0.028544,
+    "tabpfn": 0.026513
+   },
+   "artifact": "verdicts",
+   "claim": "C7",
+   "class": "empirical-description",
+   "note": "descriptive board at nominal rung 8, all inside the 0.174 fog floor (<=0.23x); shrinkage >=0.02 lever HELD; mechanism reading lives in the simulation lane only"
+  },
+  "kseed_std": {
+   "value": 0,
+   "artifact": "analysis_log",
+   "claim": "C7",
+   "class": "empirical-description",
+   "note": "k-seed sweep degenerate: std exactly 0 (closed-form LDA) - zero algorithmic fit randomness under fixed inputs, NOTHING more"
+  },
+  "petal": {
+   "value": {
+    "declared": 0.03135,
+    "rung60_mean": 0.04826
+   },
+   "artifact": "results",
+   "claim": "C8",
+   "class": "empirical-description",
+   "note": "petal-only LDA retains most probability quality vs anchor 0.026409/0.033239 [declared value: E1 retired-partition scope; rung60_mean is arena/clean]",
+   "erratum": "E1-partial"
+  },
+  "sepal": {
+   "value": {
+    "declared": 0.156308,
+    "rung60_mean": 0.214629,
+    "worsening_rungs": "6/6 at p=0.0010 vs Bonferroni 0.0083"
+   },
+   "artifact": "verdicts",
+   "claim": "C9",
+   "class": "procedural-verdict",
+   "note": "positive control FIRED everywhere: the instrument that closed every contest still sees a real difference - closures are resolution, not blindness [declared value: E1 retired-partition scope; rung/worsening values are arena/clean]",
+   "erratum": "E1-partial"
+  },
+  "rq4": {
+   "value": {
+    "pooled_auc_ceiling_60": 0.55,
+    "anchor_auc_ceiling_60": 0.775,
+    "brier_span_60": "0.029-0.215",
+    "logloss_span_60": "0.093-0.618"
+   },
+   "artifact": "rq4",
+   "claim": "C10",
+   "class": "empirical-description",
+   "note": "ranking saturates while probability quality separates - the registered reason Brier is primary"
+  },
+  "sim_identity": {
+   "value": 8.326672684688674e-17,
+   "artifact": "sim",
+   "claim": "C11",
+   "class": "known-dgp-teaching",
+   "note": "max |total-(irr+bias2+var)| across 164 populated cells; plug-in decomposition over 100 registered draws, ddof=0, analytic E_Y - never the true iris DGP, never an empirical decomposition of 07-09"
+  },
+  "sim_g1": {
+   "value": {
+    "irr": 0.1112853,
+    "lda_n8_total": 0.152878,
+    "slda_n8_total": 0.1479213,
+    "lda_n500_total": 0.1118374
+   },
+   "artifact": "sim",
+   "claim": "C11",
+   "class": "known-dgp-teaching",
+   "note": "LDA's world: everyone converges to the irreducible floor; at n=8 shrinkage edges plain LDA by variance"
+  },
+  "sim_g2_qda_failures": {
+   "value": 400,
+   "artifact": "sim_failures",
+   "claim": "C11",
+   "class": "known-dgp-teaching",
+   "note": "QDA unfittable (rank-deficient covariance) on the 18-feature DGP for n<=30 - recorded failures, published as data: flexible covariance exits rather than degrades"
+  },
+  "sim_g3": {
+   "value": {
+    "lda_bias2_n500": 0.0319805,
+    "qda_bias2_n500": 0.0014002
+   },
+   "artifact": "sim",
+   "claim": "C11",
+   "class": "known-dgp-teaching",
+   "note": "unequal covariance: QDA's structural win - LDA's bias does not wash out with n"
+  },
+  "sim_g4": {
+   "value": {
+    "linear_total_n500": 0.2509295,
+    "hgbt_total_n500": 0.050901,
+    "hgbt_n8_var": 0.0
+   },
+   "artifact": "sim",
+   "claim": "C11",
+   "class": "known-dgp-teaching",
+   "note": "XOR: the linear family plateaus marginally WORSE than the constant predictor's 0.25; hgbt at n=8 IS the constant predictor (var exactly 0)"
+  },
+  "sealed_T1": {
+   "value": {
+    "experiment": "E0011",
+    "disposition": "crash",
+    "values_observed": 0
+   },
+   "artifact": "coda",
+   "claim": "C14",
+   "class": "procedural-verdict",
+   "note": "Branch-B single sealed look CRASHED at column resolution (manifest-key seam), upstream of any data access; the seal spends on a crash by law; band |sealed-0.026409|<=0.16 UNFULFILLED; no retry exists, none attempted; the pre-committed bei-er-bu-yong sentence is the verdict, read verbatim"
+  },
+  "sealed_T2": {
+   "value": "NOT FIRED by rule",
+   "artifact": "coda",
+   "claim": "C14",
+   "class": "procedural-verdict",
+   "note": "Branch B: no challenger cleared its own bar + the guard, so the challenger seal stays shut (pre-registered)"
+  },
+  "finalize_label": {
+   "value": "exploratory",
+   "artifact": "verify_log",
+   "claim": "C14",
+   "class": "procedural-verdict",
+   "note": "protocol-completion label, pre-registered as the Branch-B outcome; never scientific language"
+  },
+  "verify": {
+   "value": "19 checks, 0 failed",
+   "artifact": "verify_log",
+   "claim": "C14",
+   "class": "procedural-verdict",
+   "note": "klein verify captured under run_with_log; the committed log IS the verify evidence"
+  },
+  "audit_full150": {
+   "value": {
+    "sha256": "3a6fc062ef64e75ac2e711cf140609279c55c7d9e17c794fc15ddc46c77287a0",
+    "exact_dup_groups": "[101,142] only (0-based) = iris rows 102/143",
+    "near_dups": "5 full-150 / 1 hard-pair (one 0.1cm step)",
+    "uci_diff_cells": 3,
+    "setosa_gap_cm": 1.1,
+    "grid": "all 600 values on the 0.1 cm lattice",
+    "petal_width_distinct": 22
+   },
+   "artifact": "audit",
+   "claim": "C13",
+   "class": "empirical-description",
+   "note": "the dataset is not innocent: provenance re-verified from committed bytes; precision is a coarse lattice; the only exact duplicate is the twin pair"
+  },
+  "twins": {
+   "value": "(5.8, 2.7, 5.1, 1.9) x2, iris rows 102/143, one group, printed twice in Fisher 1936 Table I",
+   "artifact": "audit",
+   "claim": "C13",
+   "class": "empirical-description",
+   "note": "scope qualifier binding: 'in the forensic sources we checked'; never deleted, always travel together"
+  },
+  "s10_retirement": {
+   "value": "split seed 20260909 retired pre-gate; re-registered 20260912",
+   "artifact": "contract",
+   "claim": "C13",
+   "class": "research-discipline",
+   "note": "a staging smoke scored dev+sealed Briers under the candidate seed; logs deleted; 07 seed-42 precedent; agent smokes synthetic-only law registered"
+  },
+  "lda_reading": {
+   "value": "inductive-bias match (interpretation)",
+   "artifact": "findings",
+   "claim": "C12",
+   "class": "mechanism-interpretation",
+   "note": "four nearly sufficient, nearly Gaussian features, ~linear boundary, small n, shared-covariance regularization; the same reading predicts the G3/G4 inversions - kou-jing: interpretation, not a registered decomposition"
+  },
+  "erratum_e1": {
+   "value": "train.py:78 seed=20260909 (retired) vs contract 20260912",
+   "artifact": "findings",
+   "claim": "C15",
+   "class": "procedural-verdict",
+   "note": "ledger lane E0001-E0011 on the retired partition (mislabeled + S10-contaminated); every sweep contract-driven on 20260912 (floors, RQ0 candidate map, arena, guard, RQ4, sim all clean); sealed rows untouched by the ledger under either seed (E0011 crashed pre-data); no re-run (finalized); friction #5 filed (no evaluator-vs-contract split-consistency check)"
+  }
+ }
+}

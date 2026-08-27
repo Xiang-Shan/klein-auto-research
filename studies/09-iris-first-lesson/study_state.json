@@ -1,0 +1,131 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "fable-5-orchestrator",
+      "timestamp": "2026-08-27T08:10:54.827916Z"
+    },
+    "data": {
+      "by": "fable-5-orchestrator",
+      "timestamp": "2026-08-27T08:00:36.290901Z"
+    },
+    "method": {
+      "by": "fable-5-orchestrator",
+      "timestamp": "2026-08-27T07:59:40.375309Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "35a1e68c6f4e2faee741f8fb6f62a3f3b78657c51960ae2835c3d7eb09bfbde8",
+    "method_card.md": "848b65c2c50b7afe35fbe65f0343f19ebc9d9b486cf136457fbdce4929373e70",
+    "research_plan.md": "769997c72506be22156424a9acd0546f957d587aa981b1ff3a817c4da4390359",
+    "study.yaml": "44510480151c287ff528ad91287f95bb6813ac8e3f5780462c12b24c68b99361"
+  },
+  "created_at": "2026-08-27T07:08:26.298709Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "challenger": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "primary": {
+      "accessed_at": "2026-08-27T08:21:29.556082Z",
+      "count": 1,
+      "experiment": "E0011"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "challenger": 0,
+      "primary": 1
+    },
+    "label": "exploratory",
+    "successful_confirmation": {
+      "challenger": null,
+      "primary": null
+    },
+    "timestamp": "2026-08-27T08:24:07.068562Z"
+  },
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "split": "007fecba7fc55610c3f4543b1edc050e0733708d908cec41852d5757731cad11"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-08-27T08:10:54.827916Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "artifacts": {
+        "program.md": "301a0256668c5eb948f58950fa3a513693105ad01ef873cf50ed0b16b3ae0039",
+        "research_plan.md": "769997c72506be22156424a9acd0546f957d587aa981b1ff3a817c4da4390359",
+        "study.yaml": "44510480151c287ff528ad91287f95bb6813ac8e3f5780462c12b24c68b99361"
+      },
+      "note": "consult re-record after the registered metrology paste: minimum_delta 0.08 = ceil3dp(max challenger floor_c), binding hgbt 0.07959988633051922; noise_floor estimand paired-comparison on both tracks; paired-vs-marginal prediction FALSIFIED on this geometry (2/7 exceed the anchor marginal, vs >=5/7 registered) - recorded for the findings scorecard",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-08-27T08:00:36.290901Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "artifacts": {
+        "data_card.md": "35a1e68c6f4e2faee741f8fb6f62a3f3b78657c51960ae2835c3d7eb09bfbde8"
+      },
+      "note": "data card GO: fixture sha 9d67302e (07/08-identical), audit sha 66871dae, split 60/20/20 seed 20260912, twins in TRAIN (multi-row group in pool: group-aware inner CV load-bearing), leakage 9/9. Recorded after the method ack due to a decision-line format retry; all three gates verified before any transaction.",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-08-27T07:59:40.375309Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "artifacts": {
+        "method_card.md": "848b65c2c50b7afe35fbe65f0343f19ebc9d9b486cf136457fbdce4929373e70"
+      },
+      "note": "method card frozen: roster of 7 challengers + 2 controls + anchor, per-candidate paired floor rule (challengers-only max, ceil3dp, raise-only, blindness clause), 42-cell guard, arena geometry, group-aware coda amendment, agent-smoke law; frozen analysis clause armed",
+      "status": "recorded"
+    }
+  },
+  "headroom": {
+    "primary": {
+      "acknowledged_at": "2026-08-27T08:11:27.429456Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "h": 0.3301125,
+      "ideal": 0.0,
+      "incumbent": 0.026409,
+      "infeasible": true,
+      "minimum_delta": 0.08,
+      "note": "run-anyway: pre-registered DOOR-CLOSED branch \u2014 the scalar ledger delta is the widest challenger's paired floor, so h<1 was the RQ0 prior; the arena with per-candidate floors and the selection guard is the registered evidence; ledger-scale keeps are acknowledged arithmetically impossible; no re-scope, no redraw; see sweeps/rq0_headroom.tsv"
+    }
+  },
+  "last_experiment": 11,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-08-27T08:11:59.454760Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "note": "registered ladder complete: E0001 keep 0.026409, controls E0002 0.03135 / E0003 0.156308 discard; k-seed degenerate std=0; paired floors measured (binding hgbt -> delta 0.08, consult re-recorded); RQ0 published pre-Stage-B (ledger DOOR-CLOSED h=0.330, ack recorded; 4 candidate comparisons open, 3 measurement-closed); Stage-A arena committed. Playbook refreshed.",
+      "playbook_sha256": "0f1d267076a06f79efa283aa1cd5243092680b1a1fb9660fa23c8d3a05843fd8"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-08-27T08:13:43.034204Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "note": "parade complete: E0004-E0010 all discard, 0 crash; best raw gap svm_rbf_platt 0.0094 = 0.12x scalar delta (and its own floor is h_c-closed); per-candidate readings live in RQ0 + the arena",
+      "playbook_sha256": "4eec04987c72cd0b454b761587e0314b79a5ca3b0ab0a9c8f3a65218bfa29bbe"
+    },
+    "adaptive-3": {
+      "acknowledged_at": "2026-08-27T08:18:35.063746Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "note": "arena + analysis complete: 0/42 guard, 0 Bar-2, all rungs closed, sensitivity 0; control fired at every rung; RQ4 ceiling 0.775 at rung 60; sim identity green; coda_manifest Branch B committed before confirmation",
+      "playbook_sha256": "19b0dea256274ad62fc0282907a76fc2d48579ec42fcb0693aaabfb6290bd7ff"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-08-27T08:21:26.823775Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "note": "entering confirmation per Branch-B coda_manifest: ONE sealed look (coda_primary, band |sealed-0.026409|<=0.16); challenger seal stays shut by pre-registered rule; sentences pre-committed in program.md are the only sealed vocabulary",
+      "playbook_sha256": "19b0dea256274ad62fc0282907a76fc2d48579ec42fcb0693aaabfb6290bd7ff"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/data/prepared/iris_hard_pair.csv",
+    "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
+  },
+  "schema_version": 2,
+  "status": "finalized",
+  "study_id": "09-iris-first-lesson",
+  "updated_at": "2026-08-27T08:24:07.068567Z"
+}

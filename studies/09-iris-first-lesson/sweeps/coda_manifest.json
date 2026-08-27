@@ -1,0 +1,24 @@
+{
+  "branch": "B",
+  "families": {
+    "coda_primary": "anchor_lda4",
+    "coda_challenger": null
+  },
+  "train_positions": [],
+  "positions_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "bands": {
+    "primary": {
+      "kind": "abs",
+      "center": 0.02640880749483023,
+      "half_width": 0.16,
+      "note": "|sealed - E0001 declared dev| <= 2 x minimum_delta (07/08 convention)"
+    },
+    "challenger": null
+  },
+  "selection": {
+    "rule": "Branch A iff >=1 Bar-2 cell at rung 60; winner = largest guard t among those qualifiers, ties -> registry order",
+    "winner": null,
+    "t": null,
+    "n_qualifiers_at_rung_60": 0
+  }
+}

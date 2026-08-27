@@ -1,0 +1,4 @@
+experiment	track	path	metric	primary_name	metric_goal	sha256	available	created_utc
+E0001	primary	models/best_primary_E0001_0.0264088_5643113e72b7.joblib	0.026408807494830228	val_brier	lower	3447ff1c5221136e66eba2e6db0706871d70acaf0791113da33d59c8deb6ceeb	true	2026-08-27T08:04:49.562208+00:00
+E0005	primary	models/best_primary_E0005_0.0194338_4a24ab85f5e4.joblib	0.0194337967525469	val_brier	lower	8ab67fe3dcb2f23645ef9d7a34563344a531f4bdd8b57b55cba1b28c640e6fe8	true	2026-08-27T08:13:00.384431+00:00
+E0008	primary	models/best_primary_E0008_0.0169952_601f645e2abe.joblib	0.016995204115377142	val_brier	lower	10a45335c7e4df9ddfeeba269cd402f9b5865528d7af6dd60e541d3fa4a7ac67	true	2026-08-27T08:13:12.122859+00:00

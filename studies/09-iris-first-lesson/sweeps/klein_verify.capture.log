@@ -1,0 +1,22 @@
+[OK] study contract: schema_version 2 contract valid
+[OK] noise floor: track 'primary': minimum_delta 0.08 vs measured seed std 0.0397999
+[OK] noise floor: track 'challenger': minimum_delta 0.08 vs measured seed std 0.0397999
+[OK] study state: study_state.json loaded
+[OK] git repository: /Users/xiang/Claude/Auto_research/klein-auto-research
+[OK] phase ladder: current='confirmation'; ladder consistent
+[OK] gate consult: status=recorded
+[OK] gate data: status=recorded
+[OK] gate method: status=recorded
+[OK] gate artifact hashes: match
+[OK] event chain: valid
+[OK] prepared-data fingerprint: current=83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f; recorded=83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f
+[OK] split fingerprint: current=007fecba7fc55610c3f4543b1edc050e0733708d908cec41852d5757731cad11; recorded=007fecba7fc55610c3f4543b1edc050e0733708d908cec41852d5757731cad11
+[OK] ledger integrity: derived view matches manifests
+[OK] transactions: none pending
+[OK] headroom: track 'primary': h = (0.026409 - 0) / 0.08 = 0.330 < 1 — infeasible, acknowledged by fable-5-orchestrator at 2026-08-27T08:11:27.429456Z: run-anyway: pre-registered DOOR-CLOSED branch — the scalar ledger delta is the widest challenger's paired floor, so h<1 was the RQ0 prior; the arena with per-candidate floors and the selection guard is the registered evidence; ledger-scale keeps are acknowledged arithmetically impossible; no re-scope, no redraw; see sweeps/rq0_headroom.tsv
+[OK] headroom: track 'challenger': bound declared; no incumbent yet (or no measured minimum_delta) — audited at first keep
+[OK] train.py: syntax valid
+[OK] guardrail visibility: every declared guardrail metric is printed by the evaluator or named in the study's Python sources
+summary: 19 checks, 0 failed
+runner_status: ok
+runner_exit_code: 0

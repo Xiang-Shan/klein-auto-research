@@ -1,0 +1,73 @@
+==============================================================================
+09 ANALYSIS — frozen at the METHOD gate. No fitting happens in this file.
+==============================================================================
+SEED DISCLOSURE: sensitivity seed 2026101500 also equals the arena subset seed at (repeat 2, fold 0) = 2026099300 + 200. Two unrelated
+RNG consumers, one integer; determinism unaffected, disjointness imperfect.
+
+guard family: 42 cells fixed by the eligibility matrix; 42 live, 0 never-firing placeholders
+joint sign-flip guard: FULL enumeration of 1024 repeat-level flips (grid 1/1024; Bar-1 clears at adjusted score <= 0.05)
+wrote /Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/sweeps/arena_verdicts.tsv
+  Bar-2 = Bar-1 AND mean_gain >= floor_c (CANDIDATE-specific, from candidate_floors.tsv) AND rung OPEN (m_n >= delta_n).
+  delta_n governs the RUNG's openness; floor_c governs the CANDIDATE's bar. Never swapped.
+
+=== CONTROL (lda_sepal, one-sided WORSENING, Bonferroni) ===
+  Bonferroni across 6 measurable rung(s): alpha = 0.00833333 (registered 0.05/6 when all six are measurable)
+  rung 60: mean worsening +0.1814  t=50.17  p=0.0010  SEPARATES
+  rung 45: mean worsening +0.1808  t=57.45  p=0.0010  SEPARATES
+  rung 30: mean worsening +0.1882  t=39.29  p=0.0010  SEPARATES
+  rung 20: mean worsening +0.1863  t=25.18  p=0.0010  SEPARATES
+  rung 12: mean worsening +0.1862  t=11.06  p=0.0010  SEPARATES
+  rung  8: mean worsening +0.1505  t=10.01  p=0.0010  SEPARATES
+  -> control separated at every measurable rung (RQ3 verdict basis)
+
+=== SUFFICIENCY EXHIBIT (lda_petal, DESCRIPTIVE ONLY) ===
+  rung 60: mean petal-only WORSENING +0.0150 = 0.22 x delta_n  (no guard, no bar, no verdict)
+  rung 45: mean petal-only WORSENING +0.0129 = 0.19 x delta_n  (no guard, no bar, no verdict)
+  rung 30: mean petal-only WORSENING +0.0102 = 0.15 x delta_n  (no guard, no bar, no verdict)
+  rung 20: mean petal-only WORSENING +0.0031 = 0.03 x delta_n  (no guard, no bar, no verdict)
+  rung 12: mean petal-only WORSENING -0.0095 = -0.06 x delta_n  (no guard, no bar, no verdict)
+  rung  8: mean petal-only WORSENING -0.0207 = -0.12 x delta_n  (no guard, no bar, no verdict)
+
+=== RQ4 SATURATION (ranking gauges vs probability gauges) ===
+wrote /Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/sweeps/rq4_saturation.tsv  (198 rows)
+  rung 60 val_auc     pooled ceiling share 0.550  (n=400, NA=0)  mean brier 0.062289  mean logloss 0.239172
+  rung 60 val_pr_auc  pooled ceiling share 0.550  (n=400, NA=0)  mean brier 0.062289  mean logloss 0.239172
+  rung 60 val_f1      pooled ceiling share 0.275  (n=400, NA=0)  mean brier 0.062289  mean logloss 0.239172
+  rung 45 val_auc     pooled ceiling share 0.495  (n=400, NA=0)  mean brier 0.063442  mean logloss 0.242465
+  rung 45 val_pr_auc  pooled ceiling share 0.495  (n=400, NA=0)  mean brier 0.063442  mean logloss 0.242465
+  rung 45 val_f1      pooled ceiling share 0.242  (n=400, NA=0)  mean brier 0.063442  mean logloss 0.242465
+  rung 30 val_auc     pooled ceiling share 0.477  (n=400, NA=0)  mean brier 0.068228  mean logloss 0.260354
+  rung 30 val_pr_auc  pooled ceiling share 0.477  (n=400, NA=0)  mean brier 0.068228  mean logloss 0.260354
+  rung 30 val_f1      pooled ceiling share 0.237  (n=400, NA=0)  mean brier 0.068228  mean logloss 0.260354
+  rung 20 val_auc     pooled ceiling share 0.412  (n=400, NA=0)  mean brier 0.075015  mean logloss 0.289482
+  rung 20 val_pr_auc  pooled ceiling share 0.412  (n=400, NA=0)  mean brier 0.075015  mean logloss 0.289482
+  rung 20 val_f1      pooled ceiling share 0.212  (n=400, NA=0)  mean brier 0.075015  mean logloss 0.289482
+  rung 12 val_auc     pooled ceiling share 0.338  (n=400, NA=0)  mean brier 0.091886  mean logloss 0.379760
+  rung 12 val_pr_auc  pooled ceiling share 0.338  (n=400, NA=0)  mean brier 0.091886  mean logloss 0.379760
+  rung 12 val_f1      pooled ceiling share 0.190  (n=400, NA=0)  mean brier 0.091886  mean logloss 0.379760
+  rung  8 val_auc     pooled ceiling share 0.268  (n=400, NA=0)  mean brier 0.125683  mean logloss 0.480400
+  rung  8 val_pr_auc  pooled ceiling share 0.268  (n=400, NA=0)  mean brier 0.125683  mean logloss 0.480400
+  rung  8 val_f1      pooled ceiling share 0.117  (n=400, NA=0)  mean brier 0.125683  mean logloss 0.480400
+
+=== SEALED-CODA BRANCH (mechanical, registered) ===
+  LEDGER numerator anchor_declared_dev = 0.02640880749483023 (source: --anchor-dev)
+BRANCH B — no Bar-2 cell at rung 60. ONE sealed look (coda_primary only); the challenger seal STAYS SHUT and finalize runs --allow-exploratory per the pre-registered rule.
+  primary band: |sealed - 0.026409| <= 0.16
+  train_positions [] in both branches -> positions_sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+wrote /Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/sweeps/coda_manifest.json (commit BEFORE the confirmation phase)
+  NO NOMINAL COVERAGE AFTER SELECTION: an in-band result is a procedurally
+  locked audit, never an 80% predictive statement, and never an evidence
+  upgrade for the arena.
+
+=== SUMMARY ===
+Guard-cleared (Bar-1) cells: 0
+Bar-2 actionable cells: 0
+Open rungs: NONE
+Bar-1 without Bar-2 reads 'detectable but not actionable'; 'detectable' means ONLY 'cleared the registered guard in this lottery'.
+
+=== SENSITIVITY EXHIBIT (fold-level, seed 2026101500, 10000 MC flips, [40] units/cell) ===
+  EXHIBIT ONLY. Fold-level units are NOT exchangeable within a repeat; the
+  registered guard lives at the REPEAT level. Never a claim basis.
+  0 cell(s) fire at the fold level
+runner_status: ok
+runner_exit_code: 0

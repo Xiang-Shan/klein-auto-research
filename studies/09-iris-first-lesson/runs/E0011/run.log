@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/train.py", line 171, in <module>
+    main()
+    ~~~~^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/train.py", line 149, in main
+    X_tr, X_dev, y_tr, y_dev, g_tr = load_split(evaluation_kind)
+                                     ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/train.py", line 81, in load_split
+    columns = families.columns_for(FAMILY)
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/families.py", line 502, in columns_for
+    return list(REGISTRY[coda_spec(name.removeprefix("coda_"))["family"]][1])
+                         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/families.py", line 441, in coda_spec
+    raise RuntimeError(
+        f"coda manifest (branch {branch}) registers no family for track {track_key!r}"
+    )
+RuntimeError: coda manifest (branch B) registers no family for track 'primary'
+runner_status: crash
+runner_exit_code: 1

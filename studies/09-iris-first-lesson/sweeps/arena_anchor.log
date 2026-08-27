@@ -1,0 +1,23 @@
+non-sealed rows: 80  sealed (frozen out): 20
+stage anchor: ['anchor_lda4', 'lda_petal', 'lda_sepal']
+identity preflight OK: proba->Brier == families.dev_brier (0.036689)
+sidecar columns: ['trial', 'params_json', 'primary_metric', 'wall_seconds', 'status', 'error']
+wrote /Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/sweeps/arena_anchor_aux.sidecar.tsv (long format: ['family', 'rung', 'repeat', 'fold', 'metric', 'value', 'note'])
+wrote sweeps/arena_partitions.tsv  (max jaccard dev-vs-declared: 0.2903)
+  nominal rung 60: realized n_actual in [59, 60] (NOMINAL-RUNG QUALIFIER IS MANDATORY in every claim)
+  nominal rung 45: realized n_actual in [45, 45] (NOMINAL-RUNG QUALIFIER IS MANDATORY in every claim)
+  nominal rung 30: realized n_actual in [30, 30] (NOMINAL-RUNG QUALIFIER IS MANDATORY in every claim)
+  nominal rung 20: realized n_actual in [20, 20] (NOMINAL-RUNG QUALIFIER IS MANDATORY in every claim)
+  nominal rung 12: realized n_actual in [12, 12] (NOMINAL-RUNG QUALIFIER IS MANDATORY in every claim)
+  nominal rung  8: realized n_actual in [8, 8] (NOMINAL-RUNG QUALIFIER IS MANDATORY in every claim)
+wrote /Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/sweeps/headroom.tsv
+  rung 60: CLOSED       ceiling-closed  m=0.033239 sd=0.033601 delta=0.068
+  rung 45: CLOSED       ceiling-closed  m=0.034965 sd=0.033610 delta=0.068
+  rung 30: CLOSED       ceiling-closed  m=0.037129 sd=0.034682 delta=0.070
+  rung 20: CLOSED       ceiling-closed  m=0.046765 sd=0.049158 delta=0.099
+  rung 12: CLOSED       fog-closed      m=0.070511 sd=0.073462 delta=0.147
+  rung  8: CLOSED       fog-closed      m=0.105488 sd=0.086718 delta=0.174
+STAGE A COMPLETE — commit the four sweeps/ files BEFORE any challenger fit.
+MEASUREMENT SWEEP: no winner promoted, no results.tsv row (sweep-rules.md carve-out)
+runner_status: ok
+runner_exit_code: 0

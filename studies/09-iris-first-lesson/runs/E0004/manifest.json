@@ -1,0 +1,84 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2081,
+      "committed": true,
+      "sha256": "4afd3feae82435c36c582725314af332dc250dff08a785e0ddd770ab4a1accaf"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 1104,
+      "committed": true,
+      "sha256": "abbeb2b0bb4a8b27c60d23645f582754e4f92245a346f9cdc913502754e9c750"
+    }
+  },
+  "base_commit": "c2f46ebf3bf6c8b35355ae60212d4b97dec834e2",
+  "candidate_commit": "963d241790213b362478d44d059a3cd0ae15bb47",
+  "code_patch_hash": "1c5742ea5e7956ddf5519974de9af0881acd1dbbcd3a61d4def1a1340629b5f1",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.026409 by minimum_delta=0.08",
+  "description": "parade: lda_shrinkage at the declared split (descriptive under DOOR-CLOSED ack; per-candidate reading in RQ0 sidecar); did not improve track frontier 0.026409 by minimum_delta=0.08",
+  "disposition": "discard",
+  "ended_at": "2026-08-27T08:12:56.019237Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "ecdcb68cb4d711f8df47fa61c388884e3abd8e1de8c1aae327ec3a549da1eebd"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
+    "environment": "be375e0c6f7fd1a078195d734ba5755414cd7a264816203d19ad9884d6dfac6c",
+    "split": "007fecba7fc55610c3f4543b1edc050e0733708d908cec41852d5757731cad11"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 120.0,
+  "metric_goal": "lower",
+  "metric_name": "val_brier",
+  "metrics": {
+    "cal_intercept": 17.915087926677728,
+    "cal_slope": 7.45350124706088,
+    "primary_metric": 0.030051,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 60.0,
+    "training_seconds": 0.0,
+    "val_accuracy": 0.95,
+    "val_best_threshold": 0.04,
+    "val_brier": 0.030051,
+    "val_f1": 0.9090909090909091,
+    "val_f1_at_best": 1.0,
+    "val_lift_top10": 3.3333,
+    "val_logloss": 0.08203001226137481,
+    "val_pr_auc": 1.0,
+    "val_rows": 20.0,
+    "wall_seconds": 0.04113
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 10,
+  "primary_metric": 0.030051,
+  "schema_version": 2,
+  "started_at": "2026-08-27T08:12:54.192158Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-08-27T08:12:56.189262Z",
+    "evidence_commit": "05cab8fcd8b1a87eca7e826f51cc675b0a9bcfc0",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 1.8268792079761624
+}
