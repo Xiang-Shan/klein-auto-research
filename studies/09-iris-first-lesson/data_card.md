@@ -106,7 +106,9 @@ lookahead (no time axis).
 
 ## Go / no-go
 
-> **Decision:** GO — lineage re-verified from committed bytes (3-cell UCI diff,
-> setosa-only), the single exact-duplicate group ruled and enforced at every
-> split, leakage audit 9/9, fixture byte-identical to 07/08, fingerprints
-> frozen at this ack.
+> **Decision:** GO
+
+Rationale: lineage re-verified from committed bytes (3-cell UCI diff,
+setosa-only); the single exact-duplicate group ruled and enforced at every
+split; leakage audit 9/9; fixture byte-identical to 07/08; fingerprints frozen
+at this ack.
