@@ -34,7 +34,7 @@ import kleinlib
 from kleinlib.data import load_prepared, three_way_split
 
 #: The registered family this candidate runs. The ONE line the ladder edits.
-FAMILY = "logit_l2"
+FAMILY = "anchor_lda4"
 
 RANDOM_SEED = 20260909
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
