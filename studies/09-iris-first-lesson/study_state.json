@@ -1,9 +1,22 @@
 {
-  "acknowledgements": {},
-  "artifact_hashes": {},
+  "acknowledgements": {
+    "consult": {
+      "by": "fable-5-orchestrator",
+      "timestamp": "2026-08-27T07:56:28.312261Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "769997c72506be22156424a9acd0546f957d587aa981b1ff3a817c4da4390359",
+    "study.yaml": "bd977c8103a965890327a91f294e8ea65a64f259a5f16cd93b4c5a2fc8257219"
+  },
   "created_at": "2026-08-27T07:08:26.298709Z",
   "current_phase": "adaptive-1",
   "final_holdout_access": {
+    "challenger": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
     "primary": {
       "accessed_at": null,
       "count": 0,
@@ -16,9 +29,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-08-27T07:56:28.312261Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "artifacts": {
+        "program.md": "76fdf6ab8a74498d9cbd8b91cb2dc980887af5ef3c639c21651dca262bc2f793",
+        "research_plan.md": "769997c72506be22156424a9acd0546f957d587aa981b1ff3a817c4da4390359",
+        "study.yaml": "bd977c8103a965890327a91f294e8ea65a64f259a5f16cd93b4c5a2fc8257219"
+      },
+      "note": "registration complete: study.yaml + research_plan frozen; scouting ledger committed first (S1-S10 incl. the pre-gate smoke contamination + seed retirement to 20260912); framework assessment: zero kleinlib changes; roster/sweeps/sim code committed with 84 passing study tests",
+      "status": "recorded"
     },
     "data": {
       "acknowledged_at": null,
@@ -41,5 +60,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T07:08:26.298715Z"
+  "updated_at": "2026-08-27T07:56:28.312950Z"
 }
