@@ -171,3 +171,14 @@ protocol completion only. The arena is the evidence; the seal is the discipline.
   event history is untouched and stays valid). Preflight 21/21 after commit.
   Filed as a framework P1 candidate in framework_assessment.md: the DATA gate
   refreshes the prepared-data fingerprint but not the split fingerprint.
+
+- 2026-08-27 — SEALED CODA (Branch B): E0011 `coda_primary` CRASHED at the
+  column-resolution line (manifest-key seam `primary` vs `coda_primary`
+  between the independently built families.py and analysis.py; traceback
+  upstream of load_split — zero sealed values computed). The seal spends on a
+  crash by law; no retry exists and none was attempted. The pre-committed
+  备而不用 sentence is the record's verdict (findings §Sealed, C14). The
+  registered T1 band check is UNFULFILLED; finalize proceeds on the
+  pre-registered Branch-B `--allow-exploratory` path. Frictions filed:
+  integration seam (mock-manifest-only testing) + no sealed dry-run in the
+  framework (P1).

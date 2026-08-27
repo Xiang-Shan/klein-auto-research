@@ -144,7 +144,7 @@ nominal-rung qualifier apply throughout.
 | paired vs marginal floors | ≥5/7 paired wider | **FALSIFIED** (2/7) — the honest headline of §① |
 | shrinkage at rung 8 | ≥0.02 better, descriptive | **HELD** (+0.0405) |
 | sepal control | separates at every measurable rung | **HELD** (6/6, p=0.0010) |
-| sealed T1 band | \|sealed − 0.026409\| ≤ 0.16 | see §Sealed below |
+| sealed T1 band | \|sealed − 0.026409\| ≤ 0.16 | **UNFULFILLED — E0011 crashed pre-data; seal spent by law; no retry** |
 | sealed T2 | Branch A only | **NOT FIRED by rule** (Branch B; seal stays shut) |
 
 Scoreable RQ priors (`(source: uninformed)` only): RQ4 saturation RATE —
@@ -163,8 +163,35 @@ G3 QDA leads from n=60; G4 hgbt/svm lead from n≈30–60 (observed-only).
    markers, not calibration readings (E0001: 16.99/8.27) — a registered-aux
    caveat any small-n study should copy.
 
-## §Sealed (appended after the confirmation phase; sentences pre-committed in program.md)
+## §Sealed (Branch B; the record selected the 备而不用 sentence)
 
-PENDING at synthesis-commit time — the confirmation ack, the single Branch-B
-sealed look (coda_primary), and the finalize label follow in the next commits;
-the selected pre-committed sentence will be recorded here verbatim.
+- **[C14] · procedural-verdict · exploratory.** The single Branch-B sealed
+  transaction (E0011, `coda_primary`) **CRASHED before any sealed row was
+  read**: `families.coda_spec` raised `RuntimeError: coda manifest (branch B)
+  registers no family for track 'primary'` at the column-resolution line —
+  an interface seam between the independently built roster module (expects
+  manifest key `primary`) and the frozen analysis (wrote `coda_primary`),
+  integration-tested only against each side's own mock manifest, never the
+  real one. The traceback shows the failure inside `columns_for`, upstream of
+  `load_split`: **zero sealed values were computed or observed**. By the
+  framework's law any final_test manifest spends the seal ("a spent seal
+  stays spent"; `run_one` refuses a second access from the ledger); primary
+  is now 1/1 with a `crash` disposition and **the registered T1 band check is
+  UNFULFILLED — no retry exists, none was attempted**.
+- The pre-committed sentence for a sealed outcome outside every registered
+  case (program.md §Sealed, written before any run) is the record's verdict,
+  read verbatim: "The sealed record shows a case outside every registered
+  sentence. We stop at this sentence, file it in findings, and improvise no
+  explanation." / 「封存记录出现了登记之外的情形。我们停在这句话，写进
+  findings，不现编任何解释。」
+- What this study now demonstrates about seals, at its own expense: a one-shot
+  seal spends on a crash exactly as it would on a look — that is what makes it
+  a seal. The repair belongs to the NEXT study's method card, not this one's
+  ledger: smoke the exact sealed configuration through `KLEIN_SMOKE=1` before
+  the confirmation ack; a framework `--final-test --dry-run` that exercises
+  the full code path without data access is filed as friction #4 below.
+
+4. (friction, continued from the list above) No sealed dry-run exists:
+   `--final-test` has no smoke mode, so a code-path defect in the sealed
+   configuration costs the seal itself. P1 candidate: a dry-run that builds
+   the model and resolves columns/manifest WITHOUT touching any partition.
