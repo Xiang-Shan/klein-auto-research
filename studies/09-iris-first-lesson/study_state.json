@@ -20,7 +20,7 @@
     "study.yaml": "44510480151c287ff528ad91287f95bb6813ac8e3f5780462c12b24c68b99361"
   },
   "created_at": "2026-08-27T07:08:26.298709Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "adaptive-2",
   "final_holdout_access": {
     "challenger": {
       "accessed_at": null,
@@ -82,7 +82,14 @@
   },
   "last_experiment": 3,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-08-27T08:11:59.454760Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "note": "registered ladder complete: E0001 keep 0.026409, controls E0002 0.03135 / E0003 0.156308 discard; k-seed degenerate std=0; paired floors measured (binding hgbt -> delta 0.08, consult re-recorded); RQ0 published pre-Stage-B (ledger DOOR-CLOSED h=0.330, ack recorded; 4 candidate comparisons open, 3 measurement-closed); Stage-A arena committed. Playbook refreshed.",
+      "playbook_sha256": "0f1d267076a06f79efa283aa1cd5243092680b1a1fb9660fa23c8d3a05843fd8"
+    }
+  },
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/09-iris-first-lesson/data/prepared/iris_hard_pair.csv",
     "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
@@ -90,5 +97,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T08:11:27.429739Z"
+  "updated_at": "2026-08-27T08:11:59.455493Z"
 }
