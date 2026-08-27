@@ -1,0 +1,57 @@
+<h2>Data</h2>
+
+<p>Everyone's first dataset is treated as innocent. It is not. Before any model ran, this
+study re-audited all 150 printed flowers from the committed bytes &mdash; not from
+citation, from the files in the repository &mdash; and the audit is the reason several
+later sentences are phrased the way they are.</p>
+
+<p><strong>The measurements are a lattice, not a continuum.</strong> All 600 measurement
+values sit exactly on the 0.1&nbsp;cm grid. Petal width takes only <strong>22 distinct
+values across 150 flowers</strong>. Calling these features continuous is a modelling
+convenience; the instrument was a ruler read to a tenth of a centimetre, and every claim
+about duplicates, near-duplicates and resolution downstream inherits that fact.</p>
+
+<p><strong>One exact duplicate, and it is famous.</strong> In the full 150 there is exactly
+one duplicated row-content group: iris rows 102 and 143, both <em>virginica</em>,
+(5.8,&nbsp;2.7,&nbsp;5.1,&nbsp;1.9). Inside the hard pair it is the same single pair. The
+duplication is original to <strong>Fisher's own 1936 Table&nbsp;I</strong> &mdash; printed
+twice there &mdash; and the study carries the scope qualifier verbatim wherever it says so:
+<em>"in the forensic sources we checked."</em> Never "nobody ever noticed." At 0.1&nbsp;cm
+resolution, identical measurements cannot be distinguished from two genuinely identical
+flowers, so the rows are never deleted. They share one group id and travel together through
+the outer split, all twenty metrology redraws, every arena fold and rung subset, and every
+inner cross-validation.</p>
+
+<p><strong>Five near-duplicates, ruled the other way.</strong> Five pairs in the full 150
+are identical in three features and exactly one 0.1&nbsp;cm step apart in the fourth
+&mdash; one of them inside the hard pair. The twin ruling is deliberately <em>not</em>
+extended to them: they differ in a recorded measurement, so they are distinct flowers, and
+saying so is a registered ruling rather than a judgement call made later.</p>
+
+<p><strong>The provenance diff, re-verified.</strong> scikit-learn ships the corrected copy
+of the table; the classic UCI file differs from it in exactly <strong>3 cells</strong>, on
+two rows, both <em>setosa</em>. That was recomputed here from study 07's committed
+read-only UCI bytes rather than inherited as a citation &mdash; and the point of
+recomputing it is that the errata cannot touch a single hard-pair row.</p>
+
+<p><strong>Why setosa is dropped, in one number.</strong> Setosa's petal length stops
+1.1&nbsp;cm short of where the other two species begin: a clean one-feature gap. With
+setosa in frame, every method looks perfect and no method question can be asked. The
+three-class problem and the two-species hard pair answer genuinely different questions, and
+this study registers only the second &mdash; <em>versicolor</em> against
+<em>virginica</em>, the overlapping pair, 100 rows, with the full table's classes standing
+at exactly 50/50/50.</p>
+
+<p><strong>The split, and the consequence it forced.</strong> The declared split is
+group-aware 60/20/20 under seed 20260912, with no redraw permitted under any outcome. The
+twin group landed in <strong>TRAIN</strong> &mdash; which means a multi-row group sits in
+the non-sealed pool, and study 08's argument that a row-level inner cross-validation was
+harmless does not survive the move. Every internal split in this study is group-aware by
+construction because of where two flowers happened to fall. That is the useful shape of a
+data ruling: it is not a paragraph in a card, it is a constraint that changes the code.</p>
+
+<p>The seed itself has a history worth one line. An earlier candidate seed was retired
+before any gate, because a pre-gate staging smoke had scored development <em>and</em> sealed
+Briers under it. The logs were deleted, the seed was retired on the precedent set in study
+07, and the split was re-registered before the consult acknowledgement &mdash; disclosed in
+the scouting ledger rather than quietly reused.</p>

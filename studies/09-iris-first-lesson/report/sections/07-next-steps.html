@@ -1,0 +1,64 @@
+<h2>Next Steps</h2>
+
+<h3>Frictions filed against the framework</h3>
+
+<ol>
+<li><p><strong>Refresh the split fingerprint at the DATA gate.</strong> Scaffolding freezes
+that fingerprint from a placeholder seed, and the DATA gate then refreshes the prepared-data
+hash but <em>not</em> the split hash &mdash; so any study that edits its seed before the
+first transaction hits a preflight failure and must touch generated state by hand. Two
+predecessors regenerated their state wholesale; this one refreshed the single field and
+disclosed it. The gate should simply do it. <strong>P1.</strong></p></li>
+
+<li><p><strong>Let the noise-floor command emit its own estimand.</strong> The schema
+requires <code>estimand:</code> once a bounded metric is declared, and the tool that writes
+the block still cannot produce the line. It was hand-added again here. A generator that
+cannot emit a field its own validator demands is a trap for the next first-time user.
+<strong>P1.</strong></p></li>
+
+<li><p><strong>Give the sealed final-test a dry-run mode.</strong> This is the one the crash
+paid for. There is no way to exercise a sealed configuration's code path &mdash; build the
+model, resolve the columns, read the manifest &mdash; <em>without</em> touching a partition,
+so an ordinary interface defect costs the seal itself. A <code>--final-test --dry-run</code>
+that stops short of any data access would have turned E0011 into a two-second fix.
+<strong>P1</strong>, and the strongest case in this repository for one.</p></li>
+
+<li><p><strong>Resolution is not materiality &mdash; assessed, deliberately not
+implemented.</strong> Every klein threshold is a measurement-resolution threshold, and no
+decision-value model exists anywhere in the repository, so no artifact may call clearing a
+floor economically meaningful. A future optional contract block with its own provenance
+&mdash; who priced the consequence, in what currency, dated &mdash; is sketched and stays
+unimplemented until a study registers one.</p></li>
+
+<li><p><strong>A small one worth copying.</strong> On near-separable evaluation folds the
+recalibration intercept and slope are <em>separation markers</em>, not calibration readings:
+E0001 reports 16.99 and 8.27, which say the maximum-likelihood fit diverged, not that the
+model is badly calibrated. Any small-n study should carry that caveat in its registered
+auxiliary block.</p></li>
+</ol>
+
+<h3>Open questions for a study 10</h3>
+
+<p><strong>A sealed re-check needs a new protocol, not a retry.</strong> This study's band
+check is unfulfilled and its seal is spent; nothing about that is repairable inside its own
+ledger. What a successor can do is register a <em>new</em> protocol &mdash; new split, new
+bands, its own branch sentences &mdash; and smoke the sealed configuration before the
+confirmation acknowledgement, which is precisely the repair the crash argues for. The
+unfulfilled band stays unfulfilled in the record either way.</p>
+
+<p><strong>Run the learning-curve arena where headroom actually exists.</strong> Study 08's
+closing suggestion survives its successor unchanged, and now with a sharper reason: across
+three studies on this pair, the incumbent's error and the lottery's own spread scale
+together at every rung, so shrinking the data fogs the game rather than opening it. The
+question "does a modern tabular model earn its keep when data runs out" needs a problem
+where the incumbent sits many floor units above zero. The motor-insurance frequency and
+severity studies and the hurricane return-level work are all in this repository.</p>
+
+<p><strong>The companions.</strong> Study 07 asked the question with six challengers and
+one sealed look; study 08 re-asked it with a larger roster and a data ladder; study 09 asks
+what the ruler could have resolved in the first place. Read in order they make one point:
+the third study exists because the first two published enough detail to be attacked,
+including by themselves.</p>
+
+<p>The repository, all three studies, and the framework that enforced them are at
+github.com/Xiang-Shan/klein-auto-research.</p>

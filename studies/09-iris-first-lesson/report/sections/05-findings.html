@@ -1,0 +1,126 @@
+<h2>Findings</h2>
+
+<p>Seven challengers, 42 guard cells, six rungs, four known-truth worlds, one spent seal.
+Nothing cleared a bar that mattered &mdash; and the most useful result in the study is the
+one that was published <em>before</em> the contest ran.</p>
+
+<h3>Permission first: three contests that could never be won</h3>
+
+<p>The ledger door is closed:
+<span data-math="h = 0.026408807494830228 / 0.08 = 0.330"></span>. Below one means a
+scalar-delta keep was arithmetically impossible for every challenger before any of them
+ran, and every parade disposition below inherits that scope. Then the per-candidate map,
+whose numerator is a <em>different</em> quantity &mdash; the anchor's marginal metrology
+mean 0.04302915 &mdash; over each challenger's own paired floor:</p>
+
+<table>
+<thead><tr><th>Challenger</th><th><span data-math="h_c"></span></th><th>Permission</th></tr></thead>
+<tbody>
+<tr><td>lda_shrinkage</td><td>1.57</td><td>open</td></tr>
+<tr><td>logit_l2</td><td>1.36</td><td>open</td></tr>
+<tr><td>qda</td><td>1.29</td><td>open</td></tr>
+<tr><td>tabpfn</td><td>1.23</td><td>open</td></tr>
+<tr><td>svm_rbf_platt</td><td>0.958</td><td><strong>measurement-closed</strong></td></tr>
+<tr><td>knn_tuned</td><td>0.59</td><td><strong>measurement-closed</strong></td></tr>
+<tr><td>hgbt</td><td>0.54</td><td><strong>measurement-closed</strong></td></tr>
+</tbody>
+</table>
+
+<p><strong>Three of seven comparisons could not be won at their own resolution, whatever the
+data said.</strong> Results there are descriptive only. "Open" carries its registered
+meaning and no more: <em>not arithmetically excluded</em> &mdash; never "plausible", never
+"likely".</p>
+
+<h3>The registered lever that broke, and why that is the good news</h3>
+
+<p>The contract predicted that the paired floors would exceed the anchor's marginal
+2&times;std for at least 5 of 7 challengers; study 07's recomputation had given 5 of 6.
+Measured here: <strong>2 of 7</strong> &mdash; only knn_tuned at 0.0730 and hgbt at 0.0796
+exceed the marginal 0.0501. <strong>FALSIFIED</strong>, on the record, by a study that wrote
+the prediction down first. The durable rule is not an ordering between the two floor types
+but <em>measure both, name the estimand</em>: which one is wider is a property of the
+geometry and the roster, not of the arithmetic.</p>
+
+<h3>The contest: nobody cleared their own bar</h3>
+
+<p>Bar-1: <strong>0 of 42</strong> cells cleared the registered selection guard. Bar-2:
+<strong>0</strong> &mdash; it additionally requires an open rung, and no rung opened. The
+fold-level sensitivity exhibit fires <strong>0</strong> cells too, so unlike study 08 this
+branch carries no lone fragile detection to caveat. The anchor stands <strong>by default,
+not by victory</strong> &mdash; the difference between a result and a coronation.</p>
+
+<h3>The ladder blinds the ruler faster than it separates the families</h3>
+
+<p>From nominal rung 60 down to 8, the anchor's mean risk grows 0.0332 &rarr; 0.1055 and
+its across-fold spread grows 0.0336 &rarr; 0.0867 &mdash; that spread is <em>resampling
+instability</em>, never model variance. The per-rung floor meanwhile grows 0.068 &rarr;
+0.174, faster than the risk does. All six rungs are closed, the ratio of risk to bar between
+0.47 and 0.61 throughout: 60/45/30/20 ceiling-closed, 12/8 fog-closed. Small n blinds the
+ruler, not just the models.</p>
+
+<p>Inside that fog the descriptive board flips, exactly as scouted. At nominal rung 8 the
+leaders against the anchor are lda_shrinkage <strong>+0.0405</strong> (clearing the
+registered 0.02 lever &mdash; HELD), qda +0.0285 and tabpfn +0.0265 &mdash; all at most
+0.23&times; the 0.174 fog floor, guard scores 0.11 or worse. Shared-covariance estimation is
+the anchor's fragile joint when rows run out, and shrinkage buys the repair &mdash; stated
+as a descriptive pattern only. The mechanism demonstration lives in the simulation lane and
+nowhere else.</p>
+
+<h3>The instrument was alive the whole time</h3>
+
+<p>Petal-only LDA retains most of the probability quality &mdash; 0.03135 on the declared
+split against the anchor's 0.026409, and 0.0483 against 0.0332 across the rung-60 draw. The
+sepal-only positive control is the registered catastrophe: 0.156308 declared, 0.2146 across
+the lottery, worsening test firing at <strong>every one of the six rungs</strong>,
+p = 0.0010 against a Bonferroni bar of 0.0083, worsening between +0.15 and +0.19. An
+instrument that declared every contest closed can still see a real difference when one is
+there. The closures are about resolution, not blindness.</p>
+
+<h3>Where ranking goes silent</h3>
+
+<p>At nominal rung 60, ROC-AUC sits exactly at 1.0 on <strong>55%</strong> of all 400
+fold-evaluations &mdash; and on <strong>77.5%</strong> of the anchor's own 40 &mdash; while
+the same fold-evaluations' Brier means span 0.029 to 0.215 and log loss spans 0.093 to
+0.618. A saturated ranking gauge is silent exactly where the probability gauges are still
+ordering the room. That is the registered reason Brier is this study's primary metric,
+decided before any of it was measured.</p>
+
+<img data-fig="figures/rq4_saturation.png" alt="Share of rung-60 fold-evaluations at the AUC ceiling per family, plotted against that family's mean Brier at the same rung">
+
+<h3>The simulation lane, behind its firewall</h3>
+
+<p>These are <em>known-DGP teaching results</em>. They are never the true iris
+data-generating process and never an empirical decomposition of studies 07&ndash;09; the
+decomposition is a plug-in over 100 registered draws per cell, not an unbiased population
+estimate. With that said, it closes to machine precision:</p>
+
+<div data-math-display="\left| \mathrm{total} - (\mathrm{irr} + \mathrm{bias}^{2} + \mathrm{var}) \right| \le 8.3 \times 10^{-17}"></div>
+
+<p>across all 164 populated cells. Four worlds, four lessons. <strong>G1</strong>, built to
+match LDA's assumptions: everyone converges to the irreducible floor 0.1113, and at n = 8
+shrinkage beats plain LDA on total risk, 0.147921 against 0.152878, the whole difference
+sitting in variance (0.035580 against 0.040030). <strong>G2</strong>, the same signal plus
+16 irrelevant dimensions: variance explodes at small n (plain LDA 0.133 at n = 12, shrinkage
+0.121), and QDA is <em>unfittable</em> for n &le; 30 &mdash; <strong>400 recorded failures,
+published as data</strong>. Flexible covariance does not degrade gracefully; it exits.
+<strong>G3</strong>, unequal covariance: QDA's structural win, squared bias 0.0014 against
+LDA's 0.0320 at n = 500, a bias that never washes out. <strong>G4</strong>, XOR: the linear
+family plateaus at squared bias 0.216 for a total of 0.251 &mdash; marginally <em>worse</em>
+than the constant predictor's 0.25 &mdash; while hgbt reaches 0.051, and at n = 8 hgbt
+simply <em>is</em> the constant predictor, variance exactly 0.</p>
+
+<img data-fig="figures/sim_decomposition.png" alt="Bias-squared, variance and irreducible risk against training size for four known data-generating processes">
+
+<h3>The interpretation, labeled as one</h3>
+
+<p>The anchor's standing on this data reads best as an
+<strong>inductive-bias match</strong>: four nearly sufficient, nearly Gaussian features
+&mdash; petal-only already carries most of the signal &mdash; an almost-linear boundary,
+small-to-medium n, and shared-covariance regularization. The same reading predicts its
+failure modes, and the simulation lane shows them: break equal covariance and QDA takes it;
+break linearity and the linear family lands behind a constant.
+「口径：这是解读，不是登记过的分解量。」</p>
+
+<p>What transfers is the process, not the winner. "Nobody displaced the anchor" only means
+something once you have said, first, that three of the seven contests could never have been
+won.</p>

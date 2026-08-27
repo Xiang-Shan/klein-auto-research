@@ -1,9 +1,9 @@
 {
  "study": "09-iris-first-lesson",
  "branch": "experiments/09-iris-first-lesson",
- "git_head": "9c99dae88cc6eb13e519366edad7fe208f4cde6d",
+ "git_head": "f6686f2811ee5a07dcf01428cc545435cf990e09",
  "generated": "2026-08-27",
- "law": "deck numbers.py reads ONLY this file (third lock beside 07/08 under R9_ keys); any deck/script number not traceable here fails the build; every claim carries exactly one class from claims_discipline.claim_classes",
+ "law": "deck numbers.py reads ONLY this file (third lock beside 07/08 under R9_ keys); any deck/script number not traceable here fails the build; every claim carries exactly one class from claims_discipline.claim_classes; erratum tags re-scope, never delete",
  "artifacts": {
   "results": {
    "path": "studies/09-iris-first-lesson/results.tsv",
@@ -15,7 +15,7 @@
   },
   "findings": {
    "path": "studies/09-iris-first-lesson/findings.md",
-   "sha256": "dad80533afd8d870035c6d82fc6684de5e2f965ad5c79f58bf9fce1ee8712dd9"
+   "sha256": "ec8cca197cde7550597925b9d4eaa81afea5a116c763b75ebbd8f4c33bb2e5d7"
   },
   "floors": {
    "path": "studies/09-iris-first-lesson/sweeps/candidate_floors.tsv",
@@ -76,7 +76,8 @@
    "artifact": "results",
    "claim": "C1",
    "class": "empirical-description",
-   "note": "E0001 anchor_lda4, declared split seed 20260912, keep"
+   "note": "E0001 anchor_lda4, declared split seed 20260912, keep [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
   },
   "minimum_delta": {
    "value": 0.08,
@@ -90,7 +91,8 @@
    "artifact": "rq0",
    "claim": "C1",
    "class": "procedural-verdict",
-   "note": "h = anchor_declared_dev/delta; DOOR-CLOSED, pre-committed ack recorded BEFORE any challenger arena number"
+   "note": "h = anchor_declared_dev/delta; DOOR-CLOSED, pre-committed ack recorded BEFORE any challenger arena number [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
   },
   "permission_open": {
    "value": {
@@ -139,14 +141,16 @@
    "artifact": "results",
    "claim": "C5",
    "class": "empirical-description",
-   "note": "E0004-E0010 all discard under the acked DOOR-CLOSED scalar; svm 0.016995 qda 0.019434 tabpfn 0.01973 logit 0.025256 beat the anchor RAW on the one declared split"
+   "note": "E0004-E0010 all discard under the acked DOOR-CLOSED scalar; svm 0.016995 qda 0.019434 tabpfn 0.01973 logit 0.025256 beat the anchor RAW on the one declared split [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
   },
   "parade_best_gap": {
    "value": "0.0094 = 0.12x delta (svm_rbf_platt; its own comparison h_c-closed at 0.958)",
    "artifact": "results",
    "claim": "C5",
    "class": "empirical-description",
-   "note": "raw-better is not claimable: best gap is 0.12x the scalar bar and 0.21x svm's own floor"
+   "note": "raw-better is not claimable: best gap is 0.12x the scalar bar and 0.21x svm's own floor [ERRATUM E1: ledger lane ran under train.py's hardcoded RETIRED seed 20260909 \u2014 a retired-partition quantity, internally consistent, S10-contaminated; see findings C15]",
+   "erratum": "E1"
   },
   "rung60_board": {
    "value": {
@@ -215,7 +219,8 @@
    "artifact": "results",
    "claim": "C8",
    "class": "empirical-description",
-   "note": "petal-only LDA retains most probability quality vs anchor 0.026409/0.033239"
+   "note": "petal-only LDA retains most probability quality vs anchor 0.026409/0.033239 [declared value: E1 retired-partition scope; rung60_mean is arena/clean]",
+   "erratum": "E1-partial"
   },
   "sepal": {
    "value": {
@@ -226,7 +231,8 @@
    "artifact": "verdicts",
    "claim": "C9",
    "class": "procedural-verdict",
-   "note": "positive control FIRED everywhere: the instrument that closed every contest still sees a real difference - closures are resolution, not blindness"
+   "note": "positive control FIRED everywhere: the instrument that closed every contest still sees a real difference - closures are resolution, not blindness [declared value: E1 retired-partition scope; rung/worsening values are arena/clean]",
+   "erratum": "E1-partial"
   },
   "rq4": {
    "value": {
@@ -354,6 +360,13 @@
    "claim": "C12",
    "class": "mechanism-interpretation",
    "note": "four nearly sufficient, nearly Gaussian features, ~linear boundary, small n, shared-covariance regularization; the same reading predicts the G3/G4 inversions - kou-jing: interpretation, not a registered decomposition"
+  },
+  "erratum_e1": {
+   "value": "train.py:78 seed=20260909 (retired) vs contract 20260912",
+   "artifact": "findings",
+   "claim": "C15",
+   "class": "procedural-verdict",
+   "note": "ledger lane E0001-E0011 on the retired partition (mislabeled + S10-contaminated); every sweep contract-driven on 20260912 (floors, RQ0 candidate map, arena, guard, RQ4, sim all clean); sealed rows untouched by the ledger under either seed (E0011 crashed pre-data); no re-run (finalized); friction #5 filed (no evaluator-vs-contract split-consistency check)"
   }
  }
 }

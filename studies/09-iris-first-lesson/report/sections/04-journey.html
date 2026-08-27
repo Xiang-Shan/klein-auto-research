@@ -1,0 +1,117 @@
+<h2>The Journey</h2>
+
+<p><strong>The anchor, then the two things that are not challengers.</strong> E0001 put
+Fisher's four-feature LDA on the declared split and scored <strong>0.026409</strong>
+&mdash; a keep, because it is the first valid result on the track, not because it won
+anything. E0002 ran petal-only LDA at <strong>0.03135</strong> and E0003 sepal-only at
+<strong>0.156308</strong>, both registered in advance as discards. The sufficiency exhibit
+and the positive control are load-bearing precisely because nobody expected them to win.</p>
+
+<p><strong>A floor that came out at exactly zero, and what it does not mean.</strong> The
+k-seed sweep refits the anchor with nothing varied but the seed. Its standard deviation is
+<strong>exactly 0</strong> &mdash; LDA is closed form, so there is no optimizer, no
+subsampling and no initialization for a seed to perturb. The registered reading is
+narrow and was written before the sweep ran: <em>zero algorithmic fit randomness under
+fixed inputs</em>, and nothing more. Not "low variance", not "stable". Pasting a zero into
+the contract as a floor would have let any difference at all count as a keep &mdash;
+which is the exact dishonesty the measurement exists to prevent.</p>
+
+<p><strong>Metrology, then the floors.</strong> Twenty group-aware redraws, all ten families
+on identical rows each time, 200 sidecar rows in total. The widest challenger floor belonged
+to hgbt at 0.07959988633051922, so the ledger's single scalar rounded up to
+<span data-math="\delta = 0.08"></span>.</p>
+
+<p><strong>Then the door, before the arena.</strong> With the floor in the contract, the
+ledger headroom is <span data-math="h = 0.026408807494830228 / 0.08 = 0.330"></span>. Below
+one. DOOR-CLOSED: a scalar-delta keep was <em>arithmetically impossible</em> for every
+challenger on the roster. The branch had been written out as a sentence at scaffold time
+&mdash; this is the first shipped klein study to arm the harness's detection-limit audit
+&mdash; and the acknowledgement was recorded, with its pre-committed run-anyway note,
+<em>before a single challenger arena number existed</em>. The note says what the
+parade is for: "the arena with per-candidate floors and the selection guard is the
+registered evidence; ledger-scale keeps are acknowledged arithmetically impossible; no
+re-scope, no redraw."</p>
+
+<p>Published in the same breath, the per-candidate map &mdash; the study's actual lead
+result. It uses the <em>other</em> numerator, the anchor's marginal metrology mean
+0.04302915, over each challenger's own paired floor. Four comparisons come back not
+arithmetically excluded; three cannot be won at their own resolution no matter what the data
+says.</p>
+
+<img data-fig="figures/rq0_permission.png" alt="Per-candidate claim-permission map: h_c for each of the seven challengers against the permission line at one, four open and three measurement-closed">
+
+<p><strong>Stage A shut the ladder too.</strong> Fitting only the anchor and the controls,
+the per-rung table went in before any challenger touched the arena. All six rungs are
+CLOSED &mdash; nominal 60, 45, 30 and 20 <em>ceiling-closed</em>, 12 and 8
+<em>fog-closed</em>. As the data shrinks the incumbent gets worse, and the bar for beating
+it gets worse faster.</p>
+
+<img data-fig="figures/rung_ladder.png" alt="Per-rung anchor mean error against that rung's own floor, with family means overlaid: ceiling-closed at the top four rungs, fog-closed at 12 and 8">
+
+<p><strong>The parade.</strong> Seven challenger transactions on the primary track in
+registry order: seven discards, <strong>zero keeps, zero crashes</strong>. And a genuinely
+awkward fact, published rather than buried: <strong>four of the seven beat the anchor's raw
+score on that one split</strong> &mdash; svm_rbf_platt 0.016995, qda 0.019434, tabpfn
+0.019730 and logit_l2 0.025256 against 0.026409. The best gap is 0.0094, which is
+<strong>0.12&times;</strong> the scalar bar &mdash; and svm's own comparison, metrology
+mean over its own paired floor, is measurement-closed at
+<span data-math="h_c = 0.958"></span>, so its impressive number arrives with no permission
+to be claimed. Score-beating is cheap.</p>
+
+<!--LEDGER-->
+<p><strong>Erratum E1, filed after finalize and stamped on this table:</strong> every
+ledger transaction above ran under <code>train.py</code>&#8217;s hardcoded seed
+20260909 &#8212; the namespace this study had RETIRED before its first gate
+(scouting S10) &#8212; because the orchestrator&#8217;s retirement sweep missed one
+file. The numbers are internally consistent and honestly measured on that
+retired partition, but they are retired-partition quantities and E0001&#8217;s value
+matches one the pre-gate staging smoke had already computed. Every sweep in
+this study &#8212; the floors, the RQ0 candidate map, the entire arena, the guard,
+RQ4, the simulation lane &#8212; derives its pool from the contract and ran on the
+registered 20260912 split. The verdicts below this table stand on the sweeps.
+Findings C15 carries the full scope; claims.lock tags the affected entries.</p>
+
+<p><strong>Then the lottery reversed the impression.</strong> Across the registered rung-60
+draw, only <strong>one</strong> family's mean paired gain is positive at all:
+lda_shrinkage at <strong>+0.004171</strong>, which is 0.15&times; its own floor, with a
+guard score of 0.39. Every other family is <em>worse</em> than the anchor on average
+&mdash; tabpfn &minus;0.003983, qda &minus;0.005546, logit_l2 &minus;0.006875, knn_tuned
+&minus;0.010625, svm_rbf_platt &minus;0.011733, hgbt &minus;0.059501. The two challengers
+that looked best on the declared split are both underwater across the lottery. One split is
+one draw; the lottery is the estimand. Both levels are published here because publishing
+only the flattering one is how a reader gets misled.</p>
+
+<p><strong>The coda, and the most instructive failure in the study.</strong> Branch B fired
+mechanically &mdash; no cell cleared Bar-2 at rung 60 &mdash; so the challenger seal stayed
+shut by rule and one sealed look remained: the anchor, against a registered band of
+<span data-math="\left| \text{sealed} - 0.026409 \right| \le 0.16"></span>. E0011 spent it
+and <strong>crashed</strong>:</p>
+
+<pre><code>RuntimeError: coda manifest (branch B) registers no family for track 'primary'</code></pre>
+
+<p>The seam is worth naming exactly, because it is ordinary. The roster module was built to
+look up a manifest key named <code>primary</code>; the frozen analysis wrote the key
+<code>coda_primary</code>. Each side had been integration-tested against its own mock
+manifest, and neither had ever been run against the real one. The traceback lands in the
+column-resolution call, before any model was built: <strong>zero sealed values were computed
+or observed.</strong></p>
+
+<p>And the seal was spent anyway. That is not a bug in the framework, it is the framework
+working: any final-test transaction burns the one-shot access before the child process
+launches, a spent seal stays spent, and the ledger refuses a second look. A seal that you
+could re-roll after an unlucky outcome would not be a seal. So the registered band check is
+<strong>UNFULFILLED</strong> &mdash; no retry exists and none was attempted.</p>
+
+<p>What the record says about it was written before any run, in the pre-committed
+<em>备而不用</em> slot for a sealed outcome outside every registered
+case, and it is read verbatim rather than improvised:</p>
+
+<blockquote><p>"The sealed record shows a case outside every registered sentence. We stop at
+this sentence, file it in findings, and improvise no explanation."<br>
+「封存记录出现了登记之外的情形。我们停在这句话，写进
+findings，不现编任何解释。」</p></blockquote>
+
+<p>Finalize then ran the pre-registered Branch-B path, <code>--allow-exploratory</code>, and
+verification came back 19 checks, 0 failed. The study completes with a spent seal, an
+unfulfilled band, and a written sentence it did not have to invent under pressure. That was
+the point of writing it first.</p>

@@ -1,0 +1,100 @@
+<h2>Method</h2>
+
+<p><strong>Two headroom numerators, and you must name which one you mean.</strong> Headroom
+is a ratio of how much room exists above the incumbent to how coarse the ruler is. This
+study measures it at two scales, and they do not share a numerator:</p>
+
+<div data-math-display="h = \frac{\text{anchor declared dev}}{\delta} \qquad\qquad h_c = \frac{\text{anchor metrology mean}}{\mathrm{floor}_c}"></div>
+
+<p>The <em>ledger</em> scale asks whether a keep is arithmetically possible for anybody
+against the one scalar bar the ledger enforces; its numerator is E0001's declared-split
+score, <strong>0.026409</strong>. The <em>candidate</em> scale asks whether one named
+challenger's comparison can be won at its own resolution; its numerator is the anchor's
+marginal mean Brier across the twenty paired redraws, <strong>0.04302915</strong>.
+Different quantities, different denominators, different questions &mdash; and quoting one
+as the other is a banned claim here, precisely because the two are close enough to swap by
+accident.</p>
+
+<p><strong>The floors are clearance bars, not tie bars.</strong> Twenty group-aware redraws
+of the non-sealed rows, all ten families scored on the identical rows in each redraw, so
+the challenger-minus-anchor difference is paired by construction rather than by adjustment.
+Per candidate:</p>
+
+<div data-math-display="\mathrm{floor}_c = \max\left(2\,\mathrm{std}(d_c),\; \mathrm{range}(d_c)/2\right)"></div>
+
+<p>The direction matters more than the formula. In study 07 a per-method floor was a bar
+that bought a <em>draw</em> &mdash; a candidate was rewarded for its own noisiness, and that
+construction is banned here by name. Here the floor is a bar the candidate must
+<em>clear</em>, so a wide band penalises the case of the very candidate that produced it.
+Same arithmetic, opposite incentive.</p>
+
+<p>The ledger's single scalar takes the widest <em>challenger</em> floor and rounds it up to
+three decimals &mdash; hgbt's 0.07959988633051922 was binding:</p>
+
+<div data-math-display="\delta = \lceil \mathrm{floor}_{\mathrm{hgbt}} \rceil_{0.001} = 0.08"></div>
+
+<p>Controls are excluded from that maximum by registration: a deliberately
+information-destroyed control may not set the ruler. Escalation is raise-only, and the
+floor is a location-invariant dispersion functional &mdash; no observed gain can tune
+it.</p>
+
+<p><strong>The arena.</strong> Ten seeded repeats of stratified group 4-fold over the
+non-sealed pool, with nested whole-group quota subsampling down to each nominal rung, the
+same rows served to every family. Stage A fits the anchor and the two controls only
+&mdash; 720 fold-evaluations &mdash; and commits the per-rung headroom table <em>before any
+challenger arena number exists</em>. Stage B then runs the seven-family roster for a
+further 1,680. A whole-group quota cannot always land on the number you asked for: at
+nominal rung 60 the realized training size is 60 rows in 23 of the 40 fold-evaluations and
+59 in the other 17, while every lower rung landed exactly. The registered phrase is
+therefore always <em>nominal</em> rung 60, and "trained on 60 rows" without that qualifier
+is a banned sentence.</p>
+
+<p><strong>Open and closed rungs.</strong> Each rung carries its own bar,</p>
+
+<div data-math-display="\delta_n = \max\left(\lceil 2 s_n \rceil_{0.001},\; 0.005\right)"></div>
+
+<p>where 0.005 is a registered constant, not an estimated noise quantity. A rung is
+<strong>OPEN</strong> when <span data-math="m_n \ge \delta_n"></span>: the anchor's own mean
+error is at least as large as the bar, so a perfect oracle could clear it. Closure gets a
+descriptive label &mdash; <em>ceiling-closed</em> when the anchor is simply too near
+perfect, <em>fog-closed</em> when the lottery's own spread has outgrown the error.</p>
+
+<p><strong>The guard, named honestly.</strong> Bar-1 forms each cell's paired improvement
+over the anchor, summarises it per repeat, computes a t-statistic, and then applies
+Rademacher sign flips at the <em>repeat</em> level &mdash; all 1024 enumerated &mdash;
+simultaneously across a family of 42 cells, seven challengers by six rungs, fixed before
+the sweep ran. A cell clears at an adjusted score of at most 0.05, which on a grid of
+1/1024 means at most 51/1024. This is a <em>registered selection guard</em> under a
+symmetry assumption the design does not supply &mdash; never family-wise error control,
+never a statement about irises at large. And because the family size sits inside the
+statistic, a guard score here is not comparable with one from study 08's 113-cell family;
+the contract bans that comparison outright.</p>
+
+<p><strong>Bar-2</strong> needs all three at once: the guard cleared, the mean gain at least
+that candidate's own floor, and the rung open. Note which threshold governs what &mdash;
+<span data-math="\delta_n"></span> governs the <em>rung's</em> openness,
+<span data-math="\mathrm{floor}_c"></span> governs the <em>candidate's</em> bar. The two are
+never swapped.</p>
+
+<p><strong>The split law applies inside everything.</strong> Under this study's registered
+seed the twin pair landed in TRAIN, putting a multi-row group in the non-sealed pool. Study
+08's argument that a row-level inner cross-validation was lawful &mdash; because no
+multi-row group sat in its pool &mdash; therefore does not port. Every internal
+cross-validation here receives precomputed group-aware split <em>policies</em>, the sealed
+coda's own base included. That amendment is load-bearing, not decorative.</p>
+
+<p><strong>The seal is a band check, and nothing else.</strong> The frozen analysis picks
+the branch mechanically and writes a manifest before the confirmation phase; the sealed
+registry entries read it, so no code is edited after selection. Branch A would spend two
+looks; Branch B spends one and leaves the challenger seal shut. A band carries no nominal
+coverage once a winner has been chosen against the same folds that produced it, and this
+study never describes its coda as estimating anything.</p>
+
+<p><strong>Discipline that ran before the first gate.</strong> A pre-gate staging smoke
+scored development and sealed Briers under a candidate split seed. Nobody read the logs;
+they were deleted; the seed was retired and the split re-registered before the consult
+acknowledgement, with a standing law added that subagent smokes run on synthetic frames
+only. Two further seed namespaces were re-registered on build-time disclosures &mdash; a
+simulation truth seed colliding with training-draw seeds, a sensitivity seed sitting inside
+the arena's own subsampling range. All three fixes landed before any gate was recorded, and
+the near-misses stay in the sweep docstrings so they remain auditable.</p>
