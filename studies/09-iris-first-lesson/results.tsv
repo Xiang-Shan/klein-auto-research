@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	primary	0.026409	keep	f69f6e6d4e32353794f857a429c7d2507824edda	E0001 anchor_lda4 on the declared split (registered ladder step 1; the anchor IS the committed base config - allow-rerun per 07/08 mechanic); first valid result on this track

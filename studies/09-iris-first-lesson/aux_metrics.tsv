@@ -1,1 +1,17 @@
 experiment	metric	value
+E0001	val_auc	1.0
+E0001	val_pr_auc	1.0
+E0001	val_logloss	0.07082762149900486
+E0001	val_brier	0.02640880749483023
+E0001	val_lift_top10	3.3333333333333335
+E0001	val_best_threshold	0.05
+E0001	val_f1_at_best	1.0
+E0001	wall_seconds	0.03461194038391113
+E0001	min_proba_std	0.42251793179952934
+E0001	proba_range	0.9999888008252708
+E0001	proba_unique_values	20
+E0001	model_path	models/best_primary_E0001_0.0264088_5643113e72b7.joblib
+E0001	val_accuracy	0.95
+E0001	val_f1	0.9090909090909091
+E0001	cal_intercept	16.99334937571947
+E0001	cal_slope	8.270447266233768
