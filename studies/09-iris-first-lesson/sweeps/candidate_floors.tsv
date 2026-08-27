@@ -1,0 +1,11 @@
+family	role	stat_kind	k	mean_d	std_d	range_d	floor_c	floor_rule
+anchor_lda4	anchor	marginal-resplit	20	0.04302915	0.025041704470059333	0.087246	0.050083408940118666	2*std (MARGINAL; RQ0 exhibit only — never a clearance bar)
+lda_shrinkage	challenger	paired-comparison	20	-0.005105100000000001	0.011407226541008763	0.054835	0.0274175	max(2*std, range/2)
+qda	challenger	paired-comparison	20	0.0029930999999999994	0.016700814855317058	0.06444	0.033401629710634116	max(2*std, range/2)
+logit_l2	challenger	paired-comparison	20	0.004330800000000001	0.015776939739279038	0.057449	0.031553879478558075	max(2*std, range/2)
+knn_tuned	challenger	paired-comparison	20	0.01308225	0.02993168488913766	0.145932	0.072966	max(2*std, range/2)
+svm_rbf_platt	challenger	paired-comparison	20	0.009150299999999998	0.022452700283273862	0.08048	0.044905400566547723	max(2*std, range/2)
+hgbt	challenger	paired-comparison	20	0.055461800000000006	0.03979994316525961	0.146462	0.07959988633051922	max(2*std, range/2)
+tabpfn	challenger	paired-comparison	20	0.005821150000000001	0.016042552869018793	0.070093	0.0350465	max(2*std, range/2)
+lda_petal	control	paired-comparison	20	0.010331400000000001	0.030856873541869848	0.131417	0.0657085	max(2*std, range/2)
+lda_sepal	control	paired-comparison	20	0.1842198	0.03472369107320488	0.147733	0.0738665	max(2*std, range/2)

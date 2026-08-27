@@ -57,11 +57,23 @@ tracks:
       # sidecar (ledger h and per-candidate h_c) BEFORE any arena challenger
       # number exists, and record the pre-committed headroom acknowledgement
       # if h < 1 (the expected case).
-      minimum_delta: 0
-      # noise_floor: pasted after the metrology sweep, with
-      #   estimand: paired-comparison   (hand-added; klein noise-floor does not
-      #   emit the line). Full-precision per-candidate floors live in
-      #   sweeps/metrology_paired.sidecar.tsv + sweeps/candidate_floors.tsv.
+      # MEASURED 2026-08-27 (sweeps/candidate_floors.tsv, full precision):
+      # binding challenger = hgbt, floor_c 0.07959988633051922 -> ceil3dp 0.08;
+      # klein default max(2*std, range/2) IS the statistic (no raise);
+      # widest CONTROL floor 0.0738665 (lda_sepal) EXCLUDED by registration.
+      # ledger h = 0.026408807494830228 / 0.08 = 0.330 < 1: DOOR-CLOSED branch
+      # (predictions row 1) - ack recorded per the pre-committed note.
+      minimum_delta: 0.08   # ceil3dp(max challenger floor_c); binding: hgbt
+      noise_floor:
+        k: 20
+        std: 0.0397999
+        range: 0.146462
+        mean: 0.0554618
+        values: [0.020262, 0.056269, 0.08012, 0.038273, 0.039343, 0.004891, 0.010724, 0.126534, 0.073214, 0.151353, 0.032059, 0.051994, 0.044953, 0.019853, 0.081355, 0.043152, 0.116479, 0.010153, 0.058228, 0.050027]
+        source: "sweeps/metrology_paired.sidecar.tsv"
+        measured_after: "E0001"
+        method: "paired-redraw"
+        estimand: paired-comparison   # hand-added; klein noise-floor does not emit it
       bound:
         # Registered AT SCAFFOLD, before any measurement (study-09 improvement:
         # 08 computed headroom by hand in a comment; 09 arms klein's own
@@ -79,7 +91,17 @@ tracks:
     metric:
       name: "val_brier"
       goal: "lower"
-      minimum_delta: 0
+      minimum_delta: 0.08   # ceil3dp(max challenger floor_c); binding: hgbt
+      noise_floor:
+        k: 20
+        std: 0.0397999
+        range: 0.146462
+        mean: 0.0554618
+        values: [0.020262, 0.056269, 0.08012, 0.038273, 0.039343, 0.004891, 0.010724, 0.126534, 0.073214, 0.151353, 0.032059, 0.051994, 0.044953, 0.019853, 0.081355, 0.043152, 0.116479, 0.010153, 0.058228, 0.050027]
+        source: "sweeps/metrology_paired.sidecar.tsv"
+        measured_after: "E0001"
+        method: "paired-redraw"
+        estimand: paired-comparison   # hand-added; klein noise-floor does not emit it
       bound:
         ideal: 0.0
         on_infeasible: ack
