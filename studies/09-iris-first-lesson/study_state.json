@@ -80,7 +80,7 @@
       "note": "run-anyway: pre-registered DOOR-CLOSED branch \u2014 the scalar ledger delta is the widest challenger's paired floor, so h<1 was the RQ0 prior; the arena with per-candidate floors and the selection guard is the registered evidence; ledger-scale keeps are acknowledged arithmetically impossible; no re-scope, no redraw; see sweeps/rq0_headroom.tsv"
     }
   },
-  "last_experiment": 4,
+  "last_experiment": 5,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -97,5 +97,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T08:12:56.021717Z"
+  "updated_at": "2026-08-27T08:13:00.534141Z"
 }
