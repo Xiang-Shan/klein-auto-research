@@ -3,9 +3,14 @@
     "consult": {
       "by": "fable-5-orchestrator",
       "timestamp": "2026-08-27T07:56:28.312261Z"
+    },
+    "method": {
+      "by": "fable-5-orchestrator",
+      "timestamp": "2026-08-27T07:59:40.375309Z"
     }
   },
   "artifact_hashes": {
+    "method_card.md": "848b65c2c50b7afe35fbe65f0343f19ebc9d9b486cf136457fbdce4929373e70",
     "research_plan.md": "769997c72506be22156424a9acd0546f957d587aa981b1ff3a817c4da4390359",
     "study.yaml": "bd977c8103a965890327a91f294e8ea65a64f259a5f16cd93b4c5a2fc8257219"
   },
@@ -45,9 +50,13 @@
       "status": "pending"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-08-27T07:59:40.375309Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "artifacts": {
+        "method_card.md": "848b65c2c50b7afe35fbe65f0343f19ebc9d9b486cf136457fbdce4929373e70"
+      },
+      "note": "method card frozen: roster of 7 challengers + 2 controls + anchor, per-candidate paired floor rule (challengers-only max, ceil3dp, raise-only, blindness clause), 42-cell guard, arena geometry, group-aware coda amendment, agent-smoke law; frozen analysis clause armed",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -60,5 +69,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T07:56:28.312950Z"
+  "updated_at": "2026-08-27T07:59:40.375607Z"
 }
