@@ -1,0 +1,7 @@
+rung	n_folds_ok	anchor_failures	m_n	sd_n	delta_n	state	reason
+60	40	0	0.033239	0.033601	0.068	CLOSED	ceiling-closed
+45	40	0	0.034965	0.033610	0.068	CLOSED	ceiling-closed
+30	40	0	0.037129	0.034682	0.070	CLOSED	ceiling-closed
+20	40	0	0.046765	0.049158	0.099	CLOSED	ceiling-closed
+12	40	0	0.070511	0.073462	0.147	CLOSED	fog-closed
+8	40	0	0.105488	0.086718	0.174	CLOSED	fog-closed
