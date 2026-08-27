@@ -1,0 +1,9 @@
+scope	family	numerator_name	numerator	denominator_name	denominator	ideal	h	measurement_closed
+candidate	lda_shrinkage	anchor_metrology_mean	0.04302915	floor_c	0.0274175	0.0	1.569404577368469	False
+candidate	qda	anchor_metrology_mean	0.04302915	floor_c	0.033401629710634116	0.0	1.2882350463965764	False
+candidate	logit_l2	anchor_metrology_mean	0.04302915	floor_c	0.031553879478558075	0.0	1.3636722555538618	False
+candidate	knn_tuned	anchor_metrology_mean	0.04302915	floor_c	0.072966	0.0	0.5897150727736206	True
+candidate	svm_rbf_platt	anchor_metrology_mean	0.04302915	floor_c	0.044905400566547723	0.0	0.9582177078285449	True
+candidate	hgbt	anchor_metrology_mean	0.04302915	floor_c	0.07959988633051922	0.0	0.5405679829909793	True
+candidate	tabpfn	anchor_metrology_mean	0.04302915	floor_c	0.0350465	0.0	1.2277731014509294	False
+ledger	anchor_lda4	anchor_declared_dev	0.02640880749483023	minimum_delta	0.08	0.0	0.33011009368537786	True
