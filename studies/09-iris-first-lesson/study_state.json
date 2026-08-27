@@ -20,7 +20,7 @@
     "study.yaml": "44510480151c287ff528ad91287f95bb6813ac8e3f5780462c12b24c68b99361"
   },
   "created_at": "2026-08-27T07:08:26.298709Z",
-  "current_phase": "adaptive-3",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "challenger": {
       "accessed_at": null,
@@ -94,6 +94,12 @@
       "acknowledged_by": "fable-5-orchestrator",
       "note": "parade complete: E0004-E0010 all discard, 0 crash; best raw gap svm_rbf_platt 0.0094 = 0.12x scalar delta (and its own floor is h_c-closed); per-candidate readings live in RQ0 + the arena",
       "playbook_sha256": "4eec04987c72cd0b454b761587e0314b79a5ca3b0ab0a9c8f3a65218bfa29bbe"
+    },
+    "adaptive-3": {
+      "acknowledged_at": "2026-08-27T08:18:35.063746Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "note": "arena + analysis complete: 0/42 guard, 0 Bar-2, all rungs closed, sensitivity 0; control fired at every rung; RQ4 ceiling 0.775 at rung 60; sim identity green; coda_manifest Branch B committed before confirmation",
+      "playbook_sha256": "19b0dea256274ad62fc0282907a76fc2d48579ec42fcb0693aaabfb6290bd7ff"
     }
   },
   "prepared_data": {
@@ -103,5 +109,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T08:13:43.034511Z"
+  "updated_at": "2026-08-27T08:18:35.064079Z"
 }
