@@ -1,0 +1,271 @@
+schema_version: 2
+study_id: "09-iris-first-lesson"
+goal: "Measure, with per-candidate paired resolution thresholds and a registered family selection guard, whether any frozen modern challenger earns a licensed win over 1936 four-feature LDA on the fully scouted iris hard pair - and record what the evidence permits us to claim"
+domain: "small-n tabular classification (Fisher 1936 iris hard pair, n=100); companion known-DGP simulation lane for bias-variance teaching"
+target: "is_virginica"
+task_type: "classification"       # classification | regression | simulation
+method_depth: "full" # brief | full
+family: "anchor_lda4"
+
+# ------------------------------------------------------------------------------
+# DISCLOSURE (binds every description of this study): this is the THIRD study on
+# these 100 rows. Every value appeared in study 07's public ledger and sidecars;
+# study 08 additionally published BOTH sealed values (T1 0.077176, T2 0.066863)
+# and the full arena partition row-id lists (sweeps/arena_partitions.tsv). The
+# sealed ~20 rows of this study are PROCEDURALLY FRESH ONLY - the protocol never
+# conditions selection on them (group split, seed 20260912) - but no one is
+# blind to anything. Never "blind", "untouched", "virgin", "independent
+# replication". Framing: a prospectively locked reanalysis on fully scouted data.
+#
+# VOCABULARY LAW: klein ledger TRACKS are `primary`/`challenger` below. The
+# empirical-iris work vs the known-DGP simulation are called LANES (empirical
+# lane / simulation lane) - never "tracks" - so the two senses cannot collide.
+# ------------------------------------------------------------------------------
+
+# Two tracks: the confirmation phase spends ONE sealed look per track. The ledger
+# judges all development transactions (controls + parade) on the PRIMARY frontier
+# (study-08 pattern, verified from its manifests: challenger track carries no
+# development run). The challenger track exists ONLY to carry the second
+# registered sealed question under Branch A; under Branch B its seal stays shut
+# and finalize runs --allow-exploratory per the pre-registered branch rule.
+tracks:
+  primary:
+    metric:
+      name: "val_brier"
+      # Registered rationale (inherited 07/08, unchanged): ranking gauges
+      # saturate on this pair (AUC pegs at 1.000 on 14/20 of 07's dev splits and
+      # on 08's sealed rows); Brier is the registered probability-quality
+      # primary. RQ4 measures the saturation explicitly this time.
+      goal: "lower"     # higher | lower
+      # TO BE MEASURED - scaffold 0 is the only honest value before the paired
+      # metrology runs. Sequence (registered; no challenger arena number may
+      # exist before step 6): (1) E0001 anchor keep on the declared split;
+      # (2) E0002 lda_petal + E0003 lda_sepal controls; (3) k-seed fit-noise
+      # sweep (registered expectation: degenerate, LDA closed form);
+      # (4) sweeps/metrology_paired.py - 20 group-aware paired redraws of the
+      # ~80 non-sealed rows (GroupShuffleSplit test_size=0.25, draw seeds
+      # 2026099101-2026099120, DISJOINT from the declared split's {20260912,
+      # 20260913}, fixing study 07's declared-split=draw-1 self-reference
+      # defect by construction), fitting anchor + all 7 challengers + both
+      # controls on identical train rows, scoring identical eval rows;
+      # d_c = brier_c - brier_anchor per draw; per-candidate paired floor
+      # floor_c = max(2*std(d_c), range(d_c)/2) at FULL precision in the
+      # sidecar; (5) paste this block's noise_floor (binding challenger's
+      # series) + minimum_delta = ceil3dp(max over the 7 CHALLENGER floors -
+      # controls excluded: a control's floor may not set the ruler) into BOTH
+      # tracks and re-record the CONSULT gate; (6) publish the RQ0 headroom
+      # sidecar (ledger h and per-candidate h_c) BEFORE any arena challenger
+      # number exists, and record the pre-committed headroom acknowledgement
+      # if h < 1 (the expected case).
+      minimum_delta: 0
+      # noise_floor: pasted after the metrology sweep, with
+      #   estimand: paired-comparison   (hand-added; klein noise-floor does not
+      #   emit the line). Full-precision per-candidate floors live in
+      #   sweeps/metrology_paired.sidecar.tsv + sweeps/candidate_floors.tsv.
+      bound:
+        # Registered AT SCAFFOLD, before any measurement (study-09 improvement:
+        # 08 computed headroom by hand in a comment; 09 arms klein's own
+        # detection-limit audit). Brier's ideal is 0.0; h < 1 means not even a
+        # perfect score clears minimum_delta - the comparison is measurement-
+        # closed at the ledger scale and the pre-committed acknowledgement
+        # branch fires. h >= 1 means only "not arithmetically excluded",
+        # never "plausible" (klein v1.3 wording law).
+        ideal: 0.0
+        on_infeasible: ack
+    guardrails:
+      wall_seconds:
+        max: 60
+  challenger:
+    metric:
+      name: "val_brier"
+      goal: "lower"
+      minimum_delta: 0
+      bound:
+        ideal: 0.0
+        on_infeasible: ack
+    guardrails:
+      wall_seconds:
+        max: 60
+
+estimand:
+  # Ledger estimand (per track): the DECLARED-SPLIT paired delta vs the primary
+  # frontier, judged by the one scalar minimum_delta - conditional on these 100
+  # flowers and split seed 20260912. NOT a population claim, NOT a CI, NOT a
+  # significance test.
+  # Metrology estimand (RQ0): noise_floor.estimand = paired-comparison - the
+  # spread of challenger-minus-anchor differences on identical redraws. The
+  # anchor's own marginal-resplit spread is ALSO published for comparison;
+  # neither floor type is "the sharp one" a priori (07 measured paired > marginal
+  # for 5 of 6 families; RQ0 re-measures this at full rule strength).
+  # Arena estimand (sweeps, measurement-only): "Under the registered lottery -
+  # 10 seeded repeats of stratified group 4-fold over the ~80 non-sealed rows,
+  # nested whole-group quota subsampling to nominal rung n (realized n_actual <=
+  # nominal; distribution published) - the mean paired dev-Brier improvement of
+  # family f over the 1936 anchor, both deterministic seeded fits on identical
+  # train subsets. Mean across repeats = conditional average predictive risk
+  # under this procedure on these flowers; across-repeat SD = resampling
+  # instability (training variation + eval composition + model sensitivity -
+  # never 'model variance'). Not a statement about new irises."
+  # Simulation-lane estimand (RQ5, fully separate): expected Brier risk and its
+  # plug-in decomposition (irreducible + squared probability bias + training-set
+  # variance, ddof=0, analytic E_Y) over 100 registered training draws per
+  # (DGP, n) against a fixed known-truth sample. Teaches mechanisms under known
+  # p*(x); NEVER presented as the true iris DGP or as an empirical decomposition
+  # of studies 07-09.
+  comparison_family_size: 7        # challenger families judged on the ledger
+  arena_cell_family: "all 7 challenger x 6 rung cells (42); ONE global max-t; crashed/ineligible cells occupy their slots as never-firing placeholders"
+
+data:
+  source: "csv:data/prepared/iris_hard_pair.csv"
+  prepared_path: "data/prepared/iris_hard_pair.csv"
+  split:
+    # GROUP-AWARE, inherited ruling from study 07: hard-pair rows 51/92 (iris
+    # rows 102/143, both virginica) carry identical measurements (5.8, 2.7,
+    # 5.1, 1.9) - printed twice in Fisher's own 1936 Table I, so the
+    # duplication is original to the publication. Both rows share one group id
+    # (twins102-143) and always travel together. 99 groups over 100 rows.
+    # Never silently delete historical data.
+    kind: group           # stratified | random | group | time | none (simulation)
+    # Pre-committed fresh seed 20260912 (inner derived seed 20260913) - RETIRED:
+    # 20260909/20260910, scouted pre-gate (a staging smoke scored dev+sealed
+    # Briers under 20260909 before any ack; logs deleted; 07 seed-42 precedent;
+    # scouting_ledger S10). 20260912 is disjoint
+    # from every 07/08 namespace: 07 {42-retired, 20260828, 20260829-48,
+    # 20260828001-020 crashed, 0-4}, 08 {20260907, 20260908, 2026091001-020,
+    # 20260901001-020 crashed, 2026092001-010, 2026093100-2026094003,
+    # 2026095000, 2026096000, 0-4}. NO REDRAW under any outcome.
+    # Full 09 seed registry: metrology 2026099101-2026099120; arena repeats
+    # 2026099201-2026099210; SUBSET_SEED_BASE 2026099300 (+100j+k); analysis
+    # sensitivity 2026101500; simulation train 2026400000 + dgp*100000 +
+    # n_idx*1000 + rep; simulation truth 2026900000 + dgp. Every literal and
+    # derived seed < 2**32 (claim 08#C11: the overflow trap bit BOTH prior
+    # studies; every sweep asserts its seed domain in its header).
+    seed: 20260912
+    development_size: 0.20
+    test_size: 0.20
+    group_column: "group_id"
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 120
+phases:
+  - id: adaptive-1
+    description: "baseline + metrology: E0001 anchor_lda4 keep on the declared split; E0002 lda_petal + E0003 lda_sepal controls (delta=0 era, dispositions descriptive); k-seed fit-noise sweep (registered: degenerate, std exactly 0); sweeps/metrology_paired.py (20 paired redraws, seeds 2026099101-120) -> per-candidate paired floors at full precision -> paste noise_floor (estimand: paired-comparison) + minimum_delta = ceil3dp(max over 7 challenger floors) into BOTH tracks -> re-record consult -> publish RQ0 headroom sidecar (ledger h + per-candidate h_c) and record the pre-committed headroom ack if h < 1 -> Stage-A arena (anchor + controls only, all 6 rungs) committed BEFORE any challenger arena number exists"
+    budget_seconds: 1800
+    max_experiments: 4
+  - id: adaptive-2
+    description: "the declared-split parade: one run-one per registered challenger on the PRIMARY track, registry order (7 transactions; slack for crash rows). Dispositions are judged against the anchor frontier at the registered scalar delta; per-candidate readings live in the RQ0 sidecar. No arena challenger numbers exist at phase start."
+    budget_seconds: 1800
+    max_experiments: 10
+  - id: adaptive-3
+    description: "Stage-B arena (full 10-family roster, 6 nominal rungs, 40 fold-evals per cell) committed as sweeps/arena.sidecar.tsv; frozen sweeps/analysis.py (run under scripts/run_with_log.py -> sweeps/analysis.log) computes the per-rung headroom table, Bar-1 global sign-flip max-t (1024 enumerated repeat-level flips over the fixed 42-cell family), Bar-2, the fold-level SENSITIVITY exhibit (seed 2026101500), the one-sided worsening control (Bonferroni 0.05/6), and the mechanical sealed-coda branch -> sweeps/coda_manifest.json BEFORE the confirmation phase; simulation-lane outputs (sweeps/sim_dgp*) imported, decomposition identity test green in-repo"
+    budget_seconds: 3600
+    max_experiments: 2
+  - id: confirmation
+    description: "sealed final-tests per the pre-registered branch in sweeps/coda_manifest.json: Branch A (a challenger cleared its candidate bar AND the guard at rung 60, rung OPEN) = TWO sealed looks - coda_primary (anchor) band |sealed - E0001| <= 2*minimum_delta, coda_challenger (the mechanically selected winner, group-aware inner CV) vs its arena [p10,p90] fold-level-g band; Branch B (otherwise) = ONE sealed look, coda_primary only, the challenger seal stays shut and finalize runs --allow-exploratory per the pre-registered rule. Band-check role only; no nominal coverage after selection: the arena is the evidence; the seal is the discipline. 'confirmed'/'exploratory' are protocol-completion labels, never evidence upgrades."
+    budget_seconds: 600
+    max_experiments: 2
+
+research_questions:
+  - id: RQ0
+    question: "Measurement permission: for each registered challenger, is the Brier comparison arithmetically capable of clearing its OWN paired resolution threshold floor_c, given Brier's ideal bound 0.0 - i.e. h_c = (anchor metrology mean) / floor_c >= 1? And at the ledger scale, is h = anchor_dev / minimum_delta >= 1?"
+    prior: "ledger h < 1, P~0.8; per-candidate h_c < 1 for the wide-floor families (hgbt-class) but >= 1 for the tight-floor families (svm-class) (source: scouting-study-07 (measured) - recomputed full-rule paired floors 0.024-0.094 vs anchor scores ~0.019-0.027)"
+  - id: RQ1
+    question: "At nominal rung 60, does any registered challenger clear BOTH its candidate-specific paired bar (mean paired gain >= floor_c) AND the Bar-1 selection guard (joint repeat-level sign-flip max-t, adjusted score <= 0.05; a registered guard, not population inference), at an OPEN rung?"
+    prior: "no (source: scouted-studies-07/08 (measured) - 0 keeps in 25 challenger transactions and 0 Bar-2 cells in 113; this study's per-candidate bars are new, so the per-candidate reading is (source: derived))"
+  - id: RQ2
+    question: "Across nominal rungs n = 8..60, how do average predictive risk and resampling instability change - and does shrinkage LDA lead plain LDA descriptively where covariance estimation is fragile (n = 8, 12)?"
+    prior: "risk and instability grow as n falls; per-rung floors grow faster than family gaps (fog); shrinkage leads plain LDA at n <= 12 (source: scouting-study-08 (measured) - anchor rung means 0.0167->0.1292; shrinkage led the n<=12 descriptive board)"
+  - id: RQ3
+    question: "Feature sufficiency: how much probability quality does petal-only LDA retain vs the 4-feature anchor, and does sepal-only LDA fire as the preregistered positive control (one-sided worsening test at every measurable rung)?"
+    prior: "petal-only retains most (worse by ~1-1.5x the rung floor); sepal-only fires everywhere (source: scouting-study-07 (measured) - petal +1.29x delta07, sepal +4.31x delta07)"
+  - id: RQ4
+    question: "Metric meaning: at rungs where ROC-AUC / PR-AUC / F1 saturate (share of fold-evals at the ceiling published), do Brier, log loss, and calibration intercept/slope still separate the families?"
+    prior: "yes - ranking saturates on a majority of rung-60 fold-evals while Brier still orders families (source: derived from 07/08 AUC scouting; the fold-level saturation RATE is (source: uninformed))"
+  - id: RQ5
+    question: "Simulation lane, known DGPs: how do squared probability bias, training-set variance, and irreducible uncertainty trade as n grows, when the DGP (G1) matches LDA's assumptions, (G2) adds 16 irrelevant dimensions, (G3) breaks equal covariance, (G4) breaks linearity?"
+    prior: "G1: LDA undominated at every n; G2: LDA's penalty small vs flexible-model variance at small n; G3: QDA overtakes by n ~60-120; G4: hgbt/svm overtake the linear family by n ~60 (source: derived from theory; the measured crossover points are (source: uninformed))"
+
+predictions_to_falsify:
+  - lever: "ledger headroom branch DOOR-CLOSED (fires iff h = anchor_dev / minimum_delta < 1 after the paste)"
+    predicted_delta: "h < 1 with minimum_delta set by the widest challenger floor; the pre-committed acknowledgement is recorded and the parade runs anyway as a descriptive exhibit - per-candidate h_c keeps the tight-floor comparisons honestly open"
+  - lever: "ledger headroom branch DOOR-AJAR (fires iff h >= 1)"
+    predicted_delta: "a scalar-delta keep is arithmetically possible; the parade is a live contest and the ledger judges normally; no redraw, no re-registration"
+  - lever: "k-seed fit-noise sweep on anchor_lda4"
+    predicted_delta: "std exactly 0 (closed-form LDA) - zero algorithmic fit randomness under fixed inputs, and NOTHING MORE (not 'low variance')"
+  - lever: "paired vs marginal floors at the n=60 geometry"
+    predicted_delta: "floor_c (paired) exceeds the anchor's marginal 2*std for >= 5 of 7 challengers (07 recomputation gave 5/6 families)"
+  - lever: "shrinkage LDA vs plain LDA at nominal rung 8"
+    predicted_delta: "shrinkage mean Brier better by >= 0.02 (descriptive; mechanism reading stays an interpretation, not a registered decomposition)"
+  - lever: "sepal-only positive control"
+    predicted_delta: "separates (worsening test fires) at every measurable rung; a miss triggers instrument-downgrade language for that rung"
+  - lever: "sealed coda track primary (both branches)"
+    predicted_delta: "|sealed - E0001 dev| <= 2 x minimum_delta (07/08 convention band)"
+  - lever: "sealed coda track challenger (Branch A only)"
+    predicted_delta: "g_sealed = sealed_primary - sealed_challenger falls inside the winner's arena [p10, p90] fold-level-g band at rung 60 (registered sign convention); under Branch B this lever is reported NOT FIRED - the seal stays shut by rule"
+
+deliverables:
+  - findings.md
+  - report/index.html
+  - scouting_ledger.md
+  - claims.lock
+  - framework_assessment.md
+
+auxiliary_metrics:
+  # Long-format rows in aux_metrics.tsv / arena sidecar companions. Secondary
+  # metrics NEVER overturn the registered primary verdict after results are known.
+  registered:
+    - val_logloss        # eps clip 1e-6, registered; clip applies to logloss and
+    - val_auc            #   the logit transform ONLY - never to Brier terms
+    - val_pr_auc
+    - val_accuracy
+    - val_f1
+    - cal_intercept      # logit-scale recalibration fit on eval predictions
+    - cal_slope
+
+noise_floor_protocol:
+  statistic: "per-candidate paired floor: floor_c = max(2 x std(d_c), range(d_c)/2), ddof=1, over the 20 registered paired redraws, FULL precision in sweeps/candidate_floors.tsv; ledger scalar: minimum_delta = ceil3dp(max over the 7 CHALLENGER floors) - controls excluded from the max (a deliberately information-destroyed control may not set the ruler); same scalar on both tracks"
+  direction_rationale: "a per-candidate floor here is a CLEARANCE bar the candidate must beat - a wide band penalizes that candidate's own case. This is the opposite failure mode from study 07's banned per-method tie-buying floors (there a wide band bought a tie). The scalar ledger delta takes the WIDEST challenger floor: conservative, pre-committed, unreachable by tuning."
+  blindness_clause: "floor_c is a location-invariant dispersion functional of d_c (std and range ignore the mean), so the floor cannot be tuned by the observed gains; the verdict rule was frozen at the METHOD gate before the sweep ran; metrology means are SCOUTING quantities that the arena re-measures on different geometry - they are never quoted as RQ1 results."
+  cross_check: "klein protocol default max(2*std, range/2) is the statistic itself this time (no ceil-then-compare gap); RAISE-ONLY escalation: a floor may be raised by a documented rule, never lowered after seeing data. The enforced preflight bar (minimum_delta >= 1x std) is weaker than this registered 2x discipline; this block self-binds the study to the 2x rule."
+  estimand: "paired-comparison (the anchor's marginal-resplit spread is also published in the same sidecar for the RQ0 exhibit; a delta without a named estimand is not a registered decision rule)"
+
+claims_discipline:
+  banned:
+    - "tie"
+    - "equivalent"
+    - "no difference"
+    - "打平"
+    - "一样好"
+    - "等价"
+    - "独立复现"
+    - "blind replication"
+    - "untouched data"
+    - "virgin data"
+    - "any translation of 'did not clear the floor' into equality"
+    - "unscoped 'beat/beats Fisher' (every victory claim carries rung + bar scope)"
+    - "'significant' without the registered-guard qualifier"
+    - "generalizes / would hold on other data"
+    - "any coda description implying estimation rather than band-check"
+    - "'LDA has low bias and low variance' as an empirical-iris claim (the decomposition lives ONLY in the simulation lane)"
+    - "comparing p_guard values across studies (09's 42-cell max-t is not 08's 113-cell max-t)"
+    - "'trained on 60 rows' without the nominal-rung qualifier (realized n_actual <= nominal)"
+    - "conflating the two headroom numerators (ledger h uses E0001's declared-split score; h_c uses the anchor metrology mean - name which, every time)"
+    - "'business actionability' / 'material' for clearing a resolution threshold (no decision-value model is registered anywhere in this repo)"
+  sanctioned:
+    - "did not improve by >= its floor"
+    - "no keep earned"
+    - "measurement-closed (h or h_c < 1): the comparison cannot be won at this resolution; continued results are descriptive only"
+    - "claim permission / measurement permission (RQ0's product)"
+    - "open rung / closed rung; ceiling-closed / fog-closed"
+    - "headroom; not arithmetically excluded (never 'plausible')"
+    - "detectable but not actionable (Bar-1 without Bar-2; detectable = cleared the registered guard in this lottery)"
+    - "keep-sized"
+    - "procedurally fresh seal (all 100 values and both prior sealed values are public)"
+    - "resampling instability (never 'model variance' for the across-repeat SD)"
+    - "predictive risk under this procedure (never a new-iris population estimate)"
+    - "inductive-bias match (the sanctioned mechanism HYPOTHESIS for LDA's strength, labeled interpretation)"
+  claim_classes: "every claims.lock headline carries exactly one class: empirical-description | procedural-verdict | mechanism-interpretation | known-dgp-teaching | research-discipline"
+  labels: "'confirmed' / 'exploratory' are workflow protocol-completion labels, never scientific verdicts; Branch B pre-registers 'exploratory' as its planned outcome (the challenger seal stays shut when no comparison is licensed)"
+  simulation_firewall: "simulation-lane results are known-DGP teaching results: never presented as the true iris DGP, never as an empirical decomposition of studies 07-09; the decomposition is a plug-in over the 100 registered draws (ddof=0), not an unbiased population estimate"
+  framing: "This is a PROSPECTIVELY LOCKED THIRD STUDY ON FULLY SCOUTED DATA. Studies 07 and 08 - ledgers, sidecars, floors, both sealed values, arena row-ids - are scouting for this study and are enumerated in scouting_ledger.md. The registered protocol (seeds, per-candidate bars, guard family, branch rules, coda bands, finalize paths) was locked before any 09 measurement; that lock, not blindness, is the integrity claim."
+  scouting_ledger: "scouting_ledger.md - committed to this study directory BEFORE the CONSULT gate is recorded. findings prior scorecard counts ONLY priors tagged (source: uninformed)."
