@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 2,
+  "last_experiment": 3,
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
@@ -78,5 +78,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T08:05:40.670897Z"
+  "updated_at": "2026-08-27T08:07:00.500704Z"
 }
