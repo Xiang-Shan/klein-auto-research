@@ -103,7 +103,8 @@ nominal-rung qualifier apply throughout.
   plug-in decomposition (ddof=0; identity |total−(irr+bias²+var)| ≤ 8.3e-17
   across all 164 populated cells; 100 registered draws/cell): **G1** (LDA's
   world) — every model converges to the irreducible floor 0.1113; at n=8
-  shrinkage/logit edge plain LDA by variance (0.1479/0.1533 vs 0.1585); no
+  shrinkage edges plain LDA by variance (total 0.147921 vs 0.152878; var
+  0.035580 vs 0.040030; logit_l2 0.149338 between them); no
   nonlinear model beats the linear family at any n. **G2** (+16 irrelevant
   dims) — variance explodes at small n (plain LDA var 0.133 at n=12; shrinkage
   0.121) and **QDA is unfittable (rank-deficient) for n ≤ 30 — 400 recorded
@@ -172,8 +173,9 @@ G3 QDA leads from n=60; G4 hgbt/svm lead from n≈30–60 (observed-only).
   an interface seam between the independently built roster module (expects
   manifest key `primary`) and the frozen analysis (wrote `coda_primary`),
   integration-tested only against each side's own mock manifest, never the
-  real one. The traceback shows the failure inside `columns_for`, upstream of
-  `load_split`: **zero sealed values were computed or observed**. By the
+  real one. The raise fires at the `families.columns_for` call inside
+  `load_split`, before any model was built or any row read: **zero sealed
+  values were computed or observed**. By the
   framework's law any final_test manifest spends the seal ("a spent seal
   stays spent"; `run_one` refuses a second access from the ledger); primary
   is now 1/1 with a `crash` disposition and **the registered T1 band check is
@@ -195,3 +197,32 @@ G3 QDA leads from n=60; G4 hgbt/svm lead from n≈30–60 (observed-only).
    `--final-test` has no smoke mode, so a code-path defect in the sealed
    configuration costs the seal itself. P1 candidate: a dry-run that builds
    the model and resolves columns/manifest WITHOUT touching any partition.
+
+## ⑧ ERRATUM E1 (filed post-finalize; discovered by the tutorial build's number scan)
+
+- **[C15] · procedural-verdict + research-discipline · exploratory.**
+  `train.py` line 78 hardcodes `seed=20260909` — the RETIRED namespace — while
+  the contract registers 20260912. Root cause: the orchestrator's seed-
+  retirement sweep (S10) patched `families.py` and every prose artifact but
+  missed `train.py`'s literal. **Blast radius:** the LEDGER lane only —
+  E0001–E0011 all materialized their splits under the retired seed, so every
+  declared-split number in `results.tsv` (anchor 0.026409; the parade board;
+  the ledger-h numerator) is a *retired-partition* quantity: internally
+  consistent, honestly measured, but (a) mislabeled by its own docstrings and
+  (b) contaminated in the S10 sense — E0001's value equals one of the four
+  staging-smoke filename values that crossed the orchestrator's screen before
+  the retirement. **Clean by construction:** every sweep derives its pool from
+  the contract — the metrology floors, δ=0.08, the RQ0 candidate map, the
+  entire arena, the guard verdicts, RQ4, and the simulation lane all ran on
+  the registered 20260912 pool. The study's RQ0-candidate and RQ1 verdicts
+  are therefore unaffected; ledger-scoped claims are re-scoped in claims.lock
+  (erratum tags), not deleted. **Sealed:** no ledger transaction read a sealed
+  row under either seed (E0011 crashed pre-data); the registered 20260912
+  sealed partition was never touched by the ledger. **No re-run:** the study
+  is finalized; the record stands and this erratum travels with it.
+- Friction #5 filed: klein has no evaluator-vs-contract split-consistency
+  check — `train.py` may silently split differently from the fingerprinted
+  contract (the leakage tool reproduces the CONTRACT's split, not the
+  evaluator's). P1: run-one should verify the realized partition hash against
+  the contract fingerprint, or the evaluator should be forced through a
+  contract-driven split API. The whole class of defect disappears.

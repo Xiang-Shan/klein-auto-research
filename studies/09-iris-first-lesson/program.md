@@ -182,3 +182,12 @@ protocol completion only. The arena is the evidence; the seal is the discipline.
   pre-registered Branch-B `--allow-exploratory` path. Frictions filed:
   integration seam (mock-manifest-only testing) + no sealed dry-run in the
   framework (P1).
+
+- 2026-08-27 — ERRATUM E1 (post-finalize): train.py:78 hardcoded the retired
+  seed 20260909 (retirement sweep missed the file) — the ledger lane E0001–
+  E0011 ran on the retired partition; all sweeps ran on the registered
+  20260912 pool; sealed rows untouched by the ledger under either seed.
+  Filed as findings C15 + claims.lock erratum tags; no re-run (finalized).
+  Discovered by the tutorial build's zero-unsourced-numerals scan — the
+  process caught its own operator. Friction #5: no evaluator-vs-contract
+  split-consistency check in klein (P1).
