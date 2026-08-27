@@ -33,6 +33,18 @@
       "experiment": "E0011"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "challenger": 0,
+      "primary": 1
+    },
+    "label": "exploratory",
+    "successful_confirmation": {
+      "challenger": null,
+      "primary": null
+    },
+    "timestamp": "2026-08-27T08:24:07.068562Z"
+  },
   "fingerprints": {
     "data": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f",
     "split": "007fecba7fc55610c3f4543b1edc050e0733708d908cec41852d5757731cad11"
@@ -113,7 +125,7 @@
     "sha256": "83b90f4d465f72027d38d04e0a6b83330347d976a8e7c478dc553cd388c9fc8f"
   },
   "schema_version": 2,
-  "status": "active",
+  "status": "finalized",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T08:21:31.580841Z"
+  "updated_at": "2026-08-27T08:24:07.068567Z"
 }
