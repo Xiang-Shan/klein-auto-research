@@ -100,6 +100,12 @@
       "acknowledged_by": "fable-5-orchestrator",
       "note": "arena + analysis complete: 0/42 guard, 0 Bar-2, all rungs closed, sensitivity 0; control fired at every rung; RQ4 ceiling 0.775 at rung 60; sim identity green; coda_manifest Branch B committed before confirmation",
       "playbook_sha256": "19b0dea256274ad62fc0282907a76fc2d48579ec42fcb0693aaabfb6290bd7ff"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-08-27T08:21:26.823775Z",
+      "acknowledged_by": "fable-5-orchestrator",
+      "note": "entering confirmation per Branch-B coda_manifest: ONE sealed look (coda_primary, band |sealed-0.026409|<=0.16); challenger seal stays shut by pre-registered rule; sentences pre-committed in program.md are the only sealed vocabulary",
+      "playbook_sha256": "19b0dea256274ad62fc0282907a76fc2d48579ec42fcb0693aaabfb6290bd7ff"
     }
   },
   "prepared_data": {
@@ -109,5 +115,5 @@
   "schema_version": 2,
   "status": "active",
   "study_id": "09-iris-first-lesson",
-  "updated_at": "2026-08-27T08:18:35.064079Z"
+  "updated_at": "2026-08-27T08:21:26.824785Z"
 }
