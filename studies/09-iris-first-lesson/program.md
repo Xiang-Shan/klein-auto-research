@@ -161,3 +161,13 @@ Epistemic status, registered: the coda band has NO nominal coverage after
 selection — an in-band result is a procedurally locked audit at the 2δ scale,
 never an evidence upgrade; klein's `confirmed`/`exploratory` labels record
 protocol completion only. The arena is the evidence; the seal is the discipline.
+
+- 2026-08-27 — STATE FINGERPRINT REFRESH (pre-transaction): `klein new` freezes
+  `fingerprints.split` from the scaffold's placeholder seed 42; the pre-gate
+  contract rewrite (seed 20260912) left it stale and preflight FAILed. Applied
+  the 07/08 "state regenerated pre-gate" precedent narrowly: refreshed ONLY
+  `fingerprints.split` to the contract's value (no transaction exists; the
+  stale value was never a measured or enforced quantity; the hash-chained
+  event history is untouched and stays valid). Preflight 21/21 after commit.
+  Filed as a framework P1 candidate in framework_assessment.md: the DATA gate
+  refreshes the prepared-data fingerprint but not the split fingerprint.
