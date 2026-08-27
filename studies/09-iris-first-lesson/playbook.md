@@ -12,7 +12,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary | (pending E0001) | val_brier | anchor_lda4 = LDA(svd) on 4 features | — |
+| primary | E0001 | val_brier 0.026409 | anchor_lda4 = LDA(svd) on 4 features | adaptive-1 (delta=0 era; h=0.330 acked DOOR-CLOSED) |
 | challenger | (no development runs by design) | — | carries Branch-A sealed T2 only | — |
 
 ## Ruled out (evidence, not opinion)
@@ -44,3 +44,16 @@
 3. adaptive-3: Stage-B arena → frozen analysis → coda_manifest → sim lane import.
 4. confirmation: sealed per branch; finalize per pre-registered path; verify
    captured to sweeps/klein_verify.capture.log.
+
+## Adaptive-1 outcomes (refreshed at the phase boundary)
+
+- Controls: E0002 lda_petal 0.03135 discard · E0003 lda_sepal 0.156308 discard
+  (positive control fired on the declared split; worsening test at adaptive-3).
+- k-seed: degenerate, std exactly 0 (registered).
+- Floors: binding hgbt 0.0796 → δ 0.08; paired>marginal for only 2/7
+  (registered ≥5/7 prediction FALSIFIED — geometry-dependent, exhibit for RQ0).
+- RQ0 permission map: OPEN shrinkage 1.57 / logit 1.36 / qda 1.29 / tabpfn 1.23;
+  CLOSED svm 0.958 / knn 0.59 / hgbt 0.54; ledger DOOR-CLOSED h 0.330 (acked).
+- All six rungs CLOSED (60/45/30/20 ceiling, 12/8 fog) — Bar-2 requires an OPEN
+  rung, so RQ1's registered bar cannot be met unless Stage B moves m_n; the
+  guard and descriptive board remain the live questions.
