@@ -57,3 +57,11 @@
 - All six rungs CLOSED (60/45/30/20 ceiling, 12/8 fog) — Bar-2 requires an OPEN
   rung, so RQ1's registered bar cannot be met unless Stage B moves m_n; the
   guard and descriptive board remain the live questions.
+
+## Adaptive-2 outcomes (refreshed at the phase boundary)
+
+- Parade (all discard, 0 crash, registry order): shrinkage 0.030051 · qda
+  0.019434 · logit 0.025256 · knn 0.028349 · svm 0.016995 · hgbt 0.090989 ·
+  tabpfn 0.019730 vs anchor 0.026409. FOUR raw-better challengers (svm best,
+  gap 0.0094 = 0.12×δ; and svm is h_c-closed at 0.958) — the two-level verdict
+  law carries the reading: raw-better ≠ claimable.
