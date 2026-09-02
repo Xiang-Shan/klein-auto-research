@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .cli_claims import register as register_claims
 from .scaffold import scaffold_study
 from .workflow import (
     WorkflowError,
@@ -153,6 +154,8 @@ def build_parser() -> argparse.ArgumentParser:
         help="validate a v1 or v2 study; v1 studies get deprecation errata, never a rewrite",
     )
     _study_arg(verify)
+
+    register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     return parser
 
 
@@ -169,6 +172,8 @@ def _print_checks(checks) -> int:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
+        if (handler := getattr(args, "handler", None)) is not None:
+            return handler(args)  # a cli_<group> module's verb, dispatched generically
         if args.command_name == "new":
             study = scaffold_study(
                 args.root,

@@ -519,4 +519,9 @@ def verify_study(study_dir: Path) -> list[Check]:
             ),
             Check("legacy ledger", not problems, "; ".join(problems) or "valid"),
         ]
-    return preflight_checks(study_dir, require_clean=False, require_branch=False)
+    from .claims import claims_checks
+
+    checks = preflight_checks(study_dir, require_clean=False, require_branch=False)
+    # The claims law (references/claims-protocol.md): enforcing on schema 3,
+    # advisory on schema 2 so 07/08/09 never retro-fail. Empty without a lock.
+    return checks + claims_checks(study_dir, schema_version(contract))

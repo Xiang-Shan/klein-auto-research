@@ -143,3 +143,64 @@ def test_cli_crash_exit_and_workflow_error(monkeypatch, study: Path, capsys) -> 
     monkeypatch.setattr(cli, "status_summary", lambda _study: (_ for _ in ()).throw(WorkflowError("nope")))
     assert cli.main(["status", "--study", str(study)]) == 2
     assert "klein: error: nope" in capsys.readouterr().err
+
+
+CLAIMS_VERBS = ("init", "pin", "number", "add", "erratum", "verify")
+
+
+def test_cli_claims_verbs_are_registered_with_help(capsys) -> None:
+    """`klein claims <verb>` exists with the spelling the protocol documents."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    claims = actions[0].choices["claims"]
+    sub = [a for a in claims._subparsers._group_actions if a.dest == "claims_action"][0]
+    assert set(sub.choices) == set(CLAIMS_VERBS)
+    for verb in CLAIMS_VERBS:
+        help_text = sub.choices[verb].format_help()
+        assert "--study" in help_text
+        assert sub.choices[verb].description or sub._choices_actions
+
+    flags = sub.choices["verify"].format_help()
+    assert "--numbers" in flags and "--strict" in flags
+    assert "--from-legacy" in sub.choices["init"].format_help()
+    for flag in ("--value", "--art", "--claim", "--precision", "--note"):
+        assert flag in sub.choices["number"].format_help(), flag
+    for flag in ("--class", "--strength", "--claim", "--numbers", "--evidence"):
+        assert flag in sub.choices["add"].format_help(), flag
+    for flag in ("--claims", "--note", "--strength"):
+        assert flag in sub.choices["erratum"].format_help(), flag
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["claims", "--help"])
+    assert exit_info.value.code == 0
+    assert "claims.lock" in capsys.readouterr().out
+
+
+def test_cli_claims_dispatches_through_the_generic_handler(monkeypatch, tmp_path: Path) -> None:
+    """A cli_<group> module hangs its handler on the namespace; main() calls it."""
+    seen: list[str] = []
+
+    def fake(args) -> int:
+        seen.append(args.claims_action)
+        return 0
+
+    parser = cli.build_parser()
+    for verb in CLAIMS_VERBS:
+        argv = ["claims", verb, *(["a", "b"] if verb == "pin" else []), *_required(verb)]
+        assert callable(parser.parse_args(argv).handler), verb
+
+    args = parser.parse_args(["claims", "verify", "--study", str(tmp_path)])
+    args.handler = fake
+    monkeypatch.setattr(cli, "build_parser", lambda: parser)
+    monkeypatch.setattr(parser, "parse_args", lambda _argv=None: args)
+    assert cli.main(["claims", "verify"]) == 0
+    assert seen == ["verify"]
+
+
+def _required(verb: str) -> list[str]:
+    """The smallest argv each verb's required flags accept."""
+    return {
+        "number": ["alias", "--value", "1", "--art", "a"],
+        "add": ["C1", "--class", "procedural-verdict", "--strength", "exploratory", "--claim", "x"],
+        "erratum": ["E1", "--claims", "C1", "--note", "n"],
+    }.get(verb, [])
