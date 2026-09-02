@@ -1,0 +1,30 @@
+Dataset: Hubble (1929) Tables 1 and 2
+Source:  Hubble, E. (1929), "A relation between distance and radial velocity
+         among extra-galactic nebulae," Proceedings of the National Academy
+         of Sciences 15(3):168-173. DOI: 10.1073/pnas.15.3.168
+Author:  Edwin Hubble (Mount Wilson Observatory, Carnegie Institution of
+         Washington)
+License: Public domain in the United States. The article was published
+         March 15, 1929; its 95-year US copyright term (17 U.S.C. section 304)
+         expired at the end of 2024, so it has been in the public domain
+         since January 1, 2025. Independent of the term-expiration date, a
+         bare table of measured facts (distances, velocities, magnitudes) is
+         not itself copyrightable subject matter under Feist Publications,
+         Inc. v. Rural Telephone Service Co., 499 U.S. 340 (1991). No
+         additional rights are asserted here; if you reuse this data, cite
+         Hubble (1929) as above.
+
+The files in this directory are a manual transcription of the two data
+tables printed in the source article, cross-checked cell-by-cell against a
+second, independent transcription (see README.md "Both sources, fetched and
+diffed" for the two sources, URLs, access dates, and the diff result — no
+disagreements were found; values are reproduced exactly as printed,
+including the paper's own sign conventions and printed decimal precision).
+
+  hubble1929_table1.csv  (Table 1, 24 objects + 1 header row = 25 lines)
+    sha256: 86fda6be6fd3096a7c25669354bb306a0fbe030fb6f89039c7a5c49e301d0f28
+
+  hubble1929_table2.csv  (Table 2, 22 objects + 1 header row = 23 lines)
+    sha256: 99a287b546d1742bd7d1943bf405c0bac8eecb0ced8d7db713f11978baef2838
+
+Checksums recomputed with: shasum -a 256 <file>
