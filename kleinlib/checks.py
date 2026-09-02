@@ -21,6 +21,7 @@ from .contract import (
     _guardrail_entries,
     _phase_ids,
     load_contract,
+    mutable_surface,
     normalize_tracks,
     prepared_data_path,
     schema_version,
@@ -97,12 +98,16 @@ def _v2_ledger_problems(
     for index, manifest in enumerate(manifests, start=1):
         problems.extend(f"{manifest.get('experiment', index)}: {p}" for p in validate_manifest(manifest, index))
     try:
+        surface = mutable_surface(load_contract(study_dir))
+    except WorkflowError:
+        surface = ("train.py",)
+    try:
         repo = repo_root_for(study_dir)
-        train_rel = relative(repo, study_dir / "train.py")
+        surface_rels = [relative(repo, study_dir / name) for name in surface]
     except WorkflowError as exc:
         problems.append(str(exc))
         repo = None
-        train_rel = ""
+        surface_rels = []
     if repo is not None:
         for manifest_path, manifest in zip(
             _manifest_paths(study_dir), manifests, strict=True
@@ -130,7 +135,7 @@ def _v2_ledger_problems(
             if isinstance(base, str) and isinstance(candidate, str):
                 patch = git(
                     repo,
-                    ["diff", "--binary", base, candidate, "--", train_rel],
+                    ["diff", "--binary", base, candidate, "--", *surface_rels],
                     check=False,
                 )
                 if patch.returncode or sha256_bytes(patch.stdout.encode()) != manifest.get("code_patch_hash"):

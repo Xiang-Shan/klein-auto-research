@@ -45,6 +45,37 @@ def test_cli_new_builds_v2_study(tmp_path: Path, capsys) -> None:
     assert "experiments/03-cli-smoke" in capsys.readouterr().out
 
 
+def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
+    """The docs are the spec for the surface: what they promise must parse."""
+    parser = cli.build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--help"])
+    top = capsys.readouterr().out
+    for verb in ("new", "gate", "preflight", "run-one", "recover", "status",
+                 "finalize", "noise-floor", "verify", "headroom"):
+        assert verb in top
+
+    for argv, attr, expected in (
+        (["new", "x", "--schema-version", "2"], "schema_version", 2),
+        (["new", "x"], "schema_version", 3),
+        (["new", "x", "--kind", "optimize"], "kind", "optimize"),
+        (["new", "x", "--modality", "graph"], "modality", "graph"),
+        (["new", "x", "--profile", "math"], "profile", "math"),
+        (["new", "x", "--profile-doc", "profiles/p.md"], "profile_doc", "profiles/p.md"),
+        (["new", "x", "--audience", "chemists"], "audience", "chemists"),
+        (["new", "x", "--track", "a", "--track", "b:registered"], "track", ["a", "b:registered"]),
+        (["new", "x", "--split-seed", "7"], "split_seed", 7),
+        (["verify", "--require-local"], "require_local", True),
+    ):
+        assert getattr(parser.parse_args(argv), attr) == expected
+
+    for argv in (["new", "x", "--kind", "guess"], ["new", "x", "--modality", "audio"],
+                 ["new", "x", "--profile", "climate"], ["new", "x", "--schema-version", "4"]):
+        with pytest.raises(SystemExit):
+            parser.parse_args(argv)
+        capsys.readouterr()
+
+
 def test_cli_gate_and_preflight_paths(monkeypatch, study: Path, capsys) -> None:
     calls: list[tuple] = []
     monkeypatch.setattr(cli, "resolve_study", lambda _path: study)

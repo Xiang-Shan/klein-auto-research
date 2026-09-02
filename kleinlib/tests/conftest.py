@@ -1,14 +1,15 @@
 """Shared fixtures for kleinlib tests.
 
-``ready_study`` lives in ``test_workflow_v2``; re-exporting it here makes it
-injectable by name in sibling modules without imports that shadow fixture
-parameters (ruff F811).
+``ready_study`` lives in ``test_workflow_v2`` and ``ready_study_v3`` in
+``test_workflow_v3``; re-exporting them here makes each injectable by name in
+sibling modules without imports that shadow fixture parameters (ruff F811).
 """
 
 import sys
 
 import pytest
 from test_workflow_v2 import ready_study  # noqa: F401
+from test_workflow_v3 import ready_study_v3  # noqa: F401
 
 
 def _forget_loaders_module() -> None:

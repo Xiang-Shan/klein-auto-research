@@ -25,7 +25,7 @@ import yaml
 from .contract import (
     GATE_ARTIFACTS,
     PLACEHOLDER_RE,
-    SCHEMA_VERSION,
+    SUPPORTED_SCHEMA_VERSIONS,
     _phase_ids,
     load_contract,
     normalize_tracks,
@@ -60,7 +60,7 @@ def initial_state(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, Any
     tracks = normalize_tracks(contract)
     phase_ids = _phase_ids(contract)
     return {
-        "schema_version": SCHEMA_VERSION,
+        "schema_version": schema_version(contract),
         "study_id": contract.get("study_id", study_dir.name),
         "created_at": utc_now(),
         "updated_at": utc_now(),
@@ -138,8 +138,19 @@ def load_state(study_dir: Path, contract: Mapping[str, Any], *, create: bool = F
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise WorkflowError(f"invalid study_state.json: {exc}") from exc
-    if not isinstance(value, dict) or value.get("schema_version") != SCHEMA_VERSION:
-        raise WorkflowError("study_state.json must be a schema_version 2 object")
+    declared = schema_version(contract)
+    if not isinstance(value, dict) or value.get("schema_version") not in SUPPORTED_SCHEMA_VERSIONS:
+        raise WorkflowError("study_state.json must be a schema_version 2 or 3 object")
+    recorded = value.get("schema_version")
+    if declared != recorded:
+        # A contract that says 3 over state written under 2 would run schema-3
+        # rules against schema-2 receipts.  Nothing notarized is ever rewritten
+        # in place, so this is a migration, not a load.
+        raise WorkflowError(
+            f"study.yaml declares schema_version {declared} but study_state.json was "
+            f"written at schema_version {recorded} — a study is not migrated by editing "
+            "its contract; see docs/migration-schema2-to-3.md"
+        )
     reconcile_state(value, contract)
     return value
 
@@ -178,8 +189,8 @@ def record_gate(
     phase: str | None = None,
 ) -> dict[str, Any]:
     contract = load_contract(study_dir)
-    if schema_version(contract) != SCHEMA_VERSION:
-        raise WorkflowError("gate state is available only for schema_version 2 studies")
+    if schema_version(contract) not in SUPPORTED_SCHEMA_VERSIONS:
+        raise WorkflowError("gate state is available only for schema_version 2 or 3 studies")
     if not acknowledged_by.strip():
         raise WorkflowError("--acknowledged-by is required")
     with StudyLock(study_dir):
@@ -346,8 +357,8 @@ def acknowledge_headroom(
     (a pre-committed door-closed sentence, study-08 style).
     """
     contract = load_contract(study_dir)
-    if schema_version(contract) != SCHEMA_VERSION:
-        raise WorkflowError("headroom state is available only for schema_version 2 studies")
+    if schema_version(contract) not in SUPPORTED_SCHEMA_VERSIONS:
+        raise WorkflowError("headroom state is available only for schema_version 2 or 3 studies")
     if not acknowledged_by.strip():
         raise WorkflowError("--acknowledged-by is required")
     if not note.strip():

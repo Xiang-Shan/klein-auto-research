@@ -61,7 +61,9 @@ from .contract import (
     _phase_ids,
     _phase_spec,
     _placeholder_locations,  # noqa: F401  (re-export)
+    entrypoint_spec,
     load_contract,
+    mutable_surface,
     normalize_tracks,
     prepared_data_path,
     resolve_study,
@@ -419,27 +421,37 @@ def run_one(
         number = len(manifests) + 1
         run_id = f"E{number:04d}"
 
-        train_rel = _relative(repo, study_dir / "train.py")
+        surface = mutable_surface(contract)
+        surface_rels = [_relative(repo, study_dir / name) for name in surface]
+        surface_names = ", ".join(surface)
+        # Schema 2 always ran train.py; schema 3 names its entrypoint by kind
+        # (a Hubble regression is not "trained"), so the default command comes
+        # from the contract.  ``--command`` still overrides either.
+        default_command: tuple[str, ...] = (
+            tuple(entrypoint_spec(contract)["command"])
+            if schema_version(contract) >= 3
+            else ("uv", "run", "--locked", "python", "-u", "train.py")
+        )
         if (
             not final_test
             and command is None
             and not allow_rerun
-            and not _git(repo, ["status", "--porcelain", "--", train_rel]).stdout.strip()
+            and not _git(repo, ["status", "--porcelain", "--", *surface_rels]).stdout.strip()
         ):
             # Before any E#### is allocated, run dir created, or commit made —
             # a refusal here burns nothing. The sealed final test re-runs the
             # incumbent with an empty diff BY DESIGN and stays exempt, as do
             # declared --command overrides.
             raise WorkflowError(
-                "train.py is unchanged since HEAD — this run would re-execute the "
-                "incumbent configuration and burn a phase slot; edit train.py with "
+                f"{surface_names} is unchanged since HEAD — this run would re-execute the "
+                f"incumbent configuration and burn a phase slot; edit {surface_names} with "
                 "ONE falsifiable change, or pass --allow-rerun for an intentional "
                 "identical replication"
             )
         base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
-        _git(repo, ["add", "--", train_rel])
+        _git(repo, ["add", "--", *surface_rels])
         candidate_commit = _git_commit(repo, f"candidate {run_id}: {description or track}", allow_empty=True)
-        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", train_rel]).stdout.encode()
+        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", *surface_rels]).stdout.encode()
         patch_hash = sha256_bytes(patch)
         empty_diff = patch == b""
         env_hash, env_details = environment_fingerprint(repo)
@@ -447,7 +459,9 @@ def run_one(
         run_dir.mkdir(parents=True, exist_ok=False)
         log_path = run_dir / "run.log"
         manifest: dict[str, Any] = {
-            "schema_version": SCHEMA_VERSION,
+            # The manifest is a receipt of the rule set the run was judged
+            # under, so it carries the CONTRACT's version, not a constant.
+            "schema_version": schema_version(contract),
             "experiment": run_id,
             "track": track,
             "phase": phase_id,
@@ -458,7 +472,7 @@ def run_one(
             "base_commit": base_commit,
             "candidate_commit": candidate_commit,
             "code_patch_hash": patch_hash,
-            "command": list(command or ("uv", "run", "--locked", "python", "-u", "train.py")),
+            "command": list(command or default_command),
             "max_run_seconds": timeout,
             "phase_budget_seconds": phase_budget,
             "phase_experiment_limit": int(phase["max_experiments"]),
@@ -501,7 +515,7 @@ def run_one(
             }
             save_state(study_dir, state)
 
-        cmd = tuple(command or ("uv", "run", "--locked", "python", "-u", "train.py"))
+        cmd = tuple(command or default_command)
         process = run_subprocess(
             cmd,
             cwd=study_dir,
@@ -590,7 +604,7 @@ def run_one(
 
         restored = manifest["disposition"] != "keep" or final_test
         if restored:
-            _git(repo, ["restore", "--source", base_commit, "--", train_rel])
+            _git(repo, ["restore", "--source", base_commit, "--", *surface_rels])
         _complete_evidence_transaction(
             repo, study_dir, manifest, restored_train=restored
         )
@@ -699,10 +713,12 @@ def recover(study_dir: Path) -> list[str]:
                 study_dir, run_id
             )
             atomic_write_json(manifest_path, manifest)
-            train_rel = _relative(repo, study_dir / "train.py")
+            surface_rels = [
+                _relative(repo, study_dir / name) for name in mutable_surface(contract)
+            ]
             restored = manifest.get("disposition") != "keep" or manifest.get("evaluation_kind") == "final_test"
             if restored:
-                _git(repo, ["restore", "--source", str(manifest["base_commit"]), "--", train_rel])
+                _git(repo, ["restore", "--source", str(manifest["base_commit"]), "--", *surface_rels])
             save_state(study_dir, state)
             _complete_evidence_transaction(
                 repo, study_dir, manifest, restored_train=restored, recovery=True
