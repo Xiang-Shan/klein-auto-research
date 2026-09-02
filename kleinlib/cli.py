@@ -155,6 +155,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="validate a v1 or v2 study; v1 studies get deprecation errata, never a rewrite",
     )
     _study_arg(verify)
+    verify.add_argument(
+        "--require-local",
+        action="store_true",
+        help="fail (instead of [WARN]) when an artifact policy keeps out of git — "
+        "prepared data, a model blob marked committed:false — is absent; use after "
+        "regenerating the study's local artifacts",
+    )
 
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     register_doctor(sub)
@@ -320,7 +327,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"finalized: {label}")
             return 0
         if args.command_name == "verify":
-            return _print_checks(verify_study(study))
+            return _print_checks(verify_study(study, require_local=args.require_local))
     except (WorkflowError, FileExistsError, ValueError) as exc:
         print(f"klein: error: {exc}", file=sys.stderr)
         return 2

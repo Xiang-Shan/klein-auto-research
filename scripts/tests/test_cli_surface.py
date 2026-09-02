@@ -103,9 +103,19 @@ def test_cli_run_status_recover_finalize_and_verify(monkeypatch, study: Path, ca
     assert cli.main(["finalize", "--study", str(study), "--allow-exploratory"]) == 0
     assert "finalized: exploratory" in capsys.readouterr().out
 
-    monkeypatch.setattr(cli, "verify_study", lambda _study: [Check("contract", True, "valid")])
+    seen: dict[str, object] = {}
+
+    def _verify(_study, *, require_local=False):
+        seen["require_local"] = require_local
+        return [Check("contract", True, "valid")]
+
+    monkeypatch.setattr(cli, "verify_study", _verify)
     assert cli.main(["verify", "--study", str(study)]) == 0
     assert "0 failed" in capsys.readouterr().out
+    assert seen["require_local"] is False
+    assert cli.main(["verify", "--study", str(study), "--require-local"]) == 0
+    capsys.readouterr()
+    assert seen["require_local"] is True
 
 
 def test_cli_verify_reports_v1_errata_without_rewriting(monkeypatch, tmp_path: Path, capsys) -> None:

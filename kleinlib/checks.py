@@ -43,7 +43,7 @@ from .schema import AUTO_PRINTED_METRIC_KEYS, EVALUATOR_PRINTED_KEYS
 from .state import load_state
 from .transaction import current_branch, git, git_blob, relative, repo_root_for
 
-__all__ = ["Check", "preflight_checks", "verify_study"]
+__all__ = ["ABSENT_LOCAL_ARTIFACT", "Check", "preflight_checks", "verify_study"]
 
 @dataclass(frozen=True)
 class Check:
@@ -53,12 +53,47 @@ class Check:
 
 
 
-def _v2_ledger_problems(study_dir: Path) -> list[str]:
+#: The one sentence every "the bytes are not here, and policy says they never
+#: would be" report uses.  ``klein verify`` on a bare clone must be able to check
+#: what was actually committed; a prepared dataset under a gitignored path and a
+#: model blob whose manifest says ``committed: false`` are absent by design, not
+#: by damage.  The recorded hash stays in the message so the claim is still
+#: falsifiable the moment the artifact is regenerated.
+ABSENT_LOCAL_ARTIFACT = (
+    "local artifact absent (not committed by policy) — hash recorded {sha}; "
+    "re-run prepare.py / `klein replicate` to re-check"
+)
+
+
+def _is_git_ignored(repo: Path | None, path: Path) -> bool:
+    """True when .gitignore covers ``path`` (tracked paths are never ignored)."""
+    if repo is None:
+        return False
+    try:
+        rel = relative(repo, path)
+    except WorkflowError:
+        return False
+    result = git(repo, ["check-ignore", "-q", "--", rel], check=False)
+    return result.returncode == 0
+
+
+def _v2_ledger_problems(
+    study_dir: Path, *, require_local: bool = True
+) -> tuple[list[str], list[str]]:
+    """(hard problems, policy-absent artifacts) for the ledger-integrity check.
+
+    With ``require_local`` (the default, and what ``klein preflight`` uses) an
+    absent local-only artifact is a hard problem exactly as before.  Without it
+    — ``klein verify`` on a fresh checkout — the absence moves to the second
+    list and becomes a ``[WARN]``.  A PRESENT artifact is byte-checked
+    identically either way.
+    """
     problems: list[str] = []
+    absences: list[str] = []
     try:
         manifests = load_manifests(study_dir)
     except WorkflowError as exc:
-        return [str(exc)]
+        return [str(exc)], absences
     for index, manifest in enumerate(manifests, start=1):
         problems.extend(f"{manifest.get('experiment', index)}: {p}" for p in validate_manifest(manifest, index))
     try:
@@ -130,7 +165,13 @@ def _v2_ledger_problems(study_dir: Path) -> list[str]:
                             elif sha256_file(path) != expected_hash:
                                 problems.append(f"{run_id}: run-log hash mismatch: {rel}")
                     elif not path.is_file():
-                        problems.append(f"{run_id}: local artifact missing: {rel}")
+                        if require_local or committed:
+                            problems.append(f"{run_id}: local artifact missing: {rel}")
+                        else:
+                            absences.append(
+                                f"{run_id}: {rel}: "
+                                + ABSENT_LOCAL_ARTIFACT.format(sha=expected_hash)
+                            )
                     elif sha256_file(path) != expected_hash:
                         problems.append(f"{run_id}: local artifact hash mismatch: {rel}")
     try:
@@ -143,7 +184,7 @@ def _v2_ledger_problems(study_dir: Path) -> list[str]:
         problems.append("results.tsv is missing")
     elif expected is not None and path.read_text(encoding="utf-8") != expected:
         problems.append("results.tsv is not the exact derived view of runs/*/manifest.json")
-    return problems
+    return problems, absences
 
 
 def _artifact_hash_problems(study_dir: Path, state: Mapping[str, Any]) -> list[str]:
@@ -181,6 +222,7 @@ def preflight_checks(
     *,
     require_clean: bool = True,
     require_branch: bool = True,
+    require_local: bool = True,
 ) -> list[Check]:
     checks: list[Check] = []
     try:
@@ -296,18 +338,51 @@ def preflight_checks(
     event_problems = verify_event_chain(study_dir)
     checks.append(Check("event chain", not event_problems, "; ".join(event_problems) or "valid"))
 
+    recorded_data = state.get("fingerprints", {}).get("data")
     try:
-        current_data = fingerprint_path(prepared_data_path(study_dir, contract))
-        recorded_data = state.get("fingerprints", {}).get("data")
-        checks.append(Check("prepared-data fingerprint", current_data == recorded_data, f"current={current_data}; recorded={recorded_data}"))
+        prepared = prepared_data_path(study_dir, contract)
     except WorkflowError as exc:
         checks.append(Check("prepared-data fingerprint", False, str(exc)))
+    else:
+        repo_for_ignore = None
+        try:
+            repo_for_ignore = repo_root_for(study_dir)
+        except WorkflowError:
+            pass
+        policy_absent = (
+            not require_local
+            and not prepared.exists()
+            and isinstance(recorded_data, str)
+            and _is_git_ignored(repo_for_ignore, prepared)
+        )
+        if policy_absent:
+            checks.append(
+                Check(
+                    "prepared-data fingerprint",
+                    True,
+                    "[WARN] " + ABSENT_LOCAL_ARTIFACT.format(sha=recorded_data),
+                )
+            )
+        else:
+            try:
+                current_data = fingerprint_path(prepared)
+                checks.append(Check("prepared-data fingerprint", current_data == recorded_data, f"current={current_data}; recorded={recorded_data}"))
+            except WorkflowError as exc:
+                checks.append(Check("prepared-data fingerprint", False, str(exc)))
     current_split = split_fingerprint(contract)
     recorded_split = state.get("fingerprints", {}).get("split")
     checks.append(Check("split fingerprint", current_split == recorded_split, f"current={current_split}; recorded={recorded_split}"))
 
-    ledger_problems = _v2_ledger_problems(study_dir)
-    checks.append(Check("ledger integrity", not ledger_problems, "; ".join(ledger_problems) or "derived view matches manifests"))
+    ledger_problems, ledger_absences = _v2_ledger_problems(
+        study_dir, require_local=require_local
+    )
+    if ledger_problems:
+        ledger_message = "; ".join(ledger_problems)
+    elif ledger_absences:
+        ledger_message = "[WARN] " + "; ".join(ledger_absences)
+    else:
+        ledger_message = "derived view matches manifests"
+    checks.append(Check("ledger integrity", not ledger_problems, ledger_message))
     try:
         manifests = load_manifests(study_dir)
     except WorkflowError as exc:
@@ -491,7 +566,7 @@ def _headroom_check(
 
 
 
-def verify_study(study_dir: Path) -> list[Check]:
+def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]:
     contract = load_contract(study_dir)
     if schema_version(contract) == 1:
         problems = _legacy_results_problems(study_dir / "results.tsv")
@@ -521,7 +596,12 @@ def verify_study(study_dir: Path) -> list[Check]:
         ]
     from .claims import claims_checks
 
-    checks = preflight_checks(study_dir, require_clean=False, require_branch=False)
+    checks = preflight_checks(
+        study_dir,
+        require_clean=False,
+        require_branch=False,
+        require_local=require_local,
+    )
     # The claims law (references/claims-protocol.md): enforcing on schema 3,
     # advisory on schema 2 so 07/08/09 never retro-fail. Empty without a lock.
     return checks + claims_checks(study_dir, schema_version(contract))

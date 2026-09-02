@@ -16,6 +16,14 @@ engine change is committed.
 uv run --no-sync python scripts/verify_shipped_studies.py [--studies 07-iris-90years ...]
 ```
 
+Two artifact classes are never committed by policy: prepared datasets (`.gitignore`:
+`data/`) and unsafe model payloads (`*.joblib` and friends, whose manifests record
+`committed: false, availability: local`). In a fresh clone their bytes are simply not
+there, so `klein verify` reports each absence as `[WARN] local artifact absent (not
+committed by policy) — hash recorded <sha>` and passes; a PRESENT artifact is still
+byte-checked against that hash. A job that regenerates the local artifacts first
+should use `klein verify --require-local`, which turns absence back into a failure.
+
 ## `verify_e2e.py`
 
 Local, one-command proof that the legacy compatibility pipeline still works on
