@@ -40,6 +40,11 @@ jobs:
     name: Apple Silicon MPS canary
     runs-on: macos-14
     timeout-minutes: 25
+    # The hosted runner has run out of MPS memory weekly since 2026-08-17 (a runner
+    # defect, not an engine one): the canary reports but never blocks.
+    continue-on-error: true
+    env:
+      PYTORCH_MPS_HIGH_WATERMARK_RATIO: "0.0"
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v8.3.2

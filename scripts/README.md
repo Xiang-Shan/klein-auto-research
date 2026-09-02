@@ -5,6 +5,17 @@ Repo-level tooling that isn't part of the `klein` skill itself (that lives under
 `make_figures.py`; scaffolding and preflight checks are the packaged `klein new` /
 `klein preflight` CLI verbs).
 
+## `verify_shipped_studies.py`
+
+The guard rail CI runs on every push: discovers every `studies/*/study.yaml` with a
+`schema_version`, runs `klein verify` on each, prints a passed / warned / failed
+table, and exits non-zero if any shipped ledger stops verifying. Run it before any
+engine change is committed.
+
+```bash
+uv run --no-sync python scripts/verify_shipped_studies.py [--studies 07-iris-90years ...]
+```
+
 ## `verify_e2e.sh`
 
 Local, one-command proof that the legacy compatibility pipeline still works on

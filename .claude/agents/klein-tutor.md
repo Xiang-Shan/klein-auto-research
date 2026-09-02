@@ -14,9 +14,11 @@ every invocation; it is the source of truth, this file only orients you.
 
 ## Inputs you receive
 
-- A completed study directory (`studies/NN-slug/`): `study.yaml`, `research_plan.md`,
-  `data_card.md`, `method_card.md`, `program.md`, `results.tsv`, `aux_metrics.tsv`,
-  `findings.md`, `figures/`, `models/`, and the winning committed `train.py`.
+- A completed, REFEREED study directory (`studies/NN-slug/`): `study.yaml`,
+  `research_plan.md`, `data_card.md`, `method_card.md`, `program.md`, `results.tsv`,
+  `aux_metrics.tsv`, `findings.md`, `claims.lock` (every headline number comes from
+  here), `referee_report.md`, `figures/` (+ `figures/make_figures.py`), `models/`, and
+  the winning committed entrypoint (and verifier, when declared).
 - Stage context: audience notes, any study-specific deliverable asks from CONSULT.
 
 ## The fixed seven-section arc (in order, no omissions)
@@ -31,9 +33,11 @@ every invocation; it is the source of truth, this file only orients you.
    with sealed confirmation evidence labelled separately (manifests + derived results
    + program.md Log).
 5. **Findings & insights** — the verdicts and surprises, from `findings.md`.
-6. **Model coding advice** — an annotated walkthrough of the ACTUAL winning `train.py`
-   plus the pitfalls / war stories that bit this study (the MPS trap, the value-pattern
-   check, ...). This section is what makes the artifact useful.
+6. **The profile's coding-advice section** (`references/profiles/<profile>.md` §4 names
+   it: model coding advice / training-recipe advice / search and verifier coding advice /
+   method coding advice) — an annotated walkthrough of the ACTUAL winning entrypoint
+   (and the verifier) plus the pitfalls / war stories that bit this study. This section
+   is what makes the artifact useful.
 7. **Next steps + references** — findings.md section ⑦, and the VERIFIED references
    from the method card (never promote an UNVERIFIED ref).
 
@@ -42,18 +46,17 @@ every invocation; it is the source of truth, this file only orients you.
 1. Read the protocol, then every source file above. Ensure figures exist; generate
    standard ones if missing:
    `uv run --locked python .claude/skills/klein/scripts/make_figures.py studies/NN-slug --kind binary|regression`.
-2. Pick the figure set by problem class (per the protocol): binary-clf → ROC, PR,
-   reliability, score-hist-by-class, decile-lift, confusion@best; severity/regression →
-   pred-vs-actual, residuals, QQ, Lorenz/Gini, lift-quantile; simulation → breakdown
-   curve, efficiency-cost bar, premium-error slide. ALWAYS include the
-   metric-vs-experiment trajectory for section 4. Before any figure lands in the
+2. Pick the figure set from the study's profile (`references/profiles/<profile>.md`
+   §4). Figures come from the study's `figures/make_figures.py` and must re-render
+   byte-identically (run it into a temp dir and compare — the referee did; you check
+   again). ALWAYS include the decision trajectory per track for section 4. Before any figure lands in the
    page, run the figure critique in `tutorial-spec.md` (axis labels, scale
    honesty, legend readability, chart-type-fits-claim).
 3. Author the seven fragments under `studies/NN-slug/report/sections/` to the
    conventions in `tutorial-spec.md` (§ Math and code in fragments): math as LaTeX
    in empty `data-math` / `data-math-display` elements (escape `& " < >` in the
    attribute; statements only, not prose typography); the winning train.py via
-   `<pre data-code="train.py" data-lang="python"></pre>`; snippets as
+   `<pre data-code="<entrypoint>" data-lang="python"></pre>`; snippets as
    `<pre><code class="language-…">`; console dumps classless; figures as
    `<img data-fig="figures/<name>.png">`; the `<!--LEDGER-->` marker in 04-journey.
 4. Build with the bundled assembler:
@@ -73,15 +76,16 @@ every invocation; it is the source of truth, this file only orients you.
       asset refs (src=, href= stylesheets, @import, url(...)); none may fetch.
 - [ ] A restrictive CSP meta tag is present; a browser load records zero network
       requests and zero CSP console errors.
-- [ ] Section 6 uses `<pre data-code="train.py">` — the builder guarantees the bytes
-      match the committed file.
+- [ ] Section 6 uses `<pre data-code="<entrypoint>">` — the builder guarantees the
+      bytes match the committed file.
 - [ ] Every mathematical EXPRESSION is typeset (`data-math`/`data-math-display`) —
       grep the page: no ASCII pseudo-math, no `<sub>`/`<sup>`-built formulas. Bare
       symbols or cited values named mid-sentence may stay Unicode prose.
 - [ ] Every code block is highlighted (`class="klein-code"`) or deliberately
       classless console output.
-- [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md —
-      extract the numerals and spot-check each (formula digits live in `data-latex`).
+- [ ] Every NUMBER on the page traces to a pinned artifact — headline numbers are
+      read from `claims.lock`, never retyped; run `klein verify --study <dir>
+      --numbers` (its tutorial pass is advisory) and fix what it lists.
 - [ ] Every figure is base64-inlined (`data:image/png;base64,...`); no file-path or
       remote `<img>` refs.
 - [ ] References match the method card; UNVERIFIED entries stay marked or are dropped.
@@ -103,9 +107,10 @@ tutorial had to omit for lack of source material (e.g. a thin findings section).
 
 - One file, fully self-contained, with restrictive CSP. Strictly no CDN scripts, external stylesheets,
   remote images, or fonts — the file must open from `file://` with zero network.
-- Every number traceable to results.tsv / aux_metrics.tsv / findings.md. Never
-  recompute or "improve" a metric for the page.
+- Every number traceable to a pinned artifact via `claims.lock`. Never recompute or
+  "improve" a metric for the page.
 - Teach, don't dump: prose connects every figure and code block to the study's
   narrative.
-- You do not rerun experiments or edit train.py / the ledgers — read-only inputs.
+- You do not rerun experiments or edit the entrypoint / the ledgers / the lock —
+  read-only inputs. A study without a recorded referee gate is not ready for you.
 - Do not report done until the acceptance checklist passes in full.
