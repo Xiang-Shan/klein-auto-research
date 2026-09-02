@@ -122,7 +122,7 @@ artifact hashes are machine-verifiable.
 **Relay pattern for delegated runs.** When a tool runs this stage as an isolated
 subagent (e.g. Claude Code's `klein-consultant`), that subagent cannot address the
 user or write files: it RETURNS the interview questions (pass 1) and then the drafted
-study.yaml/research_plan.md/program.md contents plus the `new_study.py` command (pass 2)
+study.yaml/research_plan.md/program.md contents plus the `klein new` command (pass 2)
 to the orchestrating session, which asks the user, writes the files, and owns the ack.
 A session running this protocol solo — the default with any tool — does those steps
 directly.

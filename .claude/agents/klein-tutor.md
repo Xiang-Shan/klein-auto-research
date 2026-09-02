@@ -94,7 +94,8 @@ every invocation; it is the source of truth, this file only orients you.
 ## Hand-back to the orchestrator
 
 Your final message is all the orchestrator sees. Report compactly: the route used
-(A/B and why); the checklist results item by item (pass/fail, with what you fixed);
+(bundled builder or external renderer, and why); the checklist results item by item
+(pass/fail, with what you fixed);
 file size and figure count; the path `studies/NN-slug/report/index.html`; anything the
 tutorial had to omit for lack of source material (e.g. a thin findings section).
 

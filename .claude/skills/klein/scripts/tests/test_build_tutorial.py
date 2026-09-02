@@ -1,9 +1,10 @@
-"""Tests for build_tutorial.py — the Route B tutorial assembler.
+"""Tests for build_tutorial.py — the bundled tutorial assembler (the route of
+record; see tutorial-spec.md § Optional: an external renderer).
 
 Scripts under ``.claude/skills/klein/scripts/`` are deliberately not a package
 (the skill must stay copy-a-directory portable), so the module is loaded
 directly via ``importlib.util`` rather than imported — same pattern as
-conftest.py uses for preflight/summarize.
+conftest.py uses for summarize.
 """
 
 from __future__ import annotations

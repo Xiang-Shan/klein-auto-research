@@ -1,3 +1,6 @@
+# Klein pins sha256 of tracked text files (claims locks, manifests, TSV ledgers); disable all line-ending conversion so no checkout (e.g. Windows core.autocrlf=true) can ever rewrite bytes and break a hash.
+* -text
+
 # Study tutorials are generated artifacts (build_tutorial.py) — keep them out
 # of GitHub's language statistics.
 studies/*/report/** linguist-generated
