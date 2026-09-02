@@ -254,4 +254,16 @@ EVALUATOR_PRINTED_KEYS: dict[str, frozenset[str]] = {
         "val_r2",
     }),
     "evaluate_scalar": frozenset(),
+    # The three registered-cell shapes (references/registered-mode.md). Only
+    # keys that are numeric on EVERY successful run are listed: `stat` and
+    # `effect` print NA when non-finite (an infinite t is real), and `artifact`
+    # / `sha256` are text, so none of them may be blessed here.
+    "evaluate_estimate": frozenset({"ci_low", "ci_high", "n"}),
+    "evaluate_test": frozenset({
+        "p_value",
+        "n",
+        "n_comparisons",
+        "bonferroni_alpha",
+    }),
+    "evaluate_table": frozenset({"rows"}),
 }
