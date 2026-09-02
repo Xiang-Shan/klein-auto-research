@@ -1,0 +1,57 @@
+Dataset: tiny Shakespeare (input.txt)
+Source:  https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt
+Author:  Text: William Shakespeare (public domain). Packaging/repository:
+         Andrej Karpathy, https://github.com/karpathy/char-rnn (created
+         2015-05-21).
+License: Two layers.
+         (1) The underlying text is Shakespeare's plays, centuries out of
+             copyright and in the public domain worldwide.
+         (2) The `karpathy/char-rnn` repository that assembles and
+             distributes this specific file declares its license as MIT in
+             the closing "License" section of its own Readme.md (verified
+             by fetching https://raw.githubusercontent.com/karpathy/char-rnn/master/Readme.md
+             on 2026-09-02; that section reads exactly "## License" / "MIT").
+             The repository has no separate LICENSE file and no copyright
+             line accompanies the one-word declaration, which is why
+             GitHub's repository-metadata API reports no auto-detected
+             license for it — the standard MIT License template is
+             reproduced below for reference, attributed to the repository
+             owner; this line is this document's rendering, not a verbatim
+             quote from the source repository.
+
+The file tinyshakespeare.txt.gz in this directory is `gzip -n` (deterministic
+— no embedded filename/mtime) of the raw, unmodified download.
+
+  Decompressed: 1,115,394 bytes, 1,115,394 characters (pure ASCII), 65
+    distinct characters.
+    sha256: 86c4e6aa9db7c042ec79f339dcb96d42b0075e16b8fc2e86bf0ca57e2dc565ed
+
+  tinyshakespeare.txt.gz: 435,071 bytes.
+    sha256: d8b29e6338cb306019db992131ab249b4c5079dcfb9b5ad38be7b76121482ec9
+
+Checksums recomputed with: shasum -a 256 <file>; the decompressed hash was
+also verified to round-trip via: gunzip -c tinyshakespeare.txt.gz | shasum -a 256
+
+--------------------------------------------------------------------------
+
+MIT License (standard template; see note above on attribution)
+
+Copyright (c) 2015 Andrej Karpathy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
