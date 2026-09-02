@@ -9,7 +9,9 @@ from pathlib import Path
 from . import __version__
 from .cli_claims import register as register_claims
 from .cli_doctor import register as register_doctor
+from .contract import KNOWN_KINDS
 from .scaffold import scaffold_study
+from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
 from .workflow import (
     WorkflowError,
     acknowledge_headroom,
@@ -19,6 +21,7 @@ from .workflow import (
     recover,
     resolve_study,
     run_one,
+    sealed_dry_run,
     status_summary,
     verify_study,
 )
@@ -33,16 +36,53 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"klein {__version__}")
     sub = parser.add_subparsers(dest="command_name", required=True)
 
-    new = sub.add_parser("new", help="scaffold a schema-v2 study")
+    new = sub.add_parser("new", help="scaffold a schema-3 study (--schema-version 2 for the frozen v2 shape)")
     new.add_argument("slug", help="study id, e.g. 03-calibration")
     new.add_argument("--root", type=Path, default=Path("studies"), help="parent directory for the study (default: studies/)")
     new.add_argument("--goal", help="one-sentence falsifiable study goal")
     new.add_argument("--domain", help="problem domain, e.g. insurance, optimization")
     new.add_argument("--target", help="target column (or 'synthetic' for known-truth labs)")
-    new.add_argument("--task-type", choices=("classification", "regression", "simulation"), default="classification", help="evaluator shape for the study (simulation = scalar/known-truth labs)")
+    new.add_argument("--task-type", choices=("classification", "regression", "simulation", "scalar"), default="classification", help="evaluator shape for the study (scalar = known-truth labs and closed-form objectives; simulation is its schema-2 spelling)")
     new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
     new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
-    new.add_argument("--track", default="primary", help="name of the first metric track (default: primary)")
+    new.add_argument(
+        "--schema-version",
+        type=int,
+        choices=(2, 3),
+        default=3,
+        help="contract rule set (default: 3 — the typed inquiry; 2 is the frozen shape)",
+    )
+    new.add_argument(
+        "--kind",
+        choices=KNOWN_KINDS,
+        help="the question's shape; also names the scaffolded entrypoint "
+        "(train.py / analyze.py / simulate.py / search.py). Schema 3 only",
+    )
+    new.add_argument(
+        "--modality",
+        choices=KNOWN_MODALITIES,
+        help="the evidence source's shape; selects the Gate-1 card. Schema 3 only",
+    )
+    new.add_argument(
+        "--profile",
+        choices=KNOWN_PROFILES,
+        help="the audience whose vocabulary is honest here. Schema 3 only",
+    )
+    new.add_argument(
+        "--profile-doc",
+        help="a repo-relative .md profile of your own, instead of --profile. Schema 3 only",
+    )
+    new.add_argument(
+        "--audience",
+        help="who reads this study, in a sentence. Schema 3 only",
+    )
+    new.add_argument(
+        "--track",
+        action="append",
+        metavar="NAME[:MODE]",
+        help="a metric track, repeatable; MODE is frontier or registered "
+        "(default: primary, mode from --kind)",
+    )
     new.add_argument("--metric", help="primary metric name, e.g. val_auc (see kleinlib.eval metric registry)")
     new.add_argument("--goal-direction", choices=("higher", "lower"), help="metric direction; must match the metric's canonical direction")
     new.add_argument("--minimum-delta", type=float, default=0.0, help="smallest improvement that counts as a keep (measure it at Phase 0)")
@@ -55,6 +95,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     new.add_argument("--group-column", help="grouping column for split-kind=group")
     new.add_argument("--time-column", help="timestamp column for split-kind=time")
+    new.add_argument("--split-seed", type=int, default=42, help="seed written into data.split (default: 42)")
     new.add_argument("--max-run-seconds", type=int, default=600, help="hard per-run timeout enforced by run-one (default: 600)")
 
     gate = sub.add_parser("gate", help="record or explicitly override a gate")
@@ -110,6 +151,19 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--description", default="")
     run.add_argument("--timeout-seconds", type=float)
     run.add_argument("--final-test", action="store_true")
+    run.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="with --final-test: rehearse the sealed run on development data. "
+        "Spends no id, commit, manifest, row or seal; exits 3 if the entrypoint "
+        "never printed `sealed_dryrun: 1`",
+    )
+    run.add_argument(
+        "--tests",
+        metavar="P1[,P2]",
+        help="adjudicate these registered predictions against this run's printed "
+        "block (schema 3)",
+    )
     run.add_argument("--quiet", action="store_true")
     run.add_argument(
         "--allow-rerun",
@@ -155,6 +209,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="validate a v1 or v2 study; v1 studies get deprecation errata, never a rewrite",
     )
     _study_arg(verify)
+    verify.add_argument(
+        "--require-local",
+        action="store_true",
+        help="fail (instead of [WARN]) when an artifact policy keeps out of git — "
+        "prepared data, a model blob marked committed:false — is absent; use after "
+        "regenerating the study's local artifacts",
+    )
 
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     register_doctor(sub)
@@ -186,16 +247,23 @@ def main(argv: list[str] | None = None) -> int:
                 task_type=args.task_type,
                 method_depth=args.method_depth,
                 family=args.family,
-                track=args.track,
+                tracks=args.track,
                 metric_name=args.metric,
                 metric_goal=args.goal_direction,
                 minimum_delta=args.minimum_delta,
                 data_source=args.data,
                 data_path=args.prepared_path,
                 split_kind=args.split_kind,
+                split_seed=args.split_seed,
                 group_column=args.group_column,
                 time_column=args.time_column,
                 max_run_seconds=args.max_run_seconds,
+                schema_version=args.schema_version,
+                kind=args.kind,
+                modality=args.modality,
+                profile=args.profile,
+                profile_doc=args.profile_doc,
+                audience=args.audience,
             )
             print(f"scaffolded {study}")
             print(f"next: git switch -c experiments/{args.slug}")
@@ -267,6 +335,25 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "preflight":
             return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
         if args.command_name == "run-one":
+            if args.dry_run:
+                if not args.final_test:
+                    raise WorkflowError(
+                        "--dry-run rehearses a sealed run: pass it with --final-test "
+                        "(a development run needs no rehearsal — it spends nothing "
+                        "that cannot be spent again)"
+                    )
+                if args.tests:
+                    raise WorkflowError(
+                        "--dry-run adjudicates nothing: a rehearsal on development "
+                        "data is not evidence for a registered prediction"
+                    )
+                return sealed_dry_run(
+                    study,
+                    track=args.track,
+                    timeout_seconds=args.timeout_seconds,
+                    command=args.command or None,
+                    echo=not args.quiet,
+                )
             manifest = run_one(
                 study,
                 track=args.track,
@@ -276,6 +363,7 @@ def main(argv: list[str] | None = None) -> int:
                 command=args.command or None,
                 echo=not args.quiet,
                 allow_rerun=args.allow_rerun,
+                tests=args.tests,
             )
             label = manifest["disposition"]
             if (
@@ -320,7 +408,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"finalized: {label}")
             return 0
         if args.command_name == "verify":
-            return _print_checks(verify_study(study))
+            return _print_checks(verify_study(study, require_local=args.require_local))
     except (WorkflowError, FileExistsError, ValueError) as exc:
         print(f"klein: error: {exc}", file=sys.stderr)
         return 2

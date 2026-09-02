@@ -61,9 +61,12 @@ from .contract import (
     _phase_ids,
     _phase_spec,
     _placeholder_locations,  # noqa: F401  (re-export)
+    entrypoint_spec,
     load_contract,
+    mutable_surface,
     normalize_tracks,
     prepared_data_path,
+    registered_predictions,
     resolve_study,
     schema_version,
     split_fingerprint,
@@ -78,6 +81,9 @@ from .decision import (
     _incumbent,
     choose_disposition,
     parse_metric_log,
+    parse_printed_lines,  # noqa: F401  (re-export)
+    parse_printed_strings,
+    printed_values,
     track_headroom,
 )
 from .errors import WorkflowError
@@ -119,7 +125,9 @@ from .state import (
     load_state,
     reconcile_state,
     record_gate,
+    registered_partition_fingerprints,
     save_state,
+    split_policy_hash,
     state_path,
 )
 from .transaction import (
@@ -163,6 +171,8 @@ __all__ = [
     "ProcessResult",
     "RUN_ID_RE",
     "SCHEMA_VERSION",
+    "SEALED_DRYRUN_UNACKNOWLEDGED",
+    "SPLIT_FINGERPRINT_MISMATCH",
     "STRONG_CLAIM_RE",
     "STUDY_ID_RE",
     "StudyLock",
@@ -171,6 +181,8 @@ __all__ = [
     "V2_RESULTS_COLUMNS",
     "VALID_DISPOSITIONS",
     "VALID_GOALS",
+    "VERIFIER_DISAGREEMENT",
+    "VERIFIER_FAILED",
     "WorkflowError",
     "acknowledge_headroom",
     "append_event",
@@ -191,7 +203,10 @@ __all__ = [
     "load_state",
     "normalize_tracks",
     "parse_metric_log",
+    "parse_printed_lines",
+    "parse_printed_strings",
     "preflight_checks",
+    "printed_values",
     "prepared_data_path",
     "read_events",
     "reconcile_state",
@@ -204,6 +219,7 @@ __all__ = [
     "run_subprocess",
     "save_state",
     "schema_version",
+    "sealed_dry_run",
     "sha256_bytes",
     "sha256_file",
     "split_fingerprint",
@@ -268,6 +284,180 @@ def run_subprocess(
     )
 
 
+#: The crash reason a run gets when it measured the wrong rows.
+SPLIT_FINGERPRINT_MISMATCH = "split_fingerprint_mismatch"
+
+#: The verifier could not produce a number: no artifact, a crash, an unparsable
+#: block.  The search may have found something; nothing checked it.
+VERIFIER_FAILED = "verifier_failed"
+
+#: The searcher and the checker disagree by more than the declared tolerance.
+#: One of them is wrong and the run says which numbers were compared.
+VERIFIER_DISAGREEMENT = "verifier_disagreement"
+
+
+def _run_declared_verifier(
+    study_dir: Path,
+    verifier: Mapping[str, Any],
+    *,
+    run_dir: Path,
+    timeout: float,
+    run_id: str,
+    track: str,
+    reported: float,
+    reported_metrics: Mapping[str, float],
+    manifest: dict[str, Any],
+    echo: bool,
+) -> tuple[float, dict[str, float]]:
+    """Re-score the run's artifact with the declared checker, and decide on IT.
+
+    The searcher reporting its own score is the oldest way to be wrong without
+    lying: a construction that scores itself, a training loop that grades its own
+    checkpoint, a simulator scoring its own design.  So when a track declares a
+    verifier, a SECOND bounded foreground subprocess re-derives the objective
+    from the artifact the run produced, under the same rules as the first
+    (unbuffered, ``max_run_seconds``, real exit code), with the smoke and
+    dry-run flags cleared and ``KLEIN_ARTIFACT`` pointing at the artifact.  Its
+    ``primary_metric`` is the one the disposition uses; the reported value is
+    kept beside it so the disagreement is on the record either way.
+
+    Returns ``(verified_metric, verified_metrics)``; raises
+    :class:`WorkflowError` with a named reason on any failure.
+    """
+    key = str(verifier.get("artifact_key"))
+    log_path = run_dir / "verify.log"
+    declared = printed_values(run_dir / "run.log", key)
+    if not declared:
+        raise WorkflowError(
+            f"{VERIFIER_FAILED}: the run printed no `{key}:` line, so there is no "
+            "artifact to check — the entrypoint must print the artifact path the "
+            "track's verifier.artifact_key names"
+        )
+    artifact = _artifact_path(study_dir, declared[-1])
+    if not artifact.exists():
+        raise WorkflowError(
+            f"{VERIFIER_FAILED}: the declared artifact does not exist: {declared[-1]}"
+        )
+    command = tuple(str(item) for item in verifier["command"])
+    process = run_subprocess(
+        command,
+        cwd=study_dir,
+        log_path=log_path,
+        timeout_seconds=timeout,
+        echo=echo,
+        env_overrides={
+            "KLEIN_ARTIFACT": str(artifact),
+            "KLEIN_EXPERIMENT_ID": run_id,
+            "KLEIN_TRACK": track,
+            # The checker never runs in smoke or rehearsal mode: it is the
+            # thing being trusted.
+            "KLEIN_SMOKE": "",
+            "KLEIN_SEALED_DRYRUN": "",
+        },
+    )
+    scripts = [
+        item
+        for item in command
+        if not item.startswith("-") and (study_dir / item).is_file()
+    ]
+    manifest["verifier"] = {
+        "command": list(command),
+        "artifact": declared[-1],
+        "sha256": {name: sha256_file(study_dir / name) for name in scripts},
+        "wall_seconds": process.wall_seconds,
+        "exit_code": process.exit_code,
+        "timed_out": process.timed_out,
+    }
+    if process.exit_code != 0:
+        raise WorkflowError(
+            f"{VERIFIER_FAILED}: the verifier exited {process.exit_code}"
+            + (" (timeout)" if process.timed_out else "")
+        )
+    try:
+        verified, _, _, verified_metrics = parse_metric_log(log_path)
+    except WorkflowError as exc:
+        raise WorkflowError(f"{VERIFIER_FAILED}: {exc}") from exc
+
+    tolerance = float(verifier.get("tolerance", 0.0))
+    manifest["metric"] = {"reported": reported, "verified": verified}
+    if abs(verified - reported) > tolerance:
+        raise WorkflowError(
+            f"{VERIFIER_DISAGREEMENT}: the run reported {reported:.12g} but the "
+            f"verifier measured {verified:.12g} (tolerance {tolerance:.12g}) — one of "
+            "them is wrong, and the search is not the one to ask"
+        )
+    # A guardrail the checker printed wins over the searcher's own value.
+    merged = {**reported_metrics, **verified_metrics}
+    return verified, merged
+
+
+def _seed_external_incumbent(
+    track_spec: Mapping[str, Any], incumbent: Mapping[str, Any] | None
+) -> Mapping[str, Any] | None:
+    """Start the frontier at the best KNOWN value, not at the first run.
+
+    With ``metric.incumbent_external`` declared, a ``keep`` means "beat the
+    literature" rather than "beat yourself".  A first result that merely matches
+    the published value is a ``discard`` with the match disclosed — and a search
+    that fails is a search limit, never evidence of impossibility.
+    """
+    if incumbent is not None:
+        return incumbent
+    external = track_spec.get("metric", {}).get("incumbent_external")
+    if not isinstance(external, Mapping):
+        return None
+    try:
+        value = float(external["value"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return {
+        "experiment": None,
+        "primary_metric": value,
+        "external": True,
+        "source": external.get("source"),
+        "verified_on": external.get("verified_on"),
+    }
+
+
+def _assert_registered_partition(
+    log_path: Path,
+    state: Mapping[str, Any],
+    *,
+    evaluation_kind: str,
+    manifest: dict[str, Any],
+    echo: bool,
+) -> None:
+    """Refuse a number measured on a partition the DATA gate never froze.
+
+    War story 8: an evaluator kept a retired split seed and a whole ledger lane
+    silently measured the wrong rows.  A printed fingerprint that disagrees with
+    the registered one is therefore a **crash**, not a discard — a number on the
+    wrong partition is not evidence of anything, in either direction.
+
+    Absent on either side (an entrypoint that does not call the helper, a gate
+    recorded before the prepared data could be read) the run PROCEEDS with a
+    printed notice: silence is not a pass, but neither is it a lie.
+    """
+    registered = registered_partition_fingerprints(state)
+    printed = printed_values(log_path, "split_fingerprint")
+    expected = registered.get(evaluation_kind)
+    if printed:
+        manifest.setdefault("fingerprints", {})["split_partition"] = printed[-1]
+    if not printed or expected is None:
+        if echo:
+            missing = "the run printed no split_fingerprint" if not printed else (
+                f"no {evaluation_kind} fingerprint is registered"
+            )
+            print(f"note: partition not verified — {missing}")
+        return
+    if printed[-1] != expected:
+        raise WorkflowError(
+            f"{SPLIT_FINGERPRINT_MISMATCH}: the run measured partition "
+            f"{printed[-1][:12]}… but the DATA gate registered {expected[:12]}… for "
+            f"{evaluation_kind} — a number computed on the wrong rows is not evidence"
+        )
+
+
 def _complete_evidence_transaction(
     repo: Path,
     study_dir: Path,
@@ -275,6 +465,7 @@ def _complete_evidence_transaction(
     *,
     restored_train: bool,
     recovery: bool = False,
+    surface: Sequence[str] = ("train.py",),
 ) -> str:
     """Thin wrapper over :func:`kleinlib.transaction.complete_evidence_transaction`.
 
@@ -290,6 +481,7 @@ def _complete_evidence_transaction(
         restored_train=restored_train,
         recovery=recovery,
         commit=_git_commit,
+        surface=surface,
     )
 
 
@@ -303,6 +495,160 @@ def _commit_state_writes(
     )
 
 
+#: What a sealed dry-run exits with when the child never acknowledged it.
+SEALED_DRYRUN_UNACKNOWLEDGED = 3
+
+
+def _validate_requested_predictions(
+    contract: Mapping[str, Any], tests: str | Sequence[str] | None, track: str
+) -> list[str]:
+    """The ``--tests`` ids, checked against the register before anything is spent.
+
+    An id must exist, belong to this track, and carry an arithmetic rule: a
+    prediction the machine cannot decide is adjudicated by
+    ``klein predict adjudicate``, on the record, with its evidence pinned —
+    never as a side effect of a run.
+    """
+    if tests is None:
+        return []
+    ids = [part.strip() for part in (tests.split(",") if isinstance(tests, str) else tests)]
+    ids = [part for part in ids if part]
+    if not ids:
+        return []
+    if schema_version(contract) < 3:
+        raise WorkflowError(
+            "--tests adjudicates registered predictions, which are a schema-3 "
+            "contract key; this study is schema 2"
+        )
+    registered = registered_predictions(contract)
+    for name in ids:
+        entry = registered.get(name)
+        if entry is None:
+            raise WorkflowError(
+                f"unknown prediction {name!r}; study.yaml registers {sorted(registered) or 'none'}"
+            )
+        if entry.get("rule") is None:
+            raise WorkflowError(
+                f"prediction {name!r} has no rule (manual): adjudicate it with "
+                "`klein predict adjudicate` and pin its evidence"
+            )
+        declared_track = entry.get("track")
+        if declared_track is not None and str(declared_track) != track:
+            raise WorkflowError(
+                f"prediction {name!r} belongs to track {declared_track!r}, not {track!r}"
+            )
+    seen: list[str] = []
+    for name in ids:
+        if name not in seen:
+            seen.append(name)
+    return seen
+
+
+def sealed_dry_run(
+    study_dir: Path,
+    *,
+    track: str | None = None,
+    timeout_seconds: float | None = None,
+    command: Sequence[str] | None = None,
+    echo: bool = True,
+) -> int:
+    """Rehearse a sealed run without spending anything.  Returns an exit code.
+
+    A study's only sealed access was once spent by a crash before any data was
+    read (war story 9).  This is the fix and it is mandatory before every real
+    sealed run: the child runs with ``KLEIN_SEALED_DRYRUN=1``, which makes
+    :func:`kleinlib.data.load_partition` hand back the DEVELOPMENT partition and
+    print ``sealed_dryrun: 1``.  No experiment id is allocated, no commit made,
+    no manifest or results row written, and the seal is untouched — the only
+    traces are a log under ``sweeps/`` and a ``sealed_dryrun`` event.
+
+    Exit 0 when the child exited 0 AND printed the acknowledgement;
+    :data:`SEALED_DRYRUN_UNACKNOWLEDGED` when it exited 0 without it — an
+    entrypoint that ignores the flag would have read the sealed rows, so a
+    silent success is exactly the outcome that must not be reported as a pass.
+    """
+    contract = load_contract(study_dir)
+    problems = validate_contract(contract, study_dir)
+    if problems:
+        raise WorkflowError("invalid study contract: " + "; ".join(problems))
+    tracks = normalize_tracks(contract)
+    if track is None:
+        if len(tracks) != 1:
+            raise WorkflowError("--track is required when study.yaml declares multiple tracks")
+        track = next(iter(tracks))
+    if track not in tracks:
+        raise WorkflowError(f"unknown track {track!r}; choose one of {sorted(tracks)}")
+    repo = repo_root_for(study_dir)
+    expected_branch = f"experiments/{contract['study_id']}"
+    if current_branch(repo) != expected_branch:
+        raise WorkflowError(f"run-one requires exact branch {expected_branch!r}")
+
+    with StudyLock(study_dir):
+        configured_timeout = float(contract["max_run_seconds"])
+        timeout = configured_timeout if timeout_seconds is None else float(timeout_seconds)
+        if timeout <= 0 or timeout > configured_timeout:
+            raise WorkflowError(
+                f"timeout must be > 0 and <= configured max_run_seconds={configured_timeout:g}"
+            )
+        stamp = utc_now().replace(":", "").replace("-", "")
+        log_path = study_dir / "sweeps" / f"sealed_dryrun.{stamp}.log"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        cmd = tuple(
+            command
+            or (
+                tuple(entrypoint_spec(contract)["command"])
+                if schema_version(contract) >= 3
+                else ("uv", "run", "--locked", "python", "-u", "train.py")
+            )
+        )
+        process = run_subprocess(
+            cmd,
+            cwd=study_dir,
+            log_path=log_path,
+            timeout_seconds=timeout,
+            echo=echo,
+            env_overrides={
+                "KLEIN_EVALUATION_KIND": "final_test",
+                "KLEIN_EXPERIMENT_ID": "DRYRUN",
+                "KLEIN_TRACK": track,
+                "KLEIN_SEALED_DRYRUN": "1",
+                "KLEIN_SMOKE": "",
+            },
+        )
+        acknowledged = "1" in printed_values(log_path, "sealed_dryrun")
+        if process.exit_code != 0:
+            exit_code = process.exit_code
+        elif not acknowledged:
+            exit_code = SEALED_DRYRUN_UNACKNOWLEDGED
+        else:
+            exit_code = 0
+        append_event(
+            study_dir,
+            "sealed_dryrun",
+            track=track,
+            command=list(cmd),
+            log=str(log_path.relative_to(study_dir).as_posix()),
+            exit_code=process.exit_code,
+            timed_out=process.timed_out,
+            acknowledged=acknowledged,
+            wall_seconds=process.wall_seconds,
+        )
+        _commit_state_writes(study_dir, f"klein: sealed dry-run rehearsal ({track})")
+    if echo:
+        if exit_code == 0:
+            print(f"sealed dry-run OK: {track} rehearsed on development data; nothing spent")
+        elif exit_code == SEALED_DRYRUN_UNACKNOWLEDGED:
+            print(
+                "sealed dry-run FAILED: the entrypoint exited 0 but never printed "
+                "`sealed_dryrun: 1` — it ignored KLEIN_SEALED_DRYRUN and would have read "
+                "the sealed partition. Route the partition through "
+                "kleinlib.data.load_partition before spending the seal."
+            )
+        else:
+            print(f"sealed dry-run FAILED: the entrypoint exited {exit_code}; the seal is intact")
+    return exit_code
+
+
 def run_one(
     study_dir: Path,
     *,
@@ -313,6 +659,7 @@ def run_one(
     command: Sequence[str] | None = None,
     echo: bool = True,
     allow_rerun: bool = False,
+    tests: str | Sequence[str] | None = None,
 ) -> dict[str, Any]:
     contract = load_contract(study_dir)
     problems = validate_contract(contract, study_dir)
@@ -325,6 +672,8 @@ def run_one(
         track = next(iter(tracks))
     if track not in tracks:
         raise WorkflowError(f"unknown track {track!r}; choose one of {sorted(tracks)}")
+    # Validated BEFORE the lock, so a typo in --tests costs nothing.
+    requested_predictions = _validate_requested_predictions(contract, tests, track)
     repo = repo_root_for(study_dir)
     expected_branch = f"experiments/{contract['study_id']}"
     if current_branch(repo) != expected_branch:
@@ -350,7 +699,7 @@ def run_one(
         fingerprints = state.get("fingerprints")
         if not isinstance(fingerprints, Mapping) or data_hash != fingerprints.get("data"):
             raise WorkflowError("prepared-data fingerprint differs from the recorded DATA gate")
-        if split_fingerprint(contract) != fingerprints.get("split"):
+        if split_fingerprint(contract) != split_policy_hash(state):
             raise WorkflowError("split policy differs from the recorded fingerprint")
         ledger = load_manifests(study_dir)
         if any(
@@ -394,7 +743,7 @@ def run_one(
                 f"development runs are forbidden in final phase {final_phase_id!r}; "
                 "use --final-test"
             )
-        _assert_run_worktree(repo, study_dir)
+        _assert_run_worktree(repo, study_dir, surface=mutable_surface(contract))
 
         phase_runs = [m for m in load_manifests(study_dir) if str(m.get("phase")) == phase_id]
         if len(phase_runs) >= int(phase["max_experiments"]):
@@ -413,33 +762,43 @@ def run_one(
             )
         timeout = min(timeout, remaining_budget)
         manifests = load_manifests(study_dir)
-        incumbent = _incumbent(manifests, track)
+        incumbent = _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
         if not final_test:
             _enforce_headroom(state, tracks[track], track, incumbent, echo=echo)
         number = len(manifests) + 1
         run_id = f"E{number:04d}"
 
-        train_rel = _relative(repo, study_dir / "train.py")
+        surface = mutable_surface(contract)
+        surface_rels = [_relative(repo, study_dir / name) for name in surface]
+        surface_names = ", ".join(surface)
+        # Schema 2 always ran train.py; schema 3 names its entrypoint by kind
+        # (a Hubble regression is not "trained"), so the default command comes
+        # from the contract.  ``--command`` still overrides either.
+        default_command: tuple[str, ...] = (
+            tuple(entrypoint_spec(contract)["command"])
+            if schema_version(contract) >= 3
+            else ("uv", "run", "--locked", "python", "-u", "train.py")
+        )
         if (
             not final_test
             and command is None
             and not allow_rerun
-            and not _git(repo, ["status", "--porcelain", "--", train_rel]).stdout.strip()
+            and not _git(repo, ["status", "--porcelain", "--", *surface_rels]).stdout.strip()
         ):
             # Before any E#### is allocated, run dir created, or commit made —
             # a refusal here burns nothing. The sealed final test re-runs the
             # incumbent with an empty diff BY DESIGN and stays exempt, as do
             # declared --command overrides.
             raise WorkflowError(
-                "train.py is unchanged since HEAD — this run would re-execute the "
-                "incumbent configuration and burn a phase slot; edit train.py with "
+                f"{surface_names} is unchanged since HEAD — this run would re-execute the "
+                f"incumbent configuration and burn a phase slot; edit {surface_names} with "
                 "ONE falsifiable change, or pass --allow-rerun for an intentional "
                 "identical replication"
             )
         base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
-        _git(repo, ["add", "--", train_rel])
+        _git(repo, ["add", "--", *surface_rels])
         candidate_commit = _git_commit(repo, f"candidate {run_id}: {description or track}", allow_empty=True)
-        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", train_rel]).stdout.encode()
+        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", *surface_rels]).stdout.encode()
         patch_hash = sha256_bytes(patch)
         empty_diff = patch == b""
         env_hash, env_details = environment_fingerprint(repo)
@@ -447,7 +806,9 @@ def run_one(
         run_dir.mkdir(parents=True, exist_ok=False)
         log_path = run_dir / "run.log"
         manifest: dict[str, Any] = {
-            "schema_version": SCHEMA_VERSION,
+            # The manifest is a receipt of the rule set the run was judged
+            # under, so it carries the CONTRACT's version, not a constant.
+            "schema_version": schema_version(contract),
             "experiment": run_id,
             "track": track,
             "phase": phase_id,
@@ -458,7 +819,7 @@ def run_one(
             "base_commit": base_commit,
             "candidate_commit": candidate_commit,
             "code_patch_hash": patch_hash,
-            "command": list(command or ("uv", "run", "--locked", "python", "-u", "train.py")),
+            "command": list(command or default_command),
             "max_run_seconds": timeout,
             "phase_budget_seconds": phase_budget,
             "phase_experiment_limit": int(phase["max_experiments"]),
@@ -468,6 +829,9 @@ def run_one(
             "metric_name": tracks[track]["metric"]["name"],
             "metric_goal": tracks[track]["metric"]["goal"],
             "metrics": {},
+            # Which registered predictions this run was asked to decide.  The
+            # verdicts land beside it once the predictions ledger is wired in.
+            "predictions_requested": list(requested_predictions),
             "fingerprints": {
                 "data": data_hash,
                 "split": split_fingerprint(contract),
@@ -501,7 +865,7 @@ def run_one(
             }
             save_state(study_dir, state)
 
-        cmd = tuple(command or ("uv", "run", "--locked", "python", "-u", "train.py"))
+        cmd = tuple(command or default_command)
         process = run_subprocess(
             cmd,
             cwd=study_dir,
@@ -539,6 +903,30 @@ def run_one(
                     raise WorkflowError(
                         f"evaluator metric_goal={printed_goal!r}; track requires {expected_metric['goal']!r}"
                     )
+                _assert_registered_partition(
+                    log_path,
+                    state,
+                    evaluation_kind=manifest["evaluation_kind"],
+                    manifest=manifest,
+                    echo=echo,
+                )
+                verifier = tracks[track].get("verifier")
+                if isinstance(verifier, Mapping):
+                    # The checker is never the searcher: the disposition is
+                    # decided on the number a SECOND, immutable process derived
+                    # from the artifact this run produced.
+                    primary, metrics = _run_declared_verifier(
+                        study_dir,
+                        verifier,
+                        run_dir=run_dir,
+                        timeout=timeout,
+                        run_id=run_id,
+                        track=track,
+                        reported=primary,
+                        reported_metrics=metrics,
+                        manifest=manifest,
+                        echo=echo,
+                    )
                 disposition, reason = choose_disposition(
                     primary_metric=primary,
                     track_spec=tracks[track],
@@ -546,12 +934,33 @@ def run_one(
                     incumbent=incumbent,
                     final_test=final_test,
                 )
+                if incumbent is not None and incumbent.get("external"):
+                    # Found / matched / improved — never "proved". A search that
+                    # reaches the published value and stops there says so.
+                    external = float(incumbent["primary_metric"])
+                    tolerance = (
+                        float(verifier.get("tolerance", 0.0))
+                        if isinstance(verifier, Mapping)
+                        else 0.0
+                    )
+                    manifest["matched_external"] = abs(primary - external) <= tolerance
+                    reason = f"{reason} (external incumbent {external:.12g})"
                 manifest.update(
                     primary_metric=primary,
                     metrics=metrics,
                     disposition=disposition,
                     decision_reason=reason,
                 )
+                # --- predictions ledger hook (WP-E6) -------------------------
+                # The ids are already validated against the register, and the
+                # printed block is in `metrics`.  What is still missing is the
+                # adjudication itself: evaluate each id's rule here, write
+                # `manifest["predictions"] = {P#: {verdict, explanation}}`,
+                # update `state["predictions"]`, and append one
+                # `prediction_adjudicated` event INSIDE this transaction.
+                # Until then the request is recorded but not decided, and
+                # `klein status` counts these ids as still open.
+                # -------------------------------------------------------------
             except WorkflowError as exc:
                 manifest["decision_reason"] = str(exc)
         else:
@@ -590,9 +999,9 @@ def run_one(
 
         restored = manifest["disposition"] != "keep" or final_test
         if restored:
-            _git(repo, ["restore", "--source", base_commit, "--", train_rel])
+            _git(repo, ["restore", "--source", base_commit, "--", *surface_rels])
         _complete_evidence_transaction(
-            repo, study_dir, manifest, restored_train=restored
+            repo, study_dir, manifest, restored_train=restored, surface=surface
         )
         return manifest
 
@@ -699,13 +1108,20 @@ def recover(study_dir: Path) -> list[str]:
                 study_dir, run_id
             )
             atomic_write_json(manifest_path, manifest)
-            train_rel = _relative(repo, study_dir / "train.py")
+            surface_rels = [
+                _relative(repo, study_dir / name) for name in mutable_surface(contract)
+            ]
             restored = manifest.get("disposition") != "keep" or manifest.get("evaluation_kind") == "final_test"
             if restored:
-                _git(repo, ["restore", "--source", str(manifest["base_commit"]), "--", train_rel])
+                _git(repo, ["restore", "--source", str(manifest["base_commit"]), "--", *surface_rels])
             save_state(study_dir, state)
             _complete_evidence_transaction(
-                repo, study_dir, manifest, restored_train=restored, recovery=True
+                repo,
+                study_dir,
+                manifest,
+                restored_train=restored,
+                recovery=True,
+                surface=mutable_surface(contract),
             )
             recovered.append(run_id)
     _commit_state_writes(study_dir, "klein: recover — state writes filed")

@@ -26,7 +26,9 @@ the dtype label. See :func:`detect_yes_no_columns`.
 
 from __future__ import annotations
 
+import hashlib
 import os
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Literal
 
@@ -362,3 +364,163 @@ def yes_no_to_int(
     for col in cols:
         out[col] = out[col].map(mapping)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Contract-driven partitions (schema 3) — war story 8
+#
+# A study-09 evaluator hardcoded a retired split seed and a whole ledger lane
+# measured the wrong partition; the lock's numeral scan caught it a study later.
+# The fix is structural: the entrypoint never chooses a partition, it ASKS the
+# contract for one, and the partition it got prints a fingerprint the notary
+# compares against the one frozen at the DATA gate. A number computed on the
+# wrong partition is a crash now, not a result.
+# ---------------------------------------------------------------------------
+
+#: Bump only if the canonical encoding below changes; a bump invalidates every
+#: recorded fingerprint, which is why it is versioned rather than implicit.
+SPLIT_FINGERPRINT_VERSION = "klein-split-v1"
+
+#: The line every evaluator prints so the notary can check the partition.
+SPLIT_FINGERPRINT_KEY = "split_fingerprint"
+
+#: What a sealed dry-run prints to prove it ran with substituted data.
+SEALED_DRYRUN_KEY = "sealed_dryrun"
+
+
+def split_fingerprint(*index_arrays: Any) -> str:
+    """Hash the REALIZED membership of one or more partitions.
+
+    Order-insensitive within a partition (a partition is a set of rows, not a
+    sequence) and order-sensitive between them, so ``(train, dev)`` and
+    ``(dev, train)`` are different fingerprints. Row labels are canonicalized to
+    text, so an int64 index and a Python-int index over the same rows agree.
+
+    This is the counterpart of :func:`kleinlib.contract.split_fingerprint`,
+    which hashes the declared POLICY. The policy says how to split; this says
+    what the split actually was.
+    """
+    digest = hashlib.sha256()
+    digest.update(SPLIT_FINGERPRINT_VERSION.encode("utf-8") + b"\n")
+    digest.update(f"partitions={len(index_arrays)}\n".encode())
+    for position, values in enumerate(index_arrays):
+        labels = sorted(str(item) for item in _index_labels(values))
+        digest.update(f"partition={position} n={len(labels)}\n".encode())
+        for label in labels:
+            digest.update(label.encode("utf-8") + b"\n")
+    return digest.hexdigest()
+
+
+def _index_labels(values: Any) -> list[Any]:
+    """Row labels of a frame / series / index / array, as plain Python objects."""
+    if isinstance(values, (pd.DataFrame, pd.Series)):
+        return list(values.index)
+    if isinstance(values, pd.Index):
+        return list(values)
+    return list(np.asarray(values).ravel())
+
+
+def _split_task(contract: Mapping[str, Any]) -> SplitTask:
+    return "classification" if contract.get("task_type") == "classification" else "regression"
+
+
+def contract_split(
+    study_dir: str | Path = ".", *, target: str | None = None
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+    """``(X_train, X_dev, X_test, y_train, y_dev, y_test)`` from ``study.yaml`` alone.
+
+    Reads ``data.prepared_path`` and every knob of ``data.split`` — kind, seed,
+    sizes, group/time column — and hands them to the UNMODIFIED
+    :func:`three_way_split`, so a study that switches to this helper keeps the
+    exact partitions it had. No argument of this function can change the split:
+    that is the point.
+    """
+    from .contract import load_contract, prepared_data_path, resolve_study
+
+    study = resolve_study(study_dir)
+    contract = load_contract(study)
+    data = contract.get("data")
+    if not isinstance(data, Mapping):
+        raise ValueError("study.yaml:data must be a mapping")
+    split = data.get("split")
+    if not isinstance(split, Mapping):
+        raise ValueError("study.yaml:data.split is required")
+    kind = split.get("kind")
+    if kind == "none":
+        raise ValueError(
+            "data.split.kind is 'none': this study's comparability comes from "
+            "declared seed blocks, not from row partitions — build them in the "
+            "entrypoint and print split_fingerprint yourself"
+        )
+    column = target or contract.get("target")
+    if not isinstance(column, str) or not column.strip():
+        raise ValueError("study.yaml:target is required to split the prepared data")
+
+    frame = load_prepared(prepared_data_path(study, contract))
+    if column not in frame.columns:
+        raise ValueError(f"target column {column!r} is not in the prepared data")
+    X = frame.drop(columns=[column])
+    y = frame[column]
+    return three_way_split(
+        X,
+        y,
+        task=_split_task(contract),
+        strategy=kind,
+        development_size=float(split.get("development_size", 0.2)),
+        test_size=float(split.get("test_size", 0.2)),
+        seed=int(split.get("seed", RANDOM_SEED)),
+        groups=frame[split["group_column"]] if kind == "group" else None,
+        time_values=frame[split["time_column"]] if kind == "time" else None,
+    )
+
+
+def partition_fingerprints(study_dir: str | Path = ".") -> dict[str, str]:
+    """``{"development": ..., "final_test": ...}`` for the contract's split.
+
+    What ``klein gate record data`` freezes, and what ``klein run-one`` compares
+    the printed line against.
+    """
+    X_tr, X_dev, X_te, _, _, _ = contract_split(study_dir)
+    return {
+        "development": split_fingerprint(X_tr, X_dev),
+        "final_test": split_fingerprint(pd.concat([X_tr, X_dev]), X_te),
+    }
+
+
+def load_partition(
+    kind: str | None = None,
+    *,
+    study_dir: str | Path = ".",
+    target: str | None = None,
+    echo: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    """``(X_fit, X_eval, y_fit, y_eval)`` for one evaluation kind; prints its fingerprint.
+
+    ``development`` fits on train and evaluates on development. ``final_test``
+    fits on train + development — the frozen chosen configuration's training
+    data — and evaluates on the sealed partition, once.
+
+    ``kind`` defaults to ``KLEIN_EVALUATION_KIND``, which ``klein run-one``
+    sets; an entrypoint never chooses its own partition. Under
+    ``KLEIN_SEALED_DRYRUN=1`` a requested ``final_test`` is answered with the
+    DEVELOPMENT data plus a ``sealed_dryrun: 1`` line: the rehearsal exercises
+    the whole path and spends no seal.
+    """
+    kind = kind or os.environ.get("KLEIN_EVALUATION_KIND") or "development"
+    if kind not in {"development", "final_test"}:
+        raise ValueError(f"invalid evaluation kind {kind!r}")
+    dry_run = kind == "final_test" and os.environ.get("KLEIN_SEALED_DRYRUN") == "1"
+    if dry_run:
+        kind = "development"
+
+    X_tr, X_dev, X_te, y_tr, y_dev, y_te = contract_split(study_dir, target=target)
+    if kind == "development":
+        fit_X, eval_X, fit_y, eval_y = X_tr, X_dev, y_tr, y_dev
+    else:
+        fit_X, fit_y = pd.concat([X_tr, X_dev]), pd.concat([y_tr, y_dev])
+        eval_X, eval_y = X_te, y_te
+    if echo:
+        print(f"{SPLIT_FINGERPRINT_KEY}: {split_fingerprint(fit_X, eval_X)}")
+        if dry_run:
+            print(f"{SEALED_DRYRUN_KEY}: 1")
+    return fit_X, eval_X, fit_y, eval_y

@@ -19,13 +19,171 @@ from .contract import _guardrail_entries
 from .errors import WorkflowError
 
 __all__ = [
+    "COMBINATOR_KEYS",
+    "MAX_RULE_DEPTH",
     "METRIC_LINE_RE",
+    "OPERATOR_ALIASES",
+    "RULE_OPERATORS",
     "choose_disposition",
     "parse_metric_log",
+    "parse_printed_lines",
+    "parse_printed_strings",
+    "printed_values",
     "track_headroom",
+    "validate_rule",
 ]
 
 METRIC_LINE_RE = re.compile(r"^([A-Za-z][A-Za-z0-9_]*)\s*:\s*(.*?)\s*$")
+
+# ---------------------------------------------------------------------------
+# The prediction-rule grammar (schema 3)
+#
+# A registered prediction is decided by ARITHMETIC ON THE PRINTED BLOCK, never
+# by prose and never by executing contract text: there is no ``eval``, ``exec``
+# or ``compile`` anywhere on this path, and a test greps for that.  A rule is a
+# small closed data structure and the evaluator that consumes it is a dict
+# dispatch over a fixed operator set.  This module owns the GRAMMAR
+# (:func:`validate_rule`, called by contract validation at the consult gate);
+# evaluating a rule against a run's printed keys is the predictions ledger's job.
+# ---------------------------------------------------------------------------
+
+#: Leaf operators.  ``eq`` deliberately requires an explicit ``tol``: bare
+#: floating-point equality on a measured number is never an honest prediction.
+RULE_OPERATORS: frozenset[str] = frozenset(
+    {"lt", "le", "gt", "ge", "eq", "ne", "abs_lt", "abs_le", "within", "between"}
+)
+
+#: The symbolic spellings the consult protocol writes (``op: ">="``).
+OPERATOR_ALIASES: dict[str, str] = {
+    "<": "lt",
+    "<=": "le",
+    ">": "gt",
+    ">=": "ge",
+    "==": "eq",
+    "!=": "ne",
+}
+
+#: Boolean combinators.  Exactly one per node.
+COMBINATOR_KEYS: frozenset[str] = frozenset({"all_of", "any_of", "not"})
+
+#: The root counts as depth 1, so a leaf under two combinators is depth 3.  A
+#: rule that needs more nesting than this is a paragraph, not a prediction.
+MAX_RULE_DEPTH = 3
+
+_LEAF_KEYS = frozenset({"key", "op", "operator", "value", "tol", "target", "low", "high"})
+_NUMERIC_ONLY = frozenset({"lt", "le", "gt", "ge", "ne", "abs_lt", "abs_le"})
+
+
+def _finite(value: Any) -> bool:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return False
+    return math.isfinite(float(value))
+
+
+def _leaf_problems(rule: Mapping[str, Any], where: str) -> list[str]:
+    problems: list[str] = []
+    unknown = set(rule) - _LEAF_KEYS
+    if unknown:
+        problems.append(f"{where}: unknown keys {sorted(unknown)}")
+    if "op" in rule and "operator" in rule:
+        problems.append(f"{where}: give op or operator, not both")
+    raw_op = rule.get("op", rule.get("operator"))
+    if not isinstance(raw_op, str) or not raw_op.strip():
+        problems.append(
+            f"{where}: op is required (one of {sorted(RULE_OPERATORS)} "
+            f"or {sorted(OPERATOR_ALIASES)})"
+        )
+        return problems
+    op = OPERATOR_ALIASES.get(raw_op.strip(), raw_op.strip())
+    if op not in RULE_OPERATORS:
+        problems.append(
+            f"{where}: unknown op {raw_op!r} (one of {sorted(RULE_OPERATORS)} "
+            f"or {sorted(OPERATOR_ALIASES)})"
+        )
+        return problems
+    key = rule.get("key")
+    if not isinstance(key, str) or not METRIC_LINE_RE.match(f"{key}: 0"):
+        problems.append(
+            f"{where}: key is required and must be a printable metric key "
+            "(letters, digits, underscore)"
+        )
+
+    value = rule.get("value")
+    if op in _NUMERIC_ONLY:
+        if not _finite(value):
+            problems.append(f"{where}: {op} requires a finite numeric value")
+        if "tol" in rule:
+            problems.append(f"{where}: tol applies to eq and within only")
+    elif op == "eq":
+        if not _finite(value):
+            problems.append(f"{where}: eq requires a finite numeric value")
+        tol = rule.get("tol")
+        if not _finite(tol) or float(tol) < 0:
+            problems.append(
+                f"{where}: eq requires an explicit tol >= 0 — bare float equality "
+                "on a measured number is never decidable"
+            )
+    elif op == "within":
+        merged: Mapping[str, Any] = {**rule, **value} if isinstance(value, Mapping) else rule
+        if not _finite(merged.get("target")):
+            problems.append(f"{where}: within requires a finite target")
+        tol = merged.get("tol")
+        if not _finite(tol) or float(tol) < 0:
+            problems.append(f"{where}: within requires a finite tol >= 0")
+    else:  # between
+        low, high = rule.get("low"), rule.get("high")
+        if low is None and high is None:
+            if not isinstance(value, Sequence) or isinstance(value, str) or len(value) != 2:
+                problems.append(f"{where}: between requires value: [low, high]")
+                return problems
+            low, high = value
+        if not _finite(low) or not _finite(high):
+            problems.append(f"{where}: between requires finite low and high")
+        elif float(low) > float(high):
+            problems.append(f"{where}: between requires low <= high")
+    return problems
+
+
+def validate_rule(rule: Any, *, where: str = "rule", depth: int = 1) -> list[str]:
+    """Shape-check one declarative prediction rule; return problem strings.
+
+    The grammar, in full::
+
+        leaf        {key: <printed key>, op: <operator>, value: ...}
+        operators   lt le gt ge ne abs_lt abs_le  (a finite numeric value)
+                    eq                            (+ an explicit tol >= 0)
+                    within                        (target + tol)
+                    between                       (value: [low, high])
+        aliases     <  <=  >  >=  ==  !=
+        combinators {all_of: [...]}  {any_of: [...]}  {not: <rule>}
+        depth       <= 3, counting the root as 1
+
+    Nothing here executes contract text; the operator set is closed.
+    """
+    if not isinstance(rule, Mapping):
+        return [f"{where}: must be a mapping"]
+    if depth > MAX_RULE_DEPTH:
+        return [f"{where}: rule nesting exceeds depth {MAX_RULE_DEPTH}"]
+    present = set(COMBINATOR_KEYS) & set(rule)
+    if not present:
+        return _leaf_problems(rule, where)
+    if len(present) > 1 or set(rule) - present:
+        return [
+            f"{where}: a combinator node holds exactly one of "
+            f"{sorted(COMBINATOR_KEYS)} and nothing else"
+        ]
+    name = present.pop()
+    child = rule[name]
+    if name == "not":
+        return validate_rule(child, where=f"{where}.not", depth=depth + 1)
+    if not isinstance(child, Sequence) or isinstance(child, str) or not child:
+        return [f"{where}: {name} requires a non-empty list of rules"]
+    problems: list[str] = []
+    for index, item in enumerate(child):
+        problems.extend(
+            validate_rule(item, where=f"{where}.{name}[{index}]", depth=depth + 1)
+        )
+    return problems
 
 
 def parse_metric_log(path: Path) -> tuple[float, str | None, str | None, dict[str, float]]:
@@ -56,6 +214,45 @@ def parse_metric_log(path: Path) -> tuple[float, str | None, str | None, dict[st
     if primary is None:
         raise WorkflowError("run completed without a finite `primary_metric:` line")
     return primary, metric_name, metric_goal, metrics
+
+
+def parse_printed_lines(path: Path) -> list[tuple[str, str]]:
+    """Every ``key: value`` line of the printed block, verbatim and in order."""
+    lines: list[tuple[str, str]] = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = METRIC_LINE_RE.match(line)
+        if match:
+            lines.append(match.groups())
+    return lines
+
+
+def printed_values(path: Path, key: str) -> list[str]:
+    """Every value printed under ``key``, whatever its type.
+
+    :func:`parse_metric_log` keeps only floats and :func:`parse_printed_strings`
+    only non-floats, so a key whose value happens to look numeric
+    (``sealed_dryrun: 1``) would fall out of a string-only lookup.  Callers that
+    want one named line ask for it by name here instead of guessing its type.
+    """
+    return [raw for name, raw in parse_printed_lines(path) if name == key]
+
+
+def parse_printed_strings(path: Path) -> dict[str, list[str]]:
+    """Every NON-numeric printed line, keyed, in the order it was printed.
+
+    :func:`parse_metric_log` keeps only the floats a guardrail or a metric can
+    be, and drops everything else.  Some printed lines are evidence anyway:
+    ``split_fingerprint:`` (which partition the numbers came from) today,
+    ``artifact:`` lines when registered mode lands.  Values are lists because a
+    cell may pin several artifacts.
+    """
+    found: dict[str, list[str]] = {}
+    for key, raw in parse_printed_lines(path):
+        try:
+            float(raw)
+        except ValueError:
+            found.setdefault(key, []).append(raw)
+    return found
 
 
 def _incumbent(manifests: Sequence[Mapping[str, Any]], track: str) -> Mapping[str, Any] | None:

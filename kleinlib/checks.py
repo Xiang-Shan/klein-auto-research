@@ -21,6 +21,7 @@ from .contract import (
     _guardrail_entries,
     _phase_ids,
     load_contract,
+    mutable_surface,
     normalize_tracks,
     prepared_data_path,
     schema_version,
@@ -40,10 +41,15 @@ from .manifest import (
 )
 from .primitives import fingerprint_path, sha256_bytes, sha256_file
 from .schema import AUTO_PRINTED_METRIC_KEYS, EVALUATOR_PRINTED_KEYS
-from .state import load_state
+from .state import (
+    load_state,
+    registered_partition_fingerprints,
+    split_policy_hash,
+    verifier_script_hashes,
+)
 from .transaction import current_branch, git, git_blob, relative, repo_root_for
 
-__all__ = ["Check", "preflight_checks", "verify_study"]
+__all__ = ["ABSENT_LOCAL_ARTIFACT", "Check", "preflight_checks", "verify_study"]
 
 @dataclass(frozen=True)
 class Check:
@@ -53,21 +59,60 @@ class Check:
 
 
 
-def _v2_ledger_problems(study_dir: Path) -> list[str]:
+#: The one sentence every "the bytes are not here, and policy says they never
+#: would be" report uses.  ``klein verify`` on a bare clone must be able to check
+#: what was actually committed; a prepared dataset under a gitignored path and a
+#: model blob whose manifest says ``committed: false`` are absent by design, not
+#: by damage.  The recorded hash stays in the message so the claim is still
+#: falsifiable the moment the artifact is regenerated.
+ABSENT_LOCAL_ARTIFACT = (
+    "local artifact absent (not committed by policy) — hash recorded {sha}; "
+    "re-run prepare.py / `klein replicate` to re-check"
+)
+
+
+def _is_git_ignored(repo: Path | None, path: Path) -> bool:
+    """True when .gitignore covers ``path`` (tracked paths are never ignored)."""
+    if repo is None:
+        return False
+    try:
+        rel = relative(repo, path)
+    except WorkflowError:
+        return False
+    result = git(repo, ["check-ignore", "-q", "--", rel], check=False)
+    return result.returncode == 0
+
+
+def _v2_ledger_problems(
+    study_dir: Path, *, require_local: bool = True
+) -> tuple[list[str], list[str]]:
+    """(hard problems, policy-absent artifacts) for the ledger-integrity check.
+
+    With ``require_local`` (the default, and what ``klein preflight`` uses) an
+    absent local-only artifact is a hard problem exactly as before.  Without it
+    — ``klein verify`` on a fresh checkout — the absence moves to the second
+    list and becomes a ``[WARN]``.  A PRESENT artifact is byte-checked
+    identically either way.
+    """
     problems: list[str] = []
+    absences: list[str] = []
     try:
         manifests = load_manifests(study_dir)
     except WorkflowError as exc:
-        return [str(exc)]
+        return [str(exc)], absences
     for index, manifest in enumerate(manifests, start=1):
         problems.extend(f"{manifest.get('experiment', index)}: {p}" for p in validate_manifest(manifest, index))
     try:
+        surface = mutable_surface(load_contract(study_dir))
+    except WorkflowError:
+        surface = ("train.py",)
+    try:
         repo = repo_root_for(study_dir)
-        train_rel = relative(repo, study_dir / "train.py")
+        surface_rels = [relative(repo, study_dir / name) for name in surface]
     except WorkflowError as exc:
         problems.append(str(exc))
         repo = None
-        train_rel = ""
+        surface_rels = []
     if repo is not None:
         for manifest_path, manifest in zip(
             _manifest_paths(study_dir), manifests, strict=True
@@ -95,7 +140,7 @@ def _v2_ledger_problems(study_dir: Path) -> list[str]:
             if isinstance(base, str) and isinstance(candidate, str):
                 patch = git(
                     repo,
-                    ["diff", "--binary", base, candidate, "--", train_rel],
+                    ["diff", "--binary", base, candidate, "--", *surface_rels],
                     check=False,
                 )
                 if patch.returncode or sha256_bytes(patch.stdout.encode()) != manifest.get("code_patch_hash"):
@@ -130,7 +175,13 @@ def _v2_ledger_problems(study_dir: Path) -> list[str]:
                             elif sha256_file(path) != expected_hash:
                                 problems.append(f"{run_id}: run-log hash mismatch: {rel}")
                     elif not path.is_file():
-                        problems.append(f"{run_id}: local artifact missing: {rel}")
+                        if require_local or committed:
+                            problems.append(f"{run_id}: local artifact missing: {rel}")
+                        else:
+                            absences.append(
+                                f"{run_id}: {rel}: "
+                                + ABSENT_LOCAL_ARTIFACT.format(sha=expected_hash)
+                            )
                     elif sha256_file(path) != expected_hash:
                         problems.append(f"{run_id}: local artifact hash mismatch: {rel}")
     try:
@@ -143,7 +194,7 @@ def _v2_ledger_problems(study_dir: Path) -> list[str]:
         problems.append("results.tsv is missing")
     elif expected is not None and path.read_text(encoding="utf-8") != expected:
         problems.append("results.tsv is not the exact derived view of runs/*/manifest.json")
-    return problems
+    return problems, absences
 
 
 def _artifact_hash_problems(study_dir: Path, state: Mapping[str, Any]) -> list[str]:
@@ -181,6 +232,7 @@ def preflight_checks(
     *,
     require_clean: bool = True,
     require_branch: bool = True,
+    require_local: bool = True,
 ) -> list[Check]:
     checks: list[Check] = []
     try:
@@ -199,6 +251,31 @@ def preflight_checks(
     for track_name, track_spec in normalize_tracks(contract).items():
         metric = track_spec["metric"]
         floor = metric.get("noise_floor")
+        if version >= 3 and metric.get("exactness") == "exact":
+            # A k-seed floor is meaningless for a deterministic objective: the
+            # spread IS zero, and `minimum_delta` is the objective's resolution
+            # (1 for an integer count). The declaration is waived — but a floor
+            # block with a non-zero spread contradicts the declaration, and one
+            # of the two is wrong.
+            std = floor.get("std") if isinstance(floor, Mapping) else None
+            try:
+                nonzero = std is not None and float(std) > 0
+            except (TypeError, ValueError):
+                nonzero = True
+            checks.append(
+                Check(
+                    "noise floor",
+                    not nonzero,
+                    f"track {track_name!r}: exactness=exact — floor waived; "
+                    f"minimum_delta {float(metric.get('minimum_delta', 0)):.6g} is the "
+                    "objective's resolution (exactness_note)"
+                    if not nonzero
+                    else f"track {track_name!r}: exactness=exact but noise_floor.std is "
+                    f"{std} — a deterministic objective has no spread; drop the floor "
+                    "block or drop the exactness claim",
+                )
+            )
+            continue
         if not isinstance(floor, Mapping):
             checks.append(
                 Check(
@@ -296,18 +373,54 @@ def preflight_checks(
     event_problems = verify_event_chain(study_dir)
     checks.append(Check("event chain", not event_problems, "; ".join(event_problems) or "valid"))
 
+    recorded_data = state.get("fingerprints", {}).get("data")
     try:
-        current_data = fingerprint_path(prepared_data_path(study_dir, contract))
-        recorded_data = state.get("fingerprints", {}).get("data")
-        checks.append(Check("prepared-data fingerprint", current_data == recorded_data, f"current={current_data}; recorded={recorded_data}"))
+        prepared = prepared_data_path(study_dir, contract)
     except WorkflowError as exc:
         checks.append(Check("prepared-data fingerprint", False, str(exc)))
+    else:
+        repo_for_ignore = None
+        try:
+            repo_for_ignore = repo_root_for(study_dir)
+        except WorkflowError:
+            pass
+        policy_absent = (
+            not require_local
+            and not prepared.exists()
+            and isinstance(recorded_data, str)
+            and _is_git_ignored(repo_for_ignore, prepared)
+        )
+        if policy_absent:
+            checks.append(
+                Check(
+                    "prepared-data fingerprint",
+                    True,
+                    "[WARN] " + ABSENT_LOCAL_ARTIFACT.format(sha=recorded_data),
+                )
+            )
+        else:
+            try:
+                current_data = fingerprint_path(prepared)
+                checks.append(Check("prepared-data fingerprint", current_data == recorded_data, f"current={current_data}; recorded={recorded_data}"))
+            except WorkflowError as exc:
+                checks.append(Check("prepared-data fingerprint", False, str(exc)))
     current_split = split_fingerprint(contract)
-    recorded_split = state.get("fingerprints", {}).get("split")
+    recorded_split = split_policy_hash(state)
     checks.append(Check("split fingerprint", current_split == recorded_split, f"current={current_split}; recorded={recorded_split}"))
+    if version >= 3:
+        checks.append(_contract_split_check(study_dir, state))
+        checks.append(_verifier_hash_check(study_dir, contract, state))
 
-    ledger_problems = _v2_ledger_problems(study_dir)
-    checks.append(Check("ledger integrity", not ledger_problems, "; ".join(ledger_problems) or "derived view matches manifests"))
+    ledger_problems, ledger_absences = _v2_ledger_problems(
+        study_dir, require_local=require_local
+    )
+    if ledger_problems:
+        ledger_message = "; ".join(ledger_problems)
+    elif ledger_absences:
+        ledger_message = "[WARN] " + "; ".join(ledger_absences)
+    else:
+        ledger_message = "derived view matches manifests"
+    checks.append(Check("ledger integrity", not ledger_problems, ledger_message))
     try:
         manifests = load_manifests(study_dir)
     except WorkflowError as exc:
@@ -402,6 +515,90 @@ def preflight_checks(
     return checks
 
 
+def _verifier_hash_check(
+    study_dir: Path, contract: Mapping[str, Any], state: Mapping[str, Any]
+) -> Check:
+    """The checker is the fixed thing; a change to it after E0001 is refused.
+
+    A verifier that can be edited mid-study is just the searcher with extra
+    steps.  Before any evidence exists the hash is simply re-recorded at the
+    METHOD gate; once E0001 is on the ledger a difference FAILS.
+    """
+    current = verifier_script_hashes(study_dir, contract)
+    recorded = state.get("fingerprints", {}).get("verifier")
+    recorded = recorded if isinstance(recorded, Mapping) else {}
+    if not current and not recorded:
+        return Check("verifier", True, "no track declares a verifier")
+    if current == recorded:
+        return Check(
+            "verifier",
+            True,
+            "; ".join(f"{name}={value[:12]}" for name, value in sorted(current.items()))
+            or "declared but not hashed",
+        )
+    has_evidence = bool(_manifest_paths(study_dir))
+    changed = sorted(set(current) | set(recorded))
+    detail = ", ".join(
+        f"{name}: recorded={str(recorded.get(name))[:12]} current={str(current.get(name))[:12]}"
+        for name in changed
+        if current.get(name) != recorded.get(name)
+    )
+    if not has_evidence:
+        return Check(
+            "verifier",
+            True,
+            f"[WARN] verifier differs from the METHOD gate record ({detail}) — "
+            "re-record the gate before E0001; after that it is frozen",
+        )
+    return Check(
+        "verifier",
+        False,
+        f"verifier changed after evidence exists ({detail}) — every recorded "
+        "disposition was decided by the previous checker; the checker is never "
+        "the searcher",
+    )
+
+
+#: How a schema-3 study is supposed to obtain its partitions.
+_CONTRACT_SPLIT_RE = re.compile(r"\b(contract_split|load_partition)\s*\(")
+
+
+def _contract_split_check(study_dir: Path, state: Mapping[str, Any]) -> Check:
+    """Advisory: does anything in this study actually ASK the contract to split?
+
+    War story 8 is the reason. An evaluator that builds its own partitions from
+    a literal seed prints no fingerprint, so the notary has nothing to compare
+    and a whole ledger lane can measure the wrong rows undetected. ``ok`` stays
+    True — a study may legitimately have no row partitions (``split.kind: none``,
+    a verifier-only study) — but the absence is on the record either way.
+    """
+    sources = _study_python_sources(study_dir)
+    callers = sorted(name for name, text in sources.items() if _CONTRACT_SPLIT_RE.search(text))
+    registered = registered_partition_fingerprints(state)
+    if not callers:
+        return Check(
+            "contract-driven split",
+            True,
+            "[WARN] no study source calls kleinlib.data.contract_split / load_partition — "
+            "the printed split_fingerprint cannot be checked, and a literal split seed in "
+            "an evaluator is a DATA-gate BLOCKER (war story 8)",
+        )
+    if not registered:
+        return Check(
+            "contract-driven split",
+            True,
+            f"[WARN] {', '.join(callers)} obtain partitions from the contract, but no "
+            "realized fingerprints are registered — re-record the DATA gate before E0001 "
+            "so run-one can compare them",
+        )
+    return Check(
+        "contract-driven split",
+        True,
+        f"{', '.join(callers)}; registered "
+        + ", ".join(f"{kind}={value[:12]}" for kind, value in sorted(registered.items())),
+    )
+
+
 def _study_python_sources(study_dir: Path) -> dict[str, str]:
     """The study's Python sources (top level + lib/), for textual scans.
 
@@ -491,7 +688,7 @@ def _headroom_check(
 
 
 
-def verify_study(study_dir: Path) -> list[Check]:
+def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]:
     contract = load_contract(study_dir)
     if schema_version(contract) == 1:
         problems = _legacy_results_problems(study_dir / "results.tsv")
@@ -521,7 +718,12 @@ def verify_study(study_dir: Path) -> list[Check]:
         ]
     from .claims import claims_checks
 
-    checks = preflight_checks(study_dir, require_clean=False, require_branch=False)
+    checks = preflight_checks(
+        study_dir,
+        require_clean=False,
+        require_branch=False,
+        require_local=require_local,
+    )
     # The claims law (references/claims-protocol.md): enforcing on schema 3,
     # advisory on schema 2 so 07/08/09 never retro-fail. Empty without a lock.
     return checks + claims_checks(study_dir, schema_version(contract))
