@@ -11,6 +11,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 VERIFY = REPO_ROOT / "scripts" / "verify_e2e.sh"
+VERIFY_PY = REPO_ROOT / "scripts" / "verify_e2e.py"
 RUN_WITH_LOG = REPO_ROOT / "scripts" / "run_with_log.py"
 
 
@@ -157,7 +158,19 @@ def test_verifier_cleans_owned_worktree_branch_and_temp_root(tmp_path: Path) -> 
     assert branch not in _git("worktree", "list", "--porcelain").stdout
 
 
-def test_verifier_has_no_platform_specific_sed_invocation() -> None:
+def test_shim_is_a_thin_delegator_with_no_platform_specific_sed() -> None:
     contents = VERIFY.read_text(encoding="utf-8")
     assert "sed -i" not in contents
+    assert "uv run --locked python" in contents
+    # Documented as a two-line shim: shebang + one exec line, no logic of its own.
+    non_blank_lines = [line for line in contents.splitlines() if line.strip()]
+    assert len(non_blank_lines) == 2
+    assert non_blank_lines[0].startswith("#!")
+    assert non_blank_lines[1].startswith("exec ")
+
+
+def test_verify_e2e_py_has_no_platform_specific_invocation() -> None:
+    contents = VERIFY_PY.read_text(encoding="utf-8")
+    assert "sed -i" not in contents
+    assert "shell=True" not in contents
     assert "uv sync --locked" in contents

@@ -10,7 +10,7 @@ uv sync --locked --extra encoders
 uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests scripts/tests
 uv run --no-sync ruff check kleinlib scripts .claude/skills/klein/scripts
 uv run --no-sync python scripts/verify_shipped_studies.py   # every shipped ledger still verifies
-bash scripts/verify_e2e.sh
+uv run --locked python scripts/verify_e2e.py   # or: bash scripts/verify_e2e.sh
 ```
 
 CI additionally runs Python 3.11–3.14, all-extras deep/GBDT tests, an 80% engine
