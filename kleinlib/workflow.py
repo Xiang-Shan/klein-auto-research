@@ -1,12 +1,28 @@
-"""Machine-enforced Klein v0.2 study workflow.
+"""Machine-enforced Klein v0.2 study workflow — the coordinator and its facade.
 
 The v1 project deliberately kept its research loop human-readable.  Version 2 keeps
 that property, but moves the invariants which must never depend on prose into this
-module: gate acknowledgements, data/split fingerprints, sealed-test access, bounded
+package: gate acknowledgements, data/split fingerprints, sealed-test access, bounded
 subprocess execution, immutable per-run manifests, and a derived results view.
 
 This is intentionally a single-machine coordinator.  It takes an advisory lock for
 every state mutation and refuses concurrent or nested runs.
+
+The pieces live in focused modules, each importing only the ones above it:
+
+    errors -> primitives -> contract -> events -> manifest -> decision
+           -> transaction -> state -> checks -> workflow
+
+What stays HERE is the coordination those modules cannot own: ``run_subprocess``
+(one bounded child), ``run_one`` (one candidate transaction), ``recover``,
+``finalize`` and ``status_summary``, plus the two thin wrappers
+``_complete_evidence_transaction`` / ``_commit_state_writes`` whose call-time
+``_git_commit`` lookup is the seam the interrupted-transaction tests inject at.
+
+``kleinlib.workflow`` also remains the stable import surface for the rest of the
+repository: every name in ``__all__`` below (and every private helper that used to
+live here) is re-exported explicitly, as the SAME object its home module defines.
+``kleinlib/tests/test_module_split.py`` freezes that contract.
 """
 
 from __future__ import annotations
@@ -39,9 +55,12 @@ from .contract import (
     STUDY_ID_RE,
     VALID_DISPOSITIONS,
     VALID_GOALS,
+    _guardrail_contract_problems,  # noqa: F401  (re-export)
     _guardrail_entries,  # noqa: F401  (re-export)
+    _noise_floor_problems,  # noqa: F401  (re-export)
     _phase_ids,
     _phase_spec,
+    _placeholder_locations,  # noqa: F401  (re-export)
     load_contract,
     normalize_tracks,
     prepared_data_path,
