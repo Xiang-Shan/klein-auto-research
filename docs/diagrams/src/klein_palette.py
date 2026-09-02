@@ -40,7 +40,7 @@ CRITICAL = "#d03b3b"
 #   keep    -> good      (the idea earned its place)
 #   discard -> serious    (an honest negative result, not a bug)
 #   crash   -> critical   (a process failure, logged loudly)
-STATUS_COLOR = {"keep": GOOD, "discard": SERIOUS, "crash": CRITICAL}
+STATUS_COLOR = {"keep": GOOD, "discard": SERIOUS, "measured": BLUE, "crash": CRITICAL}
 
 # ---- Sequential (blue ramp, light -> dark), used sparingly for tints ----
 SEQ_100 = "#cde2fb"
