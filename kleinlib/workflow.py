@@ -14,9 +14,7 @@ from __future__ import annotations
 import csv
 import json
 import math
-import platform
 import re
-import subprocess
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -25,6 +23,7 @@ from typing import Any
 
 import yaml
 
+from . import transaction
 from .contract import (
     GATE_ARTIFACTS,
     IDENTIFIER_RE,
@@ -85,6 +84,32 @@ from .schema import (
     AUTO_PRINTED_METRIC_KEYS,
     EVALUATOR_PRINTED_KEYS,
     V2_RESULTS_COLUMNS,
+)
+from .transaction import (
+    STATE_WRITE_PATHS as _STATE_WRITE_PATHS,  # noqa: F401  (re-export)
+)
+from .transaction import (
+    assert_run_worktree as _assert_run_worktree,
+)
+from .transaction import (
+    current_branch,
+    environment_fingerprint,
+    repo_root_for,
+)
+from .transaction import (
+    git as _git,
+)
+from .transaction import (
+    git_blob as _git_blob,  # noqa: F401  (re-export)
+)
+from .transaction import (
+    git_commit as _git_commit,
+)
+from .transaction import (
+    relative as _relative,
+)
+from .transaction import (
+    stage_evidence as _stage_evidence,
 )
 
 #: The public workflow surface. Every name below is importable from
@@ -180,18 +205,6 @@ class ProcessResult:
     started_at: str
     ended_at: str
     wall_seconds: float
-
-
-def environment_fingerprint(repo_root: Path) -> tuple[str, dict[str, Any]]:
-    lock = repo_root / "uv.lock"
-    details = {
-        "python": platform.python_version(),
-        "implementation": platform.python_implementation(),
-        "platform": platform.platform(),
-        "machine": platform.machine(),
-        "uv_lock_sha256": sha256_file(lock) if lock.is_file() else None,
-    }
-    return sha256_bytes(canonical_json(details).encode()), details
 
 
 def initial_state(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
@@ -545,36 +558,6 @@ def acknowledge_headroom(
             study_dir, f"klein: headroom infeasibility acknowledged ({track})"
         )
         return entry
-
-
-def _git(repo: Path, args: Sequence[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(["git", *args], cwd=repo, text=True, capture_output=True)
-    if check and result.returncode:
-        detail = result.stderr.strip() or result.stdout.strip()
-        raise WorkflowError(f"git {' '.join(args)} failed: {detail}")
-    return result
-
-
-def repo_root_for(study_dir: Path) -> Path:
-    result = _git(study_dir, ["rev-parse", "--show-toplevel"])
-    return Path(result.stdout.strip()).resolve()
-
-
-def current_branch(repo_root: Path) -> str:
-    result = _git(repo_root, ["symbolic-ref", "--quiet", "--short", "HEAD"], check=False)
-    if result.returncode:
-        raise WorkflowError("detached HEAD is not allowed for a study run")
-    return result.stdout.strip()
-
-
-def _git_blob(repo: Path, commit: str, path: str) -> bytes | None:
-    result = subprocess.run(
-        ["git", "show", f"{commit}:{path}"],
-        cwd=repo,
-        capture_output=True,
-        check=False,
-    )
-    return result.stdout if result.returncode == 0 else None
 
 
 def _v2_ledger_problems(study_dir: Path) -> list[str]:
@@ -1044,88 +1027,6 @@ def _headroom_check(
     )
 
 
-def _git_commit(repo: Path, message: str, *, allow_empty: bool = False, amend: bool = False) -> str:
-    args = ["-c", "user.name=Klein Workflow", "-c", "user.email=klein@localhost", "commit", "-q"]
-    if amend:
-        args.extend(["--amend", "--no-edit"])
-    else:
-        if allow_empty:
-            args.append("--allow-empty")
-        args.extend(["-m", message])
-    _git(repo, args)
-    return _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
-
-
-def _relative(repo: Path, path: Path) -> str:
-    try:
-        return path.resolve().relative_to(repo).as_posix()
-    except ValueError as exc:
-        raise WorkflowError(f"path is outside git repository: {path}") from exc
-
-
-#: Study files a CLI verb may (re)write outside a run transaction: contract and
-#: narrative docs, machine state, regenerable derived views, and sweep sidecars
-#: (measurement evidence the next state commit must file). Never train.py —
-#: committing it here would silently move run-one's restore anchor.
-_STATE_WRITE_PATHS = (
-    "study.yaml",
-    "playbook.md",
-    "study_state.json",
-    "events.jsonl",
-    "research_plan.md",
-    "program.md",
-    "data_card.md",
-    "method_card.md",
-    "findings.md",
-    "results_summary.md",
-    "progress.svg",
-    "figures",
-    "sweeps",
-)
-
-
-def _commit_state_writes(study_dir: Path, message: str) -> str | None:
-    """Commit the state/derived files a CLI verb just wrote.
-
-    The loop contract requires a clean tree at ``run-one``; the receipts the CLI
-    itself generates must therefore be filed by the CLI, not hand-committed by
-    the operator. No-op outside a git repository (unit fixtures scaffold studies
-    in bare temp dirs) and when nothing actually changed.
-    """
-    probe = _git(study_dir, ["rev-parse", "--show-toplevel"], check=False)
-    if probe.returncode:
-        return None
-    repo = Path(probe.stdout.strip()).resolve()
-    existing = [
-        _relative(repo, study_dir / name)
-        for name in _STATE_WRITE_PATHS
-        if (study_dir / name).exists()
-    ]
-    if not existing:
-        return None
-    _git(repo, ["add", "--", *existing])
-    if _git(repo, ["diff", "--cached", "--quiet"], check=False).returncode == 0:
-        return None
-    return _git_commit(repo, message)
-
-
-def _stage_evidence(repo: Path, study_dir: Path, manifest: Mapping[str, Any]) -> None:
-    core = [
-        study_dir / "study_state.json",
-        study_dir / "events.jsonl",
-        study_dir / "results.tsv",
-        study_dir / "playbook.md",
-        study_dir / "runs" / str(manifest["experiment"]) / "manifest.json",
-        study_dir / "runs" / str(manifest["experiment"]) / "run.log",
-    ]
-    for rel, meta in manifest.get("artifacts", {}).items():
-        if meta.get("committed"):
-            core.append(study_dir / rel)
-    existing = [_relative(repo, p) for p in core if p.exists()]
-    if existing:
-        _git(repo, ["add", "-f", "--", *existing])
-
-
 def _complete_evidence_transaction(
     repo: Path,
     study_dir: Path,
@@ -1134,60 +1035,31 @@ def _complete_evidence_transaction(
     restored_train: bool,
     recovery: bool = False,
 ) -> str:
-    run_id = str(manifest["experiment"])
-    derive_results(study_dir)
-    if restored_train:
-        train_rel = _relative(repo, study_dir / "train.py")
-        _git(repo, ["add", "--", train_rel])
-    _stage_evidence(repo, study_dir, manifest)
-    first_commit = _git_commit(
+    """Thin wrapper over :func:`kleinlib.transaction.complete_evidence_transaction`.
+
+    Keeps the private name ``run_one``/``recover`` call, and — critically —
+    resolves ``_git_commit`` as a MODULE GLOBAL at call time, so a test that
+    patches ``workflow._git_commit`` sees its injected failure fire INSIDE the
+    transaction, exactly as it did before the split.
+    """
+    return transaction.complete_evidence_transaction(
         repo,
-        f"evidence {run_id}: {manifest['disposition']}",
-        allow_empty=False,
-    )
-    manifest["transaction"] = {
-        "status": "complete",
-        "committed_at": utc_now(),
-        "evidence_commit": first_commit,
-        "recovered": recovery,
-    }
-    atomic_write_json(study_dir / "runs" / run_id / "manifest.json", manifest)
-    append_event(
         study_dir,
-        "transaction_recovered" if recovery else "transaction_committed",
-        experiment=run_id,
-        disposition=manifest["disposition"],
-        evidence_commit=first_commit,
+        manifest,
+        restored_train=restored_train,
+        recovery=recovery,
+        commit=_git_commit,
     )
-    _stage_evidence(repo, study_dir, manifest)
-    return _git_commit(repo, f"transaction {run_id}: finalize evidence")
 
 
-def _assert_run_worktree(repo: Path, study_dir: Path) -> None:
-    status = _git(repo, ["status", "--porcelain", "--untracked-files=all"]).stdout.splitlines()
-    train_rel = _relative(repo, study_dir / "train.py")
-    # The lock is ephemeral state; a foreign repo has no .gitignore for it, so
-    # it must be exempt here rather than rely on ignore rules. Derived views
-    # (summary, progress, figures) are regenerable at any time and are swept
-    # into the next state commit by a gate record — they never gate a run.
-    lock_rel = _relative(repo, study_dir / ".klein.lock")
-    playbook_rel = _relative(repo, study_dir / "playbook.md")
-    summary_rel = _relative(repo, study_dir / "results_summary.md")
-    progress_rel = _relative(repo, study_dir / "progress.svg")
-    figures_prefix = _relative(repo, study_dir / "figures") + "/"
-    allowed = {train_rel, lock_rel, playbook_rel, summary_rel, progress_rel}
-    bad: list[str] = []
-    for line in status:
-        path = line[3:].split(" -> ")[-1]
-        if path not in allowed and not path.startswith(figures_prefix):
-            bad.append(line)
-    if bad:
-        raise WorkflowError(
-            "run-one requires a clean tree except for train.py and derived views; found: "
-            + ", ".join(bad)
-            + " — commit these first (gate records, finalize, and recover file their own "
-            "state writes automatically; for manual edits: git add <files> && git commit)"
-        )
+def _commit_state_writes(
+    study_dir: Path, message: str, *, paths: Sequence[str] = ()
+) -> str | None:
+    """Thin wrapper over :func:`kleinlib.transaction.commit_state_writes`, with
+    the same call-time ``_git_commit`` lookup as above."""
+    return transaction.commit_state_writes(
+        study_dir, message, commit=_git_commit, paths=paths
+    )
 
 
 def run_one(
