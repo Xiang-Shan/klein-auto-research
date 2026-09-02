@@ -59,10 +59,14 @@ def schema_version(contract_path: Path) -> int | None:
 
 
 def run_verify(study_dir: Path) -> subprocess.CompletedProcess[str]:
-    rel = study_dir.relative_to(REPO_ROOT)
+    # .as_posix(), not str(): on Windows a bare str() renders backslashes, so
+    # the printed/ledger-facing form of this path (this exact "studies/<name>"
+    # string is what the row label and its tests key off of) would silently
+    # stop matching the forward-slash form everyone else expects.
+    rel = study_dir.relative_to(REPO_ROOT).as_posix()
     try:
         return subprocess.run(
-            ["uv", "run", "--locked", "klein", "verify", "--study", str(rel)],
+            ["uv", "run", "--locked", "klein", "verify", "--study", rel],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -141,7 +145,9 @@ def main(argv: list[str] | None = None) -> int:
     any_failed = False
 
     for study_dir in selected:
-        rel = study_dir.relative_to(REPO_ROOT)
+        # .as_posix(): same reasoning as run_verify() above -- this is the
+        # printed row label callers (and tests) match on.
+        rel = study_dir.relative_to(REPO_ROOT).as_posix()
         version = schema_version(study_dir / "study.yaml")
         if version is None:
             print(f"note: {rel} is schema v1 (no schema_version key) — skipped")
@@ -164,7 +170,7 @@ def main(argv: list[str] | None = None) -> int:
             study_failed = failed > 0 or result.returncode != 0
 
         any_failed = any_failed or study_failed
-        rows.append((str(rel), passed_s, str(warned), failed_s, str(result.returncode)))
+        rows.append((rel, passed_s, str(warned), failed_s, str(result.returncode)))
 
     if rows:
         print(render_table(rows))

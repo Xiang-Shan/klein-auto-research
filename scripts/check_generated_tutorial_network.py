@@ -270,7 +270,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         chrome = find_chrome(args.chrome)
-        with tempfile.TemporaryDirectory(prefix="klein-tutorial-browser-") as temp:
+        # ignore_cleanup_errors: on Windows, Chrome (or, in tests, a file the
+        # antivirus scanner is transiently holding) can still have a handle
+        # open on a file under `temp` the instant this block exits; without
+        # it, __exit__'s cleanup can raise and mask the real result.
+        with tempfile.TemporaryDirectory(
+            prefix="klein-tutorial-browser-", ignore_cleanup_errors=True
+        ) as temp:
             root = Path(temp)
             page = build_fresh_tutorial(root)
             load_seconds = check_in_chrome(chrome, page, root)
