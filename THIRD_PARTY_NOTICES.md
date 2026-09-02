@@ -30,6 +30,29 @@ beside it in `DATA_LICENSE`.
   Provenance notes (including the source's own period-label trap) live in
   [`datasets/hurricane_top30_pl1998/README.md`](datasets/hurricane_top30_pl1998/README.md).
 
+## Hubble (1929) velocity–distance tables
+
+- Source: Hubble, E. (1929), "A relation between distance and radial velocity among
+  extra-galactic nebulae", *Proceedings of the National Academy of Sciences* 15(3),
+  168–173, DOI 10.1073/pnas.15.3.168 — Tables 1 (24 objects) and 2 (22 nebulae).
+- Repository copies: `datasets/hubble1929/hubble1929_table1.csv`,
+  `datasets/hubble1929/hubble1929_table2.csv`; used by `studies/10-hubble-1929-replication`.
+- Licence: a 1929 scientific table of measured facts, in the public domain;
+  transcribed from two independent sources and diffed cell by cell — provenance,
+  anchors and the one OCR caveat are in
+  [`datasets/hubble1929/README.md`](datasets/hubble1929/README.md) and `DATA_LICENSE`.
+
+## Tiny Shakespeare corpus
+
+- Source: `https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt`
+  — the concatenation of Shakespeare plays distributed with
+  [karpathy/char-rnn](https://github.com/karpathy/char-rnn) (MIT, per that
+  repository's README) and reused by nanoGPT; the text itself is public domain.
+- Repository copy: `datasets/tinyshakespeare/tinyshakespeare.txt.gz` (deterministic
+  gzip; sha256 of the decompressed 1,115,394 bytes recorded in
+  [`datasets/tinyshakespeare/README.md`](datasets/tinyshakespeare/README.md) and
+  `DATA_LICENSE`); used by `studies/13-charlm-fixed-budget`.
+
 ## Research workflow lineage
 
 Klein's lab-notebook and edit-run-log doctrine was inspired by
