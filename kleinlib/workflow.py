@@ -11,7 +11,6 @@ every state mutation and refuses concurrent or nested runs.
 
 from __future__ import annotations
 
-import csv
 import json
 import math
 import re
@@ -22,6 +21,16 @@ from pathlib import Path
 from typing import Any
 
 from . import transaction
+from .checks import (
+    Check,
+    _artifact_hash_problems,
+    _headroom_check,  # noqa: F401  (re-exported as workflow._headroom_check)
+    _legacy_results_problems,  # noqa: F401  (re-exported)
+    _study_python_sources,  # noqa: F401  (re-exported)
+    _v2_ledger_problems,  # noqa: F401  (re-exported)
+    preflight_checks,
+    verify_study,
+)
 from .contract import (
     GATE_ARTIFACTS,
     IDENTIFIER_RE,
@@ -30,7 +39,7 @@ from .contract import (
     STUDY_ID_RE,
     VALID_DISPOSITIONS,
     VALID_GOALS,
-    _guardrail_entries,
+    _guardrail_entries,  # noqa: F401  (re-export)
     _phase_ids,
     _phase_spec,
     load_contract,
@@ -44,9 +53,9 @@ from .contract import (
 from .decision import (
     METRIC_LINE_RE,
     _enforce_headroom,
-    _guardrails_pass,  # noqa: F401  (re-exported as workflow._guardrails_pass)
-    _headroom_ack,
-    _headroom_context,
+    _guardrails_pass,  # noqa: F401  (re-export)
+    _headroom_ack,  # noqa: F401  (re-export)
+    _headroom_context,  # noqa: F401  (re-export)
     _incumbent,
     choose_disposition,
     parse_metric_log,
@@ -57,7 +66,7 @@ from .events import append_event, events_path, read_events, verify_event_chain
 from .manifest import (
     RUN_ID_RE,
     UNSAFE_PAYLOAD_SUFFIXES,
-    _artifact_path,
+    _artifact_path,  # noqa: F401  (re-export)
     _evidence_commit,
     _manifest_paths,
     _run_log_evidence,
@@ -200,13 +209,6 @@ UNCERTAINTY_EVIDENCE_RE = re.compile(
 
 
 @dataclass(frozen=True)
-class Check:
-    name: str
-    ok: bool
-    message: str
-
-
-@dataclass(frozen=True)
 class ProcessResult:
     command: tuple[str, ...]
     exit_code: int
@@ -214,374 +216,6 @@ class ProcessResult:
     started_at: str
     ended_at: str
     wall_seconds: float
-
-
-def _v2_ledger_problems(study_dir: Path) -> list[str]:
-    problems: list[str] = []
-    try:
-        manifests = load_manifests(study_dir)
-    except WorkflowError as exc:
-        return [str(exc)]
-    for index, manifest in enumerate(manifests, start=1):
-        problems.extend(f"{manifest.get('experiment', index)}: {p}" for p in validate_manifest(manifest, index))
-    try:
-        repo = repo_root_for(study_dir)
-        train_rel = _relative(repo, study_dir / "train.py")
-    except WorkflowError as exc:
-        problems.append(str(exc))
-        repo = None
-        train_rel = ""
-    if repo is not None:
-        for manifest_path, manifest in zip(
-            _manifest_paths(study_dir), manifests, strict=True
-        ):
-            run_id = str(manifest.get("experiment", "?"))
-            manifest_rel = _relative(repo, manifest_path)
-            committed_manifest = _git_blob(repo, "HEAD", manifest_rel)
-            if committed_manifest is None:
-                problems.append(f"{run_id}: manifest is not tracked at HEAD")
-            elif committed_manifest != manifest_path.read_bytes():
-                problems.append(f"{run_id}: manifest differs from its HEAD blob")
-            for field in ("base_commit", "candidate_commit"):
-                commit = manifest.get(field)
-                if isinstance(commit, str):
-                    resolved = _git(repo, ["cat-file", "-e", f"{commit}^{{commit}}"], check=False)
-                    if resolved.returncode:
-                        problems.append(f"{run_id}: {field} does not resolve")
-            evidence = _evidence_commit(manifest)
-            if evidence is not None:
-                resolved = _git(repo, ["cat-file", "-e", f"{evidence}^{{commit}}"], check=False)
-                if resolved.returncode:
-                    problems.append(f"{run_id}: evidence_commit does not resolve")
-            base = manifest.get("base_commit")
-            candidate = manifest.get("candidate_commit")
-            if isinstance(base, str) and isinstance(candidate, str):
-                patch = _git(
-                    repo,
-                    ["diff", "--binary", base, candidate, "--", train_rel],
-                    check=False,
-                )
-                if patch.returncode or sha256_bytes(patch.stdout.encode()) != manifest.get("code_patch_hash"):
-                    problems.append(f"{run_id}: code_patch_hash does not match commits")
-            artifacts = manifest.get("artifacts", {})
-            if isinstance(artifacts, Mapping):
-                for rel, meta in artifacts.items():
-                    if not isinstance(meta, Mapping):
-                        problems.append(f"{run_id}: invalid artifact metadata for {rel}")
-                        continue
-                    try:
-                        path = _artifact_path(study_dir, str(rel))
-                    except WorkflowError as exc:
-                        problems.append(f"{run_id}: {exc}")
-                        continue
-                    expected_hash = meta.get("sha256")
-                    committed = meta.get("committed") is True
-                    if committed and evidence is not None:
-                        repo_rel = _relative(repo, path)
-                        content = _git_blob(repo, evidence, repo_rel)
-                        if content is None:
-                            problems.append(
-                                f"{run_id}: committed artifact missing from evidence commit: {rel}"
-                            )
-                        elif sha256_bytes(content) != expected_hash:
-                            problems.append(
-                                f"{run_id}: committed artifact hash mismatch: {rel}"
-                            )
-                        if str(rel) == f"runs/{run_id}/run.log":
-                            if not path.is_file():
-                                problems.append(f"{run_id}: run log is missing: {rel}")
-                            elif sha256_file(path) != expected_hash:
-                                problems.append(f"{run_id}: run-log hash mismatch: {rel}")
-                    elif not path.is_file():
-                        problems.append(f"{run_id}: local artifact missing: {rel}")
-                    elif sha256_file(path) != expected_hash:
-                        problems.append(f"{run_id}: local artifact hash mismatch: {rel}")
-    try:
-        expected = render_results(manifests)
-    except (KeyError, TypeError, ValueError) as exc:
-        problems.append(f"could not derive results view from manifests: {exc}")
-        expected = None
-    path = study_dir / "results.tsv"
-    if not path.is_file():
-        problems.append("results.tsv is missing")
-    elif expected is not None and path.read_text(encoding="utf-8") != expected:
-        problems.append("results.tsv is not the exact derived view of runs/*/manifest.json")
-    return problems
-
-
-def _artifact_hash_problems(study_dir: Path, state: Mapping[str, Any]) -> list[str]:
-    problems: list[str] = []
-    hashes = state.get("artifact_hashes", {})
-    if not isinstance(hashes, Mapping):
-        return ["study_state artifact_hashes is invalid"]
-    for name, expected in hashes.items():
-        path = study_dir / str(name)
-        if not path.is_file():
-            problems.append(f"recorded gate artifact is missing: {name}")
-        elif sha256_file(path) != expected:
-            problems.append(f"recorded gate artifact changed after acknowledgement: {name}")
-    return problems
-
-
-def _legacy_results_problems(path: Path) -> list[str]:
-    from . import schema
-
-    if not path.is_file():
-        return ["results.tsv is missing"]
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.reader(handle, delimiter="\t")
-        rows = list(reader)
-    if not rows or not schema.is_valid_header("\t".join(rows[0])):
-        return ["v1 results.tsv header is incompatible"]
-    problems: list[str] = []
-    for index, row in enumerate(rows[1:], start=2):
-        problems.extend(f"line {index}: {p}" for p in schema.validate_row(row, n_columns=len(rows[0])))
-    return problems
-
-
-def preflight_checks(
-    study_dir: Path,
-    *,
-    require_clean: bool = True,
-    require_branch: bool = True,
-) -> list[Check]:
-    checks: list[Check] = []
-    try:
-        contract = load_contract(study_dir)
-    except WorkflowError as exc:
-        return [Check("study contract", False, str(exc))]
-    version = schema_version(contract)
-    if version == 1:
-        checks.append(Check("schema", True, "v1 compatibility mode (deprecated, explicit warning)"))
-        problems = _legacy_results_problems(study_dir / "results.tsv")
-        checks.append(Check("legacy ledger", not problems, "; ".join(problems) or "valid five-column ledger"))
-        return checks
-
-    contract_problems = validate_contract(contract, study_dir)
-    checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or "schema_version 2 contract valid"))
-    for track_name, track_spec in normalize_tracks(contract).items():
-        metric = track_spec["metric"]
-        floor = metric.get("noise_floor")
-        if not isinstance(floor, Mapping):
-            checks.append(
-                Check(
-                    "noise floor",
-                    True,
-                    f"track {track_name!r}: not measured — Phase 0 protocol expects a "
-                    "k-seed measurement (see consult-protocol.md)",
-                )
-            )
-            continue
-        try:
-            floor_std = float(floor.get("std"))
-            minimum_delta = float(metric.get("minimum_delta", 0))
-        except (TypeError, ValueError):
-            continue  # validate_contract already reported the malformed block
-        checks.append(
-            Check(
-                "noise floor",
-                minimum_delta >= floor_std,
-                f"track {track_name!r}: minimum_delta {minimum_delta:.6g} vs measured "
-                f"seed std {floor_std:.6g}"
-                + (
-                    ""
-                    if minimum_delta >= floor_std
-                    else " — declaring a floor then keeping inside it is the exact "
-                    "dishonesty the measurement exists to prevent"
-                ),
-            )
-        )
-    try:
-        state = load_state(study_dir, contract)
-    except WorkflowError as exc:
-        checks.append(Check("study state", False, str(exc)))
-        return checks
-    checks.append(Check("study state", True, "study_state.json loaded"))
-
-    try:
-        repo = repo_root_for(study_dir)
-        checks.append(Check("git repository", True, str(repo)))
-        if require_branch:
-            expected = f"experiments/{contract.get('study_id')}"
-            branch = current_branch(repo)
-            checks.append(Check("git branch", branch == expected, f"current={branch!r}; required={expected!r}"))
-        if require_clean:
-            dirty = _git(repo, ["status", "--porcelain", "--untracked-files=all"]).stdout.strip()
-            checks.append(Check("working tree", not dirty, dirty or "clean"))
-    except WorkflowError as exc:
-        checks.append(Check("git repository", False, str(exc)))
-
-    phase_ids = _phase_ids(contract)
-    current_phase = state.get("current_phase")
-    if current_phase not in phase_ids:
-        checks.append(
-            Check(
-                "phase ladder",
-                False,
-                f"state current_phase {current_phase!r} is not in the contract's "
-                f"phases {phase_ids} — phases were renamed/removed after "
-                "initialization; amend the contract to match the recorded state",
-            )
-        )
-    else:
-        acked = set(state.get("phase_acknowledgements", {}))
-        earlier_unacked = [
-            pid for pid in phase_ids[: phase_ids.index(current_phase)] if pid not in acked
-        ]
-        checks.append(
-            Check(
-                "phase ladder",
-                not earlier_unacked,
-                (
-                    f"contract declares phases before the current one that were never "
-                    f"acknowledged: {earlier_unacked} — phases cannot be inserted "
-                    "retroactively; fold them into the ladder the machine actually ran"
-                )
-                if earlier_unacked
-                else f"current={current_phase!r}; ladder consistent",
-            )
-        )
-
-    gates = state.get("gates", {})
-    for gate in GATE_ARTIFACTS:
-        entry = gates.get(gate, {}) if isinstance(gates, Mapping) else {}
-        valid = (
-            isinstance(entry, Mapping)
-            and entry.get("status") in {"recorded", "overridden"}
-            and bool(entry.get("acknowledged_at"))
-            and bool(entry.get("acknowledged_by"))
-        )
-        status = entry.get("status", "missing") if isinstance(entry, Mapping) else "invalid"
-        checks.append(Check(f"gate {gate}", valid, f"status={status}"))
-
-    artifact_problems = _artifact_hash_problems(study_dir, state)
-    checks.append(Check("gate artifact hashes", not artifact_problems, "; ".join(artifact_problems) or "match"))
-    event_problems = verify_event_chain(study_dir)
-    checks.append(Check("event chain", not event_problems, "; ".join(event_problems) or "valid"))
-
-    try:
-        current_data = fingerprint_path(prepared_data_path(study_dir, contract))
-        recorded_data = state.get("fingerprints", {}).get("data")
-        checks.append(Check("prepared-data fingerprint", current_data == recorded_data, f"current={current_data}; recorded={recorded_data}"))
-    except WorkflowError as exc:
-        checks.append(Check("prepared-data fingerprint", False, str(exc)))
-    current_split = split_fingerprint(contract)
-    recorded_split = state.get("fingerprints", {}).get("split")
-    checks.append(Check("split fingerprint", current_split == recorded_split, f"current={current_split}; recorded={recorded_split}"))
-
-    ledger_problems = _v2_ledger_problems(study_dir)
-    checks.append(Check("ledger integrity", not ledger_problems, "; ".join(ledger_problems) or "derived view matches manifests"))
-    try:
-        manifests = load_manifests(study_dir)
-    except WorkflowError as exc:
-        checks.append(Check("transactions", False, str(exc)))
-    else:
-        pending = [
-            m.get("experiment")
-            for m in manifests
-            if not isinstance(m.get("transaction"), Mapping)
-            or m.get("transaction", {}).get("status") != "complete"
-        ]
-        checks.append(
-            Check("transactions", not pending, f"pending={pending}" if pending else "none pending")
-        )
-        for headroom_track, headroom_spec in normalize_tracks(contract).items():
-            checks.append(
-                _headroom_check(headroom_track, headroom_spec, manifests, state)
-            )
-    train = study_dir / "train.py"
-    if not train.is_file():
-        checks.append(Check("train.py", False, "missing"))
-    else:
-        try:
-            compile(train.read_text(encoding="utf-8"), str(train), "exec")
-        except SyntaxError as exc:
-            checks.append(Check("train.py", False, f"syntax error: {exc}"))
-        else:
-            source = train.read_text(encoding="utf-8")
-            if "NotImplementedError" in source:
-                checks.append(
-                    Check(
-                        "train.py",
-                        True,
-                        "[WARN] syntax valid but scaffold stubs remain "
-                        "(NotImplementedError) — fill load_split/build_model "
-                        "before the loop; run-one would record the stub as a crash",
-                    )
-                )
-            else:
-                checks.append(Check("train.py", True, "syntax valid"))
-
-    # Guardrail visibility (the study-05 F1 lesson): `klein run-one` reads
-    # guardrails off the PRINTED metric block, so a declared key the run
-    # never prints scores "missing" and discards the candidate. A key is
-    # considered visible when the framework auto-prints it, or when it
-    # appears textually anywhere in the study's Python sources (the
-    # escape hatch for keys printed via `extra=` — naming it in a comment
-    # is enough). Advisory only: ok stays True, the message carries [WARN].
-    tracks = normalize_tracks(contract)
-    sources = _study_python_sources(study_dir)
-    # Universal keys plus the aux keys of exactly the evaluator(s) this
-    # study's sources actually call — a flat union would bless keys the
-    # calling evaluator prints as NA (or not at all), turning this check
-    # into a false all-clear on the very failure it exists to catch.
-    visible = set(AUTO_PRINTED_METRIC_KEYS)
-    for evaluator, keys in EVALUATOR_PRINTED_KEYS.items():
-        pattern = re.compile(rf"\b{evaluator}\s*\(")
-        if any(pattern.search(text) for text in sources.values()):
-            visible |= keys
-    invisible: list[str] = []
-    for track_name, track_spec in tracks.items():
-        entries, _ = _guardrail_entries(track_spec.get("guardrails", {}))
-        for key, _spec in entries:
-            if key in visible:
-                continue
-            if any(key in text for text in sources.values()):
-                continue
-            invisible.append(f"track {track_name!r} declares {key!r}")
-    if invisible:
-        named = ", ".join(sorted(sources)) if sources else "no study .py files found"
-        checks.append(
-            Check(
-                "guardrail visibility",
-                True,
-                "[WARN] "
-                + "; ".join(invisible)
-                + f" — not auto-printed by the evaluator and not named in {named}. "
-                "`klein run-one` reads guardrails off the PRINTED block, so an "
-                "unprinted guardrail scores \"missing\" and discards the candidate. "
-                "Print it via evaluate*(..., extra={<key>: value}).",
-            )
-        )
-    else:
-        checks.append(
-            Check(
-                "guardrail visibility",
-                True,
-                "every declared guardrail metric is printed by the evaluator "
-                "or named in the study's Python sources",
-            )
-        )
-    return checks
-
-
-def _study_python_sources(study_dir: Path) -> dict[str, str]:
-    """The study's Python sources (top level + lib/), for textual scans.
-
-    Wider than train.py on purpose: study 06 declares guardrail keys that
-    are computed in analysis.py and only routed through train.py's `extra=`.
-    """
-    sources: dict[str, str] = {}
-    for path in sorted(study_dir.glob("*.py")) + sorted(study_dir.glob("lib/**/*.py")):
-        try:
-            # errors="replace": a non-UTF-8 study file must degrade to a
-            # weaker textual scan, never abort the whole preflight report.
-            sources[str(path.relative_to(study_dir))] = path.read_text(
-                encoding="utf-8", errors="replace"
-            )
-        except OSError:
-            continue
-    return sources
 
 
 def run_subprocess(
@@ -612,74 +246,6 @@ def run_subprocess(
         started_at=started_at,
         ended_at=utc_now(),
         wall_seconds=result.wall_seconds,
-    )
-
-
-def _headroom_check(
-    track_name: str,
-    track_spec: Mapping[str, Any],
-    manifests: Sequence[Mapping[str, Any]],
-    state: Mapping[str, Any],
-) -> Check:
-    """Detection-limit disclosure. Always ``ok=True`` — a FAIL here would
-    retro-fail ``klein verify`` on finalized studies (verify == preflight);
-    enforcement belongs to run-one, where a refusal burns nothing."""
-    from .eval import KNOWN_IDEALS
-
-    metric = track_spec["metric"]
-    name = metric.get("name")
-    if not isinstance(metric.get("bound"), Mapping):
-        known = KNOWN_IDEALS.get(name) if isinstance(name, str) else None
-        if known is not None:
-            return Check(
-                "headroom",
-                True,
-                f"track {track_name!r}: metric {name!r} has a known ideal ({known:g}) "
-                "but no metric.bound declared — headroom not audited (HINT: declare "
-                "metric.bound.ideal to arm the detection-limit check)",
-            )
-        return Check(
-            "headroom",
-            True,
-            f"track {track_name!r}: no metric.bound declared — not audited",
-        )
-    context = _headroom_context(track_spec, _incumbent(manifests, track_name))
-    if context is None:
-        return Check(
-            "headroom",
-            True,
-            f"track {track_name!r}: bound declared; no incumbent yet (or no measured "
-            "minimum_delta) — audited at first keep",
-        )
-    h = context["h"]
-    arithmetic = (
-        f"h = ({context['incumbent']:.6g} - {context['ideal']:g}) / "
-        f"{context['minimum_delta']:.6g} = {h:.3f}"
-    )
-    if h >= 1:
-        return Check(
-            "headroom",
-            True,
-            f"track {track_name!r}: {arithmetic} — a keep is arithmetically possible "
-            "(h >= 1 means not excluded, NOT plausible: the attainable ceiling may "
-            "sit short of the ideal)",
-        )
-    ack = _headroom_ack(state, track_name)
-    if ack:
-        return Check(
-            "headroom",
-            True,
-            f"track {track_name!r}: {arithmetic} < 1 — infeasible, acknowledged by "
-            f"{ack.get('acknowledged_by')} at {ack.get('acknowledged_at')}: "
-            f"{ack.get('note')}",
-        )
-    return Check(
-        "headroom",
-        True,
-        f"track {track_name!r}: [WARN] {arithmetic} < 1 — NO keep is arithmetically "
-        "possible: not even a perfect score clears minimum_delta "
-        f"(on_infeasible: {context['posture']}). Register awareness with "
-        "`klein headroom ack` or re-scope the contract",
     )
 
 
@@ -1125,37 +691,6 @@ def recover(study_dir: Path) -> list[str]:
             recovered.append(run_id)
     _commit_state_writes(study_dir, "klein: recover — state writes filed")
     return recovered
-
-
-def verify_study(study_dir: Path) -> list[Check]:
-    contract = load_contract(study_dir)
-    if schema_version(contract) == 1:
-        problems = _legacy_results_problems(study_dir / "results.tsv")
-        return [
-            Check(
-                "legacy warning",
-                True,
-                "schema_version missing means v1; readable through the deprecated v1 adapter"
-                " — no study evidence is rewritten",
-            ),
-            Check(
-                "legacy errata",
-                True,
-                "v1 discard/crash rows may use `-` because exact candidate commits were not retained",
-            ),
-            Check(
-                "legacy errata",
-                True,
-                "v1 has no machine-recorded gates, split fingerprint, track frontier, or sealed test count",
-            ),
-            Check(
-                "legacy migration",
-                True,
-                "create a new v2 study; preserve this directory as immutable legacy evidence",
-            ),
-            Check("legacy ledger", not problems, "; ".join(problems) or "valid"),
-        ]
-    return preflight_checks(study_dir, require_clean=False, require_branch=False)
 
 
 def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
