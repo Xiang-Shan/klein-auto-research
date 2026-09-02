@@ -6,6 +6,43 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [Unreleased]
+
+Klein 2.0 (schema 3) is being built on the `v2.0-science` branch; see
+`docs/design/klein-2-design.md` for the rationale and `docs/migration-schema2-to-3.md`
+for the contract diff. Studies 07, 08 and 09 (published 2026-08-26/27, after the
+1.3.0 merge) are recorded under 2.0.0 when it ships.
+
+## [1.3.0] — 2026-08-26
+
+The detection-limit release — merged as `9f87a01` on 2026-08-26 and used by studies
+07, 08 and 09, but **never tagged and never recorded here at the time**; the tag
+`v1.3.0` was created retroactively on 2026-09-02 with a message naming that defect,
+and this entry was reconstructed from the merge. The tree at the tag still says
+`version = "1.2.0"` in `pyproject.toml`, which is why the three studies' claims
+locks record `klein_version: "1.2.0"`. Pin by commit, not by version string.
+
+### Added
+
+- `metric.bound {ideal, on_infeasible ∈ {ack, warn, block}}` per track and
+  `noise_floor.estimand ∈ {marginal-resplit, paired-comparison}` (required once a
+  floor block exists beside a declared bound).
+- Headroom `h = (incumbent − ideal) / minimum_delta`, computed and disclosed at
+  `klein preflight` and `klein verify`, enforced at `klein run-one`: the default
+  posture refuses development runs on a keep-infeasible frontier (`h < 1`) until
+  `klein headroom ack --note "re-scope: … | run-anyway: …"` records the closed door
+  (hash-chained event, self-committed). Nine dedicated tests.
+- War story 7 (the sub-zero keep bar, study 07), SKILL Hard Rule 6, the AGENTS.md
+  detection-limit invariant, the README headroom section, and the consult-protocol
+  headroom bullet.
+
+### Notes
+
+- Born from study 07's parade at h = 0.81 with no disclosure; first exercised by
+  study 08 (door ajar at h = 1.015; twenty-one challengers, zero keeps) and armed for
+  the first time by study 09 (`bound` declared; h = 0.33, door closed before any
+  challenger).
+
 ## [1.2.0] — 2026-08-01
 
 The typeset release: the two frictions the 05/06 arc filed are fixed in the

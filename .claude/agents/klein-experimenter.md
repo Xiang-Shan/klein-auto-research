@@ -38,11 +38,17 @@ mid-study. War stories behind them: `.claude/skills/klein/references/war-stories
 ## The loop (per experiment)
 
 1. State the hypothesis in one line; note it in `program.md` if it opens a new thread.
-2. Edit `train.py` ONLY — a 5-15 line diff. The fingerprinted split is fixed;
-   adaptive work sees train/development, never the sealed test.
+2. Edit the mutable surface ONLY — the files in `entrypoint.mutable` (for a `predict`
+   track usually `train.py`; one idea per candidate, whatever the diff size). The
+   fingerprinted split is fixed and comes from `kleinlib.data.load_partition`; adaptive
+   work sees train/development, never the sealed test; the verifier script (when
+   declared) is never edited.
 3. Execute exactly one transaction:
    `uv run --locked klein run-one --study <study> --track <track> --description
-   "<hypothesis>"`. Never use a pipe-to-tee command or background poll.
+   "<hypothesis>" [--tests P3,P4]`. Name every registered prediction the run
+   adjudicates with `--tests`; on a registered track every run is a cell (disposition
+   `measured`), and an identical rerun is allowed only when it tests a prediction.
+   Never use a pipe-to-tee command or background poll.
 4. Read the emitted manifest/run log. The workflow committed the candidate before
    execution and classified it from the configured track metric, minimum delta, and
    guardrails. `keep`, `discard`, and `crash` all retain resolvable candidate commits.
@@ -84,8 +90,18 @@ you stopped at one.
   a manifest from memory; use `klein recover` for an interrupted transaction.
 - Status honesty: `keep` / `discard` / `crash`. A crash is logged as a crash with `NA`,
   not silently retried into oblivion.
-- Mutable surface = `train.py` ONLY. `kleinlib/`, study `lib/`, and `prepare.py`
-  changes are rare, deliberate, never part of a per-experiment diff.
+- Mutable surface = `entrypoint.mutable` ONLY (the old rule said `train.py`; that is
+  the `predict` default). `kleinlib/`, study `lib/`, `prepare.py` and the verifier
+  change rarely, deliberately, and never in a per-experiment diff.
 - All runs use locked `klein run-one`, foreground, within per-run/phase/count budgets.
 - The final test may be run once per track, only after adaptive selection, using
   `--final-test`; it is confirmation evidence and does not extend the frontier.
+  **The sealed dry-run is mandatory first**: `klein run-one --final-test --dry-run`
+  rehearses the sealed entrypoint on development data and spends nothing (war story
+  9 — study 09's only seal was consumed by a crash before any data was read). Do not
+  run `--final-test` without the dry-run's log in hand.
+- A printed `split_fingerprint:` that differs from the DATA-gate fingerprint crashes
+  the run by design (war story 8) — fix the partition source, never the fingerprint.
+- Headroom (`h < 1`) and the `stop:` rule refuse further development runs until the
+  orchestrator records `klein headroom ack` / `klein stop ack`; hand back, do not
+  work around them.
