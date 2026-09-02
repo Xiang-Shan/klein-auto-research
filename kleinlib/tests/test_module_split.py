@@ -46,6 +46,8 @@ PUBLIC_SURFACE: dict[str, tuple[str, str]] = {
     "V2_RESULTS_COLUMNS": ("kleinlib.schema", "V2_RESULTS_COLUMNS"),
     "VALID_DISPOSITIONS": ("kleinlib.contract", "VALID_DISPOSITIONS"),
     "VALID_GOALS": ("kleinlib.contract", "VALID_GOALS"),
+    "VERIFIER_DISAGREEMENT": ("kleinlib.workflow", "VERIFIER_DISAGREEMENT"),
+    "VERIFIER_FAILED": ("kleinlib.workflow", "VERIFIER_FAILED"),
     "WorkflowError": ("kleinlib.errors", "WorkflowError"),
     "acknowledge_headroom": ("kleinlib.state", "acknowledge_headroom"),
     "append_event": ("kleinlib.events", "append_event"),

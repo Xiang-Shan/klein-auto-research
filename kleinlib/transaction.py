@@ -192,19 +192,27 @@ def complete_evidence_transaction(
     restored_train: bool,
     recovery: bool = False,
     commit: Committer | None = None,
+    surface: Sequence[str] = ("train.py",),
 ) -> str:
     """File the two-commit evidence transaction for one completed run.
 
     ``commit`` substitutes the committer (default :func:`git_commit`) so a
     caller can inject a failure — or an instrumented committer — INSIDE the
-    transaction rather than around it.
+    transaction rather than around it.  ``surface`` is the declared mutable
+    surface that was restored on a non-keep: ``train.py`` for schema 2,
+    ``entrypoint.mutable`` for schema 3.
     """
     commit = commit or git_commit
     run_id = str(manifest["experiment"])
     derive_results(study_dir)
     if restored_train:
-        train_rel = relative(repo, study_dir / "train.py")
-        git(repo, ["add", "--", train_rel])
+        surface_rels = [
+            relative(repo, study_dir / name)
+            for name in surface
+            if (study_dir / name).exists()
+        ]
+        if surface_rels:
+            git(repo, ["add", "--", *surface_rels])
     stage_evidence(repo, study_dir, manifest)
     first_commit = commit(
         repo,
@@ -229,9 +237,14 @@ def complete_evidence_transaction(
     return commit(repo, f"transaction {run_id}: finalize evidence")
 
 
-def assert_run_worktree(repo: Path, study_dir: Path) -> None:
+def assert_run_worktree(
+    repo: Path, study_dir: Path, *, surface: Sequence[str] = ("train.py",)
+) -> None:
     status = git(repo, ["status", "--porcelain", "--untracked-files=all"]).stdout.splitlines()
-    train_rel = relative(repo, study_dir / "train.py")
+    # The uncommitted candidate IS the experiment, so the declared mutable
+    # surface is exempt — ``train.py`` for schema 2, ``entrypoint.mutable`` for
+    # schema 3, where the entrypoint is named by kind.
+    surface_rels = {relative(repo, study_dir / name) for name in surface}
     # The lock is ephemeral state; a foreign repo has no .gitignore for it, so
     # it must be exempt here rather than rely on ignore rules. Derived views
     # (summary, progress, figures) are regenerable at any time and are swept
@@ -241,7 +254,7 @@ def assert_run_worktree(repo: Path, study_dir: Path) -> None:
     summary_rel = relative(repo, study_dir / "results_summary.md")
     progress_rel = relative(repo, study_dir / "progress.svg")
     figures_prefix = relative(repo, study_dir / "figures") + "/"
-    allowed = {train_rel, lock_rel, playbook_rel, summary_rel, progress_rel}
+    allowed = surface_rels | {lock_rel, playbook_rel, summary_rel, progress_rel}
     bad: list[str] = []
     for line in status:
         path = line[3:].split(" -> ")[-1]
@@ -249,7 +262,8 @@ def assert_run_worktree(repo: Path, study_dir: Path) -> None:
             bad.append(line)
     if bad:
         raise WorkflowError(
-            "run-one requires a clean tree except for train.py and derived views; found: "
+            f"run-one requires a clean tree except for {', '.join(surface)} and derived "
+            "views; found: "
             + ", ".join(bad)
             + " — commit these first (gate records, finalize, and recover file their own "
             "state writes automatically; for manual edits: git add <files> && git commit)"

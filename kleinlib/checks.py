@@ -41,7 +41,12 @@ from .manifest import (
 )
 from .primitives import fingerprint_path, sha256_bytes, sha256_file
 from .schema import AUTO_PRINTED_METRIC_KEYS, EVALUATOR_PRINTED_KEYS
-from .state import load_state, registered_partition_fingerprints, split_policy_hash
+from .state import (
+    load_state,
+    registered_partition_fingerprints,
+    split_policy_hash,
+    verifier_script_hashes,
+)
 from .transaction import current_branch, git, git_blob, relative, repo_root_for
 
 __all__ = ["ABSENT_LOCAL_ARTIFACT", "Check", "preflight_checks", "verify_study"]
@@ -246,6 +251,31 @@ def preflight_checks(
     for track_name, track_spec in normalize_tracks(contract).items():
         metric = track_spec["metric"]
         floor = metric.get("noise_floor")
+        if version >= 3 and metric.get("exactness") == "exact":
+            # A k-seed floor is meaningless for a deterministic objective: the
+            # spread IS zero, and `minimum_delta` is the objective's resolution
+            # (1 for an integer count). The declaration is waived — but a floor
+            # block with a non-zero spread contradicts the declaration, and one
+            # of the two is wrong.
+            std = floor.get("std") if isinstance(floor, Mapping) else None
+            try:
+                nonzero = std is not None and float(std) > 0
+            except (TypeError, ValueError):
+                nonzero = True
+            checks.append(
+                Check(
+                    "noise floor",
+                    not nonzero,
+                    f"track {track_name!r}: exactness=exact — floor waived; "
+                    f"minimum_delta {float(metric.get('minimum_delta', 0)):.6g} is the "
+                    "objective's resolution (exactness_note)"
+                    if not nonzero
+                    else f"track {track_name!r}: exactness=exact but noise_floor.std is "
+                    f"{std} — a deterministic objective has no spread; drop the floor "
+                    "block or drop the exactness claim",
+                )
+            )
+            continue
         if not isinstance(floor, Mapping):
             checks.append(
                 Check(
@@ -379,6 +409,7 @@ def preflight_checks(
     checks.append(Check("split fingerprint", current_split == recorded_split, f"current={current_split}; recorded={recorded_split}"))
     if version >= 3:
         checks.append(_contract_split_check(study_dir, state))
+        checks.append(_verifier_hash_check(study_dir, contract, state))
 
     ledger_problems, ledger_absences = _v2_ledger_problems(
         study_dir, require_local=require_local
@@ -482,6 +513,50 @@ def preflight_checks(
             )
         )
     return checks
+
+
+def _verifier_hash_check(
+    study_dir: Path, contract: Mapping[str, Any], state: Mapping[str, Any]
+) -> Check:
+    """The checker is the fixed thing; a change to it after E0001 is refused.
+
+    A verifier that can be edited mid-study is just the searcher with extra
+    steps.  Before any evidence exists the hash is simply re-recorded at the
+    METHOD gate; once E0001 is on the ledger a difference FAILS.
+    """
+    current = verifier_script_hashes(study_dir, contract)
+    recorded = state.get("fingerprints", {}).get("verifier")
+    recorded = recorded if isinstance(recorded, Mapping) else {}
+    if not current and not recorded:
+        return Check("verifier", True, "no track declares a verifier")
+    if current == recorded:
+        return Check(
+            "verifier",
+            True,
+            "; ".join(f"{name}={value[:12]}" for name, value in sorted(current.items()))
+            or "declared but not hashed",
+        )
+    has_evidence = bool(_manifest_paths(study_dir))
+    changed = sorted(set(current) | set(recorded))
+    detail = ", ".join(
+        f"{name}: recorded={str(recorded.get(name))[:12]} current={str(current.get(name))[:12]}"
+        for name in changed
+        if current.get(name) != recorded.get(name)
+    )
+    if not has_evidence:
+        return Check(
+            "verifier",
+            True,
+            f"[WARN] verifier differs from the METHOD gate record ({detail}) — "
+            "re-record the gate before E0001; after that it is frozen",
+        )
+    return Check(
+        "verifier",
+        False,
+        f"verifier changed after evidence exists ({detail}) — every recorded "
+        "disposition was decided by the previous checker; the checker is never "
+        "the searcher",
+    )
 
 
 #: How a schema-3 study is supposed to obtain its partitions.

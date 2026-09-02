@@ -181,6 +181,8 @@ __all__ = [
     "V2_RESULTS_COLUMNS",
     "VALID_DISPOSITIONS",
     "VALID_GOALS",
+    "VERIFIER_DISAGREEMENT",
+    "VERIFIER_FAILED",
     "WorkflowError",
     "acknowledge_headroom",
     "append_event",
@@ -285,6 +287,137 @@ def run_subprocess(
 #: The crash reason a run gets when it measured the wrong rows.
 SPLIT_FINGERPRINT_MISMATCH = "split_fingerprint_mismatch"
 
+#: The verifier could not produce a number: no artifact, a crash, an unparsable
+#: block.  The search may have found something; nothing checked it.
+VERIFIER_FAILED = "verifier_failed"
+
+#: The searcher and the checker disagree by more than the declared tolerance.
+#: One of them is wrong and the run says which numbers were compared.
+VERIFIER_DISAGREEMENT = "verifier_disagreement"
+
+
+def _run_declared_verifier(
+    study_dir: Path,
+    verifier: Mapping[str, Any],
+    *,
+    run_dir: Path,
+    timeout: float,
+    run_id: str,
+    track: str,
+    reported: float,
+    reported_metrics: Mapping[str, float],
+    manifest: dict[str, Any],
+    echo: bool,
+) -> tuple[float, dict[str, float]]:
+    """Re-score the run's artifact with the declared checker, and decide on IT.
+
+    The searcher reporting its own score is the oldest way to be wrong without
+    lying: a construction that scores itself, a training loop that grades its own
+    checkpoint, a simulator scoring its own design.  So when a track declares a
+    verifier, a SECOND bounded foreground subprocess re-derives the objective
+    from the artifact the run produced, under the same rules as the first
+    (unbuffered, ``max_run_seconds``, real exit code), with the smoke and
+    dry-run flags cleared and ``KLEIN_ARTIFACT`` pointing at the artifact.  Its
+    ``primary_metric`` is the one the disposition uses; the reported value is
+    kept beside it so the disagreement is on the record either way.
+
+    Returns ``(verified_metric, verified_metrics)``; raises
+    :class:`WorkflowError` with a named reason on any failure.
+    """
+    key = str(verifier.get("artifact_key"))
+    log_path = run_dir / "verify.log"
+    declared = printed_values(run_dir / "run.log", key)
+    if not declared:
+        raise WorkflowError(
+            f"{VERIFIER_FAILED}: the run printed no `{key}:` line, so there is no "
+            "artifact to check — the entrypoint must print the artifact path the "
+            "track's verifier.artifact_key names"
+        )
+    artifact = _artifact_path(study_dir, declared[-1])
+    if not artifact.exists():
+        raise WorkflowError(
+            f"{VERIFIER_FAILED}: the declared artifact does not exist: {declared[-1]}"
+        )
+    command = tuple(str(item) for item in verifier["command"])
+    process = run_subprocess(
+        command,
+        cwd=study_dir,
+        log_path=log_path,
+        timeout_seconds=timeout,
+        echo=echo,
+        env_overrides={
+            "KLEIN_ARTIFACT": str(artifact),
+            "KLEIN_EXPERIMENT_ID": run_id,
+            "KLEIN_TRACK": track,
+            # The checker never runs in smoke or rehearsal mode: it is the
+            # thing being trusted.
+            "KLEIN_SMOKE": "",
+            "KLEIN_SEALED_DRYRUN": "",
+        },
+    )
+    scripts = [
+        item
+        for item in command
+        if not item.startswith("-") and (study_dir / item).is_file()
+    ]
+    manifest["verifier"] = {
+        "command": list(command),
+        "artifact": declared[-1],
+        "sha256": {name: sha256_file(study_dir / name) for name in scripts},
+        "wall_seconds": process.wall_seconds,
+        "exit_code": process.exit_code,
+        "timed_out": process.timed_out,
+    }
+    if process.exit_code != 0:
+        raise WorkflowError(
+            f"{VERIFIER_FAILED}: the verifier exited {process.exit_code}"
+            + (" (timeout)" if process.timed_out else "")
+        )
+    try:
+        verified, _, _, verified_metrics = parse_metric_log(log_path)
+    except WorkflowError as exc:
+        raise WorkflowError(f"{VERIFIER_FAILED}: {exc}") from exc
+
+    tolerance = float(verifier.get("tolerance", 0.0))
+    manifest["metric"] = {"reported": reported, "verified": verified}
+    if abs(verified - reported) > tolerance:
+        raise WorkflowError(
+            f"{VERIFIER_DISAGREEMENT}: the run reported {reported:.12g} but the "
+            f"verifier measured {verified:.12g} (tolerance {tolerance:.12g}) — one of "
+            "them is wrong, and the search is not the one to ask"
+        )
+    # A guardrail the checker printed wins over the searcher's own value.
+    merged = {**reported_metrics, **verified_metrics}
+    return verified, merged
+
+
+def _seed_external_incumbent(
+    track_spec: Mapping[str, Any], incumbent: Mapping[str, Any] | None
+) -> Mapping[str, Any] | None:
+    """Start the frontier at the best KNOWN value, not at the first run.
+
+    With ``metric.incumbent_external`` declared, a ``keep`` means "beat the
+    literature" rather than "beat yourself".  A first result that merely matches
+    the published value is a ``discard`` with the match disclosed — and a search
+    that fails is a search limit, never evidence of impossibility.
+    """
+    if incumbent is not None:
+        return incumbent
+    external = track_spec.get("metric", {}).get("incumbent_external")
+    if not isinstance(external, Mapping):
+        return None
+    try:
+        value = float(external["value"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return {
+        "experiment": None,
+        "primary_metric": value,
+        "external": True,
+        "source": external.get("source"),
+        "verified_on": external.get("verified_on"),
+    }
+
 
 def _assert_registered_partition(
     log_path: Path,
@@ -332,6 +465,7 @@ def _complete_evidence_transaction(
     *,
     restored_train: bool,
     recovery: bool = False,
+    surface: Sequence[str] = ("train.py",),
 ) -> str:
     """Thin wrapper over :func:`kleinlib.transaction.complete_evidence_transaction`.
 
@@ -347,6 +481,7 @@ def _complete_evidence_transaction(
         restored_train=restored_train,
         recovery=recovery,
         commit=_git_commit,
+        surface=surface,
     )
 
 
@@ -608,7 +743,7 @@ def run_one(
                 f"development runs are forbidden in final phase {final_phase_id!r}; "
                 "use --final-test"
             )
-        _assert_run_worktree(repo, study_dir)
+        _assert_run_worktree(repo, study_dir, surface=mutable_surface(contract))
 
         phase_runs = [m for m in load_manifests(study_dir) if str(m.get("phase")) == phase_id]
         if len(phase_runs) >= int(phase["max_experiments"]):
@@ -627,7 +762,7 @@ def run_one(
             )
         timeout = min(timeout, remaining_budget)
         manifests = load_manifests(study_dir)
-        incumbent = _incumbent(manifests, track)
+        incumbent = _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
         if not final_test:
             _enforce_headroom(state, tracks[track], track, incumbent, echo=echo)
         number = len(manifests) + 1
@@ -775,6 +910,23 @@ def run_one(
                     manifest=manifest,
                     echo=echo,
                 )
+                verifier = tracks[track].get("verifier")
+                if isinstance(verifier, Mapping):
+                    # The checker is never the searcher: the disposition is
+                    # decided on the number a SECOND, immutable process derived
+                    # from the artifact this run produced.
+                    primary, metrics = _run_declared_verifier(
+                        study_dir,
+                        verifier,
+                        run_dir=run_dir,
+                        timeout=timeout,
+                        run_id=run_id,
+                        track=track,
+                        reported=primary,
+                        reported_metrics=metrics,
+                        manifest=manifest,
+                        echo=echo,
+                    )
                 disposition, reason = choose_disposition(
                     primary_metric=primary,
                     track_spec=tracks[track],
@@ -782,6 +934,17 @@ def run_one(
                     incumbent=incumbent,
                     final_test=final_test,
                 )
+                if incumbent is not None and incumbent.get("external"):
+                    # Found / matched / improved — never "proved". A search that
+                    # reaches the published value and stops there says so.
+                    external = float(incumbent["primary_metric"])
+                    tolerance = (
+                        float(verifier.get("tolerance", 0.0))
+                        if isinstance(verifier, Mapping)
+                        else 0.0
+                    )
+                    manifest["matched_external"] = abs(primary - external) <= tolerance
+                    reason = f"{reason} (external incumbent {external:.12g})"
                 manifest.update(
                     primary_metric=primary,
                     metrics=metrics,
@@ -838,7 +1001,7 @@ def run_one(
         if restored:
             _git(repo, ["restore", "--source", base_commit, "--", *surface_rels])
         _complete_evidence_transaction(
-            repo, study_dir, manifest, restored_train=restored
+            repo, study_dir, manifest, restored_train=restored, surface=surface
         )
         return manifest
 
@@ -953,7 +1116,12 @@ def recover(study_dir: Path) -> list[str]:
                 _git(repo, ["restore", "--source", str(manifest["base_commit"]), "--", *surface_rels])
             save_state(study_dir, state)
             _complete_evidence_transaction(
-                repo, study_dir, manifest, restored_train=restored, recovery=True
+                repo,
+                study_dir,
+                manifest,
+                restored_train=restored,
+                recovery=True,
+                surface=mutable_surface(contract),
             )
             recovered.append(run_id)
     _commit_state_writes(study_dir, "klein: recover — state writes filed")

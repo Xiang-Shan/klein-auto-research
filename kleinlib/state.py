@@ -56,6 +56,7 @@ __all__ = [
     "save_state",
     "split_policy_hash",
     "state_path",
+    "verifier_script_hashes",
 ]
 
 def initial_state(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
@@ -179,6 +180,27 @@ def _method_card_triad(text: str) -> dict[str, bool] | None:
     if not isinstance(triad, Mapping):
         return None
     return {leg: bool(triad.get(leg)) for leg in ("theory", "papers", "practice")}
+
+
+def verifier_script_hashes(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, str]:
+    """``{script path: sha256}`` for every declared verifier in the contract.
+
+    Hashed at the METHOD gate and never again: the checker's job is to be the
+    fixed thing the search is measured against, so a change to it after E0001 is
+    refused exactly like a split-policy change.
+    """
+    hashes: dict[str, str] = {}
+    for spec in normalize_tracks(contract).values():
+        verifier = spec.get("verifier")
+        if not isinstance(verifier, Mapping):
+            continue
+        for item in verifier.get("command") or ():
+            if not isinstance(item, str) or item.startswith("-"):
+                continue
+            path = study_dir / item
+            if (item.endswith((".py", ".sh")) or "/" in item) and path.is_file():
+                hashes[item] = sha256_file(path)
+    return hashes
 
 
 def split_policy_hash(state: Mapping[str, Any]) -> Any:
@@ -320,6 +342,8 @@ def record_gate(
             if PLACEHOLDER_RE.search(text):
                 raise WorkflowError(f"cannot {verb} {gate}: unresolved placeholder in {name}")
             artifact_hashes[name] = sha256_file(path)
+        if gate == "method" and schema_version(contract) >= 3:
+            state["fingerprints"]["verifier"] = verifier_script_hashes(study_dir, contract)
         if gate == "method" and override_reason is None:
             triad = _method_card_triad(
                 (study_dir / "method_card.md").read_text(encoding="utf-8")
