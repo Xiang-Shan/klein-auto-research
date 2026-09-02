@@ -123,10 +123,24 @@ audit trail. This keeps each track's frontier honest even when a search ran 50 t
 underneath. A legacy v1 study retains its manual one-row winner discipline, but should
 use the same `SweepRunner(...).run()` API and the exit-safe runner.
 
-## Carve-out: measurement sweeps
+## Carve-out: measurement sweeps — and how they become citable evidence
 
-A **measurement sweep** (the Phase-0 noise floor, `sweeps/noise_floor.py`) runs
-identical configs varying only the seed and therefore promotes **no winner and no
-`results.tsv` row at all** — its evidence is the sidecar, the `noise_floor:` block
-it produces in `study.yaml`, and the consult-gate re-record event. Rule 7 governs
-search sweeps; a measurement is not a search.
+A **measurement sweep** (the Phase-0 noise floor, `sweeps/noise_floor.py`; a
+split-lottery; a per-candidate paired floor; a permission map) runs identical or
+registered configs and therefore promotes **no winner and no `results.tsv` row at
+all** — its evidence is the sidecar, the `noise_floor:` block it produces in
+`study.yaml`, and the consult-gate re-record event. Rule 7 governs search sweeps; a
+measurement is not a search.
+
+In schema 3 a measurement sweep is **registered** so findings and the claims lock can
+cite it as `sweep:<name>`:
+
+```bash
+uv run --locked klein sweep register --study studies/NN-slug <name> \
+  --sidecar sweeps/<name>.sidecar.tsv --script sweeps/<name>.py
+```
+
+The verb hashes the sidecar and the script into `state.sweeps`, counts ok and crash
+rows, and appends the event `sweep_registered`. Crash rows stay in the sidecar — they
+are data about where a method breaks (studies 07 and 08 kept a registered crash rung
+for exactly that reason). A sidecar edited after registration fails `klein verify`.

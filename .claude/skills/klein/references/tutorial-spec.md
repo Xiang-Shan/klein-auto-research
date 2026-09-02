@@ -21,9 +21,11 @@ Every tutorial has these sections, in order:
    highlighted, plus separately labelled sealed confirmation evidence (run manifests,
    derived results.tsv, and program.md Log).
 5. **Findings & insights.** The verdicts and surprises, from `findings.md`.
-6. **Model coding advice.** An annotated walkthrough of the WINNING `train.py` plus the
-   pitfalls / war stories that bit this study (the MPS trap, swap-noise details, QLS
-   window rules, the value-pattern check). This is the section that makes it useful.
+6. **{{SECTION6_HEADING}}** — the profile's heading (`references/profiles/<profile>.md`
+   §4: "Model coding advice", "Training-recipe advice", "Search and verifier coding
+   advice", "Method coding advice"). An annotated walkthrough of the WINNING entrypoint
+   (and the verifier, when one is declared) plus the pitfalls / war stories that bit
+   this study. This is the section that makes it useful.
 7. **Next steps + references.** What to try next, and the verified references from the
    method card.
 
@@ -76,8 +78,9 @@ inline SVG glyph paths — no fonts, no runtime script, identical pixels everywh
 
 **Code** is highlighted at build time (Pygments, pinned dual-theme styles):
 
-- The winning train.py is included BY REFERENCE:
-  `<pre data-code="train.py" data-lang="python"></pre>` — the builder reads the file
+- The winning entrypoint is included BY REFERENCE:
+  `<pre data-code="train.py" data-lang="python"></pre>` (or `analyze.py`, `search.py`,
+  `verify.py` — whatever `entrypoint.command` names) — the builder reads the file
   from the study dir, so the page carries the ACTUAL bytes (a missing file or a path
   outside the study dir fails the build). `data-lang` is optional (inferred from the
   suffix). Deliberately NOT supported: line-range includes — ranges drift the moment
@@ -112,11 +115,15 @@ bundled builder above is the route of record.
 
 ## Which figures to inline
 
-Pull from `figures/` (produced by `kleinlib.figures`), matched to the problem:
+Pull from `figures/` (produced by `figures/make_figures.py`, which must re-render
+byte-identically — the referee checks), matched to the problem by the profile's
+figure sets (`references/profiles/<profile>.md` §4). The generic sets:
 
-- **binary-clf:** ROC, PR, reliability, score-hist-by-class, decile-lift, confusion@best.
-- **severity / regression:** pred-vs-actual, residuals, QQ, Lorenz/Gini, lift-quantile.
-- **simulation:** breakdown curve, efficiency-cost bar, the premium-error "money" slide.
+- **classification:** ROC, PR, reliability, score-hist-by-class, decile-lift, confusion@best.
+- **regression:** pred-vs-actual, residuals, QQ (insurance adds Lorenz/Gini and lift-quantile).
+- **estimation:** the estimate with its interval against every reference value.
+- **simulation:** breakdown curve, efficiency-cost bar.
+- **optimize:** objective against search budget with the external incumbent as a line.
 
 Always inline the decision trajectory for the journey section — one
 `plot_decision_trajectory__<track>` PNG per track (step frontier of development
@@ -145,16 +152,19 @@ failure:
 - [ ] All SEVEN sections are present and in order.
 - [ ] Opens offline from `file://` — verified in a browser with zero network requests.
 - [ ] Restrictive CSP is present and the browser console records no CSP errors.
-- [ ] Includes the model-coding-advice section with the ACTUAL winning train.py —
-      via `<pre data-code="train.py">`, so the builder guarantees the bytes.
+- [ ] Includes the coding-advice section with the ACTUAL winning entrypoint — via
+      `<pre data-code="…">`, so the builder guarantees the bytes.
 - [ ] Every mathematical EXPRESSION is typeset (`data-math` / `data-math-display`):
       no ASCII pseudo-math (`SUM_i`, `sqrt()`, spelled-out operators) and no
       HTML-built formulas (`<sub>`/`<sup>` constructions) anywhere. A bare symbol
       or cited value named mid-sentence (a σ̂ or χ²₂₃ in prose) may stay Unicode
       text — prose names symbols; formulas get typeset.
 - [ ] Every code block is highlighted or deliberately classless (console dumps).
-- [ ] Every NUMBER on the page traces to results.tsv / aux_metrics.tsv / findings.md
-      (formula digits stay greppable via `data-latex`).
+- [ ] Every NUMBER on the page traces to a pinned artifact — the numbers law of
+      `references/claims-protocol.md`; headline numbers are read from `claims.lock`,
+      never retyped (formula digits stay greppable via `data-latex`). `klein verify
+      --numbers` runs an advisory pass over the built page.
+- [ ] `figures/make_figures.py` re-renders every inlined figure byte-identically.
 - [ ] Every figure is inlined (no `http://` / `https://` in any `src`/`href`
       attribute; plain-text URLs in citations are fine).
 - [ ] The references match the method card (no unverified refs promoted to verified).

@@ -1,12 +1,15 @@
 # SYNTHESIZE — mine the trajectory into findings
 
-The stage that makes it research, not experiment-running. Mine the full study trajectory
-and write `findings.md` with EXACTLY seven sections. Every claim cites experiment IDs.
+The stage that makes it research, not experiment-running. Mine the full study trajectory,
+write `findings.md` with EXACTLY seven sections, and author `claims.lock` beside it.
+Every claim cites evidence ids; every number has a home; the synthesist never referees
+its own findings — REFEREE (Gate 3) follows in a fresh context, and `klein finalize`
+comes after that gate.
 
 Role: synthesist. Any agent or human can execute this protocol directly — it is the
 source of truth; Claude Code ships it pre-wired as the `klein-synthesist` worker.
 
-## Mine five sources
+## Mine six sources
 
 ### 1. manifests + derived results.tsv — track frontiers and all evidence
 - **Track-specific keep-chain deltas.** Partition by track before comparing metrics.
@@ -48,10 +51,24 @@ The Ruled-out table seeds the discard-cluster analysis (it already names the the
 the evidence IDs); the Current-best history cross-checks each track's frontier; open
 hypotheses that were never tested become ⑦ "what to try next" candidates.
 
-## Pricing studies: the eval-card exhibit (optional accelerator)
+### 6. the predictions ledger — the verdicts you copy, never re-decide
+`klein predict list --study <dir>` prints every `P#` with its ledger verdict
+(supported / refuted / inconclusive / open), the evidence ids that adjudicated it, and
+the rule. Section ② is COPIED from it. An open prediction is a finding in itself
+("not adjudicated because …") and `klein finalize` will refuse it unless the reason is
+recorded; a refuted prediction must already have a dated `Decision:` line in
+`program.md` — if it does not, the study is not finished, write the decision now with
+the date it is actually written.
 
-For frequency/severity/pure-premium studies, an underwriting-ready eval card of the
-incumbent is a synthesis exhibit worth attaching.
+Registered tracks (`mode: registered`) have no keep chain: mine their cells as a
+measurement program — which cells ran, which artifacts they pinned (`art:` aliases),
+which predictions they adjudicated — and never manufacture a frontier from them.
+
+## Pricing studies: the eval-card exhibit (insurance profile; optional accelerator)
+
+For frequency/severity/pure-premium studies under the `insurance` profile
+(`references/profiles/insurance.md`), an underwriting-ready eval card of the
+incumbent is a synthesis exhibit worth attaching. Other profiles skip this section.
 
 - **If the `pricing-eval` skill is available** (check: does
   `~/.claude/skills/pricing-eval/SKILL.md` exist? — an example binding from the
@@ -73,21 +90,45 @@ Copy `assets/findings-template.md`. Fill, in order:
   claim ID (`**[C1]**...`, fully qualified `<study_id>#Cn`, never renumbered): supported / refuted /
   inconclusive, with evidence experiment IDs and the metric delta. Label every verdict
   `exploratory` (development only) or `confirmed` (its track has sealed-test evidence).
-- **② Predictions to falsify (filled).** Copy each lever from program.md; fill observed
-  Δ, verdict (held / falsified), and the evidence exp IDs.
+- **② Registered predictions (from the ledger).** One row per `P#`, verdict copied
+  from `klein predict list`, the observed value, the evidence ids, and — for a refuted
+  row — the dated `Decision:` line in `program.md` that answered it.
 - **③ Surprises & why.** What defied the prior — AND the mechanism you believe explains
   it. A surprise with no explanation is a loose end.
 - **④ Practical advice.** "On your own data do X, avoid Y" — concrete, numbered, in the
   best-practices voice.
-- **⑤ Business / actuarial value.** Premium, calibration, filing, capital, triage — what
-  the result is WORTH in decisions.
+- **⑤ {{SECTION5_HEADING}}.** The heading and prompt come from the study's profile
+  (`references/profiles/<profile>.md` §2): "Implications" for generic, "Practitioner
+  impact" for ml-research, "Consequences for the conjecture or bound" for math,
+  "Business / actuarial value" for insurance. Price nothing without a registered
+  `materiality:` block.
 - **⑥ Literature tie-back.** Did results match the method-card papers? Where do they sit
   against the trend?
 - **⑦ What to try next.** The next 2-4 experiments, in priority order.
 
+## Author the lock
+
+With findings drafted, produce `claims.lock` (`references/claims-protocol.md`):
+
+```bash
+uv run --locked klein claims init   --study <dir>                       # claims from the **[Cn]** lines
+uv run --locked klein claims pin    --study <dir> results results.tsv    # every artifact a number lives in
+uv run --locked klein claims number --study <dir> <alias> --value … --art … --claim Cn
+uv run --locked klein claims add    --study <dir> Cn --class … --strength … --claim "…" --numbers … --evidence …
+uv run --locked klein claims verify --study <dir> --numbers
+```
+
+Every claim gets its class (five classes, each with a strength ceiling) and a strength
+no higher than the evidence kinds its track's `confirmation.require` demands; every
+numeral in a claim sentence is an alias in `numbers`. The lock is authored AFTER the
+sealed evidence exists, never before.
+
 ## Quality bar (enforce before you finish)
 
-- EVERY claim cites experiment IDs. No claim without evidence.
+- EVERY claim cites evidence ids. No claim without evidence.
+- Every discard, crash and measured cell is cited somewhere in findings or program —
+  `klein verify --evidence-use` reports the rate; a rate below 1.0 needs a sentence
+  naming what was left uncited and why.
 - Every RQ has a verdict; every prediction has a verdict. A missing verdict = an
   unfinished study.
 - Contradictions with method-card priors are called out explicitly, not smoothed over.
@@ -95,7 +136,9 @@ Copy `assets/findings-template.md`. Fill, in order:
   vs E7)" is.
 - Do not call a small delta real, material, or decisive without configured minimum
   delta plus appropriate uncertainty evidence. State what remains uncertain.
-- No number appears that cannot be traced to results.tsv or aux_metrics.tsv.
+- No number appears that cannot be traced to a pinned artifact — the numbers law of
+  `references/claims-protocol.md`; `klein verify --numbers` scans for you.
+- The profile's banned words are absent or qualified (`references/profiles/<profile>.md` §7).
 
 ## Cross-study writeups (optional accelerator)
 
@@ -106,9 +149,19 @@ binding from the author's harness: a paper_book-style corpus repo whose
 claim IDs; else author the doc by hand under `docs/` with the same typed
 citations. findings.md remains the per-study source of truth either way.
 
+## Hand off to the referee
+
+Do not record anything after the lock verifies. The orchestrator invokes REFEREE
+(`references/referee-protocol.md`) in a fresh context on a different model; the
+referee reads `findings.md` before `program.md`, runs the verifiers, and writes
+`referee_report.md`. Only after `klein gate record referee` does `klein finalize` run.
+A synthesist who also referees has audited nothing.
+
 ## Promotion to knowledge/ (closing the Klein bottle)
 
-A statement promotes into `knowledge/` only WITH at least one claim citation —
+A statement promotes into `knowledge/` — the field's `knowledge/domains/<profile>/`
+for domain lessons, `knowledge/research-discipline.md` for process lessons — only
+WITH at least one claim citation —
 `(supports <study_id>#Cn)` or `(refutes <study_id>#Cn)` — so every knowledge line
 remains greppably traceable to the evidence that earned it
 (`grep -rn "#C[0-9]" knowledge/`). When two knowledge lines cite claims that
