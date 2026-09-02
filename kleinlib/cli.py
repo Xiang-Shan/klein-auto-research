@@ -8,6 +8,7 @@ from pathlib import Path
 
 from . import __version__
 from .cli_claims import register as register_claims
+from .cli_doctor import register as register_doctor
 from .scaffold import scaffold_study
 from .workflow import (
     WorkflowError,
@@ -156,6 +157,7 @@ def build_parser() -> argparse.ArgumentParser:
     _study_arg(verify)
 
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
+    register_doctor(sub)
     return parser
 
 

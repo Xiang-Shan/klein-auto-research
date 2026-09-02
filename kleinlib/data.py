@@ -27,7 +27,6 @@ the dtype label. See :func:`detect_yes_no_columns`.
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 from typing import Any, Literal
 
@@ -76,64 +75,39 @@ def load_xy(path: str | Path, target_column: str) -> tuple[pd.DataFrame, pd.Seri
     return X, y
 
 
-def _bundled_dataset_dir(name: str) -> Path:
-    """Path of the repo-bundled ``datasets/<name>/`` directory.
-
-    Anchored on this module's own location (repo root = parent of the
-    ``kleinlib`` package), NEVER on the working directory — CI and study
-    scripts routinely run with cwd outside the repo. The directory only
-    exists in a clone of the klein-auto-research repo; a bare
-    ``pip install git+…`` ships the ``kleinlib`` package alone.
-    """
-    return Path(__file__).resolve().parent.parent / "datasets" / name
-
-
 def load_data_hub(name: str) -> Any:
     """Load a dataset by name — from a data-hub if configured, else the repo bundle.
 
-    Resolution order (the loader prints a ``data source:`` line naming which
-    branch fed the run, so every log records its data provenance):
+    A thin wrapper over :func:`kleinlib.sources.resolve` (``hub:<name>``),
+    which owns the resolution chain and prints the ``data source: ...``
+    provenance line — BYTE-IDENTICAL to this function's own pre-Klein-2.0
+    printed lines for the two paths that predate it, because studies
+    00/05/06's run logs already contain them as evidence:
 
     1. **``$DATA_HUB``** (explicit env var only — there is deliberately no
-       implicit home-directory default): inserts the hub root onto
-       ``sys.path`` and calls its ``loaders.python.hub.load_dataset(name)``.
-       Whatever that loader returns (typically a DataFrame, sometimes a dict
-       of DataFrames for multi-table datasets) is returned unchanged.
-    2. **Repo-bundled copy** at ``datasets/<name>/`` (single ``*.csv`` /
-       ``*.csv.gz`` file, read with a plain ``pandas.read_csv`` — the same
-       call the hub loader uses, so both branches yield identical frames
-       from identical bytes).
-    3. Otherwise raises with the available options spelled out.
+       implicit home-directory default): a ``loaders.python.hub.load_dataset``
+       module, if importable — whatever it returns (typically a DataFrame,
+       sometimes a dict of DataFrames for multi-table datasets) comes back
+       unchanged; otherwise a plain ``<name>/*.csv`` (or ``.csv.gz``)
+       directory straight under ``$DATA_HUB`` (new in Klein 2.0 — a hub that
+       ships no loader module is no longer a dead end).
+    2. **Repo-bundled copy** at ``datasets/<name>/`` (the same single-file
+       convention, read with the same plain ``pandas.read_csv``).
+    3. Otherwise raises :class:`FileNotFoundError` with the available options
+       spelled out — :func:`kleinlib.sources.resolve` itself raises
+       :class:`kleinlib.errors.WorkflowError`; this wrapper translates it
+       back to keep this function's long-standing public contract.
     """
-    hub_root = os.environ.get("DATA_HUB")
-    if hub_root:
-        if hub_root not in sys.path:
-            sys.path.insert(0, hub_root)
-        from loaders.python.hub import load_dataset  # type: ignore[import-not-found]
+    from .errors import WorkflowError
+    from .sources import resolve
 
-        result = load_dataset(name)
-        print(f"data source: hub — {Path(hub_root) / 'datasets' / name}")
-        return result
-
-    bundled = _bundled_dataset_dir(name)
-    if bundled.is_dir():
-        files = sorted(bundled.glob("*.csv")) + sorted(bundled.glob("*.csv.gz"))
-        if len(files) != 1:
-            raise FileNotFoundError(
-                f"bundled dataset dir {bundled} must contain exactly one "
-                f"*.csv/*.csv.gz file, found {len(files)}: {[f.name for f in files]}"
-            )
-        frame = pd.read_csv(files[0])
-        print(f"data source: bundled — {files[0]}")
-        return frame
-
-    raise FileNotFoundError(
-        f"cannot resolve dataset {name!r}: $DATA_HUB is not set and no bundled "
-        f"copy exists at {bundled}. Options: (1) export DATA_HUB=<your data-hub "
-        f"root>; (2) run from a clone of the klein-auto-research repo, which "
-        f"bundles its study datasets under datasets/; (3) point the study at a "
-        f"local file instead (data source csv:<path> via kleinlib.data.load_prepared)."
-    )
+    try:
+        resolved = resolve(f"hub:{name}", study_dir=None, offline=os.environ.get("KLEIN_OFFLINE") == "1")
+    except WorkflowError as exc:
+        raise FileNotFoundError(str(exc)) from exc
+    if resolved.loaded is not None:
+        return resolved.loaded
+    return pd.read_csv(resolved.path)
 
 
 def fixed_split(

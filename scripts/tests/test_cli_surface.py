@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -124,6 +125,25 @@ def test_cli_verify_reports_v1_errata_without_rewriting(monkeypatch, tmp_path: P
     assert "deprecated v1 adapter" in out
     assert "create a new v2 study" in out
     assert ledger.read_bytes() == before
+
+
+def test_cli_doctor_help_and_text_and_json_smoke(capsys) -> None:
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["doctor", "--help"])
+    assert excinfo.value.code == 0
+    help_text = capsys.readouterr().out
+    assert "--study" in help_text
+    assert "--json" in help_text
+    assert "--strict" in help_text
+
+    assert cli.main(["doctor"]) == 0
+    text_out = capsys.readouterr().out
+    assert "[OK] python:" in text_out
+    assert "summary:" in text_out
+
+    assert cli.main(["doctor", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert "ok" in payload and "checks" in payload
 
 
 def test_cli_crash_exit_and_workflow_error(monkeypatch, study: Path, capsys) -> None:
