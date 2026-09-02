@@ -351,11 +351,35 @@ def _refuse_hub_shadow(name: str) -> None:
         )
 
 
-def _resolve_bundled(name: str) -> ResolvedSource:
+def _resolve_bundled(value: str) -> ResolvedSource:
+    """`bundled:<name>` (the one data file) or `bundled:<name>/<file>` (a named
+    file inside a multi-file bundled dataset such as `hubble1929`).
+
+    Either form resolves ONLY `datasets/<name>/` in this repository and refuses
+    loudly when `$DATA_HUB` would have shadowed the name — the mechanical form
+    of the universality claim.
+    """
+    name, _, member = value.partition("/")
+    if not name or name in {".", ".."}:
+        raise WorkflowError(f"bundled: tag needs a dataset name, got {value!r}")
     bundled_dir = _bundled_dataset_dir(name)
-    data_file = _single_data_file(bundled_dir)
-    if data_file is None:
-        raise WorkflowError(f"bundled dataset directory does not exist: {bundled_dir}")
+    if member:
+        if not bundled_dir.is_dir():
+            raise WorkflowError(f"bundled dataset directory does not exist: {bundled_dir}")
+        candidate = (bundled_dir / member).resolve()
+        try:
+            candidate.relative_to(bundled_dir.resolve())
+        except ValueError:
+            raise WorkflowError(
+                f"bundled:{value} escapes the dataset directory {bundled_dir}"
+            ) from None
+        if not candidate.is_file():
+            raise WorkflowError(f"bundled:{value}: no file {member!r} in {bundled_dir}")
+        data_file = candidate
+    else:
+        data_file = _single_data_file(bundled_dir)
+        if data_file is None:
+            raise WorkflowError(f"bundled dataset directory does not exist: {bundled_dir}")
     _refuse_hub_shadow(name)
     return ResolvedSource(
         path=data_file,

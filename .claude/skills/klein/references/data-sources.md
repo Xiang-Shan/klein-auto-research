@@ -13,7 +13,7 @@ Role: the consultant at CONSULT, the data auditor at DATA, `klein doctor` any ti
 |---|---|---|---|---|
 | `csv:<path>` / `parquet:<path>` | a file inside the study or repo (relative, POSIX) | yes | no — the DATA gate fingerprints the prepared artifact | — |
 | `synthetic:<script>` | the named study-local script generates the prepared artifact; its sha256 joins the data fingerprint | yes | no | — |
-| `bundled:<name>` | `datasets/<name>/` in this repository, and ONLY that; fails loudly if `$DATA_HUB` would have shadowed it | yes | no | — |
+| `bundled:<name>` / `bundled:<name>/<file>` | `datasets/<name>/` in this repository, and ONLY that — the single data file, or a named file inside a multi-file dataset (`bundled:hubble1929/hubble1929_table1.csv`); fails loudly if `$DATA_HUB` would have shadowed the name | yes | no | — |
 | `hub:<name>` | `$DATA_HUB`: a loader module (`loaders.python.hub.load_dataset`) or a plain directory `<root>/<name>/*.csv`; then the bundled copy; then an error | yes if present | `data.sha256` recommended | — |
 | `sklearn:<loader>` | a `load_*` function shipped inside scikit-learn (an offline allowlist; `fetch_*` is refused) | yes | no | — |
 | `openml:<id>` | an OpenML dataset by numeric id | **no** | `data.sha256` **mandatory**; an unpinned tag is refused and the digest printed | `data/raw/openml/<id>/<id>.csv` |

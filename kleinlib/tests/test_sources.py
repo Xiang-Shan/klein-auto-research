@@ -544,3 +544,27 @@ def test_describe_never_touches_the_network(tmp_path: Path, monkeypatch) -> None
 def test_resolved_source_loaded_field_defaults_to_none() -> None:
     resolved = ResolvedSource(path=Path("x"), kind=SourceKind.CSV, provenance_line="p", digest="d")
     assert resolved.loaded is None
+
+
+# bundled:<name>/<file> — multi-file bundled datasets
+
+
+def test_resolve_bundled_member_file(capsys) -> None:
+    resolved = resolve("bundled:hubble1929/hubble1929_table1.csv", study_dir=None, offline=True)
+    assert resolved.kind is SourceKind.BUNDLED
+    assert resolved.path.name == "hubble1929_table1.csv"
+    assert capsys.readouterr().out.strip() == f"data source: bundled — {resolved.path}"
+    gz = resolve("bundled:tinyshakespeare/tinyshakespeare.txt.gz", study_dir=None, offline=True)
+    assert gz.path.suffix == ".gz" and len(gz.digest) == 64
+
+
+def test_resolve_bundled_member_escape_and_missing_refused() -> None:
+    with pytest.raises(WorkflowError, match="escapes"):
+        resolve("bundled:hubble1929/../insurance-claims/insurance_claims.csv.gz", study_dir=None, offline=True)
+    with pytest.raises(WorkflowError, match="no file"):
+        resolve("bundled:hubble1929/nope.csv", study_dir=None, offline=True)
+
+
+def test_resolve_bundled_multi_file_dir_needs_a_member() -> None:
+    with pytest.raises(WorkflowError, match="exactly one"):
+        resolve("bundled:hubble1929", study_dir=None, offline=True)
