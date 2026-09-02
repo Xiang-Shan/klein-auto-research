@@ -28,12 +28,81 @@ from typing import Any
 
 import yaml
 
+from .errors import WorkflowError
 from .runner import run_logged
 from .schema import (
     AUTO_PRINTED_METRIC_KEYS,
     EVALUATOR_PRINTED_KEYS,
     V2_RESULTS_COLUMNS,
 )
+
+#: The public workflow surface. Every name below is importable from
+#: ``kleinlib.workflow`` and is the SAME object as the one its home module
+#: defines (see kleinlib/tests/test_module_split.py, which freezes this list).
+__all__ = [
+    "AUTO_PRINTED_METRIC_KEYS",
+    "Check",
+    "EVALUATOR_PRINTED_KEYS",
+    "GATE_ARTIFACTS",
+    "IDENTIFIER_RE",
+    "METRIC_LINE_RE",
+    "PLACEHOLDER_RE",
+    "ProcessResult",
+    "RUN_ID_RE",
+    "SCHEMA_VERSION",
+    "STRONG_CLAIM_RE",
+    "STUDY_ID_RE",
+    "StudyLock",
+    "UNCERTAINTY_EVIDENCE_RE",
+    "UNSAFE_PAYLOAD_SUFFIXES",
+    "V2_RESULTS_COLUMNS",
+    "VALID_DISPOSITIONS",
+    "VALID_GOALS",
+    "WorkflowError",
+    "acknowledge_headroom",
+    "append_event",
+    "artifact_inventory",
+    "atomic_write_json",
+    "atomic_write_text",
+    "canonical_json",
+    "choose_disposition",
+    "current_branch",
+    "derive_results",
+    "environment_fingerprint",
+    "events_path",
+    "finalize",
+    "fingerprint_path",
+    "initial_state",
+    "load_contract",
+    "load_manifests",
+    "load_state",
+    "normalize_tracks",
+    "parse_metric_log",
+    "preflight_checks",
+    "prepared_data_path",
+    "read_events",
+    "reconcile_state",
+    "record_gate",
+    "recover",
+    "render_results",
+    "repo_root_for",
+    "resolve_study",
+    "run_one",
+    "run_subprocess",
+    "save_state",
+    "schema_version",
+    "sha256_bytes",
+    "sha256_file",
+    "split_fingerprint",
+    "state_path",
+    "status_summary",
+    "track_headroom",
+    "utc_now",
+    "validate_contract",
+    "validate_manifest",
+    "verify_event_chain",
+    "verify_study",
+]
 
 SCHEMA_VERSION = 2
 RUN_ID_RE = re.compile(r"^E([0-9]{4,})$")
@@ -59,10 +128,6 @@ GATE_ARTIFACTS: dict[str, tuple[str, ...]] = {
 UNSAFE_PAYLOAD_SUFFIXES = frozenset(
     {".pkl", ".pickle", ".joblib", ".pt", ".pth", ".ckpt", ".onnx", ".npz"}
 )
-
-
-class WorkflowError(RuntimeError):
-    """A user-correctable workflow contract violation."""
 
 
 @dataclass(frozen=True)
