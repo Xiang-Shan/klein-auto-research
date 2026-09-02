@@ -14,7 +14,6 @@ from __future__ import annotations
 import csv
 import json
 import math
-import os
 import platform
 import re
 import subprocess
@@ -46,6 +45,7 @@ from .contract import (
     validate_contract,
 )
 from .errors import WorkflowError
+from .events import append_event, events_path, read_events, verify_event_chain
 from .primitives import (
     StudyLock,
     atomic_write_json,
@@ -266,70 +266,6 @@ def load_state(study_dir: Path, contract: Mapping[str, Any], *, create: bool = F
 def save_state(study_dir: Path, state: dict[str, Any]) -> None:
     state["updated_at"] = utc_now()
     atomic_write_json(state_path(study_dir), state)
-
-
-def events_path(study_dir: Path) -> Path:
-    return study_dir / "events.jsonl"
-
-
-def read_events(study_dir: Path) -> list[dict[str, Any]]:
-    path = events_path(study_dir)
-    if not path.exists():
-        return []
-    events: list[dict[str, Any]] = []
-    for lineno, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
-        if not line.strip():
-            continue
-        try:
-            value = json.loads(line)
-        except json.JSONDecodeError as exc:
-            raise WorkflowError(f"events.jsonl line {lineno} is invalid JSON: {exc}") from exc
-        if not isinstance(value, dict):
-            raise WorkflowError(f"events.jsonl line {lineno} is not an object")
-        events.append(value)
-    return events
-
-
-def verify_event_chain(study_dir: Path) -> list[str]:
-    problems: list[str] = []
-    previous: str | None = None
-    try:
-        events = read_events(study_dir)
-    except WorkflowError as exc:
-        return [str(exc)]
-    for index, event in enumerate(events, start=1):
-        given = event.get("event_hash")
-        body = dict(event)
-        body.pop("event_hash", None)
-        expected = sha256_bytes(canonical_json(body).encode())
-        if event.get("sequence") != index:
-            problems.append(f"event {index}: sequence is {event.get('sequence')!r}")
-        if event.get("previous_hash") != previous:
-            problems.append(f"event {index}: previous_hash does not match")
-        if given != expected:
-            problems.append(f"event {index}: event_hash does not match content")
-        previous = given if isinstance(given, str) else None
-    return problems
-
-
-def append_event(study_dir: Path, event_type: str, **payload: Any) -> dict[str, Any]:
-    events = read_events(study_dir)
-    previous = events[-1].get("event_hash") if events else None
-    event: dict[str, Any] = {
-        "sequence": len(events) + 1,
-        "timestamp": utc_now(),
-        "type": event_type,
-        "previous_hash": previous,
-        **payload,
-    }
-    event["event_hash"] = sha256_bytes(canonical_json(event).encode())
-    path = events_path(study_dir)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as handle:
-        handle.write(canonical_json(event) + "\n")
-        handle.flush()
-        os.fsync(handle.fileno())
-    return event
 
 
 def _method_card_triad(text: str) -> dict[str, bool] | None:
