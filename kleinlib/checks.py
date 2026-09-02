@@ -688,6 +688,73 @@ def _headroom_check(
 
 
 
+def sweep_registry_problems(study_dir: Path, state: Mapping[str, Any]) -> list[str]:
+    """Re-hash every measurement sweep registered with ``klein sweep register``.
+
+    The sidecar IS the evidence of a measurement sweep — it promotes no winner
+    and writes no ledger row (``references/sweep-rules.md``, the carve-out), so
+    a study citing ``sweep:<name>`` is citing those bytes.  Registering hashed
+    them; verify checks them, and a sidecar edited afterwards fails.  The script
+    is hashed for the same reason the METHOD gate hashes a verifier: the rule
+    that produced the rows must not change after the rows are quoted.
+
+    Returns an empty list when nothing is registered — a study with no
+    measurement sweep is not a study with a broken one.
+    """
+    registry = state.get("sweeps")
+    if not isinstance(registry, Mapping) or not registry:
+        return []
+    problems: list[str] = []
+    for name in sorted(registry):
+        record = registry[name]
+        if not isinstance(record, Mapping):
+            problems.append(f"sweep:{name} record is not a mapping")
+            continue
+        for role in ("sidecar", "script"):
+            relative_path = record.get(role)
+            recorded = record.get(f"{role}_sha256")
+            if not isinstance(relative_path, str) or not isinstance(recorded, str):
+                problems.append(
+                    f"sweep:{name} has no recorded {role} path/hash — re-register it"
+                )
+                continue
+            path = study_dir / relative_path
+            if not path.is_file():
+                problems.append(f"sweep:{name} {role} is missing: {relative_path}")
+                continue
+            current = sha256_file(path)
+            if current != recorded:
+                problems.append(
+                    f"sweep:{name} {role} {relative_path} changed after registration "
+                    f"(recorded {recorded[:12]}…, now {current[:12]}…) — the evidence "
+                    "findings cite is not the evidence on disk; re-run the sweep and "
+                    "re-register it, or restore the committed bytes"
+                )
+    return problems
+
+
+def _sweep_registry_checks(study_dir: Path, state: Mapping[str, Any]) -> list[Check]:
+    """One check, and only when the study registered a measurement sweep.
+
+    Silent otherwise, like the claims law without a lock: a schema-2 study that
+    never used the verb sees no new line in its verify output.
+    """
+    registry = state.get("sweeps")
+    if not isinstance(registry, Mapping) or not registry:
+        return []
+    problems = sweep_registry_problems(study_dir, state)
+    return [
+        Check(
+            "registered sweeps",
+            not problems,
+            "; ".join(problems)
+            or f"{len(registry)} registered sweep(s) hash unchanged: "
+            + ", ".join(f"sweep:{name}" for name in sorted(registry)),
+        )
+    ]
+
+
+
 def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]:
     contract = load_contract(study_dir)
     if schema_version(contract) == 1:
@@ -724,6 +791,15 @@ def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]
         require_branch=False,
         require_local=require_local,
     )
+    checks += _sweep_registry_checks(study_dir, _state_or_empty(study_dir, contract))
     # The claims law (references/claims-protocol.md): enforcing on schema 3,
     # advisory on schema 2 so 07/08/09 never retro-fail. Empty without a lock.
     return checks + claims_checks(study_dir, schema_version(contract))
+
+
+def _state_or_empty(study_dir: Path, contract: Mapping[str, Any]) -> Mapping[str, Any]:
+    """State for the read-only checks; a broken state file already failed above."""
+    try:
+        return load_state(study_dir, contract)
+    except WorkflowError:
+        return {}
