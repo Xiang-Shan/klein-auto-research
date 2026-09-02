@@ -62,6 +62,9 @@ jobs:
               *) echo "missing explicit v1 warning for $study" >&2; exit 1 ;;
             esac
           done
+      - name: Every shipped schema-2 study verifies clean
+        if: matrix.python-version == '3.13'
+        run: uv run --no-sync python scripts/verify_shipped_studies.py
 
   integration:
     name: deep + GBDT integration and coverage
