@@ -5,12 +5,12 @@ engine checks. The same contract, ledger, claims law, and referee rubric apply t
 profile; a profile only decides *headings, audience sentences, figure sets, doctrine
 anchors, budgets, and vocabulary*. Four ship with Klein 2.0:
 
-| profile | Audience | Reference exhibit |
-|---|---|---|
-| `generic` | any scientist or analyst | `00-known-truth-quickstart`, `10-hubble-1929-replication` |
-| `ml-research` | an ML / deep-learning researcher | `13-charlm-fixed-budget` |
-| `math` | a mathematician or algorithm designer | `11-exact-verifier-construction` |
-| `insurance` | an actuary or pricing analyst | `12-insurance-claims-frequency`, studies 05–09 |
+| profile | File | Audience | Reference exhibit |
+|---|---|---|---|
+| `generic` | `profiles/generic.md` | any scientist or analyst | `00-known-truth-quickstart`, `10-hubble-1929-replication` |
+| `ml-research` | `profiles/ml-research.md` | an ML / deep-learning researcher | `13-charlm-fixed-budget` |
+| `math` | `profiles/math.md` | a mathematician or algorithm designer | `11-exact-verifier-construction` |
+| `insurance` | `profiles/insurance.md` | an actuary or pricing analyst | `12-insurance-claims-frequency`, studies 05–09 |
 
 `generic` is the default. Insurance is a *reference* profile — the discipline was first
 proven on insurance data and its vocabulary is the most developed — but it is not the

@@ -2,8 +2,11 @@
 
 Regenerate whenever the lifecycle or a stage description changes.
 
-CONSULT (Gate 0) -> DATA (Gate 1) -> METHOD (Gate 2) -> EXPERIMENT/SWEEP ->
-SYNTHESIZE -> REFEREE (Gate 3) -> TUTORIAL
+The canonical lifecycle string (byte-identical in AGENTS.md, SKILL.md, README.md and here;
+scripts/tests/test_docs_integrity.py enforces it):
+
+new ─▶ CONSULT ─▶ DATA ─▶ METHOD ═══▶ EXPERIMENT/SWEEP ─▶ SYNTHESIZE ─▶ REFEREE ─▶ TUTORIAL
+        Gate 0   Gate 1   Gate 2      └ the honest loop ┘    findings.md    Gate 3     report/
 
 Gate stages get a hazard-stripe top band + numbered badge to read as a
 checkpoint you must clear. The last three stages are bracketed with a
