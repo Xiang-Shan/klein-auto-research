@@ -721,3 +721,15 @@ def test_a_lock_outside_a_git_repo_warns_rather_than_crashes(tmp_path: Path) -> 
     append_only = _check(checks, "claims append-only")
     assert append_only.ok and "no committed history" in append_only.message
     assert claims_module.detect_lock_schema(load_lock(study)) == 2
+
+
+def test_sentence_exemptions_follow_the_numbers_law() -> None:
+    """Counts naming their unit are exempt; a bare reference value is not."""
+    from kleinlib.claims import NUMERAL_RE, SENTENCE_EXEMPT_RE
+
+    sentence = (
+        "A free-intercept fit of Hubble's 24 objects gives K = 454.16 km/s/Mpc, not 465; "
+        "0 of 42 cells cleared with k = 5 seeds in 1929 (E0003, P2, C2)"
+    )
+    left = NUMERAL_RE.findall(SENTENCE_EXEMPT_RE.sub(" ", sentence))
+    assert left == ["454.16", "465"], left

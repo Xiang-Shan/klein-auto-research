@@ -106,8 +106,19 @@ NUMERAL_RE = re.compile(
 )
 
 #: Tokens a claim sentence may carry without an alias (claims-protocol.md, the
-#: numbers law): identifiers and years.  Stripped before the sentence is scanned.
-SENTENCE_EXEMPT_RE = re.compile(r"\b(?:E\d{4}|P\d+|C\d+|RQ\d+|1[89]\d{2}|20\d{2})\b")
+#: numbers law): identifiers, years, and small counts that name their unit or
+#: source ("24 objects", "k = 5 seeds", "0 of 42 cells").  A bare reference value
+#: ("not 465") is NOT exempt — it needs a pinned alias like any other number.
+#: Stripped before the sentence is scanned.
+SENTENCE_EXEMPT_RE = re.compile(
+    r"\b(?:E\d{4}|P\d+|C\d+|RQ\d+|S\d+|1[89]\d{2}|20\d{2})\b"
+    r"|\b[nk]\s*=\s*\d{1,4}(?!\.\d)\b"
+    r"|\b\d{1,4}\s+of\s+\d{1,4}\b"
+    r"|\b\d{1,4}\s+(?:objects?|rows?|nebulae|cells?|seeds?|runs?|trials?|"
+    r"families|candidates?|challengers?|draws?|resamples?|features?|columns?|"
+    r"items?|parameters?|steps?|epochs?|folds?|blocks?|groups?|decimals?|"
+    r"transactions?|experiments?|keeps?|discards?|crashes?)\b"
+)
 
 #: The law's one escape hatch, which the referee reads every instance of.
 NUMBERS_OK_RE = re.compile(r"klein:numbers-ok:(?P<reason>[^>]*)")

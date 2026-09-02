@@ -32,14 +32,16 @@ claim carries its class, strength, evidence and errata and a number carries its 
   },
   "numbers": {
     "k_free_intercept": {"value": 454.16, "art": "boot_k", "claim": "C2", "precision": 2,
-                         "note": "OLS with free intercept, 24 objects"}
+                         "note": "OLS with free intercept, 24 objects"},
+    "hubble_k_published": {"value": 465, "art": "dataset_readme", "claim": "C2", "precision": 0,
+                           "note": "Hubble 1929, the 24-object solution; a quoted reference value needs a home too"}
   },
   "claims": {
     "C2": {
       "class": "empirical-description",
       "strength": "confirmed",
       "claim": "A free-intercept fit of Hubble's 24 objects gives K = 454.16 km/s/Mpc, not 465",
-      "numbers": ["k_free_intercept"],
+      "numbers": ["k_free_intercept", "hubble_k_published"],
       "evidence": ["E0003", "verify:E0003@2026-09-05T10:12:00Z"],
       "errata": []
     }
@@ -52,7 +54,9 @@ claim carries its class, strength, evidence and errata and a number carries its 
 
 Field rules: `class` is one of the five below; `strength ∈ {exploratory, confirmed,
 refuted}`; `claim` is the sentence as it appears in `findings.md`; `numbers[]` lists
-the aliases the sentence quotes (a sentence with a numeral and no alias fails);
+the aliases the sentence quotes — every numeral except identifiers, years and small
+counts that name their unit ("24 objects", "k = 5 seeds", "0 of 42 cells") needs
+one, and a quoted reference value ("not 465") is a number like any other;
 `evidence[]` uses the grammar of `inquiry-model.md`; a `known-dgp-teaching` claim also
 carries `"scope": "in-silico"` and names its DGP. In `numbers`, `value` is a number
 or a short list, `art` an alias in `artifacts`, `precision` the decimals the numbers
