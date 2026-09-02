@@ -1,0 +1,19 @@
+{
+  "name": "klein-auto-research",
+  "image": "mcr.microsoft.com/devcontainers/python:3.13",
+  "features": {
+    "ghcr.io/va-h/devcontainers-features/uv:1": {}
+  },
+  "containerEnv": {
+    "DATA_HUB": "",
+    "KLEIN_OFFLINE": "1",
+    "MPLBACKEND": "Agg",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "postCreateCommand": "git config --global core.autocrlf false && uv sync --locked --extra encoders && uv run --locked klein --help",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff"]
+    }
+  }
+}
