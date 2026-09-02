@@ -41,6 +41,7 @@ FORBIDDEN = [
     (re.compile(r"~/Codex"), "author-local workspace path"),
     (re.compile(r"/private/tmp"), "machine-local temp path"),
     (re.compile(r"Auto_research"), "author workspace directory name"),
+    (re.compile(r"~/Claude/"), "author-local framework workspace (paper_book, presentation, …)"),
 ]
 
 EXEMPT = (
