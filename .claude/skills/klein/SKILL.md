@@ -232,9 +232,9 @@ Klein is self-contained under `.claude/skills/klein/`:
 cp -r .claude/skills/klein /path/to/your-repo/.claude/skills/
 ```
 
-The engine is a dependency, not an option: every helper (`preflight.py`,
-`new_study.py`, the `klein` CLI) imports `kleinlib` — the schema and templates live
-there and nowhere else, so nothing can drift. In the foreign repo, add the engine
+The engine is a dependency, not an option: every helper (`summarize_results.py`,
+`make_figures.py`, the `klein` CLI) imports `kleinlib` — the schema and templates
+live there and nowhere else, so nothing can drift. In the foreign repo, add the engine
 (see `assets/pyproject-study-template.toml`), then `uv sync --locked`:
 
 ```bash

@@ -40,10 +40,10 @@ deviation threshold while still making collapse loud. See `kleinlib.torch_loop` 
 the description, statuses in the commit field. The ledger corrupted silently and the
 history became unrecoverable.
 
-**The guard.** The schema lives in ONE place: `kleinlib/schema.py`. Templates, preflight,
-summarize, and `new_study.py` POINT there — they import it and fail loudly if the
-engine is absent. A drift-test guards the round-trip. No document restates the column list. See
-`kleinlib.schema`.
+**The guard.** The schema lives in ONE place: `kleinlib/schema.py`. Templates, the
+packaged `klein` CLI (`new`/`preflight`), and `summarize_results.py` POINT there —
+they import it and fail loudly if the engine is absent. A drift-test guards the
+round-trip. No document restates the column list. See `kleinlib.schema`.
 
 ## 4. Imbalance reweighting vs calibration (→ cw=None + isotonic)
 

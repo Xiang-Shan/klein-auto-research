@@ -286,10 +286,10 @@ PYEOF
 
 check "studies/99-e2e/train.py compiles" uv run --locked python -m py_compile studies/99-e2e/train.py
 
-# preflight requires a clean tree (results.tsv exempted) BEFORE the loop starts — in a
-# real study that's satisfied by committing the CONSULT/DATA/METHOD gate outputs;
-# fast-path that here with one baseline commit of the whole fixture (data/ is
-# gitignored, so the prepared-data marker above is correctly excluded).
+# The loop contract expects a clean tree (results.tsv exempted) BEFORE the loop
+# starts — in a real study that's satisfied by committing the CONSULT/DATA/METHOD
+# gate outputs; fast-path that here with one baseline commit of the whole fixture
+# (data/ is gitignored, so the prepared-data marker above is correctly excluded).
 git add studies/99-e2e
 git -c user.name="Klein E2E" -c user.email="klein-e2e@local" \
   commit -q -m "fixture studies/99-e2e (legacy e2e baseline)"
@@ -368,8 +368,8 @@ cd "$WORKTREE_DIR"
 
 # kleinlib.eval.evaluate() writes aux_metrics.tsv + models/manifest.tsv on every run
 # (not just the ONE results.tsv row the loop contract commits-or-reverts per experiment);
-# preflight only exempts results.tsv from its tree-clean check (by design — it targets
-# the state BEFORE experiment 1). Fast-path the natural phase-boundary checkpoint here.
+# the loop contract's clean-tree expectation only exempts results.tsv (by design — it
+# targets the state BEFORE experiment 1). Fast-path the natural phase-boundary checkpoint here.
 git add studies/99-e2e/aux_metrics.tsv studies/99-e2e/models
 git -c user.name="Klein E2E" -c user.email="klein-e2e@local" \
   commit -q -m "phase checkpoint: aux_metrics.tsv + models/ after the 3-exp mini-loop"
@@ -380,7 +380,7 @@ git -c user.name="Klein E2E" -c user.email="klein-e2e@local" \
 
 echo ""
 echo "=== preflight --study studies/99-e2e ==="
-if MPLBACKEND=Agg uv run --locked python .claude/skills/klein/scripts/preflight.py --study studies/99-e2e; then
+if MPLBACKEND=Agg uv run --locked klein preflight --study studies/99-e2e; then
   record PASS "preflight --study studies/99-e2e: 0 fails"
 else
   record FAIL "preflight --study studies/99-e2e: reported failing checks"
