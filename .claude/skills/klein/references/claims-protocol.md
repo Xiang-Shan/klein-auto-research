@@ -11,43 +11,62 @@ Role: the synthesist authors the lock at SYNTHESIZE; the referee verifies it; `k
 finalize` refuses a strength the evidence does not support; every downstream
 deliverable reads it. Any agent or human can follow this protocol directly.
 
-## The lock (shape)
+## The lock (shape) — lock schema 2
+
+Studies 07, 08 and 09 wrote **lock schema 1**: a numbers ledger — every headline
+number keyed by an alias, with its value, the artifact it lives in, and the claim id it
+belongs to. Schema 2 keeps that map under `numbers` and adds a real `claims` map, so a
+claim carries its class, strength, evidence and errata and a number carries its home.
 
 ```json
 {
-  "lock_schema": 1,
+  "lock_schema": 2,
   "study_id": "10-hubble-1929-replication",
   "git_head": "<repo commit the lock describes>",
   "klein_commit": "<engine commit that produced it>",
   "klein_version": "2.0.0",
-  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims are appended or erratum-tagged, never removed.",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "artifacts": {
-    "results":  {"path": "results.tsv",            "sha256": "…"},
-    "rq0_map":  {"path": "sweeps/rq0_map.tsv",     "sha256": "…"}
+    "results": {"path": "results.tsv",        "sha256": "…"},
+    "boot_k":  {"path": "tables/bootstrap_k.tsv", "sha256": "…"}
+  },
+  "numbers": {
+    "k_free_intercept": {"value": 454.16, "art": "boot_k", "claim": "C2", "precision": 2,
+                         "note": "OLS with free intercept, 24 objects"}
   },
   "claims": {
-    "C1": {
+    "C2": {
       "class": "empirical-description",
       "strength": "confirmed",
-      "claim": "HGBT clears the LR anchor by 0.0374 val_auc on the sealed partition",
-      "value": 0.0374, "precision": 4, "art": "results",
-      "evidence": ["E0003", "E0005"],
+      "claim": "A free-intercept fit of Hubble's 24 objects gives K = 454.16 km/s/Mpc, not 465",
+      "numbers": ["k_free_intercept"],
+      "evidence": ["E0003", "verify:E0003@2026-09-05T10:12:00Z"],
       "errata": []
     }
   },
   "errata": {
-    "E1": {"filed": "2026-09-01", "claims": ["C3"], "note": "train.py hardcoded the retired seed; C3 re-scoped to the retired partition"}
+    "E1": {"filed": "2026-09-01", "claims": ["C3"], "note": "…"}
   }
 }
 ```
 
 Field rules: `class` is one of the five below; `strength ∈ {exploratory, confirmed,
-refuted}`; `claim` is the sentence as it appears in `findings.md`; `value` (a number or
-a short list of numbers) and `art` (an alias in `artifacts`) are required whenever the
-sentence carries a numeral; `precision` is the number of decimals the numbers law
-matches at (default 3); `evidence[]` uses the grammar of `inquiry-model.md`; a
-`known-dgp-teaching` claim also carries `"scope": "in-silico"` and names its DGP.
-Paths are study-relative and POSIX (`/`), never absolute.
+refuted}`; `claim` is the sentence as it appears in `findings.md`; `numbers[]` lists
+the aliases the sentence quotes (a sentence with a numeral and no alias fails);
+`evidence[]` uses the grammar of `inquiry-model.md`; a `known-dgp-teaching` claim also
+carries `"scope": "in-silico"` and names its DGP. In `numbers`, `value` is a number
+or a short list, `art` an alias in `artifacts`, `precision` the decimals the numbers
+law matches at (default 3), `claim` the id it belongs to (or `"floor"` /
+`"contract"` for contract quantities). Paths are study-relative and POSIX, never
+absolute.
+
+**Lock schema 1 (legacy, studies 07–09)** has no `lock_schema` key: its `claims` map
+is what schema 2 calls `numbers` (`art` or `artifact` both occur, entries may carry
+free-form notes, paths are repo-relative). `klein claims verify` recognises it and
+applies the schema-1 rules — artifact hashes, numbers found in their artifacts, claim
+ids present in findings, append-only history, `git_head` resolvable — and never
+rewrites it; `klein claims init --from-legacy` migrates a copy into schema 2 for a
+study that is being re-opened.
 
 ## The five classes and their ceilings
 
@@ -67,18 +86,21 @@ later study's `(refutes <study>#Cn)` record, and the claim stays in the lock.
 1. **Shape.** Every field above is present and typed; every class and strength is
    from the lists; every `art` alias exists.
 2. **Artifacts.** Every pinned file exists and its bytes hash to the recorded sha256.
-3. **Presence.** Every claim id appears in `findings.md` as `**[Cn]**`, and every
-   `**[Cn]**` in `findings.md` appears in the lock.
+3. **Presence.** Every claim id appears in `findings.md` as `**[Cn]**`, every
+   `**[Cn]**` in `findings.md` appears in the lock, and every alias a claim lists in
+   `numbers[]` exists.
 4. **Evidence.** Every evidence id resolves (`E####` → a manifest; `sweep:` → a
    registered sidecar; `rep:`/`verify:` → a replication record; `ref:` → an entry of
    `references.yaml`; `art:` → a pinned alias). An unverified reference behind a
    `confirmed` claim is a warning; behind nothing else it is fine.
-5. **Numbers.** Every `value` is found in its `art` at `precision` decimals or exactly
-   (text artifacts: TSV, CSV, JSON, YAML, Markdown); a binary artifact yields a
-   warning, not a pass.
-6. **Append-only.** Across `git log --follow claims.lock`, no claim is removed and no
-   claim's `class`, `claim`, `value` or `art` changes; `evidence`, `errata` and notes
-   may only grow; `strength` changes only in a commit that also files an erratum.
+5. **Numbers.** Every `numbers` entry's `value` is found in its `art` at `precision`
+   decimals or exactly (text artifacts: TSV, CSV, JSON, YAML, Markdown); a binary
+   artifact yields a warning, not a pass; a claim sentence whose numerals are not all
+   covered by its `numbers[]` aliases fails.
+6. **Append-only.** Across `git log --follow claims.lock`, no claim or number is
+   removed and no claim's `class` or `claim`, and no number's `value` or `art`,
+   changes; `evidence`, `numbers`, `errata` and notes may only grow; `strength`
+   changes only in a commit that also files an erratum.
 7. **Ancestry.** `git_head` is an ancestor of `HEAD`; `klein_commit` resolves when the
    engine repository is at hand (advisory otherwise).
 
@@ -104,10 +126,11 @@ tutorial's unsourced-numeral scan, not by anyone re-reading the code.
 ## Verbs
 
 ```bash
-uv run --locked klein claims init    --study studies/NN-slug          # skeleton from findings' **[Cn]** lines; classes left null
+uv run --locked klein claims init    --study studies/NN-slug [--from-legacy]   # skeleton: claims from findings' **[Cn]** lines (class null), numbers empty
 uv run --locked klein claims pin     --study studies/NN-slug results results.tsv
-uv run --locked klein claims add     --study studies/NN-slug C4 --class empirical-description \
-    --strength exploratory --claim "…" --value 0.0374 --art results --evidence E0003,E0005
+uv run --locked klein claims number  --study studies/NN-slug k_free_intercept --value 454.16 --art boot_k --claim C2 [--precision 2] [--note "…"]
+uv run --locked klein claims add     --study studies/NN-slug C2 --class empirical-description \
+    --strength exploratory --claim "…" --numbers k_free_intercept --evidence E0003
 uv run --locked klein claims erratum --study studies/NN-slug E2 --claims C3,C7 \
     --note "…" [--strength exploratory]                                 # downgrade only
 uv run --locked klein claims verify  --study studies/NN-slug [--numbers] [--strict]

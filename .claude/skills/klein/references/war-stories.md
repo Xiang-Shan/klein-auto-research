@@ -1,7 +1,7 @@
 # War stories — why the guards exist
 
-Six failures — four from the ancestor campaign, one earned live by study 01, one by
-study 05 — each of which cost real time and each of which hardened into a guard you
+Nine failures — four from the ancestor campaign, one earned live by study 01, one by
+study 05, one by study 07, and two by study 09 — each of which cost real time and each of which hardened into a guard you
 now inherit for free. Read them once; they explain rules that otherwise look like
 paranoia.
 
@@ -127,12 +127,48 @@ name its estimand (`marginal-resplit` | `paired-comparison`) — study 07's own
 sidecar shows the paired spread EXCEEDING the marginal for five of six families,
 so neither is "the sharp one" by default.
 
+## 8. The hardcoded retired seed (→ contract-driven splits + printed split fingerprint)
+
+**The failure.** Study 09's `train.py` line 78 hardcoded a split seed the contract had
+retired (`20260909`; the contract said `20260912`). Every ledger-lane run measured the
+wrong partition; the sweeps, which read the contract, were clean; the sealed
+partition was untouched. Nothing in the engine noticed: `klein verify` checked the
+CONTRACT's split policy, not the split the evaluator had actually used. The tutorial's
+unsourced-numeral scan caught it — a number on the page had no home — a full study
+later. Erratum E1 was filed on the ledger table; the numbers were re-scoped, never
+deleted.
+
+**The guard.** The split is produced by the contract, not by the entrypoint:
+`kleinlib.data.contract_split(study_dir)` / `load_partition(kind)` read `study.yaml`,
+every evaluator prints `split_fingerprint:`, and `run-one` compares it with the
+fingerprint frozen at the DATA gate — a mismatch is a **crash** with a named reason,
+because a number measured on the wrong partition is not evidence. Preflight warns
+when no study source calls the helper, and the DATA gate treats a literal seed in an
+evaluator as a BLOCKER. See `data-gate-protocol.md`.
+
+## 9. The seal spent by a crash (→ the sealed dry-run)
+
+**The failure.** Study 09's one sealed access per track was consumed by a
+`RuntimeError` raised before a single row of sealed data had been read — a
+group-aware coda entry that the development path had never exercised. By the law of
+one look, the seal was spent (备而不用: prepared, and never used); the study closed
+exploratory along its pre-registered Branch B. The law held; the study paid for a
+bug with its only confirmation.
+
+**The guard.** `klein run-one --final-test --dry-run` executes the sealed entrypoint
+with `KLEIN_SEALED_DRYRUN=1`: the partition helper substitutes development data, the
+child prints `sealed_dryrun: 1`, and nothing is spent — no id, no commit, no manifest,
+no row, no seal. It is mandatory before every real sealed run (the experimenter
+prompt refuses to proceed without its log). See `inquiry-model.md` on what "sealed"
+means per kind.
+
 ## The meta-lesson
 
 Every one of these failed SILENTLY — a wrong number that looked plausible, not a crash
 (story 5 is the loud-but-mute variant: a crash below Python that erased its own
 evidence; story 6 the plausible-but-wrong verdict: a healthy run scored discard by
-bookkeeping).
+bookkeeping; story 8 the wrong-partition number that looked exactly right; story 9
+the crash that spent an irreplaceable look).
 That is the expensive kind. The guards all convert a silent lie into a loud failure:
 inspect values (not dtypes), raise on collapsed preds, single-source the schema, weigh
 calibration beside rank. When a guard fires, thank it — it just saved a campaign.

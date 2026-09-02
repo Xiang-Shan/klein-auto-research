@@ -13,7 +13,8 @@ parts IN ORDER — each depends on the one before.
 ## The authoring arc
 
 ### 1. Intuition (for a practitioner)
-Explain it to an actuary / data scientist who has NOT read the paper. Lead with an
+Explain it to the profile's audience (`references/profiles/<profile>.md` §1 — an ML
+researcher, a mathematician, an actuary, a scientist) who has NOT read the paper. Lead with an
 analogy to something they know ("a denoising autoencoder is nonlinear PCA"; "quantile
 least squares is OLS that fits chosen quantiles instead of the mean"). Build the mental
 model before any math.
@@ -29,7 +30,10 @@ the kleinlib helpers train.py will lean on (`kleinlib.torch_loop` for MPS-safe b
 
 ### 4. When it pays / when it doesn't
 A regime table keyed on data size and signal strength — the honest verdict, grounded in
-doctrine (Grinsztajn: trees still win on most tabular; deep methods need scale/signal).
+the profile's doctrine anchor (`references/profiles/<profile>.md` §3; for insurance,
+Grinsztajn: trees still win on most tabular; deep methods need scale/signal). For an
+`optimize` study the Practice leg is the from-scratch VERIFIER, written and tested
+before any search runs — the checker is never the searcher.
 Then state the **falsifiable priors** this study will test — the specific, checkable
 predictions the card commits to. Mirror them into `study.yaml:predictions_to_falsify`.
 The card is not done until it has staked a claim SYNTHESIZE can falsify.
