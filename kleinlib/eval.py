@@ -452,6 +452,18 @@ def _print_wall_seconds(total_seconds: float, extra: dict[str, Any] | None) -> N
         print(f"wall_seconds:      {total_seconds:.6f}")
 
 
+def _print_split_fingerprint(split_fingerprint: str | None) -> None:
+    """Print the partition the numbers were computed on (war story 8).
+
+    ``kleinlib.data.load_partition`` already prints this line for the studies
+    that call it; an evaluator fed partitions some other way passes the
+    fingerprint through here instead, so `klein run-one` can still refuse a
+    number measured on the wrong rows. Absent, the run proceeds with a notice.
+    """
+    if split_fingerprint:
+        print(f"split_fingerprint: {split_fingerprint}")
+
+
 def _append_aux_rows(
     study_dir: str | Path, exp_id: int | str, rows: dict[str, Any]
 ) -> None:
@@ -509,6 +521,7 @@ def evaluate(
     metric_name: str = "val_auc",
     metric_goal: str = "higher",
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     min_proba_std: float | None = None,
     collapse_rtol: float = 1e-12,
@@ -564,6 +577,7 @@ def evaluate(
     print(f"val_best_threshold: {val_best_threshold:.4f}")
     print(f"val_f1_at_best:    {val_f1_at_best:.4f}")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -617,6 +631,7 @@ def evaluate_regression(
     sample_weight: Any = None,
     tweedie_power: float | None = None,
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
 ) -> float:
@@ -701,6 +716,7 @@ def evaluate_regression(
         if spec.name == "val_tweedie_deviance":
             print(f"tweedie_power: {float(tweedie_power):.6g}")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -745,6 +761,7 @@ def evaluate_scalar(
     metric_name: str,
     metric_goal: str,
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
     t0: float | None = None,
@@ -777,6 +794,7 @@ def evaluate_scalar(
     )
     print("--- aux_metrics ---")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")

@@ -26,6 +26,9 @@ __all__ = [
     "RULE_OPERATORS",
     "choose_disposition",
     "parse_metric_log",
+    "parse_printed_lines",
+    "parse_printed_strings",
+    "printed_values",
     "track_headroom",
     "validate_rule",
 ]
@@ -211,6 +214,45 @@ def parse_metric_log(path: Path) -> tuple[float, str | None, str | None, dict[st
     if primary is None:
         raise WorkflowError("run completed without a finite `primary_metric:` line")
     return primary, metric_name, metric_goal, metrics
+
+
+def parse_printed_lines(path: Path) -> list[tuple[str, str]]:
+    """Every ``key: value`` line of the printed block, verbatim and in order."""
+    lines: list[tuple[str, str]] = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = METRIC_LINE_RE.match(line)
+        if match:
+            lines.append(match.groups())
+    return lines
+
+
+def printed_values(path: Path, key: str) -> list[str]:
+    """Every value printed under ``key``, whatever its type.
+
+    :func:`parse_metric_log` keeps only floats and :func:`parse_printed_strings`
+    only non-floats, so a key whose value happens to look numeric
+    (``sealed_dryrun: 1``) would fall out of a string-only lookup.  Callers that
+    want one named line ask for it by name here instead of guessing its type.
+    """
+    return [raw for name, raw in parse_printed_lines(path) if name == key]
+
+
+def parse_printed_strings(path: Path) -> dict[str, list[str]]:
+    """Every NON-numeric printed line, keyed, in the order it was printed.
+
+    :func:`parse_metric_log` keeps only the floats a guardrail or a metric can
+    be, and drops everything else.  Some printed lines are evidence anyway:
+    ``split_fingerprint:`` (which partition the numbers came from) today,
+    ``artifact:`` lines when registered mode lands.  Values are lists because a
+    cell may pin several artifacts.
+    """
+    found: dict[str, list[str]] = {}
+    for key, raw in parse_printed_lines(path):
+        try:
+            float(raw)
+        except ValueError:
+            found.setdefault(key, []).append(raw)
+    return found
 
 
 def _incumbent(manifests: Sequence[Mapping[str, Any]], track: str) -> Mapping[str, Any] | None:

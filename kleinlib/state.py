@@ -52,7 +52,9 @@ __all__ = [
     "load_state",
     "reconcile_state",
     "record_gate",
+    "registered_partition_fingerprints",
     "save_state",
+    "split_policy_hash",
     "state_path",
 ]
 
@@ -179,6 +181,62 @@ def _method_card_triad(text: str) -> dict[str, bool] | None:
     return {leg: bool(triad.get(leg)) for leg in ("theory", "papers", "practice")}
 
 
+def split_policy_hash(state: Mapping[str, Any]) -> Any:
+    """The declared-policy hash, whichever shape ``fingerprints.split`` has.
+
+    Schema 2 stores the policy hash as a bare string; schema 3 stores a mapping
+    that also carries the REALIZED ``development`` / ``final_test`` fingerprints
+    frozen at the DATA gate.  Readers that only want the policy use this.
+    """
+    recorded = state.get("fingerprints", {}).get("split")
+    return recorded.get("policy") if isinstance(recorded, Mapping) else recorded
+
+
+def registered_partition_fingerprints(state: Mapping[str, Any]) -> dict[str, str]:
+    """``{"development": ..., "final_test": ...}`` as frozen at the DATA gate."""
+    recorded = state.get("fingerprints", {}).get("split")
+    if not isinstance(recorded, Mapping):
+        return {}
+    return {
+        kind: str(recorded[kind])
+        for kind in ("development", "final_test")
+        if isinstance(recorded.get(kind), str)
+    }
+
+
+def _freeze_split(study_dir: Path, contract: Mapping[str, Any], state: dict[str, Any]) -> None:
+    """Record the policy hash AND what the split actually realizes (schema 3).
+
+    Realizing the partitions means reading the prepared data, which can fail for
+    reasons that must not block a gate (a modality with no dataframe, a target
+    the card has not settled yet).  So the failure is a note on the record, not
+    a refusal — and the run-time check treats an unregistered fingerprint as
+    "proceed with a notice", never as a pass.
+
+    A policy change once evidence exists is refused outright: every recorded
+    number was measured on the old partitions.
+    """
+    policy = split_fingerprint(contract)
+    previous = split_policy_hash(state)
+    if previous is not None and previous != policy and load_manifests(study_dir):
+        raise WorkflowError(
+            "data.split changed after evidence exists: every recorded number was "
+            f"measured on the previous partitions (policy {previous} -> {policy}). "
+            "Start a new study, or re-scope this one on the record."
+        )
+    frozen: dict[str, Any] = {"policy": policy}
+    try:
+        from .data import partition_fingerprints
+
+        frozen.update(partition_fingerprints(study_dir))
+    except Exception as exc:  # noqa: BLE001 — any prepare-side failure is a note
+        frozen["note"] = (
+            f"[WARN] realized split fingerprints not recorded ({type(exc).__name__}: {exc}); "
+            "run-one will proceed with a printed notice instead of comparing"
+        )
+    state["fingerprints"]["split"] = frozen
+
+
 def record_gate(
     study_dir: Path,
     gate: str,
@@ -296,6 +354,8 @@ def record_gate(
             data_hash = fingerprint_path(data_path)
             state["fingerprints"]["data"] = data_hash
             state["prepared_data"] = {"path": str(data_path), "sha256": data_hash}
+            if schema_version(contract) >= 3:
+                _freeze_split(study_dir, contract, state)
         status = "overridden" if override_reason is not None else "recorded"
         gate_state = {
             "status": status,

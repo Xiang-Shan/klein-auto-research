@@ -43,6 +43,7 @@ __all__ = [
     "mutable_surface",
     "normalize_tracks",
     "prepared_data_path",
+    "registered_predictions",
     "resolve_study",
     "schema_version",
     "split_fingerprint",
@@ -971,6 +972,37 @@ def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> li
                         f"(got {bad})"
                     )
     return problems
+
+
+def registered_predictions(contract: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
+    """``{P#: entry}`` for the contract's registered predictions, in order.
+
+    The legacy readable alias ``predictions_to_falsify`` normalizes to manual
+    predictions (``P1``, ``P2``, ...): they are still registered beliefs, they
+    just cannot be adjudicated by arithmetic.
+    """
+    raw = contract.get("predictions")
+    if isinstance(raw, list):
+        return {
+            str(entry["id"]): dict(entry)
+            for entry in raw
+            if isinstance(entry, Mapping) and isinstance(entry.get("id"), str)
+        }
+    legacy = contract.get("predictions_to_falsify")
+    if not isinstance(legacy, list):
+        return {}
+    normalized: dict[str, dict[str, Any]] = {}
+    for index, entry in enumerate(legacy, start=1):
+        if not isinstance(entry, Mapping):
+            continue
+        lever = str(entry.get("lever", "")).strip()
+        delta = str(entry.get("predicted_delta", "")).strip()
+        normalized[f"P{index}"] = {
+            "id": f"P{index}",
+            "statement": f"{lever}: {delta}".strip(": "),
+            "manual": True,
+        }
+    return normalized
 
 
 def confirmation_require(contract: Mapping[str, Any]) -> tuple[str, ...]:

@@ -41,7 +41,7 @@ from .manifest import (
 )
 from .primitives import fingerprint_path, sha256_bytes, sha256_file
 from .schema import AUTO_PRINTED_METRIC_KEYS, EVALUATOR_PRINTED_KEYS
-from .state import load_state
+from .state import load_state, registered_partition_fingerprints, split_policy_hash
 from .transaction import current_branch, git, git_blob, relative, repo_root_for
 
 __all__ = ["ABSENT_LOCAL_ARTIFACT", "Check", "preflight_checks", "verify_study"]
@@ -375,8 +375,10 @@ def preflight_checks(
             except WorkflowError as exc:
                 checks.append(Check("prepared-data fingerprint", False, str(exc)))
     current_split = split_fingerprint(contract)
-    recorded_split = state.get("fingerprints", {}).get("split")
+    recorded_split = split_policy_hash(state)
     checks.append(Check("split fingerprint", current_split == recorded_split, f"current={current_split}; recorded={recorded_split}"))
+    if version >= 3:
+        checks.append(_contract_split_check(study_dir, state))
 
     ledger_problems, ledger_absences = _v2_ledger_problems(
         study_dir, require_local=require_local
@@ -480,6 +482,46 @@ def preflight_checks(
             )
         )
     return checks
+
+
+#: How a schema-3 study is supposed to obtain its partitions.
+_CONTRACT_SPLIT_RE = re.compile(r"\b(contract_split|load_partition)\s*\(")
+
+
+def _contract_split_check(study_dir: Path, state: Mapping[str, Any]) -> Check:
+    """Advisory: does anything in this study actually ASK the contract to split?
+
+    War story 8 is the reason. An evaluator that builds its own partitions from
+    a literal seed prints no fingerprint, so the notary has nothing to compare
+    and a whole ledger lane can measure the wrong rows undetected. ``ok`` stays
+    True — a study may legitimately have no row partitions (``split.kind: none``,
+    a verifier-only study) — but the absence is on the record either way.
+    """
+    sources = _study_python_sources(study_dir)
+    callers = sorted(name for name, text in sources.items() if _CONTRACT_SPLIT_RE.search(text))
+    registered = registered_partition_fingerprints(state)
+    if not callers:
+        return Check(
+            "contract-driven split",
+            True,
+            "[WARN] no study source calls kleinlib.data.contract_split / load_partition — "
+            "the printed split_fingerprint cannot be checked, and a literal split seed in "
+            "an evaluator is a DATA-gate BLOCKER (war story 8)",
+        )
+    if not registered:
+        return Check(
+            "contract-driven split",
+            True,
+            f"[WARN] {', '.join(callers)} obtain partitions from the contract, but no "
+            "realized fingerprints are registered — re-record the DATA gate before E0001 "
+            "so run-one can compare them",
+        )
+    return Check(
+        "contract-driven split",
+        True,
+        f"{', '.join(callers)}; registered "
+        + ", ".join(f"{kind}={value[:12]}" for kind, value in sorted(registered.items())),
+    )
 
 
 def _study_python_sources(study_dir: Path) -> dict[str, str]:

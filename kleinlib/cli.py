@@ -21,6 +21,7 @@ from .workflow import (
     recover,
     resolve_study,
     run_one,
+    sealed_dry_run,
     status_summary,
     verify_study,
 )
@@ -150,6 +151,19 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--description", default="")
     run.add_argument("--timeout-seconds", type=float)
     run.add_argument("--final-test", action="store_true")
+    run.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="with --final-test: rehearse the sealed run on development data. "
+        "Spends no id, commit, manifest, row or seal; exits 3 if the entrypoint "
+        "never printed `sealed_dryrun: 1`",
+    )
+    run.add_argument(
+        "--tests",
+        metavar="P1[,P2]",
+        help="adjudicate these registered predictions against this run's printed "
+        "block (schema 3)",
+    )
     run.add_argument("--quiet", action="store_true")
     run.add_argument(
         "--allow-rerun",
@@ -321,6 +335,25 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "preflight":
             return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
         if args.command_name == "run-one":
+            if args.dry_run:
+                if not args.final_test:
+                    raise WorkflowError(
+                        "--dry-run rehearses a sealed run: pass it with --final-test "
+                        "(a development run needs no rehearsal — it spends nothing "
+                        "that cannot be spent again)"
+                    )
+                if args.tests:
+                    raise WorkflowError(
+                        "--dry-run adjudicates nothing: a rehearsal on development "
+                        "data is not evidence for a registered prediction"
+                    )
+                return sealed_dry_run(
+                    study,
+                    track=args.track,
+                    timeout_seconds=args.timeout_seconds,
+                    command=args.command or None,
+                    echo=not args.quiet,
+                )
             manifest = run_one(
                 study,
                 track=args.track,
@@ -330,6 +363,7 @@ def main(argv: list[str] | None = None) -> int:
                 command=args.command or None,
                 echo=not args.quiet,
                 allow_rerun=args.allow_rerun,
+                tests=args.tests,
             )
             label = manifest["disposition"]
             if (

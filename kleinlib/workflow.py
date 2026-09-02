@@ -66,6 +66,7 @@ from .contract import (
     mutable_surface,
     normalize_tracks,
     prepared_data_path,
+    registered_predictions,
     resolve_study,
     schema_version,
     split_fingerprint,
@@ -80,6 +81,9 @@ from .decision import (
     _incumbent,
     choose_disposition,
     parse_metric_log,
+    parse_printed_lines,  # noqa: F401  (re-export)
+    parse_printed_strings,
+    printed_values,
     track_headroom,
 )
 from .errors import WorkflowError
@@ -121,7 +125,9 @@ from .state import (
     load_state,
     reconcile_state,
     record_gate,
+    registered_partition_fingerprints,
     save_state,
+    split_policy_hash,
     state_path,
 )
 from .transaction import (
@@ -165,6 +171,8 @@ __all__ = [
     "ProcessResult",
     "RUN_ID_RE",
     "SCHEMA_VERSION",
+    "SEALED_DRYRUN_UNACKNOWLEDGED",
+    "SPLIT_FINGERPRINT_MISMATCH",
     "STRONG_CLAIM_RE",
     "STUDY_ID_RE",
     "StudyLock",
@@ -193,7 +201,10 @@ __all__ = [
     "load_state",
     "normalize_tracks",
     "parse_metric_log",
+    "parse_printed_lines",
+    "parse_printed_strings",
     "preflight_checks",
+    "printed_values",
     "prepared_data_path",
     "read_events",
     "reconcile_state",
@@ -206,6 +217,7 @@ __all__ = [
     "run_subprocess",
     "save_state",
     "schema_version",
+    "sealed_dry_run",
     "sha256_bytes",
     "sha256_file",
     "split_fingerprint",
@@ -270,6 +282,49 @@ def run_subprocess(
     )
 
 
+#: The crash reason a run gets when it measured the wrong rows.
+SPLIT_FINGERPRINT_MISMATCH = "split_fingerprint_mismatch"
+
+
+def _assert_registered_partition(
+    log_path: Path,
+    state: Mapping[str, Any],
+    *,
+    evaluation_kind: str,
+    manifest: dict[str, Any],
+    echo: bool,
+) -> None:
+    """Refuse a number measured on a partition the DATA gate never froze.
+
+    War story 8: an evaluator kept a retired split seed and a whole ledger lane
+    silently measured the wrong rows.  A printed fingerprint that disagrees with
+    the registered one is therefore a **crash**, not a discard — a number on the
+    wrong partition is not evidence of anything, in either direction.
+
+    Absent on either side (an entrypoint that does not call the helper, a gate
+    recorded before the prepared data could be read) the run PROCEEDS with a
+    printed notice: silence is not a pass, but neither is it a lie.
+    """
+    registered = registered_partition_fingerprints(state)
+    printed = printed_values(log_path, "split_fingerprint")
+    expected = registered.get(evaluation_kind)
+    if printed:
+        manifest.setdefault("fingerprints", {})["split_partition"] = printed[-1]
+    if not printed or expected is None:
+        if echo:
+            missing = "the run printed no split_fingerprint" if not printed else (
+                f"no {evaluation_kind} fingerprint is registered"
+            )
+            print(f"note: partition not verified — {missing}")
+        return
+    if printed[-1] != expected:
+        raise WorkflowError(
+            f"{SPLIT_FINGERPRINT_MISMATCH}: the run measured partition "
+            f"{printed[-1][:12]}… but the DATA gate registered {expected[:12]}… for "
+            f"{evaluation_kind} — a number computed on the wrong rows is not evidence"
+        )
+
+
 def _complete_evidence_transaction(
     repo: Path,
     study_dir: Path,
@@ -305,6 +360,160 @@ def _commit_state_writes(
     )
 
 
+#: What a sealed dry-run exits with when the child never acknowledged it.
+SEALED_DRYRUN_UNACKNOWLEDGED = 3
+
+
+def _validate_requested_predictions(
+    contract: Mapping[str, Any], tests: str | Sequence[str] | None, track: str
+) -> list[str]:
+    """The ``--tests`` ids, checked against the register before anything is spent.
+
+    An id must exist, belong to this track, and carry an arithmetic rule: a
+    prediction the machine cannot decide is adjudicated by
+    ``klein predict adjudicate``, on the record, with its evidence pinned —
+    never as a side effect of a run.
+    """
+    if tests is None:
+        return []
+    ids = [part.strip() for part in (tests.split(",") if isinstance(tests, str) else tests)]
+    ids = [part for part in ids if part]
+    if not ids:
+        return []
+    if schema_version(contract) < 3:
+        raise WorkflowError(
+            "--tests adjudicates registered predictions, which are a schema-3 "
+            "contract key; this study is schema 2"
+        )
+    registered = registered_predictions(contract)
+    for name in ids:
+        entry = registered.get(name)
+        if entry is None:
+            raise WorkflowError(
+                f"unknown prediction {name!r}; study.yaml registers {sorted(registered) or 'none'}"
+            )
+        if entry.get("rule") is None:
+            raise WorkflowError(
+                f"prediction {name!r} has no rule (manual): adjudicate it with "
+                "`klein predict adjudicate` and pin its evidence"
+            )
+        declared_track = entry.get("track")
+        if declared_track is not None and str(declared_track) != track:
+            raise WorkflowError(
+                f"prediction {name!r} belongs to track {declared_track!r}, not {track!r}"
+            )
+    seen: list[str] = []
+    for name in ids:
+        if name not in seen:
+            seen.append(name)
+    return seen
+
+
+def sealed_dry_run(
+    study_dir: Path,
+    *,
+    track: str | None = None,
+    timeout_seconds: float | None = None,
+    command: Sequence[str] | None = None,
+    echo: bool = True,
+) -> int:
+    """Rehearse a sealed run without spending anything.  Returns an exit code.
+
+    A study's only sealed access was once spent by a crash before any data was
+    read (war story 9).  This is the fix and it is mandatory before every real
+    sealed run: the child runs with ``KLEIN_SEALED_DRYRUN=1``, which makes
+    :func:`kleinlib.data.load_partition` hand back the DEVELOPMENT partition and
+    print ``sealed_dryrun: 1``.  No experiment id is allocated, no commit made,
+    no manifest or results row written, and the seal is untouched — the only
+    traces are a log under ``sweeps/`` and a ``sealed_dryrun`` event.
+
+    Exit 0 when the child exited 0 AND printed the acknowledgement;
+    :data:`SEALED_DRYRUN_UNACKNOWLEDGED` when it exited 0 without it — an
+    entrypoint that ignores the flag would have read the sealed rows, so a
+    silent success is exactly the outcome that must not be reported as a pass.
+    """
+    contract = load_contract(study_dir)
+    problems = validate_contract(contract, study_dir)
+    if problems:
+        raise WorkflowError("invalid study contract: " + "; ".join(problems))
+    tracks = normalize_tracks(contract)
+    if track is None:
+        if len(tracks) != 1:
+            raise WorkflowError("--track is required when study.yaml declares multiple tracks")
+        track = next(iter(tracks))
+    if track not in tracks:
+        raise WorkflowError(f"unknown track {track!r}; choose one of {sorted(tracks)}")
+    repo = repo_root_for(study_dir)
+    expected_branch = f"experiments/{contract['study_id']}"
+    if current_branch(repo) != expected_branch:
+        raise WorkflowError(f"run-one requires exact branch {expected_branch!r}")
+
+    with StudyLock(study_dir):
+        configured_timeout = float(contract["max_run_seconds"])
+        timeout = configured_timeout if timeout_seconds is None else float(timeout_seconds)
+        if timeout <= 0 or timeout > configured_timeout:
+            raise WorkflowError(
+                f"timeout must be > 0 and <= configured max_run_seconds={configured_timeout:g}"
+            )
+        stamp = utc_now().replace(":", "").replace("-", "")
+        log_path = study_dir / "sweeps" / f"sealed_dryrun.{stamp}.log"
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        cmd = tuple(
+            command
+            or (
+                tuple(entrypoint_spec(contract)["command"])
+                if schema_version(contract) >= 3
+                else ("uv", "run", "--locked", "python", "-u", "train.py")
+            )
+        )
+        process = run_subprocess(
+            cmd,
+            cwd=study_dir,
+            log_path=log_path,
+            timeout_seconds=timeout,
+            echo=echo,
+            env_overrides={
+                "KLEIN_EVALUATION_KIND": "final_test",
+                "KLEIN_EXPERIMENT_ID": "DRYRUN",
+                "KLEIN_TRACK": track,
+                "KLEIN_SEALED_DRYRUN": "1",
+                "KLEIN_SMOKE": "",
+            },
+        )
+        acknowledged = "1" in printed_values(log_path, "sealed_dryrun")
+        if process.exit_code != 0:
+            exit_code = process.exit_code
+        elif not acknowledged:
+            exit_code = SEALED_DRYRUN_UNACKNOWLEDGED
+        else:
+            exit_code = 0
+        append_event(
+            study_dir,
+            "sealed_dryrun",
+            track=track,
+            command=list(cmd),
+            log=str(log_path.relative_to(study_dir).as_posix()),
+            exit_code=process.exit_code,
+            timed_out=process.timed_out,
+            acknowledged=acknowledged,
+            wall_seconds=process.wall_seconds,
+        )
+        _commit_state_writes(study_dir, f"klein: sealed dry-run rehearsal ({track})")
+    if echo:
+        if exit_code == 0:
+            print(f"sealed dry-run OK: {track} rehearsed on development data; nothing spent")
+        elif exit_code == SEALED_DRYRUN_UNACKNOWLEDGED:
+            print(
+                "sealed dry-run FAILED: the entrypoint exited 0 but never printed "
+                "`sealed_dryrun: 1` — it ignored KLEIN_SEALED_DRYRUN and would have read "
+                "the sealed partition. Route the partition through "
+                "kleinlib.data.load_partition before spending the seal."
+            )
+        else:
+            print(f"sealed dry-run FAILED: the entrypoint exited {exit_code}; the seal is intact")
+    return exit_code
+
+
 def run_one(
     study_dir: Path,
     *,
@@ -315,6 +524,7 @@ def run_one(
     command: Sequence[str] | None = None,
     echo: bool = True,
     allow_rerun: bool = False,
+    tests: str | Sequence[str] | None = None,
 ) -> dict[str, Any]:
     contract = load_contract(study_dir)
     problems = validate_contract(contract, study_dir)
@@ -327,6 +537,8 @@ def run_one(
         track = next(iter(tracks))
     if track not in tracks:
         raise WorkflowError(f"unknown track {track!r}; choose one of {sorted(tracks)}")
+    # Validated BEFORE the lock, so a typo in --tests costs nothing.
+    requested_predictions = _validate_requested_predictions(contract, tests, track)
     repo = repo_root_for(study_dir)
     expected_branch = f"experiments/{contract['study_id']}"
     if current_branch(repo) != expected_branch:
@@ -352,7 +564,7 @@ def run_one(
         fingerprints = state.get("fingerprints")
         if not isinstance(fingerprints, Mapping) or data_hash != fingerprints.get("data"):
             raise WorkflowError("prepared-data fingerprint differs from the recorded DATA gate")
-        if split_fingerprint(contract) != fingerprints.get("split"):
+        if split_fingerprint(contract) != split_policy_hash(state):
             raise WorkflowError("split policy differs from the recorded fingerprint")
         ledger = load_manifests(study_dir)
         if any(
@@ -482,6 +694,9 @@ def run_one(
             "metric_name": tracks[track]["metric"]["name"],
             "metric_goal": tracks[track]["metric"]["goal"],
             "metrics": {},
+            # Which registered predictions this run was asked to decide.  The
+            # verdicts land beside it once the predictions ledger is wired in.
+            "predictions_requested": list(requested_predictions),
             "fingerprints": {
                 "data": data_hash,
                 "split": split_fingerprint(contract),
@@ -553,6 +768,13 @@ def run_one(
                     raise WorkflowError(
                         f"evaluator metric_goal={printed_goal!r}; track requires {expected_metric['goal']!r}"
                     )
+                _assert_registered_partition(
+                    log_path,
+                    state,
+                    evaluation_kind=manifest["evaluation_kind"],
+                    manifest=manifest,
+                    echo=echo,
+                )
                 disposition, reason = choose_disposition(
                     primary_metric=primary,
                     track_spec=tracks[track],
@@ -566,6 +788,16 @@ def run_one(
                     disposition=disposition,
                     decision_reason=reason,
                 )
+                # --- predictions ledger hook (WP-E6) -------------------------
+                # The ids are already validated against the register, and the
+                # printed block is in `metrics`.  What is still missing is the
+                # adjudication itself: evaluate each id's rule here, write
+                # `manifest["predictions"] = {P#: {verdict, explanation}}`,
+                # update `state["predictions"]`, and append one
+                # `prediction_adjudicated` event INSIDE this transaction.
+                # Until then the request is recorded but not decided, and
+                # `klein status` counts these ids as still open.
+                # -------------------------------------------------------------
             except WorkflowError as exc:
                 manifest["decision_reason"] = str(exc)
         else:
