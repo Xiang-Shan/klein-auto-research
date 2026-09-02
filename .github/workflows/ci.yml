@@ -15,6 +15,9 @@ env:
   MPLBACKEND: Agg
   PYTHONUNBUFFERED: "1"
   UV_LOCKED: "1"
+  # Harmless today; a later engine package will honour this to skip any
+  # network-reaching path outright.
+  KLEIN_OFFLINE: "1"
 
 jobs:
   core:
@@ -192,6 +195,11 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     steps:
+      - name: Byte-exact git checkout on Windows (no CRLF rewrite, long paths)
+        if: matrix.os == 'windows-latest'
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.longpaths true
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v8.3.2
         with:
