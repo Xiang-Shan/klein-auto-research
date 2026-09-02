@@ -13,8 +13,11 @@ patching ``workflow._git_commit``.
 from __future__ import annotations
 
 import platform
+import shutil
 import subprocess
-from collections.abc import Callable, Mapping, Sequence
+import tempfile
+from collections.abc import Callable, Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +38,7 @@ __all__ = [
     "commit_state_writes",
     "complete_evidence_transaction",
     "current_branch",
+    "detached_worktree",
     "environment_fingerprint",
     "git",
     "git_blob",
@@ -100,6 +104,47 @@ def git_commit(repo: Path, message: str, *, allow_empty: bool = False, amend: bo
         args.extend(["-m", message])
     git(repo, args)
     return git(repo, ["rev-parse", "HEAD"]).stdout.strip()
+
+
+@contextmanager
+def detached_worktree(repo: Path, commit: str, *, prefix: str = "klein-worktree-") -> Iterator[Path]:
+    """A throwaway ``git worktree add --detach`` checkout of *commit*.
+
+    The checkout is created in the SYSTEM temporary directory (whatever
+    ``tempfile`` resolves — ``TMPDIR``/``TMP``/``TEMP``), never inside *repo*:
+    a nested worktree would put a second copy of the study under the study's
+    own tree, where ``assert_run_worktree`` and every ``git add`` glob would
+    see it.  The path is refused if it lands inside the repository anyway.
+
+    Teardown is unconditional and belt-and-braces — ``git worktree remove
+    --force``, then ``shutil.rmtree`` of the temp parent, then ``git worktree
+    prune`` — so an exception raised inside the ``with`` body (or a child that
+    left the checkout dirty) still leaves neither directory nor admin record
+    behind.  ``remove`` and ``prune`` are ``check=False``: cleanup must never
+    mask the caller's own failure.
+    """
+    repo = repo.resolve()
+    parent = Path(tempfile.mkdtemp(prefix=prefix)).resolve()
+    try:
+        try:
+            parent.relative_to(repo)
+        except ValueError:
+            pass
+        else:
+            raise WorkflowError(
+                f"the temporary directory {parent} is inside the repository {repo}; "
+                "a replication worktree must live outside it — set TMPDIR elsewhere"
+            )
+        # `git worktree add` requires a path that does not already exist.
+        path = parent / "worktree"
+        git(repo, ["worktree", "add", "--detach", str(path), commit])
+        try:
+            yield path
+        finally:
+            git(repo, ["worktree", "remove", "--force", str(path)], check=False)
+    finally:
+        shutil.rmtree(parent, ignore_errors=True)
+        git(repo, ["worktree", "prune"], check=False)
 
 
 def relative(repo: Path, path: Path) -> str:

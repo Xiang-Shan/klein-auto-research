@@ -265,3 +265,23 @@ def _required(verb: str) -> list[str]:
         "add": ["C1", "--class", "procedural-verdict", "--strength", "exploratory", "--claim", "x"],
         "erratum": ["E1", "--claims", "C1", "--note", "n"],
     }.get(verb, [])
+
+
+def test_cli_replicate_verb_is_registered_with_help(capsys) -> None:
+    """`klein replicate` exists with the spelling the protocol documents."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    replicate = actions[0].choices["replicate"]
+    help_text = replicate.format_help()
+    for flag in ("--study", "--tolerance", "--verify-only", "--list"):
+        assert flag in help_text, flag
+    args = parser.parse_args(["replicate", "E0003", "--tolerance", "0.01"])
+    assert (args.experiment, args.tolerance) == ("E0003", 0.01)
+    assert args.verify_only is False and args.list_records is False
+    assert callable(args.handler)
+    assert parser.parse_args(["replicate", "--list"]).list_records is True
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["replicate", "--help"])
+    assert exit_info.value.code == 0
+    assert "replication-protocol.md" in capsys.readouterr().out

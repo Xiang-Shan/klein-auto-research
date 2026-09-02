@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from . import transaction
+from . import replicate, transaction
 from .checks import (
     Check,
     _artifact_hash_problems,
@@ -1162,17 +1162,29 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
                 None,
             )
             successful_confirmation[track] = successful
+        # `confirmation.require` naming `replicate`/`verify` is paid for with a
+        # `reproduced: true` record, not with intent: a track missing one is
+        # exploratory, and the receipt below names the record it lacks. Empty for
+        # every schema-2 study (no track declares confirmation), so this path is
+        # unchanged there.
+        confirmation_gaps = replicate.confirmation_gaps(study_dir, contract, manifests)
         label = (
             "confirmed"
             if counts
             and all(count == 1 for count in counts.values())
             and all(successful_confirmation.values())
+            and not confirmation_gaps
             else "exploratory"
         )
         if label == "exploratory" and not allow_exploratory:
+            reason = "not every track has one successful sealed final-test evaluation"
+            if confirmation_gaps:
+                reason += "; missing confirmation records — " + "; ".join(
+                    f"{track}: {'; '.join(missing)}"
+                    for track, missing in confirmation_gaps.items()
+                )
             raise WorkflowError(
-                "not every track has one successful sealed final-test evaluation; "
-                "use --allow-exploratory to finalize explicitly"
+                f"{reason}; use --allow-exploratory to finalize explicitly"
             )
         findings = study_dir / "findings.md"
         if not findings.is_file():
@@ -1196,6 +1208,8 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
             "timestamp": utc_now(),
             "final_holdout_counts": counts,
             "successful_confirmation": successful_confirmation,
+            # keyed only when non-empty: a schema-2 receipt keeps its exact shape
+            **({"confirmation_gaps": confirmation_gaps} if confirmation_gaps else {}),
         }
         save_state(study_dir, state)
         append_event(
@@ -1204,6 +1218,7 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
             label=label,
             final_holdout_counts=counts,
             successful_confirmation=successful_confirmation,
+            **({"confirmation_gaps": confirmation_gaps} if confirmation_gaps else {}),
         )
         _commit_state_writes(study_dir, f"klein: finalized {label}")
         return label
