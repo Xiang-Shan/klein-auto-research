@@ -119,6 +119,7 @@ def test_resolve_csv_missing_names_both_candidates(tmp_path: Path, monkeypatch) 
 
 
 def test_resolve_parquet_study_relative(tmp_path: Path) -> None:
+    pytest.importorskip("pyarrow")  # the parquet extra is optional
     study = tmp_path / "study"
     study.mkdir()
     frame_path = study / "x.parquet"
