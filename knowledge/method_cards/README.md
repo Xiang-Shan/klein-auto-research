@@ -17,12 +17,12 @@ and instantiates them is the framework's METHOD stage.
 
 ## Index
 
-| Card | Method | Domain | Status | Anchored in |
-|---|---|---|---|---|
-| [`glm-pricing.md`](glm-pricing.md) | GLM / logistic regression for insurance risk | insurance | seed | campaign Phase 1 (LR 0.6255 → 0.6528) |
-| [`gbdt-tabular.md`](gbdt-tabular.md) | GBDT three-family landscape (LGBM / XGB / CatBoost) | ml | seed | campaign Phase 3 (0.6701 single, 0.6715 soft-vote) |
-| [`dae-tabular.md`](dae-tabular.md) | Swap-noise denoising-autoencoder representations | ml / insurance | validated — Study 01 (archived at tag v1.0.0) | study 01 (DAE→LGBM 0.6683 < MLP 0.6706 ≈ GBDT 0.6701; imputer 3.4×; anomaly no) |
-| [`quantile-least-squares.md`](quantile-least-squares.md) | Robust quantile least squares for loss severity | insurance | validated — Study 02 (archived at tag v1.0.0) | study 02 (QLS-OLS 1.083× MLE; MLE 352% vs QLS 50% @ ε=10; window ≫ trim; $2M cap bounds GPD tail to +0.17%; the cancellation caveat) |
+| Card | Method | Domain | Profile | Status | Anchored in |
+|---|---|---|---|---|---|
+| [`glm-pricing.md`](glm-pricing.md) | GLM / logistic regression for insurance risk | insurance | insurance | seed | campaign Phase 1 (LR 0.6255 → 0.6528) |
+| [`gbdt-tabular.md`](gbdt-tabular.md) | GBDT three-family landscape (LGBM / XGB / CatBoost) | ml | generic, insurance | seed | campaign Phase 3 (0.6701 single, 0.6715 soft-vote) |
+| [`dae-tabular.md`](dae-tabular.md) | Swap-noise denoising-autoencoder representations | ml / insurance | ml-research, insurance | validated — Study 01 (archived at tag v1.0.0) | study 01 (DAE→LGBM 0.6683 < MLP 0.6706 ≈ GBDT 0.6701; imputer 3.4×; anomaly no) |
+| [`quantile-least-squares.md`](quantile-least-squares.md) | Robust quantile least squares for loss severity | insurance | insurance | validated — Study 02 (archived at tag v1.0.0) | study 02 (QLS-OLS 1.083× MLE; MLE 352% vs QLS 50% @ ε=10; window ≫ trim; $2M cap bounds GPD tail to +0.17%; the cancellation caveat) |
 
 Studies **01** and **02** have each promoted their card at the SYNTHESIZE stage
 (`dae-tabular.md`, `quantile-least-squares.md`) — both promised cards are now delivered and
@@ -35,9 +35,10 @@ knows.
 - **Five-part arc, in order:** ① practitioner intuition → ② math core → ③ minimal
   from-scratch implementation sketch → ④ when-it-pays / when-it-doesn't → ⑤ verified
   references. 80–150 lines.
-- **Frontmatter:** `type: method-card`, `domain`, `status` (`seed` | `planned` |
-  `active`), `concepts` (5–10 kebab-case), `related` (sibling cards + relevant
-  `knowledge/` docs).
+- **Frontmatter:** `type: method-card`, `domain`, `profile` (which
+  `references/profiles/` audiences the card serves), `status` (the vocabulary of
+  `knowledge/README.md`), `concepts` (5–10 kebab-case), `related` (sibling cards +
+  relevant `knowledge/` docs).
 - **Accuracy rule:** every number or claim comes from a cited source — a `knowledge/`
   doc, a study's `results.tsv`, or a verified paper. Never invent or "improve" a finding;
   mark any needed-but-absent fact `[TODO: verify]`.
