@@ -715,8 +715,13 @@ def _run_verify(
     command, artifact_key = _verifier_spec(track_spec, track)
     artifact_rel, artifact_path = _pinned_artifact(study_dir, manifest, artifact_key, run_id)
     baseline, baseline_source = _verified_baseline(manifest)
-    repo_probe = repo_root_for(study_dir)
-    environment, environment_details = environment_fingerprint(repo_probe)
+    # A verification needs no worktree, so it needs no repository either: fall
+    # back to the study directory when the study is not (yet) inside one.
+    try:
+        root = repo_root_for(study_dir)
+    except WorkflowError:
+        root = study_dir
+    environment, environment_details = environment_fingerprint(root)
     started_at = utc_now()
     process = run_logged(
         command,
