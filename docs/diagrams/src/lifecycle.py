@@ -1,13 +1,13 @@
-"""Canonical diagram: the six-stage study lifecycle, as a vertical checkpoint flow.
+"""Canonical diagram: the seven-stage study lifecycle, as a vertical checkpoint flow.
 
 Regenerate whenever the lifecycle or a stage description changes.
 
 CONSULT (Gate 0) -> DATA (Gate 1) -> METHOD (Gate 2) -> EXPERIMENT/SWEEP ->
-SYNTHESIZE -> TUTORIAL
+SYNTHESIZE -> REFEREE (Gate 3) -> TUTORIAL
 
-Gate stages (1-3) get a hazard-stripe top band + numbered badge to read as a
-pre-flight checkpoint you must clear. The last two stages are bracketed with a
-callout: "these two make it research, not just experiment-running."
+Gate stages get a hazard-stripe top band + numbered badge to read as a
+checkpoint you must clear. The last three stages are bracketed with a
+callout: "these three make it research, not just experiment-running."
 
 Usage: uv run --no-sync python docs/diagrams/src/lifecycle.py en <out.png>
 """
@@ -40,16 +40,18 @@ CARDS_EN = [
     dict(kind="gate", num="2", title="METHOD", sub="Gate 2",
          body="Forces understanding before compute: intuition ->\nmath core -> minimal from-scratch implementation."),
     dict(kind="loop", num=None, title="EXPERIMENT / SWEEP", sub=None,
-         body="Edit train.py with one falsifiable idea -> klein run-one:\ncommit candidate, bounded run, honest keep/discard/crash."),
+         body="Edit the entrypoint with one falsifiable idea -> klein run-one:\ncommit candidate, bounded run, honest keep / discard / measured / crash."),
     dict(kind="funnel", num=None, title="SYNTHESIZE", sub=None,
-         body="Mines the full trajectory - results.tsv, aux_metrics.tsv,\nprogram.md - into findings.md, evidence-cited."),
+         body="Mines the full trajectory - manifests, predictions ledger,\nprogram.md - into findings.md + claims.lock, evidence-cited."),
+    dict(kind="gate", num="3", title="REFEREE", sub="Gate 3",
+         body="A fresh context on a different model: mechanical verifiers,\na fixed ten-check rubric, a verdict finalize cannot skip."),
     dict(kind="book", num=None, title="TUTORIAL", sub=None,
          body="Closes the loop with a teaching artifact:\nreport/index.html, opens from file://."),
 ]
 
-TITLE_EN = "The Klein study lifecycle — six stages, three checkpoints"
-CAPTION_EN = "These last two stages are what make it research — not just experiment-running."
-FOOT_EN = "CONSULT -> DATA -> METHOD are pre-flight checkpoints. Modeling is blocked until DATA says go and METHOD exists."
+TITLE_EN = "The Klein study lifecycle — seven stages, four checkpoints"
+CAPTION_EN = "These last three stages are what make it research — not just experiment-running."
+FOOT_EN = "CONSULT -> DATA -> METHOD are pre-flight checkpoints; REFEREE is the post-flight one. Modeling is blocked until DATA says go and METHOD exists; finalize waits for the referee."
 
 def draw_gate_badge(ax, cx, cy, r, num):
     ax.add_patch(Circle((cx, cy), r, facecolor=BLUE, edgecolor=SURFACE, linewidth=2.5, zorder=5))
@@ -157,9 +159,9 @@ def build(lang: str, out_path: str):
         centers.append((x0, y0, card_w, card_h))
         cursor_top = y0 - gap
 
-    # Highlight bracket behind cards 5 & 6 (index 4, 5)
+    # Highlight bracket behind cards 5, 6 & 7 (index 4 .. 6)
     bx0, by0, bw, bh4 = centers[4]
-    _, by1, _, bh5 = centers[5]
+    _, by1, _, bh5 = centers[6]
     bracket_pad = 3.2
     bracket_x0 = bx0 - bracket_pad
     bracket_y0 = by1 - bracket_pad

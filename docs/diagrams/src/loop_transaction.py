@@ -52,10 +52,10 @@ LAYER_NOTARY = ("run-one, the notary", BLUE)
 LAYER_RECEIPTS = ("receipts", VIOLET)
 
 STEPS = [
-    dict(n="1", title="EDIT train.py — one falsifiable idea", kind="body",
+    dict(n="1", title="EDIT the mutable surface — one falsifiable idea", kind="body",
          layer=LAYER_YOURS,
-         body=["The one mutable file in the whole study.",
-               "Keep the diff thin — 5 to 15 lines."]),
+         body=["Only the files entrypoint.mutable names (train.py by default).",
+               "One idea per candidate; the verifier is never among them."]),
     dict(n="2", title="COMMIT the candidate — BEFORE it runs", kind="callout",
          layer=LAYER_NOTARY,
          body=["Even a future discard or crash stays resolvable."],
@@ -69,7 +69,8 @@ STEPS = [
          body=["Judged only by the contract YOU declared:",
                "metric, direction, minimum_delta, guardrails."],
          chips=[("keep", "a frontier improvement ≥ minimum_delta"),
-                ("discard", "an honest no — train.py restored, commit kept"),
+                ("discard", "an honest no — surface restored, commit kept"),
+                ("measured", "a registered cell — its pinned table is the evidence"),
                 ("crash", "NA metric, logged loud — never silently retried")]),
     dict(n="5", title="RECEIPTS filed", kind="callout",
          layer=LAYER_RECEIPTS,
@@ -125,7 +126,7 @@ def build(out_path: str):
         centers.append((margin_x, y0, card_w, h))
         cursor_top = y0 - gap
 
-    chip_colors = {"keep": GOOD, "discard": SERIOUS, "crash": CRITICAL}
+    chip_colors = {"keep": GOOD, "discard": SERIOUS, "measured": BLUE, "crash": CRITICAL}
 
     for step, (x0, y0, w, h) in zip(steps, centers, strict=True):
         ax.add_patch(FancyBboxPatch((x0, y0), w, h, boxstyle="round,pad=0,rounding_size=2.2",
