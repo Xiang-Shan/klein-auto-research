@@ -1234,7 +1234,8 @@ def save_holdout_predictions(
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{exp_id}_holdout.csv.gz"
     pd.DataFrame(columns).to_csv(path, index=False, compression="gzip")
-    print(f"predictions: wrote {Path('predictions') / path.name} ({y.size:,} rows)")
+    # the ledger-facing form of the path is POSIX on every platform (never os.sep)
+    print(f"predictions: wrote {(Path('predictions') / path.name).as_posix()} ({y.size:,} rows)")
     return path
 
 

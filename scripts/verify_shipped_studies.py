@@ -44,7 +44,7 @@ SUMMARY_RE = re.compile(r"summary:\s*(\d+)\s*checks,\s*(\d+)\s*failed")
 
 # Per-study ceiling for one `klein verify` subprocess. Observed runs take a
 # few seconds; this is a generous guard against a hang, not a tuned budget.
-VERIFY_TIMEOUT_SECONDS = 300
+VERIFY_TIMEOUT_SECONDS = 900  # study 12's figure re-render alone passes 300 s on a CI runner
 
 
 def discover_studies() -> list[Path]:

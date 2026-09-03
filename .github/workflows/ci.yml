@@ -216,9 +216,10 @@ jobs:
   exhibits:
     name: schema-3 exhibits verify from a clean checkout
     runs-on: ubuntu-latest
-    # Budgeted under four minutes of work: a sync, one doctor report, the shipped
-    # schema-2 sweep, and a short verify per exhibit.
-    timeout-minutes: 6
+    # A sync, one doctor report, the shipped sweep, then per exhibit: prepare, verify
+    # with the figure re-render (study 12's takes minutes on a two-vCPU runner), the
+    # claims law, and one replicate / one --verify-only.
+    timeout-minutes: 25
     env:
       # The exhibits must resolve their evidence from the repository alone — no
       # data hub on the box, no network — which is the promise a stranger cloning
@@ -449,7 +450,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          uv run --no-sync pytest kleinlib/tests scripts/tests -x -q
+          uv run --no-sync pytest kleinlib/tests scripts/tests -q
           uv run --no-sync klein --help
 
   package:

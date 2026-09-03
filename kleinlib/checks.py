@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import platform
 import re
 import subprocess
@@ -1419,8 +1420,21 @@ def _numbers_checks(
 # The figures re-render byte-identically (referee rubric item 9)
 # --------------------------------------------------------------------------
 
-#: How long one figure re-render may take before verify gives up on it.
-FIGURE_RENDER_TIMEOUT = 300
+#: How long one figure re-render may take before verify gives up on it. The
+#: default fits the slowest shipped exhibit on a two-vCPU CI runner with room to
+#: spare (study 12 needed more than 300 s there); ``KLEIN_FIGURE_RENDER_TIMEOUT``
+#: overrides it for a heavier study or a slower machine.
+FIGURE_RENDER_TIMEOUT = 900
+
+
+def _figure_render_timeout() -> float:
+    raw = os.environ.get("KLEIN_FIGURE_RENDER_TIMEOUT")
+    if raw:
+        try:
+            return max(1.0, float(raw))
+        except ValueError:
+            pass
+    return float(FIGURE_RENDER_TIMEOUT)
 
 
 def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
@@ -1462,7 +1476,7 @@ def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
                 ],
                 capture_output=True,
                 text=True,
-                timeout=FIGURE_RENDER_TIMEOUT,
+                timeout=_figure_render_timeout(),
                 check=False,
                 cwd=str(repo_root_for(study_dir)) if _in_repo(study_dir) else str(study_dir),
             )
