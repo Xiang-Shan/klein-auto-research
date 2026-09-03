@@ -122,6 +122,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "coverage_dev",
         "floor_max",
         "floor_min",
         "floor_minimum_delta"
@@ -341,6 +342,13 @@
       "note": "coordinates the four-parameter fit needs (E0004)",
       "precision": 0,
       "value": 24
+    },
+    "coverage_dev": {
+      "art": "covb",
+      "claim": "C12",
+      "note": "coverage of the percentile interval on development seed block B (E0009)",
+      "precision": 6,
+      "value": 0.911
     },
     "coverage_sealed": {
       "art": "covc",
