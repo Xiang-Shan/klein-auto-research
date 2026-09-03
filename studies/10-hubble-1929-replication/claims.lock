@@ -273,17 +273,21 @@
       "strength": "confirmed"
     },
     "C6": {
-      "claim": "reproduction | confirmed | empirical-description | E0001, rep:E0001@20260903T063009Z, art:anchors | The identity anchor holds exactly: Table 1's published sums reproduce with a maximum absolute deviation of 0.000000, and the two tables carry 24 and 22 rows |",
-      "class": null,
+      "claim": "The identity anchor holds exactly: Table 1's published sums reproduce with a maximum absolute deviation of 0.000000, and the two tables carry 24 and 22 rows",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "rep:E0001@20260903T063009Z",
+        "art:anchors"
+      ],
       "numbers": [
         "anchor_max_deviation",
         "n_table1",
         "n_table2",
         "table_one"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C7": {
       "claim": "reproduction | confirmed | empirical-description | E0003, rep:E0003@20260903T063853Z, art:mags | Table 1's printed absolute magnitudes do NOT reproduce to half the paper's own printed precision: the maximum deviation is 0.071213 against a registered 0.06, with 3 of the 24 objects outside |",
