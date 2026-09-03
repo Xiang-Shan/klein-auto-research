@@ -1,0 +1,5 @@
+partition	rows	rows_with_train_twin	share_with_train_twin	positives	positive_rows_with_train_twin
+development	5859	300	0.051203	375	3
+final_test	5860	312	0.053242	375	6
+v1_validation	11719	612	0.052223	750	9
+whole_table(rows_in_a_duplicate_group)	58592	3603	0.061493	3748	NA

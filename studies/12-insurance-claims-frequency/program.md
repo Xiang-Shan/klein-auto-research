@@ -167,3 +167,114 @@ commit.
   build failed (study 00 lost two replicate attempts that way). What the seal confirms is
   the incumbent's LEVEL; every gap here stays exploratory by construction and the plan
   says so before the first run.
+- 2026-09-03 — Disclosure: `KLEIN_SMOKE=1 python train.py` was run on the E0001
+  candidate as the one sanctioned off-loop syntax/shape check, at 07:59Z — AFTER the
+  consult gate was recorded at 07:57:41Z, not before it. It printed the canonical block
+  cleanly (`primary_metric` 0.614140, `anchor_gap` −0.011322 against the v1 anchor) and
+  wrote no sidecar, no snapshot, no manifest and no ledger row. It is disclosed here
+  rather than left silent, and it is NOT a scouting-ledger entry, because the ledger
+  records what was seen BEFORE the contract existed: every rule that this number could
+  possibly bear on — P1's target 0.625462 and its tolerance 0.0225 — was already frozen
+  in the `study.yaml` the consult gate hashed to
+  `49a59d02fe9a0157a6b195a4347b6fa86fce82ddeded81f2fca0c6193a86bba4`. With
+  `minimum_delta` still 0 no floor existed either, so `delta_in_floors` was not printed
+  and no floor-relative rule could have been read off it.
+- 2026-09-03 — Decision: the rung DEFINITIONS live in `lib/rungs.py`, stable study
+  library code, and `train.py` keeps only the four per-experiment constants. The loop
+  contract puts a study's `lib/` beside `kleinlib/` and `prepare.py` — it changes
+  rarely, deliberately, and never inside a per-experiment diff. The reason it matters
+  here: `sweeps/noise_floor.py` must fit the SAME models the ledger runs. Re-typing them
+  in the floor script (study 00's choice) would let the floor describe a model this
+  study never fitted; importing them from the mutable surface would let a
+  per-experiment edit silently change what the floor was measured on. A stable library
+  module has neither failure, and the per-experiment diff is now four lines.
+- 2026-09-03 — Decision, recorded BEFORE the Phase 0 measurement: **the paired floor is
+  measured on the pair (`glm_ohe_balanced`, `hgbt_balanced`)**. Three reasons, none of
+  them the size of the answer, which is not yet known: (i) they are the two most
+  dissimilar scorers in the ladder, so their paired difference has the widest sampling
+  spread of any pair this study compares — the bar it yields is conservative for every
+  other comparison, and a conservative bar cannot manufacture a keep; (ii) both are v1
+  rungs, so the floor is measured on configurations the source study committed;
+  (iii) neither is an isotonic rung, so the calibration lever RQ4 asks about is not
+  touched at Phase 0 and E0004's numbers stay unseen until E0004 runs.
+- 2026-09-03 — Decision, also recorded BEFORE the measurement: **k = 20 replicates for
+  the contract's floor block, with a 1000-replicate run beside it in its own sidecar.**
+  The schema-3 bar is `max(2*std, range/2)`, and `range` is an order statistic: its
+  expectation grows with the replicate count (≈3.7 sigma at k = 20, ≈6.5 sigma at
+  k = 1000). At k = 1000 the rule would therefore return ≈3.2 sigma and inflate the bar
+  by about 60 % for a reason that is an artefact of counting, not a property of the
+  measurement; at k = 20, `2*std` binds and the bar is the conventional two-standard-
+  error bar for a paired comparison. The 1000-replicate run is executed anyway so the
+  k = 20 spread can be checked against a precise estimate of the same quantity, and this
+  study pre-commits here: **if any registered verdict would flip between the k = 20 bar
+  and the k = 1000 bar, findings §③ must say so explicitly** rather than quoting only
+  the bar that was declared.
+- 2026-09-03 — Disclosure, recorded before Phase 0 runs: measuring a paired floor
+  requires fitting both rungs of the pair, so this study will know the development AUCs
+  of `glm_ohe_balanced` and `hgbt_balanced` before E0001 and E0003 file them as
+  evidence. That is what Phase 0 metrology is (study 00 fitted its anchor the same way),
+  and it changes nothing that is still open: every prediction's rule, target and
+  tolerance was frozen in the `study.yaml` the consult gate hashed, the four rungs and
+  their order were fixed in the hashed `research_plan.md`, and the dispositions are
+  arithmetic the notary performs. What this study's loop demonstrates is a REGISTERED
+  ladder, not an adaptive search, and the plan said so before the first fit.
+
+## The DATA gate: a FAIL, and what was done about it
+
+- 2026-09-03 — The clean-room auditor (a `klein-data-auditor` subagent on sonnet,
+  fresh context, reading only `study.yaml`, `prepare.py`, `fixtures/README.md` and the
+  prepared artifact) returned **NO-GO**. Row 3 of the mechanized four-row audit fails:
+
+  ```
+  [FAIL] duplicate-rows: 615 duplicated row-content hash(es) straddle partitions
+         (train/development=297, train/test=310, development/test=32)
+  ```
+
+  Rows 1, 2 and 4 pass; the negative control fires correctly (constant predictor
+  val_auc 0.5000, label-shuffled 0.5114). The card ranks 1 BLOCKER, 3 WARN and 4 NOTE.
+- 2026-09-03 — Decision: **the DATA gate is OVERRIDDEN, not fixed, and the size of the
+  accepted risk is measured on every run from here on.** The reasoning, in full,
+  because this is the study's most consequential judgment call:
+
+  1. **What the check found is real and is not this study's doing.** 300 of 5,859
+     development rows (5.12 %) and 312 of 5,860 sealed rows (5.32 %) are byte-identical
+     — all 45 columns, target included — to a row in the 46,873-row training partition.
+     `tables/duplicate_exposure.tsv` measures it, and measures the same thing for the
+     partition the v1 study used: **612 of its 11,719 validation rows, 5.22 %, carried a
+     training twin.** The v1 quickstart never ran this check, and neither did the
+     215-experiment ancestor campaign. Every anchor this study is chasing was measured
+     on a contaminated holdout.
+  2. **A reseed cannot fix it and a real fix would delete the question.** The cause is
+     the coarse feature space (22 region codes, 11 models, 17 binary flags), so
+     duplicate content recurs at 6.1 % table-wide. The two structural fixes — dedupe in
+     `prepare.py`, or a `kind: group` split keyed on the row-content hash — both change
+     which rows are trained on, which destroys the one identity this port is built on
+     (the contract's train partition IS v1's) and makes P1, P2 and P4 compare this
+     study's numbers against v1 values measured on other rows. It would also not repair
+     v1's number, which is the thing being reproduced.
+  3. **What the check calls contamination is, for a rating model, the normal condition
+     of the data.** The modelling unit of a rate is a rating CELL, not a policy: two
+     distinct policies with identical rating characteristics are supposed to receive the
+     same price, and their appearing on both sides of a split is not the leak of one
+     individual's outcome. The only identifier of an individual policy, `policy_id`, is
+     dropped in `prepare.py` and crosses nothing. What row 3 is really reporting is that
+     the feature resolution is coarse enough that a holdout cannot fully separate
+     memorisation from cell-level prediction.
+  4. **So the risk is accepted with a number attached, not with an assurance.**
+     `train.py` now prints `twin_free_rows`, `twin_free_auc` and `twin_free_gap` on
+     EVERY run: the same model's AUC restricted to the evaluation rows that have no twin
+     among the rows it was fitted on. `primary_metric` stays the full-partition AUC,
+     because the registered anchors compare against v1 values computed the same
+     contaminated way and re-defining the measurement mid-study would make that
+     comparison meaningless. The gap between the two is reported for every rung in
+     findings, and every generalisation sentence in this study is scoped by it.
+  5. **The card is NOT edited.** `data_card.md` says NO-GO and keeps saying NO-GO; it is
+     the auditor's independent verdict, it is hashed into the gate record, and an
+     orchestrator who edits an auditor's verdict to unlock a gate has destroyed the
+     point of having an auditor. The disagreement lives where the protocol puts it: in
+     `klein gate override data --reason`, on the event trail, where the referee reads it.
+  6. **Consequence carried forward.** Every AUC in this study — and every AUC in the v1
+     ledger it is compared against — is a number measured on a partition with ~5 % of
+     its rows duplicated from training. Findings §③ carries this as a surprise and §⑤ as
+     a scope limit; no claim in this study may be read as a clean generalisation
+     estimate, and the `twin_free_auc` column is what a reader should use instead.
