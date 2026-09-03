@@ -120,6 +120,13 @@
       "precision": 0,
       "value": 22
     },
+    "budget_small": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the smallest rung of the registered evaluation-budget ladder, in addability tests",
+      "precision": 0,
+      "value": 20000
+    },
     "grid_large": {
       "art": "aux",
       "claim": "contract",
