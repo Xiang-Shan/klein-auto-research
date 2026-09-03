@@ -21,7 +21,7 @@
     "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
   },
   "created_at": "2026-09-03T07:43:46.996540Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "primary": {
       "accessed_at": null,
@@ -80,7 +80,14 @@
       "reason": "data_card.md is NO-GO on one mechanized leakage row: 615 row-content hashes straddle the partitions (5.12% of development rows, 5.32% of sealed rows have a byte-identical training twin). Accepted, not fixed, for three reasons on the record in program.md: (1) the cause is the dataset's coarse rating structure, not this study's preparation - 6.1% of the whole table sits in a duplicate-content group, and tables/duplicate_exposure.tsv shows the v1 study this port reproduces carried the same 5.22% in its own validation partition, unmeasured; (2) both available fixes (dedupe in prepare.py, or a content-hash group split) change which rows are trained on, which destroys the train-partition identity with v1 that predictions P1, P2 and P4 are registered against, and repairs nothing about the v1 number being reproduced; (3) policy_id, the only identifier of an individual policy, is dropped and crosses nothing - what the check reports is feature resolution, and for a rating model the modelling unit is the cell, not the policy. The risk is carried with a number attached: train.py prints twin_free_rows, twin_free_auc and twin_free_gap on every run, so every rung reports its AUC on the evaluation rows with no training twin, and findings scope every generalisation sentence by that gap. data_card.md is left saying NO-GO - the auditor's verdict is not edited to unlock a gate."
     }
   ],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T08:37:46.287114Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "45b423b0d948024bb847cdf62850e9e107de123c229627671cdb78f034bb6575"
+    }
+  },
   "predictions": {
     "P1": {
       "evidence": [
@@ -248,5 +255,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:36:35.109989Z"
+  "updated_at": "2026-09-03T08:37:46.287378Z"
 }
