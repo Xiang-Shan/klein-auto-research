@@ -1,0 +1,27 @@
+split_fingerprint: 7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3
+sealed_dryrun: 1
+---
+primary_metric:    0.664051
+metric_name:       val_auc
+metric_goal:       higher
+training_seconds:  1.3
+total_seconds:     1.5
+train_rows:        46873
+val_rows:          5859
+status:            ok
+--- aux_metrics ---
+val_pr_auc:        0.111610
+val_logloss:       0.633969
+val_brier:         0.223529
+val_lift_top10:    2.2167
+val_best_threshold: 0.5800
+val_f1_at_best:    0.1866
+wall_seconds:      1.457151
+rung: hgbt_balanced
+twin_free_rows: 5559
+twin_free_auc: 0.665069
+twin_free_gap: 0.001018
+dev_incumbent: 0.664051
+sealed_shift_in_floors: 0.0000
+runner_status: ok
+runner_exit_code: 0
