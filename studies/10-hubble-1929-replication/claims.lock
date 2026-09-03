@@ -167,7 +167,8 @@
       "evidence": [],
       "numbers": [
         "coords_available",
-        "coords_required"
+        "coords_required",
+        "groups_reconstructed"
       ],
       "strength": "exploratory"
     },
@@ -255,6 +256,13 @@
       "note": "the nearer fit's distance from 465 (E0002)",
       "precision": 6,
       "value": 10.841559
+    },
+    "groups_reconstructed": {
+      "art": "groups",
+      "claim": "C2",
+      "note": "of Hubble's nine groups reconstructible from the paper (E0005)",
+      "precision": 0,
+      "value": 0
     },
     "hubble_k_24": {
       "art": "fits",
