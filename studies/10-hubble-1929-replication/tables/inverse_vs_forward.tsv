@@ -1,0 +1,4 @@
+quantity	value	bootstrap_mean	bootstrap_se	ci_low	ci_high
+forward_v_on_r	454.158441	455.727573	72.933862	316.648582	603.704762
+inverse_r_on_v_inverted	728.366015	738.367070	115.736422	558.930637	1003.887093
+paired_difference_inverse_minus_forward	274.207574	282.639496	115.484712	113.853724	564.812509
