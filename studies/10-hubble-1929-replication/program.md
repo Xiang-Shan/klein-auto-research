@@ -175,3 +175,44 @@ master seeds, recorded as `fit_noise` on the estimate track — provenance, neve
 bar) and `coverage_floor` (five simulation seed blocks, none of them A, B or C,
 giving the `simulate` track's measured `minimum_delta`). Both are registered with
 `klein sweep register` so findings can cite them as `sweep:<name>`.
+
+
+### Phase adaptive-2 slate
+
+Playbook re-read. Phase adaptive-1 established that the bytes are Hubble's
+(E0001, 4/4 anchors, max deviation 3.55e-15), so a number computed from them is
+now a number about the 1929 paper. This phase spends its cells on the
+`reproduction` track: one published target per cell, each with a tolerance
+registered before the run.
+
+| # | Candidate (one cell, one transaction) | Nov | Test | Info | Σ |
+|---|---|---|---|---|---|
+| 1 | **Two-parameter fits** of Table 1 (through the origin, and free-intercept) against K = 465 ± 10; pin the fit table; adjudicates **P1**. | 3 | 3 | 3 | 9 |
+| 2 | **Reproduce Table 1's printed `M_t`** from its own `m_t` and `r_mpc` via M = m − 5log₁₀r − 25, 24 objects, tol 0.06 mag; adjudicates **P9**. Also the de-risking rehearsal of the sealed cell's machinery. | 3 | 3 | 3 | 9 |
+| 3 | **Four-parameter solar-motion refit** (K, X, Y, Z) against 465 ± 50; adjudicates **P2**, with `inconclusive_if coords_available < 24`. | 3 | 3 | 3 | 9 |
+| 4 | **Nine-group solution** against 513 ± 60; adjudicates **P3**, with `inconclusive_if groups_reconstructed < 9`. | 3 | 3 | 3 | 9 |
+| 5 | Reproduce Hubble's quoted probable error ±50 from Table 1's own scatter. | 2 | 3 | 2 | 7 |
+| 6 | Quantify the four Virgo-cluster rows' shared distance (issue 6 on the data card). | 2 | 3 | 2 | 7 |
+
+**Chosen: all four of #1–#4, in that order**, which is what the phase's
+`max_experiments: 6` is for — this is a registered measurement PROGRAM, not a
+search, so the cells do not compete and running one does not tell me whether to
+run the next. The order is chosen so the two cells that can still surprise the
+machinery (#1, #2) run before the two that are expected to document a gap
+(#3, #4): if the distance modulus does not reproduce Table 1's printed
+magnitudes, the sealed cell's registration is in trouble and I want to know that
+early, while the seal is still unspent.
+
+#5 and #6 are not cells of the reproduction track — neither aims at a target
+registered in `study.yaml` — so they move to the playbook as candidates for the
+estimate phase, where the jackknife cell subsumes #6.
+
+**Pre-scripted, before #3 and #4 run.** Both are expected to end
+`inconclusive` by their `inconclusive_if`, and that outcome must not be dressed
+up afterwards. What each cell will do: enumerate the inputs the paper's own
+method needs, record for each whether it is present in the bundled tables, in
+the article text (`references.yaml:hubble1929`, read at the METHOD gate), or
+nowhere; pin that enumeration as the cell's table; print the availability count
+the `inconclusive_if` reads; and count the target as NOT reproduced in
+`targets_outside_tolerance`, so declining to try can never lower the metric.
+Under no circumstance does a cell invent coordinates or a grouping.
