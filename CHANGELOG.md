@@ -130,6 +130,12 @@ re-open a closed study, start a new one and cite the old one's claims.
   block names its estimand, `fit_noise` is recorded under its own key so a seed-only
   spread can never become a keep bar, and a declared guardrail key that no evaluator
   prints is flagged at preflight.
+- **`klein replicate` prepares the worktree before the clock starts**: a `uv run …`
+  command gets a recorded `uv sync --locked [--extra …]` step on its own budget
+  (`KLEIN_REPLICATE_SETUP_SECONDS`, default 1800 s) instead of building the project
+  inside `max_run_seconds`, and the prepared DIRECTORY is copied in — not only
+  `data.prepared_path` — so an entrypoint that reads a sibling `prepare.py` wrote
+  still runs. Both were found by exhibit study 00.
 - `knowledge/` is reorganised into `knowledge/research-discipline.md` (the ten process
   lessons of studies 07–09, each with a typed claim citation) and
   `knowledge/domains/<profile>/`.

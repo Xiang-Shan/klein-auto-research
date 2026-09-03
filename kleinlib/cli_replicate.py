@@ -41,6 +41,15 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
             "(verify:E####@<ts> for --verify-only). "
             "See .claude/skills/klein/references/replication-protocol.md."
         ),
+        epilog=(
+            "The worktree is prepared before the clock starts: the prepared DIRECTORY is "
+            "copied in (prepare.py writes more than data.prepared_path), and a manifest "
+            "command starting with `uv run` gets its own `uv sync --locked [--extra ...]` "
+            "step at the worktree root. That setup is NOT charged to --timeout-seconds or "
+            "to the manifest's max_run_seconds; its budget is "
+            "KLEIN_REPLICATE_SETUP_SECONDS (default 1800s), and it is recorded on the "
+            "record as setup_command / setup_extras / setup_seconds / setup_exit_code."
+        ),
     )
     parser.add_argument(
         "experiment",
@@ -68,7 +77,8 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     parser.add_argument(
         "--timeout-seconds",
         type=float,
-        help="override the per-run timeout (default: the manifest's max_run_seconds)",
+        help="override the per-run timeout (default: the manifest's max_run_seconds); "
+        "the environment-setup step has its own budget and is never charged to this",
     )
     parser.add_argument(
         "--quiet", action="store_true", help="do not echo the child's output"
