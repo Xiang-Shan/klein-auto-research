@@ -75,7 +75,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "residual_margin"
+      ],
       "strength": "exploratory"
     },
     "C3": {
@@ -169,6 +171,13 @@
       "note": "the registered within-tolerance of P1, P2 and P4",
       "precision": 4,
       "value": 0.0225
+    },
+    "residual_margin": {
+      "art": "derived",
+      "claim": "C2",
+      "note": "anchor_residual_margin",
+      "precision": 6,
+      "value": 0.000458
     }
   },
   "study_id": "12-insurance-claims-frequency"
