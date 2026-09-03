@@ -195,7 +195,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "coverage_sealed"
+      ],
       "strength": "exploratory"
     },
     "C5": {
@@ -287,6 +289,13 @@
       "note": "coordinates the four-parameter fit needs (E0004)",
       "precision": 0,
       "value": 24
+    },
+    "coverage_sealed": {
+      "art": "covc",
+      "claim": "C4",
+      "note": "coverage of the percentile interval on sealed seed block C (E0013)",
+      "precision": 6,
+      "value": 0.925
     },
     "gap_465_nearest": {
       "art": "fits",
