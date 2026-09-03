@@ -168,18 +168,31 @@
       "strength": "confirmed"
     },
     "C5": {
-      "claim": "\u2014 | primary | held | confirmed | procedural-verdict | E0001, E0008, `sweep:harness_controls` | The checker decided every disposition and the searcher never graded itself; the matched-compute guardrails held at 2000 steps and 128 evaluation context on all eight runs; and the four eval-harness controls behaved as a correct harness must, including the copy-the-input negative control at 4.750043 nats \u2014 worse than the chance level of 4.174388, where an off-by-one target alignment would have scored 0.693147. |",
-      "class": null,
+      "claim": "The checker decided every disposition, the matched-compute guardrails held at 2000 steps and an evaluation context of 128 on every run, and the four harness controls behaved as a correct harness must: chance 4.174388, an untrained network 4.305432, a unigram 3.306991 and copy-the-input 4.750043 nats, where an off-by-one target alignment would have scored 0.693147.",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0008",
+        "sweep:harness_controls"
+      ],
       "numbers": [
         "control_copy",
         "control_repeat",
         "control_uniform",
         "control_unigram",
-        "control_untrained"
+        "control_untrained",
+        "eval_context",
+        "off_by_one_loss",
+        "steps_budget"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C6": {
       "claim": "RQ1 | primary | interpretation | exploratory | mechanism-interpretation | E0003, `art:frontier` | Weight tying fails here because one matrix is asked to do two jobs at a scale where it has no slack: it removes 8320 parameters, 1.009317 per cent of the model, and the two roles want very different norms with no logit scale to reconcile them. The parameter COUNT was the wrong quantity to reason about. |",
