@@ -150,7 +150,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "v1_sweep_lift"
+      ],
       "strength": "exploratory"
     },
     "C9": {
@@ -311,6 +313,12 @@
       "claim": "C3",
       "precision": 6,
       "value": 0.03886
+    },
+    "v1_sweep_lift": {
+      "art": "derived",
+      "claim": "C8",
+      "precision": 6,
+      "value": 0.001425
     }
   },
   "study_id": "12-insurance-claims-frequency"
