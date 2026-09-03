@@ -107,8 +107,8 @@ RECIPES = {
 }
 
 # --- the candidate: the whole per-experiment diff surface -------------------
-CANDIDATE = "hgbt_overcapacity"   # E0004: 5x the trees, 127 leaves, no shrinkage discipline
-REFERENCE = "hgbt_default"        # its own family at default capacity
+CANDIDATE = "hgbt_default"        # E0003: a boosted tree, told none of the true terms
+REFERENCE = "logreg_interaction"  # the hand-specified rung it claims to beat
 
 
 def fit_recipe(name: str, X_fit: pd.DataFrame, y_fit: pd.Series):
