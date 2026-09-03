@@ -203,7 +203,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "rescale_factor"
+      ],
       "strength": "exploratory"
     },
     "C6": {
@@ -357,6 +359,13 @@
       "note": "the coverage bar registered for P6",
       "precision": 2,
       "value": 0.9
+    },
+    "rescale_factor": {
+      "art": "sealed_modern",
+      "claim": "C5",
+      "note": "f = k_origin / 70, the single factor applied to every distance (E0012)",
+      "precision": 6,
+      "value": 6.056247
     }
   },
   "study_id": "10-hubble-1929-replication"
