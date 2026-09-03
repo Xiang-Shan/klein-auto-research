@@ -765,3 +765,44 @@ is answered first because it is the only one that touched a study artifact.
   banned token — the engine matches on `\bsignificant\b`, so "significance" is clean.
   Unlike N5, this one could be fixed at the source: `findings.md` is not a hashed gate
   artifact, so correcting it costs no re-record.
+
+## Open defect handed to the lead — `referee_report.md` fails the universality guard
+
+- **2026-09-03 — `scripts/tests/test_universality.py` now FAILS repo-wide, and I have
+  deliberately not fixed it.** The referee's round-2 report names the worktree it ran
+  the verifiers from:
+
+  > `referee_report.md:73` — "All from the worktree
+  > `/Users/…/Auto_research/klein-auto-research/.claude/worktrees/agent-…`"
+
+  which trips three of the guard's forbidden patterns (absolute home path, author
+  username, workspace directory name). The failure is real, is repo-wide, and was
+  introduced by committing the referee's report into the tree.
+
+  **Why I did not edit the file.** `referee_report.md` is hashed by the recorded
+  Gate-3 record (`study_state.json:gates.referee.artifacts.referee_report.md` =
+  `c87666aa78cd…`). Editing one character would break `klein verify`'s
+  `gate artifact hashes: match` and require re-recording a gate on a report whose
+  author is not me. A referee's report is the referee's testimony; the experimenter
+  editing it after the verdict is precisely the thing Gate 3 exists to prevent.
+
+  **Why I did not exempt it in the guard.** The guard's own docstring already carves
+  out FROZEN EVIDENCE — "ledgers legitimately embed author-machine paths captured at
+  execution time; rewriting them would break the append-only event chain" — and
+  excludes them *by extension* (`.json`/`.jsonl`/`.log`). `referee_report.md` is frozen
+  evidence by exactly that reasoning but is `.md`, so the extension rule misses it. An
+  exemption may well be the right fix, but widening a universality guard so that my own
+  study's file stops failing it is not a call I should make alone: the rule is never to
+  weaken a check to get past it.
+
+  **Three options for the lead, in my order of preference:**
+  1. Ask the referee to re-issue the report with a repo-relative path ("from the study
+     worktree"), then re-record Gate 3 — the verdict and content are unchanged, and the
+     provenance survives without a machine-local string.
+  2. Add `referee_report.md` to the guard's frozen-evidence carve-out, with the
+     docstring extended to say why a hash-recorded `.md` belongs there — a deliberate
+     scope change to the guard, made by its owner rather than by a study it flagged.
+  3. Accept the failure and record it, if referee reports are meant to carry the exact
+     worktree for audit.
+
+  Everything else in the suite passes: **1193 passed, 10 skipped**, `ruff` clean.
