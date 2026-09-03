@@ -127,6 +127,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "dev_twin_share",
         "straddling_hashes"
       ],
       "strength": "exploratory"
@@ -214,6 +215,12 @@
       "claim": "C5",
       "precision": 3,
       "value": 4.055
+    },
+    "dev_twin_share": {
+      "art": "duplicates",
+      "claim": "C6",
+      "precision": 6,
+      "value": 0.051203
     },
     "doctrine_auc_cost": {
       "art": "derived",
