@@ -62,7 +62,7 @@
       "n_large": "E0010",
       "n_small": "E0009"
     },
-    "timestamp": "2026-09-03T08:44:15.007730Z"
+    "timestamp": "2026-09-03T08:45:01.887953Z"
   },
   "fingerprints": {
     "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
@@ -480,5 +480,5 @@
   "schema_version": 3,
   "status": "finalized",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T08:44:15.007738Z"
+  "updated_at": "2026-09-03T08:45:01.887961Z"
 }
