@@ -360,7 +360,7 @@ all: **an interval nobody has checked is a decoration.**
 | # | Candidate (one cell, one transaction) | Nov | Test | Info | Σ |
 |---|---|---|---|---|---|
 | 1 | **Coverage of the percentile bootstrap** under the declared DGP at Table 1's own 24 design points, seed block B — the interval E0006 actually reports. | 3 | 3 | 3 | 9 |
-| 2 | **Coverage of the analytic (normal-theory) interval** on the same replicates — the comparison that says whether any under-coverage is the bootstrap's fault or the sample size's. | 3 | 3 | 3 | 9 |
+| 2 | **Coverage of the analytic (normal-theory) interval** on the same seed block — the comparison that says whether any under-coverage is the bootstrap's fault or the sample size's. | 3 | 3 | 3 | 9 |
 | 3 | Coverage as a function of σ, sweeping the scatter up and down. | 2 | 2 | 2 | 6 |
 | 4 | Coverage under a heavy-tailed error law instead of Gaussian. | 3 | 2 | 2 | 7 |
 | 5 | Recovery of the DGP's K at large n, as a sanity check on the estimator. | 1 | 3 | 1 | 5 |
@@ -386,3 +386,26 @@ foreseeable. That is the unavoidable cost of measuring the resolution of a
 quantity a prediction reads, it was disclosed when it happened, and findings §②
 carries it. The refutation branch — downgrade every interval in the findings to
 descriptive — stays live until block C is read.
+
+
+**Amendment to this slate, written after E0009 and BEFORE E0010 runs.** The
+slate first said candidate #2 would run "on the same replicates" as #1. It
+cannot, and pretending otherwise would have been a false claim about the
+comparison. `coverage_experiment` draws its synthetic datasets from one
+generator, and the bootstrap method consumes draws from it for resampling, so
+`method="bootstrap"` and `method="analytic"` at the same seed diverge after the
+first replicate. Two ways out were considered:
+
+1. split the generator in two (data, resampling) so both methods see identical
+   datasets — the common-random-numbers construction the method card praises for
+   the paired bootstrap. Correct, but it changes the numbers E0009 already
+   notarized, so it would mean a second bootstrap-coverage cell on block B and
+   two coverage numbers for one block in the ledger;
+2. run #2 independently on the same seed block and say so.
+
+**Chosen: 2.** The diagnosis this cell exists for — is the shortfall shared by
+both intervals, or specific to the bootstrap? — does not need paired replicates:
+each estimate carries a binomial Monte-Carlo error of about
+sqrt(0.92 x 0.08 / 1000) ≈ 0.0086, which is far smaller than any shortfall worth
+diagnosing. Option 1 is recorded in findings §⑦ as the sharper design for a
+study that needs to resolve a small difference between two interval methods.
