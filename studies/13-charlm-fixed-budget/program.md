@@ -281,3 +281,17 @@ Chosen first: **#1**, warmup — `xiong2020` says a Pre-LN stack should not need
 refutation confirms the doctrine cheaply and a support would say the constant 3e-3 is
 too aggressive early, which would change the anchor recipe for everything after.
 
+### Phase adaptive-2 log
+
+- 2026-09-03 — **E0002 (200-step linear warmup) — discard, val_loss 1.584747,
+  `delta_in_floors` = −1.0431. Decision: P2 is REFUTED and warmup is not carried
+  forward.** The registered rule was `delta_in_floors >= 1`; the run landed a full
+  floor on the WRONG side, so warmup did not merely fail to help at this budget — it
+  cost more than the measured floor. The pre-scripted branch said "refuted → warmup is
+  recorded as within-floor at this budget and not carried forward"; the observed
+  direction is stronger than that branch anticipated, so the record is corrected here:
+  warmup is recorded as a measured COST, not as within-floor. The anchor's constant
+  3e-3 schedule stands as the incumbent recipe for every later candidate. Reading:
+  `xiong2020` says a Pre-LN stack does not need warmup to be stable; this adds that
+  when the budget is 2000 steps, the ~200 steps spent below the target learning rate
+  are steps not spent learning, and the model does not get them back.
