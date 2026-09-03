@@ -26,6 +26,7 @@ __all__ = [
     "GATE_ARTIFACTS",
     "IDENTIFIER_RE",
     "KNOWN_KINDS",
+    "MODELING_GATES",
     "PLACEHOLDER_RE",
     "PREDICTION_ID_RE",
     "SCHEMA_VERSION",
@@ -125,11 +126,22 @@ ENTRYPOINT_BY_KIND: dict[str, str] = {
     "optimize": "search.py",
 }
 
+#: Every recordable gate and the artifact(s) it hashes.  ``referee`` is Gate 3
+#: (``references/referee-protocol.md``) and sits AFTER synthesize, so it is not
+#: one of the gates a run is blocked on — see :data:`MODELING_GATES`.
 GATE_ARTIFACTS: dict[str, tuple[str, ...]] = {
     "consult": ("study.yaml", "research_plan.md", "program.md"),
     "data": ("data_card.md",),
     "method": ("method_card.md",),
+    "referee": ("referee_report.md",),
 }
+
+#: The gates that must be recorded or overridden BEFORE any modeling: the
+#: hard-block rule of ``AGENTS.md``.  ``klein run-one``, ``preflight``/``verify``
+#: and ``initial_state`` all read this list, never :data:`GATE_ARTIFACTS` — a
+#: study cannot be refereed before it has run, and a schema-2 study never has a
+#: referee gate at all.
+MODELING_GATES: tuple[str, ...] = ("consult", "data", "method")
 
 
 def resolve_study(path: str | Path) -> Path:

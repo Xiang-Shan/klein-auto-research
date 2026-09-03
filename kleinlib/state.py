@@ -24,6 +24,7 @@ import yaml
 
 from .contract import (
     GATE_ARTIFACTS,
+    MODELING_GATES,
     PLACEHOLDER_RE,
     SUPPORTED_SCHEMA_VERSIONS,
     _phase_ids,
@@ -47,8 +48,12 @@ from .primitives import (
 from .transaction import commit_state_writes
 
 __all__ = [
+    "REFEREE_LINE_RE",
+    "VERDICT_LINE_RE",
     "acknowledge_headroom",
     "initial_state",
+    "referee_gate",
+    "referee_report_facts",
     "load_state",
     "reconcile_state",
     "record_gate",
@@ -70,9 +75,12 @@ def initial_state(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, Any
         "status": "active",
         "current_phase": phase_ids[0] if phase_ids else None,
         "phase_acknowledgements": {},
+        # Only the gates that block modeling start as `pending`; the referee
+        # gate (Gate 3) appears once it is recorded, so a state file's shape is
+        # exactly what it always was.
         "gates": {
             name: {"status": "pending", "acknowledged_at": None, "acknowledged_by": None}
-            for name in GATE_ARTIFACTS
+            for name in MODELING_GATES
         },
         "artifact_hashes": {},
         "acknowledgements": {},
@@ -259,6 +267,85 @@ def _freeze_split(study_dir: Path, contract: Mapping[str, Any], state: dict[str,
     state["fingerprints"]["split"] = frozen
 
 
+# ---------------------------------------------------------------------------
+# Gate 3 — the referee's two machine-read lines
+#
+# `assets/referee-report-template.md` opens with exactly:
+#
+#     Verdict: PASS | PASS-WITH-NOTES | FAIL
+#     Referee: <actor> (<tool / model>) · fresh context · independent-of-experimenter: yes|no
+#
+# Machine-read so that the three facts the protocol cares about — the verdict,
+# WHO reviewed, and which rung of the independence ladder was reached — land in
+# the gate record and the event chain rather than in prose nobody re-reads.
+# ---------------------------------------------------------------------------
+
+VERDICT_LINE_RE = re.compile(
+    r"^[ \t]*Verdict:[ \t]*(PASS-WITH-NOTES|PASS|FAIL)[ \t]*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+
+REFEREE_LINE_RE = re.compile(
+    r"^[ \t]*Referee:[ \t]*(?P<referee>.+?)[ \t]*·[ \t]*fresh context[ \t]*·[ \t]*"
+    r"independent-of-experimenter:[ \t]*(?P<independent>yes|no)[ \t]*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+
+_REFEREE_SHAPE = (
+    "Verdict: PASS | PASS-WITH-NOTES | FAIL\n"
+    "Referee: <actor> (<tool / model>) · fresh context · "
+    "independent-of-experimenter: yes|no"
+)
+
+
+def referee_report_facts(text: str) -> dict[str, Any]:
+    """The verdict, the referee and the independence flag, or a refusal.
+
+    A FAIL cannot be recorded: "a FAIL is never softened into a note"
+    (``references/referee-protocol.md``) — the study returns to SYNTHESIZE and
+    the report says what would clear it.
+    """
+    verdict_match = VERDICT_LINE_RE.search(text)
+    referee_match = REFEREE_LINE_RE.search(text)
+    missing = [
+        name
+        for name, match in (("Verdict:", verdict_match), ("Referee:", referee_match))
+        if match is None
+    ]
+    if missing:
+        raise WorkflowError(
+            "referee_report.md is missing its machine-read "
+            + " and ".join(missing)
+            + " line — copy assets/referee-report-template.md, whose first two "
+            "lines are exactly:\n" + _REFEREE_SHAPE
+        )
+    verdict = verdict_match.group(1).upper()
+    if verdict == "FAIL":
+        raise WorkflowError(
+            "the referee returned FAIL — a FAIL is never softened into a note: "
+            "the study returns to SYNTHESIZE, and the report's clearing "
+            "conditions say what would let the gate be recorded"
+        )
+    return {
+        "verdict": verdict,
+        "referee": referee_match.group("referee").strip(),
+        "independent_of_experimenter": referee_match.group("independent").lower() == "yes",
+    }
+
+
+def referee_gate(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
+    """The recorded referee gate, or None when the study is unrefereed."""
+    gates = state.get("gates")
+    entry = gates.get("referee") if isinstance(gates, Mapping) else None
+    if (
+        isinstance(entry, Mapping)
+        and entry.get("status") in {"recorded", "overridden"}
+        and entry.get("acknowledged_at")
+    ):
+        return entry
+    return None
+
+
 def record_gate(
     study_dir: Path,
     gate: str,
@@ -342,6 +429,15 @@ def record_gate(
             if PLACEHOLDER_RE.search(text):
                 raise WorkflowError(f"cannot {verb} {gate}: unresolved placeholder in {name}")
             artifact_hashes[name] = sha256_file(path)
+        referee_facts: dict[str, Any] = {}
+        if gate == "referee":
+            if schema_version(contract) < 3:
+                raise WorkflowError(
+                    "the referee gate is a schema-3 stage; this study is schema 2"
+                )
+            referee_facts = referee_report_facts(
+                (study_dir / "referee_report.md").read_text(encoding="utf-8")
+            )
         if gate == "method" and schema_version(contract) >= 3:
             state["fingerprints"]["verifier"] = verifier_script_hashes(study_dir, contract)
         if gate == "method" and override_reason is None:
@@ -387,6 +483,7 @@ def record_gate(
             "acknowledged_by": acknowledged_by,
             "note": note,
             "artifacts": artifact_hashes,
+            **referee_facts,
         }
         if override_reason is not None:
             if not override_reason.strip():
@@ -420,9 +517,16 @@ def record_gate(
             note=note,
             reason=override_reason,
             artifact_hashes=artifact_hashes,
+            **referee_facts,
         )
         save_state(study_dir, state)
-        commit_state_writes(study_dir, f"klein: {gate} gate {status}")
+        # The gate's own artifacts are committed with the record: every one of
+        # the modeling gates' artifacts is already a standing state-write path,
+        # and `referee_report.md` joins its own commit rather than being left
+        # untracked for the next clean-tree check to trip over.
+        commit_state_writes(
+            study_dir, f"klein: {gate} gate {status}", paths=GATE_ARTIFACTS[gate]
+        )
         return state
 
 

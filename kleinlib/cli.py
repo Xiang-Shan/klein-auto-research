@@ -111,7 +111,10 @@ def build_parser() -> argparse.ArgumentParser:
     }
     for action in ("record", "override"):
         p = gate_sub.add_parser(action, help=gate_help[action])
-        choices = ("consult", "data", "method", "phase") if action == "record" else (
+        # `referee` is recordable but never overridable: a FAIL is never
+        # softened into a note. The documented escape is
+        # `klein finalize --no-referee --reason`, which labels the study.
+        choices = ("consult", "data", "method", "referee", "phase") if action == "record" else (
             "consult",
             "data",
             "method",
@@ -194,9 +197,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="close the study with unadjudicated predictions; needs --reason, which is recorded",
     )
     final.add_argument(
+        "--no-referee",
+        action="store_true",
+        help="close without the Gate-3 referee record; needs --reason and labels "
+        "the study `unrefereed` on its receipt and in klein status",
+    )
+    final.add_argument(
         "--reason",
         default="",
-        help="why predictions stay open (--allow-open-predictions)",
+        help="why predictions stay open (--allow-open-predictions) or why the "
+        "study closes unrefereed (--no-referee)",
     )
 
     floor = sub.add_parser(
@@ -423,6 +433,8 @@ def main(argv: list[str] | None = None) -> int:
                 allow_exploratory=args.allow_exploratory,
                 allow_open_predictions=args.allow_open_predictions,
                 open_predictions_reason=args.reason,
+                no_referee=args.no_referee,
+                referee_reason=args.reason,
             )
             print(f"finalized: {label}")
             return 0

@@ -50,6 +50,7 @@ from .checks import (
 from .contract import (
     GATE_ARTIFACTS,
     IDENTIFIER_RE,
+    MODELING_GATES,
     PLACEHOLDER_RE,
     SCHEMA_VERSION,
     STUDY_ID_RE,
@@ -139,6 +140,7 @@ from .state import (
     load_state,
     reconcile_state,
     record_gate,
+    referee_gate,
     registered_partition_fingerprints,
     save_state,
     split_policy_hash,
@@ -743,7 +745,9 @@ def run_one(
     with StudyLock(study_dir):
         state = load_state(study_dir, contract)
         gates = state.get("gates")
-        for gate in GATE_ARTIFACTS:
+        # The hard-block rule: CONSULT, DATA and METHOD. The referee gate comes
+        # after synthesize and is enforced at `finalize`.
+        for gate in MODELING_GATES:
             entry = gates.get(gate) if isinstance(gates, Mapping) else None
             if (
                 not isinstance(entry, Mapping)
@@ -1252,6 +1256,8 @@ def finalize(
     allow_exploratory: bool = False,
     allow_open_predictions: bool = False,
     open_predictions_reason: str = "",
+    no_referee: bool = False,
+    referee_reason: str = "",
 ) -> str:
     contract = load_contract(study_dir)
     tracks = normalize_tracks(contract)
@@ -1346,6 +1352,34 @@ def finalize(
             problems = _findings_prediction_problems(study_dir, contract, text)
             if problems:
                 raise WorkflowError("; ".join(problems))
+            # Gate 3: an author cannot audit their own conclusions, and neither
+            # can the model that ran the loop.  Closing without a referee is
+            # allowed and is DISCLOSED — on the receipt and in `klein status`.
+            reviewed = referee_gate(state)
+            if reviewed is None and not no_referee:
+                raise WorkflowError(
+                    "the referee gate is not recorded: REFEREE (Gate 3) runs between "
+                    "SYNTHESIZE and finalize — a fresh context on a different model or "
+                    "tool writes referee_report.md, then `klein gate record referee "
+                    "--acknowledged-by <actor>`. To close unrefereed, pass --no-referee "
+                    '--reason "<why>" (recorded; the study is labelled `unrefereed`).'
+                )
+            if reviewed is None:
+                if not referee_reason.strip():
+                    raise WorkflowError(
+                        "--no-referee requires --reason: an unreviewed study says so "
+                        "on its own receipt"
+                    )
+                closure["referee"] = {"status": "unrefereed", "reason": referee_reason}
+            else:
+                closure["referee"] = {
+                    "status": "refereed",
+                    "verdict": reviewed.get("verdict"),
+                    "referee": reviewed.get("referee"),
+                    "independent_of_experimenter": reviewed.get(
+                        "independent_of_experimenter"
+                    ),
+                }
         # --------------------------------------------------------------------
         if STRONG_CLAIM_RE.search(text) and not UNCERTAINTY_EVIDENCE_RE.search(text):
             # Loud warning, not a hard stop: prose like "the real dataset" is a
@@ -1432,6 +1466,26 @@ def status_summary(study_dir: Path) -> str:
             f"predictions: {tally['supported']} supported, {tally['refuted']} refuted, "
             f"{tally['inconclusive']} inconclusive, {tally['open']} open"
         )
+        reviewed = referee_gate(state)
+        closed = state.get("finalization")
+        unrefereed = (
+            closed.get("referee", {}) if isinstance(closed, Mapping) else {}
+        ).get("status") == "unrefereed"
+        if reviewed is not None:
+            independence = (
+                "yes" if reviewed.get("independent_of_experimenter") else "no"
+            )
+            lines.append(
+                f"referee: {reviewed.get('verdict')} — {reviewed.get('referee')}, "
+                f"independent-of-experimenter: {independence}"
+            )
+        elif unrefereed:
+            lines.append(
+                "referee: unrefereed (finalized with --no-referee: "
+                f"{closed['referee'].get('reason')})"
+            )
+        else:
+            lines.append("referee: not recorded (Gate 3 runs before finalize)")
     pending = [m["experiment"] for m in manifests if m.get("transaction", {}).get("status") != "complete"]
     lines.append(f"pending transactions: {', '.join(pending) if pending else 'none'}")
     return "\n".join(lines) + "\n"

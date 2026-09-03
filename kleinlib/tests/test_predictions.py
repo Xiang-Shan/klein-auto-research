@@ -479,6 +479,9 @@ def test_allow_open_predictions_needs_a_reason_and_records_it(ledger_study) -> N
         allow_exploratory=True,
         allow_open_predictions=True,
         open_predictions_reason="the wet-lab wave has not returned",
+        # Gate 3 is E6b's business; this test is about the ledger.
+        no_referee=True,
+        referee_reason="the wet-lab wave has not returned",
     )
     assert label == "exploratory"
     finalization = load_state(study, load_contract(study))["finalization"]
