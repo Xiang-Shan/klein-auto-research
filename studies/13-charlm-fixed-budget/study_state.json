@@ -6,11 +6,11 @@
     },
     "data": {
       "by": "lead-agent",
-      "timestamp": "2026-09-03T11:48:51.398338Z"
+      "timestamp": "2026-09-03T11:50:00.444033Z"
     }
   },
   "artifact_hashes": {
-    "data_card.md": "15f116032a181ef8fc43ea9afb689523004b8ecd56a3c5529950cfebdae94b6e",
+    "data_card.md": "f12048849554f75d60fdb4e700bba4fe4291a56758247e469625729e8087df8c",
     "research_plan.md": "4a06dc3fcb74452e748b67e04ab536b4cb4076199f32a173fdead27675c89cd5",
     "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
     "study.yaml": "3ecc5dbf32de211c1232188e86cc077c927d76b180550ee5bdfdc60db19aca97"
@@ -46,12 +46,12 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": "2026-09-03T11:48:51.398338Z",
+      "acknowledged_at": "2026-09-03T11:50:00.444033Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "data_card.md": "15f116032a181ef8fc43ea9afb689523004b8ecd56a3c5529950cfebdae94b6e"
+        "data_card.md": "f12048849554f75d60fdb4e700bba4fe4291a56758247e469625729e8087df8c"
       },
-      "note": "GO with two disclosed WARNs (windowed evaluation handicap on each window's first character; the last 128 characters of each partition are context-only) \u2014 both identical across candidates and pinned by the eval_context guardrail; ack delegated by the lead",
+      "note": "RE-RECORD before any run: the card's 'fingerprints frozen at this gate' line quoted sha256(prepared.csv) instead of the engine's name-salted fingerprint_path digest; both are now on the card, labelled. No partition, policy or prepared byte changed \u2014 the split fingerprints are identical to the first record. Ack delegated by the lead.",
       "status": "recorded"
     },
     "method": {
@@ -81,5 +81,5 @@
       "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
     }
   },
-  "updated_at": "2026-09-03T11:48:52.208083Z"
+  "updated_at": "2026-09-03T11:50:01.338742Z"
 }
