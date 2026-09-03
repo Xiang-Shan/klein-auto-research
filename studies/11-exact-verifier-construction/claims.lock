@@ -8,6 +8,10 @@
       "path": "study.yaml",
       "sha256": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
     },
+    "crash": {
+      "path": "runs/E0008/manifest.json",
+      "sha256": "aa63b49dc640c72e7da5e63c624ddaa56e1335ec1189ff3180935aeec0d65927"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757"
