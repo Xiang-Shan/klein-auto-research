@@ -260,6 +260,28 @@
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679/studies/12-insurance-claims-frequency/data/prepared/insurance_claims_prepared.csv",
     "sha256": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab"
   },
+  "replications": {
+    "E0003": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0003@20260903T083929Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T08:39:29.306758Z",
+          "tolerance": 0.0375805
+        }
+      ],
+      "track": "primary"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "12-insurance-claims-frequency",
@@ -301,5 +323,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:39:19.472632Z"
+  "updated_at": "2026-09-03T08:43:30.089986Z"
 }
