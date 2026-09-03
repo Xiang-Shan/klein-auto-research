@@ -20,6 +20,10 @@
       "path": "tables/pair_floors.tsv",
       "sha256": "9160952654945dc718fee9c21ee289053de7fa84730ec6be86492e5db51846b3"
     },
+    "ledger": {
+      "path": "scouting_ledger.md",
+      "sha256": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38"
