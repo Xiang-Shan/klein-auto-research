@@ -52,6 +52,10 @@
       "path": "results.tsv",
       "sha256": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5"
     },
+    "sealed_mags": {
+      "path": "tables/sealed_table2_magnitudes.tsv",
+      "sha256": "4b0132c7ff3e7db588f5e527b468a755bbfeb8a0116c358f531e644521959080"
+    },
     "solar": {
       "path": "tables/solar_motion_inputs.tsv",
       "sha256": "f68402b5e2c9a910c0a75d55129cb086c0e7f2f5b1d801a43574efca85eeed5b"
