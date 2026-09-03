@@ -34,6 +34,7 @@ from kleinlib.events import read_events
 from kleinlib.replicate import (
     confirmation_gaps,
     evidence_id,
+    installed_extras,
     list_replications,
     load_replications,
     replicate_run,
@@ -726,7 +727,225 @@ def _manifests(study: Path) -> list[dict[str, Any]]:
 
 
 # ---------------------------------------------------------------------------
-# 7. the CLI surface
+# 7. what the worktree receives: the prepared directory, then an environment
+# ---------------------------------------------------------------------------
+
+SIBLING_TRAIN = """\
+import json
+from pathlib import Path
+
+extra = json.loads(Path("data/prepared/extra.json").read_text(encoding="utf-8"))
+print("primary_metric:    %.6f" % extra["value"])
+print("metric_name:       val_auc")
+print("metric_goal:       higher")
+"""
+
+#: Two extras, so the setup command proves the filter keeps one and drops the
+#: other. Every requirement of ``present`` names pytest, which is installed by
+#: definition in a test run (and in two spellings, to exercise the name parser);
+#: ``absent`` also lists a distribution nobody has, so it is not passed.
+PYPROJECT = """\
+[project]
+name = "demo"
+version = "0"
+dependencies = []
+
+[project.optional-dependencies]
+present = ["pytest>=8", "pytest [extra] ; python_version >= '3.11'"]
+absent = ["pytest", "klein-no-such-distribution>=1"]
+"""
+
+
+def test_a_sibling_of_the_prepared_file_travels_into_the_worktree(ready_study) -> None:
+    """`prepare.py` writes more than the one path the contract names.
+
+    Study 00's entrypoint read `data/prepared/truth.json` beside the prepared
+    CSV and the replication died with FileNotFoundError, because only the named
+    path was copied. The prepared DIRECTORY travels now; the fingerprint
+    assertion stays on the named path.
+    """
+    repo, study = ready_study
+    prepared = study / "data" / "prepared"
+    (prepared / "extra.json").write_text(json.dumps({"value": 0.71}), encoding="utf-8")
+    (study / "train.py").write_text(SIBLING_TRAIN, encoding="utf-8")
+    # The data is gitignored, as a study's prepared data normally is: the
+    # checkout brings none of it, so only what the copy carries is there.
+    (repo / ".gitignore").write_text("**/data/prepared/\n", encoding="utf-8")
+    git(repo, "rm", "-r", "-q", "--cached", str(prepared.relative_to(repo)))
+    commit_all(repo, "gitignore the prepared data")
+    assert "extra.json" not in git(repo, "ls-files")
+
+    manifest = run_one(
+        study,
+        description="reads a sibling of the prepared file",
+        command=[sys.executable, "-u", "train.py"],
+        echo=False,
+    )
+    assert manifest["primary_metric"] == pytest.approx(0.71)
+
+    record = replicate_run(study, "E0001", echo=False)
+    assert record["reproduced"] is True
+    assert record["copied_root"] == "data/prepared"
+    assert record["data_fingerprint"] == manifest["fingerprints"]["data"]
+    assert leftover_worktrees() == []
+
+
+@pytest.fixture
+def uv_study(ready_study, tmp_path: Path):
+    """A run whose RECORDED command is `uv run …`, in a repo with a pyproject.
+
+    The command is edited into the manifest after the fact on purpose: really
+    running `uv run` (and then `uv sync`) inside a test would build a project
+    and reach the network. What the setup step keys on is what the manifest
+    recorded and what the CHECKOUT holds, and the pyproject is committed before
+    the run so the candidate commit carries it.
+    """
+    repo, study = ready_study
+    (repo / "pyproject.toml").write_text(PYPROJECT, encoding="utf-8")
+    commit_all(repo, "a repo with a pyproject at its root")
+    value_file = tmp_path / "value.txt"
+    value_file.write_text("0.700000\n", encoding="utf-8")
+    marker = tmp_path / "marker.json"
+    (study / "train.py").write_text(
+        TRAIN.format(value_file=str(value_file), marker=str(marker)), encoding="utf-8"
+    )
+    run_one(
+        study, description="baseline", command=[sys.executable, "-u", "train.py"], echo=False
+    )
+    path = study / "runs" / "E0001" / "manifest.json"
+    forged = json.loads(path.read_text(encoding="utf-8"))
+    forged["command"] = ["uv", "run", "--locked", "python", "-u", "train.py"]
+    path.write_text(json.dumps(forged, indent=2, sort_keys=True), encoding="utf-8")
+    commit_all(repo, "forge a uv-run command into the manifest")
+    return repo, study, value_file, marker, forged
+
+
+def _capture_run_logged(monkeypatch, *, setup_exit: int = 0) -> list[dict[str, Any]]:
+    """Record every `run_logged` call instead of spending a real `uv sync`."""
+    from kleinlib.runner import LoggedRun
+
+    calls: list[dict[str, Any]] = []
+
+    def fake(command, **kwargs):
+        calls.append({"command": list(command), **kwargs})
+        is_setup = list(command[:2]) == ["uv", "sync"]
+        exit_code = setup_exit if is_setup else 0
+        if not is_setup:
+            with Path(kwargs["log_path"]).open("a", encoding="utf-8") as log:
+                log.write("primary_metric:    0.700000\nmetric_name:       val_auc\n")
+        return LoggedRun(tuple(command), exit_code, False, 0.25)
+
+    monkeypatch.setattr("kleinlib.replicate.run_logged", fake)
+    return calls
+
+
+def test_a_uv_run_command_syncs_the_worktree_before_the_run_is_timed(
+    uv_study, monkeypatch
+) -> None:
+    """The build is not the experiment: it runs first, on its own clock."""
+    _repo, study, _value, _marker, manifest = uv_study
+    calls = _capture_run_logged(monkeypatch)
+
+    record = replicate_run(study, "E0001", echo=False)
+
+    assert [call["command"][:3] for call in calls] == [
+        ["uv", "sync", "--locked"],
+        ["uv", "run", "--locked"],
+    ]
+    setup, run = calls
+    # `absent` lists a distribution nobody has; `present` lists only installed ones
+    assert setup["command"] == ["uv", "sync", "--locked", "--extra", "present"]
+    # the setup runs at the WORKTREE root, the run inside the study
+    assert setup["cwd"] == run["cwd"].parents[1]
+    assert setup["cwd"].name == "worktree"
+    assert run["cwd"].name == "03-demo"
+    # its own clock, never the run's
+    assert setup["timeout_seconds"] == 1800.0
+    assert run["timeout_seconds"] == float(manifest["max_run_seconds"])
+    # one log, two sections
+    assert setup["log_path"] == run["log_path"]
+    assert setup["append"] is True and run["append"] is True
+
+    assert record["setup_command"] == setup["command"]
+    assert record["setup_extras"] == ["present"]
+    assert record["setup_exit_code"] == 0
+    assert record["setup_seconds"] == pytest.approx(0.25)
+    assert record["reproduced"] is True
+    log = (study / record["log"]).read_text(encoding="utf-8")
+    assert log.startswith("replicate_setup: uv sync --locked --extra present\n")
+
+
+def test_the_setup_budget_is_overridden_by_its_own_environment_variable(
+    uv_study, monkeypatch
+) -> None:
+    _repo, study, _value, _marker, _manifest = uv_study
+    calls = _capture_run_logged(monkeypatch)
+    monkeypatch.setenv("KLEIN_REPLICATE_SETUP_SECONDS", "42")
+    replicate_run(study, "E0001", timeout_seconds=3.0, echo=False)
+    assert calls[0]["timeout_seconds"] == 42.0
+    assert calls[1]["timeout_seconds"] == 3.0
+
+
+def test_a_failed_setup_is_a_record_and_the_run_is_never_attempted(
+    uv_study, monkeypatch
+) -> None:
+    _repo, study, _value, _marker, _manifest = uv_study
+    calls = _capture_run_logged(monkeypatch, setup_exit=1)
+
+    record = replicate_run(study, "E0001", echo=False)
+
+    assert [call["command"][:2] for call in calls] == [["uv", "sync"]]
+    assert record["reproduced"] is False
+    assert record["failure_reason"].startswith("environment setup failed")
+    assert record["failure_reason"] == "environment setup failed (exit 1)"
+    assert record["setup_exit_code"] == 1
+    assert record["exit_code"] is None
+    assert record["replicate_block"] == {}
+    assert (study / record["record"]).is_file()
+    event = read_events(study)[-1]
+    assert event["type"] == "run_replicated"
+    assert event["reproduced"] is False
+
+
+def test_installed_extras_keeps_only_the_fully_installed_ones(
+    tmp_path: Path, monkeypatch
+) -> None:
+    pyproject = tmp_path / "pyproject.toml"
+    pyproject.write_text(
+        "[project]\nname = 'x'\nversion = '0'\n\n"
+        "[project.optional-dependencies]\n"
+        "gbdt = ['lightgbm>=4.3', 'xgboost>=2.0']\n"
+        "deep = ['torch>=2.3']\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "kleinlib.replicate._distribution_installed",
+        lambda name: name in {"torch", "lightgbm"},
+    )
+    # `gbdt` is dropped: xgboost is missing, so the extra is not what this
+    # interpreter has. Order follows the pyproject, not the filesystem.
+    assert installed_extras(pyproject) == ["deep"]
+    monkeypatch.setattr("kleinlib.replicate._distribution_installed", lambda name: True)
+    assert installed_extras(pyproject) == ["gbdt", "deep"]
+    assert installed_extras(tmp_path / "absent.toml") == []
+    (tmp_path / "empty.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
+    assert installed_extras(tmp_path / "empty.toml") == []
+
+
+def test_a_plain_command_gets_no_setup_step(replicable) -> None:
+    """`python train.py` needs no project build, so nothing is spent on one."""
+    _repo, study, _value, _marker, _manifest = replicable
+    record = replicate_run(study, "E0001", echo=False)
+    assert record["reproduced"] is True
+    assert record["setup_command"] is None
+    assert record["setup_extras"] is None
+    assert record["setup_seconds"] is None
+    assert record["setup_exit_code"] is None
+    assert "replicate_setup:" not in (study / record["log"]).read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# 8. the CLI surface
 # ---------------------------------------------------------------------------
 
 
@@ -766,7 +985,11 @@ def test_cli_replicate_help_names_the_documented_flags(capsys) -> None:
     with pytest.raises(SystemExit) as exit_info:
         cli.main(["replicate", "--help"])
     assert exit_info.value.code == 0
-    assert "replication-protocol.md" in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert "replication-protocol.md" in printed
+    # the epilog says what --timeout-seconds does NOT pay for
+    assert "KLEIN_REPLICATE_SETUP_SECONDS" in printed
+    assert "NOT charged to --timeout-seconds" in printed
 
 
 def test_replicate_module_imports_alone_without_the_heavy_stacks() -> None:
