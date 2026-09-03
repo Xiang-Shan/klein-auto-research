@@ -1,0 +1,79 @@
+<h2>2. The method taught</h2>
+
+<p>Nothing here is exotic. The whole study is least squares, a bootstrap and a
+jackknife, written from scratch on numpy normal equations. What makes it interesting
+is that four ordinary choices &mdash; which line, which response variable, which
+uncertainty, which column counts as evidence &mdash; each move the answer more than
+the data does.</p>
+
+<h3>2.1 A line through a cloud of points is not one line</h3>
+
+<p>Hubble had two numbers per galaxy: how fast it recedes (from a spectrum &mdash;
+cheap, accurate) and how far away it is (from a brightness argument &mdash; expensive,
+model-dependent, wrong by factors). The relation he argued for has no intercept: zero
+distance means zero recession. That is the one-parameter fit,</p>
+
+<div data-math-display="K_0 = \frac{\sum_i r_i v_i}{\sum_i r_i^{2}}"></div>
+
+<p>Freeing the intercept lets the data say whether the line really passes through the
+origin. With <span data-math="A = [\,r \;\; \mathbf{1}\,]"></span> the two-parameter
+fit solves the normal equations</p>
+
+<div data-math-display="(A'A)\,\beta = A'v, \qquad \beta = (\hat{K}_1, \hat{c})"></div>
+
+<p>Both are written out longhand in <code>lib/hubble.py</code> rather than called from
+a library, because a study about what a fit does should show what the fit does.</p>
+
+<h3>2.2 Regression dilution: the direction of the bias</h3>
+
+<p>Least squares of <span data-math="v"></span> on <span data-math="r"></span>
+minimises vertical distances and treats the distances as exact. Least squares of
+<span data-math="r"></span> on <span data-math="v"></span>, inverted, treats the
+velocities as exact. When the x-variable carries the larger error, the first is
+dragged <em>toward zero</em>. Hubble's distances are far noisier than his velocities,
+so the ordinary fit is a <strong>lower bound</strong> on the slope, not a best
+estimate. This study registered that as a prediction and measured it; the two fits
+differ by a factor of <strong>1.603771</strong>.</p>
+
+<h3>2.3 Hubble's actual model had four parameters, not two</h3>
+
+<p>He did not simply regress velocity on distance. The Sun is moving, which adds a
+direction-dependent term to every observed velocity, so he solved for the constant
+<em>and</em> the three components of the solar motion at once. In his own notation:</p>
+
+<div data-math-display="rK + X\cos\alpha\cos\delta + Y\sin\alpha\cos\delta + Z\sin\delta = v"></div>
+
+<p>Four unknowns, one equation per object. This equation is the whole reason
+reproduction fails: it needs each object's equatorial coordinates
+<span data-math="(\alpha_i, \delta_i)"></span>, and <strong>the paper prints
+none</strong>. His two published solutions are <strong>465</strong> with a probable
+error of <strong>50</strong> (objects individually) and <strong>513</strong> with a
+probable error of <strong>60</strong> (nine groups); the textbook
+<strong>500</strong> is neither &mdash; it is the intermediate value he adopted after
+attributing the difference between them largely to four galaxies.</p>
+
+<h3>2.4 The distance modulus, used twice</h3>
+
+<p>With <span data-math="r"></span> in megaparsecs,</p>
+
+<div data-math-display="M = m - 5\log_{10} r - 25"></div>
+
+<p>This is the only photometric equation in the study, and it appears in exactly two
+places: once on the development block against the paper's own printed absolute
+magnitudes, and once inside the sealed cell with
+<span data-math="r_i = v_i / \hat{K}"></span>. Sharing one function is what makes the
+development cell a genuine rehearsal of the sealed one &mdash; and it is why the
+development cell ran first, while the seal was still unspent.</p>
+
+<h3>2.5 The interval, and auditing it</h3>
+
+<p>Resample the pairs with replacement, refit, and take empirical quantiles:</p>
+
+<div data-math-display="\big[\,\hat{K}^{*}_{(\alpha/2)},\;\; \hat{K}^{*}_{(1-\alpha/2)}\,\big], \qquad \alpha = 0.05"></div>
+
+<p>Case resampling &mdash; pairs, not residuals &mdash; is the honest choice: the
+galaxies are a <em>sample of objects</em>, not a designed grid, so what varies between
+hypothetical repetitions is which galaxies you got. But a percentile interval on this
+few points is exactly where the method is known to be optimistic, so the study does not
+assert its coverage &mdash; it <strong>measures</strong> it under a declared truth.
+That is what the third track is for, and section 5 reports what it found.</p>
