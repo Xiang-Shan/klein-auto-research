@@ -154,6 +154,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "eval_context": {
+      "art": "frontier",
+      "claim": "contract",
+      "note": "the matched-measurement guardrail: the evaluation window length",
+      "precision": 0,
+      "value": 128
+    },
     "fit_noise_mean": {
       "art": "contract",
       "claim": "floor",
