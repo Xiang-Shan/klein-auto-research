@@ -1,0 +1,109 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 6710,
+      "committed": true,
+      "sha256": "b8bdcf26c074f4d47197dfc275c1af9bc6cdfb9bb5a9bec7ac7bd2c3549b8f6a"
+    },
+    "runs/E0012/run.log": {
+      "availability": "recorded",
+      "bytes": 876,
+      "committed": true,
+      "sha256": "fda90601edc523087b9f75e8f7a7b12077b76c84c41aeaa1c8d58602964fe979"
+    },
+    "tables/sealed_modern_comparison.tsv": {
+      "availability": "recorded",
+      "bytes": 571,
+      "committed": true,
+      "role": "declared",
+      "sha256": "e3f0aed412837ab0c65bc2c5eb4ba4e9d9aaf97e92c66f4eac6552e3d2b4a232"
+    }
+  },
+  "base_commit": "22d4b3eabc54427cdd8ae1c4bf191a2beb0730af",
+  "candidate_commit": "1e1d6ce320da2937f4fa96e35169fb2ba8230864",
+  "code_patch_hash": "57861c2a3e2289e29ef58578d686d13d17032b1c460b8183608d4bd075339db4",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed confirmation on the estimate track: the once-only comparison of the locked bootstrap interval against the external reference H0 = 70, and the single-factor distance rescale; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:27:07.413638Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0012",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "k_kms_per_mpc",
+  "metrics": {
+    "bootstrap_se": 72.93386164166547,
+    "ci_high": 603.704762,
+    "ci_low": 316.648582,
+    "ci_width": 287.056179860023,
+    "gap_70_free": 4.9900731132700855,
+    "gap_70_origin": 0.0,
+    "k_free_rescaled": 74.99007311327009,
+    "k_origin": 423.9373232316303,
+    "k_origin_rescaled": 70.0,
+    "max_abs_gap_70": 4.9900731132700855,
+    "modern_h0": 70.0,
+    "n": 24.0,
+    "n_boot": 2000.0,
+    "planck_h0": 67.4,
+    "primary_metric": 454.158441,
+    "ratio_estimate_over_modern": 6.487977727466119,
+    "rescale_factor": 6.056247474737575,
+    "runner_exit_code": 0.0,
+    "shoes_h0": 73.04,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.019153
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 3,
+  "predictions": {
+    "P4": {
+      "explanation": "ci_low 316.648582 > 70 \u2192 supported",
+      "verdict": "supported"
+    },
+    "P7": {
+      "explanation": "max_abs_gap_70 4.99007311327 <= 15 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P4",
+    "P7"
+  ],
+  "primary_metric": 454.158441,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:27:06.602132Z",
+  "timed_out": false,
+  "track": "estimate",
+  "transaction": {
+    "ready_at": "2026-09-03T06:27:07.414909Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.8113981659989804
+}
