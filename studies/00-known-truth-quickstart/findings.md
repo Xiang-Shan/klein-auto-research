@@ -29,7 +29,7 @@ related: []
 | **[C1]** | RQ1 | primary | supported | confirmed | empirical-description | E0001, E0002, E0003, E0005 | the ladder closed the distance to the development ceiling of 0.884116 from 10.4555 measured floors at the raw-feature anchor (val_auc 0.806201) to 1.7077 at the boosted incumbent (val_auc 0.871390); the sealed partition returned val_auc 0.880949 against its own ceiling of 0.893469, a distance of 1.6800 floors. Floor: minimum_delta 0.00745212 from a marginal-resplit lottery of k = 10 draws, std 0.00372606 |
 | **[C2]** | RQ1 | primary | supported | confirmed | known-dgp-teaching (`scope: in-silico`) | E0002, E0003, E0005 | under THIS declared process, a boosted tree shown none of the true terms out-earned handing a linear model the true interaction: `delta_in_floors` 4.7779 against its predecessor on development and 4.6190 against the same predecessor on the sealed rows, versus 3.9699 for the hand-specified interaction |
 | **[C3]** | RQ1 | primary | supported | exploratory | empirical-description | E0003, E0004 | more capacity did not merely fail to pay, it cost: the over-capacity boosted tree scored val_auc 0.858049 against the incumbent's 0.871390 (`delta_in_floors` -1.7903), its Brier rose to 0.143658 from 0.109337 and its log-loss to 1.024102 from 0.355165, and it took 18.407609 seconds against 0.647123 |
-| **[C4]** | RQ2 | primary | refuted | exploratory | procedural-verdict | E0003, E0004 | the headroom did NOT close before the fourth candidate: h stood at 1.708 when it was spent, so the detection-limit law neither refused the run nor required an acknowledgement, and the candidate it did not stop came back 1.7903 floors WORSE rather than within the floor |
+| **[C4]** | RQ2 | primary | refuted | exploratory | procedural-verdict | E0003, E0004 | the headroom did NOT close before the fourth candidate: h stood at 1.708 when it was spent, so the detection-limit law neither refused the run nor required an acknowledgement, and the candidate it did not stop came back at `delta_in_floors` -1.7903 rather than within the floor |
 
 `refuted` in C4's Verdict column is the research question's verdict, not the
 claim's strength: what C4 asserts — that the door stayed ajar and the run through
@@ -67,8 +67,9 @@ candidate that moved the last decimal. Klein records the two under different key
 smallest possible demonstration of why.
 
 **The over-capacity model broke the probabilities long before it broke the
-ranking.** E0004's `val_auc` fell by 0.013341 — bad, but recognisably the same
-model. Its log-loss went from 0.355165 to 1.024102, nearly triple.
+ranking.** E0004's `delta_vs_reference` was -0.013341 on val_auc — bad, but
+recognisably the same model. Its log-loss went from 0.355165 to 1.024102, nearly
+triple.
 
 **[C5]** *(mechanism-interpretation, exploratory)* The ranking gap and the
 probability gap are the same missing structure seen twice. The raw-feature
@@ -104,8 +105,8 @@ when `confirmation.require` does not demand it.
 **[C8]** Read a headroom of at least one floor as "not arithmetically excluded",
 never as "worth trying" (evidence: E0003, E0004). This study read h = 1.708 before
 its fourth candidate, which is exactly the regime where the law has nothing to
-say — and the candidate lost 1.7903 floors. The law is a floor on futility, not a
-forecast of success.
+say — and the candidate came back at `delta_in_floors` -1.7903. The law is a floor on
+futility, not a forecast of success.
 
 ## ⑤ Implications — what changes if this holds
 
@@ -154,8 +155,8 @@ design-time linear-oracle diagnostic in `scouting_ledger.md` S2 — and is there
 excluded from the knowledge-vs-uninformed comparison by the consult protocol's
 rule. RQ2's prior was `(source: uninformed)` and it was WRONG in both halves: it
 expected the headroom to close before the fourth candidate (it stood at 1.708) and
-expected the run spent anyway to come back within the floor (it came back 1.7903
-floors worse). One uninformed prior, zero hits. With no knowledge-sourced prior in
+expected the run spent anyway to come back within the floor (it came back at
+`delta_in_floors` -1.7903). One uninformed prior, zero hits. With no knowledge-sourced prior in
 this study there is nothing to compare it against — the scorecard opens here rather
 than settling anything, which is the honest thing for study 00 to say.
 

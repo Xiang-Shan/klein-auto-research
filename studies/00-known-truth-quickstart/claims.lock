@@ -31,7 +31,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "anchor_auc"
+      ],
       "strength": "exploratory"
     },
     "C2": {
@@ -97,6 +99,14 @@
   "klein_version": "2.0.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "anchor_auc": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0001 val_auc, the raw-feature logistic anchor on development",
+      "precision": 6,
+      "value": 0.806201
+    }
+  },
   "study_id": "00-known-truth-quickstart"
 }
