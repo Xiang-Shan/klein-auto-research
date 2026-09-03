@@ -96,8 +96,10 @@
   "timed_out": false,
   "track": "n_small",
   "transaction": {
-    "ready_at": "2026-09-03T07:44:35.256346Z",
-    "status": "pending"
+    "committed_at": "2026-09-03T07:44:35.337454Z",
+    "evidence_commit": "2cc476671098262a185ec380ce5ffaa803509ed0",
+    "recovered": false,
+    "status": "complete"
   },
   "verifier": {
     "artifact": "models/E0004/solution.json",
