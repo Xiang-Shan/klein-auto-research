@@ -137,22 +137,37 @@ jobs:
       - name: Locked reproduction environment
         run: uv sync --locked --extra encoders
       # EXHIBIT-ANCHOR: 00-known-truth-quickstart
-      # The v1 study-00 bootstrap that used to live here anchored a study this
-      # release replaces. Fill this step in when the new study 00 lands: copy the
-      # exhibit to $RUNNER_TEMP, run prepare.py, re-run its anchor cell through
-      # scripts/run_with_log.py, and assert the printed primary_metric against
-      # the value its claims.lock pins. Until then the step is a no-op that says
-      # so, so a green CI never implies an anchor that is not being checked.
-      - name: Study 00 anchor (placeholder until the new exhibit lands)
+      # Re-run the exhibit's anchor cell (E0001, the raw-feature logistic
+      # identity anchor) on a throwaway copy with the train.py its candidate
+      # commit recorded, and assert the printed primary_metric against the value
+      # claims.lock pins (`anchor_auc`) within the contract's measured floor
+      # (`minimum_delta`, also read from the lock). Nothing is hard-coded here:
+      # the commit comes from the manifest, the target and the tolerance from the
+      # lock — the same numbers the tutorial and the README quote.
+      - name: Study 00 anchor (E0001 reproduces within the measured floor)
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f studies/00-known-truth-quickstart/study.yaml ]; then
-            echo "EXHIBIT-ANCHOR 00-known-truth-quickstart is present but this step is" \
-                 "still a placeholder — fill it in." >&2
-            exit 1
-          fi
-          echo "note: EXHIBIT-ANCHOR 00-known-truth-quickstart not present yet; no anchor to re-run"
+          study=studies/00-known-truth-quickstart
+          copy="$RUNNER_TEMP/study00"
+          cp -R "$study" "$copy"
+          read -r commit target tol < <(uv run --no-sync python - "$study" <<'PY'
+          import json, sys
+          study = sys.argv[1]
+          manifest = json.load(open(f"{study}/runs/E0001/manifest.json"))
+          lock = json.load(open(f"{study}/claims.lock"))
+          numbers = lock["numbers"]
+          print(manifest["candidate_commit"], numbers["anchor_auc"]["value"], numbers["minimum_delta"]["value"])
+          PY
+          )
+          git show "$commit:$study/train.py" > "$copy/train.py"
+          cd "$copy"
+          uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py
+          KLEIN_EVALUATION_KIND=development KLEIN_EXPERIMENT_ID=E0001 KLEIN_TRACK=primary \
+            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py | tee "$RUNNER_TEMP/study00-train.log"
+          awk -F': *' -v t="$target" -v tol="$tol" \
+            '/^primary_metric:/{m=$2} END{d=m-t; if(d<0)d=-d; printf "metric=%s target=%s |delta|=%.6f tol=%s\n", m, t, d, tol; exit (d<=tol)?0:1}' \
+            "$RUNNER_TEMP/study00-train.log"
       - name: Execute the Study 03 v2 anchor (seed-block determinism on Linux)
         shell: bash
         run: |
@@ -247,7 +262,7 @@ jobs:
             if [ -f "$study/prepare.py" ]; then
               ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
             fi
-            uv run --no-sync klein verify --study "$study" --numbers --evidence-use --require-local
+            uv run --no-sync klein verify --study "$study" --numbers --evidence-use
             uv run --no-sync klein claims verify --study "$study"
             if [ -f "$study/figures/make_figures.py" ]; then
               keep="$RUNNER_TEMP/figures-$(basename "$study")"

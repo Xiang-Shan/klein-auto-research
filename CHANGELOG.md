@@ -172,8 +172,14 @@ re-open a closed study, start a new one and cite the old one's claims.
   `klein_version: "1.2.0"`; pin by commit, not by version string.
 - The 2.0 exhibits (`00-known-truth-quickstart`, `10-hubble-1929-replication`,
   `11-exact-verifier-construction`, `12-insurance-claims-frequency`,
-  `13-charlm-fixed-budget`) ship with this release; their headline numbers are filled
-  in here from their locks at release.
+  `13-charlm-fixed-budget`) ship with this release; their headline numbers below are
+  copies of values their locks pin.
+  - **00 `known-truth-quickstart`** (2026-09-03) — synthetic tabular data whose
+    Bayes-optimal AUC is known (0.884116 on development): three keeps closed the distance
+    from 10.4555 measured floors to 1.7077, the sealed look landed 1.68 floors from the
+    sealed partition's own ceiling (confirmed), the over-capacity candidate at h = 1.708
+    lost 1.7903 floors (P4 refuted, decision recorded), and both `klein replicate`
+    attempts failed for non-scientific reasons — the defects E13 fixed.
 
 ## [1.3.0] — 2026-08-26
 
