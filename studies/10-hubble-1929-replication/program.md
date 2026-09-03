@@ -739,3 +739,29 @@ is answered first because it is the only one that touched a study artifact.
   appears only where the study explains why the profile bans it." `findings.md` and
   `claims.lock` — the two documents the vocabulary check governs — contain the word
   nowhere at all, which the referee confirmed independently.
+
+
+## Referee round 2 — answer
+
+`referee_report.md` (round 2, re-run from scratch at HEAD `1d51bbf`) returned
+**Verdict: PASS-WITH-NOTES** with one new note.
+
+- **2026-09-03 — Referee note N6: the multiplicity paragraph was self-falsifying, and
+  cleared with the referee's own clause.** The sentence added in answer to N4 read
+  "…no verdict rests on a p-value — the word **"significant"** appears nowhere in this
+  document", inside the document that thereby contained it. Two costs, not one: the
+  sentence was false on its face, and it newly tripped
+  `[WARN] profile vocabulary: findings.md uses words the 'generic' profile bans:
+  line 98`, which would have printed on every future `klein verify` of this exhibit and
+  invited every future reader to re-litigate a settled point.
+  It is exactly the construction the round-1 note **N5** flagged in
+  `research_plan.md` — a self-referential denial that instantiates the thing it
+  denies — reproduced by me in the study's most-read artifact **in the very paragraph
+  written to answer another note**. That is the lesson worth keeping: a claim about a
+  document's own vocabulary is a claim like any other, and the cheapest way to make it
+  true is to not need it. The clause now reads "…and no verdict rests on a p-value;
+  this study performs no significance test at all", which keeps the meaning, states the
+  stronger fact (no test was performed, so no word about tests is needed), and drops the
+  banned token — the engine matches on `\bsignificant\b`, so "significance" is clean.
+  Unlike N5, this one could be fixed at the source: `findings.md` is not a hashed gate
+  artifact, so correcting it costs no re-record.

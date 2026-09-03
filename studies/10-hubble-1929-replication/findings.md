@@ -94,8 +94,8 @@ the prediction. **[C15]** below is the lesson.
 **Multiplicity posture** (added in answer to referee note N4, which observed that a
 reader had to infer it). Every prediction above was registered before any evidence
 existed and every one is reported, so there is no selected family to guard against:
-nothing was chosen after seeing a result, and no verdict rests on a p-value — the
-word "significant" appears nowhere in this document. The reproduction comparisons
+nothing was chosen after seeing a result, and no verdict rests on a p-value; this
+study performs no significance test at all. The reproduction comparisons
 (P0–P3, P8, P9) are deterministic arithmetic on printed table values against
 tolerances fixed in the contract; they have no null distribution, so no multiplicity
 correction is even defined for them. The stochastic quantities — the intervals of
