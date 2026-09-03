@@ -166,13 +166,13 @@
       "ok": true
     },
     {
-      "message": "[WARN] figures/make_figures.py exited 1: make_figures: the engine wrote the trajectory to /Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a2505303497ddbacd/studies/00-known-truth-quickstart/figures, not /private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-figures-xep76nbl",
+      "message": "3 figure(s) re-render byte-identically",
       "name": "figure re-render",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "09303564020eaa6083cf8844d1d5c066f65b8dc2",
+  "git_head": "d5635d6e2e66fcf4576475e5a54997a4ffcee063",
   "inputs": {
     "aux_metrics.tsv": "e17bd6f44ea73d9f253428bd90dce3ddd5f6b770a0a2d2c75ba61b57f647918f",
     "claims.lock": "941347b424a7cdbe770fe2aa9d3410f9527883cb67a0f06473264fbffba6ddac",
@@ -184,7 +184,7 @@
     "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96",
     "study_state.json": "20f69ea316080139a839e8ffad3624d57d947a4da73c0f798c44f476ed339222"
   },
-  "klein_commit": "09303564020eaa6083cf8844d1d5c066f65b8dc2",
+  "klein_commit": "d5635d6e2e66fcf4576475e5a54997a4ffcee063",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "61dc934bcb9d230b81db769b705b940a340c4e8f97075bb5ecd1553318abb1c8",
@@ -199,9 +199,9 @@
   "summary": {
     "checks": 34,
     "failed": 0,
-    "warned": 2
+    "warned": 1
   },
-  "timestamp": "2026-09-03T05:49:50.166402Z",
+  "timestamp": "2026-09-03T05:50:45.420692Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
