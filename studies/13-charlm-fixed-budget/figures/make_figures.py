@@ -219,13 +219,16 @@ def summary_table(study: Path, table: pd.DataFrame, refs: pd.DataFrame, fit: dic
 def figure_learning_curves(out: Path, curves: pd.DataFrame, refs: pd.DataFrame, table: pd.DataFrame):
     fig, ax = plt.subplots(figsize=(7.6, 4.6))
     unigram = float(refs.loc[refs["reference"] == "unigram", "val_nats_per_char"].iloc[0])
-    for recipe, colour, label in (
-        ("anchor", PURPLE, "anchor — constant LR 3e-3"),
-        ("cosine", TEAL, "cosine decay to 10% of peak"),
+    # Referee note 1 (Gate 3, 2026-09-03): the two series must stay distinguishable
+    # in grayscale, so marker shape and linestyle carry the distinction alongside
+    # hue — never hue alone (tutorial-spec.md figure critique point 3).
+    for recipe, colour, marker, linestyle, label in (
+        ("anchor", PURPLE, "o", "-", "anchor — constant LR 3e-3"),
+        ("cosine", TEAL, "s", "--", "cosine decay to 10% of peak"),
     ):
         sub = curves[curves["recipe"] == recipe].sort_values("step")
-        ax.plot(sub["step"], sub["val_nats_per_char"], marker="o", ms=3.4, lw=1.7,
-                color=colour, label=label)
+        ax.plot(sub["step"], sub["val_nats_per_char"], marker=marker, ls=linestyle,
+                ms=4.2, lw=1.7, color=colour, label=label)
     ax.axhline(unigram, color=GREY, lw=1.1, ls="--")
     ax.annotate(
         f"add-one unigram, {unigram:.6f} nats — a context-free model",

@@ -12,7 +12,7 @@ changes.
 | --- | --- | --- |
 | experimenter | Claude Code general-purpose subagent · model `claude-opus-5[1m]` · session `session_016HefKjsAszSh9M5FJ8Zw4g` — drives CONSULT, DATA, METHOD, every `klein run-one`, the sweeps and SYNTHESIZE | 2026-09-03 |
 | data-gate auditor | the same agent, self-performed in a clean-room pass: the leakage audit was run AFTER `prepare.py` and the profile were finished, reading only `study.yaml`, `prepare.py`, the prepared artifacts and the index table — never this file | 2026-09-03 |
-| referee | (left blank until the referee runs) | |
+| referee | `klein-referee` (Claude Code subagent) · model `claude-sonnet-5` · fresh context, started after SYNTHESIZE, no memory of the loop — rung reached: **model** (a different model than the experimenter's `claude-opus-5[1m]`), `independent-of-experimenter: yes`, agreeing with `referee_report.md`'s own machine-read line | 2026-09-03 |
 | lead | Claude Fable 5.1, orchestrating the Klein 2.0 exhibit set | 2026-09-03 |
 
 Gate acknowledgements for this exhibit are **delegated by the lead to the driving
@@ -439,3 +439,60 @@ Six experiments, 6 of 6 slots used, one keep.
   rolling map rather than a dated record, so its copy of the second number was
   corrected in place. This is the reason the numbers law exists: prose is where
   numbers go wrong.
+
+## Referee notes (Gate 3, verdict PASS-WITH-NOTES, 2026-09-03)
+
+The referee (`klein-referee`, Claude Code subagent, model `claude-sonnet-5`, fresh
+context, started after SYNTHESIZE, no memory of the loop) returned PASS-WITH-NOTES:
+all ten rubric checks PASS, none FAIL, two notes. Independence rung **model** —
+`independent-of-experimenter: yes` — because the experimenter (this Roster, row
+`experimenter`) ran on `claude-opus-5[1m]` and the referee ran on a different model,
+`claude-sonnet-5`. Each note is answered here, dated, with what was done about it.
+
+- 2026-09-03 — **Referee note 1 (the two learning-curve series were distinguished by
+  hue alone).** Upheld, and fixed in the figure. `figures/make_figures.py:222-228`
+  (`figure_learning_curves`) plotted the anchor and cosine-decay series with the same
+  marker (`"o"`) and the same solid linestyle, differing only by colour (`#7570b3` vs
+  `#1b9e77`, whose approximate grayscale luminances the referee measured as close
+  enough to be hard to tell apart desaturated) — a partial gap against
+  `tutorial-spec.md`'s figure critique point 3 ("marks stay distinguishable in
+  grayscale... never hue alone"). Fixed: the anchor series now plots solid with a
+  circle marker, the cosine-decay series dashed with a square marker, so the legend
+  and the line both carry the distinction independent of colour. Re-rendered twice
+  into a scratch directory from the repo root
+  (`uv run --locked python studies/13-charlm-fixed-budget/figures/make_figures.py
+  --study studies/13-charlm-fixed-budget --out <tmpdir>`; `data/prepared/` already
+  existed from the DATA gate, so `prepare.py` was not re-run) and `cmp`-verified the
+  two renders byte-identical to each other, confirming the fix is deterministic. The
+  other three figures (`seed_variance.png`, `candidate_effects.png`,
+  `trajectory.png`) and both derived tables (`tables/frontier.tsv`,
+  `tables/study_summary.tsv`, which `make_figures.py` always writes into the study
+  directory itself, not into `--out`) came back byte-identical to what was already
+  committed — nothing in the script's inputs or arithmetic changed, only the one plot
+  call, so `learning_curves.png` is the only figure this note touches. `git status`
+  stayed clean apart from the intended diff (`figures/make_figures.py` and
+  `figures/learning_curves.png`) throughout.
+- 2026-09-03 — **Referee note 2 (`claims.lock`'s `control_unigram` number note uses
+  the banned word "beats" without its qualifier).** Upheld as a vocabulary-hygiene
+  note, and NOT fixed in place. `claims.lock:328`'s `control_unigram` note reads
+  "positive control: real but minimal information beats chance"; the ml-research
+  profile's §7 bans "beats" without "the floor and the matched budget" qualifier.
+  `claims.lock` is append-only (`references/claims-protocol.md`) and this is a
+  wording matter, not a value or a claim error: the referee's own read is that the
+  usage "does not misrepresent evidence" because it describes a diagnostic control's
+  definitional behaviour in provenance metadata, not a reader-facing recipe-versus-
+  floor performance claim, and every reader-facing restatement of the same four
+  control numbers (`data_card.md`, findings **[C5]**) carries no "beats" framing.
+  `findings.md` does not quote this note anywhere — `grep -n "beats"
+  studies/13-charlm-fixed-budget/findings.md` returns nothing — so there is no
+  findings.md sentence to correct either. The referee also noted a permissive
+  reading under which a note-only wording fix (no `value`/`art` change) might be
+  allowed by the append-only law's letter; this driver's instruction was to leave
+  `claims.lock` untouched regardless, which is the simpler and safer choice and
+  moots that question rather than resolving it. **The correction, for the record:**
+  the note should read "positive control: real but minimal information exceeds
+  chance" (the referee's own suggested wording) the next time this lock is revised
+  for another reason that already touches `control_unigram` — never as a
+  standalone edit. **Decision: the lock note stands, unedited**, exactly as `klein
+  claims verify` already accepts it; nothing it supports is wrong, so no erratum is
+  filed against C5.
