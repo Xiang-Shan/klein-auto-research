@@ -166,6 +166,13 @@
       "note": "E0003 anchor_gap",
       "precision": 6,
       "value": 0.001154
+    },
+    "anchor_tolerance": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "the registered within-tolerance of P1, P2 and P4",
+      "precision": 4,
+      "value": 0.0225
     }
   },
   "study_id": "12-insurance-claims-frequency"
