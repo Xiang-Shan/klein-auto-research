@@ -185,10 +185,30 @@
         }
       ],
       "track": "n_small"
+    },
+    "E0002": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0002@20260903T074707Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:07.395495Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_small"
     }
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:47:06.610830Z"
+  "updated_at": "2026-09-03T07:47:08.182798Z"
 }
