@@ -43,7 +43,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "large_20k"
+      ],
       "strength": "exploratory"
     },
     "C3": {
@@ -158,6 +160,13 @@
       "note": "the n_small instance's grid size, printed by every run of that track as grid_n",
       "precision": 0,
       "value": 11
+    },
+    "large_20k": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0005: n = 31 at the smallest budget",
+      "precision": 0,
+      "value": 50
     },
     "small_200k": {
       "art": "results",
