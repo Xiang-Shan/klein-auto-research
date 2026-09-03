@@ -57,5 +57,16 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "13-charlm-fixed-budget",
-  "updated_at": "2026-09-03T11:38:55.412678Z"
+  "sweeps": {
+    "harness_controls": {
+      "registered_at": "2026-09-03T11:47:02.796245Z",
+      "rows_crash": 0,
+      "rows_ok": 4,
+      "script": "sweeps/harness_controls.py",
+      "script_sha256": "2f89af9c8b48c7fafe215ddd125b18e2fae8df9383dd324bd0e7452c54f2eae7",
+      "sidecar": "sweeps/harness_controls.sidecar.tsv",
+      "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
+    }
+  },
+  "updated_at": "2026-09-03T11:47:02.796403Z"
 }
