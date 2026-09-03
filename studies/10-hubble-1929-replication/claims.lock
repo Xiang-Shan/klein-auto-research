@@ -166,7 +166,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "coords_available"
+        "coords_available",
+        "coords_required"
       ],
       "strength": "exploratory"
     },
@@ -240,6 +241,13 @@
       "note": "per-object coordinates obtainable for the four-parameter fit (E0004)",
       "precision": 0,
       "value": 0
+    },
+    "coords_required": {
+      "art": "solar",
+      "claim": "C2",
+      "note": "coordinates the four-parameter fit needs (E0004)",
+      "precision": 0,
+      "value": 24
     },
     "gap_465_nearest": {
       "art": "fits",
