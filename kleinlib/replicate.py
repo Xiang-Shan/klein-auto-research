@@ -52,12 +52,15 @@ from pathlib import Path
 from typing import Any
 
 from .contract import (
+    CONFIRMATION_DEFAULTS,
+    confirmation_require,
     load_contract,
     normalize_tracks,
     prepared_data_path,
+    track_kind,
     validate_contract,
 )
-from .decision import _incumbent, parse_metric_log
+from .decision import _incumbent, parse_metric_log, printed_values
 from .errors import WorkflowError
 from .events import append_event
 from .manifest import RUN_ID_RE, _artifact_path, load_manifests
@@ -168,21 +171,45 @@ def tolerance_ladder(
     return 0.0, "exact"
 
 
+def _declared_require(source: Any) -> set[str] | None:
+    """``confirmation: {require: [...]}`` as a set, or None when not declared."""
+    block = source.get("confirmation") if isinstance(source, Mapping) else None
+    if not isinstance(block, Mapping):
+        return None
+    require = block.get("require")
+    if isinstance(require, str):
+        return {require}
+    if isinstance(require, Sequence) and not isinstance(require, (str, bytes)):
+        return {str(item) for item in require}
+    return None
+
+
 def required_confirmation(
     track_spec: Mapping[str, Any], contract: Mapping[str, Any] | None = None
 ) -> set[str]:
-    """``confirmation.require`` for one track: per-track wins, study-wide is the
-    fallback.  An absent or malformed block requires nothing."""
-    for source in (track_spec, contract or {}):
-        block = source.get("confirmation") if isinstance(source, Mapping) else None
-        if not isinstance(block, Mapping):
-            continue
-        require = block.get("require")
-        if isinstance(require, str):
-            return {require}
-        if isinstance(require, Sequence) and not isinstance(require, (str, bytes)):
-            return {str(item) for item in require}
-    return set()
+    """What ``confirmed`` costs on ONE track, in order of authority.
+
+    1. the track's own ``confirmation.require`` — the protocols say "its track's",
+       and one study can carry two lanes with different bars (study 09 ran a
+       registered test beside a known-truth simulation);
+    2. the study-level block, read through :func:`contract.confirmation_require`
+       so the declared shape has a single source of truth;
+    3. the per-kind default from ``contract.CONFIRMATION_DEFAULTS``, keyed by the
+       TRACK's kind (its override, else the study's) — ``optimize`` closes on
+       ``verify``, everything else that closes at all closes on ``sealed``.
+
+    Without a contract only an explicit track declaration counts: a bare mapping
+    carries no kind to take a default from.
+    """
+    declared = _declared_require(track_spec)
+    if declared is not None:
+        return declared
+    if contract is None:
+        return set()
+    if _declared_require(contract) is not None:
+        return set(confirmation_require(contract))
+    kind = track_kind(contract, track_spec)
+    return set(CONFIRMATION_DEFAULTS.get(str(kind), ("sealed",)))
 
 
 # ---------------------------------------------------------------------------
@@ -456,23 +483,47 @@ def _verifier_spec(track_spec: Mapping[str, Any], track: str) -> tuple[list[str]
     return [str(part) for part in command], artifact_key.strip()
 
 
+def _resolve_artifact(
+    study_dir: Path, manifest: Mapping[str, Any], artifact_key: str, run_id: str
+) -> str:
+    """Which study-relative file the verifier judges, in order of authority.
+
+    1. ``manifest.verifier.artifact`` — what ``run-one``'s own verifier checked;
+    2. the last ``<artifact_key>:`` line the run PRINTED (``run-one`` resolves
+       the artifact the same way, so a re-verification judges the same object);
+    3. ``artifact_key`` read as a study-relative path, or as the basename of one
+       entry in the manifest's artifact inventory — for a track that names the
+       file directly instead of printing it.
+    """
+    verifier = manifest.get("verifier")
+    if isinstance(verifier, Mapping) and isinstance(verifier.get("artifact"), str):
+        return verifier["artifact"]
+    printed = printed_values(study_dir / "runs" / run_id / "run.log", artifact_key)
+    if printed:
+        return printed[-1]
+    artifacts = manifest.get("artifacts")
+    artifacts = artifacts if isinstance(artifacts, Mapping) else {}
+    if artifact_key in artifacts:
+        return artifact_key
+    matches = [str(key) for key in artifacts if Path(str(key)).name == artifact_key]
+    if len(matches) == 1:
+        return matches[0]
+    return artifact_key
+
+
 def _pinned_artifact(
     study_dir: Path, manifest: Mapping[str, Any], artifact_key: str, run_id: str
 ) -> tuple[str, Path]:
     """Resolve, locate, and hash-check the artifact the verifier judges."""
-    artifacts = manifest.get("artifacts")
-    artifacts = artifacts if isinstance(artifacts, Mapping) else {}
-    rel, meta = artifact_key, artifacts.get(artifact_key)
-    if meta is None:
-        matches = [key for key in artifacts if Path(str(key)).name == artifact_key]
-        if len(matches) == 1:
-            rel, meta = str(matches[0]), artifacts[matches[0]]
+    rel = _resolve_artifact(study_dir, manifest, artifact_key, run_id)
     path = _artifact_path(study_dir, rel)
     if not path.is_file():
         raise WorkflowError(
             f"the pinned artifact {rel} recorded by {run_id} is absent from disk; a "
             "verification must judge the SAME object (the manifest records its sha256)"
         )
+    artifacts = manifest.get("artifacts")
+    meta = artifacts.get(rel) if isinstance(artifacts, Mapping) else None
     if isinstance(meta, Mapping) and isinstance(meta.get("sha256"), str):
         actual = sha256_file(path)
         if actual != meta["sha256"]:
@@ -482,6 +533,33 @@ def _pinned_artifact(
                 "would judge a different object"
             )
     return rel, path
+
+
+def _assert_same_checker(study_dir: Path, manifest: Mapping[str, Any], run_id: str) -> None:
+    """The re-verification must use the SAME checker the run was judged by.
+
+    ``run-one`` records a sha256 per verifier script it could see on disk; a
+    changed script means the number would come from a different program, which
+    is a new measurement, not a reproduction of the old one.
+    """
+    verifier = manifest.get("verifier")
+    hashes = verifier.get("sha256") if isinstance(verifier, Mapping) else None
+    if not isinstance(hashes, Mapping):
+        return
+    for name, expected in hashes.items():
+        path = study_dir / str(name)
+        if not path.is_file():
+            raise WorkflowError(
+                f"the verifier script {name} recorded by {run_id} is missing; "
+                "a re-verification must run the same checker"
+            )
+        actual = sha256_file(path)
+        if isinstance(expected, str) and actual != expected:
+            raise WorkflowError(
+                f"the verifier script {name} changed since {run_id} (manifest "
+                f"{expected[:12]}…, on disk {actual[:12]}…); re-running it would be a "
+                "new measurement, not a re-verification"
+            )
 
 
 def _verified_baseline(manifest: Mapping[str, Any]) -> tuple[float, str]:
@@ -713,6 +791,7 @@ def _run_verify(
     """
     track = str(manifest.get("track"))
     command, artifact_key = _verifier_spec(track_spec, track)
+    _assert_same_checker(study_dir, manifest, run_id)
     artifact_rel, artifact_path = _pinned_artifact(study_dir, manifest, artifact_key, run_id)
     baseline, baseline_source = _verified_baseline(manifest)
     # A verification needs no worktree, so it needs no repository either: fall
@@ -806,10 +885,11 @@ def confirmation_gaps(
 ) -> dict[str, list[str]]:
     """Per track, the ``replicate`` / ``verify`` records ``finalize`` is missing.
 
-    Empty when no track declares ``confirmation.require`` — which is every
-    schema-2 study, so the schema-2 ``finalize`` path is untouched (the function
-    returns before it reads a single file).  ``sealed`` is deliberately not
-    handled here: ``finalize`` already enforces it through the holdout counts.
+    Empty when no track REQUIRES ``replicate`` or ``verify`` — which is every
+    schema-2 study (an untyped contract takes the ``sealed`` default), so the
+    schema-2 ``finalize`` path is untouched: the function returns before it
+    reads a single file.  ``sealed`` is deliberately not handled here —
+    ``finalize`` already enforces it through the holdout counts.
     """
     tracks = normalize_tracks(contract)
     wanted = {

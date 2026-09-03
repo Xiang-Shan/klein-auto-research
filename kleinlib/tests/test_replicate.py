@@ -64,6 +64,7 @@ Path({marker!r}).write_text(
 )
 Path("models").mkdir(exist_ok=True)
 Path("models/best.json").write_text(json.dumps({{"score": 0.7}}), encoding="utf-8")
+print("artifact:          models/best.json")
 print("primary_metric:    %.6f" % value)
 print("metric_name:       val_auc")
 print("metric_goal:       higher")
@@ -428,7 +429,9 @@ def verifier_study(ready_study, tmp_path: Path):
             verifier={
                 "command": [sys.executable, "-u", "verify.py"],
                 "tolerance": 1e-6,
-                "artifact_key": "models/best.json",
+                # the KEY train.py prints the artifact path under (package A's
+                # `run-one` resolves the artifact from that printed line)
+                "artifact_key": "artifact",
             }
         ),
     )
@@ -461,7 +464,10 @@ def test_verify_only_reruns_the_declared_verifier_on_the_pinned_artifact(
     assert record["tolerance_source"] == "verifier.tolerance"
     assert record["artifact"] == "models/best.json"
     assert record["artifact_sha256"] == manifest["artifacts"]["models/best.json"]["sha256"]
-    assert record["baseline_source"] == "manifest.primary_metric"
+    # package A's run-one recorded the verified number; that is the baseline a
+    # re-verification reproduces, not the searcher's own report
+    assert record["baseline_source"] == "manifest.metric.verified"
+    assert manifest["verifier"]["artifact"] == "models/best.json"
     # no worktree at all: the verifier judges the artifact where it lies
     assert record["worktree_prepared"] is False
     assert git(repo, "worktree", "list").count("\n") == 0
@@ -502,6 +508,20 @@ def test_verify_only_refuses_an_artifact_that_moved(verifier_study) -> None:
         replicate_run(study, "E0001", verify_only=True, echo=False)
 
 
+def test_verify_only_refuses_a_checker_that_changed(verifier_study) -> None:
+    """A re-verification must run the SAME checker: `run-one` pins the verifier
+    script's sha256, and a changed script is a new measurement, not a re-check."""
+    _repo, study, _drift, _marker, manifest = verifier_study
+    assert "verify.py" in manifest["verifier"]["sha256"]
+    verify = study / "verify.py"
+    verify.write_text(verify.read_text(encoding="utf-8") + "\n# tweaked\n", encoding="utf-8")
+    with pytest.raises(WorkflowError, match="verifier script verify.py changed since E0001"):
+        replicate_run(study, "E0001", verify_only=True, echo=False)
+    verify.unlink()
+    with pytest.raises(WorkflowError, match="verifier script verify.py .* is missing"):
+        replicate_run(study, "E0001", verify_only=True, echo=False)
+
+
 # ---------------------------------------------------------------------------
 # 6. `klein finalize` degrades a track that did not pay for its confirmation
 # ---------------------------------------------------------------------------
@@ -538,17 +558,43 @@ def sealed_study(replicable):
     return repo, study, value_file, marker, manifest
 
 
-def test_required_confirmation_reads_the_track_then_the_study(replicable) -> None:
-    assert required_confirmation({}) == set()
+def test_required_confirmation_reads_the_track_then_the_study_then_the_kind() -> None:
+    # 1. the track's own declaration wins over the study-wide one
     assert required_confirmation({"confirmation": {"require": ["sealed", "replicate"]}}) == {
         "sealed",
         "replicate",
     }
-    assert required_confirmation({}, {"confirmation": {"require": ["verify"]}}) == {"verify"}
-    # the track wins over the study-wide default
     assert required_confirmation(
         {"confirmation": {"require": []}}, {"confirmation": {"require": ["verify"]}}
     ) == set()
+    # 2. else the study-level block, read through package A's helper
+    assert required_confirmation({}, {"confirmation": {"require": ["verify"]}}) == {"verify"}
+    # 3. else the per-kind default, keyed by the TRACK's kind
+    assert required_confirmation({}, {"kind": "optimize"}) == {"verify"}
+    assert required_confirmation({}, {"kind": "predict"}) == {"sealed"}
+    assert required_confirmation({"kind": "optimize"}, {"kind": "predict"}) == {"verify"}
+    assert required_confirmation({}, {"kind": "discover"}) == set()
+    # an untyped (schema-2) contract closes on sealed, so nothing here fires
+    assert required_confirmation({}, {}) == {"sealed"}
+    # a bare mapping with no contract carries no kind to default from
+    assert required_confirmation({}) == set()
+
+
+def test_a_schema_3_optimize_track_defaults_to_wanting_a_verify_record(replicable) -> None:
+    """The inquiry model's kind table IS the default: an `optimize` track closes
+    on `verify` with no confirmation block declared, and `predict` on `sealed`
+    (which finalize enforces through the holdout counts, not here)."""
+    _repo, study, _value, _marker, _manifest = replicable
+    manifests = _manifests(study)
+    tracks = {"primary": {"metric": {"name": "val_auc", "goal": "higher"}}}
+
+    gaps = confirmation_gaps(study, {"kind": "optimize", "tracks": tracks}, manifests)
+    assert len(gaps["primary"]) == 1
+    assert gaps["primary"][0].startswith("verify:")
+    assert "E0001" in gaps["primary"][0] and "--verify-only" in gaps["primary"][0]
+
+    assert confirmation_gaps(study, {"kind": "predict", "tracks": tracks}, manifests) == {}
+    assert confirmation_gaps(study, {"kind": "discover", "tracks": tracks}, manifests) == {}
 
 
 def test_a_schema_2_study_declares_nothing_and_finalizes_unchanged(sealed_study) -> None:
