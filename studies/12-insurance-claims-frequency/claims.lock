@@ -109,6 +109,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "brier_balanced",
         "brier_ratio_doctrine"
       ],
       "strength": "exploratory"
@@ -186,6 +187,12 @@
       "claim": "C3",
       "precision": 4,
       "value": 0.9671
+    },
+    "brier_balanced": {
+      "art": "aux",
+      "claim": "C5",
+      "precision": 6,
+      "value": 0.240641
     },
     "brier_ratio_doctrine": {
       "art": "derived",
