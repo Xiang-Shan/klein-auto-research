@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-09-03T07:57:41.581729Z"
+      "timestamp": "2026-09-03T08:23:23.948377Z"
     },
     "data": {
       "by": "lead-agent",
@@ -18,7 +18,7 @@
     "method_card.md": "5afdd080a2fda15fed8ace7d5902a6f0d7364b3b4c92db46bda7d234c90153f5",
     "research_plan.md": "e252b06c81629365b39ab708d34cfeafa41afe0bfe00f788d1c09ddfb45590c4",
     "scouting_ledger.md": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9",
-    "study.yaml": "49a59d02fe9a0157a6b195a4347b6fa86fce82ddeded81f2fca0c6193a86bba4"
+    "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
   },
   "created_at": "2026-09-03T07:43:46.996540Z",
   "current_phase": "adaptive-1",
@@ -40,15 +40,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-09-03T07:57:41.581729Z",
+      "acknowledged_at": "2026-09-03T08:23:23.948377Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "c318718925cf1bcf09ab08ccdf8cad70029e13c661a6158e6cdc1d9dcd9b626c",
+        "program.md": "7de96a0ae8746b15bea5f6daa73e5e4ec4a884082c40e445df30b63ceb89dc6f",
         "research_plan.md": "e252b06c81629365b39ab708d34cfeafa41afe0bfe00f788d1c09ddfb45590c4",
         "scouting_ledger.md": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9",
-        "study.yaml": "49a59d02fe9a0157a6b195a4347b6fa86fce82ddeded81f2fca0c6193a86bba4"
+        "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
       },
-      "note": "",
+      "note": "minimum_delta set from the measured noise floor (paired-bootstrap / paired-comparison, k=20, sweeps/paired_bootstrap.sidecar.tsv) and metric.bound.ideal declared as 1.0 in the same edit \u2014 the engine refuses a bound without a floor estimand, so the two could not be separated. No prediction, tolerance, target, rung or phase changed: study.yaml's diff is the two floor blocks plus the bound. Phase 0 ran after the DATA and METHOD gates and before any ledger row.",
       "status": "recorded"
     },
     "data": {
@@ -126,5 +126,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:22:57.311161Z"
+  "updated_at": "2026-09-03T08:23:23.949486Z"
 }
