@@ -46,7 +46,8 @@
       "numbers": [
         "large_200k",
         "large_20k",
-        "large_2M"
+        "large_2M",
+        "large_sealed"
       ],
       "strength": "exploratory"
     },
@@ -183,6 +184,13 @@
       "note": "E0007: n = 31 at the largest budget, the cell that decided P2",
       "precision": 0,
       "value": 54
+    },
+    "large_sealed": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0010, the sealed cell of n_large",
+      "precision": 0,
+      "value": 55
     },
     "small_200k": {
       "art": "results",
