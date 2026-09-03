@@ -32,6 +32,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "small_200k",
         "small_20k"
       ],
       "strength": "exploratory"
@@ -156,6 +157,13 @@
       "note": "the n_small instance's grid size, printed by every run of that track as grid_n",
       "precision": 0,
       "value": 11
+    },
+    "small_200k": {
+      "art": "results",
+      "claim": "C1",
+      "note": "the verifier's number for E0003 and, unchanged, for E0004",
+      "precision": 0,
+      "value": 21
     },
     "small_20k": {
       "art": "results",
