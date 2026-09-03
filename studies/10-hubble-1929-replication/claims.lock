@@ -246,6 +246,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "sealed_deviation",
         "sealed_mean_abs_mag"
       ],
       "strength": "exploratory"
@@ -447,6 +448,13 @@
       "note": "f = k_origin / 70, the single factor applied to every distance (E0012)",
       "precision": 6,
       "value": 6.056247
+    },
+    "sealed_deviation": {
+      "art": "aux",
+      "claim": "C8",
+      "note": "distance from Hubble's printed Table 2 mean (E0011)",
+      "precision": 6,
+      "value": 0.224998
     },
     "sealed_mean_abs_mag": {
       "art": "aux",
