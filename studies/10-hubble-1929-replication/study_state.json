@@ -313,11 +313,11 @@
   },
   "replications": {
     "E0001": {
-      "attempts": 1,
+      "attempts": 2,
       "modes": {
         "replicate": {
-          "attempts": 1,
-          "reproduced": false
+          "attempts": 2,
+          "reproduced": true
         }
       },
       "records": [
@@ -327,6 +327,14 @@
           "mode": "replicate",
           "reproduced": false,
           "timestamp": "2026-09-03T06:28:32.419935Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20260903T063009Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:30:09.053724Z",
           "tolerance": 0.0
         }
       ],
@@ -356,5 +364,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:29:33.104800Z"
+  "updated_at": "2026-09-03T06:31:22.446177Z"
 }
