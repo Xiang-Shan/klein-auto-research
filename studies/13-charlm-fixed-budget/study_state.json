@@ -103,14 +103,14 @@
   },
   "replications": {
     "E0001": {
-      "attempts": 2,
+      "attempts": 3,
       "modes": {
         "replicate": {
           "attempts": 1,
           "reproduced": true
         },
         "verify": {
-          "attempts": 1,
+          "attempts": 2,
           "reproduced": true
         }
       },
@@ -129,6 +129,14 @@
           "mode": "verify",
           "reproduced": true,
           "timestamp": "2026-09-03T12:13:58.140425Z",
+          "tolerance": 0.01
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0001@20260903T121401Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T12:14:01.949393Z",
           "tolerance": 0.01
         }
       ],
@@ -167,5 +175,5 @@
       "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
     }
   },
-  "updated_at": "2026-09-03T12:14:00.964076Z"
+  "updated_at": "2026-09-03T12:14:03.704175Z"
 }
