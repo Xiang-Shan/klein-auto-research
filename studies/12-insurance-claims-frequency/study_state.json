@@ -71,7 +71,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 2,
+  "last_experiment": 3,
   "overrides": [
     {
       "acknowledged_at": "2026-09-03T08:18:38.452188Z",
@@ -141,6 +141,46 @@
       "recorded_at": "2026-09-03T08:29:11.333173Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "primary_metric 0.664051 within 0.0225 of 0.662897 (|\u0394| = 0.001154) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "primary_metric 0.664051 within 0.0225 of 0.662897 (|\u0394| = 0.001154) \u2192 supported",
+          "recorded_at": "2026-09-03T08:33:25.410594Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:33:25.410594Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P5": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "delta_in_floors 0.3714 >= 1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "delta_in_floors 0.3714 >= 1 \u2192 refuted",
+          "recorded_at": "2026-09-03T08:33:25.411555Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:33:25.411555Z",
+      "source": "run",
+      "verdict": "refuted"
     }
   },
   "prepared_data": {
@@ -188,5 +228,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:29:11.334454Z"
+  "updated_at": "2026-09-03T08:33:25.413548Z"
 }

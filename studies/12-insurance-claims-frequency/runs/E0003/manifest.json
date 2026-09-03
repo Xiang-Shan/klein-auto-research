@@ -1,0 +1,115 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2339,
+      "committed": true,
+      "sha256": "f7192cfa0b8338a18f78286bf22ae5361b412f2089834878c9cd3a1bd3377925"
+    },
+    "models/best_primary_E0003_0.664051_20bc52a45049.joblib": {
+      "availability": "local",
+      "bytes": 225186,
+      "committed": false,
+      "sha256": "d4353f90687f29fc00bda0877fdfdcf8108a6024dbefb324143272dc81755875"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 703,
+      "committed": true,
+      "sha256": "dcd8903caf3e9c7b4f24da0957c64b55cb5ba8b7bdab0a74b59ba3dd155f0cb4"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 1376,
+      "committed": true,
+      "sha256": "823f2543f60b64358750be60018f843365fbbccd6a62c61d751de2ae8b31e4c0"
+    }
+  },
+  "base_commit": "936ab5d89ffab3cbdc20f5c52b2706439e6d0eef",
+  "candidate_commit": "c846660d73b119a1bf1ebe3ab172059a826febfb",
+  "code_patch_hash": "6676aefbc07a05ddc4444aa9a701ca90a597de36de154560252028d35a6646b8",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 0.61414 with minimum_delta=0.0375805",
+  "description": "E0003 HGBT: the v1 tree rung (learning_rate 0.05, 500 iters, 31 leaves, class_weight=balanced, early stopping), the only rung recoverable verbatim from a committed file, against the calibrated GLM refitted on the same rows; decides P4 and P5; frontier improvement over 0.61414 with minimum_delta=0.0375805",
+  "disposition": "keep",
+  "ended_at": "2026-09-03T08:33:25.409912Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7",
+    "split_partition": "7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 300.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "anchor_gap": 0.001154,
+    "brier_delta_vs_reference": 0.164536,
+    "delta_in_floors": 0.3714,
+    "delta_vs_reference": 0.013956,
+    "primary_metric": 0.664051,
+    "reference_auc": 0.650095,
+    "reference_brier": 0.058994,
+    "runner_exit_code": 0.0,
+    "total_seconds": 173.2,
+    "train_rows": 46873.0,
+    "training_seconds": 1.1,
+    "twin_free_auc": 0.665069,
+    "twin_free_gap": 0.001018,
+    "twin_free_rows": 5559.0,
+    "v1_anchor": 0.662897,
+    "val_best_threshold": 0.58,
+    "val_brier": 0.223529,
+    "val_f1_at_best": 0.1866,
+    "val_lift_top10": 2.2167,
+    "val_logloss": 0.633969,
+    "val_pr_auc": 0.11161,
+    "val_rows": 5859.0,
+    "wall_seconds": 173.234832
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P4": {
+      "explanation": "primary_metric 0.664051 within 0.0225 of 0.662897 (|\u0394| = 0.001154) \u2192 supported",
+      "verdict": "supported"
+    },
+    "P5": {
+      "explanation": "delta_in_floors 0.3714 >= 1 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P4",
+    "P5"
+  ],
+  "primary_metric": 0.664051,
+  "schema_version": 3,
+  "started_at": "2026-09-03T08:30:31.290035Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T08:33:25.412907Z",
+    "status": "pending"
+  },
+  "wall_seconds": 174.11959900008515
+}
