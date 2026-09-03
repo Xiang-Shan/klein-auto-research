@@ -106,7 +106,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "paired_mean_difference"
+        "paired_mean_difference",
+        "paired_se_difference"
       ],
       "strength": "exploratory"
     },
@@ -482,6 +483,13 @@
       "note": "mean paired bootstrap difference, inverse minus forward (E0007)",
       "precision": 6,
       "value": 282.639496
+    },
+    "paired_se_difference": {
+      "art": "invfwd",
+      "claim": "C11",
+      "note": "standard error of that paired difference (E0007)",
+      "precision": 6,
+      "value": 115.484712
     },
     "probable_error": {
       "art": "aux",
