@@ -103,6 +103,12 @@
       "acknowledged_by": "lead-agent",
       "note": "",
       "playbook_sha256": "4518ca3c85eb7d7a2ccb4dcde274f8ffd18bd2b71f066d867b4daa7be4e61b1c"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-09-03T06:56:49.444813Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "4518ca3c85eb7d7a2ccb4dcde274f8ffd18bd2b71f066d867b4daa7be4e61b1c"
     }
   },
   "predictions": {
@@ -656,5 +662,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:55:38.841277Z"
+  "updated_at": "2026-09-03T06:56:49.445253Z"
 }
