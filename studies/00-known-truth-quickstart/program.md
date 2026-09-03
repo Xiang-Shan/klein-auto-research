@@ -187,3 +187,29 @@ nothing the generator has not already said. #6 scores 1 on testability because a
 logistic regression on 12 000 rows barely notices two noise columns; the
 predicted move is well under `minimum_delta`, so one run cannot decide it. Both
 go to the playbook queue rather than the ledger.
+
+### Phase confirmation slate
+
+A confirmation phase has exactly one lawful candidate, so the ritual's job here
+is to write down what was NOT done with the seal, and why.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | E0003's configuration, unchanged, once on the sealed partition; decides P5 | 1 | 3 | 3 | 7 |
+| 2 | re-tune on development first, then seal the winner | 2 | 3 | 1 | 6 |
+| 3 | seal E0002 as well, to get a second sealed number for the gap | 2 | 1 | 2 | 5 |
+| 4 | skip the seal and close the study exploratory | 1 | 3 | 1 | 5 |
+
+Chosen: 1. #2 is refused by the phase budget and by the discipline — the frontier
+closed when the adaptive phase's experiments were spent, and re-opening it to
+improve the number that is about to be sealed is how a sealed number stops
+meaning anything. #3 scores 1 on testability because this study declares ONE
+track and a track gets ONE sealed access: two sealed numbers would have required
+two tracks declared at CONSULT, which is exactly the choice the consult protocol
+says to make before the loop and not after it. #4 would waste an already-earned
+confirmation.
+
+The rehearsal (`klein run-one --final-test --dry-run`) runs first and is not
+optional: study 09 lost its only seal to a crash that happened before any data
+was read.
+
