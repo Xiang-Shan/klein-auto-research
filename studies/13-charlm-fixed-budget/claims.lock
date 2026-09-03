@@ -149,7 +149,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "e0008_sealed_gap"
+        "e0008_sealed_gap",
+        "sealed_gap_nats"
       ],
       "strength": "exploratory"
     },
@@ -361,6 +362,13 @@
       "note": "the same, in fit-noise standard deviations",
       "precision": 6,
       "value": 0.119808
+    },
+    "sealed_gap_nats": {
+      "art": "summary",
+      "claim": "C7",
+      "note": "E0008 minus the development incumbent",
+      "precision": 6,
+      "value": 0.046961
     },
     "steps_budget": {
       "art": "frontier",
