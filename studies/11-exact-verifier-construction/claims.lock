@@ -158,7 +158,8 @@
       ],
       "numbers": [
         "triples_largest",
-        "verifier_seconds_largest"
+        "verifier_seconds_largest",
+        "verifier_seconds_small"
       ],
       "strength": "exploratory"
     },
@@ -378,6 +379,13 @@
       "note": "wall_seconds in E0010's verifier log: the checker's own cost on the largest object this study verified, beside its triples_checked 26235",
       "precision": 6,
       "value": 0.002046
+    },
+    "verifier_seconds_small": {
+      "art": "verify_log_small",
+      "claim": "C6",
+      "note": "wall_seconds in E0009's verifier log: the checker's cost on the 22-point object, the size at which sub-millisecond does hold",
+      "precision": 6,
+      "value": 0.000169
     }
   },
   "study_id": "11-exact-verifier-construction"
