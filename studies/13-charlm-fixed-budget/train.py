@@ -42,9 +42,10 @@ from kleinlib.torch_device import pick_device
 
 # --- the candidate: the whole per-experiment diff surface -------------------
 RECIPE: dict[str, object] = {
-    "name": "anchor",
-    # E0001: the identity anchor at a seed the Phase-0 floor sweep never used
-    # (the floor used 1-5), so "reproduces within fit noise" is a real test.
+    "name": "width256",
+    # E0005: ONE change from the anchor — model.py CONFIG["n_embd"] = 256, so
+    # 3,222,336 parameters instead of 824,320 at the same 4 heads and the same
+    # 2000 steps. More arithmetic per step, not more steps. Adjudicates P5.
     "seed": 20260903,
     "max_steps": 2000,      # the BUDGET. The verifier reads it back out of the
                             # checkpoint and the `steps` guardrail pins it.
