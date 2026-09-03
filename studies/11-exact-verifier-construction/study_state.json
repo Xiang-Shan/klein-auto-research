@@ -159,6 +159,42 @@
       "recorded_at": "2026-09-03T07:40:10.269199Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P4": {
+      "acknowledged_by": "lead-agent",
+      "evidence": [
+        "verify:E0001@20260903T074705Z",
+        "verify:E0002@20260903T074707Z",
+        "verify:E0003@20260903T074708Z",
+        "verify:E0004@20260903T074710Z",
+        "verify:E0005@20260903T074711Z",
+        "verify:E0006@20260903T074713Z",
+        "verify:E0007@20260903T074714Z"
+      ],
+      "explanation": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+      "history": [
+        {
+          "acknowledged_by": "lead-agent",
+          "evidence": [
+            "verify:E0001@20260903T074705Z",
+            "verify:E0002@20260903T074707Z",
+            "verify:E0003@20260903T074708Z",
+            "verify:E0004@20260903T074710Z",
+            "verify:E0005@20260903T074711Z",
+            "verify:E0006@20260903T074713Z",
+            "verify:E0007@20260903T074714Z"
+          ],
+          "explanation": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+          "note": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+          "recorded_at": "2026-09-03T07:48:01.980619Z",
+          "source": "manual",
+          "verdict": "supported"
+        }
+      ],
+      "note": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+      "recorded_at": "2026-09-03T07:48:01.980619Z",
+      "source": "manual",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -310,5 +346,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:47:15.617440Z"
+  "updated_at": "2026-09-03T07:48:01.981098Z"
 }
