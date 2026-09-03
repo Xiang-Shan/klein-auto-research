@@ -1,5 +1,10 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "results": {
+      "path": "results.tsv",
+      "sha256": "d802518273c96ed9c093792d7be286a0a09e03f55f7d8c14f0252fe4fbf3bce0"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "RQ1 | primary | supported | confirmed | empirical-description | E0001, E0002, E0003, E0005 | the ladder closed the distance to the development ceiling of 0.884116 from 10.4555 measured floors at the raw-feature anchor (val_auc 0.806201) to 1.7077 at the boosted incumbent (val_auc 0.871390); the sealed partition returned val_auc 0.880949 against its own ceiling of 0.893469, a distance of 1.6800 floors. Floor: minimum_delta 0.00745212 from a marginal-resplit lottery of k = 10 draws, std 0.00372606 |",
