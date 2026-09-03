@@ -8,6 +8,10 @@
       "path": "tables/harness_controls.tsv",
       "sha256": "a7895829c5da31601e50c434787b4cbaa2625bf2a201535573ea7c1bffacc31e"
     },
+    "corpus": {
+      "path": "tables/corpus_profile.tsv",
+      "sha256": "7941e1e145e3e8406c9b0af5c5010fe77a82823a983bef96b6e3fb087218bbcd"
+    },
     "frontier": {
       "path": "tables/frontier.tsv",
       "sha256": "2480be9abcd841abf88a002fd758af32f1ae7b01b0fdf6e96dee4af444f6445b"
