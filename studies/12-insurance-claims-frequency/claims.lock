@@ -83,15 +83,20 @@
       "strength": "exploratory"
     },
     "C11": {
-      "claim": "(sentence for C11 \u2014 copy it from findings.md)",
-      "class": null,
+      "claim": "AUC held across the seal and top-decile lift did not: the incumbent's AUC moved 0.1680 of a floor while its top-decile lift fell 0.5101, from 2.2167 to 1.7067, at a portfolio claim rate of 0.063968.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0003",
+        "E0005",
+        "art:derived"
+      ],
       "numbers": [
         "claim_rate",
         "lift10_dev",
         "lift10_drop",
-        "lift10_sealed"
+        "lift10_sealed",
+        "sealed_shift_in_floors"
       ],
       "strength": "exploratory"
     },
