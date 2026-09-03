@@ -1,5 +1,9 @@
 {
   "artifacts": {
+    "anchors": {
+      "path": "tables/identity_anchors.tsv",
+      "sha256": "8f927d354d4f2995f011e4e26dc50ebc51db4880ecefc7358a83693448edef93"
+    },
     "aux": {
       "path": "aux_metrics.tsv",
       "sha256": "092fbfe0ba2e6d4e5520996efc87631cba0819c738534a2e3ea128222f90c493"
