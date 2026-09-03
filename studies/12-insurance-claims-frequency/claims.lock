@@ -221,6 +221,7 @@
         "sealed_auc",
         "sealed_shift_in_floors",
         "sealed_twin_free_auc",
+        "sealed_twin_free_gap",
         "sealed_twin_free_rows"
       ],
       "strength": "confirmed"
@@ -446,6 +447,13 @@
       "note": "E0005 twin_free_auc: the sealed score on the rows with no twin among the rows it was fitted on",
       "precision": 6,
       "value": 0.656647
+    },
+    "sealed_twin_free_gap": {
+      "art": "derived",
+      "claim": "C7",
+      "note": "magnitude of E0005 twin_free_gap",
+      "precision": 6,
+      "value": 0.001091
     },
     "sealed_twin_free_rows": {
       "art": "aux",
