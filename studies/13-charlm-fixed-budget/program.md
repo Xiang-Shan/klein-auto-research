@@ -392,3 +392,37 @@ Six experiments, 6 of 6 slots used, one keep.
 - **Budget:** the six runs cost about four minutes of wall clock in total; the phase's
   9000-second budget was never the binding constraint. The BUDGET in this study is
   2000 steps, and it bound every candidate equally.
+
+### Phase confirmation log
+
+- 2026-09-03 — **Sealed dry-run first, as the law requires.** `klein run-one
+  --final-test --dry-run` executed the frozen E0006 configuration against development
+  rows and printed `sealed_dryrun: 1`; nothing was spent. Study 09 lost its only seal
+  to a crash that ran before any data was read, and this study did not repeat it.
+- 2026-09-03 — **E0008 (sealed) — val_loss 1.566280 on the sealed final tenth.
+  Decision: P6 is REFUTED.** The registered rule was
+  `abs(sealed_gap_in_fit_noise) <= 2`; the observed gap is 5.8485 fit-noise standard
+  deviations — the sealed block is 0.046961 nats harder than the development block for
+  the same recipe, which is 3.14 measured floors. The pre-scripted branch said
+  "refuted → the gap is reported as a partition effect, and the claim's strength stays
+  exploratory", and that is what happens. The reading is a partition effect and not
+  overfitting: the sealed run RETRAINED on train + development, so it saw 111,616 more
+  characters than the development incumbent did, and still scored worse. A contiguous
+  final tenth of a concatenation of plays is a different sample of the corpus's own
+  nonstationarity — different plays, different speakers, different proper nouns — and
+  a contiguous-block split buys leakage safety at the price of a distribution shift
+  that a shuffled split would have hidden. Both halves of that trade belong in the
+  advice.
+- 2026-09-03 — **Scope limitation, recorded at the moment it became live rather than
+  discovered in synthesis.** This study declared ONE track and therefore has ONE
+  sealed access, and it spent it on the selected candidate. That arithmetic confirms
+  the selected recipe's LEVEL on unseen text and nothing else: the +3.3326-floor
+  improvement of cosine decay over the anchor was measured on the development
+  partition only, and no sealed measurement of the anchor exists to difference against.
+  The consult protocol warns about exactly this ("a single-track study can confirm only
+  the incumbent's LEVEL") and offers two lawful routes — a track per family, or
+  pre-registering the gap as exploratory-by-construction. **This contract took
+  neither**: it declared one track and said nothing about the gap. The honest
+  consequence is that findings must call the improvement exploratory and say why, and
+  that is what §① and §③ do. It is also the study's clearest process lesson for
+  `knowledge/`.
