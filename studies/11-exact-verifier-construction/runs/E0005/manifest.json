@@ -1,0 +1,114 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1677,
+      "committed": true,
+      "sha256": "594d5873e28352c52ee4b9b2e432f887d8865cf08f99589d7ee2b5c69c88134d"
+    },
+    "models/E0005/solution.json": {
+      "availability": "recorded",
+      "bytes": 1807,
+      "committed": true,
+      "sha256": "b6905949e999171f374d04967dfe9b78f6a97dda596f53fd285d36bf684640cb"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 631,
+      "committed": true,
+      "sha256": "150b79ebcdb45ce4249354ad2038e014b47759b39c19045b5629ca778912b866"
+    }
+  },
+  "base_commit": "a537bd922f4546970aa993c40995b0bd8c4fd9c8",
+  "candidate_commit": "59dc99568730d0f4d54331976234cb023b4cf628",
+  "code_patch_hash": "9465f71b893266ff5cb27440df8fc36cb2012f9f7ebcd48c53faa540d8b50027",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "did not improve track frontier 62 by minimum_delta=1 (external incumbent 62)",
+  "description": "n_large at the smallest registered budget: 20 000 addability tests on the 31 x 31 grid, development seed block; did not improve track frontier 62 by minimum_delta=1 (external incumbent 62)",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T07:45:36.232380Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055",
+    "split_partition": "f0d4b0509c8b7edee3d503eff8f5da7129c9fc9a12b48e1cff408fd1bff590c9"
+  },
+  "incumbent": null,
+  "matched_external": false,
+  "max_run_seconds": 120.0,
+  "metric": {
+    "reported": 50.0,
+    "verified": 50.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "points",
+  "metrics": {
+    "best_at_evaluation": 7376.0,
+    "budget": 20000.0,
+    "claim_excess": 0.0,
+    "claimed_objective": 50.0,
+    "evaluations": 20000.0,
+    "grid_n": 31.0,
+    "object_size": 50.0,
+    "overclaim_by": 0.0,
+    "passes": 22.0,
+    "primary_metric": 50.0,
+    "runner_exit_code": 0.0,
+    "sealed_block": 0.0,
+    "search_seconds": 0.01099495799280703,
+    "search_seed": 20260903.0,
+    "total_seconds": 0.0,
+    "triples_checked": 19600.0,
+    "wall_seconds": 0.001528
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 8,
+  "predictions_requested": [],
+  "primary_metric": 50.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T07:45:35.461789Z",
+  "timed_out": false,
+  "track": "n_large",
+  "transaction": {
+    "committed_at": "2026-09-03T07:45:37.030898Z",
+    "evidence_commit": "8c0177607e46121548faea4972013841ff461f61",
+    "recovered": false,
+    "status": "complete"
+  },
+  "verifier": {
+    "artifact": "models/E0005/solution.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "959ba15bac56cd94f00e7198788601bd87fa38767912ad34e223a0292f739cbe"
+    },
+    "timed_out": false,
+    "wall_seconds": 0.7149413330480456
+  },
+  "wall_seconds": 0.770462165819481
+}

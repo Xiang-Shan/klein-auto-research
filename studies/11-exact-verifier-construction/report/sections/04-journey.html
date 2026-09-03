@@ -1,0 +1,94 @@
+<h2>4 · The experiment journey</h2>
+
+<p>Ten runs, in two phases, on two tracks. Every one of them is a discard or a crash —
+that was arithmetic, registered in advance (§1) — so the interesting structure is not a
+frontier climbing but a <em>reach</em> being measured, and one refusal being tested.</p>
+
+<h3>§4.1 · The ledger, as the engine draws it</h3>
+
+<p>Run order rather than budget, one panel per track. The discards are evidence dots; the
+crash has no metric and therefore no place on a metric axis, so it sits on the rug where
+it can still be seen; the sealed cell is a star, outside the adaptive frontier by
+construction.</p>
+
+<img data-fig="figures/plot_decision_trajectory__n_small.png" alt="Decision trajectory for track n_small: four development discards, the E0008 crash on the rug, and the sealed star at 22.">
+<img data-fig="figures/plot_decision_trajectory__n_large.png" alt="Decision trajectory for track n_large: three development discards and the sealed star at 55.">
+
+<!--LEDGER-->
+
+<h3>§4.2 · E0001 — audit the judge before believing anything</h3>
+
+<p>The first cell runs the declared verifier, unchanged, on each of the twelve frozen
+invalid objects and counts the rejections, then hands the notary the known-valid parabola
+set as its own artifact — so the acceptance half is performed by the notary's own verifier
+invocation rather than by the search. Printed: <code>planted: 12</code>,
+<code>rejected: 12</code>, and a ledger metric of 11, exactly the value the theorem
+predicts. <strong>P3 supported.</strong> Nothing after this line would be worth reading if
+this line had failed.</p>
+
+<img data-fig="figures/checker_ledger.png" alt="Left: all twelve planted invalid objects rejected with exit 2. Right: E0008's searcher reported 21 where the checker measured 20.">
+
+<h3>§4.3 · E0002–E0007 — the same search, two instances, one budget ladder</h3>
+
+<p>Three rungs per track — 20000, 200000, 2000000 addability tests — from the development
+seed block. Because the budget is a strict prefix of one random stream, the three rungs are
+one trajectory read at three points, so the curve is monotone by construction.</p>
+
+<img data-fig="figures/reach_vs_budget.png" alt="Verified objective against evaluation budget for both tracks, with the proven maximum drawn as a dashed reference line.">
+
+<p>On the 11 × 11 grid: 20, then 21, then 21. On the 31 × 31 grid: 50, then 53, then 54.
+<strong>P2 supported</strong> at n = 31 (54 &lt; 62). And at n = 11 —</p>
+
+<blockquote>
+<p><strong>P1 refuted.</strong> The prediction said the search would reach 22 within
+2000000 addability tests. It reached 21. The sharper detail is inside the run: the best
+object was found at evaluation 152572, and the remaining budget — 19014 greedy completions
+in all — produced nothing better. This was not a budget shortfall.</p>
+</blockquote>
+
+<p>One number is worth carrying into §5: the same budget bought 19014 completions at
+n = 11 and 2190 at n = 31, because one completion costs about
+<span data-math="n^2"></span> addability tests. "The same budget" and "the same search
+effort" are not the same sentence.</p>
+
+<h3>§4.4 · E0008 — make the searcher lie, on purpose</h3>
+
+<p>One run of the ten was spent making <code>search.py</code> report exactly one point more
+than the object it wrote. Nothing else changed. The notary refused it:</p>
+
+<pre><code class="language-console">E0008: crash metric=None
+decision_reason: verifier_disagreement: the run reported 21 but the verifier
+measured 20 (tolerance 0) — one of them is wrong, and the search is not the
+one to ask</code></pre>
+
+<p>The manifest keeps both numbers side by side (<code>reported 21.0</code>,
+<code>verified 20.0</code>) and <code>results.tsv</code> carries <code>NA</code>: the
+inflated number reaches no table anywhere in the study. A guard that has never fired is a
+guard nobody has tested, and the cost of testing it was one phase slot.</p>
+
+<h3>§4.5 · E0009, E0010 — the sealed cells, and the surprise</h3>
+
+<p>Each track gets one sealed access, rehearsed first with
+<code>klein run-one --final-test --dry-run</code> (which hands back the development block
+and prints <code>sealed_dryrun: 1</code>, so the seal survives the rehearsal). The sealed
+cells then run the same search at the same largest budget from the
+<code>sealed</code> seed block — one integer different, nothing else.</p>
+
+<blockquote>
+<p>At n = 31, 55 — a little better than the development lane's 54, still far short.
+<strong>P7 supported.</strong></p>
+<p>At n = 11, <strong>22</strong> — the proven maximum, found at evaluation 1612132.
+<strong>P6 supported</strong>, and P1's refutation stands beside it, unrewritten.</p>
+</blockquote>
+
+<p>Same instance, same algorithm, same budget, same commit; the two lanes land on opposite
+sides of a theorem's ceiling. That pair is the finding, and §5 says what may and may not be
+concluded from it.</p>
+
+<h3>§4.6 · Re-verification</h3>
+
+<p>Every development run was re-checked with
+<code>klein replicate --verify-only</code>: the declared verifier re-run in a fresh process
+on the pinned artifact, no search, no worktree. Seven records, <code>reproduced: true</code>
+in every one, tolerance 0.0 taken from <code>verifier.tolerance</code>, difference 0.0 on the
+primary metric. <strong>P4 supported.</strong></p>

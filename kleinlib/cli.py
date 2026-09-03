@@ -13,7 +13,7 @@ from .cli_predict import register as register_predict
 from .cli_replicate import register as register_replicate
 from .cli_stop import register as register_stop
 from .cli_sweep import register as register_sweep
-from .contract import KNOWN_KINDS
+from .contract import KNOWN_KINDS, load_contract, mutable_surface
 from .noise_floor import add_recipe_arguments
 from .scaffold import scaffold_study
 from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
@@ -484,8 +484,9 @@ def main(argv: list[str] | None = None) -> int:
                 holder = (
                     f"(= {anchor}'s kept config)" if anchor else "(pre-candidate scaffold state)"
                 )
+                surface = ", ".join(mutable_surface(load_contract(study)))
                 print(
-                    f"train.py restored to pre-candidate base "
+                    f"{surface} restored to pre-candidate base "
                     f"{manifest['base_commit'][:12]} {holder}; "
                     f"candidate stays resolvable at {manifest['candidate_commit'][:12]}"
                 )

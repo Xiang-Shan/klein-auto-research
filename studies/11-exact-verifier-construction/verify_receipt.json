@@ -1,0 +1,229 @@
+{
+  "checks": [
+    {
+      "message": "schema_version 3 contract valid",
+      "name": "study contract",
+      "ok": true
+    },
+    {
+      "message": "track 'n_small': exactness=exact \u2014 floor waived; minimum_delta 1 is the objective's resolution (exactness_note)",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "track 'n_large': exactness=exact \u2014 floor waived; minimum_delta 1 is the objective's resolution (exactness_note)",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "study_state.json loaded",
+      "name": "study state",
+      "ok": true
+    },
+    {
+      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7fd1bb40fc17104b",
+      "name": "git repository",
+      "ok": true
+    },
+    {
+      "message": "current='confirmation'; ladder consistent",
+      "name": "phase ladder",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate consult",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate data",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate method",
+      "ok": true
+    },
+    {
+      "message": "match",
+      "name": "gate artifact hashes",
+      "ok": true
+    },
+    {
+      "message": "valid",
+      "name": "event chain",
+      "ok": true
+    },
+    {
+      "message": "current=cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d; recorded=cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+      "name": "prepared-data fingerprint",
+      "ok": true
+    },
+    {
+      "message": "current=723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055; recorded=723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055",
+      "name": "split fingerprint",
+      "ok": true
+    },
+    {
+      "message": "[WARN] no study source calls kleinlib.data.contract_split / load_partition \u2014 the printed split_fingerprint cannot be checked, and a literal split seed in an evaluator is a DATA-gate BLOCKER (war story 8)",
+      "name": "contract-driven split",
+      "ok": true
+    },
+    {
+      "message": "verify.py=959ba15bac56",
+      "name": "verifier",
+      "ok": true
+    },
+    {
+      "message": "derived view matches manifests",
+      "name": "ledger integrity",
+      "ok": true
+    },
+    {
+      "message": "none pending",
+      "name": "transactions",
+      "ok": true
+    },
+    {
+      "message": "track 'n_small': h = (22 - 22) / 1 = 0.000 < 1 \u2014 infeasible, acknowledged by lead-agent at 2026-09-03T07:36:14.239022Z: run-anyway: the door is closed by a theorem, not by a losing phase. The best known value at n = 11 is 22 and 22 is also the pigeonhole upper bound, so h = 0 and a keep would have to beat a theorem. This study is not looking for an improvement; it is looking for an object that ATTAINS the known maximum, and for a record of who certified it. Every run it files is therefore a discard by construction, and matched_external: true is the outcome that matters.",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "track 'n_large': h = (62 - 62) / 1 = 0.000 < 1 \u2014 infeasible, acknowledged by lead-agent at 2026-09-03T07:36:25.822075Z: run-anyway: the same closed door at n = 31. The best known value is 62 and 62 is also the pigeonhole upper bound, so h = 0. The track exists to measure where the SAME search's reach ends, not to improve on anything: its expected outcome is registered in advance as P2, that it does not reach 62 under the budget, and a search that does not reach a value is a statement about the search and never about the problem.",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "syntax valid",
+      "name": "search.py",
+      "ok": true
+    },
+    {
+      "message": "every declared guardrail metric is printed by the evaluator or named in the study's Python sources",
+      "name": "guardrail visibility",
+      "ok": true
+    },
+    {
+      "message": "[WARN] findings.md uses words the 'math' profile bans: line 246: **Vocabulary, deliberately.** The words \"proved\", \"optimal\" and \"impossible\" do not; line 255: profile permits \"proved\" only when a proof artifact is pinned by alias and the referee; line 256: has checked it, so `research_plan.md` is now pinned in `claims.lock` as `art:proof` and \u2014 see the profile's \u00a77 (the referee checks the same list)",
+      "name": "profile vocabulary",
+      "ok": true
+    },
+    {
+      "message": "PASS-WITH-NOTES \u2014 klein-referee (Claude Code subagent, model: claude-opus-5[1m]), independent-of-experimenter: no",
+      "name": "referee gate",
+      "ok": true
+    },
+    {
+      "message": "7 registered prediction(s), all adjudicated",
+      "name": "predictions closure",
+      "ok": true
+    },
+    {
+      "message": "every refuted prediction (P1) has a dated `Decision:` line in program.md",
+      "name": "belief revision",
+      "ok": true
+    },
+    {
+      "message": "lock schema 2: fields and classes valid",
+      "name": "claims shape",
+      "ok": true
+    },
+    {
+      "message": "8 pinned artifacts hash as recorded",
+      "name": "claims artifacts",
+      "ok": true
+    },
+    {
+      "message": "every claim id resolves in findings.md",
+      "name": "claims presence",
+      "ok": true
+    },
+    {
+      "message": "every cited evidence id resolves",
+      "name": "claims evidence",
+      "ok": true
+    },
+    {
+      "message": "every pinned value is found in its artifact and every claim numeral has an alias",
+      "name": "claims numbers",
+      "ok": true
+    },
+    {
+      "message": "no claim or number removed or mutated across git history",
+      "name": "claims append-only",
+      "ok": true
+    },
+    {
+      "message": "git_head is an ancestor of HEAD",
+      "name": "claims ancestry",
+      "ok": true
+    },
+    {
+      "message": "evidence_use_rate 1.00 \u2014 all 10 non-keep run(s) and registered sweep(s) are cited",
+      "name": "evidence use",
+      "ok": true
+    },
+    {
+      "message": "2 confirmed claim(s) cite two or more evidence kinds",
+      "name": "convergent evidence",
+      "ok": true
+    },
+    {
+      "message": "all 100 scanned numerals trace to 19 pinned source(s)",
+      "name": "findings numbers",
+      "ok": true
+    },
+    {
+      "message": "all 149 rendered numerals trace to a pinned source",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
+      "message": "5 figure(s) re-render byte-identically",
+      "name": "figure re-render",
+      "ok": true
+    }
+  ],
+  "evidence_use_rate": 1.0,
+  "git_head": "4906c41c726f284ab482b2750c7966b420875dcd",
+  "inputs": {
+    "aux_metrics.tsv": "2f2487c39a506a06912067ab5ff1dab003d88b8c605eee74ba614c525cf1d8e0",
+    "claims.lock": "968fbab6ec578d08869995f78b910d43170fc963be7643827372cc45e93cf2e2",
+    "events.jsonl": "8f22d35ab2adff679a4887fef78114cbfd79f857c3eb0a81ffb2b467a321fccd",
+    "findings.md": "58b386d0fc6531add90fc32091a7da80924c0e418cd0b7b0a919c5cc17e71ea5",
+    "playbook.md": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3",
+    "program.md": "98347b5abcc3b1eebc2de9c21478d83388095c8b9174364ec8ed4784800a63fd",
+    "referee_report.md": "e0996e817cbbfb1675ae0e1dc55e933a1a6b6796cd3d4c1ca27277852e8ec33e",
+    "report/index.html": "360dc5a53291ae5858a75dac72620918c9a502a437171b17ea68fbcf7eca8acd",
+    "results.tsv": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757",
+    "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3",
+    "study_state.json": "cd216c2c02f63d65af4b048c0750322d28d61d28ed74099805b41ba3f1ccc8ac"
+  },
+  "klein_commit": "4906c41c726f284ab482b2750c7966b420875dcd",
+  "klein_version": "2.0.0",
+  "manifests": {
+    "E0001": "a18e2256c80b30a203cb2856bddb6dddbfdeddb12a9b23c67f51b3d84454c900",
+    "E0002": "e08c5ef5f52831af6ede7ec6f7f58b548b7538c1146bbe29c44b95674d2f918a",
+    "E0003": "4159a0e62b7584bf85fe91f7b7c0603fb77098e96df57575fd9b69a0df49ded1",
+    "E0004": "de2c602d505348c46b3c961130ab4f72296a398f6aad75ebd739efb871c4da37",
+    "E0005": "6968532fe542e56488da55a050e403a75fcc0625430863c8f009d6538036f28e",
+    "E0006": "74c29361e2c8be86150c493033ec22afabdfffaa6303f6b6e4ff1e2727d95438",
+    "E0007": "8280d982b8a718d8dbdc00c674aff543e6c9db658f4ef9c61c33240a6e53fa92",
+    "E0008": "aa63b49dc640c72e7da5e63c624ddaa56e1335ec1189ff3180935aeec0d65927",
+    "E0009": "d9112db3aa56ba8ab07e64b74b5f2c93a72303e2622c13bea42649ef8d4bfeac",
+    "E0010": "ba1f70d1dbbf2b429cc34524db8118b38c048bcc1a7ef841939de6f52ef5bd2e"
+  },
+  "schema": 3,
+  "single_source_claims": [],
+  "study": "11-exact-verifier-construction",
+  "summary": {
+    "checks": 37,
+    "failed": 0,
+    "warned": 2
+  },
+  "timestamp": "2026-09-03T11:30:53.562071Z",
+  "uncited_evidence": [],
+  "undecided_refutations": []
+}

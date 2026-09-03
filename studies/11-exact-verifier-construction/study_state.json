@@ -1,0 +1,492 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T07:30:40.703012Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T07:11:46.287520Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T07:16:16.173922Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:43:19.020098Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "a9d70a033e7c7499162feac858b74e653ff0550a87ae52ca9f63073a830b49b3",
+    "method_card.md": "563759c87ab9b2a6fa8accf181ea635d2b5f8f3c4ea2ebe4eded00c2be7ee01c",
+    "referee_report.md": "e0996e817cbbfb1675ae0e1dc55e933a1a6b6796cd3d4c1ca27277852e8ec33e",
+    "research_plan.md": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e",
+    "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
+  },
+  "created_at": "2026-09-03T06:56:12.643020Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "n_large": {
+      "accessed_at": "2026-09-03T07:50:46.470589Z",
+      "count": 1,
+      "experiment": "E0010"
+    },
+    "n_small": {
+      "accessed_at": "2026-09-03T07:49:59.681978Z",
+      "count": 1,
+      "experiment": "E0009"
+    }
+  },
+  "finalization": {
+    "confirmation_gaps": {
+      "n_large": [
+        "verify: track 'n_large' has no development run to reproduce (confirmation.require names verify)"
+      ],
+      "n_small": [
+        "verify: track 'n_small' has no development run to reproduce (confirmation.require names verify)"
+      ]
+    },
+    "final_holdout_counts": {
+      "n_large": 1,
+      "n_small": 1
+    },
+    "label": "exploratory",
+    "referee": {
+      "independent_of_experimenter": false,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "n_large": "E0010",
+      "n_small": "E0009"
+    },
+    "timestamp": "2026-09-03T08:45:01.887953Z"
+  },
+  "fingerprints": {
+    "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+    "split": {
+      "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
+      "policy": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055"
+    },
+    "verifier": {
+      "verify.py": "959ba15bac56cd94f00e7198788601bd87fa38767912ad34e223a0292f739cbe"
+    }
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-09-03T07:30:40.703012Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "476b24d2dfc77fd6833248b6b86d6441d817e45f5529c49a2d8f0831e0748258",
+        "research_plan.md": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e",
+        "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
+      },
+      "note": "re-record: phase id 'search' -> 'adaptive-1' to match the phase ladder klein new initialized in study_state.json; no rule, prediction, metric, budget or cap changed",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-09-03T07:11:46.287520Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "a9d70a033e7c7499162feac858b74e653ff0550a87ae52ca9f63073a830b49b3"
+      },
+      "note": "delegated ack; modality none: the verifier card replaces the leakage checklist, controls frozen in the hashed instance file",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-09-03T07:16:16.173922Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "563759c87ab9b2a6fa8accf181ea635d2b5f8f3c4ea2ebe4eded00c2be7ee01c"
+      },
+      "note": "delegated ack; triad complete: theory + papers (10 refs verified 2026-09-03) + practice (the from-scratch verifier, written and tested before any search)",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T08:43:19.020098Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "e0996e817cbbfb1675ae0e1dc55e933a1a6b6796cd3d4c1ca27277852e8ec33e"
+      },
+      "independent_of_experimenter": false,
+      "note": "PASS-WITH-NOTES; all seven notes answered in program.md with dated Referee note lines; erratum E1 filed on C6; independence rung 'fresh session' accepted by the lead for the 2.0 exhibits",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "headroom": {
+    "n_large": {
+      "acknowledged_at": "2026-09-03T07:36:25.822075Z",
+      "acknowledged_by": "lead-agent",
+      "h": 0.0,
+      "ideal": 62.0,
+      "incumbent": 62.0,
+      "infeasible": true,
+      "minimum_delta": 1.0,
+      "note": "run-anyway: the same closed door at n = 31. The best known value is 62 and 62 is also the pigeonhole upper bound, so h = 0. The track exists to measure where the SAME search's reach ends, not to improve on anything: its expected outcome is registered in advance as P2, that it does not reach 62 under the budget, and a search that does not reach a value is a statement about the search and never about the problem."
+    },
+    "n_small": {
+      "acknowledged_at": "2026-09-03T07:36:14.239022Z",
+      "acknowledged_by": "lead-agent",
+      "h": 0.0,
+      "ideal": 22.0,
+      "incumbent": 22.0,
+      "infeasible": true,
+      "minimum_delta": 1.0,
+      "note": "run-anyway: the door is closed by a theorem, not by a losing phase. The best known value at n = 11 is 22 and 22 is also the pigeonhole upper bound, so h = 0 and a keep would have to beat a theorem. This study is not looking for an improvement; it is looking for an object that ATTAINS the known maximum, and for a record of who certified it. Every run it files is therefore a discard by construction, and matched_external: true is the outcome that matters."
+    }
+  },
+  "last_experiment": 10,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T07:48:59.280798Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated ack; 8/8 experiments spent, 7 discards + 1 crash by design, zero keeps as registered",
+      "playbook_sha256": "3ab991eb6b4d93f5da13292922483af3ee1abe05ae50a06f3bcdc840b81890bb"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-09-03T07:52:05.566623Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated ack; both sealed accesses spent, P6 and P7 supported, all seven predictions closed",
+      "playbook_sha256": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3"
+    }
+  },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "primary_metric 21 >= 22 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "primary_metric 21 >= 22 \u2192 refuted",
+          "recorded_at": "2026-09-03T07:44:35.255028Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T07:44:35.255028Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P2": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "primary_metric 54 < 62 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "primary_metric 54 < 62 \u2192 supported",
+          "recorded_at": "2026-09-03T07:46:06.909426Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T07:46:06.909426Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P3": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "rejected 12 == 12 \u00b1 0 (|\u0394| = 0) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "rejected 12 == 12 \u00b1 0 (|\u0394| = 0) \u2192 supported",
+          "recorded_at": "2026-09-03T07:40:10.269199Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T07:40:10.269199Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P4": {
+      "acknowledged_by": "lead-agent",
+      "evidence": [
+        "verify:E0001@20260903T074705Z",
+        "verify:E0002@20260903T074707Z",
+        "verify:E0003@20260903T074708Z",
+        "verify:E0004@20260903T074710Z",
+        "verify:E0005@20260903T074711Z",
+        "verify:E0006@20260903T074713Z",
+        "verify:E0007@20260903T074714Z"
+      ],
+      "explanation": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+      "history": [
+        {
+          "acknowledged_by": "lead-agent",
+          "evidence": [
+            "verify:E0001@20260903T074705Z",
+            "verify:E0002@20260903T074707Z",
+            "verify:E0003@20260903T074708Z",
+            "verify:E0004@20260903T074710Z",
+            "verify:E0005@20260903T074711Z",
+            "verify:E0006@20260903T074713Z",
+            "verify:E0007@20260903T074714Z"
+          ],
+          "explanation": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+          "note": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+          "recorded_at": "2026-09-03T07:48:01.980619Z",
+          "source": "manual",
+          "verdict": "supported"
+        }
+      ],
+      "note": "all seven development runs re-verified with klein replicate --verify-only: reproduced true in every record, tolerance 0.0 taken from verifier.tolerance, difference 0.0 on primary_metric in every one. The listed mismatched_keys (claim_excess, grid_n, triples_checked) are keys the manifest's stored verifier block never carried, so their 'original' is null rather than different.",
+      "recorded_at": "2026-09-03T07:48:01.980619Z",
+      "source": "manual",
+      "verdict": "supported"
+    },
+    "P5": {
+      "acknowledged_by": "lead-agent",
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0008"
+      ],
+      "explanation": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+      "history": [
+        {
+          "acknowledged_by": "lead-agent",
+          "evidence": [
+            "E0001",
+            "E0002",
+            "E0003",
+            "E0004",
+            "E0005",
+            "E0006",
+            "E0007",
+            "E0008"
+          ],
+          "explanation": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+          "note": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+          "recorded_at": "2026-09-03T07:48:13.815885Z",
+          "source": "manual",
+          "verdict": "supported"
+        }
+      ],
+      "note": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+      "recorded_at": "2026-09-03T07:48:13.815885Z",
+      "source": "manual",
+      "verdict": "supported"
+    },
+    "P6": {
+      "evidence": [
+        "E0009"
+      ],
+      "explanation": "primary_metric 22 >= 22 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0009"
+          ],
+          "explanation": "primary_metric 22 >= 22 \u2192 supported",
+          "recorded_at": "2026-09-03T07:50:01.645735Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T07:50:01.645735Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P7": {
+      "evidence": [
+        "E0010"
+      ],
+      "explanation": "primary_metric 55 < 62 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0010"
+          ],
+          "explanation": "primary_metric 55 < 62 \u2192 supported",
+          "recorded_at": "2026-09-03T07:50:48.938638Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T07:50:48.938638Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7fd1bb40fc17104b/studies/11-exact-verifier-construction/data/prepared/instances.json",
+    "sha256": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d"
+  },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0001@20260903T074705Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:05.858723Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_small"
+    },
+    "E0002": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0002@20260903T074707Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:07.395495Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_small"
+    },
+    "E0003": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0003@20260903T074708Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:08.968436Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_small"
+    },
+    "E0004": {
+      "attempts": 2,
+      "modes": {
+        "verify": {
+          "attempts": 2,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0004@20260903T074710Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:10.429892Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0004@20260903T113226Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T11:32:26.922530Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_small"
+    },
+    "E0005": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0005@20260903T074711Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:11.888807Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_large"
+    },
+    "E0006": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0006@20260903T074713Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:13.403293Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_large"
+    },
+    "E0007": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0007@20260903T074714Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:14.875796Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_large"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "11-exact-verifier-construction",
+  "updated_at": "2026-09-03T11:32:27.775294Z"
+}
