@@ -81,7 +81,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "v1_validation_twin_share"
+      ],
       "strength": "exploratory"
     },
     "C2": {
@@ -438,6 +440,13 @@
       "note": "v1 results.tsv row 6 minus row 3",
       "precision": 6,
       "value": 0.001425
+    },
+    "v1_validation_twin_share": {
+      "art": "duplicates",
+      "claim": "C12",
+      "note": "share of the v1 validation partition with a training twin",
+      "precision": 6,
+      "value": 0.052223
     }
   },
   "study_id": "12-insurance-claims-frequency"
