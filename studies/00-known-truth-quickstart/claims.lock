@@ -60,7 +60,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "overcapacity_auc"
+      ],
       "strength": "exploratory"
     },
     "C4": {
@@ -159,6 +161,13 @@
       "note": "E0002 delta_in_floors over the raw-feature reference, same rows",
       "precision": 4,
       "value": 3.9699
+    },
+    "overcapacity_auc": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 val_auc",
+      "precision": 6,
+      "value": 0.858049
     },
     "sealed_auc": {
       "art": "aux",
