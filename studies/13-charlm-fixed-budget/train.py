@@ -42,15 +42,19 @@ from kleinlib.torch_device import pick_device
 
 # --- the candidate: the whole per-experiment diff surface -------------------
 RECIPE: dict[str, object] = {
-    "name": "anchor",
-    # E0001: the identity anchor at a seed the Phase-0 floor sweep never used
-    # (the floor used 1-5), so "reproduces within fit noise" is a real test.
+    "name": "cosine",
+    # E0006: ONE change from the anchor — the learning rate decays on a cosine
+    # from 3e-3 to 10% of it over the 2000 steps, instead of staying constant.
+    # Same parameters, same tokens, same arithmetic per step: only WHEN the
+    # learning rate is spent changes. No registered prediction; exploratory.
     "seed": 20260903,
     "max_steps": 2000,      # the BUDGET. The verifier reads it back out of the
                             # checkpoint and the `steps` guardrail pins it.
     "batch_size": 32,
     "lr": 3.0e-3,
     "warmup_steps": 0,
+    "schedule": "cosine",   # "constant" | "cosine"
+    "lr_final_frac": 0.1,
     "weight_decay": 0.1,
     "beta1": 0.9,
     "beta2": 0.99,
@@ -143,6 +147,8 @@ def main() -> None:
     batch = int(RECIPE["batch_size"])
     lr = float(RECIPE["lr"])
     warmup = int(RECIPE["warmup_steps"])
+    schedule = str(RECIPE.get("schedule", "constant"))
+    final_frac = float(RECIPE.get("lr_final_frac", 1.0))
 
     device = pick_device()
     torch.manual_seed(seed)
@@ -160,10 +166,15 @@ def main() -> None:
     net.train()
     last_loss = float("nan")
     for step in range(steps):
-        if warmup > 0:
-            scale = min(1.0, (step + 1) / warmup)
-            for group in optimizer.param_groups:
-                group["lr"] = lr * scale
+        if warmup > 0 and step < warmup:
+            scale = (step + 1) / warmup
+        elif schedule == "cosine":
+            progress = (step - warmup) / max(1, steps - warmup)
+            scale = final_frac + (1.0 - final_frac) * 0.5 * (1.0 + math.cos(math.pi * progress))
+        else:
+            scale = 1.0
+        for group in optimizer.param_groups:
+            group["lr"] = lr * scale
         # Streamed index-shuffle batching (war story 2): no DataLoader, no
         # TensorDataset — offsets drawn straight from the token array.
         offsets = fit_low + rng.integers(0, span, size=batch)
@@ -198,6 +209,8 @@ def main() -> None:
             "lr": lr,
             "batch_size": batch,
             "warmup_steps": warmup,
+            "schedule": schedule,
+            "lr_final_frac": final_frac,
         },
         checkpoint_path,
     )
@@ -221,6 +234,8 @@ def main() -> None:
             "final_train_batch_loss": f"{last_loss:.6f}",
             "train_bpc": f"{reported / math.log(2):.6f}",
             "recipe_warmup_steps": str(warmup),
+            "recipe_cosine": str(int(schedule == "cosine")),
+            "recipe_lr_final_frac": f"{final_frac:.4f}",
             "recipe_lr": f"{lr:.6g}",
             "recipe_dropout": f"{float(config['dropout']):.4f}",
             "recipe_n_embd": str(int(config["n_embd"])),
