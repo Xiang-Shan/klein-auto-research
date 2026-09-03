@@ -80,6 +80,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "k_free",
         "k_origin"
       ],
       "strength": "exploratory"
@@ -228,6 +229,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "k_free": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "free-intercept OLS slope, 24 objects (E0002)",
+      "precision": 6,
+      "value": 454.158441
+    },
     "k_origin": {
       "art": "fits",
       "claim": "C1",
