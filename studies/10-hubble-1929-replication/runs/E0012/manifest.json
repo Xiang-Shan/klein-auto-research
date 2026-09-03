@@ -102,8 +102,10 @@
   "timed_out": false,
   "track": "estimate",
   "transaction": {
-    "ready_at": "2026-09-03T06:27:07.414909Z",
-    "status": "pending"
+    "committed_at": "2026-09-03T06:27:07.497726Z",
+    "evidence_commit": "9f1843dfbb0c2c744f17a002e4bb11a922cd9ad1",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 0.8113981659989804
 }
