@@ -21,7 +21,7 @@
     "study.yaml": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332"
   },
   "created_at": "2026-09-03T11:32:09.485992Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "adaptive-2",
   "final_holdout_access": {
     "primary": {
       "accessed_at": null,
@@ -74,7 +74,14 @@
   },
   "last_experiment": 1,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T12:16:22.203850Z",
+      "acknowledged_by": "lead-agent",
+      "note": "Phase 0 complete: both floors measured and registered, minimum_delta 0.0149525 set by consult re-record, E0001 keep at 1.572174 with P1 supported (anchor_z 0.3766), one full replication and three checker re-scores recorded. Phase ack delegated by the lead.",
+      "playbook_sha256": "9ed143bba34720e266211e81426ac13dfd93a43ac9740ad967eee2e68b1685ae"
+    }
+  },
   "predictions": {
     "P1": {
       "evidence": [
@@ -184,5 +191,5 @@
       "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
     }
   },
-  "updated_at": "2026-09-03T12:15:50.460807Z"
+  "updated_at": "2026-09-03T12:16:22.204135Z"
 }
