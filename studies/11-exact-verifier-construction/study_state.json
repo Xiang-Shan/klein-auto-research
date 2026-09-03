@@ -1,0 +1,50 @@
+{
+  "acknowledgements": {},
+  "artifact_hashes": {},
+  "created_at": "2026-09-03T06:56:12.643020Z",
+  "current_phase": "adaptive-1",
+  "final_holdout_access": {
+    "n_large": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "n_small": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7fd1bb40fc17104b/studies/11-exact-verifier-construction/data/prepared/prepared.csv",
+    "sha256": null
+  },
+  "schema_version": 3,
+  "status": "active",
+  "study_id": "11-exact-verifier-construction",
+  "updated_at": "2026-09-03T06:56:12.643026Z"
+}

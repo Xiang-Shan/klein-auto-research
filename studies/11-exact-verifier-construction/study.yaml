@@ -1,0 +1,154 @@
+schema_version: 3
+study_id: "11-exact-verifier-construction"
+goal: "On an n x n integer grid, how many points can a budgeted iterated local search place with no three of them collinear — judged only by a declared exact verifier that shares no code with the search — at an n where the proven maximum 2n should be reachable and at an n where it should not?"
+domain: "combinatorial geometry"
+target: "points"          # the objective is a count of points; there is no target COLUMN — data.modality is `none`
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "optimize"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "math"            # generic | ml-research | math | insurance
+audience: "A mathematician or algorithm designer who asks who checked it before asking how good it is, and who distinguishes a found object from a proved statement without being reminded."
+
+task_type: "scalar"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "iterated local search"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "search.py"]
+  mutable: ["search.py"]
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+# Two tracks, one algorithm: the tracks differ ONLY in the grid size they draw
+# from the DATA-gate-hashed instance file, so the pair measures where the same
+# search's reach ends.
+tracks:
+  n_small:
+    mode: frontier          # frontier (climbs an incumbent) | registered (measures a cell)
+    metric:
+      name: "points"
+      goal: "higher"     # higher | lower
+      minimum_delta: 1
+      exactness: exact       # integer objective: a measured noise floor would be meaningless
+      exactness_note: "The objective is the number of points in the verified configuration — a non-negative integer recomputed by verify.py from the artifact's bytes with exact integer arithmetic (a cross-product test over every triple; no floating point anywhere on the path). Its resolution is therefore exactly 1, which is why minimum_delta is 1 and no noise floor is measured: two runs on the same artifact return the same integer, always."
+      # bound: / incumbent_external: are DELIBERATELY absent at the consult gate.
+      # Both quote a published value, and this study does not put a literature
+      # number in its contract before the METHOD gate has verified the reference
+      # that carries it. They are added by a consult RE-RECORD with a reason once
+      # references.yaml is written, before the first run exists.
+    guardrails:
+      evaluations:
+        max: 2000000        # the registered search budget, in addability tests
+      search_seconds:
+        max: 90             # the search's own clock; the verifier's cost is recorded
+                            # separately in the manifest and never charged to it
+    verifier:                     # the checker is NEVER the searcher: this script
+      command: ["uv", "run", "--locked", "python", "-u", "verify.py"]
+      tolerance: 0.0              # is outside mutable[], is hashed at the METHOD
+      artifact_key: solution      # gate, and ITS number decides the disposition.
+  n_large:
+    mode: frontier          # frontier (climbs an incumbent) | registered (measures a cell)
+    metric:
+      name: "points"
+      goal: "higher"     # higher | lower
+      minimum_delta: 1
+      exactness: exact
+      exactness_note: "The objective is the number of points in the verified configuration — a non-negative integer recomputed by verify.py from the artifact's bytes with exact integer arithmetic (a cross-product test over every triple; no floating point anywhere on the path). Its resolution is therefore exactly 1, which is why minimum_delta is 1 and no noise floor is measured: two runs on the same artifact return the same integer, always."
+      # bound: / incumbent_external: absent at the consult gate, for the reason
+      # written on the n_small track above.
+    guardrails:
+      evaluations:
+        max: 2000000
+      search_seconds:
+        max: 90
+    verifier:
+      command: ["uv", "run", "--locked", "python", "-u", "verify.py"]
+      tolerance: 0.0
+      artifact_key: solution
+
+data:
+  source: "synthetic:prepare.py"      # csv: | parquet: | synthetic: | bundled: | hub: | sklearn: | openml: | url:
+  modality: "none"       # tabular | timeseries | image | sequence | graph | text | simulation | none
+  prepared_path: "data/prepared/instances.json"
+  split:
+    kind: none           # stratified | random | group | time | none (scalar)
+    seed: 20260903
+    # kind none: there are no rows and no partitions. Comparability comes from
+    # the seed BLOCKS frozen in data/prepared/instances.json at the DATA gate:
+    # `development` is the only seed adaptive work may use, and `sealed` is a
+    # fresh block no development run may touch (run-one sets
+    # KLEIN_EVALUATION_KIND=final_test and search.py reads the block by name).
+    # No literal seed lives in search.py, verify.py or lib/ (war story 8).
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 120
+phases:
+  - id: search
+    description: "verifier controls, then the same iterated local search on both instances over a three-decade evaluation-budget ladder, then the deliberate searcher/checker disagreement"
+    budget_seconds: 3600
+    max_experiments: 8
+  - id: confirmation
+    description: "one sealed final-test run per track, on the pre-registered sealed seed block no development run has used"
+    budget_seconds: 900
+    max_experiments: 2
+
+research_questions:
+  - id: RQ1
+    question: "Judged only by the declared verifier, how many points does the same budgeted iterated local search place on an 11 x 11 grid and on a 31 x 31 grid, how does that count move across a three-decade evaluation-budget ladder, and does it reach the proven maximum 2n at either size?"
+    prior: "it reaches 22 at n = 11 within the largest registered budget and stops short of 62 at n = 31, because the same evaluation budget buys about ten times fewer greedy completions on the larger grid while the constraint density is far higher (source: uninformed — no search has been executed at any n; the only design-time computations are scouting_ledger.md S1 and S2, and neither ran the search)"
+  - id: RQ2
+    question: "With the objective computed only by a declared checker that shares no code with the search, what does the study's own record show when the searcher's self-report is wrong, and do the two independent implementations ever disagree on an honest run?"
+    prior: "no honest run disagrees, because both implementations are exact integer arithmetic on the same artifact; the deliberately overclaiming cell is refused and recorded as a crash naming verifier_disagreement, so the ledger carries the refusal rather than the inflated number (source: uninformed — the mechanism is documented in the engine but this study has not exercised it)"
+
+# Registered BEFORE the evidence exists; the consult gate hashes this file, so a
+# prediction added later is visible as a gate re-record with a reason.
+# The two magnitudes below, 22 and 62, are 2n at n = 11 and n = 31 — the
+# pigeonhole bound, fixed by arithmetic before any reference was consulted and
+# before any run existed.
+predictions:
+  - id: P1
+    track: n_small
+    statement: "at the largest registered budget of 2000000 addability tests, the declared verifier scores the search's object on the 11 x 11 grid at 22 points or more — the search reaches the proven maximum"
+    rule: {key: primary_metric, op: ">=", value: 22}
+    inconclusive_if: "the run crashes before the verifier prints its block, so no verified objective exists"
+  - id: P2
+    track: n_large
+    statement: "at the same largest registered budget, the same search on the 31 x 31 grid is scored below 62 points — it does not reach the proven maximum"
+    rule: {key: primary_metric, op: "<", value: 62}
+    inconclusive_if: "the run crashes before the verifier prints its block, so no verified objective exists"
+  - id: P3
+    track: n_small
+    statement: "the declared verifier rejects every one of the 12 invalid constructions planted in the DATA-gate-hashed instance file: the control cell's printed `rejected` count equals the planted count"
+    rule: {key: rejected, op: "eq", value: 12, tol: 0}
+    inconclusive_if: "the control cell does not print a `rejected` line, so no rejection count exists"
+  - id: P4
+    track: n_small
+    statement: "re-running the declared verifier on a pinned artifact reproduces its integer objective exactly: every development run that produced a verified object carries a `verify:` replication record with reproduced true at tolerance 0"
+    manual: true
+    inconclusive_if: "no development run produces a verifiable artifact, so there is nothing to re-verify"
+  - id: P5
+    track: n_small
+    statement: "no run's own claimed objective is ever accepted above the verifier's: every honest run's verifier-computed claim_excess is 0, and the deliberately overclaiming cell is refused and recorded as a crash whose reason names verifier_disagreement rather than as a result"
+    manual: true
+    inconclusive_if: "the overclaiming cell is never run, so the refusal path is never exercised"
+  - id: P6
+    track: n_small
+    statement: "from the sealed seed block, which no development run has used, the same search at the same largest budget is again scored at 22 points or more on the 11 x 11 grid"
+    rule: {key: primary_metric, op: ">=", value: 22}
+    inconclusive_if: "the sealed run crashes before the verifier prints its block"
+  - id: P7
+    track: n_large
+    statement: "from the sealed seed block, the same search at the same largest budget is again scored below 62 points on the 31 x 31 grid"
+    rule: {key: primary_metric, op: "<", value: 62}
+    inconclusive_if: "the sealed run crashes before the verifier prints its block"
+
+confirmation:
+  require: [verify]            # sealed | replicate | verify (default: by kind)
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html
