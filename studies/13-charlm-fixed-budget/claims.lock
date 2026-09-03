@@ -185,6 +185,7 @@
       "numbers": [
         "e0006_val_loss",
         "incumbent_gain_nats",
+        "train_chars",
         "width_params_ratio"
       ],
       "strength": "exploratory"
@@ -455,6 +456,13 @@
       "note": "the matched-compute guardrail, read by the checker out of every checkpoint",
       "precision": 0,
       "value": 2000
+    },
+    "train_chars": {
+      "art": "corpus",
+      "claim": "C9",
+      "note": "characters in the train partition",
+      "precision": 0,
+      "value": 891904
     },
     "tying_params_percent": {
       "art": "summary",
