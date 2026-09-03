@@ -132,10 +132,13 @@
       "strength": "exploratory"
     },
     "C7": {
-      "claim": "Declare every artifact your entrypoint reads, or derive it from committed",
-      "class": null,
+      "claim": "Declare every artifact the entrypoint reads, or derive it from committed code: both replication attempts on this study failed for non-scientific reasons, the first on a timeout while the detached worktree built its own environment and the second on a prepared artifact the contract never declared and the replication harness therefore never copied",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "rep:E0003@20260903T053202Z",
+        "rep:E0003@20260903T053344Z"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
