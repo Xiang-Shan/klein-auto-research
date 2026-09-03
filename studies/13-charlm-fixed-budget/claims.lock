@@ -101,6 +101,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "device_val_loss",
         "e0001_val_loss",
         "max_verifier_gap",
         "replication_difference",
@@ -254,6 +255,13 @@
       "note": "characters in the development partition",
       "precision": 0,
       "value": 111616
+    },
+    "device_val_loss": {
+      "art": "device",
+      "claim": "C2",
+      "note": "the E0001 checkpoint re-scored under KLEIN_DEVICE=cpu and =mps; identical at the printed resolution",
+      "precision": 6,
+      "value": 1.572174
     },
     "e0001_anchor_z": {
       "art": "frontier",
