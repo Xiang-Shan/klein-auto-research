@@ -184,7 +184,8 @@
       "evidence": [],
       "numbers": [
         "ci_high",
-        "ci_low"
+        "ci_low",
+        "ci_width"
       ],
       "strength": "exploratory"
     },
@@ -257,6 +258,13 @@
       "note": "95pct percentile bootstrap lower bound for K (E0006, re-run sealed at E0012)",
       "precision": 6,
       "value": 316.648582
+    },
+    "ci_width": {
+      "art": "boot",
+      "claim": "C3",
+      "note": "width of the 95pct interval for K (E0006)",
+      "precision": 6,
+      "value": 287.05618
     },
     "coords_available": {
       "art": "solar",
