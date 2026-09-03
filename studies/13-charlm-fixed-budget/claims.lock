@@ -54,7 +54,8 @@
         "e0004_floors",
         "e0005_floors",
         "e0006_floors",
-        "e0007_floors"
+        "e0007_floors",
+        "warmup_on_cosine_floors"
       ],
       "strength": "exploratory"
     },
@@ -392,6 +393,13 @@
       "note": "declared a priori at CONSULT; the checker-vs-searcher disagreement that is a crash",
       "precision": 2,
       "value": 0.01
+    },
+    "warmup_on_cosine_floors": {
+      "art": "summary",
+      "claim": "C1",
+      "note": "E0007 minus the incumbent, in floors \u2014 inside the floor",
+      "precision": 6,
+      "value": 0.103528
     }
   },
   "study_id": "13-charlm-fixed-budget"
