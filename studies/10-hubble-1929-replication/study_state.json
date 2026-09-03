@@ -20,7 +20,7 @@
     "study.yaml": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
   },
   "created_at": "2026-09-03T05:15:56.712689Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "adaptive-2",
   "final_holdout_access": {
     "estimate": {
       "accessed_at": null,
@@ -79,7 +79,14 @@
   },
   "last_experiment": 1,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T06:01:07.986196Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "d07f54f2e661bc0eefc177bb1dc604f5025cf6e8d5d318099daa436a4f95a55b"
+    }
+  },
   "predictions": {
     "P0": {
       "evidence": [
@@ -129,5 +136,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:00:58.458885Z"
+  "updated_at": "2026-09-03T06:01:07.986430Z"
 }
