@@ -124,3 +124,26 @@ At every phase start, run the slate ritual (references/phase-ritual.md):
 propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
+
+### Phase adaptive-1 slate
+
+Scored after the Phase 0 floor landed at `minimum_delta` 0.00745212, so
+testability is judged against a bar that exists.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `logreg_raw`: the raw-feature identity anchor; prints the first `gap_in_floors` and decides P1 | 1 | 3 | 3 | 7 |
+| 2 | `logreg_interaction`: hand the linear model the DGP's true `x1*x2`; decides P2 | 3 | 3 | 3 | 9 |
+| 3 | `hgbt_default`: a boosted tree told none of the true terms; decides P3 | 3 | 3 | 3 | 9 |
+| 4 | `hgbt_overcapacity`: 5x the trees, 127 leaves, no shrinkage discipline, no early stopping; decides P4 | 2 | 3 | 3 | 8 |
+| 5 | `logreg_quadratic`: hand it `x3^2` as well — reaches the ceiling by construction | 2 | 3 | 1 | 6 |
+| 6 | `logreg_raw` without `x7`, `x8`: does dropping known-noise columns move anything? | 2 | 1 | 2 | 5 |
+
+Chosen, in order: 1 (a frontier needs an incumbent before anything can be
+compared to it), then 2, 3, 4 — the ladder in the order the method card argues
+it. #5 scores 1 on information because the DGP already dictates its answer: a
+model handed every true term must reach the ceiling, so the run would teach
+nothing the generator has not already said. #6 scores 1 on testability because a
+logistic regression on 12 000 rows barely notices two noise columns; the
+predicted move is well under `minimum_delta`, so one run cannot decide it. Both
+go to the playbook queue rather than the ledger.

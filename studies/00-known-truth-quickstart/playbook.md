@@ -27,5 +27,9 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. Filled at the `adaptive-1` slate ritual, immediately after the Phase 0 floors
-   are measured and pasted into the contract.
+1. `logreg_quadratic` — hand the linear model `x3^2` as well as `x1*x2`. Sum 6:
+   it would reach the ceiling, but by construction, so the run teaches nothing
+   the generator has not already said.
+2. `logreg_raw` without `x7` and `x8` — does dropping known-noise columns move
+   anything? Sum 5: the predicted move is well under `minimum_delta` 0.00745212,
+   so a single run cannot decide it.
