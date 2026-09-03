@@ -106,7 +106,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
+      "message": "PASS-WITH-NOTES \u2014 klein-referee (Claude Code subagent, model: claude-sonnet-5), independent-of-experimenter: yes",
       "name": "referee gate",
       "ok": true
     },
@@ -171,25 +171,32 @@
       "ok": true
     },
     {
+      "message": "all 150 rendered numerals trace to a pinned source",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
       "message": "4 figure(s) re-render byte-identically",
       "name": "figure re-render",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "e5a538a9bcd3788983a1330f16b2f40242bd4c62",
+  "git_head": "0126e046fd137574aecb0de70e7fb0c8a99fca36",
   "inputs": {
     "aux_metrics.tsv": "cfe1fc2eef88215846cae55616f19f04291bd30611812f31021c4a5c6b00b374",
     "claims.lock": "8e2f0addc24f2d3c7bd280f704f95ad729cd2f459cfbf3ef17cbb2a9047c8e2e",
-    "events.jsonl": "6d7f59a786c73402fdcbd7fa99447b98a61b2faec39be93fee12b72b80672343",
+    "events.jsonl": "28f77e47fdc07551eb5e86e6c0dd4489818829bfc389a45031de2812e61fc901",
     "findings.md": "2a8d675867284fb82526b5a5ce6af0b5e10b9e0d75ff9e8544b9274baf34e7ba",
     "playbook.md": "35ae293258ec116291c9ca0df1d37607096a25eb0a94f3eb7829582b692207bb",
-    "program.md": "3b1d44a8fe020ca52228bb6bce18598cc9a3295e1b98376b74a03525a982a5ee",
+    "program.md": "bd6ecc0b7e2bd805985b2d54ba8984a9307de09620d58dc22410479b6e7348a5",
+    "referee_report.md": "bd4dad96ce4c169d6a89341ac37ecb2798ce020a5dd9180c7c079899a976708a",
+    "report/index.html": "166f835fae5353827aa6ccd5bbe724737ab552434918d2dff52bd99bd7966358",
     "results.tsv": "0b31323ecaaceb4b90fccfd694d7ded1344bd7edb9bb1f30cf56e60d2767739a",
     "study.yaml": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332",
-    "study_state.json": "8f872f426a82a3f257822d815a28f0dca58fba25c031e9aea55c74ea5a045eb2"
+    "study_state.json": "74483ddde1f29b10b0cb202df4fcca2b1d963fdef321c759f14ab18a3b4d507b"
   },
-  "klein_commit": "e5a538a9bcd3788983a1330f16b2f40242bd4c62",
+  "klein_commit": "0126e046fd137574aecb0de70e7fb0c8a99fca36",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "cfa3ee34640f6f9f0988f32dc53453dceffe3ff47d3f8a4191f94f0c64f11838",
@@ -205,11 +212,11 @@
   "single_source_claims": [],
   "study": "13-charlm-fixed-budget",
   "summary": {
-    "checks": 35,
+    "checks": 36,
     "failed": 0,
-    "warned": 1
+    "warned": 0
   },
-  "timestamp": "2026-09-03T13:19:37.524712Z",
+  "timestamp": "2026-09-03T15:43:49.427381Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
