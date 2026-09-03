@@ -328,14 +328,14 @@ def _resolve_sidecar(study: Path, sidecar: Path | None) -> Path:
 
 
 def utf8_streams() -> None:
-    """Emit UTF-8 on stdout and stderr whatever the console's locale says.
+    """Never let a console encoding crash a verb.
 
     On Windows a PIPED stdout defaults to the ANSI code page (cp1252), where the
-    arrows and dashes in Klein's messages raise ``UnicodeEncodeError`` — the CI
-    e2e lane died in ``klein predict list`` that way. Every reader of Klein's
-    output in this repository decodes UTF-8 (the notary's log pump, the e2e
-    script, the tests), so UTF-8 out is the only consistent choice; a console
-    that cannot show a character gets a backslash escape, never a crash.
+    arrows in Klein's messages raise ``UnicodeEncodeError`` — the CI e2e lane
+    died in ``klein predict list`` that way. The stream keeps its encoding (so
+    every reader on that platform still decodes what it always did); a
+    character the encoding cannot carry becomes a backslash escape instead of
+    an exception. A UTF-8 stream is left untouched.
     """
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
@@ -343,7 +343,7 @@ def utf8_streams() -> None:
         if reconfigure is None or encoding == "utf8":
             continue
         try:
-            reconfigure(encoding="utf-8", errors="backslashreplace")
+            reconfigure(errors="backslashreplace")
         except (ValueError, OSError):  # pragma: no cover - a closed or exotic stream
             continue
 

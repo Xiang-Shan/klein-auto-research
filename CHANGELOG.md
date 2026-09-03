@@ -210,7 +210,10 @@ re-open a closed study, start a new one and cite the old one's claims.
     K = 454.158441 with a 95 % bootstrap interval 316.648582–603.704762, and a single distance
     factor of 6.056247 carries the 1929 fits to within 4.990073 of the modern 70. The first
     referee round FAILED on a spelled-out ratio the numbers scan could not see; cleared, and
-    round 2 passed with notes.
+    round 2 passed with notes. Its run manifests pin commits from the study branch's
+    pre-rebase chain (the driving agent rebased the branch, against the protocol); the
+    annotated tag `evidence/10-hubble-1929-replication` keeps those commits reachable on
+    every clone, and the ledger itself is untouched.
   - **11 `exact-verifier-construction`** (2026-09-03) — the mathematics exhibit: the
     no-three-in-line problem with `search.py` as the mutable surface and `verify.py`, hashed at
     the METHOD gate, as the only source of the objective. Zero keeps by arithmetic (the best known
