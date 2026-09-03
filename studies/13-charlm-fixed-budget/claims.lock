@@ -79,7 +79,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "sealed_gap_floors"
+      ],
       "strength": "exploratory"
     },
     "C13": {
@@ -362,6 +364,13 @@
       "note": "the same, in fit-noise standard deviations",
       "precision": 6,
       "value": 0.119808
+    },
+    "sealed_gap_floors": {
+      "art": "summary",
+      "claim": "C12",
+      "note": "the same gap in units of the measured floor",
+      "precision": 6,
+      "value": 3.140679
     },
     "sealed_gap_nats": {
       "art": "summary",
