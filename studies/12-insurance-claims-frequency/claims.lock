@@ -85,7 +85,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "bar_over_v1_spread"
+      ],
       "strength": "exploratory"
     },
     "C4": {
@@ -171,6 +173,12 @@
       "note": "the registered within-tolerance of P1, P2 and P4",
       "precision": 4,
       "value": 0.0225
+    },
+    "bar_over_v1_spread": {
+      "art": "derived",
+      "claim": "C3",
+      "precision": 4,
+      "value": 0.9671
     },
     "minimum_delta": {
       "art": "contract",
