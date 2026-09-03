@@ -1,3 +1,4 @@
 experiment	track	primary_metric	status	commit	description
 E0001	reproduction	0	measured	77a4c4d46f6508a933e1c2e2c2e951354b9ca1f1	identity anchor: Table 1's published sums (21.873 Mpc, 8955 km/s) and both row counts (24, 22) recomputed from the bundled bytes; hard-STOP on mismatch; registered cell measured
 E0002	reproduction	1	measured	67599afebbe767bc81c437e81805dd13bad5eabc	two-parameter fits of Table 1 (through the origin, and free-intercept) against Hubble's published K = 465 +/- 10; registered cell measured
+E0003	reproduction	1	measured	19ee81f77341307ef869dd61952bc40c789ad0b6	reproduce Table 1's printed absolute magnitudes from its own m_t and r_mpc via M = m - 5log10(r) - 25, tolerance 0.06 mag per object; rehearsal of the sealed cell's machinery; registered cell measured
