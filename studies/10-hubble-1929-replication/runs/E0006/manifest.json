@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2770,
+      "committed": true,
+      "sha256": "08325fcdbbe39522d6f543ab5276d125aeff7e104dfb77a85cd73c4baf6bf3ed"
+    },
+    "runs/E0006/run.log": {
+      "availability": "recorded",
+      "bytes": 833,
+      "committed": true,
+      "sha256": "bfdbb4dbdd5148b75761a0c12f4e8e33d0434f8d575e445f91555418f5e15441"
+    },
+    "tables/bootstrap_k.tsv": {
+      "availability": "recorded",
+      "bytes": 247,
+      "committed": true,
+      "role": "declared",
+      "sha256": "6d2d767236bed00518910255408192fcdf86f313f3b008a33dea2e8cd07fe60b"
+    }
+  },
+  "base_commit": "ba4c166a57269e2c80b7a98fb9404f52feefdf2f",
+  "candidate_commit": "fc848b9bc7eda9257d1e113fc3d79625bbef4395",
+  "code_patch_hash": "b05ebae4d6c406991cc2b8d0fd9f1d8f1c8f6db01b78f4c870b9cd0ad257bf8f",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "bootstrap interval for K: 2000 case resamples of the 24 (r,v) pairs, seed block A, percentile 95%, for both two-parameter estimators; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:10:55.237116Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0006",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "k_kms_per_mpc",
+  "metrics": {
+    "analytic_se_free": 75.2371053471691,
+    "bootstrap_se_free": 72.93386164166547,
+    "ci_high": 603.704762,
+    "ci_high_origin": 510.783153397515,
+    "ci_low": 316.648582,
+    "ci_low_origin": 342.3080213322117,
+    "ci_width": 287.056179860023,
+    "hubble_probable_error": 50.0,
+    "hubble_target_k": 465.0,
+    "k_origin": 423.9373232316303,
+    "n": 24.0,
+    "n_boot": 2000.0,
+    "primary_metric": 454.158441,
+    "probable_error_free": 49.19388967730336,
+    "runner_exit_code": 0.0,
+    "seed_block_a": 20260903.0,
+    "target_inside_ci": 1.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.018871
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 5,
+  "predictions_requested": [],
+  "primary_metric": 454.158441,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:10:54.510843Z",
+  "timed_out": false,
+  "track": "estimate",
+  "transaction": {
+    "ready_at": "2026-09-03T06:10:55.238050Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.7261236251797527
+}

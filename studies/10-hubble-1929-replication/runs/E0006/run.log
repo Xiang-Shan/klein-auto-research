@@ -1,0 +1,30 @@
+---
+primary_metric:    454.158441
+metric_name:       k_kms_per_mpc
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            316.648582
+ci_high:           603.704762
+n:                 24
+wall_seconds:      0.018871
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+artifact: tables/bootstrap_k.tsv
+n_boot: 2000.0
+seed_block_a: 20260903.0
+ci_width: 287.056179860023
+bootstrap_se_free: 72.93386164166547
+analytic_se_free: 75.2371053471691
+probable_error_free: 49.19388967730336
+k_origin: 423.9373232316303
+ci_low_origin: 342.3080213322117
+ci_high_origin: 510.783153397515
+hubble_target_k: 465.0
+hubble_probable_error: 50.0
+target_inside_ci: 1.0
+runner_status: ok
+runner_exit_code: 0
