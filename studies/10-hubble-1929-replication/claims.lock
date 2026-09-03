@@ -253,7 +253,8 @@
       "evidence": [],
       "numbers": [
         "inverse_forward_ratio",
-        "k_inverse"
+        "k_inverse",
+        "virgo_influence"
       ],
       "strength": "exploratory"
     }
@@ -474,6 +475,13 @@
       "note": "mean implied absolute magnitude of the sealed block under this study's K (E0011)",
       "precision": 6,
       "value": -15.524998
+    },
+    "virgo_influence": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "shift in K from dropping the four Virgo-cluster rows (E0008)",
+      "precision": 6,
+      "value": 77.188826
     }
   },
   "study_id": "10-hubble-1929-replication"
