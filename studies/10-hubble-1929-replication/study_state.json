@@ -471,6 +471,26 @@
         }
       ],
       "track": "estimate"
+    },
+    "E0007": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": false
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0007@20260903T064251Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:42:51.955220Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "estimate"
     }
   },
   "schema_version": 3,
@@ -496,5 +516,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:42:51.174972Z"
+  "updated_at": "2026-09-03T06:43:45.924011Z"
 }
