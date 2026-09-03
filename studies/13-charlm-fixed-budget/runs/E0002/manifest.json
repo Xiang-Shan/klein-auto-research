@@ -1,0 +1,142 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 779,
+      "committed": true,
+      "sha256": "e4caa206a74fc59f5ab93777d212512f0c6c06a0847ea071a2de9f3a57ff5e78"
+    },
+    "models/E0002.pt": {
+      "availability": "local",
+      "bytes": 3308598,
+      "committed": false,
+      "role": "declared",
+      "sha256": "a32f88d754704cd3d0de48abfc33b45a2e838f2af020b98233a7963c8041ecd5"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 698,
+      "committed": true,
+      "sha256": "0e1cb74567b38b4eb5ccb9fa7bccef321cbdbf2eb2d0d0e23b5a92dc79db090c"
+    }
+  },
+  "base_commit": "0cc5d9f2aef2667600d68b321a40705794359aeb",
+  "candidate_commit": "c53d68643421186c7af4d260fde90a84126b282b",
+  "code_patch_hash": "103fc89598e63eb6a6494ecc0bd42d861c89a61ceb45db15f757ce94d99c89d2",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 1.572174 by minimum_delta=0.0149525",
+  "description": "E0002: 200-step linear learning-rate warmup, one change from the anchor at the same 2000 steps and the same seed; adjudicates P2; did not improve track frontier 1.572174 by minimum_delta=0.0149525",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T12:17:49.258095Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354",
+    "split_partition": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 900.0,
+  "metric": {
+    "reported": 1.584747,
+    "verified": 1.584747
+  },
+  "metric_goal": "lower",
+  "metric_name": "val_loss",
+  "metrics": {
+    "anchor_mean": 1.56915,
+    "anchor_z": 1.9425,
+    "bpc": 2.286307,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 128.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 0.0,
+    "cfg_warmup_steps": 200.0,
+    "delta_in_floors": -1.0431,
+    "delta_vs_anchor": -0.015597,
+    "eval_chars": 111616.0,
+    "eval_context": 128.0,
+    "eval_windows": 871.0,
+    "final_train_batch_loss": 1.417426,
+    "fit_seconds": 18.97,
+    "n_params": 824320.0,
+    "n_partition_chars": 111616.0,
+    "n_scored_chars": 111488.0,
+    "n_val_windows": 871.0,
+    "primary_metric": 1.584747,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_n_embd": 128.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 0.0,
+    "recipe_warmup_steps": 200.0,
+    "reported_val_loss": 1.584747,
+    "runner_exit_code": 0.0,
+    "steps": 2000.0,
+    "total_seconds": 0.2,
+    "train_bpc": 2.286307,
+    "train_chars": 891904.0,
+    "train_steps": 2000.0,
+    "verifier_gap": 0.0,
+    "wall_seconds": 0.238162
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 9000.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P2": {
+      "explanation": "delta_in_floors -1.0431 >= 1 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P2"
+  ],
+  "primary_metric": 1.584747,
+  "schema_version": 3,
+  "started_at": "2026-09-03T12:17:27.673835Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T12:17:51.131331Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0002.pt",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
+    },
+    "timed_out": false,
+    "wall_seconds": 1.8507450001779944
+  },
+  "wall_seconds": 21.58409016719088
+}
