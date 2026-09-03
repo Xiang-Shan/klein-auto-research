@@ -1,0 +1,2 @@
+interval	seed_block	seed	k_true	sigma	n_obs	n_rep	n_boot	nominal_level	coverage	mean_k_hat	bias	mean_ci_width
+percentile_bootstrap	C	20260905.000000	450.000000	232.910670	24.000000	1000.000000	500.000000	0.950000	0.925000	450.417532	0.417532	287.021258

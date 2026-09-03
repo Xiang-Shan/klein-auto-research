@@ -33,9 +33,9 @@
       "experiment": "E0011"
     },
     "simulate": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-03T06:28:05.024771Z",
+      "count": 1,
+      "experiment": "E0013"
     }
   },
   "fingerprints": {
@@ -77,7 +77,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 12,
+  "last_experiment": 13,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -226,6 +226,26 @@
       "source": "run",
       "verdict": "supported"
     },
+    "P6": {
+      "evidence": [
+        "E0013"
+      ],
+      "explanation": "primary_metric 0.925 >= 0.9 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0013"
+          ],
+          "explanation": "primary_metric 0.925 >= 0.9 \u2192 supported",
+          "recorded_at": "2026-09-03T06:28:05.856714Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:28:05.856714Z",
+      "source": "run",
+      "verdict": "supported"
+    },
     "P7": {
       "evidence": [
         "E0012"
@@ -314,5 +334,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:27:07.415297Z"
+  "updated_at": "2026-09-03T06:28:05.857533Z"
 }
