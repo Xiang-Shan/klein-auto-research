@@ -178,7 +178,10 @@ def load_block(
     with the DEVELOPMENT block and a printed `sealed_dryrun: 1` line — the same
     contract `kleinlib.data.load_partition` implements. The rehearsal therefore
     exercises the whole path (Table 1 carries `v_kms` and `m_t` too, the only
-    two columns the sealed statistic uses) and spends nothing.
+    two columns the sealed statistic uses) and spends nothing. The forbidden
+    columns are dropped on a dry run as well, because they are dropped by what
+    was REQUESTED rather than by what was served: the rehearsal must hand the
+    cell the same SHAPE the real run will.
 
     Prints `split_fingerprint:` for the block actually returned.
     """
@@ -202,7 +205,14 @@ def load_block(
     block = frame[frame["block"] == served].reset_index(drop=True)
     if block.empty:
         raise RuntimeError(f"the prepared artifact carries no rows for block {served!r}")
-    if served == BLOCK_TABLE2:
+    # Drop by what was REQUESTED, not by what was served. Under a dry run the
+    # rows come from Table 1, but the cell being rehearsed is the sealed one and
+    # its column contract must be rehearsed too: a frame with different columns
+    # is a different code path, and the rehearsal exists to exercise the real
+    # one. (The mandatory dry-run caught exactly this: Table 1's rows carry
+    # r_mpc / vs_kms / M_t in the prepared union, so the sealed cell's own guard
+    # fired during the rehearsal and the seal stayed intact.)
+    if name == BLOCK_TABLE2:
         block = block.drop(columns=[c for c in TABLE2_FORBIDDEN_COLUMNS if c in block.columns])
     if echo:
         print(f"{SPLIT_FINGERPRINT_KEY}: {block_fingerprint(block)}")
