@@ -66,7 +66,9 @@ def run_verify(study_dir: Path) -> subprocess.CompletedProcess[str]:
     rel = study_dir.relative_to(REPO_ROOT).as_posix()
     try:
         return subprocess.run(
-            ["uv", "run", "--locked", "klein", "verify", "--study", rel],
+            # --no-receipt: a proof run reads the study, it never files a state write —
+            # a schema-3 verify would otherwise commit a fresh receipt on every run.
+            ["uv", "run", "--locked", "klein", "verify", "--study", rel, "--no-receipt"],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,

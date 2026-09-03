@@ -262,7 +262,7 @@ jobs:
             if [ -f "$study/prepare.py" ]; then
               ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
             fi
-            uv run --no-sync klein verify --study "$study" --numbers --evidence-use
+            uv run --no-sync klein verify --study "$study" --numbers --evidence-use --no-receipt
             uv run --no-sync klein claims verify --study "$study"
             if [ -f "$study/figures/make_figures.py" ]; then
               keep="$RUNNER_TEMP/figures-$(basename "$study")"
