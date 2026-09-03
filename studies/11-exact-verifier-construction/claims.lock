@@ -71,7 +71,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "best_at_dev"
+      ],
       "strength": "exploratory"
     },
     "C5": {
@@ -122,6 +124,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "best_at_dev": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0004 best_at_evaluation: where the development lane found its best object and stopped improving",
+      "precision": 0,
+      "value": 152572
+    },
     "bound_large": {
       "art": "contract",
       "claim": "contract",
