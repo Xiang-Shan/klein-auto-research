@@ -88,12 +88,16 @@
       "strength": "exploratory"
     },
     "C4": {
-      "claim": "RQ2 | primary | refuted | exploratory | procedural-verdict | E0003, E0004 | the headroom did NOT close before the fourth candidate: h stood at 1.708 when it was spent, so the detection-limit law neither refused the run nor required an acknowledgement, and the candidate it did not stop came back 1.7903 floors WORSE rather than within the floor |",
-      "class": null,
+      "claim": "The headroom did not close before the fourth candidate: it stood at 1.708 when the candidate was spent, so the detection-limit law neither refused the run nor required an acknowledgement, and the candidate it did not stop came back at delta_in_floors -1.7903 rather than within the floor",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0003",
+        "E0004"
+      ],
       "numbers": [
-        "headroom_at_e0004"
+        "headroom_at_e0004",
+        "overcapacity_delta_floors"
       ],
       "strength": "exploratory"
     },
