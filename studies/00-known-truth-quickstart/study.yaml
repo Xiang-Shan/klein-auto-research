@@ -29,20 +29,34 @@ tracks:
     metric:
       name: "val_auc"
       goal: "higher"     # higher | lower
-      minimum_delta: 0
+      minimum_delta: 0.00745212   # = max(2*std, range/2), std 0.00372606
+      noise_floor:
+        k: 10
+        std: 0.00372606
+        range: 0.012855
+        mean: 0.804577
+        values: [0.804224, 0.800879, 0.804918, 0.808895, 0.804812, 0.796877, 0.803582, 0.809732, 0.804964, 0.806886]
+        source: "sweeps/split_lottery.sidecar.tsv"
+        method: "split-lottery"
+        estimand: "marginal-resplit"
+      fit_noise:
+        k: 5
+        std: 0
+        range: 0
+        mean: 0.806201
+        values: [0.806201, 0.806201, 0.806201, 0.806201, 0.806201]
+        source: "sweeps/fit_noise.sidecar.tsv"
+        method: "seed-sweep"
+        estimand: "fit-noise"
       exactness: stochastic       # exact for an integer/closed-form objective
       # exactness_note: "..."     # required when exactness is exact: the objective's resolution
-      # noise_floor:                # measured at Phase 0, never guessed —
-      #   k: 5                      # klein noise-floor prints this block
-      #   std: ...
-      #   range: ...
-      #   estimand: marginal-resplit  # or paired-comparison
-      # fit_noise:                  # the k-seed spread, recorded SEPARATELY so it
-      #   k: 5                      # can never be pasted in as a keep bar
-      #   std: ...
-      # bound:                      # arms the headroom (detection-limit) audit:
-      #   ideal: 0.0                # best achievable score; h = (incumbent - ideal) / delta
-      #   on_infeasible: ack        # ack | warn | block when h < 1
+      bound:                      # arms the headroom (detection-limit) audit:
+        ideal: 0.884116           # the DEVELOPMENT partition's Bayes AUC — the best score
+                                  # any model could reach on those rows — computed by
+                                  # prepare.py from the declared DGP and recorded in
+                                  # data/prepared/truth.json. Declared here only after the
+                                  # DATA gate hashed the generator that computes it.
+        on_infeasible: ack        # h < 1 refuses further development runs until acked
       # incumbent_external:         # beat the literature, not just yourself
       #   value: ...
       #   source: "<citation>"

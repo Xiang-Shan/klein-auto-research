@@ -100,6 +100,23 @@ pre-candidate base commit.
 - 2026-09-03 — the smoke check of `train.py` ran before the consult gate was
   recorded and is disclosed as entry S4 of `scouting_ledger.md` rather than left
   silent. It wrote nothing and could not have set a rule: no floor existed yet.
+- 2026-09-03 — Phase 0 measured TWO floors and they disagree by everything.
+  `seed-sweep` (k = 5) refit the anchor on the same rows under five fit seeds and
+  moved it not at all: std 0, range 0. That is recorded under `fit_noise` as
+  provenance and is NOT the bar — a study that had pasted it into
+  `minimum_delta` would carry a keep bar of zero and would keep every candidate
+  that moved the fourth decimal. The bar comes from `split-lottery`
+  (k = 10, estimand `marginal-resplit`, redrawing train/development inside the
+  train+development pool only, never touching the sealed rows):
+  std 0.00372606, range 0.012855, `minimum_delta` 0.00745212 = max(2*std, range/2).
+- 2026-09-03 — Decision: `tracks.primary.metric.bound.ideal` is set to 0.884116,
+  the development partition's Bayes AUC from `data/prepared/truth.json`. This is
+  a contract change AFTER the DATA gate, and it is lawful only through a gate
+  re-record with a reason, which is what happens next: the DATA gate had to hash
+  the generator before the number it computes could be quoted in the contract. No
+  run exists yet, so no result could have informed it. `on_infeasible: ack` is
+  chosen over `block` deliberately — this study wants to walk through the closed
+  door on the record, not be stopped by it.
 
 ## Phase slates
 
