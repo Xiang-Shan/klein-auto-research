@@ -171,7 +171,8 @@
         "art:aux"
       ],
       "numbers": [
-        "bad_rescale_gap"
+        "bad_rescale_gap",
+        "bad_rescale_gap_home"
       ],
       "strength": "exploratory"
     },
@@ -407,6 +408,13 @@
       "art": "aux",
       "claim": "C14",
       "note": "max_abs_gap_70 the inverted rescale produced in the rehearsal; recorded in the dry-run log, never in a manifest",
+      "precision": 6,
+      "value": 2680.495911
+    },
+    "bad_rescale_gap_home": {
+      "art": "dryrun_rescale",
+      "claim": "C14",
+      "note": "max_abs_gap_70 the inverted rescale produced in the rehearsal; its only home is the dry-run log, because a rehearsal spends nothing and writes no manifest",
       "precision": 6,
       "value": 2680.495911
     },
