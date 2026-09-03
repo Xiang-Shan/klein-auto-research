@@ -17,8 +17,9 @@ Two lanes, each in its OWN temporary worktree and branch (``--lane``):
      v1 edit -> run -> commit-or-revert -> log loop.
   3. Runs preflight / summarize_results.py / make_figures.py against that
      throwaway study and asserts their outputs.
-  4. Re-checks (read-only) that the REAL committed studies/00 artifacts are
-     still present and sane -- a cheap regression net.
+  4. Re-checks (read-only) that the REAL committed studies/00 exhibit
+     (00-known-truth-quickstart, schema 3) is still present and sane -- a cheap
+     regression net.
 
 ``schema3`` -- the proof of the 2.0 engine: one typed inquiry (studies/99-e2e-v3,
   ``predict`` / ``tabular`` / ``generic``, a frontier track and a registered one)
@@ -2392,7 +2393,7 @@ _EXTERNAL_URL_RE = re.compile(r'src="https?://|href="https?://')
 
 def regression_check_real_study00(repo_root: Path, results: list[CheckResult]) -> None:
     print("\n=== regression check: committed studies/00 artifacts (read-only) ===")
-    real00 = repo_root / "studies" / "00-glm-claims-quickstart"
+    real00 = repo_root / "studies" / "00-known-truth-quickstart"
 
     results_tsv = real00 / "results.tsv"
     real_rows = 0
@@ -2406,32 +2407,32 @@ def regression_check_real_study00(repo_root: Path, results: list[CheckResult]) -
 
     record(
         results,
-        "PASS" if _nonempty(real00 / "results_summary.md") else "FAIL",
-        "committed studies/00 results_summary.md non-empty",
+        "PASS" if _nonempty(real00 / "claims.lock") else "FAIL",
+        "committed studies/00 claims.lock non-empty",
     )
     record(
         results,
-        "PASS" if _nonempty(real00 / "progress.svg") else "FAIL",
-        "committed studies/00 progress.svg non-empty",
+        "PASS" if _nonempty(real00 / "referee_report.md") else "FAIL",
+        "committed studies/00 referee_report.md non-empty",
     )
 
     figures_dir = real00 / "figures"
     pngs = sorted(figures_dir.glob("*.png")) if figures_dir.is_dir() else []
     missing_pngs = [png.name for png in pngs if not _nonempty(png)]
-    if not missing_pngs:
+    if pngs and not missing_pngs:
         record(results, "PASS", "committed studies/00 figures/*.png all present and non-empty")
     else:
         record(
             results,
             "FAIL",
-            "committed studies/00 figures/*.png missing/empty: " + " ".join(missing_pngs),
+            "committed studies/00 figures/*.png missing/empty: " + " ".join(missing_pngs or ["<none>"]),
         )
 
     tutorial = real00 / "report" / "index.html"
     tutorial_ok = _nonempty(tutorial)
     if tutorial_ok:
-        html = tutorial.read_text(encoding="utf-8", errors="replace")
-        tutorial_ok = "data:image/png;base64" in html and not _EXTERNAL_URL_RE.search(html)
+        page = tutorial.read_text(encoding="utf-8", errors="replace")
+        tutorial_ok = "data:image/png;base64" in page and not _EXTERNAL_URL_RE.search(page)
     if tutorial_ok:
         record(results, "PASS", "committed studies/00 report/index.html self-contained tutorial")
     else:

@@ -51,7 +51,7 @@ the framework's own input.
 ## Claim citations (required at promotion)
 
 Promoted statements carry at least one typed claim citation —
-`(supports 03-noisy-rosenbrock-dfo#C3)` / `(refutes 00-glm-claims-quickstart#C1)` — pointing at a
+`(supports 03-noisy-rosenbrock-dfo#C3)` / `(refutes 00-known-truth-quickstart#C1)` — pointing at a
 stable claim ID in that study's `findings.md`. Optional frontmatter `claims:` may
 list the IDs a doc leans on. Everything stays greppable:
 `grep -rn "#C[0-9]" knowledge/`. Two lines citing claims that refute each other is

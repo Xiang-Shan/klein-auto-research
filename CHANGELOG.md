@@ -217,6 +217,16 @@ re-open a closed study, start a new one and cite the old one's claims.
     invalid objects rejected and a deliberate one-point overclaim refused as a
     `verifier_disagreement` crash. The referee found a false quantity in a frozen claim sentence
     ("sub-millisecond" against a pinned 0.002046 s), cleared by erratum, never by edit.
+  - **12 `insurance-claims-frequency`** (2026-09-03) — the insurance-profile exhibit, the v1
+    quickstart ported onto the bundled 58k-row claims table: all three v1 rungs reproduce
+    (anchor 0.011322 from the ledger's value); the paired-comparison floor 0.0375805 is
+    0.9671 of the v1 ledger's whole spread, so the ladder yields exactly one measured keep
+    (the boosted tree, +0.049911) and the spline chain's 0.035956 lift is 0.9568 of a floor;
+    the calibration doctrine improves Brier by a factor of 4.055; the DATA gate found 615
+    row-content twins straddling the partitions — a BLOCKER the v1 study never saw,
+    overridden on the record with an instrument printed on every run; the sealed level
+    0.657739 holds within 0.1680 floors. The v1 quickstart directory leaves the tree with
+    this study (read it at tag `v1.3.0`).
 
 ## [1.3.0] — 2026-08-26
 
