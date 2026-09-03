@@ -855,25 +855,66 @@ def _run_verify(
 # ---------------------------------------------------------------------------
 
 
+def _confirmed_evidence_ids(study_dir: Path) -> set[str] | None:
+    """The ``E####`` ids that ``confirmed`` claims cite, or ``None`` with no lock.
+
+    ``claims.lock`` is the claim→evidence index the replication protocol means by
+    "every cell a confirmed claim cites".  Returns ``None`` — not an empty set —
+    when the study has no lock or the lock cannot be read, so the caller can tell
+    "no index exists" (fall back to every measured cell) apart from "the index
+    exists and names nothing" (nothing is confirmed, so nothing is required).
+    A lock-schema-1 legacy ledger has no ``claims`` entries at all and also
+    reads as ``None``.
+    """
+    from .claims import claims_map, detect_lock_schema, load_lock, lock_path
+
+    if not lock_path(study_dir).is_file():
+        return None
+    try:
+        lock = load_lock(study_dir)
+        if detect_lock_schema(lock) < 2:
+            return None
+        claims = claims_map(lock)
+    except WorkflowError:
+        return None
+    cited: set[str] = set()
+    for entry in claims.values():
+        if not isinstance(entry, Mapping) or entry.get("strength") != "confirmed":
+            continue
+        evidence = entry.get("evidence")
+        if not isinstance(evidence, Sequence) or isinstance(evidence, str):
+            continue
+        for item in evidence:
+            text = str(item)
+            if RUN_ID_RE.match(text):
+                cited.add(text)
+    return cited
+
+
 def _confirmation_targets(
-    manifests: Sequence[Mapping[str, Any]], track: str, track_mode: str
+    manifests: Sequence[Mapping[str, Any]],
+    track: str,
+    track_mode: str,
+    cited: set[str] | None = None,
 ) -> list[str]:
     """Which runs must carry a record for this track's confirmation to hold.
 
     * ``frontier`` — the final incumbent: the claim rests on that one number.
-    * ``registered`` — every measured development cell of the track.  The
-      protocol says "every cell a confirmed claim cites"; the claim→cell
-      citation index is Package B's, so until it lands this is its strict
-      superset, which can only degrade a study, never over-confirm it.
+    * ``registered`` — the measured development cells that ``confirmed`` claims
+      cite, read from ``claims.lock``'s ``evidence[]`` (``cited``).  With no
+      lock (``cited is None``) it falls back to EVERY measured development cell
+      of the track: a strict superset, which can only under-confirm a study,
+      never over-confirm it.
     """
     if track_mode == "registered":
-        return [
+        cells = [
             str(manifest.get("experiment"))
             for manifest in manifests
             if str(manifest.get("track")) == track
             and manifest.get("evaluation_kind", "development") == "development"
             and manifest.get("disposition") != "crash"
         ]
+        return cells if cited is None else [cell for cell in cells if cell in cited]
     incumbent = _incumbent(manifests, track)
     return [str(incumbent.get("experiment"))] if incumbent else []
 
@@ -890,6 +931,10 @@ def confirmation_gaps(
     schema-2 ``finalize`` path is untouched: the function returns before it
     reads a single file.  ``sealed`` is deliberately not handled here —
     ``finalize`` already enforces it through the holdout counts.
+
+    On a REGISTERED track the targets are the cells that ``confirmed`` claims
+    cite in ``claims.lock``; with no lock every measured development cell is
+    required instead.
     """
     tracks = normalize_tracks(contract)
     wanted = {
@@ -902,12 +947,18 @@ def confirmation_gaps(
     for record in load_replications(study_dir):
         if record.get("reproduced") is True and str(record.get("mode")) in reproduced:
             reproduced[str(record["mode"])].add(str(record.get("experiment")))
+    cited = _confirmed_evidence_ids(study_dir)
     gaps: dict[str, list[str]] = {}
     for track, modes in wanted.items():
         if not modes:
             continue
         track_mode = str(tracks[track].get("mode", "frontier"))
-        targets = _confirmation_targets(manifests, track, track_mode)
+        targets = _confirmation_targets(manifests, track, track_mode, cited)
+        if track_mode == "registered" and cited is not None and not targets:
+            # The lock exists and no `confirmed` claim cites a cell of this
+            # track: there is nothing to confirm, which is not the same as
+            # "the track has no development run".
+            continue
         missing: list[str] = []
         for mode in modes:
             if not targets:

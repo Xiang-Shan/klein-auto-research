@@ -856,18 +856,30 @@ def _materiality_problems(block: Any) -> list[str]:
 
 
 def _data_source_problems(data: Mapping[str, Any]) -> list[str]:
-    """SHAPE only — resolution, caching and the offline rule live in sources."""
+    """SHAPE only — resolution, caching and the offline rule live in sources.
+
+    The scheme vocabulary has ONE owner, :func:`kleinlib.sources.parse_source`
+    (``SourceKind``); :data:`SOURCE_TAG_RE` stays as the cheap pre-check that
+    keeps the common failure ("not a tag at all") a fast local message, and the
+    parser then produces the scheme, so a scheme added to ``sources`` is
+    accepted here without a second list to keep in step.
+    """
+    from .sources import parse_source
+
     problems: list[str] = []
     source = data.get("source")
     if not isinstance(source, str) or not source.strip():
         return ["data.source is required — name the source tag"]
-    match = SOURCE_TAG_RE.match(source.strip())
-    if match is None:
+    tag = source.strip()
+    if SOURCE_TAG_RE.match(tag) is None:
         return [
             "data.source must be a source tag: csv: | parquet: | synthetic: | bundled: "
             f"| hub: | sklearn: | openml: | url: (got {source!r})"
         ]
-    scheme = match.group(1)
+    try:
+        scheme = str(parse_source(tag).kind)
+    except WorkflowError as exc:
+        return [f"data.source: {exc}"]
     sha256 = data.get("sha256")
     pinned = isinstance(sha256, str) and re.fullmatch(r"[0-9a-f]{64}", sha256.strip()) is not None
     if scheme in PINNED_SOURCE_SCHEMES and not pinned:

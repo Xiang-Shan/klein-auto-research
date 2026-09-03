@@ -669,6 +669,56 @@ def test_a_registered_track_wants_every_measured_cell(sealed_study) -> None:
     ]
 
 
+def test_a_registered_track_follows_the_cells_confirmed_claims_cite(sealed_study) -> None:
+    """With a lock present the targets are the cells `confirmed` claims cite
+    (claims-protocol.md); with no lock every measured cell is required, which
+    can only under-confirm a study."""
+    import json
+
+    _repo, study, _value, _marker, _manifest = sealed_study
+    _require(study, "replicate")
+    edit_contract(study, lambda c: c["tracks"]["primary"].update(mode="registered"))
+    contract = load_contract(study)
+    manifests = _manifests(study)
+
+    # No lock: the fallback wants E0001, the one measured development cell.
+    gaps = confirmation_gaps(study, contract, manifests)
+    assert "E0001" in gaps["primary"][0]
+
+    lock = study / "claims.lock"
+    # A lock whose only confirmed claim cites nothing from this track: the
+    # registered track then needs no replication record at all.
+    lock.write_text(
+        json.dumps(
+            {
+                "lock_schema": 2,
+                "claims": {
+                    "C1": {"strength": "exploratory", "evidence": ["E0001"]},
+                    "C2": {"strength": "confirmed", "evidence": ["sweep:floor"]},
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert confirmation_gaps(study, contract, manifests) == {}
+
+    # A confirmed claim that DOES cite the cell puts it back on the list.
+    lock.write_text(
+        json.dumps(
+            {
+                "lock_schema": 2,
+                "claims": {"C2": {"strength": "confirmed", "evidence": ["E0001", "art:map"]}},
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert "E0001" in confirmation_gaps(study, contract, manifests)["primary"][0]
+
+    # A legacy lock-schema-1 ledger carries no claim entries: fall back.
+    lock.write_text(json.dumps({"claims": {"k": {"value": 1, "art": "a"}}}), encoding="utf-8")
+    assert "E0001" in confirmation_gaps(study, contract, manifests)["primary"][0]
+
+
 def _manifests(study: Path) -> list[dict[str, Any]]:
     from kleinlib.manifest import load_manifests
 

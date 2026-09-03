@@ -297,6 +297,36 @@ def _print_checks(checks) -> int:
     return int(failures)
 
 
+def _resolve_sidecar(study: Path, sidecar: Path | None) -> Path:
+    """Locate ``klein noise-floor --sidecar`` the way its own default reads.
+
+    The default is ``<study>/sweeps/noise_floor.sidecar.tsv`` and every
+    documented invocation writes the study-relative spelling
+    (``--sidecar sweeps/<name>.sidecar.tsv``, as ``consult-protocol.md``
+    Phase 0 and ``klein sweep register --sidecar`` both do), so a relative
+    path is resolved against the STUDY first.  A path that only exists
+    relative to the process working directory still resolves, so a caller
+    already inside the study directory keeps working.  A path that exists
+    nowhere is a :class:`WorkflowError` naming both places it was looked
+    for — never a bare ``FileNotFoundError`` traceback.
+    """
+    if sidecar is None:
+        return study / "sweeps" / "noise_floor.sidecar.tsv"
+    if sidecar.is_absolute():
+        if not sidecar.is_file():
+            raise WorkflowError(f"--sidecar does not exist: {sidecar.as_posix()}")
+        return sidecar
+    in_study = study / sidecar
+    if in_study.is_file():
+        return in_study
+    if sidecar.is_file():
+        return sidecar
+    raise WorkflowError(
+        f"--sidecar does not exist: looked for {in_study.as_posix()} (study-relative) "
+        f"and {sidecar.as_posix()} (working-directory-relative)"
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
@@ -350,12 +380,12 @@ def main(argv: list[str] | None = None) -> int:
                 source = "--values"
             else:
                 study = resolve_study(args.study)
-                sidecar = args.sidecar or (study / "sweeps" / "noise_floor.sidecar.tsv")
+                sidecar = _resolve_sidecar(study, args.sidecar)
                 floor_stats = floor_from_sidecar(sidecar)
                 try:
-                    source = str(sidecar.resolve().relative_to(study.resolve()))
+                    source = sidecar.resolve().relative_to(study.resolve()).as_posix()
                 except ValueError:
-                    source = str(sidecar)
+                    source = sidecar.as_posix()
                 # Unchanged default when no recipe is declared: a bare
                 # `klein noise-floor --sidecar ...` prints exactly what it did.
                 method = method or "seed-sweep"

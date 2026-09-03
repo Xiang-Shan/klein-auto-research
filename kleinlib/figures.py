@@ -470,8 +470,16 @@ def plot_metric_trajectory(
 
 #: Status colors — reserved decision meanings, identical to the canonical
 #: ``docs/diagrams/src/klein_palette.py`` STATUS_COLOR (dataviz skill status
-#: palette): keep=good, discard=serious, crash=critical. Never series hues.
-STATUS_COLOR: dict[str, str] = {"keep": "#0ca30c", "discard": "#ec835a", "crash": "#d03b3b"}
+#: palette): keep=good, discard=serious, measured=BLUE, crash=critical. Never
+#: series hues.  The values are duplicated rather than imported on purpose:
+#: ``docs/diagrams/src`` is documentation, not an importable package, and a
+#: figure helper must not depend on the docs tree being present.
+STATUS_COLOR: dict[str, str] = {
+    "keep": "#0ca30c",
+    "discard": "#ec835a",
+    "measured": "#2a78d6",
+    "crash": "#d03b3b",
+}
 
 _SURFACE = "#fcfcfb"  # klein_palette.SURFACE — the ring color on overlapping marks
 
@@ -498,7 +506,9 @@ def plot_decision_trajectory(
     `manifests` is the full `kleinlib.workflow.load_manifests` sequence — rows
     are filtered to `track` here. Development keeps form a step-line frontier
     with ringed markers (it steps DOWN when `metric_goal == "lower"`); discards
-    stay as muted evidence dots; crashes (`primary_metric` is NA) are pinned as
+    stay as muted evidence dots; registered cells (`disposition == "measured"`)
+    are blue squares, on the plot but never on the frontier line — a cell has no
+    incumbent to beat; crashes (`primary_metric` is NA) are pinned as
     red x marks to a bottom rug band; the sealed `evaluation_kind ==
     "final_test"` run is a star EXCLUDED from the frontier. Alternating
     `axvspan` bands mark `phase` changes. Optional bands shade `minimum_delta`
@@ -517,6 +527,7 @@ def plot_decision_trajectory(
 
     frontier: list[tuple[int, float]] = []  # development keeps only
     discards: list[tuple[int, float]] = []
+    measured: list[tuple[int, float]] = []  # registered cells: no incumbent to beat
     sealed: list[tuple[int, float]] = []
     crashes: list[int] = []
     for x, manifest in rows:
@@ -525,12 +536,14 @@ def plot_decision_trajectory(
             crashes.append(x)
         elif manifest.get("evaluation_kind", "development") == "final_test":
             sealed.append((x, value))
+        elif manifest.get("disposition") == "measured":
+            measured.append((x, value))
         elif manifest.get("disposition") == "keep":
             frontier.append((x, value))
         else:
             discards.append((x, value))
 
-    finite = [v for _, v in frontier + discards + sealed]
+    finite = [v for _, v in frontier + discards + measured + sealed]
     lo, hi = (min(finite), max(finite)) if finite else (0.0, 1.0)
     span = (hi - lo) or max(abs(hi), 1.0) * 0.1
     # Scale honesty (tutorial-spec figure critique): a divergence outlier on a
@@ -584,6 +597,15 @@ def plot_decision_trajectory(
             dx, dy, s=26, color=STATUS_COLOR["discard"], alpha=0.8, edgecolors="none",
             zorder=2, label="discard (retained evidence)",
         )
+    if measured:
+        # A registered cell has no incumbent to beat: it is neither a keep nor a
+        # discard, so it gets its own mark and never joins the frontier line
+        # (references/registered-mode.md, the contract diff table).
+        mx, my = zip(*measured, strict=True)
+        ax.scatter(
+            mx, my, marker="s", s=48, color=STATUS_COLOR["measured"], edgecolors=_SURFACE,
+            linewidths=0.8, zorder=3, label="measured cell",
+        )
     if crashes:
         if use_log:
             ax.axhspan(rug_y / 1.35, rug_y * 1.35, color=STATUS_COLOR["crash"], alpha=0.07, linewidth=0, zorder=0)
@@ -618,7 +640,7 @@ def plot_decision_trajectory(
         ax.set_yticks([])
     if crashes:
         ax.set_ylim(bottom=rug_y / 1.6 if use_log else rug_y - 0.1 * span)
-    if frontier or discards or crashes or sealed:
+    if frontier or discards or measured or crashes or sealed:
         ax.legend(loc="best", fontsize=8, framealpha=0.9)
     else:
         ax.text(0.5, 0.5, f"no runs for track {track!r}", transform=ax.transAxes,
