@@ -78,7 +78,7 @@ model was fitted on, the same run scores 0.656647, a gap of 0.001091 — smaller
 does not rest on the duplicated rows.
 
 **[C8]** The v1 ledger's sixth row is a keep that a measured bar would have refused: its
-recorded AUC lift of 0.001425 is an improvement of 0.0379 floors against this study's bar.
+recorded AUC gain of 0.001425 is an improvement of 0.0379 floors against this study's bar.
 
 ## ② Registered predictions (from the ledger)
 
@@ -93,7 +93,7 @@ Copied from `klein predict list`, not re-decided here.
 | P5 | `delta_in_floors >= 1` | 0.3714 | **refuted** | E0003 | `program.md`, "Decision: P5 stands REFUTED on the registered bar" |
 | P6 | `brier_delta_vs_reference` below 0 and `abs(delta_in_floors)` below 1 | -0.181304 and 0.0390 | **supported** | E0004 | — |
 | P7 | `abs(sealed_shift_in_floors) <= 2` | 0.1680 | **supported** | E0005 | — |
-| P8 | manual: the v1 sweep's AUC lift is under the measured floor | 0.0379 floors | **supported** | sweep:paired_bootstrap, sweep:paired_bootstrap_b1000 | — |
+| P8 | manual: the v1 sweep's AUC gain is under the measured floor | 0.0379 floors | **supported** | sweep:paired_bootstrap, sweep:paired_bootstrap_b1000 | — |
 
 **`n_comparisons`.** Eight registered predictions in three families, every rule fixed in
 the `study.yaml` the consult gate hashed before any evidence existed, each bound in
@@ -136,7 +136,7 @@ pair-specific sweeps make it quantitative: the widest paired standard deviation 
 study is 10.92 times the narrowest, on the same rows with the same instrument. **[C9]**
 
 **Surprise 2 — a verdict flipped between two defensible floors, and the study had
-pre-committed to saying so.** P3's paired AUC lift is 0.035956. Against the bar declared at Phase 0
+pre-committed to saying so.** P3's paired AUC gain is 0.035956. Against the bar declared at Phase 0
 — measured on the ladder's most dissimilar pair, with the pair and the replicate count
 recorded before the measurement — that is 0.9568 floors, and P3 is refuted. Against the
 floor of the comparison P3 actually makes it is 1.0926 floors, and it would have been

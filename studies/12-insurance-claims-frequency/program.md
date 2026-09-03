@@ -692,8 +692,17 @@ note is answered here, dated, with what was done about it.
   insurance profile bans "lift" without its decile and base rate, every DECILE-lift use
   in this study already carries both, and the three flagged sites used the word in the
   distinct sense of a metric improvement, where no decile exists. They now read "AUC
-  lift", "paired AUC lift" and "an improvement of 0.0379 floors", so the warning stops
-  recurring in every verify and in the tutorial build. **C8's locked sentence still says
+  gain", "paired AUC gain" and "an improvement of 0.0379 floors". **The warning does not
+  stop firing, and it cannot** — a fact worth writing down, because the referee's
+  suggested remedy assumed otherwise and the next study should not spend time on it.
+  `kleinlib.checks.vocabulary_problems` greps the bare term from the profile's §7 list
+  and reports the FIRST THREE matching lines; it has no notion of the qualification the
+  profile permits, and it is an advisory `[WARN]` inside an `[OK]` check by design. Six
+  properly-qualified `top-decile lift` uses remain, each carrying its decile and the base
+  rate 0.063968 exactly as the profile requires, plus one verbatim quotation of RQ3's
+  registered prior, which is not reworded because a quotation that is edited is not a
+  quotation. So the warning now points at lines that are correct rather than at lines
+  that were merely unqualified, which is the whole available improvement. **C8's locked sentence still says
   "lift"** and stays exactly as it is: a claim sentence never changes, the word there is
   qualified two clauses later by "0.0379 of this study's floor", and rewriting a lock to
   silence a vocabulary warning is the wrong trade.
