@@ -115,8 +115,8 @@ decision.
 ## ③ Surprises and why
 
 **The sealed run reached the maximum the development lane had just failed to reach,
-and the only difference was the seed.** This is the study's real result and it was not
-expected: P1 was written expecting 22 at n = 11 and got 21; P6 was written expecting
+and the only difference was the seed.** This is the study's headline result and it was
+not expected: P1 was written expecting 22 at n = 11 and got 21; P6 was written expecting
 the same thing from a block nobody had touched, and got 22. Same instance, same
 algorithm, same 2000000-evaluation budget, same code at the same commit — one integer
 different, and the outcomes fall on opposite sides of a theorem's ceiling.
