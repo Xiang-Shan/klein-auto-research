@@ -122,6 +122,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "coverage_analytic",
         "coverage_dev",
         "floor_max",
         "floor_min",
@@ -342,6 +343,13 @@
       "note": "coordinates the four-parameter fit needs (E0004)",
       "precision": 0,
       "value": 24
+    },
+    "coverage_analytic": {
+      "art": "cova",
+      "claim": "C12",
+      "note": "coverage of the analytic interval on the same block and DGP (E0010)",
+      "precision": 6,
+      "value": 0.938
     },
     "coverage_dev": {
       "art": "covb",
