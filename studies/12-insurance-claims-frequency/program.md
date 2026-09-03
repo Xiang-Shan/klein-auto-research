@@ -418,3 +418,40 @@ queue rather than the ledger.
     this row is where an actuary sees it: 0.96 floors of rank, 4x of level.
   * `twin_free_gap` −0.001415: the duplicated rows are worth about a thousandth to this
     rung too, and again in the direction that FLATTERS the twin-free number.
+- 2026-09-03 — **E0003 KEEPS at val_auc 0.664051** and takes the frontier from E0001 with
+  a paired lift of +0.049911 over the incumbent, the only move in this study bigger than
+  the measured floor of 0.0375805.
+  * **P4 SUPPORTED**: `|0.664051 − 0.662897| = 0.001154`. The one rung recoverable
+    verbatim from a committed file is the tightest reproduction of the three, as RQ2's
+    prior said — but only just: the prose-with-kwargs rung (E0002) landed at 0.001612.
+    **The margin between a committed file and a description that names its non-default
+    kwargs is 0.000458 of AUC.** RQ2's prior is directionally right and quantitatively
+    almost empty, which is a stronger endorsement of v1's advice #5 than the prior was.
+  * **Decision: P5 REFUTED.** Against the calibrated GLM refitted on the same rows the
+    tree wins `delta_vs_reference` 0.013956 — `delta_in_floors` **0.3714**, nowhere near
+    the one floor the rule required. The actuarial reading is registered here and belongs
+    in §⑤: **on this portfolio the price of a filable GLM is not resolvable.** The tree's
+    edge over the calibrated linear rung is a third of one measured floor; a rate filing
+    cannot be argued either way from it. Under the stricter k = 1000 bar the same lift is
+    0.32 floors, so again no flip. Consequence: the frontier's one keep comes from
+    beating the RAW anchor, not from beating the calibrated GLM.
+  * **H1 is refuted, and cleanly.** The playbook predicted the duplicated rows would
+    inflate a tree's AUC more than a GLM's, because only a tree can memorise a cell.
+    E0003's `twin_free_gap` is **+0.001018** — the tree, like both GLMs, scores HIGHER on
+    the rows with no training twin. Across all three rungs the duplicated rows have cost
+    between −0.0014 and +0.0012 of AUC and never once flattered the headline number. The
+    overridden BLOCKER is real as a checked fact and small as a measured effect, and the
+    study can now say which of those it is because it measured it on every run.
+  * Rank and calibration part company completely here: the tree's `val_brier` is 0.223529
+    against the calibrated GLM's 0.058994, a factor of 3.79 WORSE, while it wins 0.0140
+    of AUC. `val_lift_top10` 2.2167 against the GLM chain's — the best top-decile lift in
+    the study.
+  * Housekeeping, disclosed: E0002's and E0003's logs carry sklearn's
+    `ConvergenceWarning` from the `saga` solver hitting `max_iter=2000` on the widened
+    spline design matrix (E0001's plain anchor converges and emits none). The rung
+    nevertheless reproduces the v1 value to 0.001612 — the v1 fit was evidently equally
+    unconverged, which is what reproducing an implementation, rather than an ideal,
+    looks like.
+- 2026-09-03 — Headroom after the keep: `h = (1.0 − 0.664051) / 0.0375805 = 8.94`. The
+  door is open by the arithmetic; that is read as "not excluded", never as "plausible" —
+  study 08 stood at h = 1.015 and produced zero keeps in twenty-one attempts.
