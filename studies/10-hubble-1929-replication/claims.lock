@@ -98,6 +98,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "hubble_pe_24",
         "probable_error"
       ],
       "strength": "exploratory"
@@ -373,6 +374,13 @@
       "note": "Hubble 1929's published constant for the 24 objects individually",
       "precision": 0,
       "value": 465
+    },
+    "hubble_pe_24": {
+      "art": "contract",
+      "claim": "C10",
+      "note": "the probable error Hubble quotes with his 24-object solution",
+      "precision": 0,
+      "value": 50
     },
     "hubble_table2_mean": {
       "art": "contract",
