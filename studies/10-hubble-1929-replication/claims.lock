@@ -221,7 +221,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "anchor_max_deviation"
+        "anchor_max_deviation",
+        "n_table1"
       ],
       "strength": "exploratory"
     },
@@ -375,6 +376,13 @@
       "note": "the modern Hubble constant, to the round figure this study compares against",
       "precision": 0,
       "value": 70
+    },
+    "n_table1": {
+      "art": "anchors",
+      "claim": "C6",
+      "note": "rows in Hubble's Table 1 (E0001)",
+      "precision": 0,
+      "value": 24
     },
     "nominal_level": {
       "art": "covc",
