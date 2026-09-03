@@ -101,11 +101,19 @@
       "strength": "exploratory"
     },
     "C12": {
-      "claim": "been worth nothing.",
-      "class": null,
+      "claim": "An accepted gate override is only lawful when it ships with an instrument: this one added three printed keys to every run, bounding the accepted contamination at 0.001415 per rung, and a partition table that found the same defect at 0.052223 in the source study's own validation partition, where nobody had ever looked.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "art:duplicates",
+        "art:data_card"
+      ],
       "numbers": [
+        "max_twin_gap",
         "v1_validation_twin_share"
       ],
       "strength": "exploratory"
