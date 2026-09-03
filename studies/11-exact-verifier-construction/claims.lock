@@ -145,7 +145,9 @@
     "C6": {
       "claim": "Write the checker as the dumbest correct thing and let the searcher be the clever one: two implementations that share no code agreed on the integer objective in every honest run, and the checker's exhaustive triple test cost 26235 integer cross products on the largest object this study verified and stayed sub-millisecond",
       "class": "research-discipline",
-      "errata": [],
+      "errata": [
+        "E1"
+      ],
       "evidence": [
         "E0001",
         "E0002",
@@ -205,7 +207,15 @@
       "strength": "exploratory"
     }
   },
-  "errata": {},
+  "errata": {
+    "E1": {
+      "claims": [
+        "C6"
+      ],
+      "filed": "2026-09-03",
+      "note": "C6's sentence ends 'and stayed sub-millisecond'. Its own pinned artifact refutes that half: runs/E0010/verify.log, alias verify_log_large, records wall_seconds 0.002046 beside triples_checked 26235 - about two milliseconds, twice the stated bound. Four of the ten verifier logs exceed a millisecond (E0005 0.001528, E0006 0.001915, E0007 0.001969, E0010 0.002046); sub-millisecond holds only for the n = 11 objects, where E0009 reads wall_seconds 0.000169. The phrase's origin is data_card.md line 90, which wrote 'sub-millisecond at every size this study uses' at Gate 1, BEFORE any run existed - a fair pre-run estimate that was never re-checked against the logs and was then promoted into a post-hoc factual claim, and from there into knowledge/domains/math/README.md. The card is gate-hashed and is not edited; findings.md and the knowledge entry are corrected to the pinned numbers, which are now attached to C6 as verifier_seconds_largest and verifier_seconds_small. Nothing rests on the speed: the verifier's cost is charged to no guardrail, and C6's advice rests on two independent implementations agreeing. Raised as referee NOTE 1, 2026-09-03."
+    }
+  },
   "git_head": "7d55da17c43a33db33b2d832e723f7578fca15f2",
   "klein_commit": "7d55da17c43a33db33b2d832e723f7578fca15f2",
   "klein_version": "2.0.0",
