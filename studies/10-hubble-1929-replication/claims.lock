@@ -79,7 +79,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "k_origin"
+      ],
       "strength": "exploratory"
     },
     "C10": {
@@ -225,6 +227,14 @@
   "klein_version": "2.0.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "k_origin": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "OLS through the origin, 24 objects (E0002)",
+      "precision": 6,
+      "value": 423.937323
+    }
+  },
   "study_id": "10-hubble-1929-replication"
 }
