@@ -153,6 +153,14 @@
   "klein_version": "2.0.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "minimum_delta": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the keep bar: max(2*std, range/2) of the ten paired seed differences",
+      "precision": 7,
+      "value": 0.0149525
+    }
+  },
   "study_id": "13-charlm-fixed-budget"
 }
