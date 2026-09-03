@@ -147,6 +147,35 @@ pre-candidate base commit.
   exists, no partition or policy changed, and the split fingerprints are byte-identical
   across the two records.
 
+- 2026-09-03 — **Phase 0 measured.** `sweep:fit_noise` (5 seeds, the anchor recipe,
+  identical partition): mean 1.56915 nats, std 0.00802952, range 0.021485.
+  `sweep:paired_floor` (the ten unordered pairs of those five checkpoints, re-scored on
+  identical validation windows): std 0.00747623, range 0.026494 →
+  **`minimum_delta` = 0.0149525 nats**. Two things worth recording. (a) Re-scoring a
+  saved checkpoint is exactly deterministic here — every paired difference equals the
+  difference of the two `fit_noise` values to the last printed digit — so the paired
+  spread is a spread of TRAINING outcomes, not of measurement. (b) The paired mean is
+  −0.0088684 rather than 0 because the five seeds happen to order with their index and
+  the sign convention is i < j; only `std` and `range` enter the bar and both are
+  translation-invariant.
+- 2026-09-03 — **Decision: `metric.bound.ideal` is declared at 0.0 and disclosed as
+  loose.** A cross-entropy in nats cannot go below zero, so the bound is true, but
+  natural English has positive entropy and nothing reaches it. h at the anchor is about
+  105 floors. The bound is declared so the headroom disclosure runs and so findings can
+  say plainly that the detection-limit law does no work in this study — `h >= 1` here
+  means only "not arithmetically excluded", exactly as the SKILL warns.
+- 2026-09-03 — **Note on the verifier tolerance now that the floor exists.** The brief
+  suggested `2 x fit_noise`; that would be 0.0161 nats. The a-priori 0.01 nats declared
+  at CONSULT is TIGHTER, so the check is strictly stricter than the brief asked for,
+  and it was fixed before any of these numbers were known.
+- 2026-09-03 — **Note on the design-time anchor values.** The scouting ledger's S3 runs
+  reported 1.567907 / 1.553969 / 1.567601 for seeds 1-3 with a throwaway script; the
+  registered sweep reports 1.564806 / 1.559798 / 1.568690 for the same seeds through
+  the study's own code. The two agree in level and spread but not digit-for-digit,
+  which is why S3 was disclosed as provenance and never as evidence. Whether the
+  residual is implementation or device nondeterminism is exactly what `klein replicate
+  E0001` is instrumented to answer (RQ2).
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):

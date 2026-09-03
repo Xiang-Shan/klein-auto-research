@@ -42,12 +42,48 @@ tracks:
       # bits.
       name: "val_loss"
       goal: "lower"     # higher | lower
-      minimum_delta: 0    # measured at Phase 0; a consult re-record sets it
+      minimum_delta: 0.0149525   # = max(2*std, range/2), std 0.00747623
       exactness: stochastic       # the fit is seeded but the recipe is stochastic
-      # noise_floor: / fit_noise: / bound:  — all three land here at the Phase-0
-      # consult re-record, once the floor sweeps have run. Declaring them now
-      # would mean guessing a bar, which is the one thing the floor exists to
-      # prevent.
+      # THE BAR. Measured at Phase 0 on the quantity a keep actually produces:
+      # the difference between two independently seeded runs of the SAME recipe,
+      # re-scored on identical validation windows. Ten unordered pairs of the
+      # five fit_noise checkpoints; the sign is fixed by the seed order (i < j)
+      # and never by the outcome, so these are a spread and not folded absolute
+      # deviations. The mean is not zero because the five seeds happen to order
+      # with their index; only std and range enter the bar, and both are
+      # translation-invariant.
+      noise_floor:
+        k: 10
+        std: 0.00747623
+        range: 0.026494
+        mean: -0.0088684
+        values: [0.005008, -0.003884, -0.006379, -0.016477, -0.008892, -0.011387, -0.021486, -0.002495, -0.012594, -0.010098]
+        source: "sweeps/paired_floor.sidecar.tsv"
+        method: "seed-pair-difference: L_i - L_j for the ten unordered pairs of the five fit_noise checkpoints, re-scored on identical validation windows"
+        estimand: "paired-comparison"
+      # PROVENANCE, never the bar: how much the FIT moves when only the seed
+      # changes. `anchor_z` and `delta_in_floors` are computed against this
+      # block's mean, and P1 is written in units of this block's std.
+      fit_noise:
+        k: 5
+        seeds: [1, 2, 3, 4, 5]
+        std: 0.00802952
+        range: 0.021485
+        mean: 1.56915
+        values: [1.56481, 1.5598, 1.56869, 1.57119, 1.58128]
+        source: "sweeps/fit_noise.sidecar.tsv"
+        method: "seed-sweep"
+        estimand: "fit-noise"
+      bound:
+        # A cross-entropy in nats is bounded below by 0 by definition, so this
+        # is a TRUE bound — and a deliberately LOOSE one: natural English has
+        # positive entropy and no model reaches 0. h = (incumbent - 0)/delta is
+        # therefore an upper bound on the floors of headroom left, around 105 at
+        # the anchor, and it says only "a keep is not arithmetically excluded".
+        # It is declared so the disclosure machinery runs and so findings can
+        # say plainly that the headroom law does no work in this study.
+        ideal: 0.0
+        on_infeasible: ack
     guardrails:
       # MATCHED COMPUTE, enforced by the checker, not by the searcher: the
       # verifier reads the optimizer-step count out of the checkpoint it is
