@@ -311,6 +311,28 @@
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/studies/10-hubble-1929-replication/data/prepared/prepared.csv",
     "sha256": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d"
   },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": false
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0001@20260903T062832Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:28:32.419935Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "10-hubble-1929-replication",
@@ -334,5 +356,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:28:05.857533Z"
+  "updated_at": "2026-09-03T06:29:33.104800Z"
 }
