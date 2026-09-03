@@ -1,6 +1,14 @@
 {
-  "acknowledgements": {},
-  "artifact_hashes": {},
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:23:21.830518Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "7791550bc6b2c924a7d4f8bbe221452aeeb16721a2f56feb9eae36c88c03554c",
+    "study.yaml": "5d9c3d877b8b13c24bbaf834e3cd983d90a32618ed4aebca8471c2b8c01f0659"
+  },
   "created_at": "2026-09-03T05:15:56.712689Z",
   "current_phase": "adaptive-1",
   "final_holdout_access": {
@@ -26,9 +34,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T05:23:21.830518Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "ac9922e9af139e933323685954b12d493f1f1296942f58fa8e25f0c74dc09cdb",
+        "research_plan.md": "7791550bc6b2c924a7d4f8bbe221452aeeb16721a2f56feb9eae36c88c03554c",
+        "study.yaml": "5d9c3d877b8b13c24bbaf834e3cd983d90a32618ed4aebca8471c2b8c01f0659"
+      },
+      "note": "exhibit study: the user ack is delegated to the driving agent by the lead; scouting ledger closed and hashed with the contract",
+      "status": "recorded"
     },
     "data": {
       "acknowledged_at": null,
@@ -51,5 +65,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "10-hubble-1929-replication",
-  "updated_at": "2026-09-03T05:15:56.712703Z"
+  "updated_at": "2026-09-03T05:23:21.831202Z"
 }
