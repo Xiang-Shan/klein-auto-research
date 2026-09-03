@@ -1,0 +1,6 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"k_true":450.0,"n_boot":500,"n_rep":1000,"seed_block":20260911}	0.925000	0.089	ok	
+2	{"k_true":450.0,"n_boot":500,"n_rep":1000,"seed_block":20260912}	0.932000	0.088	ok	
+3	{"k_true":450.0,"n_boot":500,"n_rep":1000,"seed_block":20260913}	0.925000	0.088	ok	
+4	{"k_true":450.0,"n_boot":500,"n_rep":1000,"seed_block":20260914}	0.925000	0.088	ok	
+5	{"k_true":450.0,"n_boot":500,"n_rep":1000,"seed_block":20260915}	0.927000	0.088	ok	

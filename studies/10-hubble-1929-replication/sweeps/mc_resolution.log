@@ -1,0 +1,7 @@
+trials ok: 5 of 5
+values: 2.378938, 2.397964, 2.379165, 2.369768, 2.299108
+mean:  2.364989
+std:   0.038230
+range: 0.098857
+runner_status: ok
+runner_exit_code: 0
