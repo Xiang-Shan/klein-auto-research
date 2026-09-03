@@ -71,9 +71,9 @@ TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
 # --- the candidate: the whole per-experiment diff surface -------------------
 # Empty between experiments. Choosing a rung IS the falsifiable idea a candidate
 # transaction carries, so the surface carries no rung until one is chosen.
-CANDIDATE = "glm_ohe_balanced"   # E0001: the v1 split-identity anchor
-REFERENCE = None                 # the first rung has nothing to beat yet
-V1_ANCHOR = 0.625462             # scouting_ledger.md S1, v1 results.tsv row 1
+CANDIDATE = "glm_splines_isotonic"  # E0002: the v1 spline + isotonic chain
+REFERENCE = "glm_ohe_balanced"      # the raw-feature anchor it claims to beat
+V1_ANCHOR = 0.651707                # scouting_ledger.md S1, v1 results.tsv row 5
 DEV_INCUMBENT = None             # set only for the sealed confirmation run
 
 
