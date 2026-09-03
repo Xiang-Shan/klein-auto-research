@@ -26,7 +26,7 @@ CONFIG: dict[str, object] = {
     "n_head": 4,
     "n_embd": 128,
     "block_size": 128,
-    "tie_weights": False,
+    "tie_weights": True,
     "dropout": 0.0,
 }
 
