@@ -1,0 +1,3 @@
+fit	k_kms_per_mpc	intercept_kms	r_squared	target_k	abs_gap_to_target	tolerance	reproduced
+origin	423.937323	0.000000	0.619442	465.000000	41.062677	10.000000	no
+free_intercept	454.158441	-40.783649	0.623531	465.000000	10.841559	10.000000	no

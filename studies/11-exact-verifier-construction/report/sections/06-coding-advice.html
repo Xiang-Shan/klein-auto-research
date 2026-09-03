@@ -1,0 +1,115 @@
+<h2>6 · Search and verifier coding advice</h2>
+
+<p>Four lessons, each with the run that paid for it. They are the study's
+<code>research-discipline</code> claims, and they are what transfers.</p>
+
+<h3>§6.1 · Write the checker as the dumbest correct thing — C6</h3>
+
+<p>Here is the declared verifier, in full, as the bytes the METHOD gate hashed and the
+notary ran ten times. Read the <code>check</code> function: it is a sequence of refusals,
+then a loop over <em>every</em> triple.</p>
+
+<pre data-code="verify.py" data-lang="python"></pre>
+
+<p>Things worth copying:</p>
+
+<ul>
+<li><strong>It imports nothing from the search.</strong> <code>lib/nothree.py</code> is not
+in its import list and never will be; that is what makes the two implementations' agreement
+evidence instead of a tautology.</li>
+<li><strong>It refuses before it scores.</strong> Malformed JSON, a non-integer coordinate
+(<code>bool</code> checked explicitly — <code>True</code> is an <code>int</code> in Python),
+a point off the grid, a repeated point. Well-formedness is the checker's job too.</li>
+<li><strong>It reports the searcher's self-report rather than punishing it.</strong>
+<code>claim_excess = claimed - verified</code> is printed as a number. Policing that
+difference is the notary's job, at <code>tolerance: 0</code>, and that separation is why
+E0008 became a <em>crash</em> rather than a silently-corrected score.</li>
+<li><strong>It writes no aux rows</strong> (<code>study_dir=None</code>). The aux sidecar is
+idempotent per experiment id, so a verifier writing under the run's id would erase the
+search telemetry the run had just recorded. Its own cost lands on the manifest as
+<code>verifier.wall_seconds</code>, where it belongs.</li>
+</ul>
+
+<p>The cost of being dumb: 26235 cross products on the largest object, 0.002046 seconds.
+The <em>benefit</em> of being dumb is the planted control named
+<code>parabola_plus_one</code> — twelve points containing exactly one bad triple — which a
+checker that sampled triples would very likely have passed.</p>
+
+<h3>§6.2 · Freeze the controls before the checker meets them — C7</h3>
+
+<p>The twelve planted objects and the one known-valid object are written by
+<code>prepare.py</code> into the artifact the DATA gate hashes. The gate record carries its
+sha256; the file is regenerable from committed code and from nothing else.</p>
+
+<pre><code class="language-python">payload = {
+    "instances": {"n_small": {...}, "n_large": {...}},
+    "seed_blocks": {"development": DEVELOPMENT_SEED, "sealed": SEALED_SEED},
+    "budgets": BUDGETS,
+    "controls": {
+        "negative": {...},          # the Erdos parabola set, expected_objective = p
+        "positive": {"count": 12, "objects": planted_invalid(N_SMALL)},
+    },
+}
+</code></pre>
+
+<p>It costs nothing to arrange and it removes a whole class of self-deception: a positive
+control that can be softened after it fails is not a control. The same file carries the
+seed blocks, which is how a study with no rows still gets a sealed access — and why no
+literal seed appears in any script this study owns.</p>
+
+<h3>§6.3 · Give the guard a test it can fail — C8</h3>
+
+<p>The per-experiment mutable surface is <code>search.py</code>, and a candidate is a
+<em>cell</em>: which mode, which rung of the frozen ladder. E0008's diff was three
+constants.</p>
+
+<pre><code class="language-diff">-CELL = "unassigned"        # the cell this candidate measures
+-MODE = "search"            # controls | search | overclaim
+-OVERCLAIM_BY = 0           # points to add to the SEARCH's self-report, not to the object
++CELL = "overclaim-by-one"  # the cell this candidate measures
++MODE = "overclaim"         # controls | search | overclaim
++OVERCLAIM_BY = 1           # points to add to the SEARCH's self-report, not to the object
+</code></pre>
+
+<p>One point of inflation — the smallest lie available — and the notary refused the run at
+<code>tolerance: 0</code>. If you ship a disagreement guard, spend one run proving it
+fires; documentation that a mechanism exists is not evidence that it works.</p>
+
+<p>Here is the entrypoint the notary actually executed, in full. Note that it computes no
+objective that enters the ledger: it writes an object, states what it thinks that object is
+worth, and prints the artifact path the verifier will be pointed at.</p>
+
+<pre data-code="search.py" data-lang="python"></pre>
+
+<h3>§6.4 · Do the headroom arithmetic before the first run — C9</h3>
+
+<p>When the best known value equals a proven bound, the frontier is closed before it opens,
+and two divisions tell you so:</p>
+
+<div data-math-display="h_{\text{small}} = \frac{22 - 22}{1} = 0, \qquad h_{\text{large}} = \frac{62 - 62}{1} = 0"></div>
+
+<p>Klein discloses that at preflight and refuses development runs until the closed door is
+on the record. The acknowledgement is where a study says what it is <em>for</em> instead:</p>
+
+<pre><code class="language-bash">klein headroom ack --track n_small --acknowledged-by lead-agent \
+  --note "run-anyway: the door is closed by a theorem, not by a losing phase. ...
+          This study is not looking for an improvement; it is looking for an object
+          that ATTAINS the known maximum, and for a record of who certified it."</code></pre>
+
+<h3>§6.5 · Three pitfalls this study actually hit</h3>
+
+<ol>
+<li><strong>Every run restores the surface, so the base state must not be a cell.</strong>
+With zero keeps by construction, <code>run-one</code> restores <code>search.py</code> after
+every run — to the previous candidate's exact configuration, which it would then refuse as
+an unchanged re-execution. The fix is a <code>CELL</code> label whose base value
+(<code>"unassigned"</code>) is never a cell any run uses.</li>
+<li><strong>An adjective is not a numeral.</strong> "Sub-millisecond" travelled from a
+pre-run estimate on the data card into a locked claim, past every mechanical check, because
+no scan looks at words. Re-read your qualitative claims against the logs before you lock
+them. (§5.5; erratum E1.)</li>
+<li><strong>The budget unit can hide the thing you are comparing.</strong> Counting
+addability tests is honest about <em>cost</em> and silent about <em>effort</em>: the same
+2000000 tests bought 19014 greedy completions at n = 11 and 2190 at n = 31. If two
+instances are to be compared, register the unit that makes them comparable.</li>
+</ol>

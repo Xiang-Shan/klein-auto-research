@@ -1329,6 +1329,57 @@ def pin_artifact(study_dir: Path, alias: str, rel_path: str, *, commit: bool = T
     return entry
 
 
+def _refuse_homeless_number(
+    study_dir: Path,
+    alias: str,
+    entry: Mapping[str, Any],
+    artifacts: Mapping[str, Any],
+) -> None:
+    """Refuse a number whose value is not in the artifact it names.
+
+    Check 5 of the claims law fails a number the artifact does not spell out --
+    and check 6 makes a number's ``art`` immutable once the verb has committed
+    it.  So an alias written against the wrong home is a DEAD END: it can never
+    be repointed, never removed, and the lock can never verify again.  Catching
+    it here, before anything is written, is the only place the mistake is still
+    recoverable, and it costs one read of a file the verb already names.
+
+    Deliberately not an escape hatch: a value its artifact does not contain is
+    exactly what check 5 exists to reject, so refusing it at write time only
+    makes the same law arrive on time.  The two cases check 5 treats as warnings
+    -- a binary artifact, a prose value -- are warnings here too, which means
+    they pass.
+    """
+    meta = artifacts.get(str(entry.get("art")))
+    path = (
+        _resolve_artifact(study_dir, meta["path"], _repo_root(study_dir))
+        if isinstance(meta, Mapping) and isinstance(meta.get("path"), str)
+        else None
+    )
+    text = _read_text_artifact(path) if path is not None else None
+    if text is None:
+        return
+    leaves = _numeric_leaves(entry["value"])
+    if not leaves:
+        return
+    found = text_numerals(text)
+    precision = entry.get("precision", DEFAULT_PRECISION)
+    precision = (
+        precision
+        if isinstance(precision, int) and not isinstance(precision, bool)
+        else DEFAULT_PRECISION
+    )
+    missing = [value for _path, value in leaves if not numeral_matches(value, found, precision)]
+    if missing:
+        raise WorkflowError(
+            f"claims number: {alias!r} = {_fmt(missing[0])} is not in artifact "
+            f"{entry.get('art')!r} at {precision} decimals or exactly - a number needs a "
+            "home that actually holds it. Pin the artifact that does and use that alias. "
+            "Nothing was written: a number's `art` can never be changed once the lock "
+            "has committed it, so this is the last moment the mistake is recoverable."
+        )
+
+
 def add_number(
     study_dir: Path,
     alias: str,
@@ -1374,6 +1425,7 @@ def add_number(
         merged = dict(existing)
         merged.update(entry)
         entry = merged
+    _refuse_homeless_number(study_dir, alias, entry, artifacts)
     numbers[alias] = entry
     if isinstance(claim, str) and CLAIM_ID_RE.match(claim):
         target = (lock.get("claims") or {}).get(claim)

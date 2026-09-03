@@ -1,0 +1,703 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T06:00:58.458312Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:41:06.681169Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:46:33.111731Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:38:25.861326Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "ca3a6ec9c74e594084082f4738d3f10e2e470c0cc8498857c4c062a07978f3df",
+    "method_card.md": "94434f3bc564521c56afa41680bc6534472b51a45dfd448d661aeaaf20637605",
+    "referee_report.md": "7b4610156dbda8a6575f69e75e2dee949eafa255cea36501c4a84a94132113a3",
+    "research_plan.md": "5d4a75a26b151e225960d1284d8c1dc908d90dda81c9d6977333ccb7a6589c6d",
+    "study.yaml": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
+  },
+  "created_at": "2026-09-03T05:15:56.712689Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "estimate": {
+      "accessed_at": "2026-09-03T06:27:06.601809Z",
+      "count": 1,
+      "experiment": "E0012"
+    },
+    "reproduction": {
+      "accessed_at": "2026-09-03T06:24:28.984201Z",
+      "count": 1,
+      "experiment": "E0011"
+    },
+    "simulate": {
+      "accessed_at": "2026-09-03T06:28:05.024771Z",
+      "count": 1,
+      "experiment": "E0013"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "estimate": 1,
+      "reproduction": 1,
+      "simulate": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": false,
+      "referee": "klein-referee (Claude Code subagent, model: Opus 5 / claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "estimate": "E0012",
+      "reproduction": "E0011",
+      "simulate": "E0013"
+    },
+    "timestamp": "2026-09-03T08:16:49.006411Z"
+  },
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "split": {
+      "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
+      "policy": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    },
+    "verifier": {}
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-09-03T06:00:58.458312Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "4494f23507f407d00d3dfeecdeae46085c652e0a0d3b7d28f4b6fa825df9f5f1",
+        "research_plan.md": "5d4a75a26b151e225960d1284d8c1dc908d90dda81c9d6977333ccb7a6589c6d",
+        "study.yaml": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
+      },
+      "note": "minimum_delta set from the measured noise floor (sweep:coverage_floor, simulate track); fit_noise recorded from sweep:mc_resolution (estimate track). Measured after E0001.",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-09-03T05:41:06.681169Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "ca3a6ec9c74e594084082f4738d3f10e2e470c0cc8498857c4c062a07978f3df"
+      },
+      "note": "GO-WITH-CAUTIONS accepted: (1) Table 2's r_mpc/vs_kms/M_t are derived-from-K and excluded at load_block; (2) n=24, addressed by the simulate track's coverage measurement; (3) split.kind none registers no realized fingerprints \u2014 the two block digests are published on the card instead; (4) informative missingness no cell reads. Ack delegated to the driving agent by the lead.",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-09-03T05:46:33.111731Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "94434f3bc564521c56afa41680bc6534472b51a45dfd448d661aeaaf20637605"
+      },
+      "note": "triad complete: theory (notation table + 5 display equations), papers (8/8 references verified against landing pages 2026-09-03), practice (lib/hubble.py exists and prepare.py runs on it). No verifier declared \u2014 the card says why. Ack delegated to the driving agent by the lead.",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T08:38:25.861326Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "7b4610156dbda8a6575f69e75e2dee949eafa255cea36501c4a84a94132113a3"
+      },
+      "independent_of_experimenter": false,
+      "note": "the report's execution path was made repo-relative by the referee (line 73); verdict PASS-WITH-NOTES and every other byte unchanged; universality guard",
+      "referee": "klein-referee (Claude Code subagent, model: Opus 5 / claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 13,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T06:01:07.986196Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "d07f54f2e661bc0eefc177bb1dc604f5025cf6e8d5d318099daa436a4f95a55b"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-09-03T06:09:30.231220Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "597e828bff3c8bd884b7296a916997ff5a25f429e6cd9a3725ea9977854341c5"
+    },
+    "adaptive-3": {
+      "acknowledged_at": "2026-09-03T06:17:40.781016Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "acaf59e7bdaa564abac5c5594f8aa7edf7e842416d56329083d9fd76069668f0"
+    },
+    "adaptive-4": {
+      "acknowledged_at": "2026-09-03T06:21:33.219257Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "4518ca3c85eb7d7a2ccb4dcde274f8ffd18bd2b71f066d867b4daa7be4e61b1c"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-09-03T06:56:49.444813Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "4518ca3c85eb7d7a2ccb4dcde274f8ffd18bd2b71f066d867b4daa7be4e61b1c"
+    }
+  },
+  "predictions": {
+    "P0": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "all_of[sum_r 21.873 within 0.001 of 21.873 (|\u0394| = 3.5527136788e-15) \u2192 supported; sum_v 8955 within 1 of 8955 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "all_of[sum_r 21.873 within 0.001 of 21.873 (|\u0394| = 3.5527136788e-15) \u2192 supported; sum_v 8955 within 1 of 8955 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+          "recorded_at": "2026-09-03T05:56:41.020871Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:56:41.020871Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P1": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "min_abs_gap_465 10.8415590774 > 10 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "min_abs_gap_465 10.8415590774 > 10 \u2192 supported",
+          "recorded_at": "2026-09-03T06:04:07.521773Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:04:07.521773Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "inconclusive_if fired: coords_available 0 < 24 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "inconclusive_if fired: coords_available 0 < 24 \u2192 supported",
+          "recorded_at": "2026-09-03T06:07:28.920638Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:07:28.920638Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P3": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "inconclusive_if fired: groups_reconstructed 0 < 9 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "inconclusive_if fired: groups_reconstructed 0 < 9 \u2192 supported",
+          "recorded_at": "2026-09-03T06:08:33.845336Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:08:33.845336Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P4": {
+      "evidence": [
+        "E0012"
+      ],
+      "explanation": "ci_low 316.648582 > 70 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0012"
+          ],
+          "explanation": "ci_low 316.648582 > 70 \u2192 supported",
+          "recorded_at": "2026-09-03T06:27:07.414167Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:27:07.414167Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P5": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "inverse_minus_forward_se_units 2.44741914468 > 1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "inverse_minus_forward_se_units 2.44741914468 > 1 \u2192 supported",
+          "recorded_at": "2026-09-03T06:11:59.842097Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:11:59.842097Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P6": {
+      "evidence": [
+        "E0013"
+      ],
+      "explanation": "primary_metric 0.925 >= 0.9 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0013"
+          ],
+          "explanation": "primary_metric 0.925 >= 0.9 \u2192 supported",
+          "recorded_at": "2026-09-03T06:28:05.856714Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:28:05.856714Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P7": {
+      "evidence": [
+        "E0012"
+      ],
+      "explanation": "max_abs_gap_70 4.99007311327 <= 15 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0012"
+          ],
+          "explanation": "max_abs_gap_70 4.99007311327 <= 15 \u2192 supported",
+          "recorded_at": "2026-09-03T06:27:07.414432Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:27:07.414432Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P8": {
+      "evidence": [
+        "E0011"
+      ],
+      "explanation": "mean_abs_mag -15.5249981286 within 0.3 of -15.3 (|\u0394| = 0.224998128649) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0011"
+          ],
+          "explanation": "mean_abs_mag -15.5249981286 within 0.3 of -15.3 (|\u0394| = 0.224998128649) \u2192 supported",
+          "recorded_at": "2026-09-03T06:24:29.640271Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:24:29.640271Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P9": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "max_abs_mag_dev 0.0712125471966 <= 0.06 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "max_abs_mag_dev 0.0712125471966 <= 0.06 \u2192 refuted",
+          "recorded_at": "2026-09-03T06:05:03.126477Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:05:03.126477Z",
+      "source": "run",
+      "verdict": "refuted"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/studies/10-hubble-1929-replication/data/prepared/prepared.csv",
+    "sha256": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d"
+  },
+  "replications": {
+    "E0001": {
+      "attempts": 2,
+      "modes": {
+        "replicate": {
+          "attempts": 2,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0001@20260903T062832Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:28:32.419935Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20260903T063009Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:30:09.053724Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    },
+    "E0002": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0002@20260903T063133Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:31:33.518471Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    },
+    "E0003": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 3,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0003@20260903T063246Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:32:46.569595Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0003@20260903T063624Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:36:24.976868Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0003@20260903T063853Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:38:53.578348Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    },
+    "E0004": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0004@20260903T063326Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:33:26.711961Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    },
+    "E0005": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 3,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0005@20260903T063443Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:34:43.115922Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0005@20260903T063726Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:37:26.777322Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0005@20260903T064003Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:40:03.295093Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    },
+    "E0006": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 3,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0006@20260903T064132Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:41:32.849965Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0006@20260903T064412Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:44:12.020574Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0006@20260903T064440Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:44:40.711753Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "estimate"
+    },
+    "E0007": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 3,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0007@20260903T064251Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:42:51.955220Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0007@20260903T064413Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:44:13.109392Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0007@20260903T064658Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:46:58.043528Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "estimate"
+    },
+    "E0008": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 3,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0008@20260903T064346Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:43:46.718297Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0008@20260903T064415Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:44:15.159164Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0008@20260903T064844Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:48:44.679588Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "estimate"
+    },
+    "E0009": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 3,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0009@20260903T064349Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:43:49.045953Z",
+          "tolerance": 0.0060663
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0009@20260903T064417Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:44:17.286438Z",
+          "tolerance": 0.0060663
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0009@20260903T065111Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:51:11.959773Z",
+          "tolerance": 0.0060663
+        }
+      ],
+      "track": "simulate"
+    },
+    "E0010": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 3,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0010@20260903T064351Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:43:51.167219Z",
+          "tolerance": 0.0060663
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0010@20260903T064419Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:44:19.846384Z",
+          "tolerance": 0.0060663
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0010@20260903T065316Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:53:16.195834Z",
+          "tolerance": 0.0060663
+        }
+      ],
+      "track": "simulate"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "10-hubble-1929-replication",
+  "sweeps": {
+    "coverage_floor": {
+      "registered_at": "2026-09-03T05:59:51.304106Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/coverage_floor.py",
+      "script_sha256": "0de40934d645dc861b52b5730bfa71cd7759d4fc211b59be35bc70a6f0e4aa38",
+      "sidecar": "sweeps/coverage_floor.sidecar.tsv",
+      "sidecar_sha256": "a20c005975fb7b996a1c0333b27f2e8ce08991322027c323de0318ece72e6676"
+    },
+    "mc_resolution": {
+      "registered_at": "2026-09-03T05:59:51.160938Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/mc_resolution.py",
+      "script_sha256": "4ba655ec4916ffa1693c715f762dd02d06b91cd0beab8c53844ad06197711a4a",
+      "sidecar": "sweeps/mc_resolution.sidecar.tsv",
+      "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
+    }
+  },
+  "updated_at": "2026-09-03T08:38:25.861967Z"
+}

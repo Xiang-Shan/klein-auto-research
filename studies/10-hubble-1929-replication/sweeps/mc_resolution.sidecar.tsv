@@ -1,0 +1,6 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"master_seed":20260921,"n_boot":2000}	2.378938	0.000	ok	
+2	{"master_seed":20260922,"n_boot":2000}	2.397964	0.000	ok	
+3	{"master_seed":20260923,"n_boot":2000}	2.379165	0.000	ok	
+4	{"master_seed":20260924,"n_boot":2000}	2.369768	0.000	ok	
+5	{"master_seed":20260925,"n_boot":2000}	2.299108	0.000	ok	

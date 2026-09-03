@@ -1,0 +1,34 @@
+Using CPython 3.13.3
+Creating virtual environment at: /private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-h17w7h7z/worktree/.venv
+   Building klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-h17w7h7z/worktree
+      Built klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-h17w7h7z/worktree
+Installed 29 packages in 87ms
+---
+primary_metric:    1.000000
+metric_name:       targets_outside_tolerance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/two_parameter_fits.tsv
+rows:              2
+sha256:            cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8
+wall_seconds:      0.013741
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+k_origin: 423.9373232316303
+k_free: 454.15844092262836
+intercept_free: -40.78364909586038
+abs_gap_465_origin: 41.06267676836973
+abs_gap_465_free: 10.841559077371642
+min_abs_gap_465: 10.841559077371642
+se_k_free: 75.2371053471691
+probable_error_k_free: 50.74742755666556
+residual_sd_kms: 232.9106701830066
+r2_origin: 0.6194422240017304
+r2_free: 0.6235305209067517
+n: 24.0
+runner_status: ok
+runner_exit_code: 0

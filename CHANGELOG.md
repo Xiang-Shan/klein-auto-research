@@ -200,6 +200,23 @@ re-open a closed study, start a new one and cite the old one's claims.
     sealed partition's own ceiling (confirmed), the over-capacity candidate at h = 1.708
     lost 1.7903 floors (P4 refuted, decision recorded), and both `klein replicate`
     attempts failed for non-scientific reasons — the defects E13 fixed.
+  - **10 `hubble-1929-replication`** (2026-09-03) — Hubble's two 1929 tables, bundled; three
+    registered tracks (replicate, estimate, simulate), 13 measured cells, three sealed
+    accesses (one per track): neither two-parameter fit returns 465 (423.937323 / 454.158441),
+    the headline is unreproducible for missing inputs rather than method, the 24 objects support
+    K = 454.158441 with a 95 % bootstrap interval 316.648582–603.704762, and a single distance
+    factor of 6.056247 carries the 1929 fits to within 4.990073 of the modern 70. The first
+    referee round FAILED on a spelled-out ratio the numbers scan could not see; cleared, and
+    round 2 passed with notes.
+  - **11 `exact-verifier-construction`** (2026-09-03) — the mathematics exhibit: the
+    no-three-in-line problem with `search.py` as the mutable surface and `verify.py`, hashed at
+    the METHOD gate, as the only source of the objective. Zero keeps by arithmetic (the best known
+    value equals the proven bound, headroom 0 acknowledged before the first run); 21 of 22 from
+    the development seed block and 22 from the sealed one, reported as a difference and never a
+    rate; 55 of the best-known 62 on the larger grid, never called impossibility; twelve planted
+    invalid objects rejected and a deliberate one-point overclaim refused as a
+    `verifier_disagreement` crash. The referee found a false quantity in a frozen claim sentence
+    ("sub-millisecond" against a pinned 0.002046 s), cleared by erratum, never by edit.
 
 ## [1.3.0] — 2026-08-26
 

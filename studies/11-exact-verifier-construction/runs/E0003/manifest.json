@@ -1,0 +1,114 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1025,
+      "committed": true,
+      "sha256": "cf83eba7c13d439acf26f415faba3679199d0b38b339082dd2c20431c84cfdeb"
+    },
+    "models/E0003/solution.json": {
+      "availability": "recorded",
+      "bytes": 877,
+      "committed": true,
+      "sha256": "d3b22b3808e6d5f270bd6e9e6c3f44bafc515e64679ca37576e040dd6cb8db33"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 637,
+      "committed": true,
+      "sha256": "31acae1f4bc85e8d3f3263568f4081317b93152eaf4e16bb73a8034080da4ec4"
+    }
+  },
+  "base_commit": "390f09cf4cd3ceef273b6b0e90ac27fd81a0c250",
+  "candidate_commit": "7070241dbf9f6550d104bb842cea2e07cdca89ad",
+  "code_patch_hash": "7d899e43feb9ad719e87972284c70c774da1c23c268469327943514e5e2599bc",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "did not improve track frontier 22 by minimum_delta=1 (external incumbent 22)",
+  "description": "n_small at the middle rung: 200 000 addability tests on the 11 x 11 grid, same development seed block, so this trajectory extends E0002's; did not improve track frontier 22 by minimum_delta=1 (external incumbent 22)",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T07:44:10.275981Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055",
+    "split_partition": "3819345e71dfbf7fef36734e0f41f1d40cb53ba45eae5c3c218c0e084a248d78"
+  },
+  "incumbent": null,
+  "matched_external": false,
+  "max_run_seconds": 120.0,
+  "metric": {
+    "reported": 21.0,
+    "verified": 21.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "points",
+  "metrics": {
+    "best_at_evaluation": 152572.0,
+    "budget": 200000.0,
+    "claim_excess": 0.0,
+    "claimed_objective": 21.0,
+    "evaluations": 200000.0,
+    "grid_n": 11.0,
+    "object_size": 21.0,
+    "overclaim_by": 0.0,
+    "passes": 1902.0,
+    "primary_metric": 21.0,
+    "runner_exit_code": 0.0,
+    "sealed_block": 0.0,
+    "search_seconds": 0.07992429193109274,
+    "search_seed": 20260903.0,
+    "total_seconds": 0.0,
+    "triples_checked": 1330.0,
+    "wall_seconds": 0.000173
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 8,
+  "predictions_requested": [],
+  "primary_metric": 21.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T07:44:09.462185Z",
+  "timed_out": false,
+  "track": "n_small",
+  "transaction": {
+    "committed_at": "2026-09-03T07:44:11.058064Z",
+    "evidence_commit": "aee43413fe7c8c4a964c0cadf70be6e74cf0b623",
+    "recovered": false,
+    "status": "complete"
+  },
+  "verifier": {
+    "artifact": "models/E0003/solution.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "959ba15bac56cd94f00e7198788601bd87fa38767912ad34e223a0292f739cbe"
+    },
+    "timed_out": false,
+    "wall_seconds": 0.6964585829991847
+  },
+  "wall_seconds": 0.8136663748882711
+}

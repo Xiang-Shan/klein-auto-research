@@ -481,3 +481,116 @@ def test_without_an_external_incumbent_the_first_result_is_still_a_keep(
     assert manifest["disposition"] == "keep"
     assert "first valid result on this track" in manifest["decision_reason"]
     assert "matched_external" not in manifest
+
+
+def test_the_verifier_log_is_filed_with_the_evidence(optimize_study) -> None:
+    """`runs/E####/verify.log` is the checker's own output — evidence, not litter.
+
+    It was written but never staged, so on a verifier track every run left the
+    tree dirty and the NEXT `run-one` refused to start.
+    """
+    repo, study = optimize_study
+    _artifact_key(study)
+    _commit(repo, "declare the artifact key")
+    _search(study, reported=7, artifact_value=7)
+    run_one(study, echo=False)
+
+    verify_log = study / "runs" / "E0001" / "verify.log"
+    assert verify_log.is_file()
+    tracked = subprocess.run(
+        ["git", "ls-files", "--error-unmatch", "--", str(verify_log)],
+        cwd=repo,
+        capture_output=True,
+        check=False,
+    )
+    assert tracked.returncode == 0, "the verifier's log is not tracked at HEAD"
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout.strip()
+    assert dirty == "", f"the evidence transaction left the tree dirty: {dirty}"
+
+
+def test_preflight_discloses_headroom_against_an_external_incumbent(
+    optimize_study,
+) -> None:
+    """Disclosure must resolve the same incumbent enforcement does.
+
+    With `metric.incumbent_external` seeding the frontier, a track HAS an
+    incumbent before its first keep — and when that value equals the declared
+    ideal, run-one refuses development runs on h = 0. Preflight used to report
+    "no incumbent yet ... audited at first keep" for exactly that study, so the
+    disclosure disagreed with the enforcement.
+    """
+    repo, study = optimize_study
+    _artifact_key(study)
+    _edit_contract(
+        study,
+        lambda c: c["tracks"]["primary"]["metric"].update(
+            {
+                "bound": {"ideal": 22, "on_infeasible": "ack"},
+                "incumbent_external": {
+                    "value": 22,
+                    "source": "the pigeonhole bound, which is also the best known value",
+                    "verified_on": "2026-09-03",
+                },
+            }
+        ),
+    )
+    _commit(repo, "an externally seeded frontier at the proven maximum")
+
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "headroom")
+    assert check.ok
+    assert "h = (22 - 22) / 1 = 0.000" in check.message
+    assert "NO keep is arithmetically possible" in check.message
+
+    # …and the ack run-one demands has to be RECORDABLE in that same state.
+    from kleinlib.workflow import acknowledge_headroom
+
+    entry = acknowledge_headroom(
+        study,
+        track="primary",
+        acknowledged_by="tester",
+        note="run-anyway: the best known value is the proven maximum",
+    )
+    assert entry["h"] == 0.0 and entry["incumbent"] == 22.0 and entry["infeasible"] is True
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "headroom")
+    assert "acknowledged by tester" in check.message
+
+
+def test_preflight_checks_the_declared_entrypoint_not_the_literal_train_py(
+    optimize_study,
+) -> None:
+    """An `optimize` study's surface is `search.py`; preflight must check THAT.
+
+    The check hard-coded `train.py` — a v1 leftover — so every study whose kind
+    names a different entrypoint failed its own preflight with "train.py:
+    missing" and could never start its loop.
+    """
+    _, study = optimize_study
+    assert (study / "search.py").is_file()
+    assert not (study / "train.py").exists()
+    names = {check.name for check in preflight_checks(study, require_clean=False)}
+    assert "search.py" in names
+    assert "train.py" not in names
+
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert check.ok and check.message == "syntax valid"
+
+    # A surface that still carries its scaffold stubs is warned about, by name.
+    (study / "search.py").write_text(
+        'def search():\n    raise NotImplementedError("fill me in")\n', encoding="utf-8"
+    )
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert check.ok and "scaffold stubs remain" in check.message
+
+    (study / "search.py").write_text("def broken(:\n", encoding="utf-8")
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert not check.ok and "syntax error" in check.message
+
+    (study / "search.py").unlink()
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert not check.ok and check.message == "missing"

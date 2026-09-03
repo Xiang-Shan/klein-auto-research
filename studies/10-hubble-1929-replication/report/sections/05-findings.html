@@ -1,0 +1,127 @@
+<h2>5. Findings &amp; insights</h2>
+
+<h3>5.1 The reproduction verdict: one target of five</h3>
+
+<img data-fig="figures/velocity_distance.png"
+     alt="Hubble's 24 objects with both two-parameter fits and his own published line; the four Virgo-cluster objects marked separately.">
+
+<p>Neither two-parameter fit returns the published constant. Through the origin gives
+<strong>423.937323</strong>; with a free intercept, <strong>454.158441</strong>. The
+nearer of the two is <strong>10.841559</strong> away from <strong>465</strong>, against
+a tolerance of <strong>10</strong> registered before the run. That is a supported
+prediction, not a discovered flaw &mdash; the method card said in advance that 465 came
+from a four-parameter model, and it did.</p>
+
+<p>The two remaining targets could not be attempted at all, and this is the study's
+most transferable result. The four-parameter solar-motion refit needs each object's sky
+coordinates: <strong>0</strong> of <strong>24</strong> are obtainable from the tables,
+from the article text, or from any offline catalogue. The nine-group solution needs the
+grouping: <strong>0</strong> of <strong>9</strong> groups are reconstructible, because
+the paper states the criterion but never lists the membership. <strong>Neither cell
+invented an input.</strong> Both enumerated what the method needs, recorded where each
+input is and is not available, pinned the enumeration as evidence, and let a registered
+<code>inconclusive_if</code> decide the verdict by arithmetic on a measured
+availability count.</p>
+
+<p>The fifth target &mdash; the paper's own printed absolute magnitudes &mdash; was
+<strong>refuted</strong>, with a maximum deviation of <strong>0.071213</strong> against
+a registered <strong>0.06</strong> and <strong>3</strong> objects outside. Diagnosed
+rather than shrugged off: most of the printed values are exact round-to-nearest of the
+distance modulus, and the exceptions are truncations toward zero. The formula is right;
+the paper's rounding is not uniform. The registered tolerance was <em>not</em> widened
+afterwards to make it pass.</p>
+
+<h3>5.2 What the objects actually support</h3>
+
+<img data-fig="figures/bootstrap_k.png"
+     alt="Point estimates and 95 percent bootstrap intervals for three estimators, against every quoted reference value.">
+
+<p>The estimate is <strong>454.158441</strong> with a 95 % percentile-bootstrap
+interval of <strong>316.648582</strong> to <strong>603.704762</strong>, a width of
+<strong>287.056180</strong>. Two things follow, and they pull in opposite directions:</p>
+
+<ul>
+  <li><strong>Hubble's 465 is inside that interval.</strong> "No fit returns 465" and
+      "465 is not excluded" are different statements. The first is about arithmetic; the
+      second is about resolution at this sample size. A replication owes its reader
+      both.</li>
+  <li><strong>His stated uncertainty reproduces almost exactly.</strong> The analytic
+      probable error of the free-intercept slope is <strong>50.747428</strong> against
+      the <strong>50</strong> he quotes &mdash; from a fit he did not run. The likely
+      mechanism is that the probable error is dominated by the residual scatter about
+      the line, <strong>232.910670</strong> km/s, which is a property of the data rather
+      than of the model form. That reading stays exploratory: confirming it needs the
+      four-parameter fit, which is exactly what is unobtainable.</li>
+</ul>
+
+<p>So a reader comparing this study's full modern interval against a bare
+"&plusmn;50" will conclude that 1929 was overconfident. It was not. What separates the
+eras is the distance ladder, not the error bar &mdash; and applying one common
+rescale factor of <strong>6.056247</strong> to every distance carries both fits to
+within <strong>4.990073</strong> of the modern <strong>70</strong>.</p>
+
+<h3>5.3 The two choices that move the constant more than the data does</h3>
+
+<p><strong>Which variable is the response.</strong> Inverse regression returns
+<strong>728.366015</strong> against the forward <strong>454.158441</strong> &mdash; a
+factor of <strong>1.603771</strong>, with Hubble's own value sitting between them. On
+a paired bootstrap the difference is <strong>282.639496</strong> with a standard error
+of <strong>115.484712</strong>, i.e. <strong>2.447419</strong> standard errors. This
+was the method card's most exposed prior and it held.</p>
+
+<p><strong>Four galaxies that share one assigned distance.</strong> Hubble gave the
+whole Virgo cluster a single distance from its mean luminosity. Those are the largest
+distances in the table, so they carry the longest lever: dropping all four moves the
+constant to <strong>531.347267</strong>, a shift of <strong>77.188826</strong>, which
+exceeds the analytic standard error of <strong>75.237105</strong>. Hubble himself
+attributed the gap between his two published solutions largely to those nebulae &mdash;
+the one part of his uncertainty discussion that <em>does</em> reproduce, from his own
+numbers.</p>
+
+<h3>5.4 Does the interval cover? Measured, not assumed</h3>
+
+<img data-fig="figures/coverage.png"
+     alt="Coverage of the bootstrap and analytic intervals under the declared truth, against the nominal level, the registered bar and the five Phase-0 floor blocks.">
+
+<p>Under the declared generating process at the paper's own design points, the
+percentile interval covers <strong>0.925</strong> of the time on the sealed seed block
+&mdash; above the registered bar of <strong>0.9</strong>, below the nominal
+<strong>0.95</strong>. The analytic interval covers <strong>0.938</strong> on the
+development block against the bootstrap's <strong>0.911</strong>. Both fall short, and
+the bootstrap falls short by more: <em>some</em> of the shortfall is the sample size,
+and the gap between them is the method's own contribution. The estimator is essentially
+unbiased under both, so this is an interval problem, not an estimation problem.</p>
+
+<p><strong>Every claim about these numbers carries its scope</strong>: measured in a
+known-truth lab where the relation is exactly linear with Gaussian scatter at Hubble's
+design points. It describes the behaviour of the interval machinery, not the behaviour
+of the universe.</p>
+
+<h3>5.5 The sealed comparison</h3>
+
+<p>Hubble's argument for Table 2 was an internal cross-check: turn the nebulae's
+velocities into distances with the constant, and their absolute magnitudes should look
+like the first table's. The sealed cell re-ran that check with <em>this study's</em>
+constant in place of his, using only the two columns Table 2 measured. The implied mean
+absolute magnitude is <strong>-15.524998</strong>, within <strong>0.224998</strong> of
+his printed <strong>-15.3</strong> and inside the registered tolerance. His internal
+consistency survives the substitution.</p>
+
+<h3>5.6 The surprise that is really a discipline finding</h3>
+
+<p>The Phase-0 floor was optimistic about its own quantity. Five blocks put coverage
+between <strong>0.925</strong> and <strong>0.932</strong> and produced a
+<code>minimum_delta</code> of <strong>0.0060663</strong>; the development block then
+measured <strong>0.911</strong> &mdash; below every floor block. A five-block spread of
+a Monte-Carlo <em>proportion</em> can easily come in below that proportion's own
+binomial standard error, and the recipe's guard did not save it. A floor for a
+proportion should be sized against the binomial standard error as well as against the
+observed spread.</p>
+
+<p>Worse, and disclosed the day it happened rather than at synthesis: measuring that
+floor <em>partly spent</em> the prediction it was measured for. There is no way to size
+the resolution of a coverage estimate without learning roughly what the coverage is.
+The study registered the foreseeability when it was created, kept the refutation branch
+live, and took the verdict on a seed block the floor never touched &mdash; but the
+honest summary is that the prediction was no longer a surprise by the time it was
+adjudicated.</p>

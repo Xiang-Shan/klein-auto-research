@@ -1,0 +1,29 @@
+---
+primary_metric:    0.000000
+metric_name:       targets_outside_tolerance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/sealed_table2_magnitudes.tsv
+rows:              21
+sha256:            4b0132c7ff3e7db588f5e527b468a755bbfeb8a0116c358f531e644521959080
+wall_seconds:      0.018011
+split_fingerprint: b3d8796e91bc0906f9892e562643339fbd110508804ac4e01b0ce4116e8e9610
+mean_abs_mag: -15.524998128648633
+target_mean_abs_mag: -15.3
+abs_deviation: 0.22499812864863244
+tolerance: 0.3
+k_lane: 454.158441
+n_used: 21.0
+n_excluded_nonpositive_v: 1.0
+n_block_rows: 22.0
+sd_abs_mag: 1.1797343687314816
+min_abs_mag: -17.89848730464547
+max_abs_mag: -13.729412982922824
+printed_table2_mean: -15.3
+runner_status: ok
+runner_exit_code: 0

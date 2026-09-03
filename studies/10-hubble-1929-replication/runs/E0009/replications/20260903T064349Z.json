@@ -1,0 +1,172 @@
+{
+  "baseline": 0.911,
+  "block_differences": {
+    "bias": {
+      "difference": null,
+      "original": -2.11721605582494,
+      "replicate": null
+    },
+    "k_true": {
+      "difference": null,
+      "original": 450.0,
+      "replicate": null
+    },
+    "mean_ci_width": {
+      "difference": null,
+      "original": 288.8339548715153,
+      "replicate": null
+    },
+    "mean_k_hat": {
+      "difference": null,
+      "original": 447.88278394417506,
+      "replicate": null
+    },
+    "n_boot": {
+      "difference": null,
+      "original": 500.0,
+      "replicate": null
+    },
+    "n_obs": {
+      "difference": null,
+      "original": 24.0,
+      "replicate": null
+    },
+    "n_rep": {
+      "difference": null,
+      "original": 1000.0,
+      "replicate": null
+    },
+    "nominal_level": {
+      "difference": null,
+      "original": 0.95,
+      "replicate": null
+    },
+    "primary_metric": {
+      "difference": null,
+      "original": 0.911,
+      "replicate": null
+    },
+    "rows": {
+      "difference": null,
+      "original": 1.0,
+      "replicate": null
+    },
+    "runner_exit_code": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "seed_block_b": {
+      "difference": null,
+      "original": 20260904.0,
+      "replicate": null
+    },
+    "shortfall_from_nominal": {
+      "difference": null,
+      "original": 0.038999999999999924,
+      "replicate": null
+    },
+    "sigma": {
+      "difference": null,
+      "original": 232.91067,
+      "replicate": null
+    },
+    "total_seconds": {
+      "difference": null,
+      "original": 0.1,
+      "replicate": null
+    },
+    "wall_seconds": {
+      "difference": null,
+      "original": 0.108949,
+      "replicate": null
+    }
+  },
+  "candidate_commit": "4ff2ad9c00b60ad91f49770c4ae3fc1131d70dd7",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+  "difference": null,
+  "ended_at": "2026-09-03T06:43:50.153044Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0009@20260903T064349Z",
+  "exit_code": 1,
+  "experiment": "E0009",
+  "failure_reason": "process exit code 1",
+  "log": "runs/E0009/replications/20260903T064349Z.log",
+  "max_run_seconds": 600.0,
+  "metric_name": "coverage",
+  "mismatched_keys": [
+    "bias",
+    "k_true",
+    "mean_ci_width",
+    "mean_k_hat",
+    "n_boot",
+    "n_obs",
+    "n_rep",
+    "nominal_level",
+    "primary_metric",
+    "rows",
+    "seed_block_b",
+    "shortfall_from_nominal",
+    "sigma"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "bias": -2.11721605582494,
+    "k_true": 450.0,
+    "mean_ci_width": 288.8339548715153,
+    "mean_k_hat": 447.88278394417506,
+    "n_boot": 500.0,
+    "n_obs": 24.0,
+    "n_rep": 1000.0,
+    "nominal_level": 0.95,
+    "primary_metric": 0.911,
+    "rows": 1.0,
+    "runner_exit_code": 0.0,
+    "seed_block_b": 20260904.0,
+    "shortfall_from_nominal": 0.038999999999999924,
+    "sigma": 232.91067,
+    "total_seconds": 0.1,
+    "wall_seconds": 0.108949
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 0.911,
+  "record": "runs/E0009/replications/20260903T064349Z.json",
+  "replicate_block": {},
+  "replicate_primary_metric": null,
+  "reproduced": false,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [],
+  "setup_seconds": 0.38579366682097316,
+  "stamp": "20260903T064349Z",
+  "started_at": "2026-09-03T06:43:49.601006Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T06:43:49.045953Z",
+  "tolerance": 0.0060663,
+  "tolerance_source": "minimum_delta",
+  "track": "simulate",
+  "wall_seconds": 0.5518031250685453,
+  "worktree_prepared": true
+}

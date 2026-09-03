@@ -1,0 +1,102 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3345,
+      "committed": true,
+      "sha256": "007d2d7c12bb74752949b7360bfe612abfc015f69087cf4475772c35832927b6"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 861,
+      "committed": true,
+      "sha256": "ff66b588b03e307b8128d88c50864c1379b668f293012e21dce164b49a52a550"
+    },
+    "tables/inverse_vs_forward.tsv": {
+      "availability": "recorded",
+      "bytes": 302,
+      "committed": true,
+      "role": "declared",
+      "sha256": "d4166fb2bb12f06539dbaff2119aad49d05c4c8a0dc3e36d9f315bbbf8f6efe3"
+    }
+  },
+  "base_commit": "416972a3e1ad8099ed6bc04fae20c2f09bee0514",
+  "candidate_commit": "86d942c630ad244d18b040bc32470b67a0efa2e7",
+  "code_patch_hash": "c6c9af1e2b0803d53e9ae8016fe43ec60f2ea3072cf6879d6d08e1a791e6173f",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "inverse regression (r on v, inverted) versus forward (v on r), paired on 2000 common resamples from seed block A, in units of the paired bootstrap SE; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:11:59.841543Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "k_kms_per_mpc",
+  "metrics": {
+    "ci_high": 1003.887093,
+    "ci_low": 558.930637,
+    "difference_ci_high": 564.8125094420406,
+    "difference_ci_low": 113.85372381237195,
+    "inverse_minus_forward_se_units": 2.447419144680689,
+    "k_forward": 454.15844092262836,
+    "k_inverse": 728.36601528692,
+    "n": 24.0,
+    "n_boot": 2000.0,
+    "paired_mean_difference": 282.63949628059436,
+    "paired_se_difference": 115.48471249597496,
+    "point_difference": 274.2075743642916,
+    "primary_metric": 728.366015,
+    "ratio_inverse_over_forward": 1.6037707320978898,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.0179
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 5,
+  "predictions": {
+    "P5": {
+      "explanation": "inverse_minus_forward_se_units 2.44741914468 > 1 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P5"
+  ],
+  "primary_metric": 728.366015,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:11:59.170146Z",
+  "timed_out": false,
+  "track": "estimate",
+  "transaction": {
+    "committed_at": "2026-09-03T06:11:59.912363Z",
+    "evidence_commit": "f0ef47a73701aa9c6360e6c204e24919b6661955",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6712577079888433
+}
