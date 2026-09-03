@@ -531,6 +531,26 @@
         }
       ],
       "track": "simulate"
+    },
+    "E0010": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": false
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0010@20260903T064351Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:43:51.167219Z",
+          "tolerance": 0.0060663
+        }
+      ],
+      "track": "simulate"
     }
   },
   "schema_version": 3,
@@ -556,5 +576,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:43:50.377358Z"
+  "updated_at": "2026-09-03T06:43:53.079481Z"
 }
