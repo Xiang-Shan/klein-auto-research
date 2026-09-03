@@ -308,16 +308,20 @@
       "strength": "confirmed"
     },
     "C8": {
-      "claim": "reproduction | confirmed | empirical-description | E0011, art:sealed_mags | On the sealed block, this study's own K puts the nebulae at a mean absolute magnitude of -15.524998, within 0.224998 of Hubble's printed -15.3 \u2014 his internal cross-check survives the substitution |",
-      "class": null,
+      "claim": "On the sealed block, this study's own K puts the nebulae at a mean absolute magnitude of -15.524998, within 0.224998 of Hubble's printed -15.3 - his internal cross-check survives the substitution",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0011",
+        "art:sealed_mags",
+        "art:contract"
+      ],
       "numbers": [
         "hubble_table2_mean",
         "sealed_deviation",
         "sealed_mean_abs_mag"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C9": {
       "claim": "estimate | confirmed | empirical-description | E0007, E0008, rep:E0007@20260903T064658Z, rep:E0008@20260903T064844Z, art:invfwd, art:jack | Two choices nobody discusses move K more than the data does: inverse regression returns 728.366015 against the forward 454.158441 (a factor of 1.603771), and dropping the four Virgo rows that share one assigned distance moves it by 77.188826 \u2014 more than the analytic standard error of 75.237105 |",
