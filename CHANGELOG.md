@@ -116,6 +116,17 @@ re-open a closed study, start a new one and cite the old one's claims.
   exhibit from a clean, offline checkout with `$DATA_HUB` unset.
 - **Six protocol code blocks are executed by the test suite**, so a documented example
   cannot drift from the engine it describes.
+- **The consult gate hashes `scouting_ledger.md`** (schema 3), making true a protocol
+  sentence the engine had never honoured: the pre-registration disclosure joins
+  `study.yaml` / `research_plan.md` / `program.md` in the consult record, so editing it
+  after the gate fails `klein verify` until the gate is re-recorded with a reason — and
+  "pre-registered" rests on a hash instead of on a commit order nobody checked. The
+  ledger is OPTIONAL: `klein new` now scaffolds one, and a study that keeps none
+  records `scouting_ledger: absent` on the gate event, so the absence is on the record
+  too. The scaffolded `program.md` also opens with a `## Roster` — experimenter,
+  data-gate auditor, referee, lead, each with model · tool · session — which the
+  referee reads for the independence rung; a blank experimenter row caps that rung at
+  "fresh session", because nothing else in a study says what ran the loop.
 
 ### Changed
 
@@ -136,6 +147,15 @@ re-open a closed study, start a new one and cite the old one's claims.
   inside `max_run_seconds`, and the prepared DIRECTORY is copied in — not only
   `data.prepared_path` — so an entrypoint that reads a sibling `prepare.py` wrote
   still runs. Both were found by exhibit study 00.
+- **A verb commits only the files it wrote.** `klein verify`, `claims`, `predict
+  adjudicate`, `replicate`, `sweep register`, `stop ack` and `headroom ack` file their
+  own receipts through `git commit --only` and name on stdout the tracked edits they
+  declined to take (`note: N uncommitted edit(s) left in the tree (…) — not part of
+  this commit`); previously each swept every modified state file into its own commit,
+  so a verify on a tree with a findings draft filed that draft under a
+  `klein: verify receipt (…)` subject. Gate records, `run-one` and `finalize` still
+  file the study artifacts they hash — "commit before the gate", made mechanical.
+  Found by the study-00 driver.
 - `knowledge/` is reorganised into `knowledge/research-discipline.md` (the ten process
   lessons of studies 07–09, each with a typed claim citation) and
   `knowledge/domains/<profile>/`.

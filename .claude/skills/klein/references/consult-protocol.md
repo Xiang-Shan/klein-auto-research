@@ -130,9 +130,19 @@ assert evaluate_rule(
 ```
 <!-- test:prediction-rule:end -->
 - **Everything looked at before this gate goes into `scouting_ledger.md`**
-  (`assets/scouting-ledger-template.md`), committed before the gate is recorded so
-  the gate hashes it. Values seen there may seed anchors and identity checks; they may
+  (scaffolded by `klein new`; shape and rationale in
+  `assets/scouting-ledger-template.md`), committed before the gate is recorded:
+  on schema 3, `klein gate record consult` hashes it into the consult record beside
+  `study.yaml`, `research_plan.md` and `program.md`, so an edit afterwards fails
+  `klein verify` until the gate is re-recorded with a reason. It is the one OPTIONAL
+  consult artifact — a study that scouted nothing may delete it, and the gate then
+  records `scouting_ledger: absent` on the event trail so the absence is itself on
+  the record. Values seen there may seed anchors and identity checks; they may
   never be scored predictions, and priors resting on them are `(source: scouted)`.
+- **Fill the `experimenter` row of `program.md`'s `## Roster`** with the model, tool
+  and session that will run the loop. REFEREE reads that table for the independence
+  rung (`references/referee-protocol.md`); left blank, the rung is capped at "fresh
+  session" because no artifact says what ran the loop.
 - **Phase 0 is always an identity anchor** when a comparable baseline exists —
   reproduce it EXACTLY, STOP if off — this catches split/leakage bugs before they
   poison every later comparison. A `replicate` study anchors on a published sum,

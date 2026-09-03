@@ -8,10 +8,10 @@ mutates a study — every problem is returned, never raised.
 
 One documented exception: ``klein verify`` on a schema-3 study files its own
 receipt (:func:`write_verify_receipt`, ``verify_receipt.json``) through
-``transaction.commit_state_writes``, the same way every other CLI verb commits
-the state it generates.  That write is the receipt of the audit, never a change
-to the evidence, and it is off for schema 2 so studies 03 and 05–09 verify
-byte-identically.
+``transaction.commit_state_writes(scope="own")`` — the receipt and nothing else,
+the same way every other reading verb commits only what it generated.  That
+write is the receipt of the audit, never a change to the evidence, and it is off
+for schema 2 so studies 03 and 05–09 verify byte-identically.
 """
 
 from __future__ import annotations
@@ -466,20 +466,21 @@ def preflight_checks(
             checks.append(
                 _headroom_check(headroom_track, headroom_spec, manifests, state)
             )
-    # The per-experiment surface is DECLARED (`entrypoint.mutable`), and since
-    # schema 3 it is named by kind: train.py (predict), analyze.py (estimate,
-    # test), simulate.py (simulate), search.py (optimize).  Checking the literal
-    # "train.py" is a v1 leftover that fails every non-`predict` study at its own
-    # preflight; `mutable_surface` already returns ("train.py",) for schema 2 and
-    # for any contract it cannot read, so the predict path is unchanged.
+    # The per-experiment surface, whatever the study's kind named it. Schema 3
+    # scaffolds `train.py` (predict), `analyze.py` (estimate / test / replicate /
+    # discover), `simulate.py` or `search.py` and records the choice in
+    # `entrypoint`; `contract.mutable_surface` is the single source of truth for
+    # it, so this check must not hardcode one name — doing so made every
+    # non-`predict` schema-3 study fail preflight with "train.py: missing" while
+    # the file `run-one` actually executes went unchecked.
     for name in mutable_surface(contract):
-        entry = study_dir / name
-        if not entry.is_file():
+        entrypoint_file = study_dir / name
+        if not entrypoint_file.is_file():
             checks.append(Check(name, False, "missing"))
             continue
-        source = entry.read_text(encoding="utf-8")
+        source = entrypoint_file.read_text(encoding="utf-8")
         try:
-            compile(source, str(entry), "exec")
+            compile(source, str(entrypoint_file), "exec")
         except SyntaxError as exc:
             checks.append(Check(name, False, f"syntax error: {exc}"))
             continue
@@ -489,8 +490,8 @@ def preflight_checks(
                     name,
                     True,
                     "[WARN] syntax valid but scaffold stubs remain "
-                    "(NotImplementedError) — fill the entrypoint's stubs "
-                    "before the loop; run-one would record the stub as a crash",
+                    "(NotImplementedError) — fill them in before the loop; "
+                    "run-one would record the stub as a crash",
                 )
             )
         else:
@@ -1627,14 +1628,13 @@ def write_verify_receipt(
     checks: Sequence[Check],
     version: int,
 ) -> Path:
-    """Write ``verify_receipt.json`` and file it the way every verb files state.
+    """Write ``verify_receipt.json`` and file exactly that.
 
-    ``commit_state_writes`` always stages :data:`~kleinlib.transaction.STATE_WRITE_PATHS`
-    alongside the extra path, so an in-progress edit to a STATE file — findings,
-    the playbook, a sweep sidecar — is filed with the receipt exactly as it would
-    be by ``klein finalize`` or ``klein claims``.  The mutable surface is
-    deliberately not in that list, so ``run-one``'s restore anchor and its
-    clean-tree guard are untouched.
+    ``scope="own"`` keeps the commit to the receipt (plus state and events when
+    verify touched them).  An in-progress edit to findings, the playbook, a
+    figure or a sweep sidecar is the operator's, and stays theirs — filing it
+    under a ``klein: verify receipt`` subject would describe a tree nobody
+    deliberately committed.  The verb names what it left behind on stdout.
     """
     path = study_dir / RECEIPT_NAME
     atomic_write_json(path, verify_receipt(study_dir, contract, state, checks, version))
@@ -1643,6 +1643,7 @@ def write_verify_receipt(
         study_dir,
         f"klein: verify receipt ({len(checks)} checks, {failed} failed)",
         paths=[RECEIPT_NAME],
+        scope="own",
     )
     return path
 

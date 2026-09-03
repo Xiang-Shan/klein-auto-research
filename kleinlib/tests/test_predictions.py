@@ -23,6 +23,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from test_commit_state_writes import modified_paths, operator_edits, seed_tracked
 from test_registered_mode import CELL_SOURCE, amend, edit_cell
 from test_workflow_v3 import commit_all, metric_command
 
@@ -371,6 +372,35 @@ def test_manual_adjudication_pins_a_path_by_sha256(ledger_study, capsys) -> None
     assert subprocess.run(
         ["git", "status", "--porcelain"], cwd=repo, capture_output=True, text=True
     ).stdout.strip() == ""
+
+
+def test_adjudication_commits_the_verdict_and_leaves_the_draft_alone(
+    ledger_study, capsys
+) -> None:
+    """E15: the verdict IS the write — state and events, not the tree around it."""
+    repo, study = ledger_study
+    seed_tracked(repo, study, "findings.md")
+    operator_edits(study, "findings.md")
+
+    rc = cli.main(
+        ["predict", "adjudicate", "P3", "--study", str(study), "--verdict", "refuted",
+         "--evidence", "E0001", "--note", "no cell had permission",
+         "--acknowledged-by", "referee"]
+    )
+    assert rc == 0
+
+    committed = set(
+        subprocess.run(
+            ["git", "show", "--name-only", "--format=", "HEAD"],
+            cwd=repo, capture_output=True, text=True, check=True,
+        ).stdout.split()
+    )
+    assert committed == {
+        "studies/03-demo/study_state.json",
+        "studies/03-demo/events.jsonl",
+    }
+    assert modified_paths(repo) == {"studies/03-demo/findings.md"}
+    assert "note: 1 uncommitted edit(s) left in the tree (findings.md)" in capsys.readouterr().out
 
 
 def test_a_machine_ruled_prediction_needs_force(ledger_study, capsys) -> None:

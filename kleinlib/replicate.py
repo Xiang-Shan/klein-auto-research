@@ -873,6 +873,7 @@ def replicate_run(
         study_dir,
         f"klein: {mode} {run_id} — {verdict} ({record['evidence_id']})",
         paths=(f"runs/{run_id}/replications",),
+        scope="own",
     )
     return record
 
