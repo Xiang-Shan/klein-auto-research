@@ -176,6 +176,21 @@ pre-candidate base commit.
   residual is implementation or device nondeterminism is exactly what `klein replicate
   E0001` is instrumented to answer (RQ2).
 
+- 2026-09-03 — **Decision: the phase ids were aligned with the ladder the machine
+  recorded, not the other way round.** `klein new` writes
+  `study_state.json:current_phase` from the TEMPLATE's phase ids at scaffold time —
+  before the consult protocol tells you to author your own phases — so a study that
+  renames them leaves the state pointing at a phase the contract no longer declares,
+  and `klein preflight` refuses with "amend the contract to match the recorded state".
+  That refusal is the guard doing its job for a study with runs. Here there are no runs
+  and no phase acknowledgements, so the cheapest honest fix is the one the engine
+  prescribes: the ladder is now `adaptive-1` / `adaptive-2` / `confirmation`, keeping
+  this study's own descriptions and budgets. Nothing else changed — no budget, no
+  prediction, no rule. (Reported to the lead as an engine papercut: `current_phase`
+  could be re-derived from the contract while no run and no phase acknowledgement
+  exists, the same doctrine the DATA gate already uses for fingerprints. Not patched
+  here: it changes shared state handling and this study is not the place to guess.)
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):

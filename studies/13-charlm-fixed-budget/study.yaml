@@ -134,12 +134,16 @@ data:
 # CPU (scouting_ledger S3); 900 s is the runaway stop, not the budget. The
 # BUDGET is `max_steps`, printed and guarded above.
 max_run_seconds: 900
+# The ids are the ladder `klein new` initialized this study's state with; only
+# the descriptions and budgets are this study's own. Renaming the first id after
+# scaffolding would leave `study_state.json:current_phase` pointing at a phase
+# the contract no longer declares, which `klein preflight` refuses by design.
 phases:
-  - id: phase-0-floor-anchor
-    description: "measure the run-to-run floor on the anchor recipe (registered measurement sweeps, no ledger rows), then run the identity anchor E0001"
+  - id: adaptive-1
+    description: "Phase 0: measure the run-to-run floor on the anchor recipe (registered measurement sweeps, no ledger rows), then run the identity anchor E0001"
     budget_seconds: 5400
     max_experiments: 1
-  - id: phase-1-recipes
+  - id: adaptive-2
     description: "one single-change recipe edit per candidate, all at the same 2000-step budget"
     budget_seconds: 9000
     max_experiments: 6

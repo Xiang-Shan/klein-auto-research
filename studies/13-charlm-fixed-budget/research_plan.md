@@ -53,7 +53,7 @@ synthesis exploratory or confirmed per `confirmation.require: [sealed]`.
 
 ## Experiment ladder
 
-**Phase 0 — floor, then anchor.**
+**Phase `adaptive-1` — floor, then anchor.**
 
 1. `prepare.py` re-derives the corpus identity (1,115,394 characters, 65 distinct
    characters, the README's sha256) and hard-STOPs on any mismatch; it writes the
@@ -69,7 +69,7 @@ synthesis exploratory or confirmed per `confirmation.require: [sealed]`.
 4. **E0001** — the identity anchor: the same recipe at a sixth seed, through the
    entrypoint, scored by the verifier. Tests **P1**.
 
-**Phase 1 — one recipe edit per candidate, all at 2000 steps.**
+**Phase `adaptive-2` — one recipe edit per candidate, all at 2000 steps.**
 
 | Run | Edit (one idea) | Tests |
 |---|---|---|
@@ -77,14 +77,14 @@ synthesis exploratory or confirmed per `confirmation.require: [sealed]`.
 | E0003 | weight tying (output head shares the token embedding) | P3 |
 | E0004 | dropout 0.1 | P4 |
 | E0005 | width 128 → 256 | P5 |
-| E0006 | chosen by the phase-1 slate ritual from what E0002–E0005 showed | — |
+| E0006 | chosen by the `adaptive-2` slate ritual from what E0002–E0005 showed | — |
 
 Each candidate is a `keep` only if the verifier's number improves the frontier by at
 least the measured floor AND the matched-compute guardrails hold. Nothing is compared
 against an untuned baseline: the anchor recipe is the reference and it was tuned no
 more than the candidates were.
 
-**Phase 2 — confirmation.** `klein run-one --final-test --dry-run`, then one sealed
+**Phase `confirmation`.** `klein run-one --final-test --dry-run`, then one sealed
 run of the selected candidate. Tests **P6**.
 
 **Any time.** `klein replicate E0001` re-executes the anchor in a detached worktree;
