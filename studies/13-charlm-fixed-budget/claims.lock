@@ -49,7 +49,8 @@
       "evidence": [],
       "numbers": [
         "e0002_floors",
-        "e0003_floors"
+        "e0003_floors",
+        "e0004_floors"
       ],
       "strength": "exploratory"
     },
@@ -184,6 +185,13 @@
       "note": "weight tying, against the anchor's five-seed mean",
       "precision": 4,
       "value": -11.3693
+    },
+    "e0004_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "dropout 0.1, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": -4.7255
     },
     "e0006_val_loss": {
       "art": "frontier",
