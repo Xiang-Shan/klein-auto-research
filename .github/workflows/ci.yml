@@ -30,6 +30,10 @@ jobs:
         python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: the shipped-study verify resolves every candidate commit;
+          # the local proof runs with full history, so CI proves the same thing.
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: ${{ matrix.python-version }}
@@ -130,6 +134,10 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: this job resolves candidate commits (git show, klein
+          # replicate) and walks claims.lock's revisions (klein claims verify).
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: "3.13"
@@ -199,6 +207,10 @@ jobs:
       KLEIN_OFFLINE: "1"
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: this job resolves candidate commits (git show, klein
+          # replicate) and walks claims.lock's revisions (klein claims verify).
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: "3.13"
