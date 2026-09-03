@@ -510,3 +510,59 @@ anchors. The registered rule and tolerance are unchanged: the cell now
 implements the registration it always carried, and "rescaling by f" was only
 ever readable as the multiplication that sends `k_origin` to 70 — the other
 reading makes the prediction absurd.
+
+
+### Confirmation phase outcome
+
+**The three seals, one per track, each rehearsed first.**
+
+| Cell | Track | What "sealed" meant here | Result |
+|---|---|---|---|
+| E0011 | reproduction | the original's reported value, compared once — Table 2 | `mean_abs_mag` **−15.524998** against the printed −15.3, deviation **0.224998** ≤ 0.3 → **P8 supported**; 21 of 22 rows used (N.G.C. 404's velocity is negative); printed `split_fingerprint` `b3d8796e91bc…`, which is the sealed digest published on the data card before any cell ran |
+| E0012 | estimate | an external reference value, compared once — the modern H₀ = 70 | `ci_low` **316.648582** > 70 → **P4 supported**; `max_abs_gap_70` **4.990073** ≤ 15 → **P7 supported**; rescale factor 6.056247 |
+| E0013 | simulate | a fresh seed block never used in development — block C | `coverage` **0.925** ≥ 0.90 → **P6 supported**; 0.014 above block B's 0.911; bias +0.417532 |
+
+**All ten predictions are closed: 7 supported, 1 refuted, 2 inconclusive, 0 open.**
+
+### Replication — all ten development cells reproduce EXACTLY, after a fight with the machine
+
+`confirmation.require: [sealed, replicate]` on all three tracks, so every
+development cell a confirmed claim will cite needs a `reproduced: true` record
+from a re-execution in a detached worktree at its candidate commit.
+
+**The result: 10 of 10 reproduced, every one with `difference = 0`** — not
+"within tolerance", exactly. That is what a study of closed-form estimators on a
+fixed printed table should produce, and it is worth stating as a measured fact
+rather than an assumption.
+
+**Getting there took 25 records, 15 of them failures, and none is deleted.** The
+protocol's rule is explicit — "never re-run until it passes and keep only the
+pass: every attempt leaves a record" — so the ledger shows the whole fight. Three
+distinct causes, all environmental, none a defect in this study:
+
+1. **The venv build was charged to `max_run_seconds`** (the first E0001 attempt,
+   `timeout after 60s`). A detached worktree has no `.venv`, so `uv run --locked`
+   resolved and installed the whole project inside a 60-second budget sized for
+   cells that run in 0.02 s. Worked around with `--timeout-seconds`, then fixed
+   properly in the engine mid-study (E13, `uv sync --locked` on its own clock
+   under `KLEIN_REPLICATE_SETUP_SECONDS`); this study rebased onto that fix and
+   re-ran.
+2. **macOS refused freshly-materialized dylibs.** Repeatedly:
+   `ImportError: … code signature … not valid for use in process: library load
+   disallowed by system policy` on numpy's `_multiarray_umath` and scipy's
+   `_qhull`, from venvs built under `/private/var/folders/…`. Intermittent at
+   first, then deterministic once several worktrees had been created in quick
+   succession.
+3. **The same condition as a silent hang.** After the E13 fix, two attempts
+   timed out at 60 s with *no output at all* — the same Gatekeeper check
+   stalling instead of erroring.
+
+**The fix that worked, recorded for the next study on a Mac:** point `TMPDIR` at
+a directory on the user volume (`/Users/<user>/.cache/klein-replicate-tmp`)
+instead of the system temp volume. Every replication after that succeeded on the
+first attempt. `klein replicate` builds its worktree in `tempfile.gettempdir()`,
+so `TMPDIR` is the whole lever.
+
+None of this touched a number. Every reproduced block is identical to its
+manifest, and the failures are recorded as what they were: a machine refusing to
+load libraries, not a study failing to reproduce.
