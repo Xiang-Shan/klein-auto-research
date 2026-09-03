@@ -34,11 +34,15 @@ tracks:
       minimum_delta: 1
       exactness: exact       # integer objective: a measured noise floor would be meaningless
       exactness_note: "The objective is the number of points in the verified configuration — a non-negative integer recomputed by verify.py from the artifact's bytes with exact integer arithmetic (a cross-product test over every triple; no floating point anywhere on the path). Its resolution is therefore exactly 1, which is why minimum_delta is 1 and no noise floor is measured: two runs on the same artifact return the same integer, always."
-      # bound: / incumbent_external: are DELIBERATELY absent at the consult gate.
-      # Both quote a published value, and this study does not put a literature
-      # number in its contract before the METHOD gate has verified the reference
-      # that carries it. They are added by a consult RE-RECORD with a reason once
-      # references.yaml is written, before the first run exists.
+      # Added by the consult RE-RECORD of 2026-09-03, after the METHOD gate
+      # verified the references that carry the number. No run existed yet.
+      bound:                      # arms the headroom (detection-limit) audit
+        ideal: 22                 # 2n at n = 11 — the pigeonhole bound of
+        on_infeasible: ack        # research_plan.md, a theorem and not a record
+      incumbent_external:
+        value: 22                 # the best KNOWN value at n = 11 equals that bound
+        source: "2n-point configurations are known for every n <= 70 (ref:flammenkamp_records, the maintained record page, read 2026-09-03), and independently 'For 2 <= n <= 32, it is possible to select 2n such points' (ref:mathworld_no3); at n = 11 the best known value is therefore 22, which is also the pigeonhole upper bound"
+        verified_on: "2026-09-03"
     guardrails:
       evaluations:
         max: 2000000        # the registered search budget, in addability tests
@@ -57,8 +61,14 @@ tracks:
       minimum_delta: 1
       exactness: exact
       exactness_note: "The objective is the number of points in the verified configuration — a non-negative integer recomputed by verify.py from the artifact's bytes with exact integer arithmetic (a cross-product test over every triple; no floating point anywhere on the path). Its resolution is therefore exactly 1, which is why minimum_delta is 1 and no noise floor is measured: two runs on the same artifact return the same integer, always."
-      # bound: / incumbent_external: absent at the consult gate, for the reason
-      # written on the n_small track above.
+      # Added by the same consult RE-RECORD, for the same reason.
+      bound:
+        ideal: 62                 # 2n at n = 31, by the same pigeonhole argument
+        on_infeasible: ack
+      incumbent_external:
+        value: 62
+        source: "2n-point configurations are known for every n <= 70 (ref:flammenkamp_records, which also lists exhaustive enumerations of n = 31 solutions by symmetry class), and independently 'For 2 <= n <= 32, it is possible to select 2n such points' (ref:mathworld_no3); at n = 31 the best known value is therefore 62, which is also the pigeonhole upper bound"
+        verified_on: "2026-09-03"
     guardrails:
       evaluations:
         max: 2000000
