@@ -53,8 +53,9 @@ early stopping.</p>
 
 <p>It came back <strong>worse</strong>: <code>delta_in_floors</code> -1.7903 against
 its own reference, a discard. And it broke the probabilities long before it broke the
-ranking &mdash; log-loss went from 0.355165 to 1.024102, nearly triple, while AUC fell
-by only 0.013341. It also cost 18.407609 seconds against 0.647123.</p>
+ranking &mdash; log-loss went from 0.355165 to 1.024102, nearly triple, while the
+AUC change was only <code>delta_vs_reference</code> -0.013341. It also cost
+18.407609 seconds against 0.647123.</p>
 
 <p>That refuted a registered prediction. P4 was written as a <em>no-effect</em>
 prediction &mdash; &ldquo;within noise&rdquo; &mdash; and the honest reading of a
