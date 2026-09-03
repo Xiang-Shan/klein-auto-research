@@ -116,16 +116,24 @@
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ2 | primary | supported | exploratory | empirical-description | E0001, E0008, `rep:E0001@20260903T121129Z`, `verify:E0001@20260903T121358Z`, `verify:E0001@20260903T121401Z`, `sweep:device_check` | The trainer's own reported loss and the checker's independently recomputed loss never differed by a printable amount on any of the eight runs (largest `verifier_gap` 0.0 nats, declared tolerance 0.01). The same checkpoint re-scored on CPU and on MPS gives 1.572174 nats both times. A full re-execution of E0001 at the same seed on the same backend moved 0.000962 nats \u2014 0.119808 fit-noise standard deviations. |",
-      "class": null,
+      "claim": "The training script's own reported loss and the checker's independently recomputed loss never differed by more than 0.0 nats against a declared tolerance of 0.01; the same checkpoint re-scored 1.572174 nats on CPU and on MPS, and a full re-execution at the same seed moved 0.000962 nats, which is 0.119808 fit-noise standard deviations.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0008",
+        "rep:E0001@20260903T121129Z",
+        "verify:E0001@20260903T121358Z",
+        "verify:E0001@20260903T121401Z",
+        "sweep:device_check"
+      ],
       "numbers": [
         "device_val_loss",
         "e0001_val_loss",
         "max_verifier_gap",
         "replication_difference",
-        "replication_in_fit_noise"
+        "replication_in_fit_noise",
+        "verifier_tolerance"
       ],
       "strength": "exploratory"
     },
