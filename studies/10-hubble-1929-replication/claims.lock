@@ -16,6 +16,10 @@
       "path": "tables/two_parameter_fits.tsv",
       "sha256": "cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8"
     },
+    "mags": {
+      "path": "tables/table1_absolute_magnitudes.tsv",
+      "sha256": "0e709cb8bc1cd3fee9ddfcebc741bf9ca054e1543b327cae4a97d4192dda5388"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5"
