@@ -33,7 +33,8 @@
       "evidence": [],
       "numbers": [
         "small_200k",
-        "small_20k"
+        "small_20k",
+        "small_sealed"
       ],
       "strength": "exploratory"
     },
@@ -171,6 +172,13 @@
       "note": "E0009 aside, the verifier's number for E0002: n = 11 at the smallest budget",
       "precision": 0,
       "value": 20
+    },
+    "small_sealed": {
+      "art": "results",
+      "claim": "C1",
+      "note": "E0009, the sealed cell of n_small: the proven maximum, matched_external true",
+      "precision": 0,
+      "value": 22
     }
   },
   "study_id": "11-exact-verifier-construction"
