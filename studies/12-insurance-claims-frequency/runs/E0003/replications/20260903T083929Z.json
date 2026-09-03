@@ -1,0 +1,227 @@
+{
+  "baseline": 0.664051,
+  "block_differences": {
+    "anchor_gap": {
+      "difference": 0.0,
+      "original": 0.001154,
+      "replicate": 0.001154
+    },
+    "brier_delta_vs_reference": {
+      "difference": 0.0,
+      "original": 0.164536,
+      "replicate": 0.164536
+    },
+    "delta_in_floors": {
+      "difference": 0.0,
+      "original": 0.3714,
+      "replicate": 0.3714
+    },
+    "delta_vs_reference": {
+      "difference": 0.0,
+      "original": 0.013956,
+      "replicate": 0.013956
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 0.664051,
+      "replicate": 0.664051
+    },
+    "reference_auc": {
+      "difference": 0.0,
+      "original": 0.650095,
+      "replicate": 0.650095
+    },
+    "reference_brier": {
+      "difference": 0.0,
+      "original": 0.058994,
+      "replicate": 0.058994
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "total_seconds": {
+      "difference": 17.399999999999977,
+      "original": 173.2,
+      "replicate": 155.8
+    },
+    "train_rows": {
+      "difference": 0.0,
+      "original": 46873.0,
+      "replicate": 46873.0
+    },
+    "training_seconds": {
+      "difference": 0.5999999999999999,
+      "original": 1.1,
+      "replicate": 1.7
+    },
+    "twin_free_auc": {
+      "difference": 0.0,
+      "original": 0.665069,
+      "replicate": 0.665069
+    },
+    "twin_free_gap": {
+      "difference": 0.0,
+      "original": 0.001018,
+      "replicate": 0.001018
+    },
+    "twin_free_rows": {
+      "difference": 0.0,
+      "original": 5559.0,
+      "replicate": 5559.0
+    },
+    "v1_anchor": {
+      "difference": 0.0,
+      "original": 0.662897,
+      "replicate": 0.662897
+    },
+    "val_best_threshold": {
+      "difference": 0.0,
+      "original": 0.58,
+      "replicate": 0.58
+    },
+    "val_brier": {
+      "difference": 0.0,
+      "original": 0.223529,
+      "replicate": 0.223529
+    },
+    "val_f1_at_best": {
+      "difference": 0.0,
+      "original": 0.1866,
+      "replicate": 0.1866
+    },
+    "val_lift_top10": {
+      "difference": 0.0,
+      "original": 2.2167,
+      "replicate": 2.2167
+    },
+    "val_logloss": {
+      "difference": 0.0,
+      "original": 0.633969,
+      "replicate": 0.633969
+    },
+    "val_pr_auc": {
+      "difference": 0.0,
+      "original": 0.11161,
+      "replicate": 0.11161
+    },
+    "val_rows": {
+      "difference": 0.0,
+      "original": 5859.0,
+      "replicate": 5859.0
+    },
+    "wall_seconds": {
+      "difference": 17.392312000000004,
+      "original": 173.234832,
+      "replicate": 155.84252
+    }
+  },
+  "candidate_commit": "c846660d73b119a1bf1ebe3ab172059a826febfb",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab",
+  "difference": 0.0,
+  "ended_at": "2026-09-03T08:43:29.351476Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0003@20260903T083929Z",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "log": "runs/E0003/replications/20260903T083929Z.log",
+  "max_run_seconds": 300.0,
+  "metric_name": "val_auc",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "anchor_gap": 0.001154,
+    "brier_delta_vs_reference": 0.164536,
+    "delta_in_floors": 0.3714,
+    "delta_vs_reference": 0.013956,
+    "primary_metric": 0.664051,
+    "reference_auc": 0.650095,
+    "reference_brier": 0.058994,
+    "runner_exit_code": 0.0,
+    "total_seconds": 173.2,
+    "train_rows": 46873.0,
+    "training_seconds": 1.1,
+    "twin_free_auc": 0.665069,
+    "twin_free_gap": 0.001018,
+    "twin_free_rows": 5559.0,
+    "v1_anchor": 0.662897,
+    "val_best_threshold": 0.58,
+    "val_brier": 0.223529,
+    "val_f1_at_best": 0.1866,
+    "val_lift_top10": 2.2167,
+    "val_logloss": 0.633969,
+    "val_pr_auc": 0.11161,
+    "val_rows": 5859.0,
+    "wall_seconds": 173.234832
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 0.664051,
+  "record": "runs/E0003/replications/20260903T083929Z.json",
+  "replicate_block": {
+    "anchor_gap": 0.001154,
+    "brier_delta_vs_reference": 0.164536,
+    "delta_in_floors": 0.3714,
+    "delta_vs_reference": 0.013956,
+    "primary_metric": 0.664051,
+    "reference_auc": 0.650095,
+    "reference_brier": 0.058994,
+    "runner_exit_code": 0.0,
+    "total_seconds": 155.8,
+    "train_rows": 46873.0,
+    "training_seconds": 1.7,
+    "twin_free_auc": 0.665069,
+    "twin_free_gap": 0.001018,
+    "twin_free_rows": 5559.0,
+    "v1_anchor": 0.662897,
+    "val_best_threshold": 0.58,
+    "val_brier": 0.223529,
+    "val_f1_at_best": 0.1866,
+    "val_lift_top10": 2.2167,
+    "val_logloss": 0.633969,
+    "val_pr_auc": 0.11161,
+    "val_rows": 5859.0,
+    "wall_seconds": 155.84252
+  },
+  "replicate_primary_metric": 0.664051,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "encoders"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "encoders"
+  ],
+  "setup_seconds": 2.1738584169652313,
+  "stamp": "20260903T083929Z",
+  "started_at": "2026-09-03T08:39:31.680543Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T08:39:29.306758Z",
+  "tolerance": 0.0375805,
+  "tolerance_source": "minimum_delta",
+  "track": "primary",
+  "wall_seconds": 237.67058366700076,
+  "worktree_prepared": true
+}

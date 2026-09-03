@@ -10,7 +10,7 @@ the licenses of separately distributed third-party material.
 - Author/uploader: Kaggle user `litvinenko630`
 - Declared license: Apache License 2.0
 - Repository copies: `datasets/insurance-claims/insurance_claims.csv.gz` and the
-  derived 2,000-row fixture under `studies/00-glm-claims-quickstart/fixtures/`
+  derived 2,000-row fixture under `studies/12-insurance-claims-frequency/fixtures/`
 - Integrity and attribution: [`datasets/insurance-claims/DATA_LICENSE`](datasets/insurance-claims/DATA_LICENSE)
 
 The repository copy is a deterministic gzip of the published CSV. The full

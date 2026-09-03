@@ -1,0 +1,529 @@
+{
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "409fedb832b400684cc1e4b466c515f12c44848ad6ed8e39af796d0664b5f062"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
+    },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923"
+    },
+    "derived": {
+      "path": "tables/derived_ratios.tsv",
+      "sha256": "6350e964b7059ae1338351440a7fe38f7f7e9da3b85377f2dd0eb52d5f2c354a"
+    },
+    "duplicates": {
+      "path": "tables/duplicate_exposure.tsv",
+      "sha256": "6de85ad5ce406680727dd116e9668a63cc86cf449f924d50f1d167b91479c9b4"
+    },
+    "floors": {
+      "path": "tables/pair_floors.tsv",
+      "sha256": "9160952654945dc718fee9c21ee289053de7fa84730ec6be86492e5db51846b3"
+    },
+    "ledger": {
+      "path": "scouting_ledger.md",
+      "sha256": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38"
+    },
+    "verdicts": {
+      "path": "tables/verdict_arithmetic.tsv",
+      "sha256": "33406c91cfcc8dd2bd5a53924a6e828a63607827d01b389eb0a8ba5636976604"
+    }
+  },
+  "claims": {
+    "C1": {
+      "claim": "All three v1 rungs reproduce on the ported contract: refitted on the identical v1 training rows and graded on the development half of the v1 validation set, the raw GLM anchor lands 0.011322 from the value the v1 ledger recorded, the spline + isotonic rung 0.001612, and the boosted tree 0.001154 - every one inside the 0.0225 tolerance that was derived from row counts and a class balance before any model was fitted.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "P1",
+        "P2",
+        "P4"
+      ],
+      "numbers": [
+        "anchor_residual_glm",
+        "anchor_residual_splines",
+        "anchor_residual_tree",
+        "anchor_tolerance"
+      ],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "One global keep bar on a ladder that spans model classes is a choice with a visible consequence: the spline rung's lift of 0.035956 is 0.9568 of the declared bar and refuted, but 1.0926 of the floor of the comparison it actually makes; the tree at 0.3714 against 0.4624 and the doctrine A/B at 0.0390 against 0.3229 do not flip, so exactly one registered verdict in this study is instrument-limited and is reported as such.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "P3",
+        "P5",
+        "P6",
+        "art:verdicts",
+        "sweep:pair_anchor_splines",
+        "sweep:pair_splines_hgbt",
+        "sweep:pair_anchor_doctrine"
+      ],
+      "numbers": [
+        "doctrine_in_floors",
+        "doctrine_in_own_floors",
+        "splines_in_floors",
+        "splines_in_own_floors",
+        "splines_lift",
+        "tree_in_own_floors",
+        "tree_over_glm_in_floors"
+      ],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "AUC held across the seal and top-decile lift did not: the incumbent's AUC moved 0.1680 of a floor while its top-decile lift fell 0.5101, from 2.2167 to 1.7067, at a portfolio claim rate of 0.063968.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0003",
+        "E0005",
+        "art:derived"
+      ],
+      "numbers": [
+        "claim_rate",
+        "lift10_dev",
+        "lift10_drop",
+        "lift10_sealed",
+        "sealed_shift_in_floors"
+      ],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "An accepted gate override is only lawful when it ships with an instrument: this one added three printed keys to every run, bounding the accepted contamination at 0.001415 per rung, and a partition table that found the same defect at 0.052223 in the source study's own validation partition, where nobody had ever looked.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "art:duplicates",
+        "art:data_card"
+      ],
+      "numbers": [
+        "max_twin_gap",
+        "v1_validation_twin_share"
+      ],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "The margin between reproducing a rung from a committed file and reproducing it from a description that names its three non-default kwargs is 0.000458 of AUC: the verbatim tree rung's residual is 0.001154 and the prose-recovered spline rung's is 0.001612.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "art:derived"
+      ],
+      "numbers": [
+        "anchor_residual_splines",
+        "anchor_residual_tree",
+        "residual_margin"
+      ],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "The paired-comparison floor on this portfolio is 0.0375805, which is 0.9671 of the v1 ledger's entire spread of 0.038860 - the smallest difference this instrument can resolve between two candidate rungs on these rows is almost exactly as large as the distance from the v1 study's worst recorded model to its best.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "sweep:paired_bootstrap",
+        "art:floors",
+        "art:derived"
+      ],
+      "numbers": [
+        "bar_over_v1_spread",
+        "minimum_delta",
+        "v1_ledger_spread"
+      ],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "Under that measured bar the v1 ladder yields exactly one frontier improvement: the boosted tree over the raw GLM anchor, 0.049911. The whole chain of splines, a logged density, two interactions and an isotonic wrapper is worth 0.9568 of a floor over the same anchor, and the tree's edge over that calibrated GLM is 0.3714 of a floor - both real, both under the bar, both recorded as discards.",
+      "class": "procedural-verdict",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "P3",
+        "P5",
+        "art:verdicts"
+      ],
+      "numbers": [
+        "keep_lift",
+        "splines_in_floors",
+        "tree_over_glm_in_floors"
+      ],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "The insurance profile's calibration-first doctrine reproduces: replacing balanced class weighting with unweighted fitting plus a cross-fitted isotonic wrapper improves the Brier score by a factor of 4.055, from 0.240641 to 0.059337, and pays 0.001465 of AUC for it - 0.0390 of one measured floor.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0004",
+        "P6",
+        "ref:dalpozzolo2015"
+      ],
+      "numbers": [
+        "brier_balanced",
+        "brier_doctrine",
+        "brier_ratio_doctrine",
+        "doctrine_auc_cost",
+        "doctrine_in_floors"
+      ],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "The DATA gate's overridden BLOCKER is real as a fact and small as an effect: 615 row-content hashes straddle the contract's partitions, and 0.051203 of development rows have a byte-identical twin in training - but every rung's AUC on the twin-free rows differs from its headline AUC by at most 0.001415, and on three of the four development rungs the twin-free number is higher.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "art:duplicates",
+        "art:data_card"
+      ],
+      "numbers": [
+        "dev_twin_share",
+        "max_twin_gap",
+        "straddling_hashes"
+      ],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "The frontier incumbent's level holds on evidence it never saw: fitted on train plus development and evaluated once on the sealed half of the v1 validation set, it scores 0.657739 against a development score of 0.664051 - a shift of 0.1680 of one measured floor.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0005",
+        "E0003",
+        "P7",
+        "rep:E0003@20260903T083929Z",
+        "art:derived"
+      ],
+      "numbers": [
+        "dev_incumbent",
+        "sealed_auc",
+        "sealed_shift_in_floors",
+        "sealed_twin_free_auc",
+        "sealed_twin_free_gap",
+        "sealed_twin_free_rows"
+      ],
+      "strength": "confirmed"
+    },
+    "C8": {
+      "claim": "The v1 ledger's sixth row is a keep that a measured bar would have refused: its recorded lift of 0.001425 is 0.0379 of this study's floor.",
+      "class": "procedural-verdict",
+      "errata": [],
+      "evidence": [
+        "P8",
+        "sweep:paired_bootstrap",
+        "sweep:paired_bootstrap_b1000",
+        "art:derived"
+      ],
+      "numbers": [
+        "v1_sweep_in_floors",
+        "v1_sweep_lift"
+      ],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "Pairing cancels shared sampling error only when the two scores move together, and a GLM and a boosted tree rank these policies too differently for that: their paired spread is 0.013942 against a marginal spread of 0.017964, while two rungs differing by one lever pair down to 0.001276 - a ratio of 10.92 across the same rows with the same instrument.",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "sweep:paired_bootstrap_b1000",
+        "sweep:split_lottery",
+        "sweep:pair_anchor_doctrine",
+        "ref:delong1988"
+      ],
+      "numbers": [
+        "marginal_std",
+        "paired_std_far",
+        "paired_std_near",
+        "paired_std_ratio"
+      ],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "f54ee1afa657d7b58f84325720052481e5c08129",
+  "klein_commit": "f54ee1afa657d7b58f84325720052481e5c08129",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {
+    "anchor_residual_glm": {
+      "art": "derived",
+      "claim": "C1",
+      "note": "magnitude of E0001 anchor_gap",
+      "precision": 6,
+      "value": 0.011322
+    },
+    "anchor_residual_splines": {
+      "art": "derived",
+      "claim": "C1",
+      "note": "magnitude of E0002 anchor_gap",
+      "precision": 6,
+      "value": 0.001612
+    },
+    "anchor_residual_tree": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0003 anchor_gap",
+      "precision": 6,
+      "value": 0.001154
+    },
+    "anchor_tolerance": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "the registered within-tolerance of P1, P2 and P4",
+      "precision": 4,
+      "value": 0.0225
+    },
+    "bar_over_v1_spread": {
+      "art": "derived",
+      "claim": "C3",
+      "precision": 4,
+      "value": 0.9671
+    },
+    "brier_balanced": {
+      "art": "aux",
+      "claim": "C5",
+      "precision": 6,
+      "value": 0.240641
+    },
+    "brier_doctrine": {
+      "art": "aux",
+      "claim": "C5",
+      "precision": 6,
+      "value": 0.059337
+    },
+    "brier_ratio_doctrine": {
+      "art": "derived",
+      "claim": "C5",
+      "precision": 3,
+      "value": 4.055
+    },
+    "claim_rate": {
+      "art": "derived",
+      "claim": "C11",
+      "precision": 6,
+      "value": 0.063968
+    },
+    "dev_incumbent": {
+      "art": "results",
+      "claim": "C7",
+      "precision": 6,
+      "value": 0.664051
+    },
+    "dev_twin_share": {
+      "art": "duplicates",
+      "claim": "C6",
+      "precision": 6,
+      "value": 0.051203
+    },
+    "doctrine_auc_cost": {
+      "art": "derived",
+      "claim": "C5",
+      "note": "magnitude of E0004 delta_vs_reference",
+      "precision": 6,
+      "value": 0.001465
+    },
+    "doctrine_in_floors": {
+      "art": "verdicts",
+      "claim": "C5",
+      "note": "abs_in_declared_floors for E0004",
+      "precision": 4,
+      "value": 0.039
+    },
+    "doctrine_in_own_floors": {
+      "art": "verdicts",
+      "claim": "C10",
+      "note": "abs_in_own_pair_floors for E0004",
+      "precision": 4,
+      "value": 0.3229
+    },
+    "keep_lift": {
+      "art": "verdicts",
+      "claim": "C4",
+      "precision": 6,
+      "value": 0.049911
+    },
+    "lift10_dev": {
+      "art": "aux",
+      "claim": "C11",
+      "precision": 4,
+      "value": 2.2167
+    },
+    "lift10_drop": {
+      "art": "derived",
+      "claim": "C11",
+      "precision": 4,
+      "value": 0.5101
+    },
+    "lift10_sealed": {
+      "art": "aux",
+      "claim": "C11",
+      "precision": 4,
+      "value": 1.7067
+    },
+    "marginal_std": {
+      "art": "floors",
+      "claim": "C9",
+      "precision": 6,
+      "value": 0.017964
+    },
+    "max_twin_gap": {
+      "art": "derived",
+      "claim": "C6",
+      "note": "the largest twin_free_gap magnitude across the four development rungs",
+      "precision": 6,
+      "value": 0.001415
+    },
+    "minimum_delta": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the registered keep bar",
+      "precision": 7,
+      "value": 0.0375805
+    },
+    "paired_std_far": {
+      "art": "floors",
+      "claim": "C9",
+      "precision": 6,
+      "value": 0.013942
+    },
+    "paired_std_near": {
+      "art": "floors",
+      "claim": "C9",
+      "precision": 6,
+      "value": 0.001276
+    },
+    "paired_std_ratio": {
+      "art": "derived",
+      "claim": "C9",
+      "precision": 2,
+      "value": 10.92
+    },
+    "residual_margin": {
+      "art": "derived",
+      "claim": "C2",
+      "note": "anchor_residual_margin",
+      "precision": 6,
+      "value": 0.000458
+    },
+    "sealed_auc": {
+      "art": "results",
+      "claim": "C7",
+      "precision": 6,
+      "value": 0.657739
+    },
+    "sealed_shift_in_floors": {
+      "art": "derived",
+      "claim": "C7",
+      "note": "magnitude of E0005 sealed_shift_in_floors",
+      "precision": 4,
+      "value": 0.168
+    },
+    "sealed_twin_free_auc": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0005 twin_free_auc: the sealed score on the rows with no twin among the rows it was fitted on",
+      "precision": 6,
+      "value": 0.656647
+    },
+    "sealed_twin_free_gap": {
+      "art": "derived",
+      "claim": "C7",
+      "note": "magnitude of E0005 twin_free_gap",
+      "precision": 6,
+      "value": 0.001091
+    },
+    "sealed_twin_free_rows": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0005 twin_free_rows: sealed rows with no training twin",
+      "precision": 0,
+      "value": 5528
+    },
+    "splines_in_floors": {
+      "art": "verdicts",
+      "claim": "C4",
+      "precision": 4,
+      "value": 0.9568
+    },
+    "splines_in_own_floors": {
+      "art": "verdicts",
+      "claim": "C10",
+      "precision": 4,
+      "value": 1.0926
+    },
+    "splines_lift": {
+      "art": "verdicts",
+      "claim": "C10",
+      "precision": 6,
+      "value": 0.035956
+    },
+    "straddling_hashes": {
+      "art": "data_card",
+      "claim": "C6",
+      "note": "kleinlib.leakage: row-content hashes spanning more than one partition",
+      "precision": 0,
+      "value": 615
+    },
+    "tree_in_own_floors": {
+      "art": "verdicts",
+      "claim": "C10",
+      "precision": 4,
+      "value": 0.4624
+    },
+    "tree_over_glm_in_floors": {
+      "art": "verdicts",
+      "claim": "C4",
+      "precision": 4,
+      "value": 0.3714
+    },
+    "v1_ledger_spread": {
+      "art": "derived",
+      "claim": "C3",
+      "precision": 6,
+      "value": 0.03886
+    },
+    "v1_sweep_in_floors": {
+      "art": "derived",
+      "claim": "C8",
+      "precision": 4,
+      "value": 0.0379
+    },
+    "v1_sweep_lift": {
+      "art": "derived",
+      "claim": "C8",
+      "precision": 6,
+      "value": 0.001425
+    },
+    "v1_validation_twin_share": {
+      "art": "duplicates",
+      "claim": "C12",
+      "precision": 6,
+      "value": 0.052223
+    }
+  },
+  "study_id": "12-insurance-claims-frequency"
+}

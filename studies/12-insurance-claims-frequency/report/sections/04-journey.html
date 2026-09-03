@@ -1,0 +1,78 @@
+<h2>The experiment journey</h2>
+
+<h3>Phase 0: measure the instrument before using it</h3>
+
+<p>Three recipes, three estimands, and they disagree by four orders of magnitude. That
+spread is the whole reason the framework refuses to let a study guess its keep bar.</p>
+
+<ul>
+  <li><strong>Fit noise</strong> (five fit seeds, same rows): standard deviation
+      2.50998e-06. Recorded as provenance and <em>never</em> as the bar &mdash; a study
+      that pasted this in would keep anything that moved the fifth decimal.</li>
+  <li><strong>Marginal re-split</strong> (ten re-draws inside the train+development pool,
+      never touching the seal): standard deviation 0.017964. How much one candidate's own
+      score moves when the rows change.</li>
+  <li><strong>Paired comparison</strong> (the bar): the declared pair, its replicate count
+      and its rationale all written into the notebook <em>before</em> the measurement.
+      Standard deviation 0.0173021, range 0.075161, so
+      <span data-math="d = \max(2\sigma, \tfrac{1}{2}\operatorname{range})"></span> gives
+      <strong>0.0375805</strong>.</li>
+</ul>
+
+<p>That bar is 0.9671 of the distance from the earlier study's worst recorded model to its
+best. Before a single candidate ran, the ladder was already known to be almost entirely
+inside its own measurement error.</p>
+
+<h3>The four development runs, and the one sealed run</h3>
+
+<!--LEDGER-->
+
+<p>Read the ledger with the floor in hand:</p>
+
+<ul>
+  <li><strong>E0001</strong> is the <strong>positive control</strong>: it had to recover a
+      number an independent study recorded on the identical training rows, and did, to
+      0.011322 &mdash; almost exactly the 0.011226 the closed-form variance predicted for
+      a transfer of this shape. Had it missed, the plan said to stop rather than absorb it
+      into the ladder.</li>
+  <li><strong>E0002</strong> reproduces the spline-and-isotonic rung to 0.001612 and then
+      <em>discards</em>: its whole paired AUC lift over the anchor is 0.9568 of one floor.
+      Feature engineering plus calibration, on this book, is worth slightly less than the
+      smallest difference the measurement can see.</li>
+  <li><strong>E0003</strong> reproduces the tree rung to 0.001154 and <em>keeps</em>,
+      +0.049911 over the incumbent &mdash; the study's one frontier improvement. Its edge
+      over the calibrated GLM, though, is 0.3714 of a floor.</li>
+  <li><strong>E0004</strong> is the doctrine A/B and it <em>discards</em> on AUC while
+      winning decisively on level. That is the point of the run, not a disappointment.</li>
+  <li><strong>E0005</strong> spends the one sealed access on the incumbent, unchanged,
+      after the mandatory dry-run rehearsal.</li>
+</ul>
+
+<img data-fig="figures/plot_decision_trajectory.png" alt="Decision trajectory: two keeps, three non-keeps, the sealed run marked separately, with the measured floor band around the frontier.">
+
+<h3>The picture the study is really about</h3>
+
+<p>Every gap the ladder measured, drawn twice: in metric units against the declared bar,
+and divided by the floor that actually prices each comparison. Both panels are
+zero-based.</p>
+
+<img data-fig="figures/floors_vs_gaps.png" alt="Left: each comparison's absolute lift and its own pair's floor, against the declared bar. Right: the same gaps in floors, with the one-floor line drawn.">
+
+<p>The right panel is where the honesty lives. The spline rung sits at 0.9568 of the
+declared bar &mdash; refuted &mdash; and at 1.0926 of the floor of the comparison it
+actually makes, where it would have been supported. The registered verdict stands, because
+a bar chosen after the measurement is not a bar; but that refutation is
+<em>instrument-limited</em>, and the study had pre-committed to saying so.</p>
+
+<h3>Then the seal</h3>
+
+<p>Fitted on train plus development, evaluated once on the sealed half:
+<strong>0.657739</strong> against a development score of 0.664051 &mdash; a shift of
+0.1680 of one floor. The level held. What did not hold was the top-decile lift, which fell
+0.5101, from 2.2167 to 1.7067, at a claim rate of 0.063968: a decile rests on a tenth of
+the rows, and it is a far noisier statistic than the AUC computed beside it.</p>
+
+<img data-fig="figures/plot_decile_lift.png" alt="Decile lift for the frontier incumbent on the development partition, bars from zero.">
+
+<p>Finally <code>klein replicate</code> re-executed the kept run in a detached worktree
+and reproduced it exactly, difference 0.</p>

@@ -1,0 +1,64 @@
+<h2>Model coding advice</h2>
+
+<p>Here is the entire per-candidate surface of this study &mdash; the actual bytes,
+included by reference so this page cannot drift from the code that produced the numbers
+above. Read the four constants under &ldquo;the candidate&rdquo; first. That block
+<em>is</em> an experiment; everything else is machinery that a per-experiment edit is not
+allowed to touch.</p>
+
+<pre data-code="train.py" data-lang="python"></pre>
+
+<h3>Six things worth stealing</h3>
+
+<ul>
+  <li><strong>Keep the rung definitions out of the mutable surface.</strong> They live in
+      <code>lib/rungs.py</code>, which both the entrypoint and the Phase&nbsp;0 floor
+      script import. Re-typing them in the floor script would let the floor describe a
+      model the ledger never ran; importing them <em>from</em> the entrypoint would let a
+      per-experiment edit silently change what the floor was measured on. A stable library
+      has neither failure, and the per-experiment diff shrinks to four lines.</li>
+  <li><strong>Leave the candidate slot empty between experiments.</strong>
+      <code>CANDIDATE = None</code> and a <code>main</code> that refuses to run without a
+      rung. Choosing the rung is the one falsifiable idea a candidate carries, so the
+      surface should not silently still hold the last one.</li>
+  <li><strong>Read the bar from the contract; never write it as a literal.</strong>
+      <code>minimum_delta</code> is loaded from <code>study.yaml</code> inside
+      <code>main</code>. Before Phase&nbsp;0 sets it there is no floor to divide by, so
+      the floor-relative keys are simply not printed &mdash; and a prediction whose key is
+      missing is <em>inconclusive</em>, not refuted, which is the honest answer.</li>
+  <li><strong>Route every partition through <code>load_partition</code>.</strong> It reads
+      the contract alone and prints the <code>split_fingerprint:</code> line the notary
+      compares against the one the data gate froze, so a partition that silently changed
+      is a crash by design. The only integer seed in this study's code is a
+      <em>fit</em> seed, and it reaches nothing but two estimator constructors.</li>
+  <li><strong>Print the comparison; do not reconstruct it.</strong> Every run refits its
+      named reference rung on the <em>same rows</em>, in the same process, and prints
+      <code>delta_vs_reference</code>, <code>delta_in_floors</code> and
+      <code>brier_delta_vs_reference</code>. A paired comparison assembled later by
+      subtracting two log files is not paired; it is two numbers that happen to be near
+      each other.</li>
+  <li><strong>Ship an instrument with every accepted risk.</strong> The three
+      <code>twin_free_*</code> keys are four lines of entrypoint. They are the difference
+      between &ldquo;we accepted a known leakage risk&rdquo; and &ldquo;the accepted risk
+      is worth at most 0.001415 of AUC per rung, and here is the number on every run,
+      including the sealed one&rdquo;.</li>
+</ul>
+
+<h3>Pitfalls this study actually hit</h3>
+
+<ul>
+  <li><strong>A floor is a property of the pair, not of the data.</strong> Measure the
+      floor of the comparison you are going to make, and if you declare one global bar on
+      a ladder that spans model classes, say so and publish the pair-specific numbers
+      beside it.</li>
+  <li><strong>The order statistic in the bar rule grows with the replicate count.</strong>
+      <span data-math="\tfrac{1}{2}\operatorname{range}"></span> is a guard against
+      underestimating <span data-math="\sigma"></span> from few replicates; at a thousand
+      replicates it inflates the bar for a reason that is arithmetic, not measurement.
+      Choose the replicate count deliberately, write the choice down first, and report
+      what the other choice would have given.</li>
+  <li><strong>A claims lock is not a draft.</strong> A number's home may never change, and
+      a claim's sentence may never change. Home magnitudes where magnitudes live, and keep
+      identifiers containing digits out of claim sentences &mdash; the scanner reads the
+      digit in <code>log1p</code> as a number nobody measured.</li>
+</ul>

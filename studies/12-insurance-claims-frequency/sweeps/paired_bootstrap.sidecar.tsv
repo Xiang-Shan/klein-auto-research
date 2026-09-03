@@ -1,0 +1,21 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"replicate":0}	0.043921	2.141	ok	
+2	{"replicate":1}	0.047325	0.002	ok	
+3	{"replicate":2}	0.030693	0.002	ok	
+4	{"replicate":3}	0.047110	0.002	ok	
+5	{"replicate":4}	0.006834	0.002	ok	
+6	{"replicate":5}	0.035021	0.002	ok	
+7	{"replicate":6}	0.037407	0.003	ok	
+8	{"replicate":7}	0.046462	0.002	ok	
+9	{"replicate":8}	0.058525	0.002	ok	
+10	{"replicate":9}	0.027954	0.002	ok	
+11	{"replicate":10}	0.039832	0.002	ok	
+12	{"replicate":11}	0.045401	0.002	ok	
+13	{"replicate":12}	0.039669	0.002	ok	
+14	{"replicate":13}	0.042213	0.002	ok	
+15	{"replicate":14}	0.078840	0.002	ok	
+16	{"replicate":15}	0.058671	0.002	ok	
+17	{"replicate":16}	0.081995	0.002	ok	
+18	{"replicate":17}	0.058894	0.002	ok	
+19	{"replicate":18}	0.028959	0.002	ok	
+20	{"replicate":19}	0.058362	0.002	ok	

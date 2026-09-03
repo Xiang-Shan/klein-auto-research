@@ -1,0 +1,114 @@
+# The citations a `ref:<key>` evidence id resolves to. Written at the METHOD
+# gate; every row was checked against the publisher, arXiv or proceedings page on
+# the date below, not quoted from memory.
+references:
+  hanley1982:
+    title: "The meaning and use of the area under a receiver operating characteristic (ROC) curve"
+    authors: "Hanley, J. A.; McNeil, B. J."
+    year: 1982
+    venue: "Radiology 143(1), 29-36"
+    doi: "10.1148/radiology.143.1.7063747"
+    url: "https://pubmed.ncbi.nlm.nih.gov/7063747/"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: PubMed record, author's own McGill copy of the paper)"
+    verified_at: "2026-09-03"
+    why: "Two things this study leans on: AUC = P(a random positive outranks a random negative), and the closed-form variance of that estimate. The second is what fixed the anchor tolerance of 0.0225 BEFORE any run (scouting_ledger.md S5) — a tolerance derived from row counts and a class balance rather than chosen after seeing a residual."
+  delong1988:
+    title: "Comparing the areas under two or more correlated receiver operating characteristic curves: a nonparametric approach"
+    authors: "DeLong, E. R.; DeLong, D. M.; Clarke-Pearson, D. L."
+    year: 1988
+    venue: "Biometrics 44(3), 837-845"
+    doi: "10.2307/2531595"
+    url: "https://www.semanticscholar.org/paper/e0c706402cf6cc205a0980ee047de9fc710c6aee"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: Semantic Scholar record; venue and pagination confirmed against MedCalc's method documentation)"
+    verified_at: "2026-09-03"
+    why: "Why a COMPARISON of two AUCs on the same rows has a much smaller standard error than either AUC alone: the two estimates are correlated, and the correlation cancels. It is the statistical reason this study's keep bar comes from a paired-comparison floor and not from a marginal one."
+  efron1979:
+    title: "Bootstrap methods: another look at the jackknife"
+    authors: "Efron, B."
+    year: 1979
+    venue: "The Annals of Statistics 7(1), 1-26"
+    doi: "10.1214/aos/1176344552"
+    url: "https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: Project Euclid page)"
+    verified_at: "2026-09-03"
+    why: "The resampling argument behind `kleinlib.metrology.paired_bootstrap`: the spread of a statistic over resamples of the evaluation rows estimates its sampling spread. Phase 0 uses it on the DIFFERENCE of two rungs, under common random numbers."
+  ayer1955:
+    title: "An empirical distribution function for sampling with incomplete information"
+    authors: "Ayer, M.; Brunk, H. D.; Ewing, G. M.; Reid, W. T.; Silverman, E."
+    year: 1955
+    venue: "The Annals of Mathematical Statistics 26(4), 641-647"
+    doi: "10.1214/aoms/1177728423"
+    url: "https://projecteuclid.org/euclid.aoms/1177728423"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: Project Euclid page, volume and pagination confirmed)"
+    verified_at: "2026-09-03"
+    why: "The pool-adjacent-violators algorithm itself — the maximum-likelihood monotone fit that `CalibratedClassifierCV(method='isotonic')` runs. §3's from-scratch PAVA is this paper in ten lines."
+  zadrozny2002:
+    title: "Transforming classifier scores into accurate multiclass probability estimates"
+    authors: "Zadrozny, B.; Elkan, C."
+    year: 2002
+    venue: "Proceedings of the 8th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, 694-699"
+    doi: "10.1145/775047.775151"
+    url: "https://dl.acm.org/doi/10.1145/775047.775151"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: ACM Digital Library record)"
+    verified_at: "2026-09-03"
+    why: "The paper that introduced isotonic regression as a calibration map for classifier scores, and the source of the property this study relies on: a monotone map cannot change the ranking, so calibration is free in AUC terms up to cross-fitting noise."
+  niculescumizil2005:
+    title: "Predicting good probabilities with supervised learning"
+    authors: "Niculescu-Mizil, A.; Caruana, R."
+    year: 2005
+    venue: "Proceedings of the 22nd International Conference on Machine Learning (ICML), 625-632"
+    doi: "10.1145/1102351.1102430"
+    url: "https://www.cs.cornell.edu/~alexn/papers/calibration.icml05.crc.rev3.pdf"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: ACM DL record plus the authors' Cornell copy)"
+    verified_at: "2026-09-03"
+    why: "The empirical comparison of Platt scaling against isotonic regression across model families, and the observation that boosted models systematically distort probabilities while ranking well — the pattern this study expects to see between its GLM and HGBT rungs."
+  dalpozzolo2015:
+    title: "Calibrating probability with undersampling for unbalanced classification"
+    authors: "Dal Pozzolo, A.; Caelen, O.; Johnson, R. A.; Bontempi, G."
+    year: 2015
+    venue: "IEEE Symposium Series on Computational Intelligence (SSCI), 159-166"
+    doi: "10.1109/SSCI.2015.33"
+    url: "https://ieeexplore.ieee.org/abstract/document/7376606/"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: IEEE Xplore record, dblp entry conf/ssci/PozzoloCJB15)"
+    verified_at: "2026-09-03"
+    why: "The mechanism behind the insurance doctrine and war story 4: reweighting or undersampling a class changes the training prior, which biases the posterior probability upward while leaving the ranking largely intact. `class_weight='balanced'` is the reweighting form of exactly this."
+  brier1950:
+    title: "Verification of forecasts expressed in terms of probability"
+    authors: "Brier, G. W."
+    year: 1950
+    venue: "Monthly Weather Review 78(1), 1-3"
+    doi: "10.1175/1520-0493(1950)078<0001:VOFEIT>2.0.CO;2"
+    url: "https://journals.ametsoc.org/view/journals/mwre/78/1/1520-0493_1950_078_0001_vofeit_2_0_co_2.xml"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: American Meteorological Society journal page)"
+    verified_at: "2026-09-03"
+    why: "The proper scoring rule this study reads calibration off. P6 is decided on a Brier difference, so the metric's definition and its strict propriety are load-bearing, not decorative."
+  perperoglou2019:
+    title: "A review of spline function procedures in R"
+    authors: "Perperoglou, A.; Sauerbrei, W.; Abrahamowicz, M.; Schmid, M."
+    year: 2019
+    venue: "BMC Medical Research Methodology 19(1), 46"
+    doi: "10.1186/s12874-019-0666-3"
+    url: "https://link.springer.com/content/pdf/10.1186/s12874-019-0666-3.pdf"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: Springer full text, PubMed 30841848)"
+    verified_at: "2026-09-03"
+    why: "Knot placement is a modelling choice, not a default: this review states the standard practice of placing knots at quantiles of the covariate. It is the published grounding for the first of the three non-default kwargs the v1 study identified as load-bearing (`knots='quantile'`)."
+  grinsztajn2022:
+    title: "Why do tree-based models still outperform deep learning on tabular data?"
+    authors: "Grinsztajn, L.; Oyallon, E.; Varoquaux, G."
+    year: 2022
+    venue: "NeurIPS 2022 Datasets and Benchmarks Track"
+    arxiv: "2207.08815"
+    url: "https://arxiv.org/abs/2207.08815"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch: arXiv abstract page; NeurIPS Datasets and Benchmarks track confirmed)"
+    verified_at: "2026-09-03"
+    why: "The insurance profile's doctrine anchor: on medium-sized tables a tree ensemble is the thing to beat. It is why the ladder's top rung is a boosted tree and why the GLM's shortfall is priced as the cost of transparency rather than treated as a defect."

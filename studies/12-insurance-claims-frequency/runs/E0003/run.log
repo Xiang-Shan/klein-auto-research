@@ -1,0 +1,36 @@
+split_fingerprint: 7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3
+/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679/.venv/lib/python3.13/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679/.venv/lib/python3.13/site-packages/sklearn/linear_model/_sag.py:348: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+---
+primary_metric:    0.664051
+metric_name:       val_auc
+metric_goal:       higher
+training_seconds:  1.1
+total_seconds:     173.2
+train_rows:        46873
+val_rows:          5859
+status:            ok
+--- aux_metrics ---
+val_pr_auc:        0.111610
+val_logloss:       0.633969
+val_brier:         0.223529
+val_lift_top10:    2.2167
+val_best_threshold: 0.5800
+val_f1_at_best:    0.1866
+wall_seconds:      173.234832
+rung: hgbt_balanced
+twin_free_rows: 5559
+twin_free_auc: 0.665069
+twin_free_gap: 0.001018
+v1_anchor: 0.662897
+anchor_gap: 0.001154
+reference_rung: glm_splines_isotonic
+reference_auc: 0.650095
+delta_vs_reference: 0.013956
+reference_brier: 0.058994
+brier_delta_vs_reference: 0.164536
+delta_in_floors: 0.3714
+runner_status: ok
+runner_exit_code: 0
