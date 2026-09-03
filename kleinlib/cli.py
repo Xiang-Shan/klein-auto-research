@@ -237,6 +237,46 @@ def build_parser() -> argparse.ArgumentParser:
         "prepared data, a model blob marked committed:false — is absent; use after "
         "regenerating the study's local artifacts",
     )
+    # Tri-state on purpose: absent means "the default for this study's schema"
+    # (schema 3 on, schema 2 off), so a schema-2 study's output stays byte-identical.
+    verify.add_argument(
+        "--numbers",
+        action="store_true",
+        default=None,
+        help="scan findings.md for numerals with no home in a pinned artifact "
+        "(enforcing on schema 3, advisory on schema 2); report/index.html always "
+        "gets a second, always-advisory pass. Default: on for schema 3",
+    )
+    verify.add_argument(
+        "--claims",
+        action="store_true",
+        default=None,
+        help="add the claim-sentence numeral scan to the claims law's check 5 "
+        "(`references/claims-protocol.md`). Default: on for schema 3",
+    )
+    verify.add_argument(
+        "--evidence-use",
+        dest="evidence_use",
+        action="store_true",
+        default=None,
+        help="check that every discard, crash, measured cell and registered sweep is "
+        "cited in program.md or findings.md (evidence_use_rate), that every refuted "
+        "prediction has a dated `Decision:` line, and that confirmed claims cite two "
+        "or more evidence kinds. Default: on for schema 3",
+    )
+    verify.add_argument(
+        "--receipt",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="write and commit verify_receipt.json (--no-receipt to skip). "
+        "Default: on for schema 3, off for schema 2",
+    )
+    verify.add_argument(
+        "--strict",
+        action="store_true",
+        help="promote every [WARN] this verb owns into a failure — an uncited "
+        "discard, an advisory claims warning, a single-source confirmed claim",
+    )
 
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     register_doctor(sub)
@@ -439,7 +479,17 @@ def main(argv: list[str] | None = None) -> int:
             print(f"finalized: {label}")
             return 0
         if args.command_name == "verify":
-            return _print_checks(verify_study(study, require_local=args.require_local))
+            return _print_checks(
+                verify_study(
+                    study,
+                    require_local=args.require_local,
+                    numbers=args.numbers,
+                    claims=args.claims,
+                    evidence=args.evidence_use,
+                    strict=args.strict,
+                    receipt=args.receipt,
+                )
+            )
     except (WorkflowError, FileExistsError, ValueError) as exc:
         print(f"klein: error: {exc}", file=sys.stderr)
         return 2
