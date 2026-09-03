@@ -273,3 +273,41 @@ prediction:
 
 **Phase adaptive-2 acknowledged** with `klein gate record phase --phase
 adaptive-2 --acknowledged-by lead-agent` (ack delegated by the lead).
+
+
+### Phase adaptive-3 slate
+
+Playbook re-read. The reproduction track has said what it can: the paper's
+number does not come back out of the paper's table, and two of the four routes to
+it are blocked by inputs the paper never printed. That settles what the 1929
+result *was*. This phase asks the different question the `estimate` track exists
+for — what those 24 objects actually estimate — and it is deliberately kept
+separate, because "Hubble's constant" and "the constant Hubble's data supports"
+are two quantities and conflating them is the error the whole study is built to
+avoid.
+
+| # | Candidate (one cell, one transaction) | Nov | Test | Info | Σ |
+|---|---|---|---|---|---|
+| 1 | **Bootstrap interval for K** — 2000 case resamples of the 24 pairs, seed block A, percentile 95 %; the estimate the study will report. | 3 | 3 | 3 | 9 |
+| 2 | **Inverse vs forward regression** in units of the paired bootstrap SE, common random numbers; adjudicates **P5**. | 3 | 3 | 3 | 9 |
+| 3 | **Jackknife influence** — leave-one-out K for each of the 24 objects; names which galaxies carry the constant and settles data-card issue 6 (the four Virgo rows sharing one distance). | 3 | 3 | 2 | 8 |
+| 4 | Bootstrap the through-origin estimator instead, to see whether the interval depends on the intercept choice. | 2 | 3 | 2 | 7 |
+| 5 | An errors-in-variables (Deming) fit, which needs an assumed error ratio. | 3 | 2 | 2 | 7 |
+
+**Chosen: #1, #2, #3**, in that order — again a program, not a tournament. #1
+must run first because #2 and #3 are both read against its interval. #4 is
+subsumed: #1 prints the through-origin bootstrap alongside the free-intercept
+one at no extra cost, so it does not need a cell. #5 is **declined and recorded
+as declined**: a Deming fit needs the ratio of velocity variance to distance
+variance, and the paper prints neither, so the "estimate" it produced would be a
+function of a number this study invented. That is the same rule that stopped
+E0004 from inventing coordinates.
+
+**Pre-scripted.** P5 is the method card's most exposed prior (§4, prior 4). If
+the inverse fit does NOT exceed the forward fit by more than one paired SE, the
+claim that Hubble's distance errors dominate his error budget loses its cheapest
+support, and findings must say the regression-dilution story was not confirmed
+here rather than quietly citing `ref:frost2000` as if it had been. The Phase-0
+sweep `sweep:mc_resolution` already fixed the resolution of that comparison
+(mean 2.36499, std 0.0382297 across master seeds), so a verdict either way is
+outside the seed's reach.
