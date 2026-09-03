@@ -176,11 +176,19 @@
       "strength": "exploratory"
     },
     "C9": {
-      "claim": "When the best known value equals a proven bound, do the headroom arithmetic",
-      "class": null,
+      "claim": "When the best known value equals a proven bound, do the headroom arithmetic before the first run: here it was 22 against 22 on one track and 62 against 62 on the other, so the headroom was exactly zero, no run could ever be a keep, and the study registered that before spending anything",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0007",
+        "E0009",
+        "E0010"
+      ],
+      "numbers": [
+        "bound_large",
+        "bound_small"
+      ],
       "strength": "exploratory"
     }
   },
