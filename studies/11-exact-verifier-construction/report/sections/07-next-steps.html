@@ -1,0 +1,77 @@
+<h2>7 · Next steps &amp; references</h2>
+
+<h3>§7.1 · What to try next</h3>
+
+<ol>
+<li><strong>Register a seed sweep at n = 11 and the largest budget.</strong> The cheapest
+and the most important. E0004 and E0009 differ only in the seed and land on opposite sides
+of the proven maximum, so the quantity this study could not measure is the success
+<em>rate</em> — and a rate is exactly what a registered measurement sweep is for
+(<code>klein sweep register</code>, every trial to a sidecar). Thirty seeds at about a
+second each would turn C5 from an observation into a number.</li>
+<li><strong>Locate where the reach breaks.</strong> The two instances are far apart: the
+maximum is reachable at one, out of reach at the other, and everything between is
+unmeasured. A third instance around n = 19 — the size at which integer programming is still
+provably optimal (<code>ref:ramanathan2025</code>) — would say whether the fall-off is a
+cliff or a slope. It needs a third track declared at CONSULT, which is exactly why this
+study did not add one after seeing its results.</li>
+<li><strong>Budget in passes, not evaluations.</strong> Register the ladder in greedy
+completions so the two instances are compared at equal search effort rather than equal
+cost, and the pair of ladders side by side separates "the instance is harder" from "the
+budget bought less".</li>
+<li><strong>Change the perturbation.</strong> The current move removes one to three random
+points; a move that removes a whole row's pair respects the structure a
+<span data-math="2n"></span> configuration must have. That is a change to
+<code>lib/</code>, which this study may not make mid-loop, so it belongs to a follow-up
+whose predictions cite <code>11-exact-verifier-construction#C1</code> and
+<code>#C5</code>.</li>
+</ol>
+
+<h3>§7.2 · What was promoted to <code>knowledge/</code></h3>
+
+<p>Four typed citations now seed <code>knowledge/domains/math/</code>, this repository's
+first entries for the <code>math</code> profile: the checker-independence rule
+(<code>#C6</code>), freezing controls and testing the guard (<code>#C7</code>,
+<code>#C8</code>), reading a heuristic's miss as a draw rather than a property
+(<code>#C5</code>, <code>#C4</code>), and doing the headroom arithmetic first
+(<code>#C9</code>). Each carries the erratum where one applies.</p>
+
+<h3>§7.3 · References</h3>
+
+<p>Ten, every one checked on 2026-09-03 — but not all the same way, and
+<code>references.yaml</code> records which is which in each entry's
+<code>verified_by</code>. Four were read at the source; six were checked against a
+bibliography (the Wikipedia article's reference list, or MathWorld's) rather than against
+the work itself. Both entries the contract leans on are in the first group.</p>
+
+<table>
+<thead><tr><th>Key</th><th>Work</th><th>Checked against</th><th>Relied on for</th></tr></thead>
+<tbody>
+<tr><td><code>flammenkamp_records</code></td><td>Flammenkamp, the maintained no-three-in-line record page</td><td><strong>the page itself</strong></td><td>the external incumbent on both tracks: solutions attaining the maximum are known for every grid size up to 70</td></tr>
+<tr><td><code>mathworld_no3</code></td><td>Weisstein, "No-Three-in-a-Line Problem", MathWorld</td><td><strong>the page itself</strong></td><td>the independent second source for the same values, and a citation for the upper bound</td></tr>
+<tr><td><code>ramanathan2025</code></td><td>Ramanathan et al., "Three methods, one problem: classical and AI approaches to no-three-in-line", arXiv:2512.11469</td><td><strong>the arXiv abstract page</strong></td><td>the closest modern comparison: integer programming provably optimal to 19 × 19, a transformer matching it to 14 × 14, a PPO agent solving 10 × 10 and failing at 11 × 11</td></tr>
+<tr><td><code>lourenco2019</code></td><td>Lourenço, Martin &amp; Stützle, "Iterated local search: framework and applications", <em>Handbook of Metaheuristics</em> 3rd ed.</td><td><strong>the Springer chapter page</strong></td><td>the search skeleton §2.4 implements</td></tr>
+<tr><td><code>roth1951</code></td><td>Roth, "On a problem of Heilbronn", <em>J. London Math. Soc.</em></td><td>Wikipedia's bibliography</td><td>where Erdős's parabola construction is published — the negative control, and its proof</td></tr>
+<tr><td><code>guy1968</code></td><td>Guy &amp; Kelly, "The no-three-in-line problem", <em>Canad. Math. Bull.</em></td><td>MathWorld's bibliography</td><td>the conjecture that the maximum is eventually unattainable — why a search failure is never evidence about the problem</td></tr>
+<tr><td><code>hall1975</code></td><td>Hall, Jackson, Sudbery &amp; Wild, "Some advances in the no-three-in-line problem", <em>JCTA</em></td><td>Wikipedia's bibliography</td><td>the hyperbola construction: the constructive yardstick a heuristic should be read against</td></tr>
+<tr><td><code>flammenkamp1992</code>, <code>flammenkamp1998</code></td><td>Flammenkamp, "Progress in the no-three-in-line problem" I and II, <em>JCTA</em></td><td>Wikipedia's bibliography</td><td>the computational record papers</td></tr>
+<tr><td><code>dudeney1900</code></td><td>Dudeney, the original puzzle, <em>The Weekly Dispatch</em></td><td>Wikipedia, cross-checked against MathWorld</td><td>provenance of the problem</td></tr>
+</tbody>
+</table>
+
+<h3>§7.4 · How to check this study yourself</h3>
+
+<p>Nothing here needs a model in the loop. From the repository root:</p>
+
+<pre><code class="language-bash">uv run --locked python studies/11-exact-verifier-construction/prepare.py
+uv run --locked klein verify --study studies/11-exact-verifier-construction --numbers --evidence-use
+uv run --locked klein claims verify --study studies/11-exact-verifier-construction --numbers
+uv run --locked python studies/11-exact-verifier-construction/figures/make_figures.py
+
+# and the check this study exists to make checkable — score the object yourself:
+cd studies/11-exact-verifier-construction
+KLEIN_ARTIFACT=models/E0009/solution.json uv run --locked python -u verify.py</code></pre>
+
+<p>The last command runs the same <code>verify.py</code> the METHOD gate hashed, in a fresh
+process, on the committed bytes of the object. It should print the same integer the ledger
+holds. The referee did exactly that, and it did.</p>

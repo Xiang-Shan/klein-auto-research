@@ -1,0 +1,77 @@
+<h2>3 · The data story</h2>
+
+<p>This study has no dataset. Its <code>data.modality</code> is <code>none</code>, and
+Klein's DATA gate is typed by modality: where a tabular study gets a profile and a
+four-row leakage audit, a verifier-only study gets a <strong>verifier card</strong>. The
+audit is of the oracle, because the oracle <em>is</em> the evidence source.</p>
+
+<h3>§3.1 · What the gate actually froze</h3>
+
+<p><code>prepare.py</code> writes a problem statement, not data, and the DATA gate hashes
+it. Inside <code>data/prepared/instances.json</code>:</p>
+
+<ul>
+<li>the two instances — 11 × 11 and 31 × 31 — each with its pigeonhole bound and the
+argument for it in words;</li>
+<li>the two <strong>seed blocks</strong>: <code>development</code>, the only block adaptive
+work may use, and <code>sealed</code>, a block no development run may touch;</li>
+<li>the registered budget ladder: 20000, 200000, 2000000 addability tests;</li>
+<li>the verifier's two controls.</li>
+</ul>
+
+<p>The seed blocks are how a study with no rows gets a sealed partition.
+<code>data.split.kind</code> is <code>none</code>, so there is nothing to partition;
+<code>klein run-one --final-test</code> sets <code>KLEIN_EVALUATION_KIND=final_test</code>
+and <code>search.py</code> reads the sealed block <em>by name</em> out of the hashed file.
+No literal seed appears in <code>search.py</code>, <code>verify.py</code> or
+<code>lib/</code> — war story 8's failure mode (an evaluator carrying a retired split seed)
+cannot occur when there is no split to carry.</p>
+
+<h3>§3.2 · The controls, and why freezing them first is the whole trick</h3>
+
+<p>The naming follows the protocol's detector convention: the <strong>positive</strong>
+control is the one on which the detector must <em>fire</em>; the <strong>negative</strong>
+control is the one on which it must stay silent.</p>
+
+<p><strong>Positive — twelve planted invalid objects the checker must reject.</strong>
+Seven geometric defects spanning the slopes <code>0, undefined, +1, -1, +2, +1/2</code> and
+a <code>+2</code> line with unequal lattice gaps; three well-formedness defects (a
+coordinate equal to <span data-math="n"></span>, a negative coordinate, a non-integer
+coordinate); a repeated lattice point; and one <em>almost valid</em> object — the parabola
+set plus a single cell that creates exactly one collinear triple among its twelve points,
+which a checker that sampled triples would probably pass.</p>
+
+<p><strong>Negative — one known-valid object the checker must accept, at a value known in
+advance.</strong> The Erdős parabola set on the 11 × 11 grid: valid by the proof in §2.5,
+so its score is 11 before any code runs.</p>
+
+<blockquote>
+<p>A positive control that can be softened after it fails is not a control. These twelve
+objects were hashed into the DATA gate record <em>before the checker ever met them</em>,
+and the gate's sha256 is on <code>events.jsonl</code>.</p>
+</blockquote>
+
+<h3>§3.3 · The go/no-go call</h3>
+
+<p>The card ruled <strong>GO</strong>, with the checker exercised in both directions before
+any search existed: it fired on all twelve planted objects and accepted the known-valid one
+at exactly its predicted 11. That exercise was the <em>audit</em>, not the evidence — it ran
+outside a transaction, so E0001 re-ran the same battery under the notary and that is where
+the prediction was adjudicated.</p>
+
+<p>The card's ranked issues were four NOTEs and one WARN, and the WARN is the honest one:
+the search and the checker share an <em>idea</em> — both decide collinearity — even though
+they share no code, so a common conceptual error would survive their agreement. The seven
+planted geometric controls exist to span exactly that failure class, and the checker uses
+the general cross product, which has no special cases at all.</p>
+
+<h3>§3.4 · One correction, filed after the fact</h3>
+
+<p>The card also wrote, at the gate and before any run existed, that the checker's cost
+would be "sub-millisecond at every size this study uses". That was a fair pre-run estimate
+and it is wrong: the verifier logs record 0.002046 seconds on the largest object, and four
+of the ten exceed a millisecond. The card is a gate-hashed artifact and is <strong>not</strong>
+edited — editing it after the runs would silently invalidate the record it is part of — so
+the correction lives in <code>findings.md</code>, in <code>program.md</code>, and in
+erratum E1 against claim C6. §5 tells that story properly; it is the study's own best
+example of why a number needs a home.</p>

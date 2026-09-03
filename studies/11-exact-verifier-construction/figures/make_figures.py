@@ -14,6 +14,10 @@ Reads only study artifacts:
 
 Writes three PNGs into --out:
 
+  plot_decision_trajectory__n_small.png   the engine's standard decision trajectory,
+  plot_decision_trajectory__n_large.png   one per track: every run in ledger order,
+                                 discards as evidence dots, the E0008 crash on the
+                                 rug, the sealed cell as a star off the frontier
   reach_vs_budget.png            the verified objective against the evaluation
                                  budget, one panel per track, with the proven
                                  maximum 2n drawn as a horizontal reference
@@ -40,6 +44,7 @@ import argparse
 import csv
 import json
 import math
+import shutil
 from itertools import combinations
 from pathlib import Path
 
@@ -51,6 +56,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import yaml  # noqa: E402
 
 from kleinlib import figures as klein_figures  # noqa: E402
+from kleinlib import workflow  # noqa: E402
 
 DPI = klein_figures.DPI
 #: Deterministic PNG metadata: matplotlib writes no timestamp, and pinning
@@ -98,6 +104,38 @@ def save(fig: plt.Figure, out: Path, name: str, *, top: float = 1.0) -> Path:
     fig.tight_layout(rect=(0.0, 0.0, 1.0, top))
     fig.savefig(path, dpi=DPI, metadata=META)
     plt.close(fig)
+    print(f"wrote {path}")
+    return path
+
+
+# ---------------------------------------------------------------------------
+# figure 0 — the engine's standard decision trajectory, one per track
+# ---------------------------------------------------------------------------
+def figure_trajectory(study: Path, contract: dict, track: str, out: Path) -> Path:
+    """The ledger as the engine draws it: ten runs, no keeps, one crash, two stars.
+
+    `tutorial-spec.md` asks for one of these per track in the journey section. It
+    is worth having beside `reach_vs_budget` because it plots RUN ORDER rather
+    than budget, so the E0008 crash — which has no metric and therefore no place
+    on a budget axis — appears on the rug where a reader can see it.
+    """
+    metric = contract["tracks"][track]["metric"]
+    path = klein_figures.plot_decision_trajectory(
+        workflow.load_manifests(study),
+        study,
+        track=track,
+        metric_goal=metric["goal"],
+        metric_name=metric["name"],
+        minimum_delta=float(metric["minimum_delta"]),
+        name=f"plot_decision_trajectory__{track}",
+    )
+    # The engine helper always writes into <study>/figures. When --out points
+    # elsewhere (klein verify re-renders into a temp dir and compares bytes),
+    # copy across rather than refuse: the helper's write is deterministic.
+    if path.parent != out:
+        out.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, out / path.name)
+        path = out / path.name
     print(f"wrote {path}")
     return path
 
@@ -345,6 +383,8 @@ def main() -> int:
     for row in read_tsv(study / "aux_metrics.tsv"):
         aux.setdefault(row["experiment"], {})[row["metric"]] = row["value"]
 
+    for track in ("n_small", "n_large"):
+        figure_trajectory(study, contract, track, out)
     figure_reach(contract, results, aux, out)
     figure_object(study, results, out)
     figure_checker(study, results, aux, out)
