@@ -180,6 +180,7 @@
       "evidence": [],
       "numbers": [
         "ci_high",
+        "ci_level",
         "ci_low",
         "ci_width"
       ],
@@ -247,6 +248,13 @@
       "note": "95% percentile bootstrap upper bound for K (E0006)",
       "precision": 6,
       "value": 603.704762
+    },
+    "ci_level": {
+      "art": "contract",
+      "claim": "C3",
+      "note": "the interval's nominal level in per cent (study.yaml:simulation.ci_level 0.95)",
+      "precision": 0,
+      "value": 95
     },
     "ci_low": {
       "art": "boot",
