@@ -6,7 +6,7 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
-## [2.0.0] — 2026-09-XX
+## [2.0.0] — 2026-09-03
 
 **Process-verifiable research for AI for Science.** Klein 1.x ran a disciplined
 experiment loop; 2.0 makes the whole study auditable by a stranger with no model in
