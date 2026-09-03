@@ -177,7 +177,8 @@
       "evidence": [],
       "numbers": [
         "hubble_k_9group",
-        "hubble_pe_9group"
+        "hubble_pe_9group",
+        "textbook_500"
       ],
       "strength": "exploratory"
     },
@@ -625,6 +626,13 @@
       "note": "mean implied absolute magnitude of the sealed block under this study's K (E0011)",
       "precision": 6,
       "value": -15.524998
+    },
+    "textbook_500": {
+      "art": "groups",
+      "claim": "C18",
+      "note": "the value Hubble ADOPTED as an intermediate; neither published solution",
+      "precision": 0,
+      "value": 500
     },
     "virgo_influence": {
       "art": "aux",
