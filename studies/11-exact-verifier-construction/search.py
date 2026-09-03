@@ -12,7 +12,7 @@ it thinks that object is worth, and the declared verifier decides.
 
   MODE = "controls"  -> run the frozen control battery against verify.py and
                         hand the notary the known-valid object (E0001)
-  MODE = "search"    -> run the iterated local search at BUDGET (E0002-E0007,
+  MODE = "overclaim"    -> run the iterated local search at BUDGET (E0002-E0007,
                         E0009-E0010)
   MODE = "overclaim" -> search, then report OVERCLAIM_BY more points than the
                         object actually has (E0008, on purpose)
@@ -45,10 +45,10 @@ from lib.nothree import (  # noqa: E402
 # frontier is seeded at the proven maximum), so without a cell label the surface
 # would return to the previous candidate's exact configuration and `run-one`
 # would rightly refuse the next one as an unchanged re-execution.
-CELL = "unassigned"        # the cell this candidate measures
-MODE = "search"            # controls | search | overclaim
+CELL = "overclaim-by-one"        # the cell this candidate measures
+MODE = "overclaim"            # controls | search | overclaim
 BUDGET = "small"           # small | medium | large — a rung of the frozen ladder
-OVERCLAIM_BY = 0           # points to add to the SEARCH's self-report, not to the object
+OVERCLAIM_BY = 1           # points to add to the SEARCH's self-report, not to the object
 # --------------------------------------------------------------------------
 
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
