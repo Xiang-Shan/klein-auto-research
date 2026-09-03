@@ -58,7 +58,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "control_objective"
+      ],
       "strength": "exploratory"
     },
     "C4": {
@@ -151,6 +153,13 @@
       "note": "the smallest rung of the registered evaluation-budget ladder, in addability tests",
       "precision": 0,
       "value": 20000
+    },
+    "control_objective": {
+      "art": "results",
+      "claim": "C3",
+      "note": "E0001: the Erdos parabola set, scored by the notary's own verifier run at the value its theorem predicts",
+      "precision": 0,
+      "value": 11
     },
     "grid_large": {
       "art": "aux",
