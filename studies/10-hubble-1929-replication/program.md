@@ -482,3 +482,31 @@ ordering changed. It was deleted before the real run, so the bytes the notary
 hashes are the sealed run's own. Recorded because a reader building a sealed
 cell of their own will hit it: *a rehearsal that spends nothing can still leave
 something behind.*
+
+**2026-09-03 — the sealed dry-run earned its keep a SECOND time, on a different
+track.** `klein run-one --track estimate --final-test --dry-run` completed
+cleanly but printed
+
+    k_origin_rescaled: 2567.469343268568
+    max_abs_gap_70:    2680.4959109684214
+
+where the registration expects both fits near 70. The cell had applied P7's
+single factor the wrong way round: `r / f` instead of `r * f`. Hubble's distances
+were too SMALL, so correcting the ladder MULTIPLIES them, which divides the slope
+— v = K r = (K/f)(f r). Dividing the distances instead sends the fits to ~2570.
+
+Note what the rehearsal did NOT do: it did not fail. Exit code 0, a well-formed
+printed block, a pinned table. Had this been the real run, P7 would have been
+recorded `refuted` on `max_abs_gap_70` = 2680.5 > 15, the estimate track's one
+access would have been spent, and the study would have published a refutation of
+a prediction it had never actually tested. **A sealed run can be wrong without
+crashing, and reading the rehearsal's numbers — not just its exit code — is what
+catches that.**
+
+Fixed to `r * f`; the corrected rehearsal gives `k_origin_rescaled` 70.0 exactly
+(by construction of f) and `k_free_rescaled` 74.990073, which is the value
+`scouting_ledger.md` already recorded as arithmetically implied by the scouted
+anchors. The registered rule and tolerance are unchanged: the cell now
+implements the registration it always carried, and "rescaling by f" was only
+ever readable as the multiplication that sends `k_origin` to 70 — the other
+reading makes the prediction absurd.
