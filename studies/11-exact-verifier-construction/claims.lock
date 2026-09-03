@@ -45,7 +45,8 @@
       "evidence": [],
       "numbers": [
         "large_200k",
-        "large_20k"
+        "large_20k",
+        "large_2M"
       ],
       "strength": "exploratory"
     },
@@ -175,6 +176,13 @@
       "note": "E0005: n = 31 at the smallest budget",
       "precision": 0,
       "value": 50
+    },
+    "large_2M": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0007: n = 31 at the largest budget, the cell that decided P2",
+      "precision": 0,
+      "value": 54
     },
     "small_200k": {
       "art": "results",
