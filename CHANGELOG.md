@@ -86,7 +86,11 @@ re-open a closed study, start a new one and cite the old one's claims.
   written through another platform's PNG encoder passes (macOS and Linux link
   different zlibs); a pixel difference fails on the platform family that rendered
   the figures and is a `[WARN]` naming both platforms elsewhere (a computed curve
-  can move a pixel between arm64 and x86_64 in its last floating-point bits).
+  can move a pixel between arm64 and x86_64 in its last floating-point bits). The
+  check leaves `figures/` exactly as it found it: a script that also writes into the
+  study's own figures directory despite `--out` (the engine's trajectory plotter
+  does, until 2.1) has those files judged like the rest and restored, and the
+  receipt names them.
 - **Metrology** (`references/consult-protocol.md` Phase 0): `klein noise-floor
   --recipe {seed-sweep, split-lottery, paired-bootstrap} --estimand {fit-noise,
   marginal-resplit, paired-comparison}` prints the contract block, the schema-3 floor

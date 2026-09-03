@@ -1463,6 +1463,8 @@ def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
                 "mechanical; the referee re-renders by hand until then",
             )
         ]
+    committed_dir = study_dir / "figures"
+    before = _figures_snapshot(committed_dir)
     with tempfile.TemporaryDirectory(prefix="klein-figures-") as temporary:
         out = Path(temporary)
         try:
@@ -1482,7 +1484,13 @@ def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
                 cwd=str(repo_root_for(study_dir)) if _in_repo(study_dir) else str(study_dir),
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
+            _restore_figures(committed_dir, before)
             return [Check("figure re-render", True, f"[WARN] could not run it: {exc}")]
+        # A script may write some figures into the study's own figures/ despite
+        # --out (the engine's trajectory plotter did, until 2.1). verify leaves the
+        # tree as it found it: every in-place rewrite is moved into the temp dir
+        # and judged like any other re-render, and the committed bytes come back.
+        in_place = _collect_in_place_rewrites(committed_dir, before, out)
         if result.returncode != 0:
             tail = (result.stderr or result.stdout).strip().splitlines()[-1:] or ["(no output)"]
             return [
@@ -1492,7 +1500,49 @@ def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
                     f"[WARN] figures/make_figures.py exited {result.returncode}: {tail[0]}",
                 )
             ]
-        return [_compare_figures(study_dir, out)]
+        return [_compare_figures(study_dir, out, in_place=in_place)]
+
+
+def _figures_snapshot(committed_dir: Path) -> dict[Path, bytes]:
+    """The bytes of every file under the study's figures/ before the script runs."""
+    if not committed_dir.is_dir():
+        return {}
+    return {path: path.read_bytes() for path in sorted(committed_dir.rglob("*")) if path.is_file()}
+
+
+def _restore_figures(committed_dir: Path, before: Mapping[Path, bytes]) -> list[str]:
+    """Put figures/ back exactly as it was; return the files the script had changed."""
+    changed: list[str] = []
+    if committed_dir.is_dir():
+        for path in sorted(committed_dir.rglob("*")):
+            if path.is_file() and path not in before:
+                changed.append(path.relative_to(committed_dir).as_posix())
+                path.unlink()
+    for path, payload in before.items():
+        if not path.is_file() or path.read_bytes() != payload:
+            changed.append(path.relative_to(committed_dir).as_posix())
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(payload)
+    return sorted(set(changed))
+
+
+def _collect_in_place_rewrites(committed_dir: Path, before: Mapping[Path, bytes], out: Path) -> list[str]:
+    """Move every figure the script wrote into figures/ over to the temp dir, then restore."""
+    moved: list[str] = []
+    if committed_dir.is_dir():
+        for path in sorted(committed_dir.rglob("*")):
+            if not path.is_file():
+                continue
+            payload = path.read_bytes()
+            if path in before and before[path] == payload:
+                continue
+            rel = path.relative_to(committed_dir)
+            target = out / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            moved.append(rel.as_posix())
+    _restore_figures(committed_dir, before)
+    return moved
 
 
 def _in_repo(study_dir: Path) -> bool:
@@ -1553,7 +1603,7 @@ def _pixels_identical(committed: Path, rendered: Path) -> bool | None:
         return None
 
 
-def _compare_figures(study_dir: Path, rendered: Path) -> Check:
+def _compare_figures(study_dir: Path, rendered: Path, *, in_place: Sequence[str] = ()) -> Check:
     """Compare each re-rendered figure against the committed one.
 
     Byte identity is the cheap proof and the common case on the machine that
@@ -1567,6 +1617,17 @@ def _compare_figures(study_dir: Path, rendered: Path) -> Check:
     their last bits and a curve can move by a pixel — the referee re-renders
     where the law can be enforced.
     """
+    check = _figure_verdict(study_dir, rendered)
+    if in_place:
+        note = (
+            f" (note: the script also wrote {len(in_place)} file(s) into figures/ in place "
+            f"despite --out — judged like the rest and restored: {', '.join(in_place)})"
+        )
+        check = Check(check.name, check.ok, check.message + note)
+    return check
+
+
+def _figure_verdict(study_dir: Path, rendered: Path) -> Check:
     produced = sorted(path for path in rendered.rglob("*") if path.is_file())
     if not produced:
         return Check("figure re-render", True, "[WARN] the script produced no files")

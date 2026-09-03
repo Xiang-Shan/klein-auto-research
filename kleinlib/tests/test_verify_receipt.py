@@ -489,6 +489,71 @@ def test_different_pixels_on_another_cpu_family_warn_and_name_both(ready_study_v
     assert "0 of 1 figure(s) re-render identically here" in check.message
 
 
+IN_PLACE_RENDERER = '''\
+import argparse, pathlib
+p = argparse.ArgumentParser()
+p.add_argument("--study", required=True)
+p.add_argument("--out", required=True)
+a = p.parse_args()
+out = pathlib.Path(a.out)
+out.mkdir(parents=True, exist_ok=True)
+(out / "exhibit.png").write_bytes({payload!r})
+# the engine's trajectory plotter wrote into <study>/figures regardless of --out (until 2.1)
+(pathlib.Path(a.study) / "figures" / "trajectory.png").write_bytes({in_place!r})
+if {stray!r}:
+    (pathlib.Path(a.study) / "figures" / "stray.txt").write_bytes(b"left behind")
+'''
+
+
+def _in_place_renderer(study: Path, payload: bytes, in_place: bytes, *, stray: bool = False) -> None:
+    figures = study / "figures"
+    figures.mkdir(exist_ok=True)
+    (figures / "make_figures.py").write_text(
+        IN_PLACE_RENDERER.format(payload=payload, in_place=in_place, stray=stray), encoding="utf-8"
+    )
+
+
+def test_an_in_place_rewrite_with_the_same_bytes_is_invisible(ready_study_v3) -> None:
+    repo, study = ready_study_v3
+    _in_place_renderer(study, b"exhibit bytes", b"trajectory bytes")
+    (study / "figures" / "exhibit.png").write_bytes(b"exhibit bytes")
+    (study / "figures" / "trajectory.png").write_bytes(b"trajectory bytes")
+    commit_all(repo, "figures, one of them written in place by the script")
+    check = _named(verify_study(study, receipt=False), "figure re-render")[0]
+    assert check.ok is True
+    assert "1 figure(s) re-render byte-identically" in check.message
+    assert "in place" not in check.message
+    assert (study / "figures" / "trajectory.png").read_bytes() == b"trajectory bytes"
+
+
+def test_a_stray_file_the_script_leaves_in_figures_is_named_and_removed(ready_study_v3) -> None:
+    repo, study = ready_study_v3
+    _in_place_renderer(study, b"exhibit bytes", b"trajectory bytes", stray=True)
+    (study / "figures" / "exhibit.png").write_bytes(b"exhibit bytes")
+    (study / "figures" / "trajectory.png").write_bytes(b"trajectory bytes")
+    commit_all(repo, "figures")
+    check = _named(verify_study(study, receipt=False), "figure re-render")[0]
+    assert check.ok is True
+    assert "[WARN] re-rendered but never committed: stray.txt" in check.message
+    assert "wrote 1 file(s) into figures/ in place" in check.message
+    assert not (study / "figures" / "stray.txt").exists()
+
+
+def test_an_in_place_rewrite_that_drifts_fails_and_is_restored(ready_study_v3, monkeypatch) -> None:
+    repo, study = ready_study_v3
+    _in_place_renderer(study, b"exhibit bytes", b"today's trajectory")
+    (study / "figures" / "exhibit.png").write_bytes(b"exhibit bytes")
+    (study / "figures" / "trajectory.png").write_bytes(b"yesterday's trajectory")
+    commit_all(repo, "figures whose in-place one drifted")
+    monkeypatch.setattr(checks, "_render_platform", lambda _study: None)
+    check = _named(verify_study(study, receipt=False), "figure re-render")[0]
+    assert check.ok is False
+    assert "trajectory.png" in check.message
+    # verify is read-only: the committed bytes are back, the stray file is gone
+    assert (study / "figures" / "trajectory.png").read_bytes() == b"yesterday's trajectory"
+    assert not (study / "figures" / "stray.txt").exists()
+
+
 def test_render_platform_reads_the_earliest_manifest_fingerprint(tmp_path: Path) -> None:
     study = tmp_path / "study"
     (study / "runs" / "E0002").mkdir(parents=True)
