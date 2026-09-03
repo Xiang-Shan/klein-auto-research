@@ -251,7 +251,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "k_inverse"
+      ],
       "strength": "exploratory"
     }
   },
@@ -359,6 +361,13 @@
       "note": "free-intercept OLS slope, 24 objects (E0002)",
       "precision": 6,
       "value": 454.158441
+    },
+    "k_inverse": {
+      "art": "invfwd",
+      "claim": "C9",
+      "note": "K from regressing r on v and inverting (E0007)",
+      "precision": 6,
+      "value": 728.366015
     },
     "k_origin": {
       "art": "fits",
