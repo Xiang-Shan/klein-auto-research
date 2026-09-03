@@ -1,0 +1,106 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1855,
+      "committed": true,
+      "sha256": "1aaabbb8b0a3a23809b5e2246c77ab9198bb13487b1f14f2b294726d150ca72f"
+    },
+    "models/best_primary_E0003_0.87139_f322ed32c8bb.joblib": {
+      "availability": "local",
+      "bytes": 226272,
+      "committed": false,
+      "sha256": "7f505c18211241de729db3766d1815392c0462c15f0cf63b7b103e3d35aab443"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 703,
+      "committed": true,
+      "sha256": "ea76bf439db1ef2b794186fcf3257ac6250823b331dcd6db97cdec7b11eda4dd"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 677,
+      "committed": true,
+      "sha256": "6cc8c2dca9929fbfafa6cd9b6ee30c27cf3df8ba323fd9ba8aea1d8b585c9423"
+    }
+  },
+  "base_commit": "180912d40604e25f99d0561e8ec33420163c9b0c",
+  "candidate_commit": "061a079ab2b901f421af60f904ee744cfb8bf7cb",
+  "code_patch_hash": "f121a261d52567dc5295196b85a488d6ee5c3cdae198c31de677e3c71672396f",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 0.835785 with minimum_delta=0.00745212",
+  "description": "E0003: a boosted tree told none of the true terms \u2014 can it beat the hand-specified interaction rung it was never shown?; frontier improvement over 0.835785 with minimum_delta=0.00745212",
+  "disposition": "keep",
+  "ended_at": "2026-09-03T05:29:06.163058Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "20e5ea3a0d642ffb7053d546967e64dc674f69fe62f2eed4f06ed841756f736d",
+    "split_partition": "f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122"
+  },
+  "incumbent": "E0002",
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "bayes_auc": 0.884116,
+    "delta_in_floors": 4.7779,
+    "delta_vs_reference": 0.035605,
+    "gap_in_floors": 1.7077,
+    "gap_to_ideal": 0.012726,
+    "primary_metric": 0.87139,
+    "reference_auc": 0.835785,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.6,
+    "train_rows": 12000.0,
+    "training_seconds": 0.6,
+    "val_best_threshold": 0.32,
+    "val_brier": 0.109337,
+    "val_f1_at_best": 0.6734,
+    "val_lift_top10": 3.7033,
+    "val_logloss": 0.355165,
+    "val_pr_auc": 0.752535,
+    "val_rows": 4000.0,
+    "wall_seconds": 0.647123
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P3": {
+      "explanation": "delta_in_floors 4.7779 >= 1 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P3"
+  ],
+  "primary_metric": 0.87139,
+  "schema_version": 3,
+  "started_at": "2026-09-03T05:29:04.770509Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T05:29:06.164269Z",
+    "status": "pending"
+  },
+  "wall_seconds": 1.3924650410190225
+}

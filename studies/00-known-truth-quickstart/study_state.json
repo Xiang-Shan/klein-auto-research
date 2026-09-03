@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 2,
+  "last_experiment": 3,
   "overrides": [],
   "phase_acknowledgements": {},
   "predictions": {
@@ -111,6 +111,26 @@
       "recorded_at": "2026-09-03T05:28:53.530256Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P3": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "delta_in_floors 4.7779 >= 1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "delta_in_floors 4.7779 >= 1 \u2192 supported",
+          "recorded_at": "2026-09-03T05:29:06.163473Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:29:06.163473Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -140,5 +160,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T05:28:53.531426Z"
+  "updated_at": "2026-09-03T05:29:06.164691Z"
 }
