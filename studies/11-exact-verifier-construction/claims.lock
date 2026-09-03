@@ -99,15 +99,23 @@
       "strength": "confirmed"
     },
     "C4": {
-      "claim": "RQ1 | n_small | supported | confirmed | procedural-verdict | E0004, E0009 | the development lane and the sealed lane disagree about whether this search reaches 22, and they differ only in the seed: `search_seed` 20260903 plateaued at 21 from evaluation 152572 onward, `search_seed` 20260917 reached 22 at evaluation 1612132. Two seeds, one success \u2014 a difference, not a rate |",
-      "class": null,
+      "claim": "The development lane and the sealed lane of the smaller instance differ only in the seed block and disagree about whether this search reaches the proven maximum: 21 points, found at evaluation 152572 and never improved, against 22 found at evaluation 1612132, both at the same budget of 2000000 addability tests",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0004",
+        "E0009",
+        "P1",
+        "P6"
+      ],
       "numbers": [
         "best_at_dev",
-        "best_at_sealed"
+        "best_at_sealed",
+        "budget_large",
+        "small_200k",
+        "small_sealed"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C5": {
       "claim": "(mechanism-interpretation, exploratory)* A single run of a randomized",
