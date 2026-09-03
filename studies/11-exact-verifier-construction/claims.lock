@@ -15,6 +15,10 @@
     "results": {
       "path": "results.tsv",
       "sha256": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757"
+    },
+    "solution": {
+      "path": "models/E0009/solution.json",
+      "sha256": "1ef97ed58056c312116ad6901f78f9c1bacadc1f4bde6fe785a15c3025d3c486"
     }
   },
   "claims": {
