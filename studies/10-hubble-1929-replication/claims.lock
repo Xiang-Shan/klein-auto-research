@@ -168,7 +168,8 @@
       "numbers": [
         "coords_available",
         "coords_required",
-        "groups_reconstructed"
+        "groups_reconstructed",
+        "groups_required"
       ],
       "strength": "exploratory"
     },
@@ -263,6 +264,13 @@
       "note": "of Hubble's nine groups reconstructible from the paper (E0005)",
       "precision": 0,
       "value": 0
+    },
+    "groups_required": {
+      "art": "groups",
+      "claim": "C2",
+      "note": "groups in Hubble's second solution (E0005)",
+      "precision": 0,
+      "value": 9
     },
     "hubble_k_24": {
       "art": "fits",
