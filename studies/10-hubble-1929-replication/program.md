@@ -766,43 +766,48 @@ is answered first because it is the only one that touched a study artifact.
   Unlike N5, this one could be fixed at the source: `findings.md` is not a hashed gate
   artifact, so correcting it costs no re-record.
 
-## Open defect handed to the lead — `referee_report.md` fails the universality guard
+## Closed — the universality guard and the referee's execution path
 
-- **2026-09-03 — `scripts/tests/test_universality.py` now FAILS repo-wide, and I have
-  deliberately not fixed it.** The referee's round-2 report names the worktree it ran
-  the verifiers from:
+- **2026-09-03 — raised as an open defect, closed the same day by option 1: the referee
+  re-issued the line and Gate 3 was re-recorded.**
 
-  > `referee_report.md:73` — "All from the worktree
-  > `/Users/…/Auto_research/klein-auto-research/.claude/worktrees/agent-…`"
+  **What broke.** `scripts/tests/test_universality.py` failed repo-wide once the
+  referee's round-2 report entered the tree. Its "Mechanical verifiers run" heading
+  named the checkout the verifiers were run from as an `<absolute worktree path>`,
+  which trips three of the guard's forbidden patterns at once (absolute home path,
+  author username, workspace directory name). The failure was real and was introduced
+  by committing the report, not by anything the study measured.
 
-  which trips three of the guard's forbidden patterns (absolute home path, author
-  username, workspace directory name). The failure is real, is repo-wide, and was
-  introduced by committing the referee's report into the tree.
+  **What I did NOT do, and why it mattered.** I did not edit the report:
+  `referee_report.md` is hashed by the recorded Gate-3 record, so changing one
+  character breaks `klein verify`'s `gate artifact hashes: match`, and a referee's
+  report is the referee's testimony — the experimenter silently correcting it after the
+  verdict is the exact thing Gate 3 exists to prevent. I also did not exempt it in the
+  guard: the guard already carves out frozen evidence that legitimately embeds
+  execution-time paths, but *by extension* (`.json` / `.jsonl` / `.log`), which a
+  hash-recorded `.md` misses. Widening a universality check so that this study's own
+  file stops failing it is not a call the flagged study should make. So the defect was
+  handed to the lead with three options, ranked.
 
-  **Why I did not edit the file.** `referee_report.md` is hashed by the recorded
-  Gate-3 record (`study_state.json:gates.referee.artifacts.referee_report.md` =
-  `c87666aa78cd…`). Editing one character would break `klein verify`'s
-  `gate artifact hashes: match` and require re-recording a gate on a report whose
-  author is not me. A referee's report is the referee's testimony; the experimenter
-  editing it after the verdict is precisely the thing Gate 3 exists to prevent.
+  **How it closed.** The lead took option 1, the one that costs nothing and loses
+  nothing: **the referee re-issued that line with a repo-relative path**, naming the
+  worktree only as a relative checkout under `.claude/worktrees/` and saying plainly
+  that it exists only in the reviewing session. `Verdict:` and `Referee:` are unchanged
+  and every other byte of the report is unchanged; only the report's sha256 moved, from
+  `c87666aa78cd…` to `7b4610156dbd…`. **Gate 3 was then re-recorded** with a note
+  naming the reason, so the event trail carries the substitution rather than hiding it,
+  and `klein verify` returns to `gate artifact hashes: match` against the new digest.
+  The verdict on the record is still `PASS-WITH-NOTES`.
 
-  **Why I did not exempt it in the guard.** The guard's own docstring already carves
-  out FROZEN EVIDENCE — "ledgers legitimately embed author-machine paths captured at
-  execution time; rewriting them would break the append-only event chain" — and
-  excludes them *by extension* (`.json`/`.jsonl`/`.log`). `referee_report.md` is frozen
-  evidence by exactly that reasoning but is `.md`, so the extension rule misses it. An
-  exemption may well be the right fix, but widening a universality guard so that my own
-  study's file stops failing it is not a call I should make alone: the rule is never to
-  weaken a check to get past it.
+  **The lesson, which is small and general.** A referee reports *where* it ran the
+  verifiers, and that provenance is worth having — but "where" should be said in terms
+  that survive a clone. A repo-relative checkout path carries exactly the same audit
+  value as an absolute one and costs nothing; an absolute one silently makes a
+  hash-frozen artifact unportable. The same rule already governs every other normative
+  file in this repository; a referee report is normative text that happens to be
+  frozen, and it should be written that way from the start.
 
-  **Three options for the lead, in my order of preference:**
-  1. Ask the referee to re-issue the report with a repo-relative path ("from the study
-     worktree"), then re-record Gate 3 — the verdict and content are unchanged, and the
-     provenance survives without a machine-local string.
-  2. Add `referee_report.md` to the guard's frozen-evidence carve-out, with the
-     docstring extended to say why a hash-recorded `.md` belongs there — a deliberate
-     scope change to the guard, made by its owner rather than by a study it flagged.
-  3. Accept the failure and record it, if referee reports are meant to carry the exact
-     worktree for audit.
-
-  Everything else in the suite passes: **1193 passed, 10 skipped**, `ruff` clean.
+  This section originally quoted the offending line verbatim, which reproduced the
+  absolute path inside `program.md` and tripped the guard a second time from the
+  notebook itself. The quotation is elided above for that reason — the report itself
+  is the record of what was written, and it now carries the corrected form.

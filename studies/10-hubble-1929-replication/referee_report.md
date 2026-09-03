@@ -70,7 +70,7 @@ reward.
 
 ## Mechanical verifiers run (round 2, at HEAD `1d51bbf`)
 
-All from the worktree `/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0`, `KLEIN_OFFLINE=1`, `uv run --locked`.
+All from the study's worktree checkout (`.claude/worktrees/agent-a8f2d47a81f401ad0`, a path that exists only in the reviewing session), `KLEIN_OFFLINE=1`, `uv run --locked`.
 
 | Command | Result |
 |---|---|
