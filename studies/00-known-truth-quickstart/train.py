@@ -107,8 +107,8 @@ RECIPES = {
 }
 
 # --- the candidate: the whole per-experiment diff surface -------------------
-CANDIDATE = "logreg_interaction"  # E0002: hand the linear model the DGP's true x1*x2
-REFERENCE = "logreg_raw"          # the rung it claims to beat, refitted on the same rows
+CANDIDATE = "hgbt_default"        # E0003: a boosted tree, told none of the true terms
+REFERENCE = "logreg_interaction"  # the hand-specified rung it claims to beat
 
 
 def fit_recipe(name: str, X_fit: pd.DataFrame, y_fit: pd.Series):
