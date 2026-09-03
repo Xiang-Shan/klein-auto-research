@@ -211,12 +211,18 @@
       "strength": "exploratory"
     },
     "C18": {
-      "claim": "difference largely to four galaxies (E0005, `ref:hubble1929`).",
-      "class": null,
+      "claim": "The textbook value 500 is in neither published solution: the article adopts it as an intermediate between 465 with a probable error of 50 and 513 with a probable error of 60, after attributing their difference largely to four galaxies",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0005",
+        "art:groups",
+        "ref:hubble1929"
+      ],
       "numbers": [
+        "hubble_k_24",
         "hubble_k_9group",
+        "hubble_pe_24",
         "hubble_pe_9group",
         "textbook_500"
       ],
