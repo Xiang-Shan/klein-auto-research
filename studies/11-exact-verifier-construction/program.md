@@ -149,3 +149,32 @@ candidate commit stays resolvable.
 - 2026-09-03 — Decision: the consequence of that re-record is that **no keep is arithmetically possible on either track**. The best known value equals the pigeonhole bound, so `h = (ideal - incumbent) / minimum_delta = (22 - 22) / 1 = 0` on `n_small` and `(62 - 62) / 1 = 0` on `n_large`. A keep would have to beat a theorem. This is not a discovery made halfway through a losing phase — it is arithmetic the study can do before its first run, and it is what `klein headroom ack` is for. The door is acknowledged CLOSED on both tracks with a run-anyway branch: this study is not looking for an improvement, it is looking for an object that ATTAINS the known maximum and for a record of who certified it. Every run below is therefore a discard by construction, and `matched_external: true` — not a keep — is what "the search reached the best known value" looks like in this ledger.
 - 2026-09-03 — **ENGINE DEFECT (fixed, commit `ad87c0f`).** `klein preflight` looked for the literal `train.py` on disk instead of the entrypoint the contract declares, so every study whose kind is not `predict` failed its own preflight with `[FAIL] train.py: missing`. This study is the first `optimize` study, hence the first to hit it. Fixed in its own `engine:` commit by iterating `entrypoint.mutable` through `contract.mutable_surface`, which already returns `("train.py",)` for schema 2 and for any unreadable contract — so the `predict` path is unchanged — plus a regression test on the existing `optimize_study` fixture. Full suite: 1173 passed, 10 skipped, 1 deselected (`test_probe_device_respects_klein_device_override`, which needs the `deep` extra this study does not install).
 - 2026-09-03 — **Consult gate RE-RECORD (second).** The first phase's id changed from `search` to `adaptive-1`. Reason, and it is a mechanical one: `klein new` initializes `study_state.json:current_phase` from the SCAFFOLD's phase ids, so a consultant who renames the phases — which the consult protocol expects — leaves the state pointing at a phase the contract no longer has, and preflight refuses with "phases were renamed/removed after initialization; amend the contract to match the recorded state". Amending the contract is the remedy the engine names, and it is what was done. No rule, prediction, metric, budget or experiment cap changed; only the phase's id, and its description still says what the phase does. Reported to the lead as a rough edge rather than patched: re-pointing `current_phase` when no manifests exist would be a behaviour change, not a defect fix.
+
+### Phase adaptive-1 slate
+
+Scored after the headroom acknowledgement, so testability is judged against a bar that
+is known to be unreachable: on this study "testable" means *the cell decides something
+registered*, never *the cell might produce a keep*.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `controls`: run the twelve frozen invalid objects through the declared verifier and hand the notary the known-valid parabola set; decides P3 and anchors the checker at a value known in advance | 2 | 3 | 3 | 8 |
+| 2 | `n_small` ladder at 20 000 / 200 000 / 2 000 000 addability tests; the largest decides P1 | 2 | 3 | 3 | 8 |
+| 3 | `n_large` ladder at the same three budgets; the largest decides P2 | 2 | 3 | 3 | 8 |
+| 4 | `overclaim`: the searcher reports one more point than the object it wrote; evidence for P5 | 3 | 2 | 3 | 8 |
+| 5 | a second seed on `n_small` at the largest budget, to see whether reaching 2n was one lucky start | 1 | 3 | 2 | 6 |
+| 6 | a third instance between the two (say n = 19) to locate the reach boundary | 3 | 3 | 2 | 8 |
+
+Chosen, in order: 1 (nothing else is worth running until the judge has been audited
+under the notary), then 2, then 3, then 4. The order matters: the checker is
+established before it is trusted, the reach is measured on both instances before
+anything is said about it, and the disagreement cell runs LAST because it is the only
+cell expected to crash and a crash in the middle of a ladder would be ambiguous.
+
+Not chosen: **#5** scores 2 on information because the confirmation phase already
+spends a fresh seed block on exactly that question (P6, P7) and a development
+duplicate would spend a slot to learn it a phase early. **#6** is the best idea in the
+table and it is refused for one reason only: it needs a third track, and a track is
+declared at CONSULT with its own metric, bound and external incumbent — adding one
+after the gates would be adding a frontier after seeing results. It goes to the
+playbook queue and to findings §⑦ as the study's first recommendation.
