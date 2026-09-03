@@ -222,6 +222,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "estimate_over_modern",
         "max_gap_70",
         "modern_h0",
         "rescale_factor"
@@ -369,6 +370,13 @@
       "note": "coverage of the percentile interval on sealed seed block C (E0013)",
       "precision": 6,
       "value": 0.925
+    },
+    "estimate_over_modern": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "k_free / 70 (E0012)",
+      "precision": 6,
+      "value": 6.487978
     },
     "floor_max": {
       "art": "floor_sidecar",
