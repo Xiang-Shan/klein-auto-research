@@ -107,6 +107,22 @@ def test_load_partition_substitutes_development_and_says_so(
     assert len(eval_X) == len(load_partition("development", study_dir=study, echo=False)[1])
 
 
+def test_echo_false_silences_the_fingerprint_but_never_the_acknowledgement(
+    dryrun_study, capsys, monkeypatch
+) -> None:
+    """A registered cell prints its partition through the evaluator's
+    `split_fingerprint=` kwarg and passes `echo=False`. That must not silence the
+    dry-run acknowledgement: the notary reads its ABSENCE as "the entrypoint
+    ignored the flag" and fails the rehearsal (exit 3)."""
+    _, study = dryrun_study
+    monkeypatch.setenv("KLEIN_EVALUATION_KIND", "final_test")
+    monkeypatch.setenv("KLEIN_SEALED_DRYRUN", "1")
+    load_partition(study_dir=study, echo=False)
+    printed = capsys.readouterr().out
+    assert printed.strip() == "sealed_dryrun: 1"
+    assert "split_fingerprint" not in printed
+
+
 # ---------------------------------------------------------------------------
 # The rehearsal spends nothing
 # ---------------------------------------------------------------------------

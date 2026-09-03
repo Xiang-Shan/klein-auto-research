@@ -521,6 +521,13 @@ def load_partition(
         eval_X, eval_y = X_te, y_te
     if echo:
         print(f"{SPLIT_FINGERPRINT_KEY}: {split_fingerprint(fit_X, eval_X)}")
-        if dry_run:
-            print(f"{SEALED_DRYRUN_KEY}: 1")
+    # The dry-run acknowledgement is NOT part of ``echo``. ``echo=False`` means
+    # "I will print the fingerprint myself" — every evaluator takes a
+    # ``split_fingerprint=`` kwarg for exactly that — but this line has no other
+    # channel, and `klein run-one --final-test --dry-run` reads its ABSENCE as
+    # "the entrypoint ignored KLEIN_SEALED_DRYRUN and would have read the sealed
+    # rows" (exit 3). Silencing a safety acknowledgement must never be a side
+    # effect of tidying the printed block.
+    if dry_run:
+        print(f"{SEALED_DRYRUN_KEY}: 1")
     return fit_X, eval_X, fit_y, eval_y
