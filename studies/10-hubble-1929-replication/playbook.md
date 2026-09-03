@@ -14,7 +14,7 @@ therefore records the LATEST measurement of each track's summary scalar, not a w
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
 | reproduction | E0005 | `targets_outside_tolerance` 1 | four cells run; 1 of 5 declared targets reproduced (the identity anchor). E0002 K=423.94/454.16 vs 465; E0003 M_t off by 0.0712 on 3 rows; E0004/E0005 documented method gaps | 2026-09-03 |
-| estimate | — | — | floors measured (`sweep:mc_resolution`); no cell yet | — |
+| estimate | E0006 | `k_kms_per_mpc` 454.158441 | free-intercept OLS on the 24 objects; 95% percentile bootstrap [316.648582, 603.704762], 2000 resamples, seed block A | 2026-09-03 |
 | simulate | — | — | floor measured (`sweep:coverage_floor`, minimum_delta 0.0060663); no cell yet | — |
 
 ## Ruled out (evidence, not opinion)
@@ -22,6 +22,7 @@ therefore records the LATEST measurement of each track's summary scalar, not a w
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
 | reproducing K = 465 from a two-parameter fit | E0002 | nearest fit is 10.84 km/s/Mpc away; 465 came from a four-parameter model |
+| a Deming errors-in-variables fit | (declined, adaptive-3 slate #5) | needs the velocity/distance variance ratio, which the paper does not print — the estimate would be a function of an invented number |
 | reproducing K = 465 from the four-parameter model | E0004 | 0 of 24 per-object coordinates obtainable from the tables, the article, or any offline catalogue |
 | reproducing K = 513 from the nine groups | E0005 | the paper states the criterion but never lists the membership; 0 of 9 groups reconstructible |
 | Table 1's printed M_t at half the printed precision | E0003 | the formula is right (21/24 exact round-to-nearest) but the paper truncates 3 rows |
@@ -35,7 +36,7 @@ therefore records the LATEST measurement of each track's summary scalar, not a w
 | --- | --- | --- | --- |
 | ~~RQ1~~ | **settled** by E0002: neither fit reaches 465; nearest gap 10.84 | scouted | done (P1 supported) |
 | ~~RQ2~~ | **settled** by E0004+E0005: both gaps are missing INPUTS, exactly as the uninformed prior said | uninformed | done (P2, P3 inconclusive by their `inconclusive_if`) |
-| RQ3 | the 24 objects estimate K ≈ 450 with a wide interval | scouted centre, uninformed width | E0006 |
+| ~~RQ3~~ | **settled** by E0006: 454.158441 with a 95% interval of [316.6, 603.7] — width 287.1, far wider than Hubble's ±50 | scouted centre, uninformed width | done |
 | RQ4 | percentile bootstrap under-covers at n = 24 | uninformed | E0009, E0010, sealed E0013 (P6) |
 | RQ5 | the 1929-vs-today gap is a pure distance-scale error | scouted (arithmetically implied) | sealed E0012 (P7) |
 
