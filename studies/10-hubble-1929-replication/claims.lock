@@ -122,6 +122,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "floor_max",
         "floor_min"
       ],
       "strength": "exploratory"
@@ -353,6 +354,13 @@
       "note": "k_free / 70 (E0012)",
       "precision": 6,
       "value": 6.487978
+    },
+    "floor_max": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "highest coverage across the five Phase-0 floor blocks (sweep:coverage_floor)",
+      "precision": 6,
+      "value": 0.932
     },
     "floor_min": {
       "art": "floor_sidecar",
