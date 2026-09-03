@@ -304,6 +304,15 @@
       "sidecar": "sweeps/pair_anchor_splines.sidecar.tsv",
       "sidecar_sha256": "3e5ca9d917f497d247baee3a05b31dd50f3e7a58be72da8d69731534237a2d56"
     },
+    "pair_splines_hgbt": {
+      "registered_at": "2026-09-03T08:51:03.058385Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/pair_floors.py",
+      "script_sha256": "f55ab43e1655a7dd32ab3d4ead7451f53fadf14891765109814d5ef5ac1fdf65",
+      "sidecar": "sweeps/pair_splines_hgbt.sidecar.tsv",
+      "sidecar_sha256": "47e3d2fdb7d521e3030fd58eaf15f96ba2e4fe17d65e6bc3774a96ff23d79687"
+    },
     "paired_bootstrap": {
       "registered_at": "2026-09-03T08:22:48.704767Z",
       "rows_crash": 0,
@@ -332,5 +341,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:50:53.393073Z"
+  "updated_at": "2026-09-03T08:51:03.058554Z"
 }
