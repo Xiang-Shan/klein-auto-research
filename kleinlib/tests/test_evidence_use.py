@@ -363,3 +363,15 @@ def test_the_ledger_and_the_state_agree_on_what_refuted_means(ready_study_v3) ->
     contract = load_contract(study)
     state = load_state(study, contract)
     assert evidence_use(study, contract, state, []).refuted == ()
+
+
+def test_run_id_ranges_cite_every_id_they_span() -> None:
+    from kleinlib.evidence_use import _is_cited, expand_run_ranges
+
+    corpus = expand_run_ranges("21 parade transactions (E0003–E0023): 18 discard, 3 crash; also E0100-E0102 and E0200..E0201")
+    for token in ("E0003", "E0010", "E0023", "E0101", "E0201"):
+        assert _is_cited(token, corpus), token
+    assert not _is_cited("E0024", corpus)
+    # a reversed or absurdly wide "range" is not a citation
+    wide = expand_run_ranges("E0001–E9999 and E0050–E0040")
+    assert not _is_cited("E0500", wide) and not _is_cited("E0045", wide)

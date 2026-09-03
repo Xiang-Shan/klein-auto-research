@@ -100,6 +100,27 @@ class EvidenceUse:
         )
 
 
+_RUN_RANGE_RE = re.compile(r"\bE(\d{4,})\s*(?:[-\u2013\u2014]|\.\.)\s*E(\d{4,})\b")
+_RANGE_EXPANSION_CAP = 500
+
+
+def expand_run_ranges(text: str) -> str:
+    """Append every run id a range citation covers, so ``E0003–E0023`` cites all 21.
+
+    A study that writes "21 parade transactions (E0003–E0023)" has cited each of
+    those runs; the whole-token matcher would otherwise see only the two ends.
+    Ranges wider than :data:`_RANGE_EXPANSION_CAP` ids are left alone (a typo,
+    not a citation).
+    """
+    extra: list[str] = []
+    for match in _RUN_RANGE_RE.finditer(text):
+        lo, hi = int(match.group(1)), int(match.group(2))
+        width = len(match.group(1))
+        if lo < hi and hi - lo <= _RANGE_EXPANSION_CAP:
+            extra.extend(f"E{n:0{width}d}" for n in range(lo, hi + 1))
+    return text if not extra else text + "\n" + " ".join(extra)
+
+
 def _citation_text(study_dir: Path) -> str:
     parts: list[str] = []
     for name in CITATION_SOURCES:
@@ -109,7 +130,7 @@ def _citation_text(study_dir: Path) -> str:
                 parts.append(path.read_text(encoding="utf-8", errors="replace"))
             except OSError:  # pragma: no cover - defensive
                 continue
-    return "\n".join(parts)
+    return expand_run_ranges("\n".join(parts))
 
 
 def _is_cited(token: str, corpus: str) -> bool:
