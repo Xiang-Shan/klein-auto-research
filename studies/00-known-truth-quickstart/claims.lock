@@ -50,7 +50,8 @@
       "evidence": [],
       "numbers": [
         "boosted_delta_floors",
-        "interaction_delta_floors"
+        "interaction_delta_floors",
+        "sealed_delta_floors"
       ],
       "strength": "exploratory"
     },
@@ -172,6 +173,13 @@
       "note": "the sealed partition's own Bayes AUC, printed by E0005",
       "precision": 6,
       "value": 0.893469
+    },
+    "sealed_delta_floors": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0005 delta_in_floors over the same reference on the sealed rows",
+      "precision": 4,
+      "value": 4.619
     },
     "sealed_gap_floors": {
       "art": "aux",
