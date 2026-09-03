@@ -238,3 +238,38 @@ nowhere; pin that enumeration as the cell's table; print the availability count
 the `inconclusive_if` reads; and count the target as NOT reproduced in
 `targets_outside_tolerance`, so declining to try can never lower the metric.
 Under no circumstance does a cell invent coordinates or a grouping.
+
+
+### Phase adaptive-2 outcome
+
+Four cells, all `measured`, and the phase's headline is that **the paper's own
+headline number does not come back out of the paper's own table**, for two
+different reasons that a reader should not confuse:
+
+| Cell | Target | `targets_outside_tolerance` | Verdict |
+|---|---|---|---|
+| E0002 | K = 465 ± 10 from a two-parameter fit | 1 | **P1 supported** — `k_origin` 423.937323, `k_free` 454.158441, nearest gap 10.841559 |
+| E0003 | Table 1's printed `M_t`, ±0.06 mag, all 24 | 1 | **P9 refuted** — max deviation 0.071213 on 3 rows (see the Decision above) |
+| E0004 | K = 465 ± 50 from the four-parameter model | 1 | **P2 inconclusive** — `coords_available` 0 of 24 |
+| E0005 | K = 513 ± 60 from the nine groups | 1 | **P3 inconclusive** — `groups_reconstructed` 0 of 9 |
+
+Two observations worth carrying into synthesis, neither of them a registered
+prediction:
+
+- **E0002 reproduced Hubble's UNCERTAINTY almost exactly.** The analytic
+  probable error of the free-intercept slope is 50.747428 km/s/Mpc against the
+  ±50 the paper quotes. That was slate candidate #5, which I said would ride
+  along in the printed keys rather than spend a cell; it did. It is a striking
+  agreement given that the fit reproducing it is not the fit Hubble ran, and
+  findings will say so rather than claim more.
+- **E0005 found where the textbook 500 comes from, and it is neither published
+  solution.** The article adopts 500 as an intermediate value after attributing
+  the 465-vs-513 difference largely to the four Virgo-cluster nebulae
+  (K = 500, A = 277°, D = +36°, V₀ = 280 km/s). P3 was registered on the
+  hypothesis that 500 traces to the nine-group 513; the cell could not test that
+  by re-solving, but the article text settles the provenance question directly.
+  P3 stays `inconclusive` — the registered rule is about re-solving, and prose
+  does not adjudicate a prediction.
+
+**Phase adaptive-2 acknowledged** with `klein gate record phase --phase
+adaptive-2 --acknowledged-by lead-agent` (ack delegated by the lead).
