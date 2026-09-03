@@ -249,7 +249,7 @@ def test_simulation_custom_metric_gets_direction_and_na_chance(tmp_path):
     checks = {c.name: c for c in audit_split(prepared, target="claims", study_dir=study)}
     assert checks["split-reproduces"].ok
     direction = checks["metric-direction[primary]"]
-    assert direction.ok and "custom simulation metric" in direction.message
+    assert direction.ok and "custom metric of the scalar family" in direction.message
     chance = checks["chance-level[primary]"]
     assert chance.ok and "no bundled chance scorer" in chance.message
 
@@ -268,3 +268,29 @@ def test_simulation_kind_none_reports_na_and_exits_zero(tmp_path, capsys):
     out = capsys.readouterr().out
     assert "[FAIL]" not in out
     assert "N/A — split kind 'none'" in out
+
+
+def test_schema3_scalar_custom_metric_is_accepted(tmp_path):
+    """Regression: a schema-3 `task_type: scalar` study with a CUSTOM metric name.
+
+    `task_type` spells the scalar metric family `scalar` in schema 3 and
+    `simulation` in schema 2 (`kleinlib.contract.task_family` owns the alias).
+    This check used to test only the retired spelling, so every schema-3
+    registered track — whose metrics are custom by construction — failed
+    `metric-direction` and the DATA gate reported a BLOCKER, while the
+    byte-identical schema-2 contract passed.
+    """
+    yaml_text = (
+        STUDY_YAML.replace("schema_version: 2", "schema_version: 3")
+        .replace("task_type: classification", "task_type: scalar")
+        .replace(
+            "metric: {name: val_auc, goal: higher, minimum_delta: 0.002}",
+            "metric: {name: targets_outside_tolerance, goal: lower, minimum_delta: 1}",
+        )
+        .replace("kind: stratified", "kind: none")
+    )
+    prepared, study = _write_fixture(tmp_path, _make_counts_frame(n=30), yaml_text)
+    checks = {c.name: c for c in audit_split(prepared, target="claims", study_dir=study)}
+    direction = checks["metric-direction[primary]"]
+    assert direction.ok, direction.message
+    assert "custom metric of the scalar family" in direction.message
