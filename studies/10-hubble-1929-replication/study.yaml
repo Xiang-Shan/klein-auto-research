@@ -1,0 +1,281 @@
+schema_version: 3
+study_id: "10-hubble-1929-replication"
+goal: "Does Edwin Hubble's 1929 velocity-distance constant reproduce from the two tables his paper printed, and what do those 24 objects actually estimate?"
+domain: "astronomy"
+target: "v_kms"
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "replicate"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "generic"            # generic | ml-research | math | insurance
+audience: "a scientist or data-literate reader who has not read the 1929 paper"
+
+task_type: "scalar"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "least-squares"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+#
+# `lib/hubble.py` is STABLE library code, written once and complete before
+# E0001: block loading + fingerprints, the four estimators, the bootstrap and
+# jackknife, the distance modulus, the DGP, the table writer. It is NOT in the
+# mutable surface: each cell composes those primitives in analyze.py and prints
+# its block, so the per-experiment diff is a measurement, never a new method.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "analyze.py"]
+  mutable: ["analyze.py"]
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+# All three tracks are `registered`: this study measures, it does not climb.
+# A cell's disposition is `measured` or `crash`; there is no incumbent, no
+# headroom audit and no stop rule (references/registered-mode.md).
+tracks:
+
+  # ---- reproduction: does the paper's own number come back out? ------------
+  reproduction:
+    kind: replicate
+    mode: registered
+    metric:
+      name: "targets_outside_tolerance"
+      goal: "lower"
+      minimum_delta: 1
+      exactness: exact
+      exactness_note: >-
+        An integer count of pre-declared published targets this cell failed to
+        reproduce within the tolerance registered for it; the objective's
+        resolution is exactly 1 target. Every cell of this track is a
+        closed-form computation over a fixed printed table, so a k-seed floor
+        would measure nothing but floating-point dust. A target whose required
+        INPUTS are unavailable counts as not reproduced and is flagged
+        `unavailable` in the cell's pinned table, so the count can never be
+        lowered by declining to try.
+    guardrails:
+      wall_seconds: {max: 30}
+    confirmation:
+      require: [sealed, replicate]
+
+  # ---- estimate: what do the 24 objects actually say K is? ----------------
+  estimate:
+    kind: estimate
+    mode: registered
+    metric:
+      name: "k_kms_per_mpc"
+      goal: "lower"
+      minimum_delta: 0.000001
+      exactness: exact
+      exactness_note: >-
+        The ledger's summary scalar on this track is a point estimate of K in
+        km/s/Mpc — a closed-form least-squares slope over the same fixed 24
+        rows every time — so it is deterministic to floating point and its
+        resolution is 1e-6 km/s/Mpc (far coarser than double precision, and
+        the tolerance a stranger's re-run is held to by `klein replicate`).
+        The UNCERTAINTY of K is not a floor: it is this track's measurement,
+        reported as a bootstrap interval. The Monte-Carlo resolution of that
+        interval — the part of the printed block that does move with a seed —
+        is measured separately at Phase 0 and recorded below as `fit_noise`,
+        which is provenance and is never a bar. `goal: lower` is inert in
+        registered mode (there is no incumbent to beat); it is declared only
+        because the contract requires a direction.
+      # fit_noise: measured at Phase 0 by sweep:mc_resolution — the spread of the
+      # bootstrap-derived printed keys across independent master seeds. Pasted in
+      # by `klein noise-floor` after the sweep; NEVER a keep bar.
+    guardrails:
+      wall_seconds: {max: 30}
+    confirmation:
+      require: [sealed, replicate]
+
+  # ---- simulate: does the interval machinery work at n = 24? --------------
+  simulate:
+    kind: simulate
+    mode: registered
+    metric:
+      name: "coverage"
+      goal: "higher"
+      minimum_delta: 0.02      # provisional; replaced by the Phase-0 measured floor
+      exactness: stochastic
+      # noise_floor: measured at Phase 0 by sweep:coverage_floor (five independent
+      # simulation seed blocks, none of them A, B or C) and pasted in by
+      # `klein noise-floor`; the consult gate is re-recorded with the reason.
+    guardrails:
+      wall_seconds: {max: 45}
+    confirmation:
+      require: [sealed, replicate]
+
+data:
+  source: "bundled:hubble1929/hubble1929_table1.csv (Table 2 via a second resolve of bundled:hubble1929/hubble1929_table2.csv in prepare.py, both digests on the data card)"
+  modality: "tabular"
+  prepared_path: "data/prepared/prepared.csv"
+  # Licence: public domain (Hubble 1929, PNAS 15(3):168-173); see
+  # datasets/hubble1929/DATA_LICENSE, cited on the data card.
+  split:
+    kind: none
+    seed: 42                 # inert: nothing in this study partitions rows at random
+    # kind: none because the partition is NOT a draw. It is the paper's own two
+    # tables: Table 1 (24 objects with individually estimated distances) is the
+    # development block; Table 2 (22 nebulae) is the sealed block. `prepare.py`
+    # writes one frame with a `block` column taken solely from which source file
+    # each row came from — no seed, no shuffle, no rule an argument can change.
+    # `lib/hubble.py:load_block()` resolves KLEIN_EVALUATION_KIND, refuses the
+    # sealed block outside a --final-test run, honours KLEIN_SEALED_DRYRUN, and
+    # prints the `split_fingerprint:` line. Because `contract_split` cannot
+    # realize partitions for kind `none`, the DATA gate registers no realized
+    # fingerprints and `run-one` prints `note: partition not verified` on every
+    # cell: DISCLOSED, not hidden. The two block fingerprints are recorded on the
+    # data card so a stranger recomputes them from the contract and the bytes.
+
+# The sealed block is a PROSPECTIVE ANALYSIS LOCK, not blindness. The driving
+# agent read all 22 Table-2 rows before this contract existed (scouting_ledger.md
+# §0, S6). What is locked is the procedure, the statistic and the tolerance,
+# hashed here at the CONSULT gate and spent exactly once. "Blind" is a banned
+# word in the generic profile for exactly this reason.
+sealed_lock:
+  block: "table2"
+  rows: 22
+  statistic: "mean over Table 2's rows with v_kms > 0 of M = m_t - 5*log10(v_kms / K_lane) - 25"
+  k_lane_source: "the free-intercept OLS slope k_free reproduced at E0002 on Table 1, read from tables/two_parameter_fits.tsv"
+  target: -15.3
+  tolerance: 0.3
+  target_source: "Hubble (1929) Table 2's own printed mean absolute magnitude, -15.3 mag"
+  columns_used: ["v_kms", "m_t"]
+  columns_forbidden: ["r_mpc", "vs_kms", "M_t"]
+  forbidden_reason: >-
+    Table 2's r_mpc is not an independent luminosity distance: it was computed
+    FROM the velocity with Hubble's adopted K ~ 500, and vs_kms and r_mpc are
+    tied to v_kms by an exact identity. A column derived from K can never be
+    confirmation evidence about K. M_t is the printed answer itself.
+
+# The declared generating process for the `simulate` track. The full DGP card
+# (what "recover" means numerically, and the in-silico scope sentence every
+# known-dgp-teaching claim carries) is the appendix of data_card.md.
+simulation:
+  model: "v_i = k_true * r_i + eps_i,  eps_i ~ Normal(0, sigma)"
+  design: "r_i fixed at Table 1's 24 printed distances — the same design points, so the simulation asks about THIS design, not a generic n=24"
+  k_true: 450.0
+  sigma_source: "the residual standard deviation of the free-intercept OLS fit of Table 1, measured at the DATA gate and written on the DGP card"
+  n_obs: 24
+  n_rep: 1000
+  n_boot: 500
+  ci_level: 0.95
+  seed_blocks:
+    A: 20260903        # estimate track: the bootstrap on the real 24 rows
+    B: 20260904        # simulate track: development coverage (E0009, E0010)
+    C: 20260905        # simulate track: SEALED — a fresh block never used in development
+    floor: [20260911, 20260912, 20260913, 20260914, 20260915]   # Phase-0 coverage floor only
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 60
+phases:
+  - id: p0-anchor
+    description: "identity anchor on Table 1's published sums, then the two Phase-0 measurement sweeps (Monte-Carlo resolution, coverage floor)"
+    budget_seconds: 600
+    max_experiments: 2
+  - id: p1-reproduction
+    description: "reproduce the paper's printed numbers target by target: the two-parameter fits, the printed absolute magnitudes, the four-parameter solar-motion solution, the nine-group solution"
+    budget_seconds: 900
+    max_experiments: 6
+  - id: p2-estimate
+    description: "what the 24 objects estimate: bootstrap interval, inverse regression, jackknife influence"
+    budget_seconds: 900
+    max_experiments: 5
+  - id: p3-simulate
+    description: "known-truth lab: does the interval machinery cover at n = 24 under Hubble-like scatter"
+    budget_seconds: 900
+    max_experiments: 4
+  - id: confirmation
+    description: "one sealed access per track: Table 2 (reproduction), the once-only external-reference comparison (estimate), a fresh seed block (simulate) — each rehearsed with --final-test --dry-run first"
+    budget_seconds: 600
+    max_experiments: 3
+
+research_questions:
+  - id: RQ1
+    question: "Does any two-parameter least-squares fit of Hubble's Table 1 return his published K = 465 km/s/Mpc?"
+    prior: "No. The naive fits land near 424 (through the origin) and 454 (free intercept), 2-9% below 465, because 465 comes from a four-parameter solution that removes the solar motion first. (source: scouted — scouting_ledger.md S1/S2)"
+  - id: RQ2
+    question: "Can the paper's headline number be reproduced AT ALL from the data the paper prints?"
+    prior: "No — and the reason will be missing inputs rather than a missing method: the four-parameter solution needs per-object sky coordinates, and the nine-group solution needs a grouping, neither of which the paper's tables carry. Expect two documented method gaps, not two failed fits. (source: uninformed — nobody has checked)"
+  - id: RQ3
+    question: "What does Hubble's 24-object sample actually estimate for K, and how wide is that interval?"
+    prior: "A point estimate near 450 with a 95% bootstrap interval of roughly +/-100 km/s/Mpc — wide enough that Hubble's own +/-50 will look optimistic, and nowhere near the modern 70. (source: scouted for the centre — scouting_ledger.md S1; uninformed for the width)"
+  - id: RQ4
+    question: "At n = 24 with Hubble-like scatter, does a percentile bootstrap interval for K actually cover the truth 95% of the time?"
+    prior: "Close but under nominal — 0.90 to 0.94. The percentile bootstrap is known to under-cover in small samples, and 24 points is small. (source: uninformed)"
+  - id: RQ5
+    question: "Is the gap between Hubble's constant and the modern value a pure distance-SCALE error, or does the shape of his relation disagree too?"
+    prior: "Pure scale. One common multiplicative factor on the distances should bring both two-parameter fits close to 70; the disagreement is in the distance ladder, not in the linearity. (source: scouted — implied arithmetically by scouting_ledger.md S1)"
+
+# Registered BEFORE the evidence exists; the consult gate hashes this file, so a
+# prediction added later is visible as a gate re-record with a reason. Each
+# carries an arithmetic rule on a printed key. Which of these were already
+# FORESEEABLE from the scouting ledger is stated there, in the open, and
+# repeated in findings section 2.
+predictions:
+
+  - id: P0
+    track: reproduction
+    statement: "Identity anchor: recomputing Hubble's Table 1 reproduces its published sums — sum(r_mpc) = 21.873 Mpc to within 0.001 and sum(v_kms) = 8955 km/s to within 1 — and the two tables hold 24 and 22 rows. A mismatch is a hard STOP: every later number would be measured on the wrong bytes."
+    rule:
+      all_of:
+        - {key: sum_r, op: "within", target: 21.873, tol: 0.001}
+        - {key: sum_v, op: "within", target: 8955, tol: 1}
+    inconclusive_if: "the anchor cell crashes before the evaluator prints"
+
+  - id: P1
+    track: reproduction
+    statement: "No two-parameter least-squares fit of Table 1 — neither OLS through the origin nor free-intercept OLS of v on r — reproduces Hubble's published K = 465 km/s/Mpc within +/-10. Supported means the nearest of the two fits is still more than 10 km/s/Mpc away."
+    rule: {key: min_abs_gap_465, op: ">", value: 10}
+    inconclusive_if: "the cell prints no min_abs_gap_465"
+
+  - id: P2
+    track: reproduction
+    statement: "A four-parameter solar-motion refit of Table 1 — solving jointly for K and the three components (X, Y, Z) of the Sun's motion, as the paper describes — recovers K within +/-50 of 465 km/s/Mpc. The fit needs each object's equatorial coordinates; if fewer than all 24 are available from the paper or from a catalogue cited with its epoch in references.yaml, the cell reports the documented method gap and this prediction is inconclusive. Coordinates are never invented."
+    rule: {key: k_solar, op: "within", target: 465, tol: 50}
+    inconclusive_if: {key: coords_available, op: "<", value: 24}
+
+  - id: P3
+    track: reproduction
+    statement: "The textbook value 500 km/s/Mpc traces to Hubble's nine-group solution, 513 +/- 60: reconstructing the nine groups from the paper and re-solving returns K within +/-60 of 513. If the grouping cannot be reconstructed from what the paper prints, the cell reports that gap — never an invented grouping — and this prediction is inconclusive."
+    rule: {key: k_ninegroup, op: "within", target: 513, tol: 60}
+    inconclusive_if: {key: groups_reconstructed, op: "<", value: 9}
+
+  - id: P4
+    track: estimate
+    statement: "The lower bound of the 95% bootstrap confidence interval for K, estimated from Hubble's 24 objects, exceeds the modern value of 70 km/s/Mpc — i.e. his data, analysed with a modern interval, is statistically incompatible with today's Hubble constant. Decided once, against an external reference value, on the estimate track's single sealed access."
+    rule: {key: ci_low, op: ">", value: 70}
+    inconclusive_if: {key: n_boot, op: "<", value: 1000}
+
+  - id: P5
+    track: estimate
+    statement: "Inverse regression — least squares of r on v, then inverted — returns a LARGER K than the forward fit of v on r, by more than one bootstrap standard error of the paired difference. Regression dilution runs the other way when the noisy variable is on the x-axis, so which variable is called the response changes the constant by a measurable amount."
+    rule: {key: inverse_minus_forward_se_units, op: ">", value: 1}
+    inconclusive_if: {key: n_boot, op: "<", value: 1000}
+
+  - id: P6
+    track: simulate
+    statement: "Under the declared DGP (v = 450 r + Normal(0, sigma) at Table 1's own 24 design points), the 95% percentile-bootstrap interval for K covers the known truth in at least 90% of replicates. Measured on a fresh sealed seed block. If refuted, every interval this study reports is downgraded to descriptive in findings and no claim rests on nominal coverage."
+    rule: {key: primary_metric, op: ">=", value: 0.90}
+    inconclusive_if: {key: n_rep, op: "<", value: 500}
+
+  - id: P7
+    track: estimate
+    statement: "The 1929-to-today discrepancy is a pure distance-SCALE error: rescaling every Table 1 distance by the single factor f = k_origin / 70 brings BOTH two-parameter fits within +/-15 of the modern 70 km/s/Mpc. Refuted if the free-intercept fit lands further than 15 away under the same common factor — which would mean the shape of Hubble's relation, not just his distance ladder, disagrees with the modern one."
+    rule: {key: max_abs_gap_70, op: "<=", value: 15}
+    inconclusive_if: "the cell prints no max_abs_gap_70"
+
+  - id: P8
+    track: reproduction
+    statement: "SEALED (Table 2, the prospective lock). Using only Table 2's primary columns v_kms and m_t, and the K reproduced by this study's own lane at E0002, the implied absolute magnitudes of the nebulae with positive velocity have a mean within +/-0.3 mag of Hubble's printed Table 2 mean of -15.3. This is the paper's own internal cross-check — that velocity-derived distances put the 22 nebulae at the same luminosity as the 24 objects — re-run with our constant instead of his."
+    rule: {key: mean_abs_mag, op: "within", target: -15.3, tol: 0.3}
+    inconclusive_if: {key: n_used, op: "<", value: 15}
+
+  - id: P9
+    track: reproduction
+    statement: "Table 1's printed absolute magnitudes M_t are reproduced from its own printed m_t and r_mpc by the distance modulus M = m - 5*log10(r) - 25 (r in Mpc), to within 0.06 mag for every one of the 24 objects — 0.06 being half the paper's own printed precision of 0.1 mag. This establishes, on the development block, the exact machinery the sealed cell will use on Table 2."
+    rule: {key: max_abs_mag_dev, op: "<=", value: 0.06}
+    inconclusive_if: {key: n_objects, op: "<", value: 24}
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html
