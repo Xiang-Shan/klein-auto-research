@@ -134,7 +134,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "control_uniform"
+      ],
       "strength": "exploratory"
     },
     "C6": {
@@ -195,6 +197,13 @@
       "note": "parameters of the anchor architecture",
       "precision": 0,
       "value": 824320
+    },
+    "control_uniform": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "negative control: chance, at float32 resolution",
+      "precision": 6,
+      "value": 4.174388
     },
     "e0001_anchor_z": {
       "art": "frontier",
