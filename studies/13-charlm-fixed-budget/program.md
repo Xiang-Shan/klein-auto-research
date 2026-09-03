@@ -228,3 +228,31 @@ gate committed, so its candidate diff is empty by construction. That is the sanc
 flag for an intentional identical execution of a committed configuration, and it is
 what an identity anchor is.
 
+### Phase adaptive-1 summary (for the boundary acknowledgement)
+
+- **Floor.** `sweep:fit_noise` (k = 5, the anchor recipe, seeds 1–5): mean 1.56915
+  nats, std 0.00802952, range 0.021485 — recorded as provenance.
+  `sweep:paired_floor` (k = 10, the ten unordered pairs re-scored on identical
+  windows): std 0.00747623, range 0.026494 → `minimum_delta` = 0.0149525 nats.
+- **Anchor.** E0001, the same recipe at seed 20260903, `keep` at val_loss = 1.572174
+  nats (2.268167 bits/char), `steps` 2000 and `eval_context` 128 read by the checker
+  out of the checkpoint. `anchor_z` = 0.3766 → **P1 supported**. The searcher and the
+  checker agreed to `verifier_gap` = 0.00000000 from two independent implementations
+  of both the model and the loss sweep.
+- **Reproduction.** `rep:E0001@20260903T121129Z` — a full re-execution in a detached
+  worktree at the candidate commit: **reproduced**, primary-metric difference 0.000962
+  nats against a 0.0149525 tolerance. Same seed, same device, different process: MPS
+  training is not bit-deterministic, and the residual is about an eighth of the
+  fit-noise standard deviation. Two `verify:E0001@…` records re-score the pinned
+  checkpoint with difference 0.
+- **Device.** `sweep:device_check` runs the checker on E0001's checkpoint (sha256
+  f1408df06f0a…, the hash the manifest pinned) under `KLEIN_DEVICE=cpu` and
+  `KLEIN_DEVICE=mps`: both print 1.572174 nats, agreeing to the printed 1e-6
+  resolution. The replication record's environment fingerprint does not carry the
+  torch device, which is why this needed its own registered instrument.
+- **Headroom.** `h = (1.572174 - 0) / 0.0149525 ≈ 105` floors. The bound is the
+  information-theoretic zero of a cross-entropy and is unreachable, so this says only
+  "a keep is not arithmetically excluded". The detection-limit law does no work here
+  and findings will say so.
+- **Budget.** 1 of 1 experiments used; the phase's registered job is done.
+
