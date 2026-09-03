@@ -124,11 +124,17 @@
       "strength": "exploratory"
     },
     "C13": {
-      "claim": "Decide at design time how a comparison gets its sealed number. One track and",
-      "class": null,
+      "claim": "One track and one sealed access can confirm a level and never a difference, so this study's improvement of 0.052855 nats stays exploratory while its sealed level of 1.56628 nats is confirmed.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0006",
+        "E0008"
+      ],
+      "numbers": [
+        "e0008_val_loss",
+        "incumbent_gain_nats"
+      ],
       "strength": "exploratory"
     },
     "C2": {
