@@ -281,16 +281,21 @@
       "strength": "confirmed"
     },
     "C7": {
-      "claim": "reproduction | confirmed | empirical-description | E0003, rep:E0003@20260903T063853Z, art:mags | Table 1's printed absolute magnitudes do NOT reproduce to half the paper's own printed precision: the maximum deviation is 0.071213 against a registered 0.06, with 3 of the 24 objects outside |",
-      "class": null,
+      "claim": "Table 1's printed absolute magnitudes do NOT reproduce to half the paper's own printed precision: the maximum deviation is 0.071213 against a registered 0.06, with 3 of the 24 objects outside",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0003",
+        "rep:E0003@20260903T063853Z",
+        "art:mags"
+      ],
       "numbers": [
         "max_mag_deviation",
         "n_outside_p9",
+        "n_table1",
         "p9_tolerance"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C8": {
       "claim": "reproduction | confirmed | empirical-description | E0011, art:sealed_mags | On the sealed block, this study's own K puts the nebulae at a mean absolute magnitude of -15.524998, within 0.224998 of Hubble's printed -15.3 \u2014 his internal cross-check survives the substitution |",
