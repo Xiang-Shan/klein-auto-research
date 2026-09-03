@@ -71,7 +71,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [
     {
       "acknowledged_at": "2026-09-03T08:18:38.452188Z",
@@ -81,6 +81,28 @@
     }
   ],
   "phase_acknowledgements": {},
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 0.61414 within 0.0225 of 0.625462 (|\u0394| = 0.011322) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 0.61414 within 0.0225 of 0.625462 (|\u0394| = 0.011322) \u2192 supported",
+          "recorded_at": "2026-09-03T08:25:45.816989Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:25:45.816989Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679/studies/12-insurance-claims-frequency/data/prepared/insurance_claims_prepared.csv",
     "sha256": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab"
@@ -126,5 +148,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:23:23.949486Z"
+  "updated_at": "2026-09-03T08:25:45.818232Z"
 }
