@@ -96,7 +96,7 @@ data:
 # Per-run, per-phase time, and experiment-count limits are intentionally separate.
 max_run_seconds: 120
 phases:
-  - id: search
+  - id: adaptive-1
     description: "verifier controls, then the same iterated local search on both instances over a three-decade evaluation-budget ladder, then the deliberate searcher/checker disagreement"
     budget_seconds: 3600
     max_experiments: 8
