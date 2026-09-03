@@ -20,7 +20,7 @@
     "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
   },
   "created_at": "2026-09-03T06:56:12.643020Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "n_large": {
       "accessed_at": null,
@@ -98,7 +98,14 @@
   },
   "last_experiment": 8,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T07:48:59.280798Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated ack; 8/8 experiments spent, 7 discards + 1 crash by design, zero keeps as registered",
+      "playbook_sha256": "3ab991eb6b4d93f5da13292922483af3ee1abe05ae50a06f3bcdc840b81890bb"
+    }
+  },
   "predictions": {
     "P1": {
       "evidence": [
@@ -384,5 +391,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:48:13.816377Z"
+  "updated_at": "2026-09-03T07:48:59.281478Z"
 }
