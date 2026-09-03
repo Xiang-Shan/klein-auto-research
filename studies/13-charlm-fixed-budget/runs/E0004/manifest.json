@@ -118,8 +118,10 @@
   "timed_out": false,
   "track": "primary",
   "transaction": {
-    "ready_at": "2026-09-03T12:24:35.395427Z",
-    "status": "pending"
+    "committed_at": "2026-09-03T12:24:35.516215Z",
+    "evidence_commit": "36393f150e5ed44ff43179bc524f0e173f37f476",
+    "recovered": false,
+    "status": "complete"
   },
   "verifier": {
     "artifact": "models/E0004.pt",
