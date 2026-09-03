@@ -184,11 +184,17 @@
       "strength": "exploratory"
     },
     "C16": {
-      "claim": "(research-discipline, exploratory, evidence E0007, ref:frost2000)*",
-      "class": null,
+      "claim": "When the predictor is the noisy variable, report both regressions: one number from v on r is a lower bound, not an estimate, and here the inverse fit changes the headline by a factor of 1.603771; if the error ratio is unknown, give the bracket rather than inventing the ratio",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0007",
+        "art:invfwd",
+        "ref:frost2000"
+      ],
+      "numbers": [
+        "inverse_forward_ratio"
+      ],
       "strength": "exploratory"
     },
     "C17": {
