@@ -1,0 +1,5 @@
+anchor	published	recomputed	abs_deviation	tolerance	units	reproduced
+sum_r	21.873000	21.873000	0.000000	0.001000	Mpc	yes
+sum_v	8955.000000	8955.000000	0.000000	1.000000	km/s	yes
+n_table1	24.000000	24.000000	0.000000	0.000000	rows	yes
+n_table2	22.000000	22.000000	0.000000	0.000000	rows	yes

@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	reproduction	0	measured	77a4c4d46f6508a933e1c2e2c2e951354b9ca1f1	identity anchor: Table 1's published sums (21.873 Mpc, 8955 km/s) and both row counts (24, 22) recomputed from the bundled bytes; hard-STOP on mismatch; registered cell measured

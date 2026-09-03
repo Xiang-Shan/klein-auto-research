@@ -1,0 +1,93 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 334,
+      "committed": true,
+      "sha256": "f4c3efae007936babce8f2565a98b7ab265d2be7250772024f8d9b3733b9deae"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 637,
+      "committed": true,
+      "sha256": "b8a2f0c6129fad4ac1c1b63a144b415a9d2c30e2b861ade3f684b855d1c85f1c"
+    },
+    "tables/identity_anchors.tsv": {
+      "availability": "recorded",
+      "bytes": 290,
+      "committed": true,
+      "role": "declared",
+      "sha256": "8f927d354d4f2995f011e4e26dc50ebc51db4880ecefc7358a83693448edef93"
+    }
+  },
+  "base_commit": "cea9dcb3f8c3dc855fad81228549023ccc4f96f5",
+  "candidate_commit": "77a4c4d46f6508a933e1c2e2c2e951354b9ca1f1",
+  "code_patch_hash": "0342feb347eb35c44e71dc3ba3115506e2dd0d15b44091176918df37c4b2e887",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "identity anchor: Table 1's published sums (21.873 Mpc, 8955 km/s) and both row counts (24, 22) recomputed from the bundled bytes; hard-STOP on mismatch; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T05:56:41.020365Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "max_abs_deviation": 3.552713678800501e-15,
+    "n_table1": 24.0,
+    "n_table2": 22.0,
+    "primary_metric": 0.0,
+    "rows": 4.0,
+    "runner_exit_code": 0.0,
+    "sum_r": 21.872999999999998,
+    "sum_v": 8955.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.021899
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P0": {
+      "explanation": "all_of[sum_r 21.873 within 0.001 of 21.873 (|\u0394| = 3.5527136788e-15) \u2192 supported; sum_v 8955 within 1 of 8955 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P0"
+  ],
+  "primary_metric": 0.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T05:56:40.257380Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "ready_at": "2026-09-03T05:56:41.021383Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.7628560001030564
+}
