@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T05:41:06.681169Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:46:33.111731Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "ca3a6ec9c74e594084082f4738d3f10e2e470c0cc8498857c4c062a07978f3df",
+    "method_card.md": "94434f3bc564521c56afa41680bc6534472b51a45dfd448d661aeaaf20637605",
     "research_plan.md": "7791550bc6b2c924a7d4f8bbe221452aeeb16721a2f56feb9eae36c88c03554c",
     "study.yaml": "d7c5a9da535a8974a3a4968aad25c3d6f485f69e2586bb8cff6dbb7d69af5649"
   },
@@ -38,7 +43,8 @@
     "split": {
       "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
       "policy": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -62,9 +68,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T05:46:33.111731Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "94434f3bc564521c56afa41680bc6534472b51a45dfd448d661aeaaf20637605"
+      },
+      "note": "triad complete: theory (notation table + 5 display equations), papers (8/8 references verified against landing pages 2026-09-03), practice (lib/hubble.py exists and prepare.py runs on it). No verifier declared \u2014 the card says why. Ack delegated to the driving agent by the lead.",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -77,5 +87,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "10-hubble-1929-replication",
-  "updated_at": "2026-09-03T05:41:07.549177Z"
+  "updated_at": "2026-09-03T05:46:33.112842Z"
 }
