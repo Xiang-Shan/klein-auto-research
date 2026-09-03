@@ -88,7 +88,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "anchor_brier"
+        "anchor_brier",
+        "bayes_brier_dev"
       ],
       "strength": "exploratory"
     },
@@ -144,6 +145,13 @@
       "note": "E0001 gap_in_floors: the anchor's own headroom h",
       "precision": 4,
       "value": 10.4555
+    },
+    "bayes_brier_dev": {
+      "art": "data_card",
+      "claim": "C5",
+      "note": "the irreducible Bayes Brier of the development partition, from the DGP appendix",
+      "precision": 6,
+      "value": 0.103604
     },
     "boosted_auc": {
       "art": "aux",
