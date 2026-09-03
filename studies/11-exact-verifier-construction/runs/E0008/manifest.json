@@ -1,0 +1,93 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2656,
+      "committed": true,
+      "sha256": "08da5066c8f29137c02f91280479cadf96cabf23241a9e7f7f1bb25034dd83b8"
+    },
+    "models/E0008/solution.json": {
+      "availability": "recorded",
+      "bytes": 849,
+      "committed": true,
+      "sha256": "9c211361a8fa59001ebc3ece4e4f6e7a91d05133ab3031394788f1e130789161"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 633,
+      "committed": true,
+      "sha256": "b6f66e6e0d55b50e664256150a19a40cf1b756d1fdd396e8763881a5c22ff1f0"
+    }
+  },
+  "base_commit": "f3fc2a9f185d992c0766d1252917047047a53698",
+  "candidate_commit": "c27239d72a8aa48f075704003526c9025eab6bde",
+  "code_patch_hash": "bf3b697b7fab688947cbebdc88c554621969bb218b5f854200f889a64db51803",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0) \u2014 one of them is wrong, and the search is not the one to ask",
+  "description": "the deliberate disagreement: the searcher reports ONE more point than the object it wrote, nothing else changes; the expected outcome is a crash naming verifier_disagreement; verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0) \u2014 one of them is wrong, and the search is not the one to ask",
+  "disposition": "crash",
+  "ended_at": "2026-09-03T07:46:40.341859Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055",
+    "split_partition": "3819345e71dfbf7fef36734e0f41f1d40cb53ba45eae5c3c218c0e084a248d78"
+  },
+  "incumbent": null,
+  "max_run_seconds": 120.0,
+  "metric": {
+    "reported": 21.0,
+    "verified": 20.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "points",
+  "metrics": {},
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 8,
+  "predictions_requested": [],
+  "primary_metric": null,
+  "schema_version": 3,
+  "started_at": "2026-09-03T07:46:39.620166Z",
+  "timed_out": false,
+  "track": "n_small",
+  "transaction": {
+    "ready_at": "2026-09-03T07:46:41.057516Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0008/solution.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "959ba15bac56cd94f00e7198788601bd87fa38767912ad34e223a0292f739cbe"
+    },
+    "timed_out": false,
+    "wall_seconds": 0.7131567918695509
+  },
+  "wall_seconds": 0.7215332090854645
+}
