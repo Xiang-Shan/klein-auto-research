@@ -13,15 +13,16 @@ therefore records the LATEST measurement of each track's summary scalar, not a w
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| reproduction | — | — | — | — |
-| estimate | — | — | — | — |
-| simulate | — | — | — | — |
+| reproduction | E0001 | `targets_outside_tolerance` 0 | identity anchor: 4/4 published anchors reproduced, max abs deviation 3.55e-15 | 2026-09-03 |
+| estimate | — | — | floors measured (`sweep:mc_resolution`); no cell yet | — |
+| simulate | — | — | floor measured (`sweep:coverage_floor`, minimum_delta 0.0060663); no cell yet | — |
 
 ## Ruled out (evidence, not opinion)
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
 | a "fresh bootstrap block" seal on the 46 rows | (pre-contract) | resampling seen rows creates no information; it launders a look into holdout vocabulary — `scouting_ledger.md` §Retirements |
+| a seed-spread floor for the ESTIMATE track's own primary metric | `sweep:mc_resolution` | the point estimate is a closed-form slope over fixed rows — the spread is exactly zero; the floor had to be measured on the key a rule actually reads |
 | fetching J2000 coordinates for the 24 objects | (pre-contract) | 24 hand-transcribed positions at an unstated epoch is a fabrication risk, not a replication — P2 carries an `inconclusive_if` instead |
 
 ## Open hypotheses

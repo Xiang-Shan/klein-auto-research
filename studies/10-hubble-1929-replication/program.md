@@ -122,6 +122,29 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
+- **2026-09-03 — Decision (contract re-record #3): both Phase-0 floors are MEASURED and
+  pasted in.** `sweep:mc_resolution` gives the estimate track's `fit_noise` — the
+  spread of P5's deciding key `inverse_minus_forward_se_units` across five master
+  seeds: mean 2.36499, std 0.0382297, range 0.098856. P5's bar is 1, so the seed
+  cannot reach the verdict; the block is recorded as `fit_noise`, never as a bar,
+  because the track's own primary metric is deterministic (`exactness: exact`).
+  `sweep:coverage_floor` gives the simulate track's `minimum_delta` = 0.0060663 =
+  max(2×0.00303315, 0.007/2), measured over five simulation seed blocks disjoint
+  from A, B and C. Both blocks pasted verbatim from `klein noise-floor`; the CONSULT
+  gate is re-recorded with the reason the protocol prescribes.
+- **2026-09-03 — DISCLOSURE: the coverage floor foreshadows P6.** Measuring the
+  resolution of a quantity a prediction reads necessarily reveals roughly where that
+  quantity sits, and the floor blocks put coverage at 0.9268, above P6's bar of 0.90.
+  The floor seeds are disjoint from the sealed block C, P6 is still adjudicated there
+  as registered, and the pre-scripted refutation branch (downgrade every interval to
+  descriptive) stays live — but findings §② will carry this line, not bury it. The
+  alternative, measuring the floor on a quantity the predictions do not read, would
+  have produced a floor that judges nothing.
+- **2026-09-03 — Phase adaptive-1 complete.** One cell (E0001, `measured`,
+  `targets_outside_tolerance` 0, P0 supported with max deviation 3.55e-15) and two
+  registered measurement sweeps. Acknowledged with `klein gate record phase --phase
+  adaptive-1 --acknowledged-by lead-agent` (ack delegated by the lead).
+
 ### Phase adaptive-1 slate
 
 Playbook re-read first (nothing ruled out yet beyond the two pre-contract
