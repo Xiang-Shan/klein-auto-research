@@ -323,7 +323,8 @@
       "numbers": [
         "anchor_max_deviation",
         "n_table1",
-        "n_table2"
+        "n_table2",
+        "table_one"
       ],
       "strength": "confirmed"
     },
@@ -732,6 +733,13 @@
       "note": "mean implied absolute magnitude of the sealed block under this study's K (E0011)",
       "precision": 6,
       "value": -15.524998
+    },
+    "table_one": {
+      "art": "contract",
+      "claim": "C6",
+      "note": "the numeral in the name 'Table 1' \u2014 Hubble's development block; it names a table, not a measurement",
+      "precision": 0,
+      "value": 1
     },
     "textbook_500": {
       "art": "groups",
