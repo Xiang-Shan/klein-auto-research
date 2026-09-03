@@ -145,6 +145,28 @@ the ranked survivors into playbook.md "Next-best candidates".
   registered measurement sweeps. Acknowledged with `klein gate record phase --phase
   adaptive-1 --acknowledged-by lead-agent` (ack delegated by the lead).
 
+- **2026-09-03 — Decision: P9 is REFUTED (E0003), and the sealed registration STANDS.**
+  `max_abs_mag_dev` 0.071213 > the registered 0.06, with 3 of 24 objects outside;
+  mean deviation 0.022134. What changed as a result, and what deliberately did not:
+  * **Diagnosed, not shrugged off.** 21 of the 24 printed `M_t` values equal
+    round-to-nearest of `m − 5log₁₀r − 25` to the last digit *exactly*; the three
+    exceptions (N.G.C. 5457 at r = 0.45, and 3031 and 4826 at r = 0.90) are
+    truncations toward zero instead. The largest deviation, 0.071213, is inside the
+    paper's printed precision of 0.1 mag — no object disagrees by a whole printed
+    unit. So the FORMULA is right and the paper's rounding is not uniform; the
+    registered bar was half the printed precision, which is what "correctly rounded"
+    means, and three rows are not.
+  * **The sealed cell's registration is NOT changed.** The temptation is to widen
+    P9's tolerance to 0.1 and call the column reproduced; that would be adjusting a
+    tolerance after seeing the result, which this study does not do. P8 is a
+    different statistic — the MEAN over ~21 objects — and a ±0.07 rounding wobble on
+    a few rows averages down; the mean deviation here is 0.022, well inside P8's
+    ±0.3. The seal is spent as registered.
+  * **What findings will say:** Table 1's printed absolute-magnitude column does not
+    reproduce to half its own printed precision, because the paper rounds
+    inconsistently — a transcription-grade finding about the 1929 paper, not about
+    this study's arithmetic.
+
 ### Phase adaptive-1 slate
 
 Playbook re-read first (nothing ruled out yet beyond the two pre-contract
