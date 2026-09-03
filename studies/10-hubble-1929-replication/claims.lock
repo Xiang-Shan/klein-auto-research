@@ -93,10 +93,14 @@
       "strength": "confirmed"
     },
     "C10": {
-      "claim": "study could not reproduce at all.  *(mechanism-interpretation,",
-      "class": null,
+      "claim": "The analytic probable error of the free-intercept slope is 50.747428, reproducing Hubble's quoted 50 from a fit he did not run - most likely because the probable error is dominated by the residual scatter of 232.910670 km/s, a property of the data rather than of the model form",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0002",
+        "art:aux",
+        "art:fits"
+      ],
       "numbers": [
         "hubble_pe_24",
         "probable_error",
