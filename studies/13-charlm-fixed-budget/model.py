@@ -24,7 +24,7 @@ CONFIG: dict[str, object] = {
     "vocab_size": 65,
     "n_layer": 4,
     "n_head": 4,
-    "n_embd": 256,
+    "n_embd": 128,
     "block_size": 128,
     "tie_weights": False,
     "dropout": 0.0,

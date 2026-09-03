@@ -1,0 +1,142 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1913,
+      "committed": true,
+      "sha256": "19c02ffc2570f95e9e9a701a56c446654935bab55c8bf7104a7c8574141c974c"
+    },
+    "models/E0005.pt": {
+      "availability": "local",
+      "bytes": 12897398,
+      "committed": false,
+      "role": "declared",
+      "sha256": "918a566a347c0de3b70a593d632f0ec4ebc03d4a39b460ae4aaa225130e1d42d"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 699,
+      "committed": true,
+      "sha256": "7862e97fa53fc546359074830fd222125742a4cd590cefe93ba5219b18385ffb"
+    }
+  },
+  "base_commit": "fc9d3051ee92198283e04e51c01a9b3597f8893a",
+  "candidate_commit": "626427c5822afc46462e1d9d6c79c6125c8d959f",
+  "code_patch_hash": "d44a772299a7decadcc1e903d1f68a9812c23b54e6acaee7e29e6ed8b683eaba",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 1.572174 by minimum_delta=0.0149525",
+  "description": "E0005: width 128 to 256 at the same 2000 steps, one change from the anchor with the same seed; adjudicates P5; did not improve track frontier 1.572174 by minimum_delta=0.0149525",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T12:28:11.476584Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354",
+    "split_partition": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 900.0,
+  "metric": {
+    "reported": 1.57624,
+    "verified": 1.57624
+  },
+  "metric_goal": "lower",
+  "metric_name": "val_loss",
+  "metrics": {
+    "anchor_mean": 1.56915,
+    "anchor_z": 0.883,
+    "bpc": 2.274034,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 256.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 0.0,
+    "cfg_warmup_steps": 0.0,
+    "delta_in_floors": -0.4742,
+    "delta_vs_anchor": -0.00709,
+    "eval_chars": 111616.0,
+    "eval_context": 128.0,
+    "eval_windows": 871.0,
+    "final_train_batch_loss": 1.386621,
+    "fit_seconds": 180.68,
+    "n_params": 3221504.0,
+    "n_partition_chars": 111616.0,
+    "n_scored_chars": 111488.0,
+    "n_val_windows": 871.0,
+    "primary_metric": 1.57624,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_n_embd": 256.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 0.0,
+    "recipe_warmup_steps": 0.0,
+    "reported_val_loss": 1.57624,
+    "runner_exit_code": 0.0,
+    "steps": 2000.0,
+    "total_seconds": 1.4,
+    "train_bpc": 2.274034,
+    "train_chars": 891904.0,
+    "train_steps": 2000.0,
+    "verifier_gap": 0.0,
+    "wall_seconds": 1.405211
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 9000.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P5": {
+      "explanation": "delta_in_floors -0.4742 >= 1 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P5"
+  ],
+  "primary_metric": 1.57624,
+  "schema_version": 3,
+  "started_at": "2026-09-03T12:25:04.954527Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T12:28:14.827978Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0005.pt",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
+    },
+    "timed_out": false,
+    "wall_seconds": 3.310389749938622
+  },
+  "wall_seconds": 186.5214829579927
+}
