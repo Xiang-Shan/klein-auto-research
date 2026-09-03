@@ -138,11 +138,18 @@
       "strength": "exploratory"
     },
     "C3": {
-      "claim": "RQ3 | primary | supported | exploratory | empirical-description | E0003, E0006, `sweep:fit_noise`, `sweep:paired_floor` | This study measured recipes rather than noise, but only just: the largest effect is a cost of 11.3693 floors (weight tying, E0003) and the only gain is 3.53486 floors (E0006 over E0001). The prior said \"a small multiple, not an order of magnitude\" of the seed spread; the gain is a small multiple and the largest cost is an order of magnitude. |",
-      "class": null,
+      "claim": "The largest recipe effect this study measured is a cost of -11.3693 floors and the only gain is 3.53486 floors, against a fit-noise standard deviation of 0.00802952 nats, so the study measured recipes rather than noise.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0003",
+        "E0006",
+        "sweep:fit_noise",
+        "sweep:paired_floor"
+      ],
       "numbers": [
+        "e0003_floors",
+        "fit_noise_std",
         "incumbent_gain_floors"
       ],
       "strength": "exploratory"
