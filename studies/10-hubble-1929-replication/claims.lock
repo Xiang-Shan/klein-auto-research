@@ -175,7 +175,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "hubble_k_9group"
+      ],
       "strength": "exploratory"
     },
     "C2": {
@@ -426,6 +428,13 @@
       "note": "Hubble 1929's published constant for the 24 objects individually",
       "precision": 0,
       "value": 465
+    },
+    "hubble_k_9group": {
+      "art": "contract",
+      "claim": "C18",
+      "note": "Hubble's nine-group solution",
+      "precision": 0,
+      "value": 513
     },
     "hubble_pe_24": {
       "art": "contract",
