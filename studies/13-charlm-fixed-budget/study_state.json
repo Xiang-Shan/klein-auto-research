@@ -83,6 +83,15 @@
   "status": "active",
   "study_id": "13-charlm-fixed-budget",
   "sweeps": {
+    "fit_noise": {
+      "registered_at": "2026-09-03T12:06:08.996245Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "d394ff2145fd0ed088be954d7509bb3c959cc0c555e31afccabeb71b856703d5",
+      "sidecar": "sweeps/fit_noise.sidecar.tsv",
+      "sidecar_sha256": "331f52eaaa64cf330427d869549763a5b64a295fc05946d564bbea59085fb743"
+    },
     "harness_controls": {
       "registered_at": "2026-09-03T11:47:02.796245Z",
       "rows_crash": 0,
@@ -93,5 +102,5 @@
       "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
     }
   },
-  "updated_at": "2026-09-03T11:56:39.416028Z"
+  "updated_at": "2026-09-03T12:06:08.996649Z"
 }
