@@ -241,6 +241,13 @@
       "precision": 6,
       "value": 4.305432
     },
+    "corpus_chars": {
+      "art": "corpus",
+      "claim": "contract",
+      "note": "characters in the whole corpus",
+      "precision": 0,
+      "value": 1115394
+    },
     "development_chars": {
       "art": "corpus",
       "claim": "C7",
