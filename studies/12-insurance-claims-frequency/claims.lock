@@ -57,7 +57,8 @@
       "evidence": [],
       "numbers": [
         "splines_in_own_floors",
-        "splines_lift"
+        "splines_lift",
+        "tree_in_own_floors"
       ],
       "strength": "exploratory"
     },
@@ -346,6 +347,12 @@
       "note": "kleinlib.leakage: row-content hashes spanning more than one partition",
       "precision": 0,
       "value": 615
+    },
+    "tree_in_own_floors": {
+      "art": "verdicts",
+      "claim": "C10",
+      "precision": 4,
+      "value": 0.4624
     },
     "tree_over_glm_in_floors": {
       "art": "verdicts",
