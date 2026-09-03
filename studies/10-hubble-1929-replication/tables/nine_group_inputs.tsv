@@ -1,0 +1,6 @@
+required_input	source_checked	available	detail
+group membership (which objects form each of the 9 groups)	the article text (references.yaml:hubble1929)	no	"the paper states the criterion — ""proximity in direction and in distance"" — but never lists the membership of any group"
+group membership	bundled Table 1	no	15 distinct r_mpc values among 24 objects; 14 objects share a distance with at least one other (5 shared values). Distance alone cannot reproduce a grouping whose stated criterion is direction AND distance
+direction (per-object equatorial coordinates)	bundled Table 1 / the article text	no	the same inputs E0004 audited as unavailable; 'proximity in direction' cannot be evaluated without them
+the four-parameter model on 9 aggregated points	least squares on the above	no	not attempted: 0 of 9 groups are reconstructible, so no solution exists to compare with 513 +/- 60. Inventing a grouping would produce a number that is not the paper's
+provenance of the textbook value 500	the article text (references.yaml:hubble1929)	yes	500 is NEITHER published solution: the paper adopts it as an intermediate value after attributing the 465-vs-513 difference largely to the four Virgo-cluster nebulae (K = 500, A = 277 deg, D = +36 deg, V0 = 280 km/s)
