@@ -111,7 +111,8 @@
       "numbers": [
         "brier_balanced",
         "brier_doctrine",
-        "brier_ratio_doctrine"
+        "brier_ratio_doctrine",
+        "doctrine_auc_cost"
       ],
       "strength": "exploratory"
     },
@@ -206,6 +207,13 @@
       "claim": "C5",
       "precision": 3,
       "value": 4.055
+    },
+    "doctrine_auc_cost": {
+      "art": "derived",
+      "claim": "C5",
+      "note": "magnitude of E0004 delta_vs_reference",
+      "precision": 6,
+      "value": 0.001465
     },
     "keep_lift": {
       "art": "verdicts",
