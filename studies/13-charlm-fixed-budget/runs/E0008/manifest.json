@@ -1,0 +1,144 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3660,
+      "committed": true,
+      "sha256": "cfe1fc2eef88215846cae55616f19f04291bd30611812f31021c4a5c6b00b374"
+    },
+    "models/E0008.pt": {
+      "availability": "local",
+      "bytes": 3308598,
+      "committed": false,
+      "role": "declared",
+      "sha256": "d013d0d1cc1542e1426e2869e1b151d0b5d2d7747edbef695f3ad239d59dec2f"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 743,
+      "committed": true,
+      "sha256": "95990b844da02937dc5f59a4f4f61633d1f54a2d91b350a4c980dd7c1bd8651e"
+    }
+  },
+  "base_commit": "5750a60cc38ab2d7a1c02ce42cc15c89b5632f20",
+  "candidate_commit": "af69e4daa38748e45fa9ff7cbfd0d71bef4f7951",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "sealed confirmation of the selected candidate: the E0006 cosine-decay recipe, retrained on train+development and scored once on the sealed final tenth; adjudicates P6; sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-09-03T12:37:17.253844Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354",
+    "split_partition": "bd7849a00c6a8bd856c9136cd211d9ecb7975fbffa9c75b08d78ed51b3e3f155"
+  },
+  "incumbent": "E0006",
+  "max_run_seconds": 900.0,
+  "metric": {
+    "reported": 1.56628,
+    "verified": 1.56628
+  },
+  "metric_goal": "lower",
+  "metric_name": "val_loss",
+  "metrics": {
+    "bpc": 2.259664,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 128.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 0.0,
+    "cfg_warmup_steps": 0.0,
+    "dev_incumbent_val_loss": 1.519319,
+    "eval_chars": 111874.0,
+    "eval_context": 128.0,
+    "eval_windows": 874.0,
+    "final_train_batch_loss": 1.372422,
+    "fit_seconds": 91.496,
+    "n_params": 824320.0,
+    "n_partition_chars": 111874.0,
+    "n_scored_chars": 111872.0,
+    "n_val_windows": 874.0,
+    "primary_metric": 1.56628,
+    "recipe_cosine": 1.0,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_lr_final_frac": 0.1,
+    "recipe_n_embd": 128.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 0.0,
+    "recipe_warmup_steps": 0.0,
+    "reported_val_loss": 1.56628,
+    "runner_exit_code": 0.0,
+    "sealed_gap_in_fit_noise": 5.8485,
+    "sealed_minus_dev_incumbent": 0.046961,
+    "steps": 2000.0,
+    "total_seconds": 0.6,
+    "train_bpc": 2.259664,
+    "train_chars": 1003520.0,
+    "train_steps": 2000.0,
+    "verifier_gap": 0.0,
+    "wall_seconds": 0.565244
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 1,
+  "predictions": {
+    "P6": {
+      "explanation": "|sealed_gap_in_fit_noise| 5.8485 <= 2 (from 5.8485) \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P6"
+  ],
+  "primary_metric": 1.56628,
+  "schema_version": 3,
+  "started_at": "2026-09-03T12:35:42.355355Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T12:37:20.957325Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0008.pt",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
+    },
+    "timed_out": false,
+    "wall_seconds": 3.620901041198522
+  },
+  "wall_seconds": 94.89712166693062
+}

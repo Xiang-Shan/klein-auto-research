@@ -1,0 +1,31 @@
+split_fingerprint: bd7849a00c6a8bd856c9136cd211d9ecb7975fbffa9c75b08d78ed51b3e3f155
+checkpoint: models/E0008.pt
+artifact: models/E0008.pt
+---
+primary_metric:    1.566280
+metric_name:       val_loss
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     92.7
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+wall_seconds:      92.732813
+train_steps: 2000
+fit_seconds: 91.496
+train_chars: 1003520
+eval_chars: 111874
+eval_windows: 874
+final_train_batch_loss: 1.372422
+train_bpc: 2.259664
+recipe_warmup_steps: 0
+recipe_cosine: 1
+recipe_lr_final_frac: 0.1000
+recipe_lr: 0.003
+recipe_dropout: 0.0000
+recipe_n_embd: 128
+recipe_tie_weights: 0
+recipe_seed: 20260903
+runner_status: ok
+runner_exit_code: 0
