@@ -11,11 +11,16 @@
     "method": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T07:16:16.173922Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:43:19.020098Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "a9d70a033e7c7499162feac858b74e653ff0550a87ae52ca9f63073a830b49b3",
     "method_card.md": "563759c87ab9b2a6fa8accf181ea635d2b5f8f3c4ea2ebe4eded00c2be7ee01c",
+    "referee_report.md": "e0996e817cbbfb1675ae0e1dc55e933a1a6b6796cd3d4c1ca27277852e8ec33e",
     "research_plan.md": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e",
     "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
   },
@@ -72,6 +77,18 @@
       },
       "note": "delegated ack; triad complete: theory + papers (10 refs verified 2026-09-03) + practice (the from-scratch verifier, written and tested before any search)",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T08:43:19.020098Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "e0996e817cbbfb1675ae0e1dc55e933a1a6b6796cd3d4c1ca27277852e8ec33e"
+      },
+      "independent_of_experimenter": false,
+      "note": "PASS-WITH-NOTES; all seven notes answered in program.md with dated Referee note lines; erratum E1 filed on C6; independence rung 'fresh session' accepted by the lead for the 2.0 exhibits",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "headroom": {
@@ -437,5 +454,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:52:05.567122Z"
+  "updated_at": "2026-09-03T08:43:19.020890Z"
 }
