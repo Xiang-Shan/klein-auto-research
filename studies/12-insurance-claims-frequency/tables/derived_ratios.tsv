@@ -19,3 +19,4 @@ max_twin_gap_abs	0.001415	|E0002 twin_free_gap|
 sealed_shift_in_floors_abs	0.168000	|E0005 sealed_shift_in_floors|
 doctrine_in_own_floors_abs	0.3229	|E0004 delta_vs_reference| / pair_anchor_doctrine bar
 portfolio_claim_rate	0.063968	data_card.md: 3,748 of 58,592 policies
+sealed_twin_free_gap_abs	0.001091	|E0005 twin_free_gap|

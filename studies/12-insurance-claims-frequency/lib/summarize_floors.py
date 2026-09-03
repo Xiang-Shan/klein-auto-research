@@ -190,6 +190,12 @@ def main() -> int:
     derived.append(
         ("portfolio_claim_rate", "0.063968", "data_card.md: 3,748 of 58,592 policies")
     )
+    # The sealed run's own reading of the overridden gate's instrument: the confirmed
+    # claim is the one place it has to be shown (referee note 3).
+    derived.append(
+        ("sealed_twin_free_gap_abs", f"{abs(aux[('E0005', 'twin_free_gap')]):.6f}",
+         "|E0005 twin_free_gap|")
+    )
     (TABLES / "derived_ratios.tsv").write_text(
         "\n".join("\t".join(r) for r in derived) + "\n", encoding="utf-8"
     )

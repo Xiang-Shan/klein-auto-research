@@ -615,6 +615,10 @@ per replicate applied to both rungs, 1000 replicates, rungs from `lib/rungs.py`.
   4. The rebuild homes every magnitude in `tables/derived_ratios.tsv` and every
      floors-relative magnitude in `tables/verdict_arithmetic.tsv`, both regenerated
      from the hashed sidecars by `lib/summarize_floors.py`.
+  Both discarded chains are reachable from a clone as annotated tags
+  **`discarded/12-claims-lock-draft-1`** (`307b67e`) and
+  **`discarded/12-claims-lock-draft-2`** (`49af7f4`), added after the referee asked
+  for them (note 2) so the evidence for this paragraph outlives one machine's reflog.
   This is recorded rather than tidied away because the referee should judge it: a
   history rewrite is a serious act, and the argument for this one is that it happened
   before the lock had any reader, that it destroyed no measurement, and that the
@@ -642,3 +646,61 @@ per replicate applied to both rungs, 1000 replicates, rungs from `lib/rungs.py`.
   it is how checks stop meaning anything. The constraint is written down here for the
   next study instead: **a claim sentence may not contain an identifier with a digit in
   it.**
+
+## Referee notes (Gate 3, verdict PASS-WITH-NOTES, 2026-09-03)
+
+The referee returned PASS-WITH-NOTES with four notes and judged both large calls sound —
+the DATA-gate override "a reason, not an excuse", its instrument correctly implemented
+(it hashes the ACTUAL fit rows, so the sealed run excluded 332 rows rather than the 312
+the partition table alone suggests), and C7 surviving on the twin-free sealed rows. Each
+note is answered here, dated, with what was done about it.
+
+- 2026-09-03 — **Referee note 1 (the figure harness ignored `--out` for five of seven
+  figures).** Upheld, and fixed in the study script. `kleinlib.figures._save_fig` appends
+  `/figures` to whatever directory it is handed, so no helper can be pointed straight at
+  `--out`; the script had handed four profile figures `out_dir.parent` and the trajectory
+  the study directory itself, so a referee following the documented `--out <tmpdir>`
+  recipe silently rewrote committed study files, and `klein verify`'s automated check
+  could only audit the two figures that used `out_dir` directly. `figures/make_figures.py`
+  now renders every helper figure into a scratch root created with `tempfile.mkdtemp`
+  and moves the PNGs flat into `--out`; every destination is computed from `--out` alone
+  and nothing under the study is touched unless `--out` names it. **`kleinlib` was not
+  changed** — the defect was in this study's script, not in the helper. Verified: a
+  render into a temp directory produces all seven PNGs there, `cmp` reports all seven
+  byte-identical to the committed ones, `git status` stays clean through the render, and
+  `klein verify` now reports **7** figures re-rendering byte-identically rather than 2.
+- 2026-09-03 — **Referee note 2 (tag the discarded lock revisions).** Upheld and done,
+  following the repo's own precedent `discarded/10-claims-lock-draft`. The two chains are
+  now reachable from a clone as annotated tags **`discarded/12-claims-lock-draft-1`**
+  (`307b67e`) and **`discarded/12-claims-lock-draft-2`** (`49af7f4`), each carrying the
+  reason for the discard in its message. They are named here and in the disclosure
+  paragraph above so a reader asked to judge that act can fetch the evidence instead of
+  taking this notebook's word for it.
+- 2026-09-03 — **Referee note 3 (the sealed run's own twin-free numbers surfaced
+  nowhere).** Upheld — and it was the one place the override's whole warrant was not
+  shown, since C7 is the only claim that reaches `confirmed`. Three numbers are now
+  pinned and appended to C7's `numbers` (`sealed_twin_free_auc` 0.656647,
+  `sealed_twin_free_rows` 5528, `sealed_twin_free_gap` 0.001091); **C7's sentence is
+  unchanged**, as the law requires, and the numbers were appended rather than swapped.
+  Findings section 1 gains the sentence that closes the loop: on the 5528 sealed rows
+  with no twin among the rows the model was fitted on, the same run scores 0.656647, a
+  gap of 0.001091 — inside the 0.001415 bound the four development rungs set, so the
+  confirmed claim does not rest on the duplicated rows. The referee had already checked
+  this arithmetic independently; the study now states it.
+- 2026-09-03 — **Referee note 4 (three "lift" uses in the metric-improvement sense).**
+  Upheld as an editing matter, and the referee's reading of the rule is accepted: the
+  insurance profile bans "lift" without its decile and base rate, every DECILE-lift use
+  in this study already carries both, and the three flagged sites used the word in the
+  distinct sense of a metric improvement, where no decile exists. They now read "AUC
+  lift", "paired AUC lift" and "an improvement of 0.0379 floors", so the warning stops
+  recurring in every verify and in the tutorial build. **C8's locked sentence still says
+  "lift"** and stays exactly as it is: a claim sentence never changes, the word there is
+  qualified two clauses later by "0.0379 of this study's floor", and rewriting a lock to
+  silence a vocabulary warning is the wrong trade.
+- 2026-09-03 — Recorded from the referee's hand-check, because it is a precision nuance a
+  later reader could otherwise mistake for an error: `paired_std_ratio` is pinned at
+  **10.92**, which is correct at the precision it was computed — the raw sidecars give
+  0.013941578 / 0.001276257 = 10.9238. The 6-decimal values printed in
+  `tables/pair_floors.tsv` give 10.9263, which rounds to 10.93. The pinned number is the
+  full-precision one; the table is a rounded VIEW of the same sidecars, and a reader who
+  recomputes from the table rather than from the sidecars will land one hundredth away.

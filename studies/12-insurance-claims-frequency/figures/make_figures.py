@@ -33,7 +33,9 @@ from __future__ import annotations
 
 import argparse
 import csv
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 import matplotlib
@@ -115,10 +117,6 @@ def main() -> int:
             )
 
     incumbent = probabilities["hgbt_balanced"]
-    figures.plot_roc(y_dev, incumbent, out_dir.parent, name="plot_roc")
-    figures.plot_pr(y_dev, incumbent, out_dir.parent, name="plot_pr")
-    figures.plot_reliability(y_dev, incumbent, out_dir.parent, name="plot_reliability")
-    figures.plot_decile_lift(y_dev, incumbent, out_dir.parent, name="plot_decile_lift")
 
     # --- Lorenz / Gini, all three rungs -----------------------------------
     y = np.asarray(y_dev, dtype=float)
@@ -182,18 +180,35 @@ def main() -> int:
     fig.savefig(out_dir / "floors_vs_gaps.png", dpi=figures.DPI)
     plt.close(fig)
 
+    # `kleinlib.figures._save_fig` appends "/figures" to whatever directory it is
+    # given, so a helper cannot be pointed straight at `--out`. Handing it the study
+    # directory would make five of the seven figures ignore `--out` and quietly
+    # rewrite committed files (referee note 1). Give the helpers a scratch root
+    # instead and move their PNGs into `--out` flat: every destination is computed
+    # from `--out` alone, and nothing under the study is touched unless `--out`
+    # names it.
     from kleinlib.workflow import load_manifests
 
-    figures.plot_decision_trajectory(
-        load_manifests(study),
-        study,
-        track="primary",
-        metric_goal="higher",
-        metric_name="val_auc",
-        minimum_delta=declared_bar,
-        noise_floor_std=float(floors["paired_bootstrap"]["std"]),
-        name="plot_decision_trajectory",
-    )
+    helper_root = Path(tempfile.mkdtemp(prefix="klein-figures-"))
+    try:
+        figures.plot_roc(y_dev, incumbent, helper_root, name="plot_roc")
+        figures.plot_pr(y_dev, incumbent, helper_root, name="plot_pr")
+        figures.plot_reliability(y_dev, incumbent, helper_root, name="plot_reliability")
+        figures.plot_decile_lift(y_dev, incumbent, helper_root, name="plot_decile_lift")
+        figures.plot_decision_trajectory(
+            load_manifests(study),
+            helper_root,
+            track="primary",
+            metric_goal="higher",
+            metric_name="val_auc",
+            minimum_delta=declared_bar,
+            noise_floor_std=float(floors["paired_bootstrap"]["std"]),
+            name="plot_decision_trajectory",
+        )
+        for produced in sorted((helper_root / "figures").glob("*.png")):
+            shutil.move(str(produced), str(out_dir / produced.name))
+    finally:
+        shutil.rmtree(helper_root, ignore_errors=True)
 
     print(f"wrote {len(sorted(out_dir.glob('*.png')))} figures to {out_dir.name}/")
     for path in sorted(out_dir.glob("*.png")):
