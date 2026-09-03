@@ -77,7 +77,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 1,
+  "last_experiment": 2,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -105,6 +105,26 @@
         }
       ],
       "recorded_at": "2026-09-03T05:56:41.020871Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P1": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "min_abs_gap_465 10.8415590774 > 10 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "min_abs_gap_465 10.8415590774 > 10 \u2192 supported",
+          "recorded_at": "2026-09-03T06:04:07.521773Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:04:07.521773Z",
       "source": "run",
       "verdict": "supported"
     }
@@ -136,5 +156,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:01:07.986430Z"
+  "updated_at": "2026-09-03T06:04:07.522843Z"
 }

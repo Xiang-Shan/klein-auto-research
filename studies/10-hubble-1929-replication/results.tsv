@@ -1,2 +1,3 @@
 experiment	track	primary_metric	status	commit	description
 E0001	reproduction	0	measured	77a4c4d46f6508a933e1c2e2c2e951354b9ca1f1	identity anchor: Table 1's published sums (21.873 Mpc, 8955 km/s) and both row counts (24, 22) recomputed from the bundled bytes; hard-STOP on mismatch; registered cell measured
+E0002	reproduction	1	measured	67599afebbe767bc81c437e81805dd13bad5eabc	two-parameter fits of Table 1 (through the origin, and free-intercept) against Hubble's published K = 465 +/- 10; registered cell measured
