@@ -115,7 +115,8 @@
       "numbers": [
         "brier_balanced",
         "brier_doctrine",
-        "brier_ratio_doctrine"
+        "brier_ratio_doctrine",
+        "doctrine_auc_cost"
       ],
       "strength": "exploratory"
     },
@@ -214,6 +215,13 @@
       "note": "E0004 reference_brier / val_brier",
       "precision": 3,
       "value": 4.055
+    },
+    "doctrine_auc_cost": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0004 delta_vs_reference, absolute",
+      "precision": 6,
+      "value": 0.001465
     },
     "keep_lift": {
       "art": "verdicts",
