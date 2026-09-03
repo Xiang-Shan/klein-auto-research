@@ -176,7 +176,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "hubble_k_9group"
+        "hubble_k_9group",
+        "hubble_pe_9group"
       ],
       "strength": "exploratory"
     },
@@ -442,6 +443,13 @@
       "note": "the probable error Hubble quotes with his 24-object solution",
       "precision": 0,
       "value": 50
+    },
+    "hubble_pe_9group": {
+      "art": "contract",
+      "claim": "C18",
+      "note": "the probable error Hubble quotes with the nine-group solution",
+      "precision": 0,
+      "value": 60
     },
     "hubble_table2_mean": {
       "art": "contract",
