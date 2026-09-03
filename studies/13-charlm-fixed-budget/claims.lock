@@ -213,10 +213,14 @@
       "strength": "exploratory"
     },
     "C7": {
-      "claim": "RQ1 (sealed) | primary | interpretation | exploratory | mechanism-interpretation | E0006, E0008, `art:neardup` | The sealed block is harder because a contiguous final tenth of a concatenation of plays is a different sample of the corpus's own nonstationarity, not because the model overfitted: the sealed run trained on 111616 more characters than the development incumbent did and still scored 0.046961 nats worse, while the cross-partition audit found nothing to memorise (largest Jaccard similarity 0.030059). |",
-      "class": null,
+      "claim": "The sealed block is harder because a contiguous final tenth of this corpus is a different sample of its own nonstationarity and not because the model overfitted: the sealed run trained on 111616 more characters and still scored 0.046961 nats worse, 5.8485 fit-noise standard deviations, while the largest cross-partition similarity anywhere was 0.030059.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0006",
+        "E0008",
+        "art:neardup"
+      ],
       "numbers": [
         "development_chars",
         "e0008_sealed_gap",
