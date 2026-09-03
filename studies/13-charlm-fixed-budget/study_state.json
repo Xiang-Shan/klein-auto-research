@@ -100,7 +100,16 @@
       "script_sha256": "2f89af9c8b48c7fafe215ddd125b18e2fae8df9383dd324bd0e7452c54f2eae7",
       "sidecar": "sweeps/harness_controls.sidecar.tsv",
       "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
+    },
+    "paired_floor": {
+      "registered_at": "2026-09-03T12:06:09.180260Z",
+      "rows_crash": 0,
+      "rows_ok": 10,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "d394ff2145fd0ed088be954d7509bb3c959cc0c555e31afccabeb71b856703d5",
+      "sidecar": "sweeps/paired_floor.sidecar.tsv",
+      "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
     }
   },
-  "updated_at": "2026-09-03T12:06:08.996649Z"
+  "updated_at": "2026-09-03T12:06:09.180456Z"
 }
