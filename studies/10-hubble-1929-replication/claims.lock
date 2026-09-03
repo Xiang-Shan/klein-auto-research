@@ -119,7 +119,8 @@
       "evidence": [],
       "numbers": [
         "floor_max",
-        "floor_min"
+        "floor_min",
+        "floor_minimum_delta"
       ],
       "strength": "exploratory"
     },
@@ -355,6 +356,13 @@
       "note": "lowest coverage across the five Phase-0 floor blocks (sweep:coverage_floor)",
       "precision": 6,
       "value": 0.925
+    },
+    "floor_minimum_delta": {
+      "art": "contract",
+      "claim": "C12",
+      "note": "the simulate track's measured minimum_delta = max(2*std, range/2)",
+      "precision": 7,
+      "value": 0.0060663
     },
     "gap_465_nearest": {
       "art": "fits",
