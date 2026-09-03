@@ -23,9 +23,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "primary": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-03T05:31:48.862341Z",
+      "count": 1,
+      "experiment": "E0005"
     }
   },
   "fingerprints": {
@@ -68,7 +68,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 4,
+  "last_experiment": 5,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -158,6 +158,26 @@
       "recorded_at": "2026-09-03T05:29:52.183092Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P5": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "|gap_in_floors| 1.68 <= 2 (from 1.68) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "|gap_in_floors| 1.68 <= 2 (from 1.68) \u2192 supported",
+          "recorded_at": "2026-09-03T05:31:50.814409Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:31:50.814409Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -187,5 +207,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T05:31:09.320076Z"
+  "updated_at": "2026-09-03T05:31:50.815782Z"
 }

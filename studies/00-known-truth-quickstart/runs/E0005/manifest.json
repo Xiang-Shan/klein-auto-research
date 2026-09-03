@@ -1,0 +1,107 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3647,
+      "committed": true,
+      "sha256": "e17bd6f44ea73d9f253428bd90dce3ddd5f6b770a0a2d2c75ba61b57f647918f"
+    },
+    "models/best_primary_E0005_0.880949_32d175d10fbb.joblib": {
+      "availability": "local",
+      "bytes": 240736,
+      "committed": false,
+      "sha256": "1b297b25a71e0129addf1fca34738393c6c35efb5fa3f9b7915d0c3f66baa3b9"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 910,
+      "committed": true,
+      "sha256": "cf471d7db6087fe158e903e9446ffa97325d8f325278dddc4913358a48066067"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 677,
+      "committed": true,
+      "sha256": "fa3fe93a763b9b14bb01160ee93031ad4d8bd0fd390c8eceb5090d2b3f35f45a"
+    }
+  },
+  "base_commit": "7d2dd1fbfb0cf622910a1c36848006408cdec488",
+  "candidate_commit": "3f1017d8fcf502dbdc95279070f28dc8dc7457ad",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "E0005 sealed: E0003's configuration, once, on the held-out partition \u2014 does it land within two measured floors of that partition's own Bayes ceiling?; sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-09-03T05:31:50.814084Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "20e5ea3a0d642ffb7053d546967e64dc674f69fe62f2eed4f06ed841756f736d",
+    "split_partition": "21fcf05b28979cad84c35b4ea8ec90a7103c5a60d72a4747f41c63261bc3a424"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "bayes_auc": 0.893469,
+    "delta_in_floors": 4.619,
+    "delta_vs_reference": 0.034421,
+    "gap_in_floors": 1.68,
+    "gap_to_ideal": 0.01252,
+    "primary_metric": 0.880949,
+    "reference_auc": 0.846528,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.2,
+    "train_rows": 16000.0,
+    "training_seconds": 1.1,
+    "val_best_threshold": 0.26,
+    "val_brier": 0.1077,
+    "val_f1_at_best": 0.6748,
+    "val_lift_top10": 3.7513,
+    "val_logloss": 0.347808,
+    "val_pr_auc": 0.757043,
+    "val_rows": 4000.0,
+    "wall_seconds": 1.152864
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 1,
+  "predictions": {
+    "P5": {
+      "explanation": "|gap_in_floors| 1.68 <= 2 (from 1.68) \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P5"
+  ],
+  "primary_metric": 0.880949,
+  "schema_version": 3,
+  "started_at": "2026-09-03T05:31:48.862670Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T05:31:50.815350Z",
+    "status": "pending"
+  },
+  "wall_seconds": 1.9512963751330972
+}
