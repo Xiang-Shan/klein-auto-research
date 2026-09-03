@@ -198,11 +198,16 @@
       "strength": "exploratory"
     },
     "C17": {
-      "claim": "(research-discipline, exploratory, evidence E0011, art:contract)* **A",
-      "class": null,
+      "claim": "A prospective lock is a lock: what protected this study's sealed comparison was not the analyst's ignorance of the 22 sealed rows, which could not be restored, but that the statistic, the columns, the source of K and the tolerance were hashed into the contract before any cell ran and the access was spent once",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0011",
+        "art:contract"
+      ],
+      "numbers": [
+        "n_sealed_rows"
+      ],
       "strength": "exploratory"
     },
     "C18": {
