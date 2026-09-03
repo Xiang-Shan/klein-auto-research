@@ -24,3 +24,15 @@ E0002	residual_sd_kms	232.9106701830066
 E0002	r2_origin	0.6194422240017304
 E0002	r2_free	0.6235305209067517
 E0002	n	24.0
+E0003	artifact	tables/table1_absolute_magnitudes.tsv
+E0003	wall_seconds	0.009866952896118164
+E0003	rows	24
+E0003	sha256	0e709cb8bc1cd3fee9ddfcebc741bf9ca054e1543b327cae4a97d4192dda5388
+E0003	max_abs_mag_dev	0.07121254719662495
+E0003	mean_abs_mag_dev	0.022133867019204907
+E0003	n_objects	24.0
+E0003	n_outside_tolerance	3.0
+E0003	mean_M_t_computed	-15.483270669070984
+E0003	mean_M_t_printed	-15.479166666666666
+E0003	paper_printed_mean_M_t	-15.5
+E0003	abs_gap_printed_column_mean	0.020833333333333925
