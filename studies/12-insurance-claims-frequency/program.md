@@ -627,3 +627,18 @@ per replicate applied to both rungs, 1000 replicates, rungs from `lib/rungs.py`.
   numeral 1 — a number nobody measured and for which no honest alias exists. The two
   halves of one law disagreed about the same token. Fixed with the branch the document
   scanner already documents, plus a regression test that pins both halves together.
+- 2026-09-03 — The rebuild above took TWO passes, and the second one is recorded as a
+  KNOWN LIMITATION of the numbers law rather than fixed by loosening it. Claim C4's
+  first sentence named the feature `log1p`; the claim-sentence scanner reads the digit
+  inside that identifier as the numeral 1, a number nobody measured and for which no
+  honest alias exists. `klein claims add` refuses to change a claim's sentence, so the
+  claim was again unfixable forward, and the commits from C4 onward were dropped and
+  re-authored with the feature named in words. **The engine was deliberately NOT changed
+  for this one.** The version-tag case was a genuine disagreement between the two halves
+  of one law (the document scanner exempts `v1`, the sentence scanner did not) and was
+  fixed with a regression test; this case is an authoring constraint with an easy
+  workaround — write code identifiers in prose, or in backticks in findings where the
+  document scan exempts inline code — and loosening a check right after being blocked by
+  it is how checks stop meaning anything. The constraint is written down here for the
+  next study instead: **a claim sentence may not contain an identifier with a digit in
+  it.**

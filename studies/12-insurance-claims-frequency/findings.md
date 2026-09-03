@@ -193,7 +193,7 @@ win, is exactly what happened.
    ones; that is a defensible choice, but make it deliberately and report the
    pair-specific numbers beside it.
 2. **Never let a seed sweep become the keep bar.** Five fit seeds moved this study's
-   anchor by a standard deviation of 0.0000025099. A bar built from that would have kept
+   anchor by a standard deviation of 2.50998e-06. A bar built from that would have kept
    every candidate that moved the fifth decimal.
 3. **Calibrate, do not reweight.** `class_weight=None` plus
    `CalibratedClassifierCV(method="isotonic", cv=5)` bought a factor of 4.055 on Brier
@@ -252,32 +252,32 @@ Calibration first, because that is where the money is attached.
   residuals (0.011322, 0.001612, 0.001154) all landed inside it, and the largest is
   within a whisker of the 0.011226 the formula predicted for a transfer of exactly this
   shape (`scouting_ledger.md` S5) — a prediction made before any fitting, and the reason
-  this study did not need to invent a tolerance after seeing a miss (ref:hanley1982).
+  this study did not need to invent a tolerance after seeing a miss (`ref:hanley1982`).
 - **DeLong et al. (1988) is the doctrine that did NOT hold here.** Their point is that
   two AUCs on the same rows are correlated, so their difference is much better resolved
   than either level. It is true for near neighbours in this study (paired standard
   deviation 0.001276 for the doctrine A/B) and nearly false for the far ones (0.013942
   against a marginal 0.017964). The correlation is an empirical quantity, not a
-  guarantee, and a study that assumes it will help should measure it (ref:delong1988).
+  guarantee, and a study that assumes it will help should measure it (`ref:delong1988`).
 - **Dal Pozzolo et al. (2015) predicted the mechanism and the direction.** Reweighting a
   class changes the training prior and biases the posterior upward while leaving the
   ranking largely intact — measured here as a factor of 4.055 on Brier for 0.0390 of a
-  floor of rank (ref:dalpozzolo2015). Niculescu-Mizil & Caruana (2005) predicted the
+  floor of rank (`ref:dalpozzolo2015`). Niculescu-Mizil & Caruana (2005) predicted the
   other half: the boosted rung ranks best and is calibrated worst, Brier 0.223529 against
-  the calibrated GLM's 0.058994 (ref:niculescumizil2005).
+  the calibrated GLM's 0.058994 (`ref:niculescumizil2005`).
 - **Grinsztajn et al. (2022) holds on rank and is silent on resolution.** The tree is the
   best-ranking rung here, as the doctrine anchor says it should be on a table this size —
   and its margin over a well-specified calibrated GLM is 0.3714 of a measured floor. The
   benchmark literature reports such margins without a floor; this study's contribution to
   that conversation is that the margin and the resolution belong in the same sentence
-  (ref:grinsztajn2022).
+  (`ref:grinsztajn2022`).
 - **Zadrozny & Elkan (2002) and Ayer et al. (1955) describe what was observed exactly.**
   A monotone calibration map cannot reorder, so the AUC cost of isotonic calibration
   should be near zero and slightly negative from cross-fitting and ties: 0.001465
-  observed (ref:zadrozny2002, ref:ayer1955). Brier (1950) supplies the level-sensitive
-  score the doctrine test was decided on (ref:brier1950), Efron (1979) the resampling
-  argument behind every floor here (ref:efron1979), and Perperoglou et al. (2019) the
-  published grounding for quantile knot placement (ref:perperoglou2019).
+  observed (`ref:zadrozny2002`, `ref:ayer1955`). Brier (1950) supplies the level-sensitive
+  score the doctrine test was decided on (`ref:brier1950`), Efron (1979) the resampling
+  argument behind every floor here (`ref:efron1979`), and Perperoglou et al. (2019) the
+  published grounding for quantile knot placement (`ref:perperoglou2019`).
 - **Prior scorecard.** This is a port, so the scorecard is nearly empty by construction
   and says so rather than implying more: RQ1, RQ2 and RQ4's priors rest on the scouting
   ledger and are excluded as `(source: scouted)`. RQ3's prior is the study's one
