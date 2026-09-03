@@ -77,7 +77,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "headroom_at_e0004"
+      ],
       "strength": "exploratory"
     },
     "C5": {
@@ -182,6 +184,13 @@
       "note": "the development partition's Bayes AUC, printed by every development run",
       "precision": 6,
       "value": 0.884116
+    },
+    "headroom_at_e0004": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "the headroom disclosed at the preflight before E0004; the same number the incumbent printed as gap_in_floors",
+      "precision": 3,
+      "value": 1.708
     },
     "interaction_delta_floors": {
       "art": "aux",
