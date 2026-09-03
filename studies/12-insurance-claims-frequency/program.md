@@ -391,3 +391,30 @@ queue rather than the ledger.
   inflating it — exactly what a linear model on coarse rating cells should do, because it
   cannot memorise a cell it has already priced. H1 in the playbook predicts a tree will
   behave differently; E0003 will say.
+- 2026-09-03 — **E0002 DISCARDS at val_auc 0.650095** — and it is the most informative
+  row in the study so far.
+  * **P2 SUPPORTED**, and not marginally: `|0.650095 − 0.651707| = 0.001612`, which is
+    0.14 of the transfer standard deviation the tolerance was built from. A rung that
+    survives only as PROSE, recovered because the v1 study spent two words on its three
+    non-default kwargs (`knots="quantile"`, `include_bias=False`,
+    `CalibratedClassifierCV(cv=5)`), reproduced ~7x more tightly than the anchor whose
+    constructor was quoted from a `git show`. RQ2's prior said the verbatim rung would
+    land closest; on this evidence the prose rung already beats the anchor, and E0003
+    decides the rest.
+  * **Decision: P3 REFUTED**, by 0.0432 of a floor. The paired lift over the same anchor
+    refitted on the same rows is `delta_vs_reference` 0.035956, i.e.
+    `delta_in_floors` **0.9568** against a rule that required ≥ 1. The registered reading
+    is the honest one: on this portfolio, at this sample size, **the entire
+    spline-plus-calibration chain — three engineered feature families and a
+    cross-fitted isotonic wrapper — buys less than one measured floor of rank.** The
+    pre-committed cross-check fires clean: under the stricter k = 1000 bar (0.043229) the
+    same lift is 0.83 floors, so the verdict does not flip between the two bars.
+    Consequence for the loop: feature engineering on the linear rung is a ruled-out
+    direction for KEEP purposes on this track, and the playbook records it as such — but
+    the rung is not worthless, which is what the next bullet is about.
+  * The calibration half is enormous and the floor does not govern it: `val_brier`
+    0.240641 → **0.058994**, a factor of 4.08, matching the v1 study's own recovered
+    0.058960 to the fourth decimal. Rank and calibration are different currencies and
+    this row is where an actuary sees it: 0.96 floors of rank, 4x of level.
+  * `twin_free_gap` −0.001415: the duplicated rows are worth about a thousandth to this
+    rung too, and again in the direction that FLATTERS the twin-free number.
