@@ -71,9 +71,9 @@ TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
 # --- the candidate: the whole per-experiment diff surface -------------------
 # Empty between experiments. Choosing a rung IS the falsifiable idea a candidate
 # transaction carries, so the surface carries no rung until one is chosen.
-CANDIDATE = None                 # a key of lib.rungs.RECIPES
-REFERENCE = None                 # the rung this candidate claims to beat, or None
-V1_ANCHOR = None                 # the v1 ledger value this rung is anchored to, or None
+CANDIDATE = "glm_ohe_balanced"   # E0001: the v1 split-identity anchor
+REFERENCE = None                 # the first rung has nothing to beat yet
+V1_ANCHOR = 0.625462             # scouting_ledger.md S1, v1 results.tsv row 1
 DEV_INCUMBENT = None             # set only for the sealed confirmation run
 
 
