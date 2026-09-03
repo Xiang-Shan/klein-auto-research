@@ -20,7 +20,7 @@
     "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
   },
   "created_at": "2026-09-03T05:06:04.636641Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "primary": {
       "accessed_at": null,
@@ -70,7 +70,14 @@
   },
   "last_experiment": 4,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T05:31:09.319830Z",
+      "acknowledged_by": "lead-agent",
+      "note": "four experiments spent: three keeps and one discard; P1-P3 supported, P4 refuted with a dated decision; headroom stood at h = 1.708 (ajar, not open). The user's phase ack is delegated to the orchestrating agent for the Klein 2.0 exhibits.",
+      "playbook_sha256": "64da873113a814a2c7e3e4f215deebd7ef3d4903dd7fd5614726df1754c18ee1"
+    }
+  },
   "predictions": {
     "P1": {
       "evidence": [
@@ -180,5 +187,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T05:29:52.185483Z"
+  "updated_at": "2026-09-03T05:31:09.320076Z"
 }
