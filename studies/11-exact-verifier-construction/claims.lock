@@ -90,7 +90,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "triples_largest"
+      ],
       "strength": "exploratory"
     },
     "C7": {
@@ -271,6 +273,13 @@
       "note": "E0009, the sealed cell of n_small: the proven maximum, matched_external true",
       "precision": 0,
       "value": 22
+    },
+    "triples_largest": {
+      "art": "verify_log_large",
+      "claim": "C6",
+      "note": "triples_checked in E0010's verifier log: every triple of the largest object this study verified, enumerated by the checker",
+      "precision": 0,
+      "value": 26235
     },
     "verified_e0008": {
       "art": "crash",
