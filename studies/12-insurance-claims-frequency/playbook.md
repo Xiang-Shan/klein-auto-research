@@ -10,47 +10,47 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary | — | — | no incumbent yet; E0001 will set one | — |
+| primary | E0003 | 0.664051 | `hgbt_balanced` — HGBT(lr 0.05, 500 iters, 31 leaves, class_weight=balanced, early stopping) over OHE(min_frequency=20), 7 model-derivative columns dropped | 2026-09-03 |
 
-## The bar, and what it means for every candidate
+## The bar, and what it did
 
-`minimum_delta` 0.0375805 (paired-bootstrap, k = 20, the `glm_ohe_balanced` vs
-`hgbt_balanced` pair). That is 96 % of the whole v1 ledger's spread
-(0.625462 → 0.664322 = 0.038860). Consequences to keep in mind at every candidate
-choice:
+`minimum_delta` 0.0375805 (paired-bootstrap, k = 20, `glm_ohe_balanced` vs
+`hgbt_balanced`). It is 96.7 % of the whole v1 ledger's spread (0.625462 → 0.664322).
+Four runs later, what it actually decided:
 
-- Nothing in the v1 ladder is expected to be a KEEP against an incumbent that is
-  already one rung up. A keep needs a move bigger than the v1 study's entire range.
-- The anchor predictions (P1, P2, P4) are `within` rules on `primary_metric` and are
-  NOT governed by the floor — a run that cannot keep can still decide them.
-- The comparison predictions (P3, P5, P6) are written in floors, so this bar decides
-  them directly. P3 and P5 need ≥ 1 floor of paired lift; the v1 gaps they correspond
-  to are 0.026245 and 0.011190, i.e. 0.70 and 0.30 floors.
-- Fit noise is 2.5e-06. Anything that only re-seeds a fit is noise by four orders of
-  magnitude and must never be proposed as a candidate.
+| Comparison | Paired lift | In floors | Verdict |
+| --- | --- | --- | --- |
+| E0002 spline+isotonic vs the raw anchor | +0.035956 | 0.9568 | under the bar — P3 refuted |
+| E0003 tree vs the calibrated GLM | +0.013956 | 0.3714 | under the bar — P5 refuted |
+| E0003 tree vs the incumbent anchor | +0.049911 | 1.3282 | over the bar — the study's one keep |
+| E0004 doctrine A/B vs the anchor | −0.001465 | −0.0390 | inside the bar, as P6 predicted |
 
 ## Ruled out (evidence, not opinion)
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
+| feature engineering on the linear rung as a route to a KEEP | E0002 | the whole spline + log1p + interaction + isotonic chain is 0.9568 floors — real, and under the bar |
+| the tree's edge over the calibrated GLM as a filing argument | E0003 | 0.3714 floors; the price of a filable GLM is not resolvable at this sample size |
+| `class_weight="balanced"` as a way to buy rank | E0004 | it costs 0.039 floors of AUC and 4.06x of Brier; it buys nothing |
+| duplicated rows as an explanation of any rung's score | E0001, E0002, E0003, E0004 | `twin_free_gap` ∈ [−0.001415, +0.001198] across all four; three of four are POSITIVE, so the duplicates never flattered a headline number |
 | a keep bar from the fit-seed spread | `sweep:fit_noise` | std 2.5e-06 — it would keep anything that moved the fifth decimal |
-| fixing the duplicate-row FAIL by dedupe or a content-grouped split | `data_card.md` BLOCKER #1, `program.md` 2026-09-03 | both change which rows are trained on, which voids the v1 train-partition identity P1/P2/P4 rest on |
+| fixing the duplicate-row FAIL by dedupe or a content-grouped split | `data_card.md` BLOCKER #1 | both change which rows are trained on, voiding the v1 identity P1/P2/P4 rest on |
 
 ## Open hypotheses
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
-| H1 | the duplicated rows inflate a TREE's AUC more than a GLM's, because only a tree can memorise a cell | scouted-adjacent: the smoke check showed the GLM's `twin_free_gap` is +0.0012, i.e. the duplicates slightly DEPRESS the GLM | already wired: every run prints `twin_free_auc`; compare E0001's gap with E0003's |
-| H2 | the paired floor is large because THIS pair is unusually dissimilar; a floor measured on a similar pair would be several times smaller | uninformed — the k = 20 and k = 1000 runs agree the pair's own spread is ~0.014-0.017 | the post-loop pair-specific floor sweeps registered in `program.md` |
-| H3 | prose-with-kwargs reproduces less tightly than a committed file (RQ2) | scouted: the v1 study's own advice #5 says naming the kwargs is enough | compare E0002's and E0003's `anchor_gap` magnitudes |
+| H1 | the duplicated rows inflate a TREE's AUC more than a GLM's | **REFUTED** by E0003: `twin_free_gap` +0.001018, the same sign and size as the GLMs' | closed |
+| H2 | the paired floor is large because THIS pair is unusually dissimilar; a similar pair's floor would be several times smaller | open — the ladder's own three comparisons have very different similarity | the post-loop pair-specific floor sweeps registered in `program.md` |
+| H3 | prose-with-kwargs reproduces less tightly than a committed file (RQ2) | **directionally supported, quantitatively almost empty**: 0.001154 (verbatim) vs 0.001612 (prose+kwargs) vs 0.011322 (the anchor's quoted constructor) | closed by E0001-E0003; the residual question is why the ANCHOR is 7x looser |
+| H4 | the anchor's 0.011322 residual is evaluation-row sampling, not an unrecovered kwarg | uninformed; it equals the closed-form transfer SD (0.011226) to three decimals, which is either strong support or a coincidence | a split-lottery of the anchor already gives the spread (std 0.0179641); separating the two would need the v1 model itself, which does not survive |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. Drop the six redundant categoricals the data card's WARN #4 names
-   (`region_code` ↔ `region_density`, `model` ↔ `engine_type` / `segment` are 1:1
-   mappings) and refit the anchor. Not chosen: the predicted move is a few
-   thousandths against a floor of 0.0376, and GLM coefficient stability is not a
-   question this study registered.
-2. Re-run the v1 sweep's winning `learning_rate` 0.06 against `hgbt_balanced`. Not
-   chosen: its own recorded lift was +0.001425, which P8 compares against the floor
-   arithmetically with no run needed.
+1. Pair-specific paired floors for each of the ladder's three comparisons (registered
+   before the loop, to be run after it). Answers H2 and RQ3 directly; cannot change a
+   registered verdict.
+2. Drop the six redundant categoricals the data card's WARN #4 names. Still not chosen:
+   a few thousandths against a floor of 0.0376.
+3. Re-run the v1 sweep's winning `learning_rate` 0.06. Still not chosen: its lift was
+   +0.001425 and P8 settles it arithmetically.

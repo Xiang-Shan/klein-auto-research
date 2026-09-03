@@ -455,3 +455,29 @@ queue rather than the ledger.
 - 2026-09-03 — Headroom after the keep: `h = (1.0 − 0.664051) / 0.0375805 = 8.94`. The
   door is open by the arithmetic; that is read as "not excluded", never as "plausible" —
   study 08 stood at h = 1.015 and produced zero keeps in twenty-one attempts.
+- 2026-09-03 — **E0004 DISCARDS at val_auc 0.612675** and **P6 is SUPPORTED on both
+  clauses**: `brier_delta_vs_reference` −0.181304 < 0 and `|delta_in_floors|` 0.0390 < 1.
+  Replacing `class_weight="balanced"` with `class_weight=None` plus a cross-fitted
+  isotonic wrapper takes the Brier score from 0.240641 to **0.059337** — a factor of
+  4.06 — and pays 0.001465 of AUC for it, which is one twenty-fifth of one measured
+  floor. `val_logloss` moves 0.673642 → 0.233051 in the same trade. The insurance
+  profile's doctrine (war story 4) reproduces on this portfolio, and the two currencies
+  are now measured on the same rows in the same process rather than compared across log
+  files.
+  * Disclosed: this rung uses `CalibratedClassifierCV(cv=5)`, while the v1 ledger's row
+    4 used `cv=3`. It is therefore NOT the v1 row-4 recipe and carries no `V1_ANCHOR`
+    and no registered anchor prediction — deliberately, because cv=5 is what the v1
+    study's own advice #3 and the campaign best-practices document recommend, and
+    registering an anchor against a recipe this study chose not to run would have been
+    dishonest. For information, and not as a rule: v1's row 4 measured −0.002603 of AUC
+    and Brier 0.240153 → 0.059279; this run measures −0.001465 and 0.240641 → 0.059337.
+  * `twin_free_gap` +0.001106 — the fourth consecutive rung whose duplicated rows do not
+    flatter it.
+- 2026-09-03 — **Phase `adaptive-1` closes with its four experiments spent**: two keeps
+  (E0001, E0003) and two discards (E0002, E0004); P1, P2, P4 and P6 supported, P3 and P5
+  refuted, all six adjudicated by the notary on printed blocks. The phase's headline is
+  the one the study registered RQ3 to be able to find: **the v1 quickstart recorded six
+  keeps on this data; under a measured paired-comparison floor its ladder yields one
+  frontier improvement, and that one comes from beating the raw anchor rather than from
+  any rung beating the one below it.** Playbook refreshed; the acknowledgement is the
+  lead's delegated one.
