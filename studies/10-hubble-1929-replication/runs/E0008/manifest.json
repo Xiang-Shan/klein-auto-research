@@ -1,0 +1,90 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3871,
+      "committed": true,
+      "sha256": "153aa42e87934aa52478b4aa77b04458b90454a8ee6d7bb4c64caf75609a5aa5"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 818,
+      "committed": true,
+      "sha256": "3975d01f66c0947e6780259f34d61e5de4ea15bb82f494bf389fc5002846de58"
+    },
+    "tables/jackknife_k.tsv": {
+      "availability": "recorded",
+      "bytes": 1262,
+      "committed": true,
+      "role": "declared",
+      "sha256": "4e07cf0c14a3f13bbb900445e147e1289f8f89a7732621981dff7c923192ae47"
+    }
+  },
+  "base_commit": "e175c7292de6bebe87fdf4464a96e0f2e69b81b2",
+  "candidate_commit": "b4fd7521481c5b4d3e9005817b8c0f6d66eca17c",
+  "code_patch_hash": "819a41a74fc0f35f7f9be6749a7734ba9cd0dcc4126ddb4fd5b094d0169a9fb7",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "jackknife influence: leave-one-out K for each of the 24 objects, plus the joint influence of the four Virgo-cluster rows that share one assigned distance; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:16:57.086288Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "k_kms_per_mpc",
+  "metrics": {
+    "analytic_se": 75.2371053471691,
+    "jackknife_se": 80.48589430090415,
+    "k_full": 454.15844092262836,
+    "k_jackknife_mean": 454.3371239860412,
+    "k_without_virgo_group": 531.3472665929448,
+    "max_abs_influence": 50.02022664066345,
+    "max_influence_r_mpc": 2.0,
+    "n_objects": 24.0,
+    "n_virgo_objects": 4.0,
+    "primary_metric": 454.337124,
+    "rows": 24.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "virgo_group_influence": 77.18882567031648,
+    "wall_seconds": 0.011007
+  },
+  "phase": "adaptive-3",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 5,
+  "predictions_requested": [],
+  "primary_metric": 454.337124,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:16:56.294263Z",
+  "timed_out": false,
+  "track": "estimate",
+  "transaction": {
+    "ready_at": "2026-09-03T06:16:57.087048Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.7919195829890668
+}

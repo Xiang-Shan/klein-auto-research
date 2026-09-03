@@ -91,3 +91,17 @@ E0007	inverse_minus_forward_se_units	2.447419144680689
 E0007	difference_ci_low	113.85372381237195
 E0007	difference_ci_high	564.8125094420406
 E0007	ratio_inverse_over_forward	1.6037707320978898
+E0008	artifact	tables/jackknife_k.tsv
+E0008	wall_seconds	0.011006832122802734
+E0008	rows	24
+E0008	sha256	4e07cf0c14a3f13bbb900445e147e1289f8f89a7732621981dff7c923192ae47
+E0008	k_full	454.15844092262836
+E0008	k_jackknife_mean	454.3371239860412
+E0008	jackknife_se	80.48589430090415
+E0008	analytic_se	75.2371053471691
+E0008	max_abs_influence	50.02022664066345
+E0008	max_influence_r_mpc	2.0
+E0008	n_objects	24.0
+E0008	n_virgo_objects	4.0
+E0008	k_without_virgo_group	531.3472665929448
+E0008	virgo_group_influence	77.18882567031648
