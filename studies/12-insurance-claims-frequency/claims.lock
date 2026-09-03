@@ -112,7 +112,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "brier_ratio_doctrine"
+      ],
       "strength": "exploratory"
     },
     "C6": {
@@ -189,6 +191,13 @@
       "note": "minimum_delta / v1_ledger_spread",
       "precision": 4,
       "value": 0.9671
+    },
+    "brier_ratio_doctrine": {
+      "art": "derived",
+      "claim": "C5",
+      "note": "E0004 reference_brier / val_brier",
+      "precision": 3,
+      "value": 4.055
     },
     "keep_lift": {
       "art": "verdicts",
