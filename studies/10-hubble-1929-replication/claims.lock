@@ -314,18 +314,26 @@
       "strength": "confirmed"
     },
     "C9": {
-      "claim": "estimate | confirmed | empirical-description | E0007, E0008, rep:E0007@20260903T064658Z, rep:E0008@20260903T064844Z, art:invfwd, art:jack | Two choices nobody discusses move K more than the data does: inverse regression returns 728.366015 against the forward 454.158441 (a factor of 1.603771), and dropping the four Virgo rows that share one assigned distance moves it by 77.188826 \u2014 more than the analytic standard error of 75.237105 |",
-      "class": null,
+      "claim": "Two choices nobody discusses move K more than the data does: inverse regression returns 728.366015 against the forward 454.158441 (a factor of 1.603771), and dropping the four Virgo rows that share one assigned distance moves it to 531.347267, a shift of 77.188826 - more than the analytic standard error of 75.237105",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0007",
+        "E0008",
+        "rep:E0007@20260903T064658Z",
+        "rep:E0008@20260903T064844Z",
+        "art:invfwd",
+        "art:jack"
+      ],
       "numbers": [
         "analytic_se",
         "inverse_forward_ratio",
+        "k_free",
         "k_inverse",
         "k_without_virgo",
         "virgo_influence"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     }
   },
   "errata": {},
