@@ -1,0 +1,72 @@
+<h2>Findings &amp; Insights</h2>
+
+<p>Eight notarized runs of a 4-layer character transformer at a fixed 2000-step
+budget, every checkpoint scored by a verifier the training script could not touch.
+Four textbook recipe levers were registered as predictions before any of them ran
+&mdash; warmup, weight tying, dropout, width &mdash; and not one of them cleared the
+measured floor; two of them cost multiple floors. The only improvement came from the
+one lever that carried no prediction at all: when the learning rate is spent. The
+sealed final tenth then came back 3.140679 measured floors harder than development, so
+this study confirms a level and not a gap, and says so throughout rather than in a
+footnote.</p>
+
+<h3>Verdicts</h3>
+
+<table>
+<thead><tr><th>Claim</th><th>Research question</th><th>Verdict</th><th>Strength</th></tr></thead>
+<tbody>
+<tr><td>[C1]</td><td>RQ1 &mdash; the recipe contest</td><td>supported, direction reversed: at most one lever cleared the floor, but it was none of the four registered ones</td><td>exploratory</td></tr>
+<tr><td>[C2]</td><td>RQ2 &mdash; checker vs. searcher</td><td>supported: never a printable disagreement, device-independent, replication inside fit noise</td><td>exploratory</td></tr>
+<tr><td>[C3]</td><td>RQ3 &mdash; recipes or noise?</td><td>supported: the largest cost is an order of magnitude past the seed spread, the only gain a small multiple of it</td><td>exploratory</td></tr>
+<tr><td>[C4]</td><td>RQ1, sealed</td><td>measured: the selected recipe scores 1.56628 nats / 2.259664 bits per character on unseen text</td><td>confirmed</td></tr>
+<tr><td>[C5]</td><td>&mdash;</td><td>held: the checker decided every disposition, guardrails held on all eight runs, all four controls behaved correctly</td><td>confirmed</td></tr>
+<tr><td>[C6]</td><td>RQ1, mechanism</td><td>interpretation: tying fails because one matrix serves two roles with no logit scale to reconcile them, not because of parameter count</td><td>exploratory</td></tr>
+<tr><td>[C7]</td><td>RQ1, sealed mechanism</td><td>interpretation: the sealed block is a different sample of the corpus's own nonstationarity, not overfitting</td><td>exploratory</td></tr>
+</tbody>
+</table>
+
+<p><strong>Why only two claims reach <code>confirmed</code>.</strong> This track
+declared exactly one sealed access, and it was spent on the selected candidate. That
+arithmetic confirms [C4]&rsquo;s LEVEL and [C5]&rsquo;s PROCEDURE; every comparison
+&mdash; every floor, every delta, the entire recipe contest &mdash; is a
+development-partition measurement and stays exploratory. One track means one sealed
+number, and a comparison needs two. Two supported, four refuted, none inconclusive,
+none open: the method card staked a directional expectation on P2&ndash;P5 before they
+ran and got two of the four right &mdash; P2 refuted as expected, P4 supported as
+expected; P3 was expected supported and was refuted, P5 was marked genuinely uncertain
+and was refuted.</p>
+
+<h3>What defied the prior</h3>
+
+<ul>
+<li><strong>Weight tying was the single most expensive thing this study did.</strong>
+The method card&rsquo;s parameter arithmetic &mdash; 8320 of 824320 parameters, 1.009317
+percent &mdash; predicted an invisible change. It cost 21.1718 fit-noise standard
+deviations, the largest effect measured anywhere here, because the parameter COUNT was
+the wrong quantity to reason about: at a 65-row vocabulary seen constantly, forcing one
+matrix to be both the input lookup and the output classifier removed a degree of
+freedom the model was actually using.</li>
+<li><strong>Width bought nothing at a fixed step budget.</strong> 3.908075 times the
+parameters moved the loss in the wrong direction, inside the floor. Holding STEPS
+fixed is a harsher condition than holding FLOPs fixed, and it is the condition a
+practitioner with a wall-clock deadline and a fixed dataset actually faces &mdash; not
+a contradiction of scaling-law doctrine, but its honest boundary.</li>
+<li><strong>The only thing that worked carried no prediction.</strong> Four registered
+levers, four failures; the keep came from the phase slate&rsquo;s fifth candidate,
+which nobody had staked a registered claim on. That asymmetry is a finding about which
+levers the literature discusses most, not about the machinery.</li>
+<li><strong>Warmup&rsquo;s verdict depended on its partner.</strong> Against a constant
+learning rate it cost -1.0431 floors; against the cosine schedule it normally travels
+with, it landed at 0.103528 floors from the incumbent &mdash; inside the floor,
+neither cost nor benefit. A lever tested against the wrong partner answers a different
+question than the one it was meant to answer.</li>
+<li><strong>The sealed tenth was harder, and it was not overfitting.</strong> The
+sealed run trained on 111616 MORE characters than the development incumbent and
+still scored worse &mdash; a distribution-shift bill for the leakage protection a
+contiguous split buys, not a symptom of memorization (the largest cross-partition
+similarity found anywhere was 0.030059).</li>
+</ul>
+
+<p>The remaining sections turn these seven claims into what a training-recipe
+practitioner should actually change, and the entrypoint that produced every number
+above.</p>

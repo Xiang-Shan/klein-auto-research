@@ -1,0 +1,5 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"control":"uniform"}	4.174388	0.010	ok	
+2	{"control":"untrained_network"}	4.305432	1.555	ok	
+3	{"control":"unigram_train_fit"}	3.306991	0.013	ok	
+4	{"control":"copy_input"}	4.750043	0.010	ok	

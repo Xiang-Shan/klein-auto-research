@@ -1,0 +1,341 @@
+{
+  "baseline": 1.572174,
+  "block_differences": {
+    "anchor_mean": {
+      "difference": null,
+      "original": 1.56915,
+      "replicate": null
+    },
+    "anchor_z": {
+      "difference": null,
+      "original": 0.3766,
+      "replicate": null
+    },
+    "bpc": {
+      "difference": null,
+      "original": 2.268167,
+      "replicate": null
+    },
+    "cfg_batch_size": {
+      "difference": null,
+      "original": 32.0,
+      "replicate": null
+    },
+    "cfg_dropout": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "cfg_lr": {
+      "difference": null,
+      "original": 0.003,
+      "replicate": null
+    },
+    "cfg_n_embd": {
+      "difference": null,
+      "original": 128.0,
+      "replicate": null
+    },
+    "cfg_n_head": {
+      "difference": null,
+      "original": 4.0,
+      "replicate": null
+    },
+    "cfg_n_layer": {
+      "difference": null,
+      "original": 4.0,
+      "replicate": null
+    },
+    "cfg_seed": {
+      "difference": null,
+      "original": 20260903.0,
+      "replicate": null
+    },
+    "cfg_tie_weights": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "cfg_warmup_steps": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "delta_in_floors": {
+      "difference": null,
+      "original": -0.2022,
+      "replicate": null
+    },
+    "delta_vs_anchor": {
+      "difference": null,
+      "original": -0.003024,
+      "replicate": null
+    },
+    "eval_chars": {
+      "difference": 0.0,
+      "original": 111616.0,
+      "replicate": 111616.0
+    },
+    "eval_context": {
+      "difference": null,
+      "original": 128.0,
+      "replicate": null
+    },
+    "eval_windows": {
+      "difference": 0.0,
+      "original": 871.0,
+      "replicate": 871.0
+    },
+    "final_train_batch_loss": {
+      "difference": 0.018484999999999863,
+      "original": 1.411588,
+      "replicate": 1.430073
+    },
+    "fit_seconds": {
+      "difference": 0.7789999999999999,
+      "original": 19.95,
+      "replicate": 20.729
+    },
+    "n_params": {
+      "difference": null,
+      "original": 824320.0,
+      "replicate": null
+    },
+    "n_partition_chars": {
+      "difference": null,
+      "original": 111616.0,
+      "replicate": null
+    },
+    "n_scored_chars": {
+      "difference": null,
+      "original": 111488.0,
+      "replicate": null
+    },
+    "n_val_windows": {
+      "difference": null,
+      "original": 871.0,
+      "replicate": null
+    },
+    "primary_metric": {
+      "difference": 0.0009619999999999074,
+      "original": 1.572174,
+      "replicate": 1.571212
+    },
+    "recipe_dropout": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "recipe_lr": {
+      "difference": 0.0,
+      "original": 0.003,
+      "replicate": 0.003
+    },
+    "recipe_n_embd": {
+      "difference": 0.0,
+      "original": 128.0,
+      "replicate": 128.0
+    },
+    "recipe_seed": {
+      "difference": 0.0,
+      "original": 20260903.0,
+      "replicate": 20260903.0
+    },
+    "recipe_tie_weights": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "recipe_warmup_steps": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "reported_val_loss": {
+      "difference": null,
+      "original": 1.572174,
+      "replicate": null
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "steps": {
+      "difference": null,
+      "original": 2000.0,
+      "replicate": null
+    },
+    "total_seconds": {
+      "difference": 23.5,
+      "original": 0.8,
+      "replicate": 24.3
+    },
+    "train_bpc": {
+      "difference": 0.0013870000000002491,
+      "original": 2.268167,
+      "replicate": 2.26678
+    },
+    "train_chars": {
+      "difference": 0.0,
+      "original": 891904.0,
+      "replicate": 891904.0
+    },
+    "train_steps": {
+      "difference": 0.0,
+      "original": 2000.0,
+      "replicate": 2000.0
+    },
+    "verifier_gap": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "wall_seconds": {
+      "difference": 23.466336,
+      "original": 0.812435,
+      "replicate": 24.278771
+    }
+  },
+  "candidate_commit": "d17fc8ef2e95e3a863732d426f0fa7c00c3f0934",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+  "difference": 0.0009619999999999074,
+  "ended_at": "2026-09-03T12:13:18.086306Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0001@20260903T121129Z",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "log": "runs/E0001/replications/20260903T121129Z.log",
+  "max_run_seconds": 900.0,
+  "metric_name": "val_loss",
+  "mismatched_keys": [
+    "anchor_mean",
+    "anchor_z",
+    "bpc",
+    "cfg_batch_size",
+    "cfg_dropout",
+    "cfg_lr",
+    "cfg_n_embd",
+    "cfg_n_head",
+    "cfg_n_layer",
+    "cfg_seed",
+    "cfg_tie_weights",
+    "cfg_warmup_steps",
+    "delta_in_floors",
+    "delta_vs_anchor",
+    "eval_context",
+    "final_train_batch_loss",
+    "n_params",
+    "n_partition_chars",
+    "n_scored_chars",
+    "n_val_windows",
+    "reported_val_loss",
+    "steps",
+    "verifier_gap"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "anchor_mean": 1.56915,
+    "anchor_z": 0.3766,
+    "bpc": 2.268167,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 128.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 0.0,
+    "cfg_warmup_steps": 0.0,
+    "delta_in_floors": -0.2022,
+    "delta_vs_anchor": -0.003024,
+    "eval_chars": 111616.0,
+    "eval_context": 128.0,
+    "eval_windows": 871.0,
+    "final_train_batch_loss": 1.411588,
+    "fit_seconds": 19.95,
+    "n_params": 824320.0,
+    "n_partition_chars": 111616.0,
+    "n_scored_chars": 111488.0,
+    "n_val_windows": 871.0,
+    "primary_metric": 1.572174,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_n_embd": 128.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 0.0,
+    "recipe_warmup_steps": 0.0,
+    "reported_val_loss": 1.572174,
+    "runner_exit_code": 0.0,
+    "steps": 2000.0,
+    "total_seconds": 0.8,
+    "train_bpc": 2.268167,
+    "train_chars": 891904.0,
+    "train_steps": 2000.0,
+    "verifier_gap": 0.0,
+    "wall_seconds": 0.812435
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 1.572174,
+  "record": "runs/E0001/replications/20260903T121129Z.json",
+  "replicate_block": {
+    "eval_chars": 111616.0,
+    "eval_windows": 871.0,
+    "final_train_batch_loss": 1.430073,
+    "fit_seconds": 20.729,
+    "primary_metric": 1.571212,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_n_embd": 128.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 0.0,
+    "recipe_warmup_steps": 0.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 24.3,
+    "train_bpc": 2.26678,
+    "train_chars": 891904.0,
+    "train_steps": 2000.0,
+    "wall_seconds": 24.278771
+  },
+  "replicate_primary_metric": 1.571212,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "deep"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "deep"
+  ],
+  "setup_seconds": 2.5260059169959277,
+  "stamp": "20260903T121129Z",
+  "started_at": "2026-09-03T12:11:32.079285Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T12:11:29.270960Z",
+  "tolerance": 0.0149525,
+  "tolerance_source": "minimum_delta",
+  "track": "primary",
+  "wall_seconds": 105.99597741710022,
+  "worktree_prepared": true
+}

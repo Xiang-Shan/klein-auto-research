@@ -1,0 +1,73 @@
+<h2>The Question</h2>
+
+<p>Every training recipe carries folklore: warm up the learning rate, tie the input
+and output embeddings, add dropout, make the model bigger. Each piece of folklore has
+a paper behind it. None of those papers ran at the budget most people actually train
+under &mdash; a fixed, small number of optimizer steps, decided in advance, spent once.
+This study asks the folklore's question honestly: <strong>under a fixed 2000-step
+training budget on a character-level corpus, which single-change training-recipe
+edits to a small char transformer improve held-out validation loss by more than the
+measured run-to-run floor, when every checkpoint is scored by a verifier the training
+script cannot touch?</strong></p>
+
+<p><strong>The deliberate constraint.</strong> Compute is held fixed in <em>optimizer
+steps</em>, not in wall-clock seconds, so a candidate cannot buy an improvement by
+running longer on faster hardware &mdash; a CPU run and an accelerator run of the same
+recipe are the same experiment. And the checkpoint that decides every disposition is
+never scored by the script that trained it: a second, independent program loads the
+saved weights from disk, rebuilds the architecture from its own separate
+implementation, and recomputes the loss. The trainer's own number is recorded beside
+the checker's, and the two are compared &mdash; the searcher is never the one who grades
+the search.</p>
+
+<p>Four textbook levers were registered as predictions before any of them ran, one per
+research question:</p>
+
+<ol>
+<li><strong>RQ1 &mdash; the recipe contest.</strong> Which of warmup, weight tying,
+dropout and width clears the measured floor at 2000 steps, and which is
+indistinguishable from re-running the same recipe under a different seed? Prior: at
+most one &mdash; width &mdash; clears it, because capacity is the only one of the four
+that buys anything the optimizer can spend the steps on <em>(source: uninformed &mdash;
+no edit besides the anchor had run before this contract)</em>.</li>
+<li><strong>RQ2 &mdash; does the checker agree with the searcher?</strong> Does a
+verifier that re-scores a checkpoint from disk agree with the training script's own
+reported loss, and does the same checkpoint survive a device change? Prior:
+same-device agreement lands orders of magnitude inside the declared tolerance; a
+device change moves a full re-execution by less than one fit-noise standard deviation
+<em>(source: scouted &mdash; a design-time CPU/MPS pair)</em>.</li>
+<li><strong>RQ3 &mdash; recipes or noise?</strong> How large is the largest recipe
+effect against the anchor's own seed-to-seed spread &mdash; is this study measuring
+recipes, or measuring noise? Prior: a small multiple of the fit-noise standard
+deviation, not an order of magnitude <em>(source: uninformed)</em>.</li>
+</ol>
+
+<p><strong>Six predictions, one arithmetic rule each, registered before any evidence
+existed:</strong></p>
+
+<table>
+<thead><tr><th>P#</th><th>Lever</th><th>Rule on the verifier's printed block</th></tr></thead>
+<tbody>
+<tr><td>P1</td><td>the anchor recipe at a seed the floor sweep never used</td><td><code>anchor_z &lt;= 2</code></td></tr>
+<tr><td>P2</td><td>linear learning-rate warmup</td><td><code>delta_in_floors &gt;= 1</code></td></tr>
+<tr><td>P3</td><td>weight tying (output head shares the token embedding)</td><td><code>abs(delta_in_floors) &lt; 1</code></td></tr>
+<tr><td>P4</td><td>dropout 0.1</td><td><code>delta_in_floors &lt;= -1</code></td></tr>
+<tr><td>P5</td><td>width 128 &rarr; 256</td><td><code>delta_in_floors &gt;= 1</code></td></tr>
+<tr><td>P6</td><td>the sealed final tenth of the corpus</td><td><code>abs(sealed_gap_in_fit_noise) &lt;= 2</code></td></tr>
+</tbody>
+</table>
+
+<p>Every rule is written in units of a floor measured before any candidate ran: a
+paired-comparison spread across ten redraws of five identically-configured anchor
+checkpoints, re-scored on identical validation windows. Nothing here is compared
+against an untuned baseline &mdash; the anchor recipe is the reference, and it was
+tuned no more than any candidate was.</p>
+
+<p><strong>Why this exhibit exists.</strong> This is the first Klein study run under
+the <code>ml-research</code> profile with a closed loop &mdash; consult through
+tutorial &mdash; and its literature scorecard is the first entry in
+<code>knowledge/domains/ml-research/</code>. Two of its three research-question
+priors are marked <code>uninformed</code> for exactly that reason: there was no prior
+study to draw on. What follows is the record of what four decades of transformer
+folklore predicted, and what a fixed step budget, a separate checker, and a measured
+floor actually found.</p>

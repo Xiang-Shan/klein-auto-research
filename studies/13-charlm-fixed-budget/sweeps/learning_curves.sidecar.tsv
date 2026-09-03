@@ -1,0 +1,3 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"recipe":"anchor"}	1.563815	21.666	ok	
+2	{"recipe":"cosine"}	1.518369	21.405	ok	

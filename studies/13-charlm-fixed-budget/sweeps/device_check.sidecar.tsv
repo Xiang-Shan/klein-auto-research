@@ -1,0 +1,3 @@
+trial	params_json	primary_metric	wall_seconds	status	error
+1	{"device":"cpu","run":"E0001"}	1.572174	2.598	ok	
+2	{"device":"mps","run":"E0001"}	1.572174	2.604	ok	

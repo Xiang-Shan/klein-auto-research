@@ -1,0 +1,663 @@
+{
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "cfe1fc2eef88215846cae55616f19f04291bd30611812f31021c4a5c6b00b374"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332"
+    },
+    "controls": {
+      "path": "tables/harness_controls.tsv",
+      "sha256": "a7895829c5da31601e50c434787b4cbaa2625bf2a201535573ea7c1bffacc31e"
+    },
+    "corpus": {
+      "path": "tables/corpus_profile.tsv",
+      "sha256": "7941e1e145e3e8406c9b0af5c5010fe77a82823a983bef96b6e3fb087218bbcd"
+    },
+    "curves": {
+      "path": "tables/learning_curves.tsv",
+      "sha256": "2c70ca3a01cf2284aa33b57878654d08db7431f16d1cb9a7152c7bbcb1037bae"
+    },
+    "device": {
+      "path": "tables/device_check.tsv",
+      "sha256": "f1df0a171a4bbc10fa40667eef4ca6c726ebd463cb47dd430c7f11e8433b5ae0"
+    },
+    "frontier": {
+      "path": "tables/frontier.tsv",
+      "sha256": "2480be9abcd841abf88a002fd758af32f1ae7b01b0fdf6e96dee4af444f6445b"
+    },
+    "neardup": {
+      "path": "tables/near_duplicates.tsv",
+      "sha256": "745d0a5c1ec71b3ec40f789e51d4a1f5b573c8df97aad32f4bd06b7113f404b2"
+    },
+    "refs_losses": {
+      "path": "tables/reference_losses.tsv",
+      "sha256": "b186a6b5913630f0a533308f510f0c88dd0f0cd1c77c050f826bf5de86aaca0f"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "0b31323ecaaceb4b90fccfd694d7ded1344bd7edb9bb1f30cf56e60d2767739a"
+    },
+    "summary": {
+      "path": "tables/study_summary.tsv",
+      "sha256": "48103d47e5d0fd0bfb3bd1fd7419f509769593371a78678513b623cfb878a049"
+    }
+  },
+  "claims": {
+    "C1": {
+      "claim": "At a fixed budget of 2000 steps none of the four registered single-change levers cleared the measured floor of 0.0149525 nats: warmup -1.0431 floors, weight tying -11.3693, dropout 0.1 -4.7255 and width -0.4742, each against the anchor's five-seed mean; the only keep was cosine decay at 3.3326 floors.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "sweep:paired_floor",
+        "sweep:fit_noise",
+        "sweep:learning_curves"
+      ],
+      "numbers": [
+        "curve_anchor_end",
+        "curve_cosine_end",
+        "dropout_rate",
+        "e0001_anchor_z",
+        "e0002_floors",
+        "e0003_floors",
+        "e0004_floors",
+        "e0005_floors",
+        "e0006_floors",
+        "e0007_floors",
+        "minimum_delta",
+        "steps_budget",
+        "warmup_on_cosine_floors"
+      ],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "Never let the training script grade its own checkpoint: an independent checker cost one extra file here, and the two numbers never disagreed by more than 0.0 nats against a declared tolerance of 0.01.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0008",
+        "sweep:harness_controls"
+      ],
+      "numbers": [
+        "max_verifier_gap",
+        "verifier_tolerance"
+      ],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "A copy-the-input control catches the off-by-one target alignment that no other control in this study could see: a correct harness scores it 4.750043 nats, worse than chance at 4.174388, where the bug would have scored 0.693147.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "sweep:harness_controls"
+      ],
+      "numbers": [
+        "control_copy",
+        "control_uniform",
+        "off_by_one_loss"
+      ],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "A contiguous-block split of ordered text buys leakage safety and pays for it in distribution shift: the same recipe with more training data scored 0.046961 nats worse on the sealed block, which is 3.140679 measured floors.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0006",
+        "E0008",
+        "art:neardup"
+      ],
+      "numbers": [
+        "sealed_gap_floors",
+        "sealed_gap_nats"
+      ],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "One track and one sealed access can confirm a level and never a difference, so this study's improvement of 0.052855 nats stays exploratory while its sealed level of 1.56628 nats is confirmed.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0006",
+        "E0008"
+      ],
+      "numbers": [
+        "e0008_val_loss",
+        "incumbent_gain_nats"
+      ],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "The training script's own reported loss and the checker's independently recomputed loss never differed by more than 0.0 nats against a declared tolerance of 0.01; the same checkpoint re-scored 1.572174 nats on CPU and on MPS, and a full re-execution at the same seed moved 0.000962 nats, which is 0.119808 fit-noise standard deviations.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0008",
+        "rep:E0001@20260903T121129Z",
+        "verify:E0001@20260903T121358Z",
+        "verify:E0001@20260903T121401Z",
+        "sweep:device_check"
+      ],
+      "numbers": [
+        "device_val_loss",
+        "e0001_val_loss",
+        "max_verifier_gap",
+        "replication_difference",
+        "replication_in_fit_noise",
+        "verifier_tolerance"
+      ],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "The largest recipe effect this study measured is a cost of -11.3693 floors and the only gain is 3.53486 floors, against a fit-noise standard deviation of 0.00802952 nats, so the study measured recipes rather than noise.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0003",
+        "E0006",
+        "sweep:fit_noise",
+        "sweep:paired_floor"
+      ],
+      "numbers": [
+        "e0003_floors",
+        "fit_noise_std",
+        "incumbent_gain_floors"
+      ],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "On the sealed final tenth of the corpus the selected cosine-decay recipe scores 1.56628 nats per character, or 2.259664 bits per character.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0008",
+        "E0006"
+      ],
+      "numbers": [
+        "e0008_bpc",
+        "e0008_val_loss"
+      ],
+      "strength": "confirmed"
+    },
+    "C5": {
+      "claim": "The checker decided every disposition, the matched-compute guardrails held at 2000 steps and an evaluation context of 128 on every run, and the four harness controls behaved as a correct harness must: chance 4.174388, an untrained network 4.305432, a unigram 3.306991 and copy-the-input 4.750043 nats, where an off-by-one target alignment would have scored 0.693147.",
+      "class": "procedural-verdict",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0008",
+        "sweep:harness_controls"
+      ],
+      "numbers": [
+        "control_copy",
+        "control_repeat",
+        "control_uniform",
+        "control_unigram",
+        "control_untrained",
+        "eval_context",
+        "off_by_one_loss",
+        "steps_budget"
+      ],
+      "strength": "confirmed"
+    },
+    "C6": {
+      "claim": "Weight tying fails at a vocabulary of 65 characters because one matrix must serve as both the input lookup and the output classifier with no logit scale between them: it removes 8320 of the 824320 parameters, 1.009317 per cent, and costs 21.1718 fit-noise standard deviations.",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0003",
+        "art:frontier"
+      ],
+      "numbers": [
+        "anchor_n_params",
+        "e0003_anchor_z",
+        "tying_params_percent",
+        "tying_params_removed",
+        "vocabulary_size"
+      ],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "The sealed block is harder because a contiguous final tenth of this corpus is a different sample of its own nonstationarity and not because the model overfitted: the sealed run trained on 111616 more characters and still scored 0.046961 nats worse, 5.8485 fit-noise standard deviations, while the largest cross-partition similarity anywhere was 0.030059.",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0006",
+        "E0008",
+        "art:neardup"
+      ],
+      "numbers": [
+        "development_chars",
+        "e0008_sealed_gap",
+        "max_jaccard_dev",
+        "max_jaccard_sealed",
+        "sealed_gap_nats"
+      ],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "Measure the floor on the quantity the decision actually uses: the five-seed level spread has standard deviation 0.00802952 while the ten paired differences have standard deviation 0.00747623 and range 0.026494, and it is the paired spread that sets the bar of 0.0149525 nats.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "sweep:fit_noise",
+        "sweep:paired_floor"
+      ],
+      "numbers": [
+        "fit_noise_std",
+        "minimum_delta",
+        "paired_floor_range",
+        "paired_floor_std"
+      ],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "At a fixed step budget spend the schedule before the capacity: a pure schedule change was worth 0.052855 nats while multiplying the parameter count by 3.908075 was worth -0.4742 floors.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0005",
+        "E0006"
+      ],
+      "numbers": [
+        "e0005_floors",
+        "e0006_val_loss",
+        "incumbent_gain_nats",
+        "train_chars",
+        "width_params_ratio"
+      ],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "caee71affac94ead50d5e1987a59d239165e6a72",
+  "klein_commit": "caee71affac94ead50d5e1987a59d239165e6a72",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {
+    "anchor_n_params": {
+      "art": "frontier",
+      "claim": "C6",
+      "note": "parameters of the anchor architecture",
+      "precision": 0,
+      "value": 824320
+    },
+    "control_copy": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "negative control: copy-the-input, worse than chance under a correct harness",
+      "precision": 6,
+      "value": 4.750043
+    },
+    "control_repeat": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "diagnostic: how often the predicted character repeats the one just read",
+      "precision": 6,
+      "value": 0.024523
+    },
+    "control_uniform": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "negative control: chance, at float32 resolution",
+      "precision": 6,
+      "value": 4.174388
+    },
+    "control_unigram": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "positive control: real but minimal information beats chance",
+      "precision": 6,
+      "value": 3.306991
+    },
+    "control_untrained": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "negative control: a random network scored through verify.py itself",
+      "precision": 6,
+      "value": 4.305432
+    },
+    "corpus_chars": {
+      "art": "corpus",
+      "claim": "contract",
+      "note": "characters in the whole corpus",
+      "precision": 0,
+      "value": 1115394
+    },
+    "curve_anchor_end": {
+      "art": "curves",
+      "claim": "C1",
+      "note": "the anchor recipe's curve at 2000 steps",
+      "precision": 6,
+      "value": 1.563815
+    },
+    "curve_cosine_end": {
+      "art": "curves",
+      "claim": "C1",
+      "note": "the cosine recipe's curve at 2000 steps",
+      "precision": 6,
+      "value": 1.518369
+    },
+    "development_chars": {
+      "art": "corpus",
+      "claim": "C7",
+      "note": "characters in the development partition",
+      "precision": 0,
+      "value": 111616
+    },
+    "device_val_loss": {
+      "art": "device",
+      "claim": "C2",
+      "note": "the E0001 checkpoint re-scored under KLEIN_DEVICE=cpu and =mps; identical at the printed resolution",
+      "precision": 6,
+      "value": 1.572174
+    },
+    "dropout_rate": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "the dropout rate E0004 tried, as train.py printed it",
+      "precision": 4,
+      "value": 0.1
+    },
+    "e0001_anchor_z": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "P1's adjudicated key",
+      "precision": 4,
+      "value": 0.3766
+    },
+    "e0001_val_loss": {
+      "art": "frontier",
+      "claim": "C2",
+      "note": "E0001, the identity anchor at a sixth seed",
+      "precision": 6,
+      "value": 1.572174
+    },
+    "e0002_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "warmup on a constant learning rate, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": -1.0431
+    },
+    "e0003_anchor_z": {
+      "art": "frontier",
+      "claim": "C6",
+      "note": "weight tying, in fit-noise standard deviations from the anchor mean",
+      "precision": 4,
+      "value": 21.1718
+    },
+    "e0003_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "weight tying, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": -11.3693
+    },
+    "e0004_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "dropout 0.1, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": -4.7255
+    },
+    "e0005_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "width 128 to 256, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": -0.4742
+    },
+    "e0006_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "cosine decay, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": 3.3326
+    },
+    "e0006_val_loss": {
+      "art": "frontier",
+      "claim": "C9",
+      "note": "E0006, the only keep: cosine decay",
+      "precision": 6,
+      "value": 1.519319
+    },
+    "e0007_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "cosine plus warmup, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": 3.2291
+    },
+    "e0008_bpc": {
+      "art": "frontier",
+      "claim": "C4",
+      "note": "E0008 in bits per character",
+      "precision": 6,
+      "value": 2.259664
+    },
+    "e0008_sealed_gap": {
+      "art": "frontier",
+      "claim": "C7",
+      "note": "P6's adjudicated key: the sealed gap in fit-noise standard deviations",
+      "precision": 4,
+      "value": 5.8485
+    },
+    "e0008_val_loss": {
+      "art": "frontier",
+      "claim": "C4",
+      "note": "E0008, the sealed final tenth",
+      "precision": 5,
+      "value": 1.56628
+    },
+    "eval_context": {
+      "art": "frontier",
+      "claim": "contract",
+      "note": "the matched-measurement guardrail: the evaluation window length",
+      "precision": 0,
+      "value": 128
+    },
+    "fit_noise_mean": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "mean of the anchor's five-seed validation losses; the reference delta_in_floors is measured against",
+      "precision": 5,
+      "value": 1.56915
+    },
+    "fit_noise_range": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "range of the anchor's five-seed validation losses",
+      "precision": 6,
+      "value": 0.021485
+    },
+    "fit_noise_std": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "standard deviation of the anchor's five-seed validation losses",
+      "precision": 8,
+      "value": 0.00802952
+    },
+    "incumbent_gain_floors": {
+      "art": "summary",
+      "claim": "C3",
+      "note": "the same gain in units of the measured floor",
+      "precision": 5,
+      "value": 3.53486
+    },
+    "incumbent_gain_nats": {
+      "art": "summary",
+      "claim": "C9",
+      "note": "E0001 minus E0006",
+      "precision": 6,
+      "value": 0.052855
+    },
+    "max_jaccard_dev": {
+      "art": "neardup",
+      "claim": "C7",
+      "note": "the same for development against train",
+      "precision": 6,
+      "value": 0.023131
+    },
+    "max_jaccard_sealed": {
+      "art": "neardup",
+      "claim": "C7",
+      "note": "largest cross-partition 8-gram Jaccard similarity, sealed against train+development",
+      "precision": 6,
+      "value": 0.030059
+    },
+    "max_verifier_gap": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "the largest searcher-vs-checker disagreement across all eight runs",
+      "precision": 8,
+      "value": 0.0
+    },
+    "minimum_delta": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the keep bar: max(2*std, range/2) of the ten paired seed differences",
+      "precision": 7,
+      "value": 0.0149525
+    },
+    "off_by_one_loss": {
+      "art": "summary",
+      "claim": "C11",
+      "note": "what the copy-the-input control would score if the harness aligned targets with inputs",
+      "precision": 6,
+      "value": 0.693147
+    },
+    "paired_floor_range": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "range of the ten paired seed differences",
+      "precision": 6,
+      "value": 0.026494
+    },
+    "paired_floor_std": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "standard deviation of the ten paired seed differences",
+      "precision": 8,
+      "value": 0.00747623
+    },
+    "replication_difference": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "full re-execution of E0001 at the same seed, same backend",
+      "precision": 6,
+      "value": 0.000962
+    },
+    "replication_in_fit_noise": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "the same, in fit-noise standard deviations",
+      "precision": 6,
+      "value": 0.119808
+    },
+    "sealed_gap_floors": {
+      "art": "summary",
+      "claim": "C12",
+      "note": "the same gap in units of the measured floor",
+      "precision": 6,
+      "value": 3.140679
+    },
+    "sealed_gap_nats": {
+      "art": "summary",
+      "claim": "C7",
+      "note": "E0008 minus the development incumbent",
+      "precision": 6,
+      "value": 0.046961
+    },
+    "steps_budget": {
+      "art": "frontier",
+      "claim": "contract",
+      "note": "the matched-compute guardrail, read by the checker out of every checkpoint",
+      "precision": 0,
+      "value": 2000
+    },
+    "train_chars": {
+      "art": "corpus",
+      "claim": "C9",
+      "note": "characters in the train partition",
+      "precision": 0,
+      "value": 891904
+    },
+    "tying_params_percent": {
+      "art": "summary",
+      "claim": "C6",
+      "note": "the same, as a percentage of the anchor's parameters",
+      "precision": 6,
+      "value": 1.009317
+    },
+    "tying_params_removed": {
+      "art": "summary",
+      "claim": "C6",
+      "note": "parameters weight tying removes",
+      "precision": 0,
+      "value": 8320
+    },
+    "uniform_reference": {
+      "art": "refs_losses",
+      "claim": "contract",
+      "note": "a uniform predictor over the 65-character vocabulary: ln 65",
+      "precision": 6,
+      "value": 4.174387
+    },
+    "unigram_reference": {
+      "art": "refs_losses",
+      "claim": "contract",
+      "note": "add-one character frequencies fitted on the train partition",
+      "precision": 6,
+      "value": 3.307264
+    },
+    "verifier_tolerance": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "declared a priori at CONSULT; the checker-vs-searcher disagreement that is a crash",
+      "precision": 2,
+      "value": 0.01
+    },
+    "vocabulary_size": {
+      "art": "corpus",
+      "claim": "contract",
+      "note": "distinct characters",
+      "precision": 0,
+      "value": 65
+    },
+    "warmup_on_cosine_floors": {
+      "art": "summary",
+      "claim": "C1",
+      "note": "E0007 minus the incumbent, in floors \u2014 inside the floor",
+      "precision": 6,
+      "value": 0.103528
+    },
+    "width_params_ratio": {
+      "art": "summary",
+      "claim": "C9",
+      "note": "E0005's parameter count divided by the anchor's",
+      "precision": 6,
+      "value": 3.908075
+    }
+  },
+  "study_id": "13-charlm-fixed-budget"
+}

@@ -1,0 +1,15 @@
+statistic	value
+characters	1115394
+vocabulary_size	65
+blocks	1089
+block_chars	1024
+last_block_chars	1282
+train_blocks	871
+development_blocks	109
+sealed_blocks	109
+train_chars	891904
+development_chars	111616
+sealed_chars	111874
+distinct_content_groups	1089
+min_block_distinct_chars	33
+max_block_distinct_chars	59

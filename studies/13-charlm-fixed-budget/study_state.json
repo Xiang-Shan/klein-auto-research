@@ -1,0 +1,343 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T12:09:09.430175Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T11:50:00.444033Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T11:56:39.414963Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T15:07:31.560393Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "f12048849554f75d60fdb4e700bba4fe4291a56758247e469625729e8087df8c",
+    "method_card.md": "ce4a2f1f2d20234d2370fc21f57c71c045533066c9e3e4afc6e73b0b873b0045",
+    "referee_report.md": "bd4dad96ce4c169d6a89341ac37ecb2798ce020a5dd9180c7c079899a976708a",
+    "research_plan.md": "5abce1871f588a8f66df19c1044bfcbbbaef58330276d6e3b022ffb9f05e8dda",
+    "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
+    "study.yaml": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332"
+  },
+  "created_at": "2026-09-03T11:32:09.485992Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": "2026-09-03T12:35:42.354883Z",
+      "count": 1,
+      "experiment": "E0008"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: claude-sonnet-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "primary": "E0008"
+    },
+    "timestamp": "2026-09-03T15:08:17.190171Z"
+  },
+  "fingerprints": {
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "split": {
+      "development": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50",
+      "final_test": "bd7849a00c6a8bd856c9136cd211d9ecb7975fbffa9c75b08d78ed51b3e3f155",
+      "policy": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354"
+    },
+    "verifier": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
+    }
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-09-03T12:09:09.430175Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "3897a709322124a1a192669a6a6d3caf7159e2c8735dbf9dcb145242aa347504",
+        "research_plan.md": "5abce1871f588a8f66df19c1044bfcbbbaef58330276d6e3b022ffb9f05e8dda",
+        "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
+        "study.yaml": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332"
+      },
+      "note": "RE-RECORD before any run: phase ids renamed to adaptive-1 / adaptive-2 / confirmation to match the ladder klein new recorded in study_state.json at scaffold time (preflight refuses a contract whose phases no longer contain the recorded current_phase). Descriptions, budgets, tracks, metric, floor and every registered prediction are unchanged. Ack delegated by the lead.",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-09-03T11:50:00.444033Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "f12048849554f75d60fdb4e700bba4fe4291a56758247e469625729e8087df8c"
+      },
+      "note": "RE-RECORD before any run: the card's 'fingerprints frozen at this gate' line quoted sha256(prepared.csv) instead of the engine's name-salted fingerprint_path digest; both are now on the card, labelled. No partition, policy or prepared byte changed \u2014 the split fingerprints are identical to the first record. Ack delegated by the lead.",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-09-03T11:56:39.414963Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "ce4a2f1f2d20234d2370fc21f57c71c045533066c9e3e4afc6e73b0b873b0045"
+      },
+      "note": "triad complete: theory (notation table + 4 display equations), papers (references.yaml, 10 rows, all verified 2026-09-03), practice (the plan model.py/train.py realize; verify.py written and smoke-checked). The gate hashes verify.py \u2014 the checker never changes again. Ack delegated by the lead.",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T15:07:31.560393Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "bd4dad96ce4c169d6a89341ac37ecb2798ce020a5dd9180c7c079899a976708a"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-sonnet-5)",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 8,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T12:16:22.203850Z",
+      "acknowledged_by": "lead-agent",
+      "note": "Phase 0 complete: both floors measured and registered, minimum_delta 0.0149525 set by consult re-record, E0001 keep at 1.572174 with P1 supported (anchor_z 0.3766), one full replication and three checker re-scores recorded. Phase ack delegated by the lead.",
+      "playbook_sha256": "9ed143bba34720e266211e81426ac13dfd93a43ac9740ad967eee2e68b1685ae"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-09-03T12:33:55.206796Z",
+      "acknowledged_by": "lead-agent",
+      "note": "6 of 6 slots used. Four registered levers (warmup, tying, dropout, width) all failed to clear the measured floor; two cost multiple floors; the one keep is a pure schedule change with no registered prediction (E0006, cosine decay, +3.3326 floors). verifier_gap 0.00000000 on all seven runs. Phase ack delegated by the lead.",
+      "playbook_sha256": "5ce2330c1b1db9d495575039e71eb544e5a20ef218e2c57cc35d7b915e045367"
+    }
+  },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "anchor_z 0.3766 <= 2 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "anchor_z 0.3766 <= 2 \u2192 supported",
+          "recorded_at": "2026-09-03T12:10:43.559301Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T12:10:43.559301Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "delta_in_floors -1.0431 >= 1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "delta_in_floors -1.0431 >= 1 \u2192 refuted",
+          "recorded_at": "2026-09-03T12:17:51.111647Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T12:17:51.111647Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P3": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "|delta_in_floors| 11.3693 < 1 (from -11.3693) \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "|delta_in_floors| 11.3693 < 1 (from -11.3693) \u2192 refuted",
+          "recorded_at": "2026-09-03T12:21:10.763942Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T12:21:10.763942Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "delta_in_floors -4.7255 <= -1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "delta_in_floors -4.7255 <= -1 \u2192 supported",
+          "recorded_at": "2026-09-03T12:24:35.360683Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T12:24:35.360683Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P5": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "delta_in_floors -0.4742 >= 1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "delta_in_floors -0.4742 >= 1 \u2192 refuted",
+          "recorded_at": "2026-09-03T12:28:14.795238Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T12:28:14.795238Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P6": {
+      "evidence": [
+        "E0008"
+      ],
+      "explanation": "|sealed_gap_in_fit_noise| 5.8485 <= 2 (from 5.8485) \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0008"
+          ],
+          "explanation": "|sealed_gap_in_fit_noise| 5.8485 <= 2 (from 5.8485) \u2192 refuted",
+          "recorded_at": "2026-09-03T12:37:20.885360Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T12:37:20.885360Z",
+      "source": "run",
+      "verdict": "refuted"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7d994db2a9c6c485/studies/13-charlm-fixed-budget/data/prepared/prepared.csv",
+    "sha256": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc"
+  },
+  "replications": {
+    "E0001": {
+      "attempts": 3,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        },
+        "verify": {
+          "attempts": 2,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0009619999999999074,
+          "evidence_id": "rep:E0001@20260903T121129Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T12:11:29.270960Z",
+          "tolerance": 0.0149525
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0001@20260903T121358Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T12:13:58.140425Z",
+          "tolerance": 0.01
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0001@20260903T121401Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T12:14:01.949393Z",
+          "tolerance": 0.01
+        }
+      ],
+      "track": "primary"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "13-charlm-fixed-budget",
+  "sweeps": {
+    "device_check": {
+      "registered_at": "2026-09-03T12:15:50.459077Z",
+      "rows_crash": 0,
+      "rows_ok": 2,
+      "script": "sweeps/device_check.py",
+      "script_sha256": "14ff8240b884113c4fb9399e5beccf63221ae003035370ccfb88ce2351fea25d",
+      "sidecar": "sweeps/device_check.sidecar.tsv",
+      "sidecar_sha256": "a2ece775da0080048b1995e6d8915c0a60f3d3c3aaad40272ea960e6ef5363cf"
+    },
+    "fit_noise": {
+      "registered_at": "2026-09-03T12:06:08.996245Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "d394ff2145fd0ed088be954d7509bb3c959cc0c555e31afccabeb71b856703d5",
+      "sidecar": "sweeps/fit_noise.sidecar.tsv",
+      "sidecar_sha256": "331f52eaaa64cf330427d869549763a5b64a295fc05946d564bbea59085fb743"
+    },
+    "harness_controls": {
+      "registered_at": "2026-09-03T11:47:02.796245Z",
+      "rows_crash": 0,
+      "rows_ok": 4,
+      "script": "sweeps/harness_controls.py",
+      "script_sha256": "2f89af9c8b48c7fafe215ddd125b18e2fae8df9383dd324bd0e7452c54f2eae7",
+      "sidecar": "sweeps/harness_controls.sidecar.tsv",
+      "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
+    },
+    "learning_curves": {
+      "registered_at": "2026-09-03T12:40:46.154981Z",
+      "rows_crash": 0,
+      "rows_ok": 2,
+      "script": "sweeps/learning_curves.py",
+      "script_sha256": "ffea6022371ff47d0a8b52388f2980405cbf0a58149e8698f7c811fdcab0b7d3",
+      "sidecar": "sweeps/learning_curves.sidecar.tsv",
+      "sidecar_sha256": "ad00c99828f3c01c9614a91d6871cc91575a53f4cabfee339c19c04b8ab401d9"
+    },
+    "paired_floor": {
+      "registered_at": "2026-09-03T12:06:09.180260Z",
+      "rows_crash": 0,
+      "rows_ok": 10,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "d394ff2145fd0ed088be954d7509bb3c959cc0c555e31afccabeb71b856703d5",
+      "sidecar": "sweeps/paired_floor.sidecar.tsv",
+      "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
+    }
+  },
+  "updated_at": "2026-09-03T15:08:17.190175Z"
+}

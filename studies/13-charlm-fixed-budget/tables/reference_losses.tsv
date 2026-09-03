@@ -1,0 +1,3 @@
+reference	description	val_nats_per_char	val_bits_per_char
+uniform	uniform over the 65-character vocabulary	4.174387	6.022368
+unigram	add-one character frequencies fitted on the train partition	3.307264	4.771374

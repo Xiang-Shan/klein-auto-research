@@ -1,0 +1,7 @@
+PASS uniform                    4.174388   (negative: == ln 65 = 4.174387 nats (chance), to float32 resolution)
+PASS untrained_network          4.305432   (negative: no BETTER than chance — a random network holds no information, and its unnormalized head makes it slightly worse; the band is [chance, chance + 0.5])
+PASS unigram_train_fit          3.306991   (positive: strictly better than chance)
+PASS copy_input                 4.750043   (negative: strictly WORSE than chance (targets are shifted by one))
+PASS target_equals_input_rate   0.024523   (diagnostic: far below 1.0 — 1.0 would mean the targets were never shifted)
+runner_status: ok
+runner_exit_code: 0

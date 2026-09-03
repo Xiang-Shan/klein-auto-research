@@ -1,0 +1,78 @@
+replicate_setup: uv sync --locked --extra deep
+Using CPython 3.13.3
+Creating virtual environment at: .venv
+Resolved 95 packages in 3ms
+   Building klein-auto-research @ file:///Users/xiang/.cache/klein-replicate-tmp/klein-replicate-eltl2isg/worktree
+      Built klein-auto-research @ file:///Users/xiang/.cache/klein-replicate-tmp/klein-replicate-eltl2isg/worktree
+Prepared 1 package in 1.84s
+Installed 39 packages in 562ms
+ + contourpy==1.3.3
+ + coverage==7.15.0
+ + cycler==0.12.1
+ + filelock==3.29.7
+ + fonttools==4.63.0
+ + fsspec==2026.6.0
+ + iniconfig==2.3.0
+ + jinja2==3.1.6
+ + joblib==1.5.3
+ + kiwisolver==1.5.0
+ + klein-auto-research==2.0.0 (from file:///Users/xiang/.cache/klein-replicate-tmp/klein-replicate-eltl2isg/worktree)
+ + latex2mathml==3.81.0
+ + markupsafe==3.0.3
+ + matplotlib==3.11.0
+ + mpmath==1.3.0
+ + narwhals==2.23.0
+ + networkx==3.6.1
+ + numpy==2.5.1
+ + packaging==26.2
+ + pandas==3.0.3
+ + pillow==12.3.0
+ + pluggy==1.6.0
+ + pygments==2.20.0
+ + pyparsing==3.3.2
+ + pytest==9.1.1
+ + pytest-cov==7.1.0
+ + python-dateutil==2.9.0.post0
+ + pyyaml==6.0.3
+ + ruff==0.15.21
+ + scikit-learn==1.9.0
+ + scipy==1.18.0
+ + setuptools==83.0.0
+ + six==1.17.0
+ + sympy==1.14.0
+ + threadpoolctl==3.6.0
+ + torch==2.13.0
+ + typing-extensions==4.16.0
+ + ziafont==0.11
+ + ziamath==0.13
+runner_status: ok
+runner_exit_code: 0
+split_fingerprint: 0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50
+checkpoint: models/E0001.pt
+artifact: models/E0001.pt
+---
+primary_metric:    1.571212
+metric_name:       val_loss
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     24.3
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+wall_seconds:      24.278771
+train_steps: 2000
+fit_seconds: 20.729
+train_chars: 891904
+eval_chars: 111616
+eval_windows: 871
+final_train_batch_loss: 1.430073
+train_bpc: 2.266780
+recipe_warmup_steps: 0
+recipe_lr: 0.003
+recipe_dropout: 0.0000
+recipe_n_embd: 128
+recipe_tie_weights: 0
+recipe_seed: 20260903
+runner_status: ok
+runner_exit_code: 0
