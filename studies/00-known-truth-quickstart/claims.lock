@@ -61,6 +61,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "boosted_brier",
         "overcapacity_auc",
         "overcapacity_brier",
         "overcapacity_delta_floors"
@@ -135,6 +136,13 @@
       "note": "E0003 val_auc, the boosted incumbent on development",
       "precision": 6,
       "value": 0.87139
+    },
+    "boosted_brier": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0003 val_brier",
+      "precision": 6,
+      "value": 0.109337
     },
     "boosted_delta_floors": {
       "art": "aux",
