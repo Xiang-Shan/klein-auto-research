@@ -97,3 +97,15 @@ E0008	sealed_block	0.0
 E0008	overclaim_by	1.0
 E0008	claimed_objective	21.0
 E0008	object_size	20.0
+DRYRUN	wall_seconds	0.796558141708374
+DRYRUN	evaluations	2000000.0
+DRYRUN	passes	19014.0
+DRYRUN	best_at_evaluation	152572.0
+DRYRUN	search_seconds	0.7959186660591513
+DRYRUN	grid_n	11.0
+DRYRUN	budget	2000000.0
+DRYRUN	search_seed	20260903.0
+DRYRUN	sealed_block	0.0
+DRYRUN	overclaim_by	0.0
+DRYRUN	claimed_objective	21.0
+DRYRUN	object_size	21.0
