@@ -23,6 +23,10 @@
     "results": {
       "path": "results.tsv",
       "sha256": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5"
+    },
+    "solar": {
+      "path": "tables/solar_motion_inputs.tsv",
+      "sha256": "f68402b5e2c9a910c0a75d55129cb086c0e7f2f5b1d801a43574efca85eeed5b"
     }
   },
   "claims": {
