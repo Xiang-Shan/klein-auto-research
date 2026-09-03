@@ -678,7 +678,25 @@ def _describe_readiness(
         return False, f"script not found at {script}"
 
     if kind is SourceKind.BUNDLED:
-        bundled_dir = _bundled_dataset_dir(parsed.value)
+        # Both forms `_resolve_bundled` accepts: `bundled:<name>` (the one data
+        # file in the directory) and `bundled:<name>/<file>` (a named file in a
+        # multi-file dataset such as hubble1929, which has two tables and no
+        # single one). Reading the whole value as a directory name told a study
+        # on the second form that its source did not resolve on a machine where
+        # it resolves perfectly.
+        name, _, member = parsed.value.partition("/")
+        bundled_dir = _bundled_dataset_dir(name)
+        if member:
+            if not bundled_dir.is_dir():
+                return False, f"no bundled directory at {bundled_dir}"
+            candidate = (bundled_dir / member).resolve()
+            try:
+                candidate.relative_to(bundled_dir.resolve())
+            except ValueError:
+                return False, f"bundled:{parsed.value} escapes the dataset directory {bundled_dir}"
+            if not candidate.is_file():
+                return False, f"no file {member!r} in {bundled_dir}"
+            return True, f"found at {candidate}"
         try:
             data_file = _single_data_file(bundled_dir)
         except WorkflowError as exc:

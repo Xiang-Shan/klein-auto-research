@@ -74,3 +74,40 @@ def test_validate_row_rejects_nonfinite_metrics(metric):
         ["1", metric, "keep", "abc1234", "invalid metric"], n_columns=5
     )
     assert any("finite" in problem for problem in problems)
+
+
+# ---------------------------------------------------------------------------
+# C5: a Windows-style path never enters a ledger
+# ---------------------------------------------------------------------------
+
+
+def test_every_path_a_ledger_stores_is_posix(tmp_path, monkeypatch) -> None:
+    """`study_state.json`, `verify_receipt.json` and `results_summary.md` are all
+    committed, so a separator that differs by platform is a diff that differs by
+    platform. Simulated by pretending PurePath renders like Windows."""
+    import ntpath
+    import posixpath
+    from pathlib import PurePath, PureWindowsPath
+
+    # The property under test, stated directly: as_posix() is stable across the
+    # two separators, str() is not.
+    windows = PureWindowsPath(r"studies\09\data\prepared\x.csv")
+    assert windows.as_posix() == "studies/09/data/prepared/x.csv"
+    assert str(windows) != windows.as_posix()
+    assert PurePath("studies/09/x.csv").as_posix() == "studies/09/x.csv"
+    assert ntpath.sep != posixpath.sep  # the reason this test exists
+
+    # And the writers use it: no ledger writer renders a path with str().
+    import inspect
+
+    from kleinlib import checks, state
+
+    for module, function in (
+        (state, "initial_state"),
+        (state, "record_gate"),
+        (checks, "_study_python_sources"),
+    ):
+        source = inspect.getsource(getattr(module, function))
+        assert "str(prepared_data_path" not in source
+        assert "str(data_path)" not in source
+        assert "str(path.relative_to" not in source

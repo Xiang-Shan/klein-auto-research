@@ -13,7 +13,7 @@ import pytest
 
 from kleinlib import eval as klein_eval
 from kleinlib import schema
-from kleinlib.decision import parse_metric_log
+from kleinlib.decision import parse_metric_log, printed_values
 
 
 def _block(capsys) -> str:
@@ -304,19 +304,49 @@ def test_every_printed_key_is_declared_in_the_schema_registry(tmp_path, capsys) 
         assert not declared & {"stat", "effect", "artifact", "sha256"}
 
 
-def _call(evaluator: str, study):
+_FINGERPRINT = "3f9c" + "0" * 60
+
+
+@pytest.mark.parametrize("evaluator", ["estimate", "test", "table"])
+def test_every_cell_evaluator_takes_the_explicit_split_fingerprint_kwarg(
+    tmp_path, capsys, evaluator
+) -> None:
+    """The registered evaluators print the partition the way every other
+    evaluator does — `split_fingerprint=`, not smuggled through `extra=`."""
+    _call(evaluator, tmp_path, split_fingerprint=_FINGERPRINT)
+    out = _block(capsys)
+    assert f"split_fingerprint: {_FINGERPRINT}" in out
+    # ...and the notary reads it back off the log, which is the whole point.
+    log = tmp_path / "cell.log"
+    log.write_text(out, encoding="utf-8")
+    assert printed_values(log, "split_fingerprint") == [_FINGERPRINT]
+
+
+@pytest.mark.parametrize("evaluator", ["estimate", "test", "table"])
+def test_the_fingerprint_is_printed_but_never_written_to_the_aux_ledger(
+    tmp_path, evaluator
+) -> None:
+    """`aux_metrics.tsv` is `experiment metric value` with NUMERIC values; a
+    64-char digest passed through `extra=` would land in it as a measurement."""
+    _call(evaluator, tmp_path, split_fingerprint=_FINGERPRINT)
+    rows = (tmp_path / schema.AUX_SIDECAR).read_text(encoding="utf-8").splitlines()[1:]
+    assert not any(row.split("\t")[1] == "split_fingerprint" for row in rows)
+    assert _FINGERPRINT not in "\n".join(rows)
+
+
+def _call(evaluator: str, study, **kwargs):
     if evaluator == "estimate":
         return klein_eval.evaluate_estimate(
             1.0, 0.5, 1.5, 12, exp_id=9, metric_name="m", metric_goal="lower",
-            study_dir=study,
+            study_dir=study, **kwargs,
         )
     if evaluator == "test":
         return klein_eval.evaluate_test(
             2.0, 0.03, 0.4, 12, 3, exp_id=9, metric_name="m", metric_goal="lower",
-            study_dir=study,
+            study_dir=study, **kwargs,
         )
     _table(study)
     return klein_eval.evaluate_table(
         "sweeps/rq0_map.tsv", 1.0, exp_id=9, metric_name="m", metric_goal="lower",
-        study_dir=study,
+        study_dir=study, **kwargs,
     )

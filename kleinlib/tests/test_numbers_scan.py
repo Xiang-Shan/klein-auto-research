@@ -141,6 +141,24 @@ def test_a_unicode_minus_keeps_its_sign() -> None:
     assert NUMERAL_RE.match("−0.0595") is None  # the reason the fix is needed
 
 
+def test_a_hyphenated_compound_is_not_read_as_a_negative_number() -> None:
+    """"depth-2 tree", "top-10 lift", "5-fold CV" are English, not arithmetic.
+
+    Taking the hyphen as a minus reports `-2` for a sentence that says two: a
+    false positive with a plausible value that the author cannot find anywhere,
+    which is exactly the class this module refuses to produce. A sign the author
+    really wrote still survives.
+    """
+    assert tokens("the depth-2 tree, a top-10 lift and 5-fold CV\n") == ["2", "10", "5"]
+    assert tokens("delta -0.07 against +0.08, x=-5, (-0.5), 5e-3\n") == [
+        "-0.07",
+        "+0.08",
+        "-5",
+        "-0.5",
+        "5e-3",
+    ]
+
+
 def test_an_exempt_span_drops_the_numeral_it_touches_rather_than_splitting_it() -> None:
     """Substituting an exempt span away can invent a number that was never written.
 

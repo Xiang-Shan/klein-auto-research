@@ -470,6 +470,25 @@ def test_describe_bundled_matches_resolve() -> None:
     assert report["scheme"] == "bundled"
 
 
+def test_describe_bundled_reads_the_member_form_resolve_accepts() -> None:
+    """`bundled:<name>/<file>` is the form a MULTI-file dataset needs — hubble1929
+    ships two tables and no single one — and `describe` used to read the whole
+    value as a directory name, telling `klein doctor` the source did not resolve
+    on a machine where `resolve()` finds it immediately."""
+    report = describe("bundled:hubble1929/hubble1929_table1.csv")
+    assert report["resolvable"] is True, report["detail"]
+    assert report["detail"].endswith("hubble1929_table1.csv")
+    resolved = resolve("bundled:hubble1929/hubble1929_table1.csv", study_dir=None, offline=True)
+    assert report["detail"] == f"found at {resolved.path}"
+
+    missing = describe("bundled:hubble1929/nope.csv")
+    assert missing["resolvable"] is False and "no file 'nope.csv'" in missing["detail"]
+    escaping = describe("bundled:hubble1929/../insurance-claims")
+    assert escaping["resolvable"] is False and "escapes" in escaping["detail"]
+    absent = describe("bundled:no-such-dataset/x.csv")
+    assert absent["resolvable"] is False and "no bundled directory" in absent["detail"]
+
+
 def test_describe_sklearn_allowlist() -> None:
     ok = describe("sklearn:load_iris")
     assert ok["resolvable"] is True

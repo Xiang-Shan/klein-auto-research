@@ -64,6 +64,41 @@ artifact: figures/bootstrap_k.png
   the ledger, and the predictions' rules read printed keys. Choose the granularity at
   which a prediction is adjudicated.
 
+The notary reads that block back off the run log with two parsers: the numeric one
+a rule and a guardrail see, and the string one that carries the partition and the
+pinned paths.
+
+<!-- test:registered-block:start -->
+```python
+from pathlib import Path
+
+from kleinlib.decision import parse_metric_log, parse_printed_strings
+
+log = Path("cell.log")
+log.write_text(
+    "primary_metric:    454.16\n"
+    "metric_name:       k_kms_per_mpc\n"
+    "metric_goal:       lower\n"
+    "ci_low:            336.4\n"
+    "n:                 24\n"
+    "split_fingerprint: 3f9c00000000\n"
+    "artifact: tables/bootstrap_k.tsv\n"
+    "artifact: figures/bootstrap_k.png\n",
+    encoding="utf-8",
+)
+
+primary, name, goal, metrics = parse_metric_log(log)
+assert (primary, name, goal) == (454.16, "k_kms_per_mpc", "lower")
+assert metrics["ci_low"] == 336.4 and metrics["n"] == 24.0
+
+strings = parse_printed_strings(log)
+assert strings["split_fingerprint"] == ["3f9c00000000"]
+# Several artifacts per cell: each is hashed into manifest.artifacts with
+# role: declared, and a missing path is a crash.
+assert strings["artifact"] == ["tables/bootstrap_k.tsv", "figures/bootstrap_k.png"]
+```
+<!-- test:registered-block:end -->
+
 ## Cells, slates, and predictions
 
 The phase ritual still runs — but a slate proposes **cells**, not diffs: which

@@ -155,7 +155,16 @@ def resolve_study(path: str | Path) -> Path:
     return study
 
 
-def load_contract(study_dir: Path) -> dict[str, Any]:
+def load_contract(study_dir: str | Path) -> dict[str, Any]:
+    """The study contract as written.
+
+    Takes a string or a Path, like every neighbouring loader
+    (:func:`resolve_study`, :func:`kleinlib.data.contract_split`,
+    :func:`kleinlib.data.load_partition`): an entrypoint that reads its own
+    contract writes ``load_contract(".")``, and that spelling used to raise a
+    raw ``TypeError`` from a path join instead of a ``WorkflowError``.
+    """
+    study_dir = Path(study_dir)
     try:
         raw = yaml.safe_load((study_dir / "study.yaml").read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as exc:
@@ -856,18 +865,30 @@ def _materiality_problems(block: Any) -> list[str]:
 
 
 def _data_source_problems(data: Mapping[str, Any]) -> list[str]:
-    """SHAPE only — resolution, caching and the offline rule live in sources."""
+    """SHAPE only — resolution, caching and the offline rule live in sources.
+
+    The scheme vocabulary has ONE owner, :func:`kleinlib.sources.parse_source`
+    (``SourceKind``); :data:`SOURCE_TAG_RE` stays as the cheap pre-check that
+    keeps the common failure ("not a tag at all") a fast local message, and the
+    parser then produces the scheme, so a scheme added to ``sources`` is
+    accepted here without a second list to keep in step.
+    """
+    from .sources import parse_source
+
     problems: list[str] = []
     source = data.get("source")
     if not isinstance(source, str) or not source.strip():
         return ["data.source is required — name the source tag"]
-    match = SOURCE_TAG_RE.match(source.strip())
-    if match is None:
+    tag = source.strip()
+    if SOURCE_TAG_RE.match(tag) is None:
         return [
             "data.source must be a source tag: csv: | parquet: | synthetic: | bundled: "
             f"| hub: | sklearn: | openml: | url: (got {source!r})"
         ]
-    scheme = match.group(1)
+    try:
+        scheme = str(parse_source(tag).kind)
+    except WorkflowError as exc:
+        return [f"data.source: {exc}"]
     sha256 = data.get("sha256")
     pinned = isinstance(sha256, str) and re.fullmatch(r"[0-9a-f]{64}", sha256.strip()) is not None
     if scheme in PINNED_SOURCE_SCHEMES and not pinned:
@@ -961,7 +982,9 @@ def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> li
             if metric.get("fit_noise") is not None:
                 problems.extend(
                     f"{label}: metric.fit_noise: {problem.removeprefix('metric.noise_floor')}"
-                    for problem in _noise_floor_problems(metric.get("fit_noise"))
+                    for problem in _noise_floor_problems(
+                        metric.get("fit_noise"), fit_noise=True
+                    )
                 )
 
     problems.extend(_predictions_problems(contract))
@@ -1033,8 +1056,19 @@ def confirmation_require(contract: Mapping[str, Any]) -> tuple[str, ...]:
     return CONFIRMATION_DEFAULTS.get(str(study_kind(contract)), ("sealed",))
 
 
-def _noise_floor_problems(floor: Any) -> list[str]:
-    from .noise_floor import ALLOWED_KEYS
+def _noise_floor_problems(floor: Any, *, fit_noise: bool = False) -> list[str]:
+    """Validate one measured-floor block.
+
+    Both blocks have the same shape and differ in exactly one field: which
+    estimand may appear in them.  ``noise_floor:`` carries a BAR estimand
+    (``marginal-resplit`` / ``paired-comparison``); ``fit_noise:`` carries
+    ``fit-noise`` and nothing else — that separation is the whole reason
+    :func:`kleinlib.noise_floor.block_key` writes the two under different
+    keys, and it is what stops a seed-only spread from being defended as a
+    keep bar.  Messages keep the ``metric.noise_floor`` prefix the
+    ``fit_noise`` caller rewrites, so a schema-2 study's wording is unchanged.
+    """
+    from .noise_floor import ALLOWED_KEYS, FIT_NOISE
 
     if not isinstance(floor, Mapping):
         return ["metric.noise_floor must be a mapping"]
@@ -1046,7 +1080,14 @@ def _noise_floor_problems(floor: Any) -> list[str]:
     if method is not None and (not isinstance(method, str) or not method.strip()):
         problems.append("metric.noise_floor.method must be a non-empty string")
     estimand = floor.get("estimand")
-    if estimand is not None and estimand not in {"marginal-resplit", "paired-comparison"}:
+    if fit_noise:
+        if estimand is not None and estimand != FIT_NOISE:
+            problems.append(
+                f"metric.noise_floor.estimand must be {FIT_NOISE} in a fit_noise block — "
+                "a bar estimand recorded there is the exact confusion the separate block "
+                "exists to prevent"
+            )
+    elif estimand is not None and estimand not in {"marginal-resplit", "paired-comparison"}:
         problems.append(
             "metric.noise_floor.estimand must be marginal-resplit or paired-comparison"
         )

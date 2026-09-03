@@ -235,3 +235,55 @@ def test_module_entry_point_and_cli_verb_print_the_same_report(capsys) -> None:
     module_out = capsys.readouterr().out
     assert cli.main(["noise-floor", *argv]) == 0
     assert capsys.readouterr().out == module_out
+
+
+_SIDECAR_TEXT = (
+    "trial\tparams_json\tprimary_metric\twall_seconds\tstatus\terror\n"
+    '1\t{"seed": 42}\t0.670\t1.0\tok\t\n'
+    '2\t{"seed": 43}\t0.669\t1.0\tok\t\n'
+    '3\t{"seed": 44}\t0.671\t1.0\tok\t\n'
+)
+
+
+def _floor_study(tmp_path: Path) -> Path:
+    study = tmp_path / "studies" / "99-floor"
+    study.mkdir(parents=True)
+    (study / "study.yaml").write_text("study_id: 99-floor\n", encoding="utf-8")
+    return study
+
+
+def test_an_explicit_sidecar_is_resolved_against_the_study_like_the_default(
+    tmp_path: Path, capsys, monkeypatch
+) -> None:
+    """`--sidecar sweeps/x.sidecar.tsv` is the study-relative spelling every
+    document uses (consult-protocol Phase 0, `klein sweep register --sidecar`),
+    and the verb's own default is `<study>/sweeps/noise_floor.sidecar.tsv` —
+    so a relative path must not be read against the process working directory."""
+    from kleinlib import cli
+
+    study = _floor_study(tmp_path)
+    (study / "sweeps").mkdir()
+    (study / "sweeps" / "split_lottery.sidecar.tsv").write_text(_SIDECAR_TEXT, encoding="utf-8")
+    elsewhere = tmp_path / "elsewhere"
+    elsewhere.mkdir()
+    monkeypatch.chdir(elsewhere)
+
+    assert cli.main(
+        ["noise-floor", "--study", str(study), "--sidecar", "sweeps/split_lottery.sidecar.tsv"]
+    ) == 0
+    out = capsys.readouterr().out
+    assert "k=3" in out
+    # the `source:` the block advertises is study-relative and POSIX
+    assert 'source: "sweeps/split_lottery.sidecar.tsv"' in out
+
+
+def test_a_sidecar_that_exists_nowhere_is_a_clean_error_not_a_traceback(
+    tmp_path: Path, capsys
+) -> None:
+    from kleinlib import cli
+
+    study = _floor_study(tmp_path)
+    assert cli.main(["noise-floor", "--study", str(study), "--sidecar", "sweeps/nope.tsv"]) == 2
+    err = capsys.readouterr().err
+    assert "--sidecar does not exist" in err
+    assert "study-relative" in err and "working-directory-relative" in err

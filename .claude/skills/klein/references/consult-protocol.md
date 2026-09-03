@@ -96,6 +96,39 @@ Rules for good drafting:
   why). `inconclusive_if` names the condition under which the run cannot decide
   ("n_boot < 1000"). "Tuning helps" is not a prediction; "swap-rate 0.25 gives
   +0.001 val_auc" with its rule is.
+
+  A rule is decided by arithmetic on the printed block, and the explanation it
+  returns is that arithmetic — so a reader re-checks the verdict without
+  re-running anything:
+
+<!-- test:prediction-rule:start -->
+```python
+from kleinlib.decision import evaluate_rule
+
+printed = {"primary_metric": 0.6712, "ci_low": 336.4, "n_boot": 2000}
+
+assert evaluate_rule({"key": "primary_metric", "op": ">=", "value": 0.6538}, printed) == (
+    "supported",
+    "primary_metric 0.6712 >= 0.6538 → supported",
+)
+assert evaluate_rule({"key": "ci_low", "op": ">", "value": 400}, printed)[0] == "refuted"
+
+# A key the run never printed is INCONCLUSIVE, never a refutation.
+verdict, why = evaluate_rule({"key": "effect", "op": ">", "value": 0}, printed)
+assert verdict == "inconclusive" and "not printed" in why
+
+# Combinators are three-valued: all_of is refuted by any refuted child.
+assert evaluate_rule(
+    {
+        "all_of": [
+            {"key": "primary_metric", "op": ">=", "value": 0.6538},
+            {"key": "n_boot", "op": ">=", "value": 1000},
+        ]
+    },
+    printed,
+)[0] == "supported"
+```
+<!-- test:prediction-rule:end -->
 - **Everything looked at before this gate goes into `scouting_ledger.md`**
   (`assets/scouting-ledger-template.md`), committed before the gate is recorded so
   the gate hashes it. Values seen there may seed anchors and identity checks; they may

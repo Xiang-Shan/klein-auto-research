@@ -111,6 +111,67 @@ later study's `(refutes <study>#Cn)` record, and the claim stays in the lock.
 `--strict` turns every warning into a failure. `klein finalize` additionally refuses a
 `confirmed` strength whose track lacks the evidence kinds in `confirmation.require`.
 
+The smallest lock that passes the law — one artifact, one number, one claim —
+looks like this end to end:
+
+<!-- test:claims-verify:start -->
+```python
+import json
+from pathlib import Path
+
+from kleinlib.claims import canonical_lock_text, verify_lock
+
+study = Path("studies/99-lock-demo")
+(study / "sweeps").mkdir(parents=True)
+results = study / "results.tsv"
+results.write_text(
+    "experiment\ttrack\tprimary_metric\tstatus\tcommit\tdescription\n"
+    "E0001\tprimary\t0.95\tkeep\tabc1234\tthe shallow tree\n",
+    encoding="utf-8",
+)
+(study / "findings.md").write_text(
+    "## Verdicts\n\n**[C1]** the shallow tree scores 0.95\n", encoding="utf-8"
+)
+
+import hashlib
+
+lock = {
+    "lock_schema": 2,
+    "study_id": "99-lock-demo",
+    "git_head": "0" * 40,  # the repo commit the lock describes
+    "law": "every number is a copy of a value in a pinned artifact",
+    "artifacts": {
+        "results": {
+            "path": "results.tsv",
+            "sha256": hashlib.sha256(results.read_bytes()).hexdigest(),
+        }
+    },
+    "numbers": {
+        "tree_auc": {"value": 0.95, "art": "results", "claim": "C1", "precision": 2}
+    },
+    "claims": {
+        "C1": {
+            "class": "empirical-description",
+            "strength": "exploratory",
+            "claim": "the shallow tree scores 0.95",
+            "numbers": ["tree_auc"],
+            "evidence": ["E0001"],
+            "errata": [],
+        }
+    },
+}
+(study / "claims.lock").write_text(canonical_lock_text(lock), encoding="utf-8")
+
+checks = {check.name: check for check in verify_lock(study, numbers=True)}
+for name in ("claims shape", "claims artifacts", "claims presence", "claims numbers"):
+    assert checks[name].ok, (name, checks[name].message)
+
+# Flip one byte of the pinned artifact and the lock stops verifying.
+results.write_text(results.read_text(encoding="utf-8").replace("0.95", "0.96"), encoding="utf-8")
+assert not {c.name: c for c in verify_lock(study)}["claims artifacts"].ok
+```
+<!-- test:claims-verify:end -->
+
 ## The numbers law (stated once, here)
 
 Every numeral in `findings.md`, `claims.lock` and `report/index.html` is a copy of a

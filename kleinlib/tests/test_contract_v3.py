@@ -541,6 +541,41 @@ def test_an_unknown_source_scheme_is_refused(study_dir: Path) -> None:
     assert any("must be a source tag" in p for p in problems(contract, study_dir))
 
 
+def test_load_contract_takes_a_string_like_every_neighbouring_loader(study_dir: Path) -> None:
+    """An entrypoint reading its own contract writes `load_contract(".")`; that
+    used to raise a raw TypeError out of a path join."""
+    import os
+
+    from kleinlib.contract import WorkflowError, load_contract
+
+    (study_dir / "study.yaml").write_text("schema_version: 3\nstudy_id: s\n", encoding="utf-8")
+    cwd = os.getcwd()
+    os.chdir(study_dir)
+    try:
+        assert load_contract(".")["study_id"] == "s"
+        assert load_contract(str(study_dir))["study_id"] == "s"
+        assert load_contract(study_dir)["study_id"] == "s"
+    finally:
+        os.chdir(cwd)
+    with pytest.raises(WorkflowError, match="could not read study.yaml"):
+        load_contract(str(study_dir / "nowhere"))
+
+
+def test_the_source_scheme_vocabulary_has_one_owner(study_dir: Path) -> None:
+    """`data.source` validation reads `kleinlib.sources.parse_source`; the
+    contract regex is only the cheap pre-check, so the accepted scheme set is
+    exactly `SourceKind` and cannot drift from it."""
+    from kleinlib.contract import PINNED_SOURCE_SCHEMES
+    from kleinlib.sources import SourceKind
+
+    for kind in SourceKind:
+        contract = base()
+        contract["data"]["source"] = f"{kind.value}:whatever"
+        if kind.value in PINNED_SOURCE_SCHEMES:
+            contract["data"]["sha256"] = "a" * 64
+        assert problems(contract, study_dir) == [], kind
+
+
 def test_scalar_is_the_schema_3_spelling_of_the_simulation_family(study_dir: Path) -> None:
     contract = base()
     contract["task_type"] = "scalar"

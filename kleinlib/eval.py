@@ -834,6 +834,7 @@ def evaluate_estimate(
     metric_name: str,
     metric_goal: str,
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
     t0: float | None = None,
@@ -854,6 +855,13 @@ def evaluate_estimate(
     rule silently read "inconclusive" forever (use :func:`evaluate_scalar` plus
     ``extra=`` for a genuinely one-sided summary).  ``n`` is the number of
     observations the estimate rests on, so a reader can size the claim.
+
+    ``split_fingerprint`` is the partition the estimate was computed on, the
+    same explicit kwarg :func:`evaluate` / :func:`evaluate_regression` /
+    :func:`evaluate_scalar` take.  It is PRINTED, never appended to
+    ``aux_metrics.tsv``: passing a digest through ``extra=`` writes a 64-char
+    hex string into the aux ledger's numeric ``value`` column, which is not a
+    measurement.
     """
     spec = get_metric_spec(
         metric_name, goal=metric_goal, task="scalar", allow_custom=True
@@ -887,6 +895,7 @@ def evaluate_estimate(
     print(f"ci_high:           {high:.6f}")
     print(f"n:                 {count}")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     _print_extra(extra)
 
     _write_aux(
@@ -910,6 +919,7 @@ def evaluate_test(
     metric_goal: str,
     alpha: float = 0.05,
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
     t0: float | None = None,
@@ -931,6 +941,9 @@ def evaluate_test(
     the FIXED family), because a selection guard is not a significance test
     and an unguarded family caps its claims at exploratory
     (``knowledge/research-discipline.md`` lesson 6).
+
+    ``split_fingerprint`` is the explicit partition kwarg every other
+    evaluator takes: printed, never written to ``aux_metrics.tsv``.
     """
     spec = get_metric_spec(
         metric_name, goal=metric_goal, task="scalar", allow_custom=True
@@ -974,6 +987,7 @@ def evaluate_test(
             "significance test: it limits false detection, never effect size)"
         )
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     _print_extra(extra)
 
     aux: dict[str, Any] = {
@@ -1000,6 +1014,7 @@ def evaluate_table(
     metric_goal: str,
     rows: int | None = None,
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
     t0: float | None = None,
@@ -1026,6 +1041,9 @@ def evaluate_table(
     smoke run does no work, so it has no table to hash.  ``klein run-one``
     force-clears the flag in its child, so a real cell that failed to write its
     table still crashes.
+
+    ``split_fingerprint`` is the explicit partition kwarg every other
+    evaluator takes: printed, never written to ``aux_metrics.tsv``.
     """
     spec = get_metric_spec(
         metric_name, goal=metric_goal, task="scalar", allow_custom=True
@@ -1074,6 +1092,7 @@ def evaluate_table(
     print(f"rows:              {_fmt_int(row_count)}")
     print(f"sha256:            {digest or 'NA'}")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     _print_extra(extra)
 
     aux: dict[str, Any] = {"artifact": display, "wall_seconds": total_seconds}
