@@ -19,8 +19,9 @@ Reads only study artifacts:
 Writes three PNGs into --out:
 
   plot_decision_trajectory__primary.png   the engine's standard decision trajectory
-  headroom_bar.png                        every rung against the KNOWN ceiling, and
-                                          the same distances in units of the floor
+  headroom_bar.png                        every rung against the KNOWN ceiling on a
+                                          zero-based axis, and the same distances in
+                                          units of the measured floor
   known_truth_calibration.png             predicted probability vs the TRUE
                                           probability — the plot only a known-truth
                                           study can draw
@@ -195,25 +196,37 @@ def figure_headroom(
         axes.set_xticks(ticks)
         axes.set_xticklabels(tick_labels, fontsize=8)
 
-    # LEFT — scores against the ceiling.
-    left.axhspan(ideal - delta, ideal, color=IDEAL, alpha=0.12, linewidth=0, zorder=0,
-                 label=f"within one floor of the ceiling — h < 1 here")
+    # LEFT — scores against the ceiling, ZERO-BASED.
+    #
+    # Referee note 1 (2026-09-03): this panel used to run from 0.78, which is a
+    # truncated axis under a bar mark and `tutorial-spec.md` critique point 2 says
+    # flatly "bars are zero-based". It is zero-based now, and the honest
+    # consequence is visible: on an absolute AUC scale the five rungs look nearly
+    # identical and the ceiling sits just above them. That is the truth in metric
+    # units, and it is exactly why the right panel exists — the same distances
+    # divided by what the measurement can actually resolve. The chance line is
+    # drawn because 0.5, not 0, is where an AUC axis stops being informative, and
+    # a zero-based AUC axis would otherwise invite the opposite misreading.
     left.axhline(ideal, color=IDEAL, linewidth=2, linestyle="--", zorder=4,
                  label=f"development ceiling (Bayes AUC) {ideal:g}")
+    left.axhline(0.5, color=MUTED, linewidth=1.4, linestyle=(0, (4, 3)), zorder=4,
+                 label="chance (val_auc 0.5)")
     left.bar(x, scores, width=0.62, color=colors, edgecolor="none", zorder=3)
+    # Labels go INSIDE the bars: above them they collide with the ceiling and
+    # chance rules, which on a zero-based axis both cross the bar tops.
     for xi, value in zip(x, scores, strict=True):
-        left.annotate(f"{value:.6f}", (xi, value), textcoords="offset points", xytext=(0, 4),
-                      ha="center", fontsize=8, color=INK)
+        left.annotate(f"{value:.6f}", (xi, value), textcoords="offset points", xytext=(0, -5),
+                      ha="center", va="top", fontsize=7.5, color="#ffffff", zorder=6)
     left.hlines(sealed_ideal, SEALED_X - 0.45, SEALED_X + 0.45, color=IDEAL, linewidth=2,
                 linestyle=":", zorder=4, label=f"sealed partition's own ceiling {sealed_ideal:g}")
     left.bar([SEALED_X], [sealed_value], width=0.62, color=KEEP, alpha=0.45, edgecolor=KEEP,
              linewidth=1.4, zorder=3, hatch="//", label="sealed run (confirmation evidence)")
-    # Inside the bar, not above it: above collides with the development ceiling.
     left.annotate(f"{sealed_value:.6f}", (SEALED_X, sealed_value), textcoords="offset points",
-                  xytext=(0, -12), ha="center", va="top", fontsize=8, color=INK, zorder=6)
-    left.set_ylim(0.78, 0.912)
+                  xytext=(0, -5), ha="center", va="top", fontsize=7.5, color=INK, zorder=6)
+    left.set_ylim(0, 1.0)
+    left.set_yticks([0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0])
     left.set_ylabel("val_auc")
-    left.set_title("Every rung against a ceiling nobody had to guess", fontsize=11)
+    left.set_title("In metric units, every rung looks alike", fontsize=11)
     left.legend(fontsize=7, loc="lower left", framealpha=0.95)
 
     # RIGHT — the same distances, in floors.
@@ -230,7 +243,7 @@ def figure_headroom(
                    xytext=(0, 4), ha="center", fontsize=8, color=INK)
     right.set_ylim(0, 11.6)
     right.set_ylabel("distance to the ceiling, in measured floors  (h)")
-    right.set_title(f"The same distances divided by the floor ({delta:g})", fontsize=11)
+    right.set_title(f"In floors, they do not — the bar divides by {delta:g}", fontsize=11)
     right.legend(fontsize=7, loc="upper right", framealpha=0.95)
 
     return save(fig, out, "headroom_bar")

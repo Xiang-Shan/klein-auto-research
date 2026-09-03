@@ -35,6 +35,24 @@ related: []
 claim's strength: what C4 asserts — that the door stayed ajar and the run through
 it lost — is what the ledger shows.
 
+**The controls, named.** Every verdict above rests on a pipeline that was checked
+in both directions before it was trusted, and this is the onboarding study, so the
+two halves are labelled rather than left for a reader to reconstruct.
+
+- **Negative control — a known-absent effect must score at chance.** The DATA
+  gate's mechanized eval-harness row ran a constant predictor and a
+  label-shuffled predictor against the contract's own metric: `val_auc=0.5000`
+  and `val_auc=0.5011` against a chance anchor of `0.5` (`data_card.md`, run by
+  `python -m kleinlib.leakage`). A harness that scores noise above chance cannot
+  be believed about anything else.
+- **Positive control — a known-present effect must be detected.** E0002 hands the
+  model a term the generating process is KNOWN to contain, the true `x1·x2`
+  interaction, so a working pipeline is obliged to find it. It did:
+  `delta_in_floors` 3.9699 over the same rung refitted on the same rows, and the
+  design-time oracle in `scouting_ledger.md` S2 had stated the expected magnitude
+  in advance. This is the rung whose job is to fail loudly if the plumbing is
+  broken, and it is why the anchor comes first and the interaction second.
+
 ## ② Registered predictions (from the ledger)
 
 Copied from `klein predict list`; every verdict was written by the notary from the
@@ -47,6 +65,15 @@ run's own printed block, and the arithmetic it used is reproduced verbatim.
 | P3 | a gradient-boosted model, told none of the true terms, beats the hand-specified interaction rung by at least one measured floor on the same rows | `{key: delta_in_floors, op: ">=", value: 1}` | `delta_in_floors 4.7779 >= 1 → supported` | supported | E0003 | — |
 | P4 | buying more capacity on top of the boosted rung is within noise: the over-capacity model lands less than one measured floor from its own reference | `{key: delta_in_floors, op: "abs_lt", value: 1}` | `abs(delta_in_floors) 1.7903 < 1 (from -1.7903) → refuted` | refuted | E0004 | `program.md` 2026-09-03 |
 | P5 | on the sealed partition the selected candidate lands within two measured floors of that partition's Bayes ceiling | `{key: gap_in_floors, op: "abs_le", value: 2}` | `abs(gap_in_floors) 1.68 <= 2 (from 1.68) → supported` | supported | E0005 | — |
+
+**Family size.** `n_comparisons = 5` — the five registered predictions are the
+whole comparison family. Each was locked with its own arithmetic rule in
+`study.yaml` at the first consult gate, before any evidence existed, and each is
+bound to exactly one run; there was no post-hoc selection among candidate
+comparisons, and neither registered sweep feeds a prediction. The guard is
+therefore pre-registration itself rather than an alpha correction — and it is
+worth saying that at effects of 3.9699 to 10.4555 floors, where one floor is
+`max(2*std, range/2)`, a Bonferroni over five would change no verdict here.
 
 Nothing is open, nothing is inconclusive, and the one refutation carries its dated
 decision. P4 is the interesting row: it was written as a *no-effect* prediction
@@ -77,10 +104,40 @@ logistic model cannot express the DGP's interaction or its quadratic, and pays f
 it in both currencies at once: Brier 0.132010 against the boosted tree's 0.109337
 and the irreducible Bayes floor of 0.103604 — that is, most of the linear model's
 excess loss over the truth is recovered by a model that was told nothing.
-`known_truth_calibration.png` draws the same fact directly: binned against the TRUE
-probability rather than against observed frequencies, the linear model's error is
-not noise but a systematic under-prediction that grows with the true probability,
-while the boosted tree's stays near zero until the far tail.
+`known_truth_calibration.png` draws the same fact directly, and the shape of the
+error matters more than its size: binned against the TRUE probability rather than
+against observed frequencies, the linear model's error is not noise but a clean
+sign flip. It OVER-predicts the low-probability rows and UNDER-predicts the
+high-probability ones, crossing zero around the middle of the range — shrinkage
+toward the base rate, which is exactly what a model that cannot express the
+curvature of the true log-odds must do: unable to reach the extremes, it pulls
+every row toward the average. The boosted tree shows the same sign flip an order
+of magnitude smaller and only in the tails. A one-sided description of that
+picture would understate C5's own point; both tails together are what make the
+error structural rather than noisy.
+
+**Correction (2026-09-03, referee note 2): the data card over-claims about
+seeds.** `data_card.md`'s literal-seed check says there is "no literal integer
+seed and no direct `train_test_split(random_state=<int>)` call in any script the
+study owns". That sentence is false as written: `train.py:58` holds
+`RANDOM_SEED = 42`. Three things are true in its place, and they are why the
+substance of war story 8 still holds. First, that literal is a FIT seed and
+nothing else — it reaches only `LogisticRegression(random_state=…)` and
+`HistGradientBoostingClassifier(random_state=…)`, and it is the same seed the
+Phase 0 `seed-sweep` varied to measure `fit_noise`. Second, no partition is
+chosen anywhere in the study's own code: every run takes its rows from
+`kleinlib.data.load_partition`, which prints the `split_fingerprint:` line the
+notary compares against the fingerprint the DATA gate froze, and `klein verify`
+reports current == recorded for the split policy and for both realized
+partitions. Third — and this is the part worth learning from — the sentence was
+asserted about `train.py`, a file the clean-room auditor states two paragraphs
+earlier in the same card that it never read. An audit that reaches past its own
+declared reading scope produces exactly this kind of confident, unfounded
+sentence. The card is a gate-hashed artifact whose sha256 is on the DATA gate
+record and on `events.jsonl`, so it is NOT edited after the runs; the correction
+is recorded here and in `program.md` instead, which is what an append-only
+record is for. No claim in `claims.lock` rests on the sentence, so no erratum is
+filed against any claim.
 
 ## ④ Practical advice
 
@@ -113,9 +170,15 @@ futility, not a forecast of success.
 If **[C1]** and **[C2]** hold, a reader facing a medium-sized table whose true
 structure is unknown should spend the first serious candidate on a boosted tree
 rather than on hand-specified interaction terms: here the tree recovered more of
-the distance to the ceiling (4.7779 floors) than the single most valuable
-hand-specified term available (3.9699), and it did so without anyone knowing which
-term to specify. That is the case the tabular literature makes, reproduced on a
+the distance to the ceiling (4.7779 floors) than the one hand-specified term the
+study actually tried (3.9699), and it did so without anyone knowing which term to
+specify. The ordering of single hand-specified terms was never measured by a run —
+the study fitted the raw features and the raw features plus `x1·x2`, and never
+fitted the quadratic on its own — and the design-time oracle in
+`scouting_ledger.md` S2 in fact points at `x3²` as the larger single term. So the
+honest form of the advice is not that the tree beat the best available hand-
+specified term, but that it beat the one a practitioner tried, without being told
+what to try. That is the case the tabular literature makes, reproduced on a
 process where the right answer is checkable.
 
 What a reader should NOT conclude: **[C3]**, **[C4]**, **[C5]**, **[C6]**, **[C7]**

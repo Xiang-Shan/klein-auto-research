@@ -4,6 +4,29 @@ This is the living lab notebook. `study.yaml` is the machine contract;
 `study_state.json`, `events.jsonl`, and `runs/E####/manifest.json` are generated audit
 state and must not be hand-edited.
 
+
+## Roster — who ran what, on which model
+
+The referee observed that this study recorded its experimenter nowhere: run
+manifests carry no actor or model field, and `study_state.json` records only the
+actor string `lead-agent`. That is a real gap — the independence rung on a gate
+record is only as good as the record of who was on each side of it — so the roster
+is written down here, where SYNTHESIZE and any later reader will find it.
+
+| Role | Who | Model | Context |
+|---|---|---|---|
+| Experimenter (CONSULT → SYNTHESIZE, every `run-one`) | a Claude Code general-purpose subagent | `claude-opus-5` | a fresh git worktree, this session |
+| DATA-gate clean-room auditor | `klein-data-auditor` | `sonnet` | fresh context; read only `study.yaml`, `prepare.py`, the prepared artifact and `truth.json` — never `program.md` or `train.py` |
+| Referee (Gate 3) | `klein-referee` | `claude-opus-5` | fresh context, started AFTER synthesis, no memory of the loop |
+| Lead / orchestrator | Claude Fable 5.1 | — | spawned the referee, relayed its notes, owns the delegated acks |
+
+**Independence rung reached: `fresh session`** — the lowest rung of the ladder
+(person > tool > model > backend > fresh session). The referee ran on the same
+model family as the experimenter, so `independent-of-experimenter: no` is what the
+referee report says and what the gate record carries. The fresh-context half of
+the requirement was met in full; the model half was not, and neither the report nor
+this file claims otherwise.
+
 ## Goal and track contract
 
 - Goal: On a synthetic table whose Bayes-optimal AUC is computable from the declared
@@ -72,8 +95,10 @@ same rows inside the same run so the comparison lives in one printed block.
 
 ## Workflow
 
-1. `klein gate record consult` (the scouting ledger is committed first, so the gate
-   hashes it).
+1. `klein gate record consult`. The scouting ledger is committed FIRST — not
+   because the gate hashes it (it does not: the consult gate hashes `study.yaml`,
+   `research_plan.md` and `program.md`) but because the commit that carries the
+   `study.yaml` the gate does hash carries the ledger too.
 2. `prepare.py`, the profile, the clean-room leakage audit, `data_card.md` = GO;
    `klein gate record data`.
 3. `method_card.md` + `references.yaml`; `klein gate record method`.
@@ -187,6 +212,86 @@ pre-candidate base commit.
   from the contract's seed, and `klein verify --require-local` is the verb for
   checking a study after that regeneration; it is only the detached-worktree path
   that cannot do it unattended.
+
+
+## Referee notes (Gate 3, verdict PASS-WITH-NOTES, 2026-09-03)
+
+The referee returned PASS-WITH-NOTES with seven notes. Each is answered here, dated,
+with what was done about it.
+
+- 2026-09-03 — **Referee note 1 (truncated bar axis).** Upheld. The left panel of
+  `headroom_bar.png` ran from 0.78 under a bar mark, and `tutorial-spec.md` critique
+  point 2 says bars are zero-based. Fixed: the panel is now zero-based with a chance
+  rule drawn at val_auc 0.5, because 0.5 and not 0 is where an AUC axis stops being
+  informative and a bare zero-based AUC axis invites the opposite misreading. The
+  honest consequence is that the five rungs now look nearly identical in metric
+  units — which is the truth, and which is exactly why the right panel divides the
+  same distances by the measured floor. The two panel titles were rewritten to say
+  so. The value labels moved inside the bars, where they no longer collide with the
+  ceiling and chance rules. Re-rendered and confirmed byte-identical across two
+  further renders.
+- 2026-09-03 — **Referee note 2 (the data card's literal-seed sentence).** Upheld,
+  and NOT fixed in place. `data_card.md` says there is "no literal integer seed …
+  in any script the study owns"; `train.py` line 58 is `RANDOM_SEED = 42`. The
+  sentence is false as written. Three things are true and are recorded instead of
+  editing the card: (i) that literal is a FIT seed and reaches only
+  `LogisticRegression(random_state=…)` and `HistGradientBoostingClassifier(random_state=…)`;
+  (ii) no partition is chosen anywhere in the study's own code — every run takes its
+  rows from `kleinlib.data.load_partition`, which prints the `split_fingerprint:`
+  the notary compares against the one the DATA gate froze, and `klein verify`
+  reports current == recorded for the policy and for both realized partitions; and
+  (iii) the sentence was asserted about `train.py`, a file the clean-room auditor
+  states in the same card that it never read — so the card over-reached beyond its
+  own declared reading scope. `data_card.md` is a gate-hashed artifact and its hash
+  is on the DATA gate record and on `events.jsonl` sequence 3; editing it after the
+  runs would silently invalidate that record, so the correction lives here and in
+  findings §③ instead. The substance of war story 8 is intact; the sentence was not.
+- 2026-09-03 — **Referee note 3 (an unmeasured superlative).** Upheld. Findings §⑤
+  called `x1·x2` "the single most valuable hand-specified term available". No run
+  measured that: the study fitted `raw` and `raw + x1·x2` and never `raw + x3²`, and
+  the design-time oracle in `scouting_ledger.md` S2 points at the quadratic as the
+  larger single term. The superlative is removed and replaced with what was
+  measured, plus an explicit statement that the ordering of single hand-specified
+  terms was never measured by a run. `claims.lock` is untouched — C2's locked
+  sentence never carried the superlative, which is the lock doing its job.
+- 2026-09-03 — **Referee note 4 (the controls are never called controls).** Upheld.
+  Both controls existed and neither was named. They are now named in findings §① and
+  here. **Negative control:** the DATA gate's mechanized eval-harness row — a
+  constant predictor and a label-shuffled predictor, which scored `val_auc=0.5000`
+  and `val_auc=0.5011` against a chance anchor of 0.5. A pipeline that cannot score
+  chance at chance cannot be trusted to score anything else. **Positive control:**
+  E0002, which hands the model a term the generating process is KNOWN to contain
+  (`x1·x2`) and must therefore detect if the pipeline works at all; it recovered
+  `delta_in_floors` 3.9699, and the design-time oracle in S2 had stated the expected
+  magnitude in advance. A known-absent effect scoring at chance and a known-present
+  effect being detected are the two halves, and on an onboarding exhibit they should
+  have been labelled the first time.
+- 2026-09-03 — **Referee note 5 (`n_comparisons` never stated).** Upheld. Stated now
+  in findings §②: the family is the five registered predictions, each locked with
+  its own arithmetic rule at the first consult gate before any evidence existed, each
+  bound to exactly one run, with no post-hoc selection among candidate comparisons.
+  The guard is pre-registration rather than an alpha correction, and at 4.62 to 10.46
+  floors a Bonferroni over five would change no verdict.
+- 2026-09-03 — **Referee note 6 ("the gate hashes it" is false of the scouting
+  ledger).** Upheld, and it is a framework template defect rather than an authoring
+  error — the sentence is inherited verbatim from
+  `assets/scouting-ledger-template.md` and `references/consult-protocol.md`. The lead
+  is fixing the template separately. In this study both copies of the wording are
+  corrected to what is checkable: `scouting_ledger.md` was committed BEFORE the
+  consult gate, in commit `5bda63da06f16c9a6476b49ada9e43fb226dd94b`, and that same
+  commit carries the `study.yaml` the gate DID hash — `events.jsonl` sequence 2
+  records `study.yaml` at sha256 `c4f66ed893b543e8…`, byte-identical to the blob at
+  `5bda63da:studies/00-known-truth-quickstart/study.yaml`. The ledger is frozen one
+  step removed, by the commit rather than by the gate. This matters because S4
+  discloses a pre-gate smoke run: a reader told "the gate hashes it" would believe
+  that disclosure is notarized when it is only committed.
+- 2026-09-03 — **Referee note 7 (C5's calibration description is one-sided).**
+  Upheld. §③ described only the under-prediction of high-probability rows. The
+  figure shows the full pattern — over-prediction of the low-probability rows as
+  well — which is shrinkage toward the base rate and a STRONGER illustration of
+  C5's own point than the one-sided sentence was. Corrected in findings §③. C5's
+  class (`mechanism-interpretation`) and strength (`exploratory`) are unchanged, and
+  the locked sentence in `claims.lock` is untouched.
 
 ## Phase slates
 
