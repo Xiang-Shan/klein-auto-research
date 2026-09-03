@@ -97,7 +97,16 @@
       "script_sha256": "f50058c4f8bb2facae7383c4fa02b9db48f7214c07a9eba347d02e9e27b694d3",
       "sidecar": "sweeps/fit_noise.sidecar.tsv",
       "sidecar_sha256": "63b64258c56cf3759b6e6dc7c6b3f807aeb47892dbb6dcb25e724139713e7d90"
+    },
+    "split_lottery": {
+      "registered_at": "2026-09-03T08:22:40.079575Z",
+      "rows_crash": 0,
+      "rows_ok": 10,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "f50058c4f8bb2facae7383c4fa02b9db48f7214c07a9eba347d02e9e27b694d3",
+      "sidecar": "sweeps/split_lottery.sidecar.tsv",
+      "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:22:31.797957Z"
+  "updated_at": "2026-09-03T08:22:40.079747Z"
 }
