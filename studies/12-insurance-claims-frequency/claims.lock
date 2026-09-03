@@ -11,6 +11,10 @@
     "results": {
       "path": "results.tsv",
       "sha256": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38"
+    },
+    "verdicts": {
+      "path": "tables/verdict_arithmetic.tsv",
+      "sha256": "33406c91cfcc8dd2bd5a53924a6e828a63607827d01b389eb0a8ba5636976604"
     }
   },
   "claims": {
