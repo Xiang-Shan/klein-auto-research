@@ -14,7 +14,7 @@
     },
     "derived": {
       "path": "tables/derived_ratios.tsv",
-      "sha256": "46fa6053dc7898f7abc7f1abfe51a55d37510a931d704048d7a7fd8439b4dd3f"
+      "sha256": "6350e964b7059ae1338351440a7fe38f7f7e9da3b85377f2dd0eb52d5f2c354a"
     },
     "duplicates": {
       "path": "tables/duplicate_exposure.tsv",
