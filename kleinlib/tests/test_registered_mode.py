@@ -110,7 +110,7 @@ def cell_command(
     command = metric_command(value, artifacts=artifacts or [])
     prologue = "import pathlib; " + "".join(
         f"_p = pathlib.Path({rel!r}); _p.parent.mkdir(parents=True, exist_ok=True); "
-        f"_p.write_text({text!r}); "
+        f"_p.write_bytes({text!r}.encode()); "  # exact bytes on every platform (no CRLF translation)
         for rel, text in (writes or {}).items()
     )
     command[-1] = prologue + command[-1]

@@ -287,7 +287,7 @@ jobs:
           set -euo pipefail
           unset DATA_HUB
           uv run --no-sync python scripts/verify_shipped_studies.py
-      - name: Every schema-3 exhibit verifies, locks and re-renders identically
+      - name: Every schema-3 exhibit verifies, locks and re-renders identically (pixel law)
         shell: bash
         run: |
           set -euo pipefail
@@ -302,20 +302,16 @@ jobs:
             if [ -f "$study/prepare.py" ]; then
               ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
             fi
-            uv run --no-sync klein verify --study "$study" --numbers --evidence-use --no-receipt
+            report="$RUNNER_TEMP/verify-$(basename "$study").log"
+            uv run --no-sync klein verify --study "$study" --numbers --evidence-use --no-receipt | tee "$report"
             uv run --no-sync klein claims verify --study "$study"
             if [ -f "$study/figures/make_figures.py" ]; then
-              keep="$RUNNER_TEMP/figures-$(basename "$study")"
-              mkdir -p "$keep"
-              cp "$study"/figures/*.png "$keep"/
-              # The same invocation `klein verify` uses (study 09's shape): from the repo
-              # root, `--study` and `--out`; a script may default both, but must accept them.
-              uv run --no-sync python "$study/figures/make_figures.py" --study "$study" --out "$study/figures"
-              for png in "$keep"/*.png; do
-                cmp -s "$png" "$study/figures/$(basename "$png")" \
-                  || { echo "figure does not re-render byte-identically: $(basename "$png")" >&2; exit 1; }
-              done
-              echo "figures re-render byte-identically"
+              # verify re-rendered the figures into a temp dir with the prepared data present
+              # and compared them under the pixel law (bytes first, decoded pixels when a PNG
+              # encoder differs across platforms). Here that comparison must have HAPPENED
+              # and MATCHED — a "[WARN] ... exited" line means the script never ran.
+              grep -E '^\[OK\] figure re-render: [0-9]+ figure\(s\) re-render (byte-)?identically' "$report" \
+                || { echo "figure re-render did not run or did not match for $study" >&2; exit 1; }
             fi
             echo "::endgroup::"
           done
