@@ -99,7 +99,8 @@
       "evidence": [],
       "numbers": [
         "hubble_pe_24",
-        "probable_error"
+        "probable_error",
+        "residual_sd"
       ],
       "strength": "exploratory"
     },
@@ -507,6 +508,13 @@
       "note": "f = k_origin / 70, the single factor applied to every distance (E0012)",
       "precision": 6,
       "value": 6.056247
+    },
+    "residual_sd": {
+      "art": "aux",
+      "claim": "C10",
+      "note": "residual standard deviation about the free-intercept fit (E0002); the DGP's sigma",
+      "precision": 6,
+      "value": 232.91067
     },
     "sealed_deviation": {
       "art": "aux",
