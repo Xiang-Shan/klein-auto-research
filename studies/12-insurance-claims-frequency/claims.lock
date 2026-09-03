@@ -183,16 +183,21 @@
       "strength": "exploratory"
     },
     "C7": {
-      "claim": "The frontier incumbent's level holds on evidence it never saw: fitted on train",
-      "class": null,
+      "claim": "The frontier incumbent's level holds on evidence it never saw: fitted on train plus development and evaluated once on the sealed half of the v1 validation set, it scores 0.657739 against a development score of 0.664051 - a shift of 0.1680 of one measured floor.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0005",
+        "E0003",
+        "P7",
+        "rep:E0003@20260903T083929Z"
+      ],
       "numbers": [
         "dev_incumbent",
         "sealed_auc",
         "sealed_shift_in_floors"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C8": {
       "claim": "RQ3** \u2014 how large is the paired-comparison floor here, and how many of v1's six keeps clear it? | **ANSWERED**: the bar is 0.0375805 and the ladder yields one keep | , ,  | sweep:paired_bootstrap, E0001, E0005, art:verdicts | the bar is 0.9671 of the v1 ledger's entire spread | exploratory |",
