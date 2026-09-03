@@ -75,17 +75,28 @@
       "strength": "exploratory"
     },
     "C3": {
-      "claim": "RQ2 | n_small | supported | confirmed | procedural-verdict | E0001, E0002, E0003, E0004, E0005, E0006, E0007, E0008 | the declared verifier rejected 12 of 12 planted invalid objects and accepted the known-valid object at exactly 11, its value known in advance; on all seven honest runs the verifier-computed `claim_excess` was 0; and the one run made to report a single extra point was refused \u2014 `reported 21.0` against `verified 20.0`, disposition `crash`, reason `verifier_disagreement`, ledger row `NA` |",
-      "class": null,
+      "claim": "The declared verifier rejected 12 of 12 planted invalid objects and accepted the known-valid object at its predicted 11 points, and the one run made to report a single extra point was refused rather than recorded: reported 21.0 against verified 20.0, disposition crash, ledger row NA",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0008",
+        "P3",
+        "P5"
+      ],
       "numbers": [
         "control_objective",
         "planted",
         "reported_e0008",
         "verified_e0008"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C4": {
       "claim": "RQ1 | n_small | supported | confirmed | procedural-verdict | E0004, E0009 | the development lane and the sealed lane disagree about whether this search reaches 22, and they differ only in the seed: `search_seed` 20260903 plateaued at 21 from evaluation 152572 onward, `search_seed` 20260917 reached 22 at evaluation 1612132. Two seeds, one success \u2014 a difference, not a rate |",
