@@ -172,10 +172,14 @@
       "strength": "exploratory"
     },
     "C15": {
-      "claim": "the prediction.  below is the lesson.",
-      "class": null,
+      "claim": "Measuring a floor for a quantity a prediction reads partly spends the prediction: the coverage floor had to estimate the spread of the very number P6's rule tests, so P6's verdict was foreseeable before the sealed block was read - disclosed the day it happened, with the refutation branch kept live and the verdict taken on evidence the floor never touched",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "sweep:coverage_floor",
+        "E0013",
+        "art:floor_sidecar"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
