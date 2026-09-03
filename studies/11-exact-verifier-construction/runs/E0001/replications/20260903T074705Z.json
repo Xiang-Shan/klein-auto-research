@@ -1,0 +1,102 @@
+{
+  "artifact": "models/E0001/solution.json",
+  "artifact_sha256": "c4946ab6d8637966013636dafe51cb6b0a46df61e9c4f643dee545b929467189",
+  "baseline": 11.0,
+  "baseline_source": "manifest.metric.verified",
+  "block_differences": {
+    "claim_excess": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "grid_n": {
+      "difference": null,
+      "original": null,
+      "replicate": 11.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 11.0,
+      "replicate": 11.0
+    },
+    "runner_exit_code": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "total_seconds": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "triples_checked": {
+      "difference": null,
+      "original": null,
+      "replicate": 165.0
+    },
+    "wall_seconds": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.000108
+    }
+  },
+  "candidate_commit": "26a63b395686f3ddb633953228812d4cf404ac4e",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "verify.py"
+  ],
+  "difference": 0.0,
+  "ended_at": "2026-09-03T07:47:06.609022Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "verify:E0001@20260903T074705Z",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "log": "runs/E0001/replications/20260903T074705Z.log",
+  "max_run_seconds": 120.0,
+  "metric_name": "points",
+  "mismatched_keys": [
+    "claim_excess",
+    "grid_n",
+    "triples_checked"
+  ],
+  "mode": "verify",
+  "original_block": {
+    "primary_metric": 11.0
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 11.0,
+  "record": "runs/E0001/replications/20260903T074705Z.json",
+  "replicate_block": {
+    "claim_excess": 0.0,
+    "grid_n": 11.0,
+    "primary_metric": 11.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "triples_checked": 165.0,
+    "wall_seconds": 0.000108
+  },
+  "replicate_primary_metric": 11.0,
+  "reproduced": true,
+  "schema_version": 1,
+  "stamp": "20260903T074705Z",
+  "started_at": "2026-09-03T07:47:05.884050Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T07:47:05.858723Z",
+  "tolerance": 0.0,
+  "tolerance_source": "verifier.tolerance",
+  "track": "n_small",
+  "wall_seconds": 0.7246345421299338,
+  "worktree_prepared": false
+}

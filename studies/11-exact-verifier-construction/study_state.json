@@ -165,8 +165,30 @@
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7fd1bb40fc17104b/studies/11-exact-verifier-construction/data/prepared/instances.json",
     "sha256": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d"
   },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "verify": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0001@20260903T074705Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T07:47:05.858723Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "n_small"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:46:41.058138Z"
+  "updated_at": "2026-09-03T07:47:06.610830Z"
 }
