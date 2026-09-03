@@ -282,29 +282,18 @@ def preflight_checks(
                     "noise floor",
                     True,
                     f"track {track_name!r}: not measured — Phase 0 protocol expects a "
-                    "k-seed measurement (see consult-protocol.md)",
+                    "k-seed measurement (see consult-protocol.md)"
+                    + (
+                        " — metric.fit_noise is recorded, but a seed spread measures "
+                        "the FIT, not the comparison: run --recipe split-lottery or "
+                        "--recipe paired-bootstrap for the bar"
+                        if version >= 3 and isinstance(metric.get("fit_noise"), Mapping)
+                        else ""
+                    ),
                 )
             )
             continue
-        try:
-            floor_std = float(floor.get("std"))
-            minimum_delta = float(metric.get("minimum_delta", 0))
-        except (TypeError, ValueError):
-            continue  # validate_contract already reported the malformed block
-        checks.append(
-            Check(
-                "noise floor",
-                minimum_delta >= floor_std,
-                f"track {track_name!r}: minimum_delta {minimum_delta:.6g} vs measured "
-                f"seed std {floor_std:.6g}"
-                + (
-                    ""
-                    if minimum_delta >= floor_std
-                    else " — declaring a floor then keeping inside it is the exact "
-                    "dishonesty the measurement exists to prevent"
-                ),
-            )
-        )
+        checks.append(_floor_bar_check(track_name, metric, floor, version))
     try:
         state = load_state(study_dir, contract)
     except WorkflowError as exc:
@@ -688,6 +677,337 @@ def _headroom_check(
 
 
 
+def sweep_registry_problems(study_dir: Path, state: Mapping[str, Any]) -> list[str]:
+    """Re-hash every measurement sweep registered with ``klein sweep register``.
+
+    The sidecar IS the evidence of a measurement sweep — it promotes no winner
+    and writes no ledger row (``references/sweep-rules.md``, the carve-out), so
+    a study citing ``sweep:<name>`` is citing those bytes.  Registering hashed
+    them; verify checks them, and a sidecar edited afterwards fails.  The script
+    is hashed for the same reason the METHOD gate hashes a verifier: the rule
+    that produced the rows must not change after the rows are quoted.
+
+    Returns an empty list when nothing is registered — a study with no
+    measurement sweep is not a study with a broken one.
+    """
+    registry = state.get("sweeps")
+    if not isinstance(registry, Mapping) or not registry:
+        return []
+    problems: list[str] = []
+    for name in sorted(registry):
+        record = registry[name]
+        if not isinstance(record, Mapping):
+            problems.append(f"sweep:{name} record is not a mapping")
+            continue
+        for role in ("sidecar", "script"):
+            relative_path = record.get(role)
+            recorded = record.get(f"{role}_sha256")
+            if not isinstance(relative_path, str) or not isinstance(recorded, str):
+                problems.append(
+                    f"sweep:{name} has no recorded {role} path/hash — re-register it"
+                )
+                continue
+            path = study_dir / relative_path
+            if not path.is_file():
+                problems.append(f"sweep:{name} {role} is missing: {relative_path}")
+                continue
+            current = sha256_file(path)
+            if current != recorded:
+                problems.append(
+                    f"sweep:{name} {role} {relative_path} changed after registration "
+                    f"(recorded {recorded[:12]}…, now {current[:12]}…) — the evidence "
+                    "findings cite is not the evidence on disk; re-run the sweep and "
+                    "re-register it, or restore the committed bytes"
+                )
+    return problems
+
+
+def _sweep_registry_checks(study_dir: Path, state: Mapping[str, Any]) -> list[Check]:
+    """One check, and only when the study registered a measurement sweep.
+
+    Silent otherwise, like the claims law without a lock: a schema-2 study that
+    never used the verb sees no new line in its verify output.
+    """
+    registry = state.get("sweeps")
+    if not isinstance(registry, Mapping) or not registry:
+        return []
+    problems = sweep_registry_problems(study_dir, state)
+    return [
+        Check(
+            "registered sweeps",
+            not problems,
+            "; ".join(problems)
+            or f"{len(registry)} registered sweep(s) hash unchanged: "
+            + ", ".join(f"sweep:{name}" for name in sorted(registry)),
+        )
+    ]
+
+
+
+
+def floor_bar_problems(
+    metric: Mapping[str, Any], floor: Mapping[str, Any], version: int
+) -> list[str]:
+    """Is ``minimum_delta`` outside the floor that would have to detect it?
+
+    Schema 2 keeps its original bar, ``minimum_delta >= std`` — those studies
+    were run and closed against it and must keep verifying byte-identically.
+    Schema 3 raises it to the number the consult protocol states and study 07
+    paid for: ``minimum_delta >= max(2*std, range/2)``.  Two standard
+    deviations, or half the observed range, whichever is larger — on the k a
+    real Phase 0 can afford the range carries information a five-sample std
+    does not, and a bar set at 1 std keeps roughly a third of pure noise.
+
+    Returns problem strings; an empty list means the delta clears its own
+    floor.  A malformed block returns nothing — ``validate_contract`` has
+    already reported it and a second voice would only add noise.
+    """
+    try:
+        std = float(floor.get("std"))
+        minimum_delta = float(metric.get("minimum_delta", 0))
+    except (TypeError, ValueError):
+        return []
+    if version < 3:
+        return (
+            []
+            if minimum_delta >= std
+            else [
+                f"minimum_delta {minimum_delta:.6g} < measured seed std {std:.6g} — "
+                "declaring a floor then keeping inside it is the exact dishonesty "
+                "the measurement exists to prevent"
+            ]
+        )
+    try:
+        value_range = float(floor.get("range"))
+    except (TypeError, ValueError):
+        return []
+    bar = max(2.0 * std, value_range / 2.0)
+    if minimum_delta >= bar:
+        return []
+    return [
+        f"minimum_delta {minimum_delta:.6g} < max(2*std {2 * std:.6g}, range/2 "
+        f"{value_range / 2:.6g}) = {bar:.6g} — the schema-3 bar; a delta inside its "
+        "own floor cannot be detected by the measurement that would have to detect it"
+    ]
+
+
+def _floor_bar_check(
+    track_name: str, metric: Mapping[str, Any], floor: Mapping[str, Any], version: int
+) -> Check:
+    """One ``noise floor`` line per track, at the bar its schema version sets."""
+    problems = floor_bar_problems(metric, floor, version)
+    if version < 3:
+        try:
+            std = float(floor.get("std"))
+            minimum_delta = float(metric.get("minimum_delta", 0))
+        except (TypeError, ValueError):
+            return Check("noise floor", True, f"track {track_name!r}: malformed floor block")
+        return Check(
+            "noise floor",
+            not problems,
+            f"track {track_name!r}: minimum_delta {minimum_delta:.6g} vs measured "
+            f"seed std {std:.6g}"
+            + (
+                ""
+                if not problems
+                else " — declaring a floor then keeping inside it is the exact "
+                "dishonesty the measurement exists to prevent"
+            ),
+        )
+    estimand = floor.get("estimand")
+    named = f", estimand {estimand!r}" if estimand else ""
+    try:
+        std = float(floor.get("std"))
+        value_range = float(floor.get("range"))
+        minimum_delta = float(metric.get("minimum_delta", 0))
+        bar = max(2.0 * std, value_range / 2.0)
+    except (TypeError, ValueError):
+        return Check(
+            "noise floor",
+            True,
+            f"track {track_name!r}: floor block malformed — see the contract check",
+        )
+    return Check(
+        "noise floor",
+        not problems,
+        "; ".join(f"track {track_name!r}: {problem}" for problem in problems)
+        or f"track {track_name!r}: minimum_delta {minimum_delta:.6g} >= "
+        f"max(2*std, range/2) = {bar:.6g}{named}",
+    )
+
+
+#: Words a findings document may not use without a priced consequence on the
+#: record (``research-discipline.md`` lesson 10: detectable is not actionable).
+MATERIALITY_WORDS: tuple[str, ...] = (
+    "materially",
+    "material",
+    "actionable",
+    "business-critical",
+)
+
+_MATERIALITY_RE = re.compile(
+    r"(?i)\b(?:" + "|".join(MATERIALITY_WORDS) + r")\b"
+)
+
+#: Where a profile named by `profile:` lives inside a Klein checkout.
+PROFILE_DIR = ".claude/skills/klein/references/profiles"
+
+
+def _profile_path(study_dir: Path, contract: Mapping[str, Any]) -> Path | None:
+    """The profile markdown this contract points at, if it is on this machine.
+
+    ``profile_doc:`` wins when both are present (it is the escape hatch a
+    foreign repo uses to carry its own profile without forking Klein).  Returns
+    None when neither resolves — the scan is then skipped, never failed: a
+    wheel install has no `.claude/` tree.
+    """
+    from .contract import _repo_root_hint
+
+    root = _repo_root_hint(study_dir)
+    doc = contract.get("profile_doc")
+    if isinstance(doc, str) and doc.strip():
+        for candidate in (root / doc, study_dir / doc):
+            if candidate.is_file():
+                return candidate
+        return None
+    name = contract.get("profile")
+    if isinstance(name, str) and name.strip():
+        candidate = root / PROFILE_DIR / f"{name}.md"
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def profile_banned_words(profile_text: str) -> list[str]:
+    """The quoted terms in a profile's §7 ``Banned:`` sentence.
+
+    A profile controls vocabulary and nothing the engine enforces
+    (``references/profiles/README.md``, knob 7), so the list is READ from the
+    document rather than restated in code — adding a profile stays a one-file
+    change.  Everything from ``Banned:`` up to the section's ``Must be
+    qualified``/``Honest verbs`` sentence is scanned for double-quoted terms.
+    """
+    section = re.search(
+        r"^##\s*7\.\s*Vocabulary\s*$(.*?)(?=^##\s|\Z)",
+        profile_text,
+        re.MULTILINE | re.DOTALL,
+    )
+    if section is None:
+        return []
+    # One line: the sentences wrap, and "Must be\nqualified" must still be found.
+    body = " ".join(section.group(1).split())
+    start = body.find("Banned:")
+    if start < 0:
+        return []
+    tail = body[start:]
+    for terminator in ("Must be qualified", "Honest verbs"):
+        cut = tail.find(terminator)
+        if cut > 0:
+            tail = tail[:cut]
+    # Parentheticals hold the SUGGESTED REPLACEMENT ("say \"locked before\""),
+    # which is the one phrase the profile wants used, not banned.
+    tail = re.sub(r"\([^()]*\)", " ", tail)
+    seen: list[str] = []
+    for term in re.findall(r'"([^"]+)"', tail):
+        cleaned = " ".join(term.split())
+        if cleaned and cleaned.lower() not in {t.lower() for t in seen}:
+            seen.append(cleaned)
+    return seen
+
+
+def _offending_lines(text: str, pattern: re.Pattern[str], *, limit: int = 3) -> list[str]:
+    """Up to *limit* `line N: <text>` strings, so the report is actionable."""
+    hits: list[str] = []
+    for number, line in enumerate(text.splitlines(), start=1):
+        if pattern.search(line):
+            stripped = line.strip()
+            hits.append(f"line {number}: {stripped[:120]}")
+            if len(hits) >= limit:
+                break
+    return hits
+
+
+def vocabulary_problems(
+    study_dir: Path, contract: Mapping[str, Any]
+) -> dict[str, list[str]]:
+    """Scan ``findings.md`` for unpriced materiality and the profile's banned words.
+
+    Two independent readings of one file:
+
+    ``materiality`` (schema 3, a FAILURE) — "material", "materially",
+    "actionable" or "business-critical" appearing while the contract carries no
+    ``materiality:`` block.  Measurement resolution is never business value: a
+    gain of 0.29x the floor at n = 8 is detectable and not actionable (study
+    08), and study 09 banned the conflation outright.  The fix is a priced
+    consequence with its own provenance, or a different sentence.
+
+    ``profile`` (a WARNING) — the terms the study's own profile bans, read from
+    that document's §7 rather than restated here.  A warning, not a failure:
+    vocabulary is the profile's business and the referee's, and the engine
+    checks the same things in every profile.
+
+    Returns ``{}`` when there is no ``findings.md`` yet — a study mid-loop has
+    nothing to scan.
+    """
+    findings = study_dir / "findings.md"
+    if not findings.is_file():
+        return {}
+    try:
+        text = findings.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return {}
+    problems: dict[str, list[str]] = {}
+    if schema_version(contract) >= 3 and not isinstance(contract.get("materiality"), Mapping):
+        hits = _offending_lines(text, _MATERIALITY_RE)
+        if hits:
+            problems["materiality"] = hits
+    path = _profile_path(study_dir, contract)
+    if path is not None:
+        banned = profile_banned_words(path.read_text(encoding="utf-8", errors="replace"))
+        if banned:
+            pattern = re.compile(
+                r"(?i)(?:"
+                + "|".join(rf"\b{re.escape(term)}\b" for term in banned)
+                + r")"
+            )
+            hits = _offending_lines(text, pattern)
+            if hits:
+                problems["profile"] = hits
+    return problems
+
+
+def _vocabulary_checks(study_dir: Path, contract: Mapping[str, Any]) -> list[Check]:
+    """At most two lines, and none at all for a schema-2 study with a clean page."""
+    problems = vocabulary_problems(study_dir, contract)
+    checks: list[Check] = []
+    if problems.get("materiality"):
+        checks.append(
+            Check(
+                "materiality vocabulary",
+                False,
+                "findings.md claims materiality with no priced consequence on the "
+                "record: "
+                + "; ".join(problems["materiality"])
+                + " — register a materiality: block (currency, unit, threshold, "
+                "priced_by, priced_on, basis, applies_to) or say only that a "
+                "registered bar was cleared. Measurement resolution is never "
+                "business value.",
+            )
+        )
+    if problems.get("profile"):
+        profile = contract.get("profile_doc") or contract.get("profile")
+        checks.append(
+            Check(
+                "profile vocabulary",
+                True,
+                f"[WARN] findings.md uses words the {profile!r} profile bans: "
+                + "; ".join(problems["profile"])
+                + " — see the profile's §7 (the referee checks the same list)",
+            )
+        )
+    return checks
+
+
 def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]:
     contract = load_contract(study_dir)
     if schema_version(contract) == 1:
@@ -724,6 +1044,16 @@ def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]
         require_branch=False,
         require_local=require_local,
     )
+    checks += _sweep_registry_checks(study_dir, _state_or_empty(study_dir, contract))
+    checks += _vocabulary_checks(study_dir, contract)
     # The claims law (references/claims-protocol.md): enforcing on schema 3,
     # advisory on schema 2 so 07/08/09 never retro-fail. Empty without a lock.
     return checks + claims_checks(study_dir, schema_version(contract))
+
+
+def _state_or_empty(study_dir: Path, contract: Mapping[str, Any]) -> Mapping[str, Any]:
+    """State for the read-only checks; a broken state file already failed above."""
+    try:
+        return load_state(study_dir, contract)
+    except WorkflowError:
+        return {}

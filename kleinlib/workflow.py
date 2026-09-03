@@ -36,7 +36,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from . import replicate, transaction
+from . import replicate, stop, transaction
 from .checks import (
     Check,
     _artifact_hash_problems,
@@ -765,6 +765,9 @@ def run_one(
         incumbent = _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
         if not final_test:
             _enforce_headroom(state, tracks[track], track, incumbent, echo=echo)
+            stop.refuse_if_tripped(
+                contract, state, manifests, track=track, phase=phase_id, echo=echo
+            )
         number = len(manifests) + 1
         run_id = f"E{number:04d}"
 
