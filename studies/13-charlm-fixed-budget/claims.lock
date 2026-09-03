@@ -98,7 +98,8 @@
       "numbers": [
         "e0001_val_loss",
         "max_verifier_gap",
-        "replication_difference"
+        "replication_difference",
+        "replication_in_fit_noise"
       ],
       "strength": "exploratory"
     },
@@ -336,6 +337,13 @@
       "note": "full re-execution of E0001 at the same seed, same backend",
       "precision": 6,
       "value": 0.000962
+    },
+    "replication_in_fit_noise": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "the same, in fit-noise standard deviations",
+      "precision": 6,
+      "value": 0.119808
     },
     "steps_budget": {
       "art": "frontier",
