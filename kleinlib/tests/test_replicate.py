@@ -119,6 +119,24 @@ def edit_contract(study: Path, mutate) -> None:
     path.write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
 
 
+@pytest.fixture(autouse=True)
+def hermetic_tempdir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Every replication worktree of this module lands under the test's own tmp.
+
+    ``detached_worktree`` creates its checkout in the SYSTEM temp dir, and
+    :func:`leftover_worktrees` scans that dir — so a real ``klein replicate``
+    running elsewhere on the machine (an exhibit study mid-loop) used to show up
+    as a "leftover" of a test that never created it.  Pointing ``TMPDIR`` at a
+    per-test directory makes both the creation and the scan hermetic; the
+    cached ``tempfile.tempdir`` is reset so ``gettempdir()`` re-resolves.
+    """
+    scratch = tmp_path / "tmp"
+    scratch.mkdir()
+    monkeypatch.setenv("TMPDIR", str(scratch))
+    monkeypatch.setattr(tempfile, "tempdir", None)
+    return scratch
+
+
 def leftover_worktrees() -> list[str]:
     return glob.glob(os.path.join(tempfile.gettempdir(), "klein-*worktree-*")) + glob.glob(
         os.path.join(tempfile.gettempdir(), "klein-replicate-*")
