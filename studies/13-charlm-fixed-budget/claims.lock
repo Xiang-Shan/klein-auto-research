@@ -231,11 +231,19 @@
       "strength": "exploratory"
     },
     "C8": {
-      "claim": "Measure your floor on the quantity your decision actually uses. The five-seed",
-      "class": null,
+      "claim": "Measure the floor on the quantity the decision actually uses: the five-seed level spread has standard deviation 0.00802952 while the ten paired differences have standard deviation 0.00747623 and range 0.026494, and it is the paired spread that sets the bar of 0.0149525 nats.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "sweep:fit_noise",
+        "sweep:paired_floor"
+      ],
+      "numbers": [
+        "fit_noise_std",
+        "minimum_delta",
+        "paired_floor_range",
+        "paired_floor_std"
+      ],
       "strength": "exploratory"
     },
     "C9": {
