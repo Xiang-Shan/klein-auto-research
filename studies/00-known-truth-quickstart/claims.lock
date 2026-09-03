@@ -33,7 +33,8 @@
       "evidence": [],
       "numbers": [
         "anchor_auc",
-        "boosted_auc"
+        "boosted_auc",
+        "sealed_auc"
       ],
       "strength": "exploratory"
     },
@@ -114,6 +115,13 @@
       "note": "E0003 val_auc, the boosted incumbent on development",
       "precision": 6,
       "value": 0.87139
+    },
+    "sealed_auc": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0005 val_auc, the one sealed access",
+      "precision": 6,
+      "value": 0.880949
     }
   },
   "study_id": "00-known-truth-quickstart"
