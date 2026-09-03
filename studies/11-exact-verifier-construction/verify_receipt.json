@@ -106,7 +106,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] findings.md uses words the 'math' profile bans: line 221: **Vocabulary, deliberately.** The words \"proved\", \"optimal\" and \"impossible\" do not; line 223: reader can check that. There is no proof artifact pinned in `claims.lock`, so nothing is; line 224: proved here; the only proof invoked, the pigeonhole bound, is cited as a theorem from \u2014 see the profile's \u00a77 (the referee checks the same list)",
+      "message": "[WARN] findings.md uses words the 'math' profile bans: line 222: **Vocabulary, deliberately.** The words \"proved\", \"optimal\" and \"impossible\" do not; line 224: reader can check that. There is no proof artifact pinned in `claims.lock`, so nothing is; line 225: proved here; the only proof invoked, the pigeonhole bound, is cited as a theorem from \u2014 see the profile's \u00a77 (the referee checks the same list)",
       "name": "profile vocabulary",
       "ok": true
     },
@@ -171,9 +171,9 @@
       "ok": true
     },
     {
-      "message": "4 of 109 numerals have no home in 17 pinned source(s) \u2014 line 55: -1 (seven geometric defects spanning slopes 0, undefined, +1, -1, +2, +1/2 and a +2 line); line 124: 1847428 (development trajectory found 21 at evaluation 152572 and then spent 1847428 further); line 134: 1847428 (was found at evaluation 152572 of 2000000 and the remaining 1847428 changed nothing.); line 161: 37820 (cross-product test \u2014 37820 of them at the largest size, and still sub-millisecond. The) \u2014 pin each with `klein claims number`, or mark the line `<!-- klein:numbers-ok: <reason> -->`",
+      "message": "all 91 scanned numerals trace to 17 pinned source(s)",
       "name": "findings numbers",
-      "ok": false
+      "ok": true
     },
     {
       "message": "3 figure(s) re-render byte-identically",
@@ -182,19 +182,19 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "c92b6488d73a06076b442846ccfffd6d701512b9",
+  "git_head": "ac1d1bf335feb13d5e6165dc49e8e9e5b56eec0d",
   "inputs": {
     "aux_metrics.tsv": "2f2487c39a506a06912067ab5ff1dab003d88b8c605eee74ba614c525cf1d8e0",
     "claims.lock": "df300abce9e1ebecc5bcf0787ac10b3fef1376b9e81262ba65f062d13aaf3d04",
     "events.jsonl": "f58f5a34304566500613485b774f5ce505e2a23a48556d09b2b7d525ec591513",
-    "findings.md": "aefc7a179e02b54039540e9d53eb9dbd1b4f8b58d074244efb7beb7d729f4d9d",
+    "findings.md": "c3905f202a74e81d4134c14b8a8caf03e8dde48e2ebb1dd6606fa572145408d6",
     "playbook.md": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3",
     "program.md": "8e631c6b6dfa913d951972d9b4cf018946ad3ad7abc4a28a1f25471c952bc5f2",
     "results.tsv": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757",
     "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3",
     "study_state.json": "d8dceb6d3669246a5e5497bce8e03612cc4a25efbc6418e5a3dcc25c53773a03"
   },
-  "klein_commit": "c92b6488d73a06076b442846ccfffd6d701512b9",
+  "klein_commit": "ac1d1bf335feb13d5e6165dc49e8e9e5b56eec0d",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "a18e2256c80b30a203cb2856bddb6dddbfdeddb12a9b23c67f51b3d84454c900",
@@ -215,10 +215,10 @@
   "study": "11-exact-verifier-construction",
   "summary": {
     "checks": 36,
-    "failed": 1,
+    "failed": 0,
     "warned": 4
   },
-  "timestamp": "2026-09-03T08:05:08.366968Z",
+  "timestamp": "2026-09-03T08:06:13.030653Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
