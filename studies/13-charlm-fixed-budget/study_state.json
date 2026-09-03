@@ -101,6 +101,28 @@
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7d994db2a9c6c485/studies/13-charlm-fixed-budget/data/prepared/prepared.csv",
     "sha256": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc"
   },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0009619999999999074,
+          "evidence_id": "rep:E0001@20260903T121129Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T12:11:29.270960Z",
+          "tolerance": 0.0149525
+        }
+      ],
+      "track": "primary"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "13-charlm-fixed-budget",
@@ -133,5 +155,5 @@
       "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
     }
   },
-  "updated_at": "2026-09-03T12:10:43.578701Z"
+  "updated_at": "2026-09-03T12:13:20.046583Z"
 }
