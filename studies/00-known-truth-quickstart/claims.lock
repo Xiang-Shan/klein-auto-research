@@ -61,7 +61,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "overcapacity_auc"
+        "overcapacity_auc",
+        "overcapacity_delta_floors"
       ],
       "strength": "exploratory"
     },
@@ -168,6 +169,13 @@
       "note": "E0004 val_auc",
       "precision": 6,
       "value": 0.858049
+    },
+    "overcapacity_delta_floors": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 delta_in_floors against its own default-capacity reference",
+      "precision": 4,
+      "value": -1.7903
     },
     "sealed_auc": {
       "art": "aux",
