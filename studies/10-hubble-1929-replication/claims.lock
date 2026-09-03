@@ -52,6 +52,10 @@
       "path": "tables/table1_absolute_magnitudes.tsv",
       "sha256": "0e709cb8bc1cd3fee9ddfcebc741bf9ca054e1543b327cae4a97d4192dda5388"
     },
+    "mc_sidecar": {
+      "path": "sweeps/mc_resolution.sidecar.tsv",
+      "sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5"
