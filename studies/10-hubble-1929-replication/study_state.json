@@ -109,5 +109,16 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "10-hubble-1929-replication",
-  "updated_at": "2026-09-03T05:56:41.021770Z"
+  "sweeps": {
+    "mc_resolution": {
+      "registered_at": "2026-09-03T05:59:51.160938Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/mc_resolution.py",
+      "script_sha256": "4ba655ec4916ffa1693c715f762dd02d06b91cd0beab8c53844ad06197711a4a",
+      "sidecar": "sweeps/mc_resolution.sidecar.tsv",
+      "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
+    }
+  },
+  "updated_at": "2026-09-03T05:59:51.161212Z"
 }
