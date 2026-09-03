@@ -128,6 +128,7 @@
       "evidence": [],
       "numbers": [
         "dev_twin_share",
+        "max_twin_gap",
         "straddling_hashes"
       ],
       "strength": "exploratory"
@@ -241,6 +242,13 @@
       "claim": "C4",
       "precision": 6,
       "value": 0.049911
+    },
+    "max_twin_gap": {
+      "art": "derived",
+      "claim": "C6",
+      "note": "the largest twin_free_gap magnitude across the four development rungs",
+      "precision": 6,
+      "value": 0.001415
     },
     "minimum_delta": {
       "art": "contract",
