@@ -107,8 +107,8 @@ RECIPES = {
 }
 
 # --- the candidate: the whole per-experiment diff surface -------------------
-CANDIDATE = "logreg_raw"
-REFERENCE = None
+CANDIDATE = "logreg_raw"          # E0001: the identity anchor
+REFERENCE = None                  # the anchor has no predecessor to beat
 
 
 def fit_recipe(name: str, X_fit: pd.DataFrame, y_fit: pd.Series):
