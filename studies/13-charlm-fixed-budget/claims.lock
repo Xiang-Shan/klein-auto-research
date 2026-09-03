@@ -135,7 +135,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "control_uniform"
+        "control_uniform",
+        "control_untrained"
       ],
       "strength": "exploratory"
     },
@@ -204,6 +205,13 @@
       "note": "negative control: chance, at float32 resolution",
       "precision": 6,
       "value": 4.174388
+    },
+    "control_untrained": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "negative control: a random network scored through verify.py itself",
+      "precision": 6,
+      "value": 4.305432
     },
     "e0001_anchor_z": {
       "art": "frontier",
