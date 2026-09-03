@@ -24,6 +24,18 @@ machines agree within the floor; `wall_seconds` stays informational and
 scientific condition, not a convenience, and it is stated in units the hardware cannot
 change.
 
+## The environment variables that move a budget or a device
+
+| Variable | Default | What it changes |
+|---|---|---|
+| `KLEIN_DEVICE` | auto (`mps` → `cuda` → `cpu`) | the device `pick_device()` returns |
+| `KLEIN_REPLICATE_SETUP_SECONDS` | `1800` | the budget for `klein replicate`'s environment-setup step (`uv sync --locked …` in the detached worktree). Building a project is not the experiment, so it is never charged to `max_run_seconds` or `--timeout-seconds`. |
+| `KLEIN_OFFLINE` | unset | `1` refuses every network data source before any request |
+
+The child's own flags — `KLEIN_SMOKE`, `KLEIN_SEALED_DRYRUN`, `KLEIN_REPLICATION`,
+`KLEIN_EXPERIMENT_ID`, `KLEIN_TRACK`, `KLEIN_EVALUATION_KIND` — are set by the notary,
+not by you.
+
 ## Devices
 
 `kleinlib.torch_device.pick_device()` chooses `mps` → `cuda` → `cpu`; `KLEIN_DEVICE`
@@ -47,7 +59,9 @@ scheduler, no queue, no remote agent.
 Bitwise reproduction is not the bar; the floor is. `klein replicate` compares within a
 tolerance and records both blocks; document the known sources of nondeterminism
 (seeds, threads, GPU kernels, hash ordering) in the method card so a replication that
-differs can be read.
+differs can be read. The worktree it re-runs in is prepared before the clock starts
+(`replication-protocol.md`, "What the worktree receives"), so a study with an honest
+60-second budget can still be replicated.
 
 ## Long sessions
 

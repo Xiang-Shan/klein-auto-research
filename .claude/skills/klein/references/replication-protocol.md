@@ -34,6 +34,32 @@ uv run --locked klein replicate --study studies/NN-slug --list
 - Refused, with no override: sealed runs (a replication would be a second look) and
   crashes (there is nothing to reproduce; run a new candidate instead).
 
+### What the worktree receives
+
+- **The prepared DIRECTORY, not just the named path.** `prepare.py` writes more than
+  `data.prepared_path` — an index table, a fitted encoder, a known-truth file — and
+  none of those is a run input the contract can name. A prepared *file* therefore
+  travels with its parent directory (`data/prepared/` in every scaffold); a prepared
+  *directory* travels as itself. The fingerprint assertion stays on the named path
+  alone, and an absolute `prepared_path` outside the study is shared, not copied. The
+  record names what was copied in `copied_root`.
+- **The environment is built first, on its own clock.** A detached worktree has no
+  `.venv`, so a `uv run …` command would otherwise resolve, build and install the
+  whole project inside `max_run_seconds` — an honest 60-second budget cannot pay for
+  that. When the manifest's command starts with `uv run` and the worktree has a
+  `pyproject.toml`, `klein replicate` runs `uv sync --locked [--extra …]` at the
+  worktree root FIRST, under `KLEIN_REPLICATE_SETUP_SECONDS` (default 1800 s) and
+  never under the run's `--timeout-seconds`. The extras mirror the parent
+  environment: an extra is passed when every distribution it lists is installed in
+  the interpreter running `klein replicate`. The step appends to the same log under a
+  `replicate_setup:` header and is recorded as `setup_command`, `setup_extras`,
+  `setup_seconds`, `setup_exit_code`.
+- A setup that fails or times out produces a record with `reproduced: false` and
+  `failure_reason: "environment setup failed (exit <code>)"` or
+  `"environment setup timed out after <n>s"`; the run is not attempted and the
+  `run_replicated` event is appended anyway — a failed replication is evidence.
+- `--verify-only` builds nothing: it runs no worktree at all.
+
 ## `confirmation.require`
 
 Per track, a subset of `{sealed, replicate, verify}`; the default follows the kind

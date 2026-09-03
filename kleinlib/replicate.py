@@ -15,14 +15,19 @@ What one ``klein replicate E####`` does:
 2. checks the run's ``candidate_commit`` out into a detached git worktree in the
    SYSTEM temp directory (:func:`kleinlib.transaction.detached_worktree`), always
    removed and pruned afterwards;
-3. copies the prepared data in and ASSERTS its fingerprint against the one the
-   original manifest recorded — you cannot replicate a run whose input is gone;
-4. re-runs the manifest's own command, in that worktree, with
+3. copies the prepared DIRECTORY in — ``prepare.py`` writes more than the one
+   path the contract names — and ASSERTS the named path's fingerprint against
+   the one the original manifest recorded: you cannot replicate a run whose
+   input is gone;
+4. builds the worktree's environment first, on its own clock
+   (:func:`_prepare_environment`), so a ``uv run`` command does not spend the
+   run's budget resolving and installing the project;
+5. re-runs the manifest's own command, in that worktree, with
    ``KLEIN_REPLICATION=1`` and every smoke / sealed-dry-run flag cleared, under
    the same bounded foreground subprocess the loop uses;
-5. compares the printed block with the manifest's within a tolerance chosen from
+6. compares the printed block with the manifest's within a tolerance chosen from
    the ladder in :func:`tolerance_ladder`;
-6. writes ``runs/E####/replications/<ts>.json`` plus its log, appends the
+7. writes ``runs/E####/replications/<ts>.json`` plus its log, appends the
    ``run_replicated`` event, refreshes the ``state.replications`` rollup, and
    files them in one state commit.
 
@@ -46,8 +51,13 @@ from __future__ import annotations
 import datetime as dt
 import json
 import math
+import os
 import shutil
+import sys
+import tomllib
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from importlib import metadata
 from pathlib import Path
 from typing import Any
 
@@ -83,8 +93,10 @@ from .transaction import (
 
 __all__ = [
     "MODES",
+    "SETUP_SECONDS_ENV",
     "confirmation_gaps",
     "evidence_id",
+    "installed_extras",
     "list_replications",
     "load_replications",
     "replicate_run",
@@ -101,6 +113,17 @@ MODES: dict[str, str] = {"replicate": "rep", "verify": "verify"}
 #: out of ``mismatched_keys``.
 _MACHINE_KEY_SUFFIXES = ("_seconds", "_ms", "_bytes")
 _MACHINE_KEY_PREFIXES = ("runner_",)
+
+#: The environment-setup step's own clock, in seconds.  Building a project's
+#: dependencies is not the experiment, so it is never charged to the run's
+#: ``max_run_seconds`` (nor to ``--timeout-seconds``); it gets a generous budget
+#: of its own that this variable overrides.
+SETUP_SECONDS_ENV = "KLEIN_REPLICATE_SETUP_SECONDS"
+DEFAULT_SETUP_SECONDS = 1800.0
+
+#: A requirement string ends where its name ends.  ``packaging`` would parse the
+#: rest of a PEP 508 line; nothing here needs the rest.
+_REQUIREMENT_DELIMITERS = "[ <>=!~;"
 
 
 def _is_machine_key(key: str) -> bool:
@@ -390,29 +413,193 @@ def _assert_fingerprint(actual: str, expected: Any) -> None:
 
 def _copy_prepared_data(
     study_dir: Path, worktree_study: Path, contract: Mapping[str, Any], expected: Any
-) -> tuple[Path, str]:
-    """Put the study's prepared data into the worktree and assert its fingerprint."""
+) -> tuple[Path, str, str | None]:
+    """Put the study's prepared data into the worktree and assert its fingerprint.
+
+    The contract names ONE path, but ``prepare.py`` almost always writes more
+    beside it — an index table, a fitted encoder, a known-truth file — and none
+    of those is a run input the contract can name today.  So a prepared **file**
+    travels with its whole parent directory (``data/prepared/`` in every
+    scaffold) and a prepared **directory** travels as itself.  The fingerprint
+    assertion stays on the named path alone: that is the input the manifest
+    pinned, and the siblings are whatever the same ``prepare.py`` produced.
+
+    Two shapes copy nothing.  An absolute ``prepared_path`` outside the study is
+    already shared with the worktree, and a prepared file sitting directly in the
+    study root would drag the entire working tree over the checkout — that one
+    copies the file alone, as before.
+
+    Returns the destination, its fingerprint, and the study-relative POSIX path
+    actually copied (``None`` when nothing was).
+    """
     source = _assert_prepared_source(study_dir, contract, expected)
+    root = study_dir.resolve()
     try:
-        rel = source.relative_to(study_dir.resolve())
+        rel = source.relative_to(root)
     except ValueError:
         # An absolute prepared_path outside the study is already shared with the
         # worktree; there is nothing to copy, only a fingerprint to assert.
-        destination = source
-    else:
-        destination = worktree_study / rel
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        if destination.is_dir() and not destination.is_symlink():
-            shutil.rmtree(destination)
-        elif destination.exists() or destination.is_symlink():
-            destination.unlink()
-        if source.is_dir():
-            shutil.copytree(source, destination)
+        actual = fingerprint_path(source)
+        _assert_fingerprint(actual, expected)
+        return source, actual, None
+
+    copied = source if source.is_dir() or source.parent == root else source.parent
+    copied_rel = copied.relative_to(root)
+    destination_root = worktree_study / copied_rel
+    destination_root.parent.mkdir(parents=True, exist_ok=True)
+    if destination_root.is_symlink():
+        destination_root.unlink()
+    elif destination_root.exists() and destination_root.is_dir() != copied.is_dir():
+        # a file where a directory must land, or the reverse: clear it first
+        if destination_root.is_dir():
+            shutil.rmtree(destination_root)
         else:
-            shutil.copy2(source, destination)
+            destination_root.unlink()
+    if copied.is_dir():
+        # dirs_exist_ok: the checkout may already carry committed files here, and
+        # the copy overwrites the ones prepare.py owns without erasing the rest.
+        shutil.copytree(copied, destination_root, dirs_exist_ok=True)
+    else:
+        shutil.copy2(copied, destination_root)
+    destination = worktree_study / rel
     actual = fingerprint_path(destination)
     _assert_fingerprint(actual, expected)
-    return destination, actual
+    return destination, actual, copied_rel.as_posix()
+
+
+# ---------------------------------------------------------------------------
+# The environment-setup step: paid for separately, recorded separately
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class _Setup:
+    """What the setup step did, or didn't, before the timed run."""
+
+    command: list[str] | None = None
+    extras: list[str] | None = None
+    wall_seconds: float | None = None
+    exit_code: int | None = None
+    failure_reason: str | None = None
+
+    @property
+    def ran(self) -> bool:
+        return self.command is not None
+
+    def as_record(self) -> dict[str, Any]:
+        return {
+            "setup_command": self.command,
+            "setup_extras": self.extras,
+            "setup_seconds": self.wall_seconds,
+            "setup_exit_code": self.exit_code,
+        }
+
+
+def _distribution_installed(name: str) -> bool:
+    """Is *name* installed in the interpreter running ``klein replicate``?"""
+    try:
+        metadata.distribution(name)
+    except metadata.PackageNotFoundError:
+        return False
+    except (ValueError, OSError):  # pragma: no cover - a malformed extra entry
+        return False
+    return True
+
+
+def _requirement_name(requirement: str) -> str:
+    """``torch>=2.3`` → ``torch``; ``uvloop[extra] ; sys_platform`` → ``uvloop``."""
+    text = requirement.strip()
+    for index, character in enumerate(text):
+        if character in _REQUIREMENT_DELIMITERS:
+            return text[:index].strip()
+    return text
+
+
+def installed_extras(pyproject_path: Path) -> list[str]:
+    """The ``[project.optional-dependencies]`` extras this interpreter already has.
+
+    The replication is only faithful if the worktree's environment matches the
+    parent's, and the honest signal for "this study uses the ``deep`` extra" is
+    that torch is installed HERE — where the original run's ``uv run`` resolved
+    it.  An extra is returned when every distribution it lists is installed;
+    order follows the pyproject, so the setup command is stable across machines.
+    """
+    try:
+        data = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    except (OSError, tomllib.TOMLDecodeError, UnicodeDecodeError):
+        return []
+    project = data.get("project")
+    declared = project.get("optional-dependencies") if isinstance(project, Mapping) else None
+    if not isinstance(declared, Mapping):
+        return []
+    found: list[str] = []
+    for name, requirements in declared.items():
+        if not isinstance(requirements, Sequence) or isinstance(requirements, (str, bytes)):
+            continue
+        names = [_requirement_name(str(item)) for item in requirements]
+        if all(item and _distribution_installed(item) for item in names):
+            found.append(str(name))
+    return found
+
+
+def _setup_seconds() -> float:
+    """The setup step's own budget — never the run's."""
+    raw = os.environ.get(SETUP_SECONDS_ENV, "").strip()
+    if not raw:
+        return DEFAULT_SETUP_SECONDS
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise WorkflowError(
+            f"{SETUP_SECONDS_ENV}={raw!r} is not a number of seconds"
+        ) from exc
+    if value <= 0:
+        raise WorkflowError(f"{SETUP_SECONDS_ENV} must be greater than zero, got {value:g}")
+    return value
+
+
+def _prepare_environment(
+    command: Sequence[str], worktree: Path, log_path: Path, *, echo: bool
+) -> _Setup:
+    """Build the worktree's environment BEFORE the clock the run is judged on.
+
+    A detached worktree has no ``.venv``, so a manifest command that starts with
+    ``uv run`` would otherwise resolve, build and install the whole project
+    inside ``max_run_seconds`` — an honest 60-second budget cannot pay for that,
+    and a fast study could not replicate at all (war story: study 00's first
+    replication timed out after "Installed 29 packages").  The build is not the
+    experiment, so it runs first, on its own clock, into the same log under a
+    ``replicate_setup:`` header.
+    """
+    pyproject = worktree / "pyproject.toml"
+    if list(command[:2]) != ["uv", "run"] or not pyproject.is_file():
+        return _Setup()
+    extras = installed_extras(pyproject)
+    setup_command = ["uv", "sync", "--locked"]
+    for extra in extras:
+        setup_command.extend(["--extra", extra])
+    limit = _setup_seconds()
+    header = "replicate_setup: " + " ".join(setup_command) + "\n"
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_path.write_text(header, encoding="utf-8", newline="")
+    if echo:
+        sys.stdout.write(header)
+        sys.stdout.flush()
+    result = run_logged(
+        setup_command,
+        cwd=worktree,
+        log_path=log_path,
+        timeout_seconds=limit,
+        echo=echo,
+        append=True,
+    )
+    if result.timed_out:
+        reason: str | None = f"environment setup timed out after {limit:g}s"
+    elif result.exit_code != 0:
+        reason = f"environment setup failed (exit {result.exit_code})"
+    else:
+        reason = None
+    return _Setup(setup_command, extras, result.wall_seconds, result.exit_code, reason)
 
 
 def _child_env(manifest: Mapping[str, Any], run_id: str, track: str, **extra: str) -> dict[str, str]:
@@ -715,6 +902,7 @@ def _run_replicate(
     _assert_prepared_source(study_dir, contract, data_expected)
 
     out: dict[str, Any] = {"command": command}
+    process = None
     with detached_worktree(repo, commit, prefix="klein-replicate-") as worktree:
         worktree_study = worktree / study_rel
         if not (worktree_study / "study.yaml").is_file():
@@ -722,31 +910,38 @@ def _run_replicate(
                 f"the study directory {study_rel} does not exist at {commit[:12]}; "
                 f"{run_id} cannot be replicated from its own candidate commit"
             )
-        _, data_fingerprint = _copy_prepared_data(
+        _, data_fingerprint, copied_root = _copy_prepared_data(
             study_dir, worktree_study, contract, data_expected
         )
         environment, environment_details = environment_fingerprint(worktree)
-        started_at = utc_now()
-        process = run_logged(
-            command,
-            cwd=worktree_study,
-            log_path=log_path,
-            timeout_seconds=limit,
-            echo=echo,
-            env_overrides=_child_env(manifest, run_id, str(manifest.get("track"))),
-        )
+        setup = _prepare_environment(command, worktree, log_path, echo=echo)
         out.update(
             worktree_prepared=True,
             data_fingerprint=data_fingerprint,
+            copied_root=copied_root,
             environment_fingerprint=environment,
             environment=environment_details,
-            started_at=started_at,
-            ended_at=utc_now(),
-            wall_seconds=process.wall_seconds,
-            exit_code=process.exit_code,
-            timed_out=process.timed_out,
             max_run_seconds=limit,
+            **setup.as_record(),
         )
+        if setup.failure_reason is None:
+            started_at = utc_now()
+            process = run_logged(
+                command,
+                cwd=worktree_study,
+                log_path=log_path,
+                timeout_seconds=limit,
+                echo=echo,
+                env_overrides=_child_env(manifest, run_id, str(manifest.get("track"))),
+                append=setup.ran,
+            )
+            out.update(
+                started_at=started_at,
+                ended_at=utc_now(),
+                wall_seconds=process.wall_seconds,
+                exit_code=process.exit_code,
+                timed_out=process.timed_out,
+            )
     out["environment_match"] = (
         out["environment_fingerprint"] == (manifest.get("fingerprints") or {}).get("environment")
     )
@@ -754,6 +949,19 @@ def _run_replicate(
     original_block = dict(original_block) if isinstance(original_block, Mapping) else {}
     out["original_block"] = original_block
     out["_baseline"] = float(manifest["primary_metric"])
+    if process is None:
+        # The environment never came up, so the run was not attempted: a failed
+        # setup is evidence like any other failure, recorded and kept.
+        out.update(
+            started_at=None,
+            ended_at=None,
+            wall_seconds=None,
+            exit_code=None,
+            timed_out=False,
+            replicate_block={},
+            failure_reason=setup.failure_reason,
+        )
+        return out
     if process.exit_code != 0:
         out["replicate_block"] = {}
         out["failure_reason"] = (
