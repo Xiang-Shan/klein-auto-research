@@ -240,6 +240,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "hubble_table2_mean",
         "sealed_deviation",
         "sealed_mean_abs_mag"
       ],
@@ -344,6 +345,13 @@
       "note": "Hubble 1929's published constant for the 24 objects individually",
       "precision": 0,
       "value": 465
+    },
+    "hubble_table2_mean": {
+      "art": "contract",
+      "claim": "C8",
+      "note": "the mean absolute magnitude Hubble printed under Table 2; the sealed target",
+      "precision": 1,
+      "value": -15.3
     },
     "k_free": {
       "art": "fits",
