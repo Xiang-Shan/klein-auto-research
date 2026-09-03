@@ -98,7 +98,8 @@
       "evidence": [],
       "numbers": [
         "keep_lift",
-        "splines_in_floors"
+        "splines_in_floors",
+        "tree_over_glm_in_floors"
       ],
       "strength": "exploratory"
     },
@@ -209,6 +210,12 @@
       "claim": "C4",
       "precision": 4,
       "value": 0.9568
+    },
+    "tree_over_glm_in_floors": {
+      "art": "verdicts",
+      "claim": "C4",
+      "precision": 4,
+      "value": 0.3714
     },
     "v1_ledger_spread": {
       "art": "derived",
