@@ -179,6 +179,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "ci_high",
         "ci_low"
       ],
       "strength": "exploratory"
@@ -239,6 +240,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "ci_high": {
+      "art": "boot",
+      "claim": "C3",
+      "note": "95% percentile bootstrap upper bound for K (E0006)",
+      "precision": 6,
+      "value": 603.704762
+    },
     "ci_low": {
       "art": "boot",
       "claim": "C3",
