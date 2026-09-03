@@ -187,3 +187,32 @@ playbook queue and to findings §⑦ as the study's first recommendation.
 - 2026-09-03 — `klein replicate --verify-only` on all seven development runs: `reproduced: true` in every record, tolerance 0.0 taken from `verifier.tolerance`, `difference: 0.0` on `primary_metric` every time. **P4 SUPPORTED** (manual adjudication, the seven `verify:` ids pinned). One honest detail for the referee: each record lists `mismatched_keys: [claim_excess, grid_n, triples_checked]`, and those are NOT mismatches — the manifest's stored verifier block carries only `primary_metric`, so the other keys' `original` is `null` and the comparison has nothing to compare. The primary metric, which is the number the ledger holds, matched exactly in all seven.
 - 2026-09-03 — **P5 SUPPORTED** (manual adjudication). Both halves: `claim_excess` is 0.0 on every one of the seven honest runs, and the one deliberate overclaim was refused rather than recorded. P5 is `manual: true` because the run that decides it CRASHES, and `run-one` adjudicates `--tests` only after the verifier agrees — a prediction about a refusal cannot be decided by the machine that performs the refusal.
 - 2026-09-03 — Phase `adaptive-1` closes with its eight experiments spent: seven discards and one crash, zero keeps, exactly as the headroom acknowledgement said in advance. P1 refuted, P2 P3 P4 P5 supported, P6 and P7 open for the confirmation phase. Playbook refreshed; the acknowledgement is the lead's delegated one.
+
+### Phase confirmation slate
+
+A confirmation phase has exactly two lawful cells here — one sealed access per
+track — so the ritual's job is to write down what was NOT done with them.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | E0009: `n_small`, sealed seed block, largest budget, nothing else changed; decides P6 | 2 | 3 | 3 | 8 |
+| 2 | E0010: `n_large`, sealed seed block, largest budget; decides P7 | 2 | 3 | 3 | 8 |
+| 3 | re-tune the perturbation on development first, then seal the tuned version | 2 | 3 | 1 | 6 |
+| 4 | spend the `n_small` seal on a LARGER budget instead, to chase the missing point | 3 | 3 | 1 | 7 |
+| 5 | skip both seals and close the study exploratory | 1 | 3 | 1 | 5 |
+
+Chosen: 1 and 2, unchanged from the registration. #3 is refused by the discipline
+— the frontier closed when the adaptive phase's experiments were spent, and
+re-opening it to improve the number about to be sealed is how a sealed number
+stops meaning anything. **#4 is the interesting refusal and it is worth naming:**
+after P1 was refuted at 21 of 22, the tempting move is to spend the seal on more
+budget rather than on the registered cell, because that is where the missing point
+might be. That would have replaced a registered prediction with an unregistered
+hope, and E0003/E0004 had already shown the budget was not the binding constraint.
+The seal was spent on what it was registered for. #5 would waste an earned
+confirmation.
+
+- 2026-09-03 — **E0009 SUPPORTS P6, and it is the study's biggest surprise.** From the sealed seed block — one integer different, nothing else — the same search at the same budget on the same instance reached **22**, the proven maximum, at evaluation 1 612 132. The development block plateaued at 21 and stayed there through 2 000 000 evaluations. So the development lane's honest conclusion ("this search plateaus at 21 on this instance") was a statement about ONE random start, and the sealed lane refuted it in a single run. What the study may say: a search that misses a known-attainable value once has told you about that run, not about the search; a heuristic's outcome on one seed is a draw, not a property. What the study may NOT say: any rate. Two seeds, one success — this study cannot and does not estimate how often the search reaches 22, and a seed sweep is the first item in the follow-up queue.
+- 2026-09-03 — Decision: **P1 stays refuted and is not re-scoped by E0009.** P1 named the largest registered budget and the development lane, and there it failed. P6 named the sealed block, and there it held. Two predictions, two lanes, two verdicts, and the pair is the finding — rewriting P1 in the light of P6 would delete the most informative thing this study measured.
+- 2026-09-03 — E0010 SUPPORTS P7: 55 of 62 from the sealed block on the 31 × 31 grid, against 54 from the development block. Both seeds land in the same neighbourhood at n = 31, which is what a search well short of its target looks like — the seed matters at the edge of reach and not far from it.
+- 2026-09-03 — Phase `confirmation` closes with both sealed accesses spent, both cells successful, P6 and P7 supported. All seven predictions are closed: six supported, one refuted, none inconclusive, none open. Playbook refreshed; the acknowledgement is the lead's delegated one.

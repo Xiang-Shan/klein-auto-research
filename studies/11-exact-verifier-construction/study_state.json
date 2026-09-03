@@ -104,6 +104,12 @@
       "acknowledged_by": "lead-agent",
       "note": "delegated ack; 8/8 experiments spent, 7 discards + 1 crash by design, zero keeps as registered",
       "playbook_sha256": "3ab991eb6b4d93f5da13292922483af3ee1abe05ae50a06f3bcdc840b81890bb"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-09-03T07:52:05.566623Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated ack; both sealed accesses spent, P6 and P7 supported, all seven predictions closed",
+      "playbook_sha256": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3"
     }
   },
   "predictions": {
@@ -431,5 +437,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:50:48.940861Z"
+  "updated_at": "2026-09-03T07:52:05.567122Z"
 }
