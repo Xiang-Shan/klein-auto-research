@@ -1,0 +1,9 @@
+experiment	recipe	evaluation_kind	disposition	val_nats_per_char	val_bits_per_char	delta_in_floors	anchor_z	sealed_gap_in_fit_noise	steps	eval_context	n_params	verifier_gap	reported_val_loss
+E0001	anchor (constant LR)	development	keep	1.572174	2.268167	-0.2022	0.3766		2000	128	824320	0.0	1.572174
+E0002	warmup 200 (constant LR)	development	discard	1.584747	2.286307	-1.0431	1.9425		2000	128	824320	0.0	1.584747
+E0003	weight tying	development	discard	1.739149	2.509062	-11.3693	21.1718		2000	128	816000	0.0	1.739149
+E0004	dropout 0.1	development	discard	1.639808	2.365742	-4.7255	8.7997		2000	128	824320	0.0	1.639808
+E0005	width 256	development	discard	1.57624	2.274034	-0.4742	0.883		2000	128	3221504	0.0	1.57624
+E0006	cosine decay	development	keep	1.519319	2.191915	3.3326	6.2059		2000	128	824320	0.0	1.519319
+E0007	cosine + warmup 200	development	discard	1.520867	2.194148	3.2291	6.0132		2000	128	824320	0.0	1.520867
+E0008	sealed (cosine)	final_test	discard	1.56628	2.259664			5.8485	2000	128	824320	0.0	1.56628
