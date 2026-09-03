@@ -3,9 +3,14 @@
     "consult": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T11:38:55.411723Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T11:48:51.398338Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "15f116032a181ef8fc43ea9afb689523004b8ecd56a3c5529950cfebdae94b6e",
     "research_plan.md": "4a06dc3fcb74452e748b67e04ab536b4cb4076199f32a173fdead27675c89cd5",
     "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
     "study.yaml": "3ecc5dbf32de211c1232188e86cc077c927d76b180550ee5bdfdc60db19aca97"
@@ -20,8 +25,12 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "5b1edd0612124f533f84f67b537ef7394f2d4d66dccfecba277ed610e0417767"
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "split": {
+      "development": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50",
+      "final_test": "bd7849a00c6a8bd856c9136cd211d9ecb7975fbffa9c75b08d78ed51b3e3f155",
+      "policy": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354"
+    }
   },
   "gates": {
     "consult": {
@@ -37,9 +46,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T11:48:51.398338Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "15f116032a181ef8fc43ea9afb689523004b8ecd56a3c5529950cfebdae94b6e"
+      },
+      "note": "GO with two disclosed WARNs (windowed evaluation handicap on each window's first character; the last 128 characters of each partition are context-only) \u2014 both identical across candidates and pinned by the eval_context guardrail; ack delegated by the lead",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -52,7 +65,7 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7d994db2a9c6c485/studies/13-charlm-fixed-budget/data/prepared/prepared.csv",
-    "sha256": null
+    "sha256": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc"
   },
   "schema_version": 3,
   "status": "active",
@@ -68,5 +81,5 @@
       "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
     }
   },
-  "updated_at": "2026-09-03T11:47:02.796403Z"
+  "updated_at": "2026-09-03T11:48:52.208083Z"
 }
