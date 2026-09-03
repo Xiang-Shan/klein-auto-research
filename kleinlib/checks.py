@@ -461,28 +461,36 @@ def preflight_checks(
             checks.append(
                 _headroom_check(headroom_track, headroom_spec, manifests, state)
             )
-    train = study_dir / "train.py"
-    if not train.is_file():
-        checks.append(Check("train.py", False, "missing"))
-    else:
+    # The per-experiment surface, whatever the study's kind named it. Schema 3
+    # scaffolds `train.py` (predict), `analyze.py` (estimate / test / replicate /
+    # discover), `simulate.py` or `search.py` and records the choice in
+    # `entrypoint`; `contract.mutable_surface` is the single source of truth for
+    # it, so this check must not hardcode one name — doing so made every
+    # non-`predict` schema-3 study fail preflight with "train.py: missing" while
+    # the file `run-one` actually executes went unchecked.
+    for name in mutable_surface(contract):
+        entrypoint_file = study_dir / name
+        if not entrypoint_file.is_file():
+            checks.append(Check(name, False, "missing"))
+            continue
+        source = entrypoint_file.read_text(encoding="utf-8")
         try:
-            compile(train.read_text(encoding="utf-8"), str(train), "exec")
+            compile(source, str(entrypoint_file), "exec")
         except SyntaxError as exc:
-            checks.append(Check("train.py", False, f"syntax error: {exc}"))
-        else:
-            source = train.read_text(encoding="utf-8")
-            if "NotImplementedError" in source:
-                checks.append(
-                    Check(
-                        "train.py",
-                        True,
-                        "[WARN] syntax valid but scaffold stubs remain "
-                        "(NotImplementedError) — fill load_split/build_model "
-                        "before the loop; run-one would record the stub as a crash",
-                    )
+            checks.append(Check(name, False, f"syntax error: {exc}"))
+            continue
+        if "NotImplementedError" in source:
+            checks.append(
+                Check(
+                    name,
+                    True,
+                    "[WARN] syntax valid but scaffold stubs remain "
+                    "(NotImplementedError) — fill them in before the loop; "
+                    "run-one would record the stub as a crash",
                 )
-            else:
-                checks.append(Check("train.py", True, "syntax valid"))
+            )
+        else:
+            checks.append(Check(name, True, "syntax valid"))
 
     # Guardrail visibility (the study-05 F1 lesson): `klein run-one` reads
     # guardrails off the PRINTED metric block, so a declared key the run
