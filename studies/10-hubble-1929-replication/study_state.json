@@ -509,10 +509,10 @@
       "track": "estimate"
     },
     "E0008": {
-      "attempts": 1,
+      "attempts": 2,
       "modes": {
         "replicate": {
-          "attempts": 1,
+          "attempts": 2,
           "reproduced": false
         }
       },
@@ -523,6 +523,14 @@
           "mode": "replicate",
           "reproduced": false,
           "timestamp": "2026-09-03T06:43:46.718297Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0008@20260903T064415Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T06:44:15.159164Z",
           "tolerance": 0.0
         }
       ],
@@ -592,5 +600,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:44:14.368861Z"
+  "updated_at": "2026-09-03T06:44:16.482273Z"
 }
