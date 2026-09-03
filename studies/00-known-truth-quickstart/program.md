@@ -158,6 +158,36 @@ pre-candidate base commit.
   refuted, all four adjudicated by the notary on printed blocks. Playbook
   refreshed; the acknowledgement is the lead's delegated one.
 
+- 2026-09-03 — E0005 spends the one sealed access: val_auc 0.880949 against the
+  sealed partition's OWN Bayes ceiling of 0.893469, `gap_in_floors` 1.6800.
+  **P5 SUPPORTED.** The development gap was 1.7077 floors and the sealed gap is
+  1.6800: the distance to the ceiling did not grow when the rows changed, which is
+  what "the remaining distance is irreducible at this sample size, not
+  overfitting" looks like when you can see the ceiling. The seal is spent and no
+  further sealed access exists on this track.
+- 2026-09-03 — Decision: two attempts at `klein replicate E0003` are on the record
+  and BOTH failed, neither for a scientific reason, and both are kept
+  (`rep:E0003@20260903T053202Z`, `rep:E0003@20260903T053344Z`). The first hit
+  `exit 124`, a timeout: the detached worktree has to build its own virtualenv
+  before the entrypoint runs at all, and this study's honest `max_run_seconds` of
+  60 — sized for runs that take under a second — was consumed by that build. The
+  second, given `--timeout-seconds 300`, got as far as `train.py` and crashed with
+  `FileNotFoundError: data/prepared/truth.json`. The cause is a seam worth naming:
+  `klein replicate` copies the ONE artifact the contract declares
+  (`data.prepared_path`, here `prepared.csv`) and asserts its fingerprint; this
+  study's entrypoint reads a SECOND prepared artifact beside it, `truth.json`,
+  which the contract never declared and `.gitignore` never tracked. The engine did
+  exactly what it documents; the study asked for something it had not declared.
+  Consequence: the replication is NOT retried into a pass (both attempts stand),
+  `train.py` is NOT edited after the loop closed to make an unproven fix look
+  proven, and the lesson is written up as a claim instead. Nothing rests on it:
+  `confirmation.require` is `[sealed]`, and the confirmed claim's two evidence
+  kinds are a development run (E0003) and a sealed run (E0005). The study remains
+  reproducible BY HAND — `prepare.py` regenerates `data/prepared/` deterministically
+  from the contract's seed, and `klein verify --require-local` is the verb for
+  checking a study after that regeneration; it is only the detached-worktree path
+  that cannot do it unattended.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
