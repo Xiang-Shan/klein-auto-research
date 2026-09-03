@@ -146,10 +146,14 @@
       "strength": "exploratory"
     },
     "C5": {
-      "claim": "RQ4** \u2014 does the calibration-first doctrine reproduce? | **SUPPORTED** |  | E0004, P6 | Brier improves by a factor of 4.055 for 0.0390 of a floor of AUC | exploratory |",
-      "class": null,
+      "claim": "The insurance profile's calibration-first doctrine reproduces: replacing class_weight balanced with class_weight None plus a cross-fitted isotonic wrapper improves the Brier score by a factor of 4.055, from 0.240641 to 0.059337, and pays 0.001465 of AUC for it - 0.0390 of one measured floor.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0004",
+        "P6",
+        "ref:dalpozzolo2015"
+      ],
       "numbers": [
         "brier_balanced",
         "brier_doctrine",
