@@ -10,6 +10,7 @@ from . import __version__
 from .cli_claims import register as register_claims
 from .cli_doctor import register as register_doctor
 from .cli_replicate import register as register_replicate
+from .cli_stop import register as register_stop
 from .cli_sweep import register as register_sweep
 from .contract import KNOWN_KINDS
 from .noise_floor import add_recipe_arguments
@@ -219,6 +220,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     register_doctor(sub)
     register_replicate(sub)
+    register_stop(sub)
     register_sweep(sub)
     return parser
 

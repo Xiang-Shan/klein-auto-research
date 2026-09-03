@@ -280,6 +280,27 @@ def test_cli_sweep_register_is_registered_with_help(capsys) -> None:
     assert "sweep-rules.md" in capsys.readouterr().out
 
 
+def test_cli_stop_ack_is_registered_with_help(capsys) -> None:
+    """`klein stop ack` exists with the spelling SKILL.md documents."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    stop = actions[0].choices["stop"]
+    sub = [a for a in stop._subparsers._group_actions if a.dest == "stop_action"][0]
+    assert set(sub.choices) == {"ack"}
+
+    help_text = sub.choices["ack"].format_help()
+    for flag in ("--study", "--track", "--acknowledged-by", "--note"):
+        assert flag in help_text, flag
+
+    argv = ["stop", "ack", "--acknowledged-by", "tester", "--note", "continue: x"]
+    assert callable(parser.parse_args(argv).handler)
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["stop", "--help"])
+    assert exit_info.value.code == 0
+    assert "consecutive discards" in capsys.readouterr().out
+
+
 def _required(verb: str) -> list[str]:
     """The smallest argv each verb's required flags accept."""
     return {
