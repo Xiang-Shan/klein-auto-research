@@ -208,6 +208,15 @@ re-open a closed study, start a new one and cite the old one's claims.
     factor of 6.056247 carries the 1929 fits to within 4.990073 of the modern 70. The first
     referee round FAILED on a spelled-out ratio the numbers scan could not see; cleared, and
     round 2 passed with notes.
+  - **11 `exact-verifier-construction`** (2026-09-03) — the mathematics exhibit: the
+    no-three-in-line problem with `search.py` as the mutable surface and `verify.py`, hashed at
+    the METHOD gate, as the only source of the objective. Zero keeps by arithmetic (the best known
+    value equals the proven bound, headroom 0 acknowledged before the first run); 21 of 22 from
+    the development seed block and 22 from the sealed one, reported as a difference and never a
+    rate; 55 of the best-known 62 on the larger grid, never called impossibility; twelve planted
+    invalid objects rejected and a deliberate one-point overclaim refused as a
+    `verifier_disagreement` crash. The referee found a false quantity in a frozen claim sentence
+    ("sub-millisecond" against a pinned 0.002046 s), cleared by erratum, never by edit.
 
 ## [1.3.0] — 2026-08-26
 
