@@ -49,16 +49,21 @@
       "strength": "confirmed"
     },
     "C2": {
-      "claim": "RQ1 | primary | supported | confirmed | known-dgp-teaching (`scope: in-silico`) | E0002, E0003, E0005 | under THIS declared process, a boosted tree shown none of the true terms out-earned handing a linear model the true interaction: `delta_in_floors` 4.7779 against its predecessor on development and 4.6190 against the same predecessor on the sealed rows, versus 3.9699 for the hand-specified interaction |",
-      "class": null,
+      "claim": "Under the declared generating process of prepare.py, a boosted tree shown none of the true terms out-earned handing a linear model the DGP's true interaction: delta_in_floors 4.7779 against its predecessor on development and 4.6190 against the same predecessor on the sealed rows, against 3.9699 for the hand-specified interaction",
+      "class": "known-dgp-teaching",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0005"
+      ],
       "numbers": [
         "boosted_delta_floors",
         "interaction_delta_floors",
         "sealed_delta_floors"
       ],
-      "strength": "exploratory"
+      "scope": "in-silico",
+      "strength": "confirmed"
     },
     "C3": {
       "claim": "RQ1 | primary | supported | exploratory | empirical-description | E0003, E0004 | more capacity did not merely fail to pay, it cost: the over-capacity boosted tree scored val_auc 0.858049 against the incumbent's 0.871390 (`delta_in_floors` -1.7903), its Brier rose to 0.143658 from 0.109337 and its log-loss to 1.024102 from 0.355165, and it took 18.407609 seconds against 0.647123 |",
