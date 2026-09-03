@@ -105,7 +105,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "paired_mean_difference"
+      ],
       "strength": "exploratory"
     },
     "C12": {
@@ -473,6 +475,13 @@
       "note": "half the paper's printed precision; the tolerance registered for P9",
       "precision": 2,
       "value": 0.06
+    },
+    "paired_mean_difference": {
+      "art": "invfwd",
+      "claim": "C11",
+      "note": "mean paired bootstrap difference, inverse minus forward (E0007)",
+      "precision": 6,
+      "value": 282.639496
     },
     "probable_error": {
       "art": "aux",
