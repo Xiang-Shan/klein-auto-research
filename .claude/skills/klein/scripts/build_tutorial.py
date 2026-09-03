@@ -743,7 +743,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "       In a foreign repo: uv add "
             '"klein-auto-research @ git+https://github.com/Xiang-Shan/'
-            'klein-auto-research@v1.2.0"',
+            'klein-auto-research@v2.0.0"',
             file=sys.stderr,
         )
         print("       Or directly:       uv add pygments ziamath latex2mathml", file=sys.stderr)

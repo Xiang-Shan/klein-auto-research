@@ -86,7 +86,13 @@ def initial_state(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, Any
         "acknowledgements": {},
         "overrides": [],
         "fingerprints": {"data": None, "split": split_fingerprint(contract)},
-        "prepared_data": {"path": str(prepared_data_path(study_dir, contract)), "sha256": None},
+        "prepared_data": {
+            # .as_posix(): study_state.json is a committed ledger, and a path
+            # written with backslashes is not the path any other machine reads
+            # (C5). Identical output on POSIX.
+            "path": prepared_data_path(study_dir, contract).as_posix(),
+            "sha256": None,
+        },
         "final_holdout_access": {
             name: _sealed_access_zero()
             for name in tracks
@@ -473,7 +479,7 @@ def record_gate(
             data_path = prepared_data_path(study_dir, contract)
             data_hash = fingerprint_path(data_path)
             state["fingerprints"]["data"] = data_hash
-            state["prepared_data"] = {"path": str(data_path), "sha256": data_hash}
+            state["prepared_data"] = {"path": data_path.as_posix(), "sha256": data_hash}
             if schema_version(contract) >= 3:
                 _freeze_split(study_dir, contract, state)
         status = "overridden" if override_reason is not None else "recorded"

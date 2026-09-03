@@ -6,12 +6,168 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
-## [Unreleased]
+## [2.0.0] — 2026-09-XX
 
-Klein 2.0 (schema 3) is being built on the `v2.0-science` branch; see
-`docs/design/klein-2-design.md` for the rationale and `docs/migration-schema2-to-3.md`
-for the contract diff. Studies 07, 08 and 09 (published 2026-08-26/27, after the
-1.3.0 merge) are recorded under 2.0.0 when it ships.
+**Process-verifiable research for AI for Science.** Klein 1.x ran a disciplined
+experiment loop; 2.0 makes the whole study auditable by a stranger with no model in
+the loop. A study is now TYPED on three axes — `kind` (what shape of question),
+`modality` (what shape of evidence), `profile` (whose vocabulary is honest here) —
+predictions are registered before their evidence and adjudicated by arithmetic inside
+the run transaction, every number in the write-up has a pinned home, and an
+independent referee on a different model applies a fixed ten-check rubric before the
+study may close.
+
+**Schema 2 is frozen, not migrated.** Studies 03 and 05–09 keep verifying under the
+rules they were run under, byte for byte, forever; none of the schema-3 checks are
+enforced on them. Version-1 studies stay readable at tag `v1.3.0`.
+`docs/migration-schema2-to-3.md` is the contract diff; the short version is: do not
+re-open a closed study, start a new one and cite the old one's claims.
+
+### Added
+
+- **The inquiry model** (`references/inquiry-model.md`): `kind ∈ {predict, estimate,
+  test, simulate, replicate, discover, optimize}` × `modality ∈ {tabular, timeseries,
+  image, sequence, graph, text, simulation, none}` × `profile ∈ {generic, ml-research,
+  math, insurance}` or a repo-local `profile_doc`. The kind fixes the default track
+  mode, what "sealed" means, what `confirmation.require` defaults to, and the strength
+  a claim can reach; the modality selects the data-gate card; the profile changes
+  headings, doctrine anchors, figure sets, budgets and banned words — never what the
+  engine checks.
+- **Schema-3 contract**: `entrypoint {command[], mutable[]}` (the mutable surface is
+  declared, not assumed to be `train.py`), `tracks.<id>.mode ∈ {frontier, registered}`,
+  a per-track declared `verifier` (required for `optimize`, always outside the mutable
+  surface — the checker is never the searcher), `metric.exactness` (+ `exactness_note`),
+  `metric.incumbent_external`, `metric.fit_noise` recorded separately from the keep bar,
+  `predictions[]` with arithmetic rules, `confirmation.require ⊆ {sealed, replicate,
+  verify}`, `stop`, `materiality`, and `data.modality` / `data.source` / `data.sha256`.
+- **Typed scaffolding**: `klein new --kind --modality --profile --profile-doc
+  --audience --track NAME[:MODE] --split-seed --schema-version`, which names the
+  entrypoint by kind (train.py / analyze.py / simulate.py / search.py).
+- **Contract-driven splits**: `kleinlib.data.contract_split` / `load_partition` build
+  every partition from `study.yaml` alone and print a `split_fingerprint:` the DATA
+  gate freezes and the notary compares — a number measured on the wrong rows is a
+  crash, in either direction (war story 8).
+- **The sealed dry-run**, mandatory before every real sealed run:
+  `klein run-one --final-test --dry-run` rehearses the whole path on development data
+  and spends no id, commit, manifest, row or seal; an entrypoint that ignores the flag
+  exits 3 rather than silently passing (war story 9).
+- **Registered mode** (`references/registered-mode.md`): a track that MEASURES instead
+  of climbing. Runs are cells, the disposition is `measured`, `artifact:` lines pin the
+  tables a cell produces (hashed into the manifest with `role: declared`), and
+  guardrails are recorded rather than flipping a disposition. Three cell evaluators —
+  `evaluate_estimate`, `evaluate_test`, `evaluate_table` — print the block for the
+  common shapes.
+- **The predictions ledger**: `klein run-one --tests P#` evaluates each named
+  prediction's declarative rule on the printed block INSIDE the transaction and records
+  the verdict in the manifest, in state and as an event; `klein predict list` reads the
+  ledger and `klein predict adjudicate` records the verdicts only a human can close,
+  pinning every path it is given by sha256. `klein finalize` refuses open predictions.
+- **REFEREE, Gate 3** (`references/referee-protocol.md`): a fresh context on a
+  different model, tool or person reads `findings.md` first and `program.md` last, runs
+  the read-only verifiers, applies a fixed ten-check rubric and writes
+  `referee_report.md` with two machine-read lines. `klein gate record referee` parses
+  them, refuses a FAIL outright, and stores the independence rung; schema-3
+  `klein finalize` requires the gate or `--no-referee --reason`, which labels the study
+  `unrefereed` on its receipt.
+- **The claims lock and the numbers law** (`references/claims-protocol.md`):
+  `claims.lock` schema 2 — claims with a class, a strength and resolvable evidence, and
+  numbers with a pinned artifact and a precision — produced by `klein claims
+  init|pin|number|add|erratum|verify` and checked by a seven-check law (shape,
+  artifacts, presence, evidence, numbers, append-only across git history, ancestry).
+  Errata re-scope claims; nothing is ever removed.
+- **`klein verify` grows a receipt**: `verify_receipt.json`, self-committed, carrying
+  every check, the hashes of the inputs the audit read, `evidence_use_rate` and the
+  evidence-use law's three numbers. `--numbers` scans `findings.md` (and, always
+  advisorily, the tutorial) for numerals with no home in a pinned artifact;
+  `--evidence-use` checks that every discard, crash, measured cell and registered sweep
+  is cited, that every refuted prediction has a dated `Decision:` line, and that a
+  `confirmed` claim rests on two kinds of evidence.
+- **Metrology** (`references/consult-protocol.md` Phase 0): `klein noise-floor
+  --recipe {seed-sweep, split-lottery, paired-bootstrap} --estimand {fit-noise,
+  marginal-resplit, paired-comparison}` prints the contract block, the schema-3 floor
+  bar is `minimum_delta >= max(2*std, range/2)`, a paired bootstrap runs under common
+  random numbers, and `metrology.family_maxt` is the sign-flip family-wise guard.
+  `klein sweep register` hashes a measurement sweep's sidecar and script into state so
+  findings can cite it as `sweep:<name>`; `klein stop ack` records a stop rule firing.
+- **`klein replicate`** (`references/replication-protocol.md`): a development run
+  re-executed from its own manifest in a detached worktree (`rep:E####@<ts>`), or
+  `--verify-only` re-running the declared verifier on the pinned artifact
+  (`verify:E####@<ts>`), decided on a documented tolerance ladder. Records never touch
+  the manifest, and `reproduced: false` is kept as evidence.
+- **Data source tags** (`references/data-sources.md`): `csv: | parquet: | synthetic: |
+  bundled: | hub: | sklearn: | openml: | url:`, with `data.sha256` mandatory wherever
+  bytes can change and `KLEIN_OFFLINE=1` refusing a network scheme before any request.
+  `klein doctor` reports what this machine can run without fetching anything;
+  `KLEIN_DEVICE` overrides the mps → cuda → cpu order.
+- **Modality-typed DATA gate**: a time policy for time series, a group policy for
+  images / sequences / graphs / text (with `python -m kleinlib.leakage --index` over
+  the split index table), a DGP card for simulations, a verifier card for
+  verifier-only studies — and a literal split seed anywhere in an evaluator or
+  entrypoint is a BLOCKER.
+- **Bundled datasets**: the Hubble 1929 tables (two-source transcription) and a
+  deterministic, sha256-pinned tiny Shakespeare corpus, both with licence notes.
+- **`kleinlib` split into modules** — `errors, primitives, contract, events, manifest,
+  decision, transaction, state, checks` under a thin `workflow` orchestrator — a pure
+  move that left every shipped study verifying byte-identically.
+- **`scripts/verify_e2e.py`**, a stdlib-only cross-platform proof with two lanes:
+  the v1 compatibility path, and a schema-3 lane that walks one typed inquiry from
+  `klein new` to a self-contained tutorial with the CLI and nothing else. CI runs both
+  on ubuntu, macOS and Windows, plus an `exhibits` job that verifies every schema-3
+  exhibit from a clean, offline checkout with `$DATA_HUB` unset.
+- **Six protocol code blocks are executed by the test suite**, so a documented example
+  cannot drift from the engine it describes.
+
+### Changed
+
+- **The lifecycle is seven stages past four gates**: CONSULT → DATA → METHOD →
+  EXPERIMENT/SWEEP → SYNTHESIZE → REFEREE → TUTORIAL. `AGENTS.md`, `CLAUDE.md`,
+  `README.md` and the `/klein` skill are rewritten around it, and the agent roster
+  gains `klein-referee` (which must run on a different model than the experimenter).
+- **`findings.md` §⑤ and the tutorial's coding-advice heading come from the profile**;
+  headline numbers in every downstream deliverable are read from `claims.lock`, not
+  from prose.
+- **Guardrails, floors and stop rules are disclosed rather than silent**: the floor
+  block names its estimand, `fit_noise` is recorded under its own key so a seed-only
+  spread can never become a keep bar, and a declared guardrail key that no evaluator
+  prints is flagged at preflight.
+- `knowledge/` is reorganised into `knowledge/research-discipline.md` (the ten process
+  lessons of studies 07–09, each with a typed claim citation) and
+  `knowledge/domains/<profile>/`.
+- Version and description: `2.0.0`, "process-verifiable research for AI for Science".
+
+### Removed
+
+- **The v1 ledger adapter and the v1-era skill entry points**: version-1 studies are
+  readable at tag `v1.3.0` and are not carried forward. The legacy five-column ledger
+  remains documented for historical reading.
+- The v1 study-00 quickstart's CI bootstrap, replaced by a marked anchor placeholder
+  that fails loudly if the new exhibit lands while the step is still a no-op.
+
+### Compatibility
+
+- `schema_version` selects the rule set. A schema-2 study gets exactly the checks it
+  was notarized under; every schema-3 addition is either schema-3-only or an `ok=True`
+  `[WARN]`. `scripts/verify_shipped_studies.py` is the guard rail, run in CI: studies
+  03, 05, 06, 07, 08 and 09 report 0 failed before and after every engine change.
+- `claims.lock` schema 1 (the hand-built numbers ledgers of studies 07–09) verifies
+  under its own rules and is never rewritten; `klein claims init --from-legacy`
+  migrates a copy for a study that is being re-opened.
+- Python 3.11–3.14; `uv sync --locked` with extras named together.
+
+### Studies published in this line
+
+- **07 `iris-90years`** and **08 `iris-rematch`** (2026-08-26/27) — the detection-limit
+  pair: a parade at h = 0.81 with no disclosure, then a door ajar at h = 1.015 with
+  twenty-one challengers and zero keeps.
+- **09 `iris-first-lesson`** (2026-08-27) — the claim-permission map, the 0/42 guard,
+  a sealed coda spent by a crash before any data was read, and erratum E1 (a retired
+  split seed hardcoded in an evaluator), which the numbers law caught a study later.
+  All three were run against the untagged 1.3.0 tree and their locks therefore record
+  `klein_version: "1.2.0"`; pin by commit, not by version string.
+- The 2.0 exhibits (`00-known-truth-quickstart`, `10-hubble-1929-replication`,
+  `11-exact-verifier-construction`, `12-insurance-claims-frequency`,
+  `13-charlm-fixed-budget`) ship with this release; their headline numbers are filled
+  in here from their locks at release.
 
 ## [1.3.0] — 2026-08-26
 

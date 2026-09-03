@@ -632,7 +632,10 @@ def _study_python_sources(study_dir: Path) -> dict[str, str]:
         try:
             # errors="replace": a non-UTF-8 study file must degrade to a
             # weaker textual scan, never abort the whole preflight report.
-            sources[str(path.relative_to(study_dir))] = path.read_text(
+            # .as_posix(): these keys are printed in check messages and land
+            # verbatim in verify_receipt.json, so a Windows separator would
+            # enter a committed receipt (C5).
+            sources[path.relative_to(study_dir).as_posix()] = path.read_text(
                 encoding="utf-8", errors="replace"
             )
         except OSError:

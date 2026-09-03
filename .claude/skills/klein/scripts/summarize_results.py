@@ -728,11 +728,15 @@ def render_tsv_table(path: Path) -> str:
 
 
 def _display_source(results_path: Path) -> str:
-    """Repo-relative when possible — committed summaries must not embed machine paths."""
+    """Repo-relative when possible — committed summaries must not embed machine paths.
+
+    POSIX separators either way: `results_summary.md` is committed, and a
+    summary generated on Windows must read the same as one generated on Linux.
+    """
     try:
-        return str(results_path.relative_to(_REPO_ROOT))
+        return results_path.relative_to(_REPO_ROOT).as_posix()
     except ValueError:
-        return str(results_path)
+        return results_path.as_posix()
 
 
 def build_summary(

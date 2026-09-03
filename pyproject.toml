@@ -1,7 +1,7 @@
 [project]
 name = "klein-auto-research"
-version = "1.2.0"
-description = "Klein Auto Research — an agentic, visualization-first ML/Math research framework for actuaries and data scientists"
+version = "2.0.0"
+description = "Klein Auto Research — process-verifiable research for AI for Science"
 readme = "README.md"
 license = "MIT"
 authors = [{ name = "Xiang Shan" }]
