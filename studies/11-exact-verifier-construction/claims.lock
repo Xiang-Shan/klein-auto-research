@@ -162,11 +162,17 @@
       "strength": "exploratory"
     },
     "C8": {
-      "claim": "Give the guard a test it can fail (evidence: E0008). One of the ten runs in this",
-      "class": null,
+      "claim": "Give the guard a test it can fail: one run was spent making the searcher overclaim by a single point, and it turned the documented refusal into a receipt - reported 21.0 against verified 20.0, disposition crash, and an NA ledger row where the inflated number would have gone",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0008",
+        "P5"
+      ],
+      "numbers": [
+        "reported_e0008",
+        "verified_e0008"
+      ],
       "strength": "exploratory"
     },
     "C9": {
