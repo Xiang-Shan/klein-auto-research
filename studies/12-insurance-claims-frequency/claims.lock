@@ -68,7 +68,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "lift10_drop"
+      ],
       "strength": "exploratory"
     },
     "C12": {
@@ -272,6 +274,12 @@
       "claim": "C4",
       "precision": 6,
       "value": 0.049911
+    },
+    "lift10_drop": {
+      "art": "derived",
+      "claim": "C11",
+      "precision": 4,
+      "value": 0.5101
     },
     "marginal_std": {
       "art": "floors",
