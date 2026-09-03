@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-09-03T07:17:25.831223Z"
+      "timestamp": "2026-09-03T07:30:40.703012Z"
     },
     "data": {
       "by": "lead-agent",
@@ -17,7 +17,7 @@
     "data_card.md": "a9d70a033e7c7499162feac858b74e653ff0550a87ae52ca9f63073a830b49b3",
     "method_card.md": "563759c87ab9b2a6fa8accf181ea635d2b5f8f3c4ea2ebe4eded00c2be7ee01c",
     "research_plan.md": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e",
-    "study.yaml": "e467f1667570ccef71e4da259e54351b6bd83e562353ea3290d3ed08c80c5b23"
+    "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
   },
   "created_at": "2026-09-03T06:56:12.643020Z",
   "current_phase": "adaptive-1",
@@ -45,14 +45,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-09-03T07:17:25.831223Z",
+      "acknowledged_at": "2026-09-03T07:30:40.703012Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "ae5a84ac10e97981c3c3ffea48b60e41c9d261e8b03708b856904d34eef5f4d3",
+        "program.md": "476b24d2dfc77fd6833248b6b86d6441d817e45f5529c49a2d8f0831e0748258",
         "research_plan.md": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e",
-        "study.yaml": "e467f1667570ccef71e4da259e54351b6bd83e562353ea3290d3ed08c80c5b23"
+        "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
       },
-      "note": "re-record: metric.bound.ideal and metric.incumbent_external declared on both tracks from the references verified at the METHOD gate (ref:flammenkamp_records, ref:mathworld_no3); no run exists, so no result informed them",
+      "note": "re-record: phase id 'search' -> 'adaptive-1' to match the phase ladder klein new initialized in study_state.json; no rule, prediction, metric, budget or cap changed",
       "status": "recorded"
     },
     "data": {
@@ -84,5 +84,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:17:25.831726Z"
+  "updated_at": "2026-09-03T07:30:40.703801Z"
 }
