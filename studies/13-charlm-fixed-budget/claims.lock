@@ -80,11 +80,18 @@
       "strength": "exploratory"
     },
     "C10": {
-      "claim": "Never let the training script grade its own checkpoint. It costs one extra",
-      "class": null,
+      "claim": "Never let the training script grade its own checkpoint: an independent checker cost one extra file here, and the two numbers never disagreed by more than 0.0 nats against a declared tolerance of 0.01.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0008",
+        "sweep:harness_controls"
+      ],
+      "numbers": [
+        "max_verifier_gap",
+        "verifier_tolerance"
+      ],
       "strength": "exploratory"
     },
     "C11": {
