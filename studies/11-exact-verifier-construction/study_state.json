@@ -397,10 +397,10 @@
       "track": "n_small"
     },
     "E0004": {
-      "attempts": 1,
+      "attempts": 2,
       "modes": {
         "verify": {
-          "attempts": 1,
+          "attempts": 2,
           "reproduced": true
         }
       },
@@ -411,6 +411,14 @@
           "mode": "verify",
           "reproduced": true,
           "timestamp": "2026-09-03T07:47:10.429892Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "verify:E0004@20260903T113226Z",
+          "mode": "verify",
+          "reproduced": true,
+          "timestamp": "2026-09-03T11:32:26.922530Z",
           "tolerance": 0.0
         }
       ],
@@ -480,5 +488,5 @@
   "schema_version": 3,
   "status": "finalized",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T08:45:01.887961Z"
+  "updated_at": "2026-09-03T11:32:27.775294Z"
 }
