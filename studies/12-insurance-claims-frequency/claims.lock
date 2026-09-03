@@ -164,10 +164,17 @@
       "strength": "exploratory"
     },
     "C6": {
-      "claim": "The DATA gate's overridden BLOCKER is real as a fact and small as an effect:",
-      "class": null,
+      "claim": "The DATA gate's overridden BLOCKER is real as a fact and small as an effect: 615 row-content hashes straddle the contract's partitions, and 0.051203 of development rows have a byte-identical twin in training - but every rung's AUC on the twin-free rows differs from its headline AUC by at most 0.001415, and on three of the four development rungs the twin-free number is higher.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "art:duplicates",
+        "art:data_card"
+      ],
       "numbers": [
         "dev_twin_share",
         "max_twin_gap",
