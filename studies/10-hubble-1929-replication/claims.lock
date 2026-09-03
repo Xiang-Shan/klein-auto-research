@@ -124,6 +124,7 @@
       "numbers": [
         "coverage_analytic",
         "coverage_dev",
+        "floor_blocks",
         "floor_max",
         "floor_min",
         "floor_minimum_delta"
@@ -371,6 +372,13 @@
       "note": "k_free / 70 (E0012)",
       "precision": 6,
       "value": 6.487978
+    },
+    "floor_blocks": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "seed blocks in the Phase-0 coverage floor (sweep:coverage_floor)",
+      "precision": 0,
+      "value": 5
     },
     "floor_max": {
       "art": "floor_sidecar",
