@@ -118,6 +118,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "floor_max",
         "floor_min"
       ],
       "strength": "exploratory"
@@ -340,6 +341,13 @@
       "note": "coverage of the percentile interval on sealed seed block C (E0013)",
       "precision": 6,
       "value": 0.925
+    },
+    "floor_max": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "highest coverage across the five Phase-0 floor blocks (sweep:coverage_floor)",
+      "precision": 6,
+      "value": 0.932
     },
     "floor_min": {
       "art": "floor_sidecar",
