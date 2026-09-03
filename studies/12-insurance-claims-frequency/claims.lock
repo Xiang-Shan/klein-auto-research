@@ -95,11 +95,17 @@
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ2** \u2014 does a description that names its non-default kwargs reproduce as tightly as a committed file? | **SUPPORTED in direction, almost empty in size** |  | E0002, E0003, art:derived | the verbatim rung is closer by 0.000458 of AUC | exploratory |",
-      "class": null,
+      "claim": "The margin between reproducing a rung from a committed file and reproducing it from a description that names its three non-default kwargs is 0.000458 of AUC: the verbatim tree rung's residual is 0.001154 and the prose-recovered spline rung's is 0.001612.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "art:derived"
+      ],
       "numbers": [
+        "anchor_residual_splines",
+        "anchor_residual_tree",
         "residual_margin"
       ],
       "strength": "exploratory"
