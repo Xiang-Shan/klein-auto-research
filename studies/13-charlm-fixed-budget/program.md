@@ -310,3 +310,11 @@ too aggressive early, which would change the anchor recipe for everything after.
   they want — removes a degree of freedom the model was using. A widely-repeated "free
   win" is not free at this scale, and a study that had only read the paper would have
   shipped it.
+- 2026-09-03 — **E0004 (dropout 0.1) — discard, val_loss 1.639808,
+  `delta_in_floors` = −4.7255. P4 is SUPPORTED and the open hypothesis H3 is refuted by
+  evidence.** The registered rule was `delta_in_floors <= -1` — the card's least safe
+  prior, because 9.2 passes over the train partition is enough for a model to start
+  memorizing and for dropout to pay. It did not pay: at 2000 steps dropout cost 4.7
+  measured floors. The binding constraint at this budget is optimization, not
+  generalization, so making every step noisier is a straight loss. H3 is retired in the
+  playbook with this run as its evidence.
