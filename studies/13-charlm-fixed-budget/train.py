@@ -42,10 +42,9 @@ from kleinlib.torch_device import pick_device
 
 # --- the candidate: the whole per-experiment diff surface -------------------
 RECIPE: dict[str, object] = {
-    "name": "tied",
-    # E0003: ONE change from the anchor — model.py CONFIG["tie_weights"] = True,
-    # so the output head shares the token-embedding matrix (8,320 of 824,320
-    # parameters, 1.0%). Everything else identical, same seed. Adjudicates P3.
+    "name": "anchor",
+    # E0001: the identity anchor at a seed the Phase-0 floor sweep never used
+    # (the floor used 1-5), so "reproduces within fit noise" is a real test.
     "seed": 20260903,
     "max_steps": 2000,      # the BUDGET. The verifier reads it back out of the
                             # checkpoint and the `steps` guardrail pins it.

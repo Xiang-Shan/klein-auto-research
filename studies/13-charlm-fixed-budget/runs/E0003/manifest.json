@@ -1,0 +1,142 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1157,
+      "committed": true,
+      "sha256": "666a324d5e3a843c94ecfc17cbc1608733a0d5a6566ad092dae712d9cb8edf80"
+    },
+    "models/E0003.pt": {
+      "availability": "local",
+      "bytes": 3308534,
+      "committed": false,
+      "role": "declared",
+      "sha256": "37639d6108308d308bf51b208b9ec65e8e7e42b5947961745a55692dd2fd6eee"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 699,
+      "committed": true,
+      "sha256": "8ea483f5cd03e9ee83c53555fb1db4adf89808f1fab7c789fb2c7d09ac96c3a6"
+    }
+  },
+  "base_commit": "bc771bde28a8218e0681d4ddbc37f4812c288c68",
+  "candidate_commit": "9b6f213d58f507e5614dd1365cf9a9d47df7beba",
+  "code_patch_hash": "f8df271197c655f73a9d06c8033e3452acb046dbd9f807dd97185bd44c423e29",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 1.572174 by minimum_delta=0.0149525",
+  "description": "E0003: weight tying \u2014 the output head shares the token embedding (1.0% of parameters), one change from the anchor at the same 2000 steps and the same seed; adjudicates P3; did not improve track frontier 1.572174 by minimum_delta=0.0149525",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T12:21:06.358509Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354",
+    "split_partition": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 900.0,
+  "metric": {
+    "reported": 1.739149,
+    "verified": 1.739149
+  },
+  "metric_goal": "lower",
+  "metric_name": "val_loss",
+  "metrics": {
+    "anchor_mean": 1.56915,
+    "anchor_z": 21.1718,
+    "bpc": 2.509062,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 128.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 1.0,
+    "cfg_warmup_steps": 0.0,
+    "delta_in_floors": -11.3693,
+    "delta_vs_anchor": -0.169999,
+    "eval_chars": 111616.0,
+    "eval_context": 128.0,
+    "eval_windows": 871.0,
+    "final_train_batch_loss": 1.610566,
+    "fit_seconds": 159.699,
+    "n_params": 816000.0,
+    "n_partition_chars": 111616.0,
+    "n_scored_chars": 111488.0,
+    "n_val_windows": 871.0,
+    "primary_metric": 1.739149,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_n_embd": 128.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 1.0,
+    "recipe_warmup_steps": 0.0,
+    "reported_val_loss": 1.739149,
+    "runner_exit_code": 0.0,
+    "steps": 2000.0,
+    "total_seconds": 1.0,
+    "train_bpc": 2.509062,
+    "train_chars": 891904.0,
+    "train_steps": 2000.0,
+    "verifier_gap": 0.0,
+    "wall_seconds": 1.021483
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 9000.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P3": {
+      "explanation": "|delta_in_floors| 11.3693 < 1 (from -11.3693) \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P3"
+  ],
+  "primary_metric": 1.739149,
+  "schema_version": 3,
+  "started_at": "2026-09-03T12:18:22.528447Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T12:21:10.799037Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0003.pt",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
+    },
+    "timed_out": false,
+    "wall_seconds": 4.394929500063881
+  },
+  "wall_seconds": 163.82892762497067
+}
