@@ -1,5 +1,10 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "frontier": {
+      "path": "tables/frontier.tsv",
+      "sha256": "2480be9abcd841abf88a002fd758af32f1ae7b01b0fdf6e96dee4af444f6445b"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "RQ1 | primary | supported, with the direction reversed | exploratory | empirical-description | E0001, E0002, E0003, E0004, E0005, E0006, E0007, `sweep:paired_floor` | The prior said \"at most one of the four edits clears the floor \u2014 width\". At most one did clear it, but it was none of the four: warmup \u22121.0431, weight tying \u221211.3693, dropout 0.1 \u22124.7255 and width \u22120.4742 floors against the anchor's five-seed mean, with one floor = 0.0149525 nats. The single keep is cosine decay at +3.3326 floors (E0006), which carried no registered prediction. |",
