@@ -101,7 +101,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
+      "message": "PASS-WITH-NOTES \u2014 klein-referee (Claude Code subagent, model: claude-opus-5[1m]), independent-of-experimenter: no",
       "name": "referee gate",
       "ok": true
     },
@@ -166,26 +166,32 @@
       "ok": true
     },
     {
+      "message": "[WARN] 6 of 70 rendered numerals have no home \u2014 line 223: 0.013341 (by only 0.013341. It also cost 18.407609 seconds against 0.647123.); line 391: 143 (operating characteristic (ROC) curve , Radiology 143(1), 29-36 (1982),); line 395: 1189 (machine , The Annals of Statistics 29(5), 1189-1232 (2001),); line 395: 1232 (machine , The Annals of Statistics 29(5), 1189-1232 (2001),); line 399: 3146 (tree , Advances in Neural Information Processing Systems 30, 3146-3154); \u2026 1 more (advisory: the tutorial pass never fails a study; the referee reads the list)",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
       "message": "3 figure(s) re-render byte-identically",
       "name": "figure re-render",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "25a9eb371de5fca0f8dd90fc77866756008d86ca",
+  "git_head": "6ac6e72fccd453774aab65a68d1052fdb2f0a6db",
   "inputs": {
     "aux_metrics.tsv": "e17bd6f44ea73d9f253428bd90dce3ddd5f6b770a0a2d2c75ba61b57f647918f",
     "claims.lock": "941347b424a7cdbe770fe2aa9d3410f9527883cb67a0f06473264fbffba6ddac",
-    "events.jsonl": "fb22fbde2d69b6655738ffa5374a235bc899549a9c09010ba2f068c81b0fecf4",
+    "events.jsonl": "e428f54490ea9e8394a86e60ae0bcd22ffb1ca96d8b06405387308b2ed949913",
     "findings.md": "97ab039fcb313c292f10ddef1b845606152aece03024d159a4601ef21b4e32cb",
     "playbook.md": "64da873113a814a2c7e3e4f215deebd7ef3d4903dd7fd5614726df1754c18ee1",
     "program.md": "40633d808c4d4c56400bc8b53498609727e0edf1c0c4921ac1dec7447bb9c32a",
     "referee_report.md": "1b49636093f3c7af32eb4bde08d71397fa8eafb1d1d3dd8a890c7fd4e46be902",
+    "report/index.html": "e83413732a41f1e876476c00c0a103534fb3d3ef79a06a9dbc0cdfd30a0ccbb3",
     "results.tsv": "d802518273c96ed9c093792d7be286a0a09e03f55f7d8c14f0252fe4fbf3bce0",
     "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96",
-    "study_state.json": "20f69ea316080139a839e8ffad3624d57d947a4da73c0f798c44f476ed339222"
+    "study_state.json": "10289d00867463bc0230afeeded1774163f4f7b032505d9207d71c4e41c86086"
   },
-  "klein_commit": "25a9eb371de5fca0f8dd90fc77866756008d86ca",
+  "klein_commit": "6ac6e72fccd453774aab65a68d1052fdb2f0a6db",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "61dc934bcb9d230b81db769b705b940a340c4e8f97075bb5ecd1553318abb1c8",
@@ -198,11 +204,11 @@
   "single_source_claims": [],
   "study": "00-known-truth-quickstart",
   "summary": {
-    "checks": 34,
+    "checks": 35,
     "failed": 0,
     "warned": 1
   },
-  "timestamp": "2026-09-03T06:20:21.249185Z",
+  "timestamp": "2026-09-03T06:31:09.883445Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
