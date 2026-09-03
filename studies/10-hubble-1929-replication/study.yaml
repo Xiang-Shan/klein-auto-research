@@ -104,7 +104,13 @@ tracks:
       require: [sealed, replicate]
 
 data:
-  source: "bundled:hubble1929/hubble1929_table1.csv (Table 2 via a second resolve of bundled:hubble1929/hubble1929_table2.csv in prepare.py, both digests on the data card)"
+  # `data.source` is a MACHINE-RESOLVABLE tag (references/data-sources.md) —
+  # `klein doctor --study` resolves it and prepare.py reads it from here, so it
+  # carries no prose. This study needs two members of one bundled dataset, so
+  # the second is declared beside it and resolved the same way in prepare.py.
+  # Both digests are recorded on the data card.
+  source: "bundled:hubble1929/hubble1929_table1.csv"
+  source_table2: "bundled:hubble1929/hubble1929_table2.csv"
   modality: "tabular"
   prepared_path: "data/prepared/prepared.csv"
   # Licence: public domain (Hubble 1929, PNAS 15(3):168-173); see
