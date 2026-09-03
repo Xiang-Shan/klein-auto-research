@@ -1,0 +1,37 @@
+<h2>The question</h2>
+
+<p>An actuary has a motor book of 58,592 policies and a claim rate of 0.063968. Someone
+already modelled it: an earlier study built a three-rung ladder &mdash; a logistic GLM on
+one-hot features, the same GLM with spline terms and isotonic calibration, and a
+gradient-boosted tree &mdash; and wrote six <em>keeps</em> into its ledger, the best at
+an AUC of 0.664322.</p>
+
+<p>That study had no measured noise floor, no sealed partition and no claims lock. So
+this one asks the only question worth asking about a result you inherit:</p>
+
+<blockquote>
+  <p><strong>Which of those six keeps survive when the same ladder is re-run under a
+  contract that measures its own resolution first?</strong></p>
+</blockquote>
+
+<p>It is a port, deliberately. The contract here reproduces the earlier study's training
+rows <em>exactly</em> &mdash; the same 46,873 policies, chosen by index arithmetic before
+the first gate &mdash; and splits its validation set in half: one half to develop on, one
+half sealed. Every rung is refitted unchanged. So the fitted models <em>are</em> the
+earlier study's models, and the only thing the port changes about a number is which rows
+it is graded on.</p>
+
+<p>Three things a reader should take away, and none of them is &ldquo;use gradient
+boosting&rdquo;:</p>
+
+<ul>
+  <li><strong>A metric without a resolution is a rumour.</strong> The keep bar measured
+      here is 0.0375805 of AUC &mdash; 0.9671 of the entire spread of the earlier
+      study's six-row ledger.</li>
+  <li><strong>Rank and level are different currencies.</strong> The rung that ranks best
+      is calibrated worst by a factor of 3.789, and a technical premium is attached
+      policy by policy, so it lives in the level.</li>
+  <li><strong>An accepted risk that is never measured is an excuse.</strong> The data
+      gate here returned NO-GO. What made the override lawful was not the argument; it
+      was the instrument that shipped with it.</li>
+</ul>

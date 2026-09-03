@@ -1,0 +1,57 @@
+<h2>The data story</h2>
+
+<p>58,592 motor policies, 45 prepared columns, a claim rate of 0.063968. The preparation
+is a faithful port: the 2,000-row fixture regenerated from this study's own
+<code>prepare.py</code> is byte-identical to the fixture the earlier study committed, which
+is how the port knows it is modelling the same table and not merely a similar one.</p>
+
+<h3>The war story that is still live</h3>
+
+<p>Seventeen <code>is_*</code> equipment flags plus two more binary categoricals arrive as
+the strings <code>"Yes"</code> and <code>"No"</code>. Under this machine's pandas they
+report a dtype of <code>str</code>, not <code>object</code> &mdash; so a check written as
+<code>dtype == "object"</code> skips all nineteen and silently drops them from the model.
+That cost an ancestor campaign about two hours. Every dtype check in this framework is a
+<em>value-pattern</em> check for exactly that reason, and the clean-room auditor
+re-confirmed it column by column here.</p>
+
+<h3>The gate said NO-GO</h3>
+
+<p>A separate auditor, in a fresh context, reading only the contract, the preparation
+script and the prepared table &mdash; never the lab notebook &mdash; ran the mechanized
+four-row leakage audit and failed row&nbsp;3:</p>
+
+<pre><code class="language-console">[OK]   split-reproduces: kind=stratified reproduces deterministically from study.yaml (train=46873 development=5859 test=5860 rows)
+[FAIL] duplicate-rows: 615 duplicated row-content hash(es) straddle partitions (train/development=297, train/test=310, development/test=32)
+[OK]   group-overlap: N/A — split kind is not 'group'
+[OK]   metric-direction[primary]: val_auc: contract direction 'higher' matches the canonical registry
+[OK]   constant-chance[primary]: val_auc=0.5000 for the constant predictor (chance anchor 0.5)
+[OK]   shuffled-chance[primary]: val_auc=0.5114 for the label-shuffled predictor (chance anchor 0.5)
+5/6 checks passed: 1 FAIL — any FAIL is a BLOCKER at the DATA gate</code></pre>
+
+<p>Read the last two <code>[OK]</code> lines first: that is the <strong>negative
+control</strong>, and it fired correctly. A constant predictor and a label-shuffled
+predictor both score at chance. A pipeline that cannot score chance at chance cannot be
+trusted with 0.664051.</p>
+
+<p>Now the failure. 0.051203 of development rows and 0.053242 of sealed rows are
+byte-identical twins &mdash; all 45 columns, target included &mdash; of a row in training.
+The cause is structural: with 22 region codes, 11 vehicle models and 17 binary flags, the
+rating space is coarse enough that identical rows recur.</p>
+
+<h3>Overridden, not fixed &mdash; and why that is not the easy way out</h3>
+
+<p>Both available fixes (dedupe, or a split grouped on the row-content hash) change
+<em>which rows are trained on</em>, which destroys the one identity this port is built on
+and repairs nothing about the number being reproduced. And for a rating model the
+modelling unit is the cell, not the policy: two policies with identical rating
+characteristics are <em>supposed</em> to be priced alike, and <code>policy_id</code> &mdash;
+the only identifier of an individual policy &mdash; is dropped and crosses nothing.</p>
+
+<p>So the gate was overridden on the record, the card still says NO-GO, and the risk was
+carried with a number attached. Every run from that point prints its AUC restricted to
+the evaluation rows with <em>no</em> twin among the rows it was fitted on. The measured
+answer, four rungs later: at most 0.001415 of AUC, and three of the four development rungs
+score <em>higher</em> without the twins. The same table also measured the earlier study's
+own validation partition &mdash; 0.052223 of it carried a training twin, and nobody had
+ever looked.</p>

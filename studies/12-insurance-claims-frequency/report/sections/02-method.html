@@ -1,0 +1,69 @@
+<h2>The method taught</h2>
+
+<p>The models here are ordinary. What the study's decisions actually turn on are two
+measuring instruments, and those are what this section teaches.</p>
+
+<h3>Two things can be wrong with a risk score, and AUC sees only one</h3>
+
+<p>Pick a random claimant and a random non-claimant. The AUC is the probability the model
+scores the claimant higher:</p>
+
+<div data-math-display="A \;=\; \Pr\!\left(s_i &gt; s_j \mid y_i = 1,\, y_j = 0\right)"></div>
+
+<p>That is <em>ranking</em>, and it is all AUC measures. Now take the same model and run
+every score through any strictly increasing curve &mdash; halve them, square them.
+Concordant pairs stay concordant, so <span data-math="A"></span> does not move at all,
+while the probabilities can be off by an order of magnitude. A technical premium is a
+claim probability multiplied by a severity and attached policy by policy: it lives
+entirely in that level. A model can rank beautifully and still be unfilable.</p>
+
+<h3>Reweighting destroys the level; calibrating repairs it for free</h3>
+
+<p>Weighting the 6.4&nbsp;% of claim rows up until they carry the same total weight as
+the rest tells the model it lives in a balanced world. For a logit model the whole effect
+is a shift of the intercept:</p>
+
+<div data-math-display="\log\frac{\pi'/(1-\pi')}{\pi/(1-\pi)} \;=\; \log\frac{w_1}{w_0}"></div>
+
+<p>The slopes &mdash; hence the ranking &mdash; barely move, and every fitted probability
+comes out far too high. Isotonic calibration goes the other way: fit the best
+<em>non-decreasing</em> staircase from score to observed frequency, which is a constrained
+maximum-likelihood problem,</p>
+
+<div data-math-display="\min_{g_1 \le g_2 \le \cdots \le g_n} \sum_{i=1}^{n} \left(y_{(i)} - g_i\right)^2"></div>
+
+<p>solved exactly by pool-adjacent-violators. Because the staircase never goes down it
+cannot reorder anything, so calibration is free in AUC terms up to the ties it creates
+and the cross-fitting that keeps it honest. That is the whole of &ldquo;calibrate, do not
+reweight&rdquo;, and this study measures both halves of it on the same rows.</p>
+
+<h3>The instrument that decides everything: a paired floor</h3>
+
+<p>Every claim in a ladder study has the form &ldquo;rung B beat rung A by
+<span data-math="\Delta"></span>&rdquo;. Re-drawing the evaluation rows moves each rung's
+own AUC by about &plusmn;0.017964 here &mdash; larger than most of the gaps in the ladder.
+But both rungs are scored on the <em>same</em> rows, so their errors partly cancel and the
+difference is better resolved than either level. How much better is an empirical question,
+and the paired bootstrap answers it: draw one index vector per replicate, apply it to
+<em>both</em> rungs, and take the spread of the differences.</p>
+
+<div data-math-display="\Delta^{(b)} = A_B\big(\mathcal{I}^{(b)}\big) - A_A\big(\mathcal{I}^{(b)}\big), \qquad d = \max\!\left(2\sigma_\Delta, \tfrac{1}{2}\operatorname{range}\right)"></div>
+
+<p>One draw, not two: two draws would inflate <span data-math="\sigma_\Delta"></span> by
+roughly <span data-math="\sqrt{2}"></span> and quietly raise the bar. The result
+<span data-math="d"></span> is the keep bar &mdash; the smallest difference this
+measurement can resolve.</p>
+
+<h3>And one formula that ran before any model did</h3>
+
+<p>The anchor tolerance was not chosen after seeing a residual. It came from the
+closed-form variance of an AUC estimate, evaluated on row counts and a class balance
+alone:</p>
+
+<div data-math-display="\widehat{\operatorname{Var}}(A) \;=\; \frac{A(1-A) + (n_1-1)(Q_1 - A^2) + (n_0-1)(Q_2 - A^2)}{n_1 n_0}"></div>
+
+<p>with <span data-math="Q_1 = A/(2-A)"></span> and
+<span data-math="Q_2 = 2A^2/(1+A)"></span>. Because the development partition is one half
+of the earlier study's validation set, the standard deviation of the <em>difference</em>
+between the two AUCs works out at 0.011226, and twice that &mdash; 0.0225 &mdash; became
+the registered tolerance of three predictions, written down before the first fit.</p>
