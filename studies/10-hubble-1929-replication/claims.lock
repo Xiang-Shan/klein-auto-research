@@ -195,17 +195,25 @@
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ2 | reproduction | **supported** | confirmed | empirical-description | E0004, E0005, rep:E0004@20260903T063326Z, rep:E0005@20260903T064003Z, art:solar, art:groups | The headline is unreproducible for missing INPUTS, not method: 0 of 24 per-object coordinates and 0 of 9 group memberships are obtainable from the tables, the article text or any offline catalogue |",
-      "class": null,
+      "claim": "The headline is unreproducible for missing INPUTS, not method: 0 of 24 per-object coordinates and 0 of 9 group memberships are obtainable from the tables, the article text or any offline catalogue",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0004",
+        "E0005",
+        "rep:E0004@20260903T063326Z",
+        "rep:E0005@20260903T064003Z",
+        "art:solar",
+        "art:groups",
+        "ref:hubble1929"
+      ],
       "numbers": [
         "coords_available",
         "coords_required",
         "groups_reconstructed",
         "groups_required"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C3": {
       "claim": "RQ3 | estimate | **supported** | confirmed | empirical-description | E0006, E0012, rep:E0006@20260903T064440Z, art:boot | The 24 objects support K = 454.158441 with a 95 % percentile-bootstrap interval of [316.648582, 603.704762], width 287.056180 \u2014 and that interval contains 465 |",
