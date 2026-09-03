@@ -1,0 +1,22 @@
+Using CPython 3.13.3
+Creating virtual environment at: /private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv
+   Building klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree
+      Built klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree
+Installed 29 packages in 106ms
+Traceback (most recent call last):
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/studies/10-hubble-1929-replication/analyze.py", line 38, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/kleinlib/eval.py", line 58, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/__init__.py", line 70, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/base.py", line 20, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/utils/__init__.py", line 9, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/utils/_chunking.py", line 11, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/utils/_param_validation.py", line 17, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/utils/validation.py", line 24, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/utils/_array_api.py", line 23, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/sklearn/utils/fixes.py", line 16, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/stats/__init__.py", line 600, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/stats/_stats_py.py", line 40, in <module>
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/spatial/__init__.py", line 113, in <module>
+ImportError: dlopen(/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/spatial/_qhull.cpython-313-darwin.so, 0x0002): tried: '/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/spatial/_qhull.cpython-313-darwin.so' (code signature in <E06A1B8A-6FEC-3B76-B639-07BB86786D6D> '/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/spatial/_qhull.cpython-313-darwin.so' not valid for use in process: library load disallowed by system policy), '/System/Volumes/Preboot/Cryptexes/OS/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/spatial/_qhull.cpython-313-darwin.so' (no such file), '/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-vgdmvytz/worktree/.venv/lib/python3.13/site-packages/scipy/spatial/_qhull.cpython-313-darwin.so' (no such file)
+runner_status: crash
+runner_exit_code: 1

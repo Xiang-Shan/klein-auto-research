@@ -1,0 +1,142 @@
+{
+  "baseline": 1.0,
+  "block_differences": {
+    "abs_gap_printed_column_mean": {
+      "difference": null,
+      "original": 0.020833333333333925,
+      "replicate": null
+    },
+    "max_abs_mag_dev": {
+      "difference": null,
+      "original": 0.07121254719662495,
+      "replicate": null
+    },
+    "mean_M_t_computed": {
+      "difference": null,
+      "original": -15.483270669070984,
+      "replicate": null
+    },
+    "mean_M_t_printed": {
+      "difference": null,
+      "original": -15.479166666666666,
+      "replicate": null
+    },
+    "mean_abs_mag_dev": {
+      "difference": null,
+      "original": 0.022133867019204907,
+      "replicate": null
+    },
+    "n_objects": {
+      "difference": null,
+      "original": 24.0,
+      "replicate": null
+    },
+    "n_outside_tolerance": {
+      "difference": null,
+      "original": 3.0,
+      "replicate": null
+    },
+    "paper_printed_mean_M_t": {
+      "difference": null,
+      "original": -15.5,
+      "replicate": null
+    },
+    "primary_metric": {
+      "difference": null,
+      "original": 1.0,
+      "replicate": null
+    },
+    "rows": {
+      "difference": null,
+      "original": 24.0,
+      "replicate": null
+    },
+    "runner_exit_code": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "total_seconds": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "wall_seconds": {
+      "difference": null,
+      "original": 0.009867,
+      "replicate": null
+    }
+  },
+  "candidate_commit": "19ee81f77341307ef869dd61952bc40c789ad0b6",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "data_fingerprint": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+  "difference": null,
+  "ended_at": "2026-09-03T06:33:25.623614Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0003@20260903T063246Z",
+  "exit_code": 1,
+  "experiment": "E0003",
+  "failure_reason": "process exit code 1",
+  "log": "runs/E0003/replications/20260903T063246Z.log",
+  "max_run_seconds": 300.0,
+  "metric_name": "targets_outside_tolerance",
+  "mismatched_keys": [
+    "abs_gap_printed_column_mean",
+    "max_abs_mag_dev",
+    "mean_M_t_computed",
+    "mean_M_t_printed",
+    "mean_abs_mag_dev",
+    "n_objects",
+    "n_outside_tolerance",
+    "paper_printed_mean_M_t",
+    "primary_metric",
+    "rows"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "abs_gap_printed_column_mean": 0.020833333333333925,
+    "max_abs_mag_dev": 0.07121254719662495,
+    "mean_M_t_computed": -15.483270669070984,
+    "mean_M_t_printed": -15.479166666666666,
+    "mean_abs_mag_dev": 0.022133867019204907,
+    "n_objects": 24.0,
+    "n_outside_tolerance": 3.0,
+    "paper_printed_mean_M_t": -15.5,
+    "primary_metric": 1.0,
+    "rows": 24.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.009867
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 1.0,
+  "record": "runs/E0003/replications/20260903T063246Z.json",
+  "replicate_block": {},
+  "replicate_primary_metric": null,
+  "reproduced": false,
+  "schema_version": 1,
+  "stamp": "20260903T063246Z",
+  "started_at": "2026-09-03T06:32:46.717778Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T06:32:46.569595Z",
+  "tolerance": 0.0,
+  "tolerance_source": "exact",
+  "track": "reproduction",
+  "wall_seconds": 38.90567316696979,
+  "worktree_prepared": true
+}
