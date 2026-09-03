@@ -110,6 +110,15 @@
   "status": "active",
   "study_id": "10-hubble-1929-replication",
   "sweeps": {
+    "coverage_floor": {
+      "registered_at": "2026-09-03T05:59:51.304106Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/coverage_floor.py",
+      "script_sha256": "0de40934d645dc861b52b5730bfa71cd7759d4fc211b59be35bc70a6f0e4aa38",
+      "sidecar": "sweeps/coverage_floor.sidecar.tsv",
+      "sidecar_sha256": "a20c005975fb7b996a1c0333b27f2e8ce08991322027c323de0318ece72e6676"
+    },
     "mc_resolution": {
       "registered_at": "2026-09-03T05:59:51.160938Z",
       "rows_crash": 0,
@@ -120,5 +129,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T05:59:51.161212Z"
+  "updated_at": "2026-09-03T05:59:51.304262Z"
 }
