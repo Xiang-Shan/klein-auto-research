@@ -62,6 +62,7 @@
       "evidence": [],
       "numbers": [
         "boosted_brier",
+        "boosted_logloss",
         "overcapacity_auc",
         "overcapacity_brier",
         "overcapacity_delta_floors",
@@ -158,6 +159,13 @@
       "note": "E0003 gap_in_floors: the incumbent's headroom h on development",
       "precision": 4,
       "value": 1.7077
+    },
+    "boosted_logloss": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0003 val_logloss",
+      "precision": 6,
+      "value": 0.355165
     },
     "dev_ceiling": {
       "art": "aux",
