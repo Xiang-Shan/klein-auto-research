@@ -61,3 +61,15 @@ E0005	sealed_block	0.0
 E0005	overclaim_by	0.0
 E0005	claimed_objective	50.0
 E0005	object_size	50.0
+E0006	wall_seconds	0.10267019271850586
+E0006	evaluations	200000.0
+E0006	passes	220.0
+E0006	best_at_evaluation	90378.0
+E0006	search_seconds	0.10216191597282887
+E0006	grid_n	31.0
+E0006	budget	200000.0
+E0006	search_seed	20260903.0
+E0006	sealed_block	0.0
+E0006	overclaim_by	0.0
+E0006	claimed_objective	53.0
+E0006	object_size	53.0
