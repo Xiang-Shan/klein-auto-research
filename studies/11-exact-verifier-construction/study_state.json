@@ -195,6 +195,44 @@
       "recorded_at": "2026-09-03T07:48:01.980619Z",
       "source": "manual",
       "verdict": "supported"
+    },
+    "P5": {
+      "acknowledged_by": "lead-agent",
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0008"
+      ],
+      "explanation": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+      "history": [
+        {
+          "acknowledged_by": "lead-agent",
+          "evidence": [
+            "E0001",
+            "E0002",
+            "E0003",
+            "E0004",
+            "E0005",
+            "E0006",
+            "E0007",
+            "E0008"
+          ],
+          "explanation": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+          "note": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+          "recorded_at": "2026-09-03T07:48:13.815885Z",
+          "source": "manual",
+          "verdict": "supported"
+        }
+      ],
+      "note": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
+      "recorded_at": "2026-09-03T07:48:13.815885Z",
+      "source": "manual",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -346,5 +384,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:48:01.981098Z"
+  "updated_at": "2026-09-03T07:48:13.816377Z"
 }
