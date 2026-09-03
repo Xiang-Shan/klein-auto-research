@@ -95,11 +95,15 @@
       "strength": "exploratory"
     },
     "C11": {
-      "claim": "Put a copy-the-input control in your language-model harness. It bets the next",
-      "class": null,
+      "claim": "A copy-the-input control catches the off-by-one target alignment that no other control in this study could see: a correct harness scores it 4.750043 nats, worse than chance at 4.174388, where the bug would have scored 0.693147.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "sweep:harness_controls"
+      ],
       "numbers": [
+        "control_copy",
+        "control_uniform",
         "off_by_one_loss"
       ],
       "strength": "exploratory"
