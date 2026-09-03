@@ -90,7 +90,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "bar_over_v1_spread"
+        "bar_over_v1_spread",
+        "v1_ledger_spread"
       ],
       "strength": "exploratory"
     },
@@ -198,6 +199,13 @@
       "note": "anchor_residual_margin",
       "precision": 6,
       "value": 0.000458
+    },
+    "v1_ledger_spread": {
+      "art": "derived",
+      "claim": "C3",
+      "note": "v1 results.tsv row 6 minus row 1",
+      "precision": 6,
+      "value": 0.03886
     }
   },
   "study_id": "12-insurance-claims-frequency"
