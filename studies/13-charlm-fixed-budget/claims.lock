@@ -135,6 +135,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "control_copy",
         "control_uniform",
         "control_unigram",
         "control_untrained"
@@ -199,6 +200,13 @@
       "note": "parameters of the anchor architecture",
       "precision": 0,
       "value": 824320
+    },
+    "control_copy": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "negative control: copy-the-input, worse than chance under a correct harness",
+      "precision": 6,
+      "value": 4.750043
     },
     "control_uniform": {
       "art": "controls",
