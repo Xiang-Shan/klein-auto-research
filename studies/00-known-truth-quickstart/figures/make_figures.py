@@ -183,6 +183,9 @@ def figure_headroom(
 
     labels = [label for _e, _r, label in LADDER]
     colors = [KEEP if results[e]["status"] == "keep" else DISCARD for e, _r, _l in LADDER]
+    # Figure-critique point 3: every mark must survive grayscale, so a discard is
+    # a hatch as well as a hue.
+    hatches = [None if results[e]["status"] == "keep" else ".." for e, _r, _l in LADDER]
     x = np.arange(len(LADDER), dtype=float)
     ticks = list(x) + [SEALED_X]
     tick_labels = labels + ["E0005\nSEALED\nboosted, defaults"]
@@ -211,18 +214,27 @@ def figure_headroom(
                  label=f"development ceiling (Bayes AUC) {ideal:g}")
     left.axhline(0.5, color=MUTED, linewidth=1.4, linestyle=(0, (4, 3)), zorder=4,
                  label="chance (val_auc 0.5)")
-    left.bar(x, scores, width=0.62, color=colors, edgecolor="none", zorder=3)
+    bars = left.bar(x, scores, width=0.62, color=colors, edgecolor="#ffffff", linewidth=0.8, zorder=3)
+    for patch, hatch in zip(bars, hatches, strict=True):
+        if hatch:
+            patch.set_hatch(hatch)
     # Labels go INSIDE the bars: above them they collide with the ceiling and
     # chance rules, which on a zero-based axis both cross the bar tops.
+    # A plain-ink label on a white plate: legible over a solid bar, over a hatched
+    # one, and in grayscale — which white-on-hatch is not.
+    plate = {"boxstyle": "round,pad=0.15", "fc": "#ffffff", "ec": "none", "alpha": 0.88}
     for xi, value in zip(x, scores, strict=True):
         left.annotate(f"{value:.6f}", (xi, value), textcoords="offset points", xytext=(0, -5),
-                      ha="center", va="top", fontsize=7.5, color="#ffffff", zorder=6)
+                      ha="center", va="top", fontsize=7.5, color=INK, zorder=6, bbox=plate)
     left.hlines(sealed_ideal, SEALED_X - 0.45, SEALED_X + 0.45, color=IDEAL, linewidth=2,
                 linestyle=":", zorder=4, label=f"sealed partition's own ceiling {sealed_ideal:g}")
     left.bar([SEALED_X], [sealed_value], width=0.62, color=KEEP, alpha=0.45, edgecolor=KEEP,
              linewidth=1.4, zorder=3, hatch="//", label="sealed run (confirmation evidence)")
     left.annotate(f"{sealed_value:.6f}", (SEALED_X, sealed_value), textcoords="offset points",
-                  xytext=(0, -5), ha="center", va="top", fontsize=7.5, color=INK, zorder=6)
+                  xytext=(0, -5), ha="center", va="top", fontsize=7.5, color=INK, zorder=6,
+                  bbox=plate)
+    left.bar([np.nan], [np.nan], color=KEEP, label="keep (development frontier)")
+    left.bar([np.nan], [np.nan], color=DISCARD, hatch="..", label="discard (retained evidence)")
     left.set_ylim(0, 1.0)
     left.set_yticks([0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0])
     left.set_ylabel("val_auc")
@@ -233,7 +245,11 @@ def figure_headroom(
     right.axhspan(0, 1, color=IDEAL, alpha=0.12, linewidth=0, zorder=0)
     right.axhline(1.0, color=IDEAL, linewidth=1.8, linestyle="--", zorder=4,
                   label="h = 1 — below this line no keep is arithmetically possible")
-    right.bar(x, gaps, width=0.62, color=colors, edgecolor="none", zorder=3)
+    right_bars = right.bar(x, gaps, width=0.62, color=colors, edgecolor="#ffffff",
+                           linewidth=0.8, zorder=3)
+    for patch, hatch in zip(right_bars, hatches, strict=True):
+        if hatch:
+            patch.set_hatch(hatch)
     for xi, value in zip(x, gaps, strict=True):
         right.annotate(f"{value:g}", (xi, value), textcoords="offset points", xytext=(0, 4),
                        ha="center", fontsize=8, color=INK)
@@ -267,7 +283,10 @@ def figure_calibration(
         _fail("the recomputed development Bayes AUC differs from the one E0003 printed")
 
     series = []
-    for experiment, recipe, color in (("E0001", "logreg_raw", ANCHOR), ("E0003", "hgbt_default", BOOSTED)):
+    for experiment, recipe, color, marker, dashes in (
+        ("E0001", "logreg_raw", ANCHOR, "o", (0, ())),
+        ("E0003", "hgbt_default", BOOSTED, "s", (0, (5, 2))),
+    ):
         model, transform = train.fit_recipe(recipe, X_train, y_train)
         proba = np.asarray(model.predict_proba(transform(X_dev)))[:, 1]
         # Cross-check 5: refitting the recipe reproduces the ledger's own number.
@@ -275,7 +294,8 @@ def figure_calibration(
         recorded = float(results[experiment]["primary_metric"])
         if not _close(observed, recorded, tol=5e-7):
             _fail(f"{experiment}: refit scores {observed}, the ledger says {recorded}")
-        series.append((experiment, recipe, color, proba, float(brier_score_loss(y_dev, proba))))
+        series.append((experiment, recipe, color, marker, dashes, proba,
+                       float(brier_score_loss(y_dev, proba))))
 
     bayes_brier = float(brier_score_loss(y_dev, p_true))
     if not _close(bayes_brier, float(truth["partitions"]["development"]["bayes_brier"]), tol=5e-7):
@@ -283,16 +303,17 @@ def figure_calibration(
 
     fig, (left, right) = plt.subplots(1, 2, figsize=(11, 4.6))
 
-    lo, hi = 0.0, max(float(p_true.max()), *(float(p.max()) for _e, _r, _c, p, _b in series))
+    lo, hi = 0.0, max(float(p_true.max()), *(float(s[5].max()) for s in series))
     hi = math.ceil(hi * 20) / 20
     left.plot([lo, hi], [lo, hi], color=MUTED, linewidth=1.4, linestyle="--", zorder=2,
               label="perfect: predicted = true")
-    for experiment, recipe, color, proba, brier in series:
+    for experiment, recipe, color, marker, dashes, proba, brier in series:
         order = np.argsort(proba, kind="stable")
         bins = np.array_split(order, 20)
         xs = [float(proba[b].mean()) for b in bins if len(b)]
         ys = [float(p_true[b].mean()) for b in bins if len(b)]
-        left.plot(xs, ys, marker="o", markersize=5, linewidth=1.6, color=color, zorder=3,
+        left.plot(xs, ys, marker=marker, markersize=5, linewidth=1.6, color=color,
+                  linestyle=dashes, zorder=3,
                   label=f"{recipe} ({experiment}), Brier {brier:.6f}")
     left.set_xlim(lo, hi)
     left.set_ylim(lo, hi)
@@ -302,13 +323,13 @@ def figure_calibration(
     left.legend(fontsize=7, loc="upper left", framealpha=0.95)
 
     # Right panel: the residual the ranking metric cannot see.
-    for experiment, recipe, color, proba, _brier in series:
+    for experiment, recipe, color, marker, dashes, proba, _brier in series:
         order = np.argsort(p_true, kind="stable")
         bins = np.array_split(order, 25)
         xs = [float(p_true[b].mean()) for b in bins if len(b)]
         ys = [float((proba[b] - p_true[b]).mean()) for b in bins if len(b)]
-        right.plot(xs, ys, marker="o", markersize=4, linewidth=1.5, color=color, zorder=3,
-                   label=f"{recipe} ({experiment})")
+        right.plot(xs, ys, marker=marker, markersize=4, linewidth=1.5, color=color,
+                   linestyle=dashes, zorder=3, label=f"{recipe} ({experiment})")
     right.axhline(0.0, color=MUTED, linewidth=1.4, linestyle="--", zorder=2)
     right.set_xlabel("TRUE probability, 25 equal-count bins")
     right.set_ylabel("mean (predicted − true)")
