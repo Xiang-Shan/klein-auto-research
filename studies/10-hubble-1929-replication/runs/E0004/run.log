@@ -1,0 +1,24 @@
+---
+primary_metric:    1.000000
+metric_name:       targets_outside_tolerance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/solar_motion_inputs.tsv
+rows:              9
+sha256:            f68402b5e2c9a910c0a75d55129cb086c0e7f2f5b1d801a43574efca85eeed5b
+wall_seconds:      0.009654
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+coords_available: 0.0
+coords_required: 24.0
+coordinate_columns_found: 0.0
+offline_catalogue_files: 0.0
+sources_checked: 3.0
+target_k: 465.0
+target_tolerance: 50.0
+runner_status: ok
+runner_exit_code: 0

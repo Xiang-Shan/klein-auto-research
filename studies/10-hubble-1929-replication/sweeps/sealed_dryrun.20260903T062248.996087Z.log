@@ -1,0 +1,10 @@
+sealed_dryrun: 1
+Traceback (most recent call last):
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/studies/10-hubble-1929-replication/analyze.py", line 179, in <module>
+    main()
+    ~~~~^^
+  File "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/studies/10-hubble-1929-replication/analyze.py", line 116, in main
+    raise RuntimeError(f"forbidden columns reached the sealed cell: {leaked}")
+RuntimeError: forbidden columns reached the sealed cell: ['r_mpc', 'vs_kms', 'M_t']
+runner_status: crash
+runner_exit_code: 1

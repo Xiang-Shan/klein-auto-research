@@ -1,0 +1,11 @@
+data source: bundled — /Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/datasets/hubble1929/hubble1929_table1.csv
+data source: bundled — /Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/datasets/hubble1929/hubble1929_table2.csv
+table1 sha256: 86fda6be6fd3096a7c25669354bb306a0fbe030fb6f89039c7a5c49e301d0f28
+table2 sha256: 99a287b546d1742bd7d1943bf405c0bac8eecb0ced8d7db713f11978baef2838
+objects table1: 24
+objects table2: 22
+objects shared: 0
+prepared: data/prepared/prepared.csv  rows=46
+index: data/prepared/index.csv  rows=46
+runner_status: ok
+runner_exit_code: 0

@@ -1,0 +1,7 @@
+Using CPython 3.13.3
+Creating virtual environment at: /private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-iajqktfg/worktree/.venv
+   Building klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-iajqktfg/worktree
+      Built klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-iajqktfg/worktree
+Installed 29 packages in 87ms
+runner_status: timeout
+runner_exit_code: 124

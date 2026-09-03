@@ -1,0 +1,8 @@
+trials ok: 5 of 5
+values: 0.925000, 0.932000, 0.925000, 0.925000, 0.927000
+mean:  0.926800
+std:   0.003033
+range: 0.007000
+suggested minimum_delta: 0.006066
+runner_status: ok
+runner_exit_code: 0
