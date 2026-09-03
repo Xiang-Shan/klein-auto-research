@@ -12,6 +12,10 @@
       "path": "tables/corpus_profile.tsv",
       "sha256": "7941e1e145e3e8406c9b0af5c5010fe77a82823a983bef96b6e3fb087218bbcd"
     },
+    "device": {
+      "path": "tables/device_check.tsv",
+      "sha256": "f1df0a171a4bbc10fa40667eef4ca6c726ebd463cb47dd430c7f11e8433b5ae0"
+    },
     "frontier": {
       "path": "tables/frontier.tsv",
       "sha256": "2480be9abcd841abf88a002fd758af32f1ae7b01b0fdf6e96dee4af444f6445b"
