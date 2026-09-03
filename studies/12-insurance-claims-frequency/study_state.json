@@ -71,7 +71,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 3,
+  "last_experiment": 4,
   "overrides": [
     {
       "acknowledged_at": "2026-09-03T08:18:38.452188Z",
@@ -181,6 +181,26 @@
       "recorded_at": "2026-09-03T08:33:25.411555Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P6": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "all_of[brier_delta_vs_reference -0.181304 < 0 \u2192 supported; |delta_in_floors| 0.039 < 1 (from -0.039) \u2192 supported] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "all_of[brier_delta_vs_reference -0.181304 < 0 \u2192 supported; |delta_in_floors| 0.039 < 1 (from -0.039) \u2192 supported] \u2192 supported",
+          "recorded_at": "2026-09-03T08:36:35.107163Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:36:35.107163Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -228,5 +248,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:33:25.413548Z"
+  "updated_at": "2026-09-03T08:36:35.109989Z"
 }

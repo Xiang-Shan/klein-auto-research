@@ -71,9 +71,9 @@ TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
 # --- the candidate: the whole per-experiment diff surface -------------------
 # Empty between experiments. Choosing a rung IS the falsifiable idea a candidate
 # transaction carries, so the surface carries no rung until one is chosen.
-CANDIDATE = "glm_ohe_none_isotonic"  # E0004: the doctrine A/B, one lever
-REFERENCE = "glm_ohe_balanced"       # the same rung with class_weight="balanced"
-V1_ANCHOR = None                     # v1's row 4 used cv=3; this rung uses cv=5
+CANDIDATE = "hgbt_balanced"          # E0003: the v1 tree rung, recoverable verbatim
+REFERENCE = "glm_splines_isotonic"   # the calibrated GLM rung it claims to beat
+V1_ANCHOR = 0.662897                 # scouting_ledger.md S1, v1 results.tsv row 3
 DEV_INCUMBENT = None             # set only for the sealed confirmation run
 
 
