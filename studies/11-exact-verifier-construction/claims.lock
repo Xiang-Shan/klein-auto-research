@@ -157,7 +157,8 @@
         "P4"
       ],
       "numbers": [
-        "triples_largest"
+        "triples_largest",
+        "verifier_seconds_largest"
       ],
       "strength": "exploratory"
     },
@@ -370,6 +371,13 @@
       "note": "E0008 manifest.metric.verified \u2014 what the checker measured from the artifact's bytes",
       "precision": 1,
       "value": 20.0
+    },
+    "verifier_seconds_largest": {
+      "art": "verify_log_large",
+      "claim": "C6",
+      "note": "wall_seconds in E0010's verifier log: the checker's own cost on the largest object this study verified, beside its triples_checked 26235",
+      "precision": 6,
+      "value": 0.002046
     }
   },
   "study_id": "11-exact-verifier-construction"
