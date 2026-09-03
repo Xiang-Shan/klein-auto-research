@@ -8,6 +8,10 @@
       "path": "study.yaml",
       "sha256": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
     },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923"
+    },
     "derived": {
       "path": "tables/derived_ratios.tsv",
       "sha256": "46fa6053dc7898f7abc7f1abfe51a55d37510a931d704048d7a7fd8439b4dd3f"
