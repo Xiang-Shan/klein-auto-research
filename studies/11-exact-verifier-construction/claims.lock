@@ -44,6 +44,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "large_200k",
         "large_20k"
       ],
       "strength": "exploratory"
@@ -160,6 +161,13 @@
       "note": "the n_small instance's grid size, printed by every run of that track as grid_n",
       "precision": 0,
       "value": 11
+    },
+    "large_200k": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0006: n = 31 at the middle budget",
+      "precision": 0,
+      "value": 53
     },
     "large_20k": {
       "art": "results",
