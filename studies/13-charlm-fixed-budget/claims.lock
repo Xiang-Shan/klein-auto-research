@@ -47,10 +47,21 @@
   },
   "claims": {
     "C1": {
-      "claim": "RQ1 | primary | supported, with the direction reversed | exploratory | empirical-description | E0001, E0002, E0003, E0004, E0005, E0006, E0007, `sweep:paired_floor` | The prior said \"at most one of the four edits clears the floor \u2014 width\". At most one did clear it, but it was none of the four: warmup \u22121.0431, weight tying \u221211.3693, dropout 0.1 \u22124.7255 and width \u22120.4742 floors against the anchor's five-seed mean, with one floor = 0.0149525 nats. The single keep is cosine decay at +3.3326 floors (E0006), which carried no registered prediction. |",
-      "class": null,
+      "claim": "At a fixed budget of 2000 steps none of the four registered single-change levers cleared the measured floor of 0.0149525 nats: warmup -1.0431 floors, weight tying -11.3693, dropout 0.1 -4.7255 and width -0.4742, each against the anchor's five-seed mean; the only keep was cosine decay at 3.3326 floors.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "sweep:paired_floor",
+        "sweep:fit_noise",
+        "sweep:learning_curves"
+      ],
       "numbers": [
         "curve_anchor_end",
         "curve_cosine_end",
@@ -62,6 +73,8 @@
         "e0005_floors",
         "e0006_floors",
         "e0007_floors",
+        "minimum_delta",
+        "steps_budget",
         "warmup_on_cosine_floors"
       ],
       "strength": "exploratory"
