@@ -182,6 +182,13 @@
       "precision": 7,
       "value": 0.0149525
     },
+    "paired_floor_range": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "range of the ten paired seed differences",
+      "precision": 6,
+      "value": 0.026494
+    },
     "paired_floor_std": {
       "art": "contract",
       "claim": "floor",
