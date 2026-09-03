@@ -1,0 +1,27 @@
+Using CPython 3.13.3
+Creating virtual environment at: /private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-3lbjmml2/worktree/.venv
+   Building klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-3lbjmml2/worktree
+      Built klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-3lbjmml2/worktree
+Installed 29 packages in 88ms
+---
+primary_metric:    0.000000
+metric_name:       targets_outside_tolerance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/identity_anchors.tsv
+rows:              4
+sha256:            8f927d354d4f2995f011e4e26dc50ebc51db4880ecefc7358a83693448edef93
+wall_seconds:      0.021128
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+sum_r: 21.872999999999998
+sum_v: 8955.0
+n_table1: 24.0
+n_table2: 22.0
+max_abs_deviation: 3.552713678800501e-15
+runner_status: ok
+runner_exit_code: 0
