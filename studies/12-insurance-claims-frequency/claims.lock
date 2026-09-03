@@ -219,7 +219,8 @@
       "numbers": [
         "dev_incumbent",
         "sealed_auc",
-        "sealed_shift_in_floors"
+        "sealed_shift_in_floors",
+        "sealed_twin_free_auc"
       ],
       "strength": "confirmed"
     },
@@ -437,6 +438,13 @@
       "note": "magnitude of E0005 sealed_shift_in_floors",
       "precision": 4,
       "value": 0.168
+    },
+    "sealed_twin_free_auc": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0005 twin_free_auc: the sealed score on the rows with no twin among the rows it was fitted on",
+      "precision": 6,
+      "value": 0.656647
     },
     "splines_in_floors": {
       "art": "verdicts",
