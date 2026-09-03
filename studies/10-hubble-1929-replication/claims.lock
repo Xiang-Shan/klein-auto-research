@@ -111,7 +111,8 @@
       "evidence": [],
       "numbers": [
         "paired_mean_difference",
-        "paired_se_difference"
+        "paired_se_difference",
+        "se_units"
       ],
       "strength": "exploratory"
     },
@@ -532,6 +533,13 @@
       "note": "residual standard deviation about the free-intercept fit (E0002); the DGP's sigma",
       "precision": 6,
       "value": 232.91067
+    },
+    "se_units": {
+      "art": "aux",
+      "claim": "C11",
+      "note": "the paired difference in units of its own standard error; the key P5 reads (E0007)",
+      "precision": 6,
+      "value": 2.447419
     },
     "sealed_deviation": {
       "art": "aux",
