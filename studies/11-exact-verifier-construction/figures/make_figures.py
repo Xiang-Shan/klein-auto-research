@@ -150,13 +150,17 @@ def figure_reach(
             budgets, scores, marker="o", color=DEV, linewidth=1.8, zorder=3,
             label="development seed block",
         )
-        # The sealed cell ran at the same budget as the last development rung, so
-        # it is drawn slightly to its right: a confirmation cell is not another
-        # point on the ladder, and overlapping markers would say it was.
-        sealed_x = sealed_budget * 1.55
+        # The sealed cell ran at the SAME registered budget as the last
+        # development rung, and it is drawn there. An earlier version offset it
+        # to the right for legibility, which put a marker at a budget no run
+        # had: on an axis whose units are evaluations, a position is a number.
+        # A confirmation cell is not another rung of the ladder, so it is
+        # distinguished by marker and legend instead — a hollow star off the
+        # line, where the ladder is filled circles joined by one.
         panel.plot(
-            [sealed_x], [sealed_score], marker="*", markersize=17, color=SEALED,
-            linestyle="none", zorder=4, label="sealed seed block (one access)",
+            [sealed_budget], [sealed_score], marker="*", markersize=19,
+            markerfacecolor="none", markeredgecolor=SEALED, markeredgewidth=2.0,
+            linestyle="none", zorder=5, label="sealed seed block, same budget (one access)",
         )
         for x, y in zip(budgets, scores, strict=True):
             panel.annotate(
@@ -164,8 +168,8 @@ def figure_reach(
                 ha="center", fontsize=9, color=INK,
             )
         panel.annotate(
-            f"{sealed_score:.0f}", (sealed_x, sealed_score), textcoords="offset points",
-            xytext=(2, 10), ha="center", fontsize=9, color=SEALED, fontweight="bold",
+            f"{sealed_score:.0f}", (sealed_budget, sealed_score), textcoords="offset points",
+            xytext=(0, 13), ha="center", fontsize=9.5, color=SEALED, fontweight="bold",
         )
         panel.set_xscale("log")
         panel.set_xlabel("evaluation budget (addability tests, log scale)")

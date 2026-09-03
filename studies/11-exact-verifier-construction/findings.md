@@ -78,6 +78,7 @@ the run's own printed block, and the arithmetic it used is reproduced verbatim.
 | P2 | at the same budget the 31 × 31 search is scored below 62 | `{key: primary_metric, op: "<", value: 62}` | `primary_metric 54 < 62 → supported` | supported | E0007 | — |
 | P3 | the verifier rejects every one of the 12 planted invalid constructions | `{key: rejected, op: "eq", value: 12, tol: 0}` | `rejected 12 == 12 ± 0 → supported` | supported | E0001 | — |
 | P4 | re-running the verifier on a pinned artifact reproduces its integer objective exactly | manual | seven `verify:` records, `reproduced: true` in each, tolerance 0.0 | supported | `verify:E0001@…` … `verify:E0007@…` | — |
+
 | P5 | no run's own claimed objective is ever accepted above the verifier's | manual | `claim_excess` 0 on all seven honest runs; E0008 refused as `verifier_disagreement` | supported | E0001–E0008 | — |
 | P6 | from the sealed seed block the 11 × 11 search is again scored at 22 or more | `{key: primary_metric, op: ">=", value: 22}` | `primary_metric 22 >= 22 → supported` | supported | E0009 | — |
 | P7 | from the sealed seed block the 31 × 31 search is scored below 62 | `{key: primary_metric, op: "<", value: 62}` | `primary_metric 55 < 62 → supported` | supported | E0010 | — |
@@ -103,7 +104,10 @@ entire purpose is to make them disagree can never reach the adjudication step. A
 prediction about a refusal cannot be decided by the machine that performs the refusal.
 Both were adjudicated with `klein predict adjudicate`, which pinned their evidence ids
 and filed a `prediction_adjudicated` event each, so the verdicts are receipts and not
-prose.
+prose. One scope note on P4, so a reader does not have to count: the seven `verify:`
+records cover E0001 through E0007, and E0008 carries none — `klein replicate` refuses a
+crashed run, and the verdict cannot turn on it either way, since an eighth record could
+only add a reproduction and E0008's ledger row is `NA`.
 
 Nothing is open, nothing is inconclusive, and the one refutation carries its dated
 decision.
@@ -153,14 +157,34 @@ overclaim was refused. A study whose subject is a mechanism should say plainly w
 mechanism simply worked; the informative content is in *what the record looks like*
 when it works, which is what §⑤ is about.
 
+**Correction (2026-09-03, referee NOTE 1, erratum E1): the checker is not
+sub-millisecond at every size.** The first version of §④'s C6 said the exhaustive triple
+test "stayed sub-millisecond", and C6's locked sentence still ends that way, because a
+lock is append-only. Its own pinned artifact says otherwise: `runs/E0010/verify.log` —
+the artifact that supplies C6's 26235 — records `wall_seconds` 0.002046 beside it, about
+twice the stated bound, and four of the ten verifier logs exceed a millisecond.
+Sub-millisecond holds only for the n = 11 objects, where E0009 reads 0.000169. The
+phrase's origin is visible and is the part worth learning from: `data_card.md` wrote
+"sub-millisecond at every size this study uses" at the DATA gate, **before any run
+existed**, as a fair pre-run cost estimate — and it was never re-checked against the
+logs once they existed, then promoted into a post-hoc factual claim and copied into
+`knowledge/domains/math/README.md`. An estimate that survives into a findings sentence
+without being re-measured is exactly the failure the numbers law is meant to catch, and
+it slipped past because "sub-millisecond" is a word, not a numeral, so no scan was
+looking at it. `data_card.md` is a gate-hashed artifact and is NOT edited; the
+correction lives here, in `program.md`, in erratum E1 against C6, and in the two
+pinned numbers now attached to C6. Nothing rests on it: the verifier's cost is charged
+to no guardrail, and C6's advice rests on two independent implementations agreeing, not
+on the checker's speed.
+
 ## ④ Practical advice
 
 **[C6]** Write the checker as the dumbest correct thing you can, and let the searcher be
 the clever one (evidence: E0001, E0002, E0003, E0004, E0005, E0006, E0007). This
 study's search decides whether a point can join a configuration in O(k) by hashing
 normalized directions; its checker enumerates every triple and applies an integer
-cross-product test — 26235 of them on the largest object this study verified, and
-still sub-millisecond. The
+cross-product test — 26235 of them on the largest object this study verified, at a
+verifier cost of 0.002046 seconds, and 0.000169 seconds on the 22-point object. The
 two implementations share no code and agreed on every one of the seven honest runs,
 which is evidence precisely because they could have disagreed. One algorithm agreeing
 with itself is a tautology, and a fast checker that sampled triples would have passed
@@ -221,11 +245,24 @@ symmetry class).
 
 **Vocabulary, deliberately.** The words "proved", "optimal" and "impossible" do not
 appear in this study's conclusions about its own results, and this paragraph is where a
-reader can check that. There is no proof artifact pinned in `claims.lock`, so nothing is
-proved here; the only proof invoked, the pigeonhole bound, is cited as a theorem from
-the literature and used as an input. "Matched the proven maximum" is the strongest
-verb this study's evidence supports for E0009, and "did not reach it under the
-registered budget" is the strongest for every other row.
+reader can check that.
+
+The one thing this study does call proven is the upper bound `2n`, and the warrant for
+it is not a citation — it is a one-line argument the study gives itself, three times
+over: in §⑤ above ("three points in a row are collinear, so each of the n rows holds at
+most 2"), in `research_plan.md`, and frozen as `upper_bound_argument` inside the
+DATA-gate-hashed `data/prepared/instances.json` before any run existed. The math
+profile permits "proved" only when a proof artifact is pinned by alias and the referee
+has checked it, so `research_plan.md` is now pinned in `claims.lock` as `art:proof` and
+cited by C9, and the referee's report records that it re-derived the argument
+independently. `ref:mathworld_no3` states the same bound, so a reader who prefers a
+citation to a proof has one; the study prefers the proof, because it can be checked in a
+sentence. Nothing else here is proved: the found objects are constructions, and every
+"did not reach" is a fact about a search.
+
+"Matched the proven maximum" is the strongest verb this study's evidence supports for
+E0009, and "did not reach it under the registered budget" is the strongest for every
+other row.
 
 Nothing here is priced: this study registered no `materiality:` block, so clearing —
 or missing — a registered bar means only that the bar was cleared or missed.
@@ -241,8 +278,17 @@ the ban should read those four lines and nothing else will need checking.
 
 ## ⑥ Literature tie-back
 
-Ten references, all verified against the publisher, arXiv or maintainer page on
-2026-09-03 (`references.yaml`, `refs_verified: true`), none quoted from memory.
+Ten references, every one checked on 2026-09-03 and none quoted from memory — but
+they were not all checked the same way, and `references.yaml` records which is which in
+each entry's `verified_by`. Four were read at the source: `ref:flammenkamp_records` (the
+maintainer's own page), `ref:mathworld_no3` (MathWorld itself), `ref:ramanathan2025`
+(the arXiv abstract page) and `ref:lourenco2019` (the Springer chapter page). The other
+six — `ref:dudeney1900`, `ref:roth1951`, `ref:guy1968`, `ref:hall1975`,
+`ref:flammenkamp1992` and `ref:flammenkamp1998` — were checked against a bibliography
+rather than against the work: the Wikipedia article's reference list, or MathWorld's,
+which is where their journal, volume, issue and page ranges come from. That is weaker
+evidence than a publisher page and is worth saying plainly; the two entries this study's
+contract actually leans on, the external incumbents, are both in the first group.
 
 `ref:flammenkamp_records` and `ref:mathworld_no3` are what make this study's
 `metric.incumbent_external` a number rather than a guess: the maintained record page
@@ -271,11 +317,14 @@ the consult gate had hashed P1–P7 and their magnitudes; it sharpened the reaso
 expect P1 to be interesting and it changed no rule.
 
 The method card's own regime table said the small instance "should pay" and the medium
-one "should not". It was **wrong on the first and right on the second**, and it was
-wrong in the informative direction: it had already recorded that a reinforcement-learning
-agent fails at exactly n = 11, and it still predicted success. The card also explicitly
-declined to predict *how far short* the n = 31 search would land, and that abstention
-was correct — nothing in it could have produced 54.
+one "should not". It asserts the same proposition RQ1's prior does, so it is scored the
+same way and the two lines agree: **half right on n = 11** — wrong on the development
+seed, right on the sealed one — and **right on n = 31**. Where the card is worse than
+the prior is in its warrant rather than its verdict: it had already recorded that a
+reinforcement-learning agent fails at exactly n = 11 (`ref:ramanathan2025`) and still
+predicted success, so the one piece of evidence it had against itself did not move it.
+The card also explicitly declined to predict *how far short* the n = 31 search would
+land, and that abstention was correct — nothing in it could have produced 54.
 
 **Prior scorecard.** Both research-question priors were `(source: uninformed)`; neither
 rests on the scouting ledger, whose three entries verified the control object, timed one
