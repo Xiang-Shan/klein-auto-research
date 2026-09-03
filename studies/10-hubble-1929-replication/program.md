@@ -92,6 +92,19 @@ restores `analyze.py` afterwards — the candidate commit IS the record of what 
   keys P4 and P5 read — gets its own Phase-0 measurement, recorded as `fit_noise`
   (provenance) and never as a bar.
 
+- **2026-09-03 — Decision (contract re-record #1): `data.source` carries a tag, not prose.**
+  The launch brief asked for
+  `bundled:hubble1929/hubble1929_table1.csv (Table 2 via a second resolve ... )`.
+  `data.source` is machine-resolvable (`references/data-sources.md`): with the
+  parenthetical attached, `klein doctor --study` reported
+  `[WARN] data source: ... no file 'hubble1929_table1.csv (Table 2 via ...)'`.
+  Where a brief and a protocol disagree, the protocol wins. `data.source` is now the
+  bare tag and the second bundled member is declared beside it as
+  `data.source_table2`, so BOTH files are named in the hashed contract and
+  `prepare.py` resolves both from the contract rather than hardcoding a path. Both
+  digests go on the data card, as the brief intended. Made before any evidence
+  exists; the CONSULT gate is re-recorded with this reason.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
