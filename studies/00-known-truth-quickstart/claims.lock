@@ -8,6 +8,10 @@
       "path": "study.yaml",
       "sha256": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
     },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "94a8ecd1ee18a4cbddbde234326867a022d09ac235b20fb4b88486e1fbf9c881"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "d802518273c96ed9c093792d7be286a0a09e03f55f7d8c14f0252fe4fbf3bce0"
