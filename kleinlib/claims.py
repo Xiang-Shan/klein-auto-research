@@ -1074,19 +1074,30 @@ def verify_lock(study_dir: Path, *, numbers: bool = False, strict: bool = False)
     ]
 
 
-def claims_checks(study_dir: Path, contract_schema: int) -> list[Check]:
+def claims_checks(
+    study_dir: Path,
+    contract_schema: int,
+    *,
+    sentences: bool | None = None,
+    strict: bool = False,
+) -> list[Check]:
     """The claims law as ``klein verify`` runs it: enforcing on schema 3, advisory below.
 
     Returns ``[]`` when the study has no lock — the law starts at SYNTHESIZE.
     A schema-2 study (07, 08, 09 and every study written before the engine grew
     these verbs) NEVER retro-fails: its failures come back as ``ok=True`` with a
     ``[WARN]`` message.
+
+    ``sentences`` adds check 5's claim-sentence numeral scan (``klein verify
+    --claims``); ``None`` means the schema default — on for schema 3, off below
+    it, so a schema-2 study's verify output is unchanged unless it is asked for.
     """
     if not lock_path(study_dir).is_file():
         return []
     enforcing = contract_schema >= 3
+    sentences = enforcing if sentences is None else sentences
     try:
-        checks = verify_lock(study_dir)
+        checks = verify_lock(study_dir, numbers=sentences, strict=strict)
     except WorkflowError as exc:
         if enforcing:
             return [Check("claims lock", False, str(exc))]

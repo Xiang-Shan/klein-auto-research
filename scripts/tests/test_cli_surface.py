@@ -66,6 +66,20 @@ def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
         (["new", "x", "--track", "a", "--track", "b:registered"], "track", ["a", "b:registered"]),
         (["new", "x", "--split-seed", "7"], "split_seed", 7),
         (["verify", "--require-local"], "require_local", True),
+        # E9: the numbers law, the evidence-use checks and the receipt.  Absent
+        # means "the default for this study's schema", so a schema-2 study keeps
+        # printing byte-identical output; only an explicit flag changes it.
+        (["verify"], "numbers", None),
+        (["verify"], "claims", None),
+        (["verify"], "evidence_use", None),
+        (["verify"], "receipt", None),
+        (["verify"], "strict", False),
+        (["verify", "--numbers"], "numbers", True),
+        (["verify", "--claims"], "claims", True),
+        (["verify", "--evidence-use"], "evidence_use", True),
+        (["verify", "--receipt"], "receipt", True),
+        (["verify", "--no-receipt"], "receipt", False),
+        (["verify", "--strict"], "strict", True),
     ):
         assert getattr(parser.parse_args(argv), attr) == expected
 
@@ -136,8 +150,9 @@ def test_cli_run_status_recover_finalize_and_verify(monkeypatch, study: Path, ca
 
     seen: dict[str, object] = {}
 
-    def _verify(_study, *, require_local=False):
+    def _verify(_study, *, require_local=False, **kwargs):
         seen["require_local"] = require_local
+        seen.update(kwargs)
         return [Check("contract", True, "valid")]
 
     monkeypatch.setattr(cli, "verify_study", _verify)
@@ -147,6 +162,20 @@ def test_cli_run_status_recover_finalize_and_verify(monkeypatch, study: Path, ca
     assert cli.main(["verify", "--study", str(study), "--require-local"]) == 0
     capsys.readouterr()
     assert seen["require_local"] is True
+    # every E9 flag reaches verify_study, tri-state intact
+    assert cli.main(
+        ["verify", "--study", str(study), "--numbers", "--claims",
+         "--evidence-use", "--no-receipt", "--strict"]
+    ) == 0
+    capsys.readouterr()
+    assert seen == {
+        "require_local": False,
+        "numbers": True,
+        "claims": True,
+        "evidence": True,
+        "strict": True,
+        "receipt": False,
+    }
 
 
 def test_cli_verify_reports_v1_errata_without_rewriting(monkeypatch, tmp_path: Path, capsys) -> None:

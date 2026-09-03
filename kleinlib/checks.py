@@ -5,12 +5,22 @@ pass/fail, human-readable line; ``preflight_checks`` produces the whole report
 and ``verify_study`` is that same report with the working-tree and branch
 requirements relaxed (a finalized study must keep verifying).  Nothing here
 mutates a study — every problem is returned, never raised.
+
+One documented exception: ``klein verify`` on a schema-3 study files its own
+receipt (:func:`write_verify_receipt`, ``verify_receipt.json``) through
+``transaction.commit_state_writes``, the same way every other CLI verb commits
+the state it generates.  That write is the receipt of the audit, never a change
+to the evidence, and it is off for schema 2 so studies 03 and 05–09 verify
+byte-identically.
 """
 
 from __future__ import annotations
 
 import csv
 import re
+import subprocess
+import sys
+import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -39,17 +49,35 @@ from .manifest import (
     render_results,
     validate_manifest,
 )
-from .primitives import fingerprint_path, sha256_bytes, sha256_file
+from .predictions import OPEN
+from .predictions import ledger as prediction_ledger
+from .primitives import atomic_write_json, fingerprint_path, sha256_bytes, sha256_file, utc_now
 from .schema import AUTO_PRINTED_METRIC_KEYS, EVALUATOR_PRINTED_KEYS
 from .state import (
     load_state,
+    referee_gate,
     registered_partition_fingerprints,
     split_policy_hash,
     verifier_script_hashes,
 )
-from .transaction import current_branch, git, git_blob, relative, repo_root_for
+from .transaction import (
+    commit_state_writes,
+    current_branch,
+    git,
+    git_blob,
+    relative,
+    repo_root_for,
+)
 
-__all__ = ["ABSENT_LOCAL_ARTIFACT", "Check", "preflight_checks", "verify_study"]
+__all__ = [
+    "ABSENT_LOCAL_ARTIFACT",
+    "Check",
+    "RECEIPT_NAME",
+    "preflight_checks",
+    "verify_receipt",
+    "verify_study",
+    "write_verify_receipt",
+]
 
 @dataclass(frozen=True)
 class Check:
@@ -1010,7 +1038,26 @@ def _vocabulary_checks(study_dir: Path, contract: Mapping[str, Any]) -> list[Che
     return checks
 
 
-def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]:
+def verify_study(
+    study_dir: Path,
+    *,
+    require_local: bool = False,
+    numbers: bool | None = None,
+    claims: bool | None = None,
+    evidence: bool | None = None,
+    strict: bool = False,
+    receipt: bool | None = None,
+) -> list[Check]:
+    """The audit ``klein verify`` prints; ``schema_version`` selects the rule set.
+
+    Every keyword after ``require_local`` is TRI-STATE: ``None`` means "the
+    default for this study's schema".  Schema 3 runs the numbers scan, the
+    claim-sentence scan, the evidence-use checks and writes a receipt; schema 2
+    runs none of them unless asked, and runs them advisory when it is — so
+    studies 03 and 05–09 keep printing byte-identical output as long as no new
+    flag is passed.  ``strict`` promotes every ``[WARN]`` this verb owns into a
+    failure.
+    """
     contract = load_contract(study_dir)
     if schema_version(contract) == 1:
         problems = _legacy_results_problems(study_dir / "results.tsv")
@@ -1040,17 +1087,36 @@ def verify_study(study_dir: Path, *, require_local: bool = False) -> list[Check]
         ]
     from .claims import claims_checks
 
+    version = schema_version(contract)
+    schema_3 = version >= 3
+    state = _state_or_empty(study_dir, contract)
+    want_numbers = schema_3 if numbers is None else numbers
+    want_claims = schema_3 if claims is None else claims
+    want_evidence = schema_3 if evidence is None else evidence
+    want_receipt = schema_3 if receipt is None else receipt
+
     checks = preflight_checks(
         study_dir,
         require_clean=False,
         require_branch=False,
         require_local=require_local,
     )
-    checks += _sweep_registry_checks(study_dir, _state_or_empty(study_dir, contract))
+    checks += _sweep_registry_checks(study_dir, state)
     checks += _vocabulary_checks(study_dir, contract)
+    # Gate 3 and the predictions ledger close a schema-3 study; silent below it.
+    checks += _referee_gate_checks(state, version)
+    checks += _predictions_closure_checks(study_dir, contract, state, version)
     # The claims law (references/claims-protocol.md): enforcing on schema 3,
     # advisory on schema 2 so 07/08/09 never retro-fail. Empty without a lock.
-    return checks + claims_checks(study_dir, schema_version(contract))
+    checks += claims_checks(study_dir, version, sentences=want_claims, strict=strict)
+    checks += _evidence_use_checks(
+        study_dir, contract, state, enabled=want_evidence, enforcing=schema_3, strict=strict
+    )
+    checks += _numbers_checks(study_dir, state, enabled=want_numbers, enforcing=schema_3)
+    checks += _figure_rerender_checks(study_dir, enabled=schema_3)
+    if want_receipt:
+        checks += _receipt_checks(study_dir, contract, state, checks, version)
+    return checks
 
 
 def _state_or_empty(study_dir: Path, contract: Mapping[str, Any]) -> Mapping[str, Any]:
@@ -1059,3 +1125,516 @@ def _state_or_empty(study_dir: Path, contract: Mapping[str, Any]) -> Mapping[str
         return load_state(study_dir, contract)
     except WorkflowError:
         return {}
+
+
+# --------------------------------------------------------------------------
+# Gate 3 and the predictions ledger, as verify sees them (Package B's helpers)
+# --------------------------------------------------------------------------
+
+
+def _referee_gate_checks(state: Mapping[str, Any], version: int) -> list[Check]:
+    """Was the study reviewed by someone who did not run it?
+
+    Silent below schema 3 — the referee gate does not exist there.  Before
+    finalize an unrefereed study is a ``[WARN]``: REFEREE runs between SYNTHESIZE
+    and finalize, and a study still in the loop has not reached it.  AFTER
+    finalize it is a failure unless the closing receipt records the
+    ``--no-referee`` reason, because then the study closed unreviewed and said
+    nothing about it.
+    """
+    if version < 3:
+        return []
+    reviewed = referee_gate(state)
+    if reviewed is not None:
+        independence = "yes" if reviewed.get("independent_of_experimenter") else "no"
+        return [
+            Check(
+                "referee gate",
+                True,
+                f"{reviewed.get('verdict')} — {reviewed.get('referee')}, "
+                f"independent-of-experimenter: {independence}",
+            )
+        ]
+    closed = state.get("finalization")
+    if not isinstance(closed, Mapping):
+        return [
+            Check(
+                "referee gate",
+                True,
+                "[WARN] not yet refereed — Gate 3 (`references/referee-protocol.md`) "
+                "runs between SYNTHESIZE and finalize: a fresh context on a different "
+                "model or tool writes referee_report.md, then `klein gate record referee`",
+            )
+        ]
+    disclosed = closed.get("referee")
+    reason = disclosed.get("reason") if isinstance(disclosed, Mapping) else None
+    if isinstance(reason, str) and reason.strip():
+        return [
+            Check(
+                "referee gate",
+                True,
+                f"[WARN] finalized unrefereed, disclosed on the receipt: {reason}",
+            )
+        ]
+    return [
+        Check(
+            "referee gate",
+            False,
+            "the study is finalized with no referee gate and no recorded "
+            "--no-referee reason — an unreviewed conclusion must say so on its own "
+            "receipt (`klein gate record referee`, or re-finalize with "
+            '--no-referee --reason "<why>")',
+        )
+    ]
+
+
+def _predictions_closure_checks(
+    study_dir: Path,
+    contract: Mapping[str, Any],
+    state: Mapping[str, Any],
+    version: int,
+) -> list[Check]:
+    """Open predictions listed; every refuted one carries a recorded decision.
+
+    The second half is D14's "refutation without revision": a belief the
+    evidence contradicted, and a program that never says what changed.  It is
+    computed once, in :func:`kleinlib.evidence_use.evidence_use`, and reported
+    here rather than twice.
+    """
+    if version < 3:
+        return []
+    rows = prediction_ledger(contract, state)
+    if not rows:
+        return []
+    from .evidence_use import evidence_use
+
+    still_open = [row["id"] for row in rows if str(row.get("verdict")) == OPEN]
+    checks = [
+        Check(
+            "predictions closure",
+            True,
+            f"[WARN] {len(still_open)} open: " + ", ".join(still_open)
+            if still_open
+            else f"{len(rows)} registered prediction(s), all adjudicated",
+        )
+    ]
+    usage = evidence_use(study_dir, contract, state, load_manifests(study_dir))
+    if usage.refuted:
+        undecided = usage.undecided_refutations
+        checks.append(
+            Check(
+                "belief revision",
+                not undecided,
+                "; ".join(
+                    f"{name} is refuted and program.md records no dated `Decision:` "
+                    "line naming it"
+                    for name in undecided
+                )
+                + (
+                    " — belief revision is a recorded act, not a feeling"
+                    if undecided
+                    else ""
+                )
+                or f"every refuted prediction ({', '.join(usage.refuted)}) has a dated "
+                "`Decision:` line in program.md",
+            )
+        )
+    return checks
+
+
+# --------------------------------------------------------------------------
+# D14 — evidence use
+# --------------------------------------------------------------------------
+
+
+def _evidence_use_checks(
+    study_dir: Path,
+    contract: Mapping[str, Any],
+    state: Mapping[str, Any],
+    *,
+    enabled: bool,
+    enforcing: bool,
+    strict: bool,
+) -> list[Check]:
+    """``evidence_use_rate`` and convergent evidence; silent when not asked for."""
+    if not enabled:
+        return []
+    from .evidence_use import evidence_use
+
+    usage = evidence_use(study_dir, contract, state, load_manifests(study_dir))
+    checks: list[Check] = []
+    if usage.evidence:
+        shortfall = bool(usage.uncited)
+        checks.append(
+            Check(
+                "evidence use",
+                not (shortfall and strict),
+                (
+                    f"[WARN] evidence_use_rate {usage.rate:.2f} "
+                    f"({len(usage.cited)}/{len(usage.evidence)}): "
+                    + ", ".join(usage.uncited[:8])
+                    + (f", … {len(usage.uncited) - 8} more" if len(usage.uncited) > 8 else "")
+                    + " cited in neither program.md nor findings.md — a discard, a "
+                    "crash and a measured cell are all evidence; a study that never "
+                    "mentions one again has filtered its own record"
+                    if shortfall
+                    else f"evidence_use_rate 1.00 — all {len(usage.evidence)} non-keep "
+                    "run(s) and registered sweep(s) are cited"
+                ),
+            )
+        )
+    if usage.claim_kinds:
+        single = usage.single_source_claims
+        checks.append(
+            Check(
+                "convergent evidence",
+                not (single and strict and enforcing),
+                (
+                    "[WARN] convergent evidence absent — "
+                    + "; ".join(
+                        f"{cid} is confirmed on "
+                        + (
+                            ", ".join(usage.claim_kinds[cid])
+                            if usage.claim_kinds[cid]
+                            else "no recognised evidence kind"
+                        )
+                        for cid in single
+                    )
+                    + " — a confirmed claim cites at least two of: a development run "
+                    "(E####), a sealed final test, a replication (rep:), a "
+                    "re-verification (verify:)"
+                    if single
+                    else f"{len(usage.claim_kinds)} confirmed claim(s) cite two or more "
+                    "evidence kinds"
+                ),
+            )
+        )
+    if not enforcing:
+        checks = [_advisory(check, "schema 2") for check in checks]
+    return checks
+
+
+def _advisory(check: Check, label: str) -> Check:
+    """A failing check demoted to a warning — the schema-2 posture, everywhere."""
+    if check.ok:
+        return check
+    return Check(check.name, True, f"[WARN] advisory on {label}: {check.message}")
+
+
+# --------------------------------------------------------------------------
+# The numbers law over whole documents (references/claims-protocol.md)
+# --------------------------------------------------------------------------
+
+
+def _numbers_checks(
+    study_dir: Path,
+    state: Mapping[str, Any],
+    *,
+    enabled: bool,
+    enforcing: bool,
+) -> list[Check]:
+    """The findings scan (enforcing on schema 3) and the tutorial scan (always advisory).
+
+    ``references/claims-protocol.md``: every numeral in findings.md is a copy of
+    a value in a pinned artifact.  The tutorial pass reads ``report/index.html``
+    text nodes only and NEVER fails — a rendered page carries layout numbers no
+    index can know, and the law says so.
+    """
+    if not enabled:
+        return []
+    from .numbers import LiteralIndex, extract_literals, format_literals, html_text
+
+    checks: list[Check] = []
+    findings = study_dir / "findings.md"
+    if findings.is_file():
+        text = findings.read_text(encoding="utf-8", errors="replace")
+        index = LiteralIndex.for_study(study_dir, state, exclude=[findings])
+        literals = extract_literals(text)
+        unsourced = [item for item in literals if not index.covers(item)]
+        checks.append(
+            Check(
+                "findings numbers",
+                not unsourced,
+                f"{len(unsourced)} of {len(literals)} numerals have no home in "
+                f"{len(index.sources)} pinned source(s) — "
+                + format_literals(unsourced)
+                + " — pin each with `klein claims number`, or mark the line "
+                "`<!-- klein:numbers-ok: <reason> -->`"
+                if unsourced
+                else f"all {len(literals)} scanned numerals trace to "
+                f"{len(index.sources)} pinned source(s)",
+            )
+        )
+        if not enforcing:
+            # An unsourced numeral is already a failure at any strictness; the
+            # only lever schema 2 needs is the demotion.
+            checks = [_advisory(check, "schema 2") for check in checks]
+
+    tutorial = study_dir / "report" / "index.html"
+    if tutorial.is_file():
+        page = html_text(tutorial.read_text(encoding="utf-8", errors="replace"))
+        index = LiteralIndex.for_study(study_dir, state)
+        literals = extract_literals(page)
+        unsourced = [item for item in literals if not index.covers(item)]
+        checks.append(
+            Check(
+                "tutorial numbers",
+                True,
+                f"[WARN] {len(unsourced)} of {len(literals)} rendered numerals have no "
+                "home — " + format_literals(unsourced) + " (advisory: the tutorial "
+                "pass never fails a study; the referee reads the list)"
+                if unsourced
+                else f"all {len(literals)} rendered numerals trace to a pinned source",
+            )
+        )
+    return checks
+
+
+# --------------------------------------------------------------------------
+# The figures re-render byte-identically (referee rubric item 9)
+# --------------------------------------------------------------------------
+
+#: How long one figure re-render may take before verify gives up on it.
+FIGURE_RENDER_TIMEOUT = 300
+
+
+def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
+    """Re-run ``figures/make_figures.py`` into a temp dir and compare the bytes.
+
+    Silent unless the script exists.  It is only mechanically checkable when the
+    script takes ``--out`` (study 09's shape); the older ones that write into
+    their own ``figures/`` directory get a ``[WARN]`` naming why, because running
+    them would overwrite the evidence they are supposed to reproduce.  A crash
+    or a missing plotting dependency is a ``[WARN]`` too: a machine that cannot
+    render is not a study that cannot reproduce.  Only a BYTE MISMATCH fails.
+    """
+    script = study_dir / "figures" / "make_figures.py"
+    if not enabled or not script.is_file():
+        return []
+    source = script.read_text(encoding="utf-8", errors="replace")
+    if "--out" not in source:
+        return [
+            Check(
+                "figure re-render",
+                True,
+                "[WARN] figures/make_figures.py takes no --out, so re-rendering it "
+                "would overwrite the figures it must reproduce — give it "
+                "`--study <dir> --out <dir>` (study 09's shape) to make the check "
+                "mechanical; the referee re-renders by hand until then",
+            )
+        ]
+    with tempfile.TemporaryDirectory(prefix="klein-figures-") as temporary:
+        out = Path(temporary)
+        try:
+            result = subprocess.run(  # noqa: S603 - a study's own committed script
+                [
+                    sys.executable,
+                    str(script),
+                    "--study",
+                    str(study_dir),
+                    "--out",
+                    str(out),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=FIGURE_RENDER_TIMEOUT,
+                check=False,
+                cwd=str(repo_root_for(study_dir)) if _in_repo(study_dir) else str(study_dir),
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return [Check("figure re-render", True, f"[WARN] could not run it: {exc}")]
+        if result.returncode != 0:
+            tail = (result.stderr or result.stdout).strip().splitlines()[-1:] or ["(no output)"]
+            return [
+                Check(
+                    "figure re-render",
+                    True,
+                    f"[WARN] figures/make_figures.py exited {result.returncode}: {tail[0]}",
+                )
+            ]
+        return [_compare_figures(study_dir, out)]
+
+
+def _in_repo(study_dir: Path) -> bool:
+    try:
+        repo_root_for(study_dir)
+    except WorkflowError:
+        return False
+    return True
+
+
+def _compare_figures(study_dir: Path, rendered: Path) -> Check:
+    """Byte-compare each re-rendered figure against the committed one."""
+    produced = sorted(path for path in rendered.rglob("*") if path.is_file())
+    if not produced:
+        return Check("figure re-render", True, "[WARN] the script produced no files")
+    committed = study_dir / "figures"
+    differ: list[str] = []
+    missing: list[str] = []
+    for path in produced:
+        name = path.relative_to(rendered).as_posix()
+        target = committed / name
+        if not target.is_file():
+            missing.append(name)
+        elif sha256_file(target) != sha256_file(path):
+            differ.append(name)
+    if differ:
+        return Check(
+            "figure re-render",
+            False,
+            "figures/make_figures.py does not re-render byte-identically: "
+            + ", ".join(differ)
+            + " — a figure whose bytes move with the machine is a figure whose "
+            "numbers cannot be re-checked (tutorial-spec.md; referee rubric 9)",
+        )
+    if missing:
+        return Check(
+            "figure re-render",
+            True,
+            "[WARN] re-rendered but never committed: " + ", ".join(missing),
+        )
+    return Check(
+        "figure re-render",
+        True,
+        f"{len(produced)} figure(s) re-render byte-identically",
+    )
+
+
+# --------------------------------------------------------------------------
+# The receipt
+# --------------------------------------------------------------------------
+
+#: The file `klein verify` writes and commits on a schema-3 study.
+RECEIPT_NAME = "verify_receipt.json"
+
+#: Study files whose bytes the receipt records, so a later reader knows exactly
+#: which inputs the audit saw.
+RECEIPT_INPUTS: tuple[str, ...] = (
+    "study.yaml",
+    "study_state.json",
+    "events.jsonl",
+    "results.tsv",
+    "aux_metrics.tsv",
+    "findings.md",
+    "program.md",
+    "playbook.md",
+    "claims.lock",
+    "referee_report.md",
+    "report/index.html",
+)
+
+
+def verify_receipt(
+    study_dir: Path,
+    contract: Mapping[str, Any],
+    state: Mapping[str, Any],
+    checks: Sequence[Check],
+    version: int,
+) -> dict[str, Any]:
+    """The receipt payload — pure, so a test can build one without writing it.
+
+    ``checks`` are the findings of the audit; the ``verify receipt`` line itself
+    is bookkeeping added afterwards and is the one line the receipt cannot
+    carry, so ``summary.checks`` is one less than the number verify prints.
+    """
+    from . import __version__
+    from .evidence_use import evidence_use
+
+    failed = [check for check in checks if not check.ok]
+    warned = [check for check in checks if check.ok and "[WARN]" in check.message]
+    usage = evidence_use(study_dir, contract, state, load_manifests(study_dir))
+    return {
+        "klein_version": __version__,
+        "klein_commit": _engine_commit(),
+        "git_head": _study_head(study_dir),
+        "timestamp": utc_now(),
+        "schema": version,
+        "study": state.get("study_id", study_dir.name),
+        "checks": [
+            {"name": check.name, "ok": check.ok, "message": check.message}
+            for check in checks
+        ],
+        "summary": {
+            "checks": len(checks),
+            "failed": len(failed),
+            "warned": len(warned),
+        },
+        "evidence_use_rate": round(usage.rate, 6),
+        "uncited_evidence": list(usage.uncited),
+        "undecided_refutations": list(usage.undecided_refutations),
+        "single_source_claims": list(usage.single_source_claims),
+        "inputs": _hashes(study_dir, RECEIPT_INPUTS),
+        "manifests": {
+            path.parent.name: sha256_file(path) for path in _manifest_paths(study_dir)
+        },
+    }
+
+
+def _hashes(study_dir: Path, names: Sequence[str]) -> dict[str, str]:
+    found: dict[str, str] = {}
+    for name in names:
+        path = study_dir / name
+        if path.is_file():
+            found[name] = sha256_file(path)
+    return found
+
+
+def _engine_commit() -> str | None:
+    """HEAD of the repository kleinlib itself is running from, when there is one."""
+    try:
+        repo = repo_root_for(Path(__file__).resolve().parent)
+    except WorkflowError:
+        return None
+    result = git(repo, ["rev-parse", "HEAD"], check=False)
+    return result.stdout.strip() or None if result.returncode == 0 else None
+
+
+def _study_head(study_dir: Path) -> str | None:
+    try:
+        repo = repo_root_for(study_dir)
+    except WorkflowError:
+        return None
+    result = git(repo, ["rev-parse", "HEAD"], check=False)
+    return result.stdout.strip() or None if result.returncode == 0 else None
+
+
+def write_verify_receipt(
+    study_dir: Path,
+    contract: Mapping[str, Any],
+    state: Mapping[str, Any],
+    checks: Sequence[Check],
+    version: int,
+) -> Path:
+    """Write ``verify_receipt.json`` and file it the way every verb files state.
+
+    ``commit_state_writes`` always stages :data:`~kleinlib.transaction.STATE_WRITE_PATHS`
+    alongside the extra path, so an in-progress edit to a STATE file — findings,
+    the playbook, a sweep sidecar — is filed with the receipt exactly as it would
+    be by ``klein finalize`` or ``klein claims``.  The mutable surface is
+    deliberately not in that list, so ``run-one``'s restore anchor and its
+    clean-tree guard are untouched.
+    """
+    path = study_dir / RECEIPT_NAME
+    atomic_write_json(path, verify_receipt(study_dir, contract, state, checks, version))
+    failed = len([check for check in checks if not check.ok])
+    commit_state_writes(
+        study_dir,
+        f"klein: verify receipt ({len(checks)} checks, {failed} failed)",
+        paths=[RECEIPT_NAME],
+    )
+    return path
+
+
+def _receipt_checks(
+    study_dir: Path,
+    contract: Mapping[str, Any],
+    state: Mapping[str, Any],
+    checks: Sequence[Check],
+    version: int,
+) -> list[Check]:
+    """Write the receipt and report where it landed; never fails the study."""
+    try:
+        path = write_verify_receipt(study_dir, contract, state, checks, version)
+    except (OSError, WorkflowError) as exc:
+        return [Check("verify receipt", True, f"[WARN] not written: {exc}")]
+    return [Check("verify receipt", True, f"written to {path.name}")]

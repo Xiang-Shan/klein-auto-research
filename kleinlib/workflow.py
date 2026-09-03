@@ -90,6 +90,7 @@ from .decision import (
 )
 from .errors import WorkflowError
 from .events import append_event, events_path, read_events, verify_event_chain
+from .evidence_use import evidence_use
 from .manifest import (
     RUN_ID_RE,
     UNSAFE_PAYLOAD_SUFFIXES,
@@ -1486,6 +1487,10 @@ def status_summary(study_dir: Path) -> str:
             )
         else:
             lines.append("referee: not recorded (Gate 3 runs before finalize)")
+        # The three D14 numbers, on the same line `klein verify` reports them:
+        # how much of the record the study actually used, how many refutations
+        # went unrecorded, how many confirmations rest on a single kind of look.
+        lines.append(evidence_use(study_dir, contract, state, manifests).summary())
     pending = [m["experiment"] for m in manifests if m.get("transaction", {}).get("status") != "complete"]
     lines.append(f"pending transactions: {', '.join(pending) if pending else 'none'}")
     return "\n".join(lines) + "\n"
