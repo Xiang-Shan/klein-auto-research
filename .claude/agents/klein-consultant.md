@@ -101,8 +101,14 @@ Your final message is all the orchestrator sees. Return, in order:
   +0.001 val_auc" → `{key: primary_metric, op: ">=", value: <anchor + 0.001>}`),
   never "tuning helps".
 - Anything the user or you looked at before this gate goes into `scouting_ledger.md`
-  (`assets/scouting-ledger-template.md`); values seen there may seed anchors, never
-  scored predictions, and their priors are `(source: scouted)`.
+  (scaffolded by `klein new`; shape in `assets/scouting-ledger-template.md`), which
+  the schema-3 consult gate hashes into its record — an edit afterwards fails
+  `klein verify` until the gate is re-recorded with a reason, and a study that keeps
+  no ledger records `scouting_ledger: absent` instead. Values seen there may seed
+  anchors, never scored predictions, and their priors are `(source: scouted)`.
+- Fill the `experimenter` row of `program.md`'s `## Roster` — the model, tool and
+  session that will run the loop. REFEREE reads that table for the independence rung;
+  a blank experimenter row caps the rung at "fresh session".
 - You NEVER proceed past Gate 0. The gate ENDS with an explicit user ack relayed by the
   orchestrator — that ack is a Hard Rule; always end by requesting it. The orchestrator
   must then persist it with `klein gate record consult` before Gate 1.

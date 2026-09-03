@@ -116,6 +116,17 @@ re-open a closed study, start a new one and cite the old one's claims.
   exhibit from a clean, offline checkout with `$DATA_HUB` unset.
 - **Six protocol code blocks are executed by the test suite**, so a documented example
   cannot drift from the engine it describes.
+- **The consult gate hashes `scouting_ledger.md`** (schema 3), making true a protocol
+  sentence the engine had never honoured: the pre-registration disclosure joins
+  `study.yaml` / `research_plan.md` / `program.md` in the consult record, so editing it
+  after the gate fails `klein verify` until the gate is re-recorded with a reason — and
+  "pre-registered" rests on a hash instead of on a commit order nobody checked. The
+  ledger is OPTIONAL: `klein new` now scaffolds one, and a study that keeps none
+  records `scouting_ledger: absent` on the gate event, so the absence is on the record
+  too. The scaffolded `program.md` also opens with a `## Roster` — experimenter,
+  data-gate auditor, referee, lead, each with model · tool · session — which the
+  referee reads for the independence rung; a blank experimenter row caps that rung at
+  "fresh session", because nothing else in a study says what ran the loop.
 
 ### Changed
 

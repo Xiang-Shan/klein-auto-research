@@ -151,6 +151,13 @@ citations. findings.md remains the per-study source of truth either way.
 
 ## Hand off to the referee
 
+**First, confirm `program.md`'s `## Roster` is complete** — `experimenter`,
+`data-gate auditor` and `lead` filled with model · tool · session, and `since` dates
+that cover the loop. The referee reads that table for the independence rung
+(`references/referee-protocol.md`); a blank experimenter row caps the study's rung at
+"fresh session" no matter which model actually referees, and the synthesist is the
+last reader who still knows who ran what. Fill any row the loop left blank now.
+
 Do not record anything after the lock verifies. The orchestrator invokes REFEREE
 (`references/referee-protocol.md`) in a fresh context on a different model; the
 referee reads `findings.md` before `program.md`, runs the verifiers, and writes

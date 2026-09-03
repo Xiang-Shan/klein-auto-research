@@ -8,7 +8,11 @@ status: open        # open | closed (closed at the CONSULT gate; later entries a
 
 > Everything looked at BEFORE the CONSULT gate, so that no registered prediction can
 > pretend to a surprise it already knew. Committed before `klein gate record consult`;
-> the gate hashes it. Studies 07, 08 and 09 kept this ledger by hand; it is the
+> on schema 3 that gate hashes this file into the consult record, so an edit afterwards
+> fails `klein verify` until the gate is re-recorded with a reason — and a study that
+> keeps no ledger records `scouting_ledger: absent` instead, so the absence is itself
+> on the record. `klein new` scaffolds one (this shape, with a "nothing scouted before
+> the gate" default entry); studies 07, 08 and 09 kept theirs by hand. It is the
 > mechanism that keeps "pre-registered" honest.
 
 ## §0 Disclosure

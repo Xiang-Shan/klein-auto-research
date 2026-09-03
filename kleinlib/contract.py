@@ -24,6 +24,7 @@ __all__ = [
     "CONFIRMATION_DEFAULTS",
     "ENTRYPOINT_BY_KIND",
     "GATE_ARTIFACTS",
+    "GATE_OPTIONAL_ARTIFACTS",
     "IDENTIFIER_RE",
     "KNOWN_KINDS",
     "MODELING_GATES",
@@ -134,6 +135,18 @@ GATE_ARTIFACTS: dict[str, tuple[str, ...]] = {
     "data": ("data_card.md",),
     "method": ("method_card.md",),
     "referee": ("referee_report.md",),
+}
+
+#: Artifacts a gate hashes WHEN THEY EXIST, schema 3 only.  ``scouting_ledger.md``
+#: is the pre-registration disclosure of everything looked at before the contract
+#: was written (``references/consult-protocol.md``): the protocol has always said
+#: "the gate hashes it", but a study that scouted nothing legitimately has no
+#: ledger, so absence is RECORDED (``scouting_ledger: absent`` on the gate event)
+#: rather than refused.  Present, it joins :data:`GATE_ARTIFACTS`' hashes and is
+#: guarded from then on by the same recorded-artifact check — which is what makes
+#: "pre-registered" rest on a hash instead of on a commit order nobody checks.
+GATE_OPTIONAL_ARTIFACTS: dict[str, tuple[str, ...]] = {
+    "consult": ("scouting_ledger.md",),
 }
 
 #: The gates that must be recorded or overridden BEFORE any modeling: the
