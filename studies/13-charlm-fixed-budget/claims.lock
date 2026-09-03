@@ -162,6 +162,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "development_chars",
         "e0008_sealed_gap",
         "max_jaccard_dev",
         "max_jaccard_sealed",
@@ -239,6 +240,13 @@
       "note": "negative control: a random network scored through verify.py itself",
       "precision": 6,
       "value": 4.305432
+    },
+    "development_chars": {
+      "art": "corpus",
+      "claim": "C7",
+      "note": "characters in the development partition",
+      "precision": 0,
+      "value": 111616
     },
     "e0001_anchor_z": {
       "art": "frontier",
