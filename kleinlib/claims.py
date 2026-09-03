@@ -116,12 +116,20 @@ NUMERAL_RE = re.compile(
 )
 
 #: Tokens a claim sentence may carry without an alias (claims-protocol.md, the
-#: numbers law): identifiers, years, and small counts that name their unit or
-#: source ("24 objects", "k = 5 seeds", "0 of 42 cells").  A bare reference value
-#: ("not 465") is NOT exempt — it needs a pinned alias like any other number.
-#: Stripped before the sentence is scanned.
+#: numbers law): identifiers, years, version tags, and small counts that name
+#: their unit or source ("24 objects", "k = 5 seeds", "0 of 42 cells").  A bare
+#: reference value ("not 465") is NOT exempt — it needs a pinned alias like any
+#: other number.  Stripped before the sentence is scanned.
+#:
+#: The version branch (``v1``, ``v2.0``, ``v1.3.0``) mirrors
+#: :data:`kleinlib.numbers.DOCUMENT_EXEMPT_PATTERNS`' own "versions and powers"
+#: rule.  Without it the two halves of one law disagree about the same token: a
+#: claim sentence naming the study generation it ports from ("all three v1
+#: rungs") is read as quoting the numeral 1, and there is no honest alias to give
+#: it, because 1 was never measured.
 SENTENCE_EXEMPT_RE = re.compile(
     r"\b(?:E\d{4}|P\d+|C\d+|RQ\d+|S\d+|1[89]\d{2}|20\d{2})\b"
+    r"|\bv\d+(?:\.\d+)*\b"
     r"|\b[nk]\s*=\s*\d{1,4}(?!\.\d)\b"
     r"|\b\d{1,4}\s+of\s+\d{1,4}\b"
     r"|\b\d{1,4}\s+(?:objects?|rows?|nebulae|cells?|seeds?|runs?|trials?|"

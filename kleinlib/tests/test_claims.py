@@ -767,3 +767,22 @@ def test_sentence_exemptions_follow_the_numbers_law() -> None:
     )
     left = NUMERAL_RE.findall(SENTENCE_EXEMPT_RE.sub(" ", sentence))
     assert left == ["454.16", "465"], left
+
+
+def test_a_version_tag_in_a_claim_sentence_is_not_a_numeral() -> None:
+    """`v1` is an identifier, and both halves of the numbers law must agree.
+
+    `kleinlib.numbers.DOCUMENT_EXEMPT_PATTERNS` already exempts version tokens
+    when scanning a whole document; before this branch existed the SENTENCE
+    scanner did not, so a claim that named the study generation it ports from
+    ("all three v1 rungs reproduce") was read as quoting the numeral 1 — a
+    number that was never measured and therefore has no honest alias.
+    """
+    from kleinlib.claims import NUMERAL_RE, SENTENCE_EXEMPT_RE
+    from kleinlib.numbers import DOCUMENT_EXEMPT_RE
+
+    sentence = "All three v1 rungs reproduce under schema v2.0; the tag is v1.3.0 and the bar is 0.0375805"
+    left = NUMERAL_RE.findall(SENTENCE_EXEMPT_RE.sub(" ", sentence))
+    assert left == ["0.0375805"], left
+    # the document half already agreed, and must keep agreeing
+    assert DOCUMENT_EXEMPT_RE.search("v1.3.0")
