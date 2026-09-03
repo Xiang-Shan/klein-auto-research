@@ -89,23 +89,39 @@ jobs:
       - name: Locked deep environment
         run: uv sync --locked --extra deep
       # EXHIBIT-ANCHOR: 13-charlm-fixed-budget
-      # Study 13 budgets in STEPS, not seconds, so a CPU re-run of its anchor
-      # cells must land inside the study's own measured fit_noise. Fill this step
-      # in when the exhibit lands: copy it to $RUNNER_TEMP, run prepare.py, re-run
-      # the two anchor cells with KLEIN_DEVICE=cpu through
-      # scripts/run_with_log.py, and assert each printed primary_metric against
-      # the value claims.lock pins, within `metric.fit_noise.std`. Until then the
-      # step is a no-op that says so, so a green weekly run never implies an
-      # anchor that is not being re-run.
-      - name: Study 13 anchor cells (placeholder until the exhibit lands)
+      # Study 13 budgets in STEPS, not seconds: its anchor cells re-run on CPU and
+      # must land inside the study's own measured floor (`minimum_delta`, the
+      # paired seed-difference floor the lock pins). Two cells: E0001 (the anchor,
+      # target = the lock alias e0001_val_loss) and E0003 (weight tying, the
+      # largest effect; target = its row in tables/frontier.tsv, a lock-pinned
+      # artifact). Each restores the mutable surface (model.py, train.py) from its
+      # candidate commit; targets come from the lock and its pinned table, never
+      # from this file.
+      - name: Study 13 anchor cells re-run on CPU within the measured floor
         shell: bash
         run: |
           set -euo pipefail
-          if [ -f studies/13-charlm-fixed-budget/study.yaml ]; then
-            echo "EXHIBIT-ANCHOR 13-charlm-fixed-budget is present but this step is" \
-                 "still a placeholder — fill it in." >&2
-            exit 1
-          fi
-          echo "note: EXHIBIT-ANCHOR 13-charlm-fixed-budget not present yet; no anchor cells to re-run"
+          study=studies/13-charlm-fixed-budget
+          read -r tol e1 e3 < <(uv run --no-sync python - "$study" <<'PY'
+          import csv, json, sys
+          study = sys.argv[1]
+          numbers = json.load(open(f"{study}/claims.lock"))["numbers"]
+          rows = {r["experiment"]: r for r in csv.DictReader(open(f"{study}/tables/frontier.tsv"), delimiter="\t")}
+          print(numbers["minimum_delta"]["value"], numbers["e0001_val_loss"]["value"], rows["E0003"]["val_nats_per_char"])
+          PY
+          )
+          for cell in "E0001:$e1" "E0003:$e3"; do
+            run="${cell%%:*}"; target="${cell##*:}"
+            copy="$RUNNER_TEMP/study13-$run"
+            cp -R "$study" "$copy"
+            commit="$(uv run --no-sync python -c "import json,sys;print(json.load(open(sys.argv[1]))['candidate_commit'])" "$study/runs/$run/manifest.json")"
+            for f in model.py train.py; do git show "$commit:$study/$f" > "$copy/$f"; done
+            ( cd "$copy" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
+            ( cd "$copy" && KLEIN_DEVICE=cpu KLEIN_EVALUATION_KIND=development KLEIN_EXPERIMENT_ID="$run" KLEIN_TRACK=primary \
+                uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py | tee "$RUNNER_TEMP/study13-$run.log" )
+            awk -F': *' -v t="$target" -v tol="$tol" -v run="$run" \
+              '/^primary_metric:/{m=$2} END{d=m-t; if(d<0)d=-d; printf "%s metric=%s target=%s |delta|=%.6f tol=%s\n", run, m, t, d, tol; exit (d<=tol)?0:1}' \
+              "$RUNNER_TEMP/study13-$run.log"
+          done
       - name: The checkout stays byte-clean
         run: test -z "$(git status --porcelain)"

@@ -227,6 +227,15 @@ re-open a closed study, start a new one and cite the old one's claims.
     overridden on the record with an instrument printed on every run; the sealed level
     0.657739 holds within 0.1680 floors. The v1 quickstart directory leaves the tree with
     this study (read it at tag `v1.3.0`).
+  - **13 `charlm-fixed-budget`** (2026-09-03) — the deep-learning exhibit, the autoresearch
+    ancestor pattern under contract: a character-level transformer on the bundled
+    tiny-Shakespeare corpus at a fixed 2000-step budget, every disposition decided by
+    `verify.py` re-scoring the checkpoint (gap 0.0 against a declared tolerance of 0.01).
+    None of the four registered levers cleared the paired floor of 0.0149525 nats (weight
+    tying cost −11.3693 floors); cosine decay, the one lever without a prediction, gained
+    +3.3326 floors; the sealed final tenth came back 3.140679 floors harder, so the study
+    confirms a level (1.56628 nats per character) and never a gap. Needs `--extra deep`;
+    the main CI verifies its ledger, the weekly job re-runs two anchor cells on CPU.
 
 ## [1.3.0] — 2026-08-26
 
