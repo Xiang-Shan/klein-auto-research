@@ -56,6 +56,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "splines_in_own_floors",
         "splines_lift"
       ],
       "strength": "exploratory"
@@ -339,6 +340,13 @@
       "note": "E0002 lift in declared floors",
       "precision": 4,
       "value": 0.9568
+    },
+    "splines_in_own_floors": {
+      "art": "verdicts",
+      "claim": "C10",
+      "note": "E0002 lift in the floors of its own pair",
+      "precision": 4,
+      "value": 1.0926
     },
     "splines_lift": {
       "art": "verdicts",
