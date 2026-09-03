@@ -62,6 +62,7 @@
       "evidence": [],
       "numbers": [
         "overcapacity_auc",
+        "overcapacity_brier",
         "overcapacity_delta_floors"
       ],
       "strength": "exploratory"
@@ -169,6 +170,13 @@
       "note": "E0004 val_auc",
       "precision": 6,
       "value": 0.858049
+    },
+    "overcapacity_brier": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 val_brier",
+      "precision": 6,
+      "value": 0.143658
     },
     "overcapacity_delta_floors": {
       "art": "aux",
