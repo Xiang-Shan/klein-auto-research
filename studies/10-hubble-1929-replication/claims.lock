@@ -205,6 +205,7 @@
       "evidence": [],
       "numbers": [
         "max_gap_70",
+        "modern_h0",
         "rescale_factor"
       ],
       "strength": "exploratory"
@@ -346,6 +347,13 @@
       "note": "the larger of the two rescaled fits' gaps to 70 (E0012)",
       "precision": 6,
       "value": 4.990073
+    },
+    "modern_h0": {
+      "art": "sealed_modern",
+      "claim": "C5",
+      "note": "the modern Hubble constant, to the round figure this study compares against",
+      "precision": 0,
+      "value": 70
     },
     "nominal_level": {
       "art": "covc",
