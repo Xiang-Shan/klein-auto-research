@@ -109,12 +109,17 @@
       "strength": "exploratory"
     },
     "C12": {
-      "claim": "If you split ordered text into contiguous blocks, measure the distribution",
-      "class": null,
+      "claim": "A contiguous-block split of ordered text buys leakage safety and pays for it in distribution shift: the same recipe with more training data scored 0.046961 nats worse on the sealed block, which is 3.140679 measured floors.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0006",
+        "E0008",
+        "art:neardup"
+      ],
       "numbers": [
-        "sealed_gap_floors"
+        "sealed_gap_floors",
+        "sealed_gap_nats"
       ],
       "strength": "exploratory"
     },
