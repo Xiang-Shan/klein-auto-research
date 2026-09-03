@@ -1,5 +1,9 @@
 {
   "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "cfe1fc2eef88215846cae55616f19f04291bd30611812f31021c4a5c6b00b374"
+    },
     "contract": {
       "path": "study.yaml",
       "sha256": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332"
