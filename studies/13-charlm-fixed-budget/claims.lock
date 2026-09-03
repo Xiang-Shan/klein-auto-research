@@ -96,7 +96,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "e0001_val_loss"
+        "e0001_val_loss",
+        "max_verifier_gap"
       ],
       "strength": "exploratory"
     },
@@ -299,6 +300,13 @@
       "note": "standard deviation of the anchor's five-seed validation losses",
       "precision": 8,
       "value": 0.00802952
+    },
+    "max_verifier_gap": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "the largest searcher-vs-checker disagreement across all eight runs",
+      "precision": 8,
+      "value": 0.0
     },
     "minimum_delta": {
       "art": "contract",
