@@ -108,7 +108,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "incumbent_gain_floors"
+      ],
       "strength": "exploratory"
     },
     "C4": {
@@ -303,6 +305,13 @@
       "note": "standard deviation of the anchor's five-seed validation losses",
       "precision": 8,
       "value": 0.00802952
+    },
+    "incumbent_gain_floors": {
+      "art": "summary",
+      "claim": "C3",
+      "note": "the same gain in units of the measured floor",
+      "precision": 5,
+      "value": 3.53486
     },
     "incumbent_gain_nats": {
       "art": "summary",
