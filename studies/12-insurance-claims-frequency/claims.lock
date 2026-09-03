@@ -59,15 +59,26 @@
       "strength": "exploratory"
     },
     "C10": {
-      "claim": "against 0.4624) and P6 (0.0390 against 0.3229) do not flip.",
-      "class": null,
+      "claim": "One global keep bar on a ladder that spans model classes is a choice with a visible consequence: E0002's lift of 0.035956 is 0.9568 of the declared bar and refuted, but 1.0926 of the floor of the comparison it actually makes; E0003 at 0.3714 against 0.4624 and E0004 at 0.0390 against 0.3229 do not flip, so exactly one registered verdict in this study is instrument-limited and is reported as such.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "P3",
+        "P5",
+        "P6",
+        "art:verdicts",
+        "sweep:pair_anchor_splines",
+        "sweep:pair_splines_hgbt",
+        "sweep:pair_anchor_doctrine"
+      ],
       "numbers": [
+        "doctrine_in_floors",
         "doctrine_in_own_floors",
+        "splines_in_floors",
         "splines_in_own_floors",
         "splines_lift",
-        "tree_in_own_floors"
+        "tree_in_own_floors",
+        "tree_over_glm_in_floors"
       ],
       "strength": "exploratory"
     },
