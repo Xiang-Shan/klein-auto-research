@@ -72,7 +72,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 3,
+  "last_experiment": 4,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -142,6 +142,26 @@
       "recorded_at": "2026-09-03T12:21:10.763942Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "delta_in_floors -4.7255 <= -1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "delta_in_floors -4.7255 <= -1 \u2192 supported",
+          "recorded_at": "2026-09-03T12:24:35.360683Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T12:24:35.360683Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -231,5 +251,5 @@
       "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
     }
   },
-  "updated_at": "2026-09-03T12:21:10.800240Z"
+  "updated_at": "2026-09-03T12:24:35.396365Z"
 }
