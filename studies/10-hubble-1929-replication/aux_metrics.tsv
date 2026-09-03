@@ -47,3 +47,15 @@ E0004	offline_catalogue_files	0.0
 E0004	sources_checked	3.0
 E0004	target_k	465.0
 E0004	target_tolerance	50.0
+E0005	artifact	tables/nine_group_inputs.tsv
+E0005	wall_seconds	0.009633779525756836
+E0005	rows	5
+E0005	sha256	6cf66ea4f4386d6f969220cfc0586dff7b62041ca0f749db9894ed05c3dbabc3
+E0005	groups_reconstructed	0.0
+E0005	groups_required	9.0
+E0005	distinct_distances	15.0
+E0005	objects_sharing_a_distance	14.0
+E0005	n_objects	24.0
+E0005	target_k	513.0
+E0005	target_tolerance	60.0
+E0005	textbook_value	500.0
