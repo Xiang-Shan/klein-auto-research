@@ -173,19 +173,19 @@ simulation:
 # Per-run, per-phase time, and experiment-count limits are intentionally separate.
 max_run_seconds: 60
 phases:
-  - id: p0-anchor
+  - id: adaptive-1
     description: "identity anchor on Table 1's published sums, then the two Phase-0 measurement sweeps (Monte-Carlo resolution, coverage floor)"
     budget_seconds: 600
     max_experiments: 2
-  - id: p1-reproduction
+  - id: adaptive-2
     description: "reproduce the paper's printed numbers target by target: the two-parameter fits, the printed absolute magnitudes, the four-parameter solar-motion solution, the nine-group solution"
     budget_seconds: 900
     max_experiments: 6
-  - id: p2-estimate
+  - id: adaptive-3
     description: "what the 24 objects estimate: bootstrap interval, inverse regression, jackknife influence"
     budget_seconds: 900
     max_experiments: 5
-  - id: p3-simulate
+  - id: adaptive-4
     description: "known-truth lab: does the interval machinery cover at n = 24 under Hubble-like scatter"
     budget_seconds: 900
     max_experiments: 4

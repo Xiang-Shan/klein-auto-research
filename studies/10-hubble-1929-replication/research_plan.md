@@ -85,23 +85,23 @@ the final phase and rehearsed first with `klein run-one --final-test --dry-run` 
 
 ## Experiment ladder
 
-**Phase p0-anchor.** The identity anchor first: recompute Table 1's published sums and
+**Phase adaptive-1 (anchor).** The identity anchor first: recompute Table 1's published sums and
 row counts (P0); a mismatch is a hard STOP. Then two Phase-0 *measurement* sweeps —
 the Monte-Carlo resolution of the bootstrap keys (`sweep:mc_resolution`) and the
 coverage floor over five simulation seed blocks (`sweep:coverage_floor`) — registered
 with `klein sweep register` so findings can cite them.
 
-**Phase p1-reproduction.** One cell per published target: the two two-parameter fits
+**Phase adaptive-2 (reproduction).** One cell per published target: the two two-parameter fits
 against 465 (P1); Table 1's printed absolute magnitudes against the distance modulus
 (P9); the four-parameter solar-motion solution (P2); the nine-group solution (P3).
 The last two are expected to end as *documented method gaps* — the inputs the paper
 would need are not in the paper — and the gap, not a guessed number, is the evidence.
 
-**Phase p2-estimate.** The bootstrap interval for K; inverse regression against
+**Phase adaptive-3 (estimate).** The bootstrap interval for K; inverse regression against
 forward regression in units of the paired standard error (P5); the jackknife influence
 of each of the 24 objects.
 
-**Phase p3-simulate.** Coverage of the analytic interval and of the percentile
+**Phase adaptive-4 (simulate).** Coverage of the analytic interval and of the percentile
 bootstrap interval under the declared DGP, on development seed block B.
 
 **Phase confirmation.** Three sealed accesses, each preceded by its dry-run, then
