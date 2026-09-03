@@ -228,6 +228,32 @@
       "recorded_at": "2026-09-03T08:38:53.310190Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P8": {
+      "acknowledged_by": "lead-agent",
+      "evidence": [
+        "sweep:paired_bootstrap",
+        "sweep:paired_bootstrap_b1000"
+      ],
+      "explanation": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+      "history": [
+        {
+          "acknowledged_by": "lead-agent",
+          "evidence": [
+            "sweep:paired_bootstrap",
+            "sweep:paired_bootstrap_b1000"
+          ],
+          "explanation": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+          "note": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+          "recorded_at": "2026-09-03T08:39:19.472285Z",
+          "source": "manual",
+          "verdict": "supported"
+        }
+      ],
+      "note": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+      "recorded_at": "2026-09-03T08:39:19.472285Z",
+      "source": "manual",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -275,5 +301,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:38:53.311587Z"
+  "updated_at": "2026-09-03T08:39:19.472632Z"
 }
