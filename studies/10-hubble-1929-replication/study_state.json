@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-09-03T05:26:18.637128Z"
+      "timestamp": "2026-09-03T05:54:02.463734Z"
     },
     "data": {
       "by": "lead-agent",
@@ -16,8 +16,8 @@
   "artifact_hashes": {
     "data_card.md": "ca3a6ec9c74e594084082f4738d3f10e2e470c0cc8498857c4c062a07978f3df",
     "method_card.md": "94434f3bc564521c56afa41680bc6534472b51a45dfd448d661aeaaf20637605",
-    "research_plan.md": "7791550bc6b2c924a7d4f8bbe221452aeeb16721a2f56feb9eae36c88c03554c",
-    "study.yaml": "d7c5a9da535a8974a3a4968aad25c3d6f485f69e2586bb8cff6dbb7d69af5649"
+    "research_plan.md": "5d4a75a26b151e225960d1284d8c1dc908d90dda81c9d6977333ccb7a6589c6d",
+    "study.yaml": "7351f2f109bf20da7d61ad713064afa0444dc9dbcf120d469ca079cd4fe61d7c"
   },
   "created_at": "2026-09-03T05:15:56.712689Z",
   "current_phase": "adaptive-1",
@@ -48,14 +48,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-09-03T05:26:18.637128Z",
+      "acknowledged_at": "2026-09-03T05:54:02.463734Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "7346fb404ac32975323a1a1d51f1c149a63b2ef88522ab5a1e470865176ac6b2",
-        "research_plan.md": "7791550bc6b2c924a7d4f8bbe221452aeeb16721a2f56feb9eae36c88c03554c",
-        "study.yaml": "d7c5a9da535a8974a3a4968aad25c3d6f485f69e2586bb8cff6dbb7d69af5649"
+        "program.md": "df6e44b20bc716ed7c787e7409376ac7f278f5f80869aa2aac938961055bf4d6",
+        "research_plan.md": "5d4a75a26b151e225960d1284d8c1dc908d90dda81c9d6977333ccb7a6589c6d",
+        "study.yaml": "7351f2f109bf20da7d61ad713064afa0444dc9dbcf120d469ca079cd4fe61d7c"
       },
-      "note": "re-record: data.source must be a machine-resolvable tag; the brief's prose parenthetical broke klein doctor. Second bundled member declared as data.source_table2. No evidence exists yet.",
+      "note": "re-record #2: phase ids follow the shipped adaptive-N/confirmation convention; the descriptive ids broke the phase-ladder guard, which is correct. No evidence exists yet.",
       "status": "recorded"
     },
     "data": {
@@ -87,5 +87,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "10-hubble-1929-replication",
-  "updated_at": "2026-09-03T05:46:33.112842Z"
+  "updated_at": "2026-09-03T05:54:02.464374Z"
 }
