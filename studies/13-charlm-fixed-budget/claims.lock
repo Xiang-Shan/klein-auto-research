@@ -196,6 +196,13 @@
       "precision": 8,
       "value": 0.00747623
     },
+    "steps_budget": {
+      "art": "frontier",
+      "claim": "contract",
+      "note": "the matched-compute guardrail, read by the checker out of every checkpoint",
+      "precision": 0,
+      "value": 2000
+    },
     "verifier_tolerance": {
       "art": "contract",
       "claim": "contract",
