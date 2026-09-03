@@ -165,7 +165,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "e0006_val_loss"
+        "e0006_val_loss",
+        "incumbent_gain_nats"
       ],
       "strength": "exploratory"
     }
@@ -302,6 +303,13 @@
       "note": "standard deviation of the anchor's five-seed validation losses",
       "precision": 8,
       "value": 0.00802952
+    },
+    "incumbent_gain_nats": {
+      "art": "summary",
+      "claim": "C9",
+      "note": "E0001 minus E0006",
+      "precision": 6,
+      "value": 0.052855
     },
     "max_verifier_gap": {
       "art": "summary",
