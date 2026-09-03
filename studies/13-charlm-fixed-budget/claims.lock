@@ -195,15 +195,20 @@
       "strength": "confirmed"
     },
     "C6": {
-      "claim": "RQ1 | primary | interpretation | exploratory | mechanism-interpretation | E0003, `art:frontier` | Weight tying fails here because one matrix is asked to do two jobs at a scale where it has no slack: it removes 8320 parameters, 1.009317 per cent of the model, and the two roles want very different norms with no logit scale to reconcile them. The parameter COUNT was the wrong quantity to reason about. |",
-      "class": null,
+      "claim": "Weight tying fails at a vocabulary of 65 characters because one matrix must serve as both the input lookup and the output classifier with no logit scale between them: it removes 8320 of the 824320 parameters, 1.009317 per cent, and costs 21.1718 fit-noise standard deviations.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0003",
+        "art:frontier"
+      ],
       "numbers": [
         "anchor_n_params",
         "e0003_anchor_z",
         "tying_params_percent",
-        "tying_params_removed"
+        "tying_params_removed",
+        "vocabulary_size"
       ],
       "strength": "exploratory"
     },
