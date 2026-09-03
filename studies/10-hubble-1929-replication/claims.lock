@@ -148,7 +148,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "bad_rescale_gap"
+      ],
       "strength": "exploratory"
     },
     "C15": {
@@ -306,6 +308,13 @@
       "note": "largest absolute deviation across the four identity anchors (E0001)",
       "precision": 6,
       "value": 0.0
+    },
+    "bad_rescale_gap": {
+      "art": "dryrun_rescale",
+      "claim": "C14",
+      "note": "max_abs_gap_70 the inverted rescale produced in the rehearsal; its only home is the dry-run log, because a rehearsal spends nothing and writes no manifest",
+      "precision": 6,
+      "value": 2680.495911
     },
     "ci_high": {
       "art": "boot",
