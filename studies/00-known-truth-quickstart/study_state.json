@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T05:25:17.732600Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:25:18.740641Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "94a8ecd1ee18a4cbddbde234326867a022d09ac235b20fb4b88486e1fbf9c881",
+    "method_card.md": "dba8356eb4b2e2a867e517500cd83187825ae1b2d7b1c82d2963c52b4600ae64",
     "research_plan.md": "3ef7c78c973090eb4fa83e6e4e5ee78b9f7d3d536aa0c8f73bbe13bba3373149",
     "study.yaml": "c4f66ed893b543e84e754cf803fe83576b89f851bbbefbc7cf6728f9d1a4fa63"
   },
@@ -29,7 +34,8 @@
       "development": "f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122",
       "final_test": "21fcf05b28979cad84c35b4ea8ec90a7103c5a60d72a4747f41c63261bc3a424",
       "policy": "20e5ea3a0d642ffb7053d546967e64dc674f69fe62f2eed4f06ed841756f736d"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -53,9 +59,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T05:25:18.740641Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "dba8356eb4b2e2a867e517500cd83187825ae1b2d7b1c82d2963c52b4600ae64"
+      },
+      "note": "triad complete: theory (notation table + four display equations), papers (all four references verified against publisher/arXiv pages on 2026-09-03, refs_verified true), practice (the from-scratch plan for both the ceiling and the floor that train.py and sweeps/noise_floor.py realize)",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -68,5 +78,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "00-known-truth-quickstart",
-  "updated_at": "2026-09-03T05:25:18.549192Z"
+  "updated_at": "2026-09-03T05:25:18.741328Z"
 }
