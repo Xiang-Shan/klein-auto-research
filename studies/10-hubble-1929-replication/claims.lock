@@ -263,6 +263,7 @@
         "analytic_se",
         "inverse_forward_ratio",
         "k_inverse",
+        "k_without_virgo",
         "virgo_influence"
       ],
       "strength": "exploratory"
@@ -407,6 +408,13 @@
       "note": "OLS through the origin, 24 objects (E0002)",
       "precision": 6,
       "value": 423.937323
+    },
+    "k_without_virgo": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "K with the four Virgo-cluster rows removed (E0008)",
+      "precision": 6,
+      "value": 531.347267
     },
     "max_gap_70": {
       "art": "sealed_modern",
