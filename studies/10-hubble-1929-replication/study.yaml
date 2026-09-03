@@ -78,9 +78,21 @@ tracks:
         which is provenance and is never a bar. `goal: lower` is inert in
         registered mode (there is no incumbent to beat); it is declared only
         because the contract requires a direction.
-      # fit_noise: measured at Phase 0 by sweep:mc_resolution — the spread of the
-      # bootstrap-derived printed keys across independent master seeds. Pasted in
-      # by `klein noise-floor` after the sweep; NEVER a keep bar.
+      # Measured at Phase 0 by sweep:mc_resolution and pasted in verbatim from
+      # `klein noise-floor --recipe seed-sweep --estimand fit-noise`. It is the
+      # spread of P5's DECIDING printed key, inverse_minus_forward_se_units,
+      # across five master seeds disjoint from blocks A, B and C. Provenance,
+      # never a bar: the track's own primary metric is deterministic.
+      fit_noise:
+        k: 5
+        std: 0.0382297
+        range: 0.098856
+        mean: 2.36499
+        values: [2.37894, 2.39796, 2.37916, 2.36977, 2.29911]
+        source: "sweeps/mc_resolution.sidecar.tsv"
+        measured_after: "E0001"
+        method: "seed-sweep"
+        estimand: "fit-noise"
     guardrails:
       wall_seconds: {max: 30}
     confirmation:
@@ -93,11 +105,22 @@ tracks:
     metric:
       name: "coverage"
       goal: "higher"
-      minimum_delta: 0.02      # provisional; replaced by the Phase-0 measured floor
+      # MEASURED at Phase 0 by sweep:coverage_floor, never guessed. Pasted in
+      # verbatim from `klein noise-floor --method seed-block-lottery --estimand
+      # marginal-resplit`: five independent simulation seed blocks, none of them
+      # A, B or C, each running the identical coverage experiment.
+      minimum_delta: 0.0060663   # = max(2*std, range/2), std 0.00303315
       exactness: stochastic
-      # noise_floor: measured at Phase 0 by sweep:coverage_floor (five independent
-      # simulation seed blocks, none of them A, B or C) and pasted in by
-      # `klein noise-floor`; the consult gate is re-recorded with the reason.
+      noise_floor:
+        k: 5
+        std: 0.00303315
+        range: 0.007
+        mean: 0.9268
+        values: [0.925, 0.932, 0.925, 0.925, 0.927]
+        source: "sweeps/coverage_floor.sidecar.tsv"
+        measured_after: "E0001"
+        method: "seed-block-lottery"
+        estimand: "marginal-resplit"
     guardrails:
       wall_seconds: {max: 45}
     confirmation:
