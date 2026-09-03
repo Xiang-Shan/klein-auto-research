@@ -102,13 +102,18 @@
       "strength": "exploratory"
     },
     "C5": {
-      "claim": "(mechanism-interpretation, exploratory)* The ranking gap and the",
-      "class": null,
+      "claim": "The ranking gap and the probability gap are the same missing structure seen twice: the raw-feature logistic model cannot express the DGP's interaction or its quadratic and pays in both currencies at once, Brier 0.132010 against the boosted tree's 0.109337 and the irreducible Bayes floor of 0.103604",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0003",
+        "art:data_card"
+      ],
       "numbers": [
         "anchor_brier",
-        "bayes_brier_dev"
+        "bayes_brier_dev",
+        "boosted_brier"
       ],
       "strength": "exploratory"
     },
