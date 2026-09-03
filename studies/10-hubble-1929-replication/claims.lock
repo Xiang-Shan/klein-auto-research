@@ -1,5 +1,10 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "results": {
+      "path": "results.tsv",
+      "sha256": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "RQ1 | reproduction | **supported** | confirmed | empirical-description | E0002, rep:E0002@20260903T063133Z, art:fits | Neither two-parameter fit returns 465: through the origin 423.937323, free intercept 454.158441; the nearer gap is 10.841559 against a registered tolerance of 10 |",
