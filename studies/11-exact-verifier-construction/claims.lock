@@ -151,10 +151,13 @@
       "strength": "exploratory"
     },
     "C7": {
-      "claim": "Freeze the controls before the checker meets them (evidence: E0001). The twelve",
-      "class": null,
+      "claim": "Freeze the controls before the checker meets them: the planted invalid objects and the known-valid object were hashed into the DATA gate record before any run existed, so the positive control could not be softened after it fired",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "P3"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
