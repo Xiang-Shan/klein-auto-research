@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-09-03T05:25:06.821383Z"
+      "timestamp": "2026-09-03T05:27:25.780654Z"
     },
     "data": {
       "by": "lead-agent",
@@ -17,7 +17,7 @@
     "data_card.md": "94a8ecd1ee18a4cbddbde234326867a022d09ac235b20fb4b88486e1fbf9c881",
     "method_card.md": "dba8356eb4b2e2a867e517500cd83187825ae1b2d7b1c82d2963c52b4600ae64",
     "research_plan.md": "3ef7c78c973090eb4fa83e6e4e5ee78b9f7d3d536aa0c8f73bbe13bba3373149",
-    "study.yaml": "c4f66ed893b543e84e754cf803fe83576b89f851bbbefbc7cf6728f9d1a4fa63"
+    "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
   },
   "created_at": "2026-09-03T05:06:04.636641Z",
   "current_phase": "adaptive-1",
@@ -39,14 +39,14 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-09-03T05:25:06.821383Z",
+      "acknowledged_at": "2026-09-03T05:27:25.780654Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "70774f1b827da7ee592b1c799472a604136a85d065a824be20a3149412a90392",
+        "program.md": "a0a7188c1cd5dedeafdce0899fecf0174b8698f699b8c8825d2661427e182303",
         "research_plan.md": "3ef7c78c973090eb4fa83e6e4e5ee78b9f7d3d536aa0c8f73bbe13bba3373149",
-        "study.yaml": "c4f66ed893b543e84e754cf803fe83576b89f851bbbefbc7cf6728f9d1a4fa63"
+        "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
       },
-      "note": "typed inquiry registered before any evidence; the user's ack is delegated to the orchestrating agent for the Klein 2.0 exhibits (program.md, Decisions 2026-09-03)",
+      "note": "minimum_delta set from the measured noise floor (split-lottery, marginal-resplit, k=10); metric.bound.ideal declared at the development partition's Bayes AUC now that the DATA gate has hashed the generator that computes it. No run exists yet; no registered prediction's rule changed.",
       "status": "recorded"
     },
     "data": {
@@ -78,5 +78,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "00-known-truth-quickstart",
-  "updated_at": "2026-09-03T05:25:18.741328Z"
+  "updated_at": "2026-09-03T05:27:25.781242Z"
 }
