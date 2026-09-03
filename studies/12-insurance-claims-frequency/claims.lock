@@ -161,7 +161,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "paired_std_far"
+      ],
       "strength": "exploratory"
     }
   },
@@ -276,6 +278,13 @@
       "note": "the registered keep bar, paired-bootstrap k=20",
       "precision": 7,
       "value": 0.0375805
+    },
+    "paired_std_far": {
+      "art": "floors",
+      "claim": "C9",
+      "note": "paired_bootstrap_b1000 std: the GLM-vs-tree pair",
+      "precision": 6,
+      "value": 0.013942
     },
     "residual_margin": {
       "art": "derived",
