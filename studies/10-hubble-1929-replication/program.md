@@ -121,3 +121,34 @@ At every phase start, run the slate ritual (references/phase-ritual.md):
 propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
+
+### Phase adaptive-1 slate
+
+Playbook re-read first (nothing ruled out yet beyond the two pre-contract
+retirements). On a registered track a candidate is a CELL: which measurement, on
+which block, adjudicating which `P#`, at what cost.
+
+| # | Candidate (one cell, one transaction) | Nov | Test | Info | Σ |
+|---|---|---|---|---|---|
+| 1 | **Identity anchor**: recompute Table 1's `sum(r_mpc)`, `sum(v_kms)` and both row counts against the published anchors; pin the table; adjudicates **P0**. A mismatch is a hard STOP. | 3 | 3 | 3 | 9 |
+| 2 | Two-parameter fits of Table 1 against 465 ± 10; adjudicates **P1**. | 3 | 3 | 3 | 9 |
+| 3 | Reproduce Table 1's printed `M_t` from `m_t` and `r_mpc`; adjudicates **P9**. | 3 | 3 | 3 | 9 |
+| 4 | Bootstrap interval for K on the 24 objects (block A, B = 2000). | 3 | 3 | 2 | 8 |
+| 5 | Coverage of the percentile interval under the declared DGP, block B. | 3 | 2 | 3 | 8 |
+
+**Chosen: #1**, and it is not a close call despite the three-way tie on score.
+Candidates 2–5 all compute a number *from the bytes*; if the bytes are not
+Hubble's, every one of them is a confidently wrong measurement of the wrong
+table. The anchor is the only candidate whose failure invalidates the others, so
+it runs first and hard-STOPs on mismatch — the `replicate` kind's own rule
+(`references/replication-protocol.md`). Candidates 2 and 3 move to phase
+adaptive-2, 4 to adaptive-3, 5 to adaptive-4; all four are mirrored into the
+playbook.
+
+Two **measurement sweeps** also belong to this phase and consume no experiment
+budget (`references/sweep-rules.md`, the measurement carve-out): `mc_resolution`
+(the Monte-Carlo spread of the bootstrap-derived printed keys across independent
+master seeds, recorded as `fit_noise` on the estimate track — provenance, never a
+bar) and `coverage_floor` (five simulation seed blocks, none of them A, B or C,
+giving the `simulate` track's measured `minimum_delta`). Both are registered with
+`klein sweep register` so findings can cite them as `sweep:<name>`.

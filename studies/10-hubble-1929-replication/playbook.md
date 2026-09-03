@@ -36,4 +36,11 @@ therefore records the LATEST measurement of each track's summary scalar, not a w
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. (fill at the phase-start slate ritual)
+1. **Two-parameter fits of Table 1 against 465 ± 10** (P1) — phase adaptive-2, Σ 9.
+2. **Reproduce Table 1's printed `M_t` from `m_t` and `r_mpc`** (P9) — phase
+   adaptive-2, Σ 9; also the de-risking rehearsal for the sealed cell's machinery.
+3. **Bootstrap interval for K** on the 24 objects, seed block A — phase adaptive-3, Σ 8.
+4. **Coverage of the percentile interval under the declared DGP**, seed block B —
+   phase adaptive-4, Σ 8.
+5. Four-parameter solar-motion refit (P2) and the nine-group solution (P3) — phase
+   adaptive-2; both expected to end as documented method gaps, which is the finding.
