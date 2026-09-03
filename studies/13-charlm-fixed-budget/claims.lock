@@ -32,6 +32,10 @@
       "path": "tables/reference_losses.tsv",
       "sha256": "b186a6b5913630f0a533308f510f0c88dd0f0cd1c77c050f826bf5de86aaca0f"
     },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "0b31323ecaaceb4b90fccfd694d7ded1344bd7edb9bb1f30cf56e60d2767739a"
+    },
     "summary": {
       "path": "tables/study_summary.tsv",
       "sha256": "48103d47e5d0fd0bfb3bd1fd7419f509769593371a78678513b623cfb878a049"
