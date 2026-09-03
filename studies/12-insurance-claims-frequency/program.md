@@ -481,3 +481,32 @@ queue rather than the ledger.
   frontier improvement, and that one comes from beating the raw anchor rather than from
   any rung beating the one below it.** Playbook refreshed; the acknowledgement is the
   lead's delegated one.
+
+### Phase confirmation slate
+
+A confirmation phase has exactly one lawful candidate, so the ritual's job here is to
+write down what was NOT done with the seal, and why.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Σ |
+| --- | --- | --- | --- | --- | --- |
+| 1 | E0003's configuration, unchanged, once on the sealed half of the v1 validation set; decides P7 | 1 | 3 | 3 | 7 |
+| 2 | seal the calibrated GLM instead, because it is the rung an actuary would file | 3 | 3 | 2 | 8 |
+| 3 | seal both, to get the GLM-vs-tree gap as a difference of two sealed numbers | 3 | 1 | 3 | 7 |
+| 4 | re-tune on development first, then seal the winner | 2 | 3 | 1 | 6 |
+
+Chosen: **1**, despite #2 scoring higher on the raw sum — and the reason is recorded
+because the tie-break matters. #2 is the more interesting model for the profile's
+audience, but the seal confirms the FRONTIER's incumbent, and the incumbent is E0003 by
+the contract's own arithmetic; sealing a rung the frontier discarded would be choosing
+the confirmation subject after seeing the development numbers, which is the exact move
+`confirmation` exists to prevent. The phase-ritual tie-break is expected information,
+then testability, but neither can override the contract: candidate 2 is not lawful here,
+so its score is moot and it is recorded as the thing that was wanted and not taken.
+#3 scores 1 on testability because this study declares ONE track and a track gets ONE
+sealed access; two sealed numbers would have required two tracks declared at CONSULT —
+which is precisely the choice `research_plan.md` made explicitly, registering every
+rung-to-rung gap as exploratory by construction before the first run. #4 is refused by
+the phase budget and by the discipline.
+
+The rehearsal (`klein run-one --final-test --dry-run`) runs first and is not optional:
+study 09 lost its only seal to a crash that happened before any data was read.
