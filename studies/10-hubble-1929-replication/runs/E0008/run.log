@@ -1,0 +1,27 @@
+---
+primary_metric:    454.337124
+metric_name:       k_kms_per_mpc
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/jackknife_k.tsv
+rows:              24
+sha256:            4e07cf0c14a3f13bbb900445e147e1289f8f89a7732621981dff7c923192ae47
+wall_seconds:      0.011007
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+k_full: 454.15844092262836
+k_jackknife_mean: 454.3371239860412
+jackknife_se: 80.48589430090415
+analytic_se: 75.2371053471691
+max_abs_influence: 50.02022664066345
+max_influence_r_mpc: 2.0
+n_objects: 24.0
+n_virgo_objects: 4.0
+k_without_virgo_group: 531.3472665929448
+virgo_group_influence: 77.18882567031648
+runner_status: ok
+runner_exit_code: 0
