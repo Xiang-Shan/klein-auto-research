@@ -43,6 +43,26 @@
       "experiment": "E0013"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "estimate": 1,
+      "reproduction": 1,
+      "simulate": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": false,
+      "referee": "klein-referee (Claude Code subagent, model: Opus 5 / claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "estimate": "E0012",
+      "reproduction": "E0011",
+      "simulate": "E0013"
+    },
+    "timestamp": "2026-09-03T08:16:49.006411Z"
+  },
   "fingerprints": {
     "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
     "split": {
@@ -657,7 +677,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "10-hubble-1929-replication",
   "sweeps": {
     "coverage_floor": {
@@ -679,5 +699,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T08:16:40.060296Z"
+  "updated_at": "2026-09-03T08:16:49.006417Z"
 }
