@@ -178,7 +178,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "ci_low"
+      ],
       "strength": "exploratory"
     },
     "C4": {
@@ -237,6 +239,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "ci_low": {
+      "art": "boot",
+      "claim": "C3",
+      "note": "95% percentile bootstrap lower bound for K (E0006, re-run sealed at E0012)",
+      "precision": 6,
+      "value": 316.648582
+    },
     "coords_available": {
       "art": "solar",
       "claim": "C2",
