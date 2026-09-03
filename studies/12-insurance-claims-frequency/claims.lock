@@ -162,6 +162,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "marginal_std",
         "paired_std_far"
       ],
       "strength": "exploratory"
@@ -264,6 +265,13 @@
       "note": "E0003 minus the E0001 incumbent",
       "precision": 6,
       "value": 0.049911
+    },
+    "marginal_std": {
+      "art": "floors",
+      "claim": "C9",
+      "note": "split_lottery std: the anchor's own score under a re-split",
+      "precision": 6,
+      "value": 0.017964
     },
     "max_twin_gap": {
       "art": "aux",
