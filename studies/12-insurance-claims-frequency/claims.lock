@@ -69,6 +69,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "lift10_dev",
         "lift10_drop"
       ],
       "strength": "exploratory"
@@ -281,6 +282,13 @@
       "note": "E0003 minus the E0001 incumbent",
       "precision": 6,
       "value": 0.049911
+    },
+    "lift10_dev": {
+      "art": "aux",
+      "claim": "C11",
+      "note": "E0003 val_lift_top10, development",
+      "precision": 4,
+      "value": 2.2167
     },
     "lift10_drop": {
       "art": "derived",
