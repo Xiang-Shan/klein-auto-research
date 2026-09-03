@@ -444,3 +444,31 @@ observed spread.
 
 **Phase adaptive-4 acknowledged** with `klein gate record phase --phase
 adaptive-4 --acknowledged-by lead-agent` (ack delegated by the lead).
+
+
+### Confirmation phase — and what the mandatory dry-run caught
+
+**2026-09-03 — the sealed dry-run earned its keep on the first try.**
+`klein run-one --track reproduction --final-test --dry-run` exited 1 with
+
+    RuntimeError: forbidden columns reached the sealed cell:
+                  ['r_mpc', 'vs_kms', 'M_t']
+    sealed dry-run FAILED: the entrypoint exited 1; the seal is intact
+
+and the study's one reproduction seal was still unspent. The defect was in this
+study's own library, not in the engine: `load_block` dropped
+`TABLE2_FORBIDDEN_COLUMNS` only when the block it SERVED was Table 2. Under a
+dry run it serves Table 1, whose rows carry `r_mpc`, `vs_kms` and `M_t` in the
+prepared union — so the rehearsal handed the sealed cell a frame of a different
+SHAPE than the real run would, and the cell's own leak guard fired.
+
+Fixed by dropping on the block REQUESTED rather than the block served: a
+rehearsal that exercises a different code path is not a rehearsal. Both guards
+were needed to catch it — the library's exclusion and the cell's independent
+assertion that the exclusion happened — which is the argument for keeping a
+check at the door *and* a check at the consumer.
+
+This is the war story the study was told about (`references/war-stories.md`:
+"a study's only sealed access was spent by a crash before any data was read"),
+happening in the study that was warned. The rehearsal cost nothing and the seal
+survived.
