@@ -233,7 +233,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "max_mag_deviation"
+      ],
       "strength": "exploratory"
     },
     "C8": {
@@ -371,6 +373,13 @@
       "note": "the larger of the two rescaled fits' gaps to 70 (E0012)",
       "precision": 6,
       "value": 4.990073
+    },
+    "max_mag_deviation": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "largest deviation of the recomputed absolute magnitude from Table 1's printed M_t (E0003)",
+      "precision": 6,
+      "value": 0.071213
     },
     "modern_h0": {
       "art": "sealed_modern",
