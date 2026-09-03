@@ -107,6 +107,15 @@
       "sidecar": "sweeps/paired_bootstrap.sidecar.tsv",
       "sidecar_sha256": "5a5390363a97ef0a361f2da30e936260abd52e9d6400112a717d03a8cc5ed6c0"
     },
+    "paired_bootstrap_b1000": {
+      "registered_at": "2026-09-03T08:22:57.311005Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "f50058c4f8bb2facae7383c4fa02b9db48f7214c07a9eba347d02e9e27b694d3",
+      "sidecar": "sweeps/paired_bootstrap_b1000.sidecar.tsv",
+      "sidecar_sha256": "8c15612ca55aeaa4002540211933965bf819952d0f9a25c6adabd4b3c95e75c4"
+    },
     "split_lottery": {
       "registered_at": "2026-09-03T08:22:40.079575Z",
       "rows_crash": 0,
@@ -117,5 +126,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T08:22:48.704963Z"
+  "updated_at": "2026-09-03T08:22:57.311161Z"
 }
