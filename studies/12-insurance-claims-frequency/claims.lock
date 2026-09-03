@@ -1,5 +1,10 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "results": {
+      "path": "results.tsv",
+      "sha256": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "RQ1** \u2014 do the three v1 rungs reproduce within two standard deviations of the transfer? | **SUPPORTED**, all three |  | E0001, E0002, E0003, P1, P2, P4 | residuals 0.011322 / 0.001612 / 0.001154 against a registered tolerance of 0.0225 | exploratory |",
