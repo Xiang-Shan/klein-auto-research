@@ -120,6 +120,13 @@
       "precision": 0,
       "value": 22
     },
+    "budget_medium": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the middle rung of the registered budget ladder",
+      "precision": 0,
+      "value": 200000
+    },
     "budget_small": {
       "art": "aux",
       "claim": "contract",
