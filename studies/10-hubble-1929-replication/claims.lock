@@ -109,10 +109,14 @@
       "strength": "exploratory"
     },
     "C11": {
-      "claim": "(mechanism-interpretation, exploratory, evidence E0007, ref:frost2000)*",
-      "class": null,
+      "claim": "The paired bootstrap puts the inverse-minus-forward difference at 282.639496 with a standard error of 115.484712, i.e. 2.447419 standard errors: textbook regression dilution, so the ordinary fit of v on r is a lower bound on the slope rather than a best estimate",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0007",
+        "art:invfwd",
+        "ref:frost2000"
+      ],
       "numbers": [
         "paired_mean_difference",
         "paired_se_difference",
