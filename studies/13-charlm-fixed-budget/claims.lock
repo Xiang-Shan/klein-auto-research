@@ -136,6 +136,7 @@
       "evidence": [],
       "numbers": [
         "control_copy",
+        "control_repeat",
         "control_uniform",
         "control_unigram",
         "control_untrained"
@@ -207,6 +208,13 @@
       "note": "negative control: copy-the-input, worse than chance under a correct harness",
       "precision": 6,
       "value": 4.750043
+    },
+    "control_repeat": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "diagnostic: how often the predicted character repeats the one just read",
+      "precision": 6,
+      "value": 0.024523
     },
     "control_uniform": {
       "art": "controls",
