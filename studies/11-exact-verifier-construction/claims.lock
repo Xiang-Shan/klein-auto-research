@@ -118,11 +118,17 @@
       "strength": "confirmed"
     },
     "C5": {
-      "claim": "(mechanism-interpretation, exploratory)* A single run of a randomized",
-      "class": null,
+      "claim": "A single run of a randomized heuristic reports a draw rather than a property: the same search at the same budget on the same instance scored 21 from one seed block and 22 from the other, and this study measured a difference, never a rate",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0009"
+      ],
+      "numbers": [
+        "small_200k",
+        "small_sealed"
+      ],
       "strength": "exploratory"
     },
     "C6": {
