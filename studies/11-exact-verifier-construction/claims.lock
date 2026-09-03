@@ -47,7 +47,8 @@
         "large_200k",
         "large_20k",
         "large_2M",
-        "large_sealed"
+        "large_sealed",
+        "passes_small"
       ],
       "strength": "exploratory"
     },
@@ -191,6 +192,13 @@
       "note": "E0010, the sealed cell of n_large",
       "precision": 0,
       "value": 55
+    },
+    "passes_small": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "greedy completions E0004 bought with the largest budget at n = 11",
+      "precision": 0,
+      "value": 19014
     },
     "small_200k": {
       "art": "results",
