@@ -295,3 +295,18 @@ too aggressive early, which would change the anchor recipe for everything after.
   `xiong2020` says a Pre-LN stack does not need warmup to be stable; this adds that
   when the budget is 2000 steps, the ~200 steps spent below the target learning rate
   are steps not spent learning, and the model does not get them back.
+- 2026-09-03 — **E0003 (weight tying) — discard, val_loss 1.739149,
+  `delta_in_floors` = −11.3693, `anchor_z` = 21.17. Decision: P3 is REFUTED and tying
+  is not carried forward.** The registered rule was `abs(delta_in_floors) < 1` — "tying
+  is free" — and the run missed it by an order of magnitude in the losing direction.
+  This is the largest single effect measured anywhere in the study, and it is a cost.
+  The pre-scripted branch said "refuted → the direction it moved is reported, and a
+  within-floor claim is not made"; that is what happens. Reading: the parameter
+  arithmetic on the method card (8,320 of 824,320, 1.0%) predicted the change would be
+  invisible, and it was wrong about WHY the term matters. `press2017`'s mechanism is
+  about sharing a large, sparsely-updated embedding table; here the table is tiny and
+  densely updated, and forcing one 65×128 matrix to be both the input lookup and the
+  output classifier — with no logit scaling to reconcile the two very different norms
+  they want — removes a degree of freedom the model was using. A widely-repeated "free
+  win" is not free at this scale, and a study that had only read the paper would have
+  shipped it.
