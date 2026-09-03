@@ -306,12 +306,8 @@ def bootstrap_k(
     r = np.asarray(r, dtype=float)
     v = np.asarray(v, dtype=float)
     rng = np.random.default_rng(seed)
-    n = r.size
-    draws = rng.integers(0, n, size=(int(n_boot), n))
-    out = np.empty(int(n_boot), dtype=float)
-    for i, idx in enumerate(draws):
-        out[i] = k_of(r[idx], v[idx], estimator)
-    return out
+    draws = rng.integers(0, r.size, size=(int(n_boot), r.size))
+    return k_of_batch(r[draws], v[draws], estimator)
 
 
 def paired_bootstrap_k(
@@ -331,14 +327,9 @@ def paired_bootstrap_k(
     r = np.asarray(r, dtype=float)
     v = np.asarray(v, dtype=float)
     rng = np.random.default_rng(seed)
-    n = r.size
-    draws = rng.integers(0, n, size=(int(n_boot), n))
-    out = {name: np.empty(int(n_boot), dtype=float) for name in estimators}
-    for i, idx in enumerate(draws):
-        rr, vv = r[idx], v[idx]
-        for name in estimators:
-            out[name][i] = k_of(rr, vv, name)
-    return out
+    draws = rng.integers(0, r.size, size=(int(n_boot), r.size))
+    R, V = r[draws], v[draws]
+    return {name: k_of_batch(R, V, name) for name in estimators}
 
 
 def k_of(r: np.ndarray, v: np.ndarray, estimator: str) -> float:
@@ -349,6 +340,37 @@ def k_of(r: np.ndarray, v: np.ndarray, estimator: str) -> float:
         return ols_free_intercept(r, v)[0]
     if estimator == "inverse":
         return inverse_regression_k(r, v)
+    raise ValueError(f"unknown estimator {estimator!r}")
+
+
+def k_of_batch(R: np.ndarray, V: np.ndarray, estimator: str) -> np.ndarray:
+    """`k_of` for a whole stack of resamples at once — the SAME normal equations.
+
+    `R` and `V` are `(B, n)`: one resampled dataset per row. Solving a 2x2
+    system per row in a Python loop costs a second per thousand resamples, and
+    the simulate track needs a million of them, so the closed form of the same
+    normal equations is written out here:
+
+        free     slope = (n*Srv - Sr*Sv) / (n*Srr - Sr^2)
+        origin   slope = Srv / Srr
+        inverse  1 / [(n*Srv - Sr*Sv) / (n*Svv - Sv^2)]     (r on v, inverted)
+
+    Identical algebra to `ols_free_intercept` / `ols_through_origin` /
+    `inverse_regression_k`, so a cell can use either path; the batch one exists
+    only so a 1000-replicate coverage study fits inside `max_run_seconds`.
+    """
+    R = np.asarray(R, dtype=float)
+    V = np.asarray(V, dtype=float)
+    n = R.shape[1]
+    sr = R.sum(axis=1)
+    sv = V.sum(axis=1)
+    srv = (R * V).sum(axis=1)
+    if estimator == "origin":
+        return srv / (R * R).sum(axis=1)
+    if estimator == "free":
+        return (n * srv - sr * sv) / (n * (R * R).sum(axis=1) - sr * sr)
+    if estimator == "inverse":
+        return 1.0 / ((n * srv - sr * sv) / (n * (V * V).sum(axis=1) - sv * sv))
     raise ValueError(f"unknown estimator {estimator!r}")
 
 
@@ -443,7 +465,7 @@ def coverage_experiment(
             low, high = slope - z * se, slope + z * se
         elif method == "bootstrap":
             draws = rng.integers(0, r.size, size=(int(n_boot), r.size))
-            values = np.array([ols_free_intercept(r[idx], v[idx])[0] for idx in draws])
+            values = k_of_batch(r[draws], v[draws], "free")
             low, high = percentile_ci(values, level)
         else:
             raise ValueError(f"unknown interval method {method!r}")
