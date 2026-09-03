@@ -200,10 +200,15 @@
       "strength": "confirmed"
     },
     "C8": {
-      "claim": "RQ3** \u2014 how large is the paired-comparison floor here, and how many of v1's six keeps clear it? | **ANSWERED**: the bar is 0.0375805 and the ladder yields one keep | , ,  | sweep:paired_bootstrap, E0001, E0005, art:verdicts | the bar is 0.9671 of the v1 ledger's entire spread | exploratory |",
-      "class": null,
+      "claim": "The v1 ledger's sixth row is a keep that a measured bar would have refused: its recorded lift of 0.001425 is 0.0379 of this study's floor.",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "P8",
+        "sweep:paired_bootstrap",
+        "sweep:paired_bootstrap_b1000",
+        "art:derived"
+      ],
       "numbers": [
         "v1_sweep_in_floors",
         "v1_sweep_lift"
