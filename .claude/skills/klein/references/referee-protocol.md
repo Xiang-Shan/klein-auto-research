@@ -52,7 +52,7 @@ the experimenter.
 | 6 | **Pre-registration integrity.** Consult-gate re-records are listed with reasons; no prediction's contract hash post-dates the run that adjudicated it. | a prediction added or changed after its evidence |
 | 7 | **Numbers traceable.** `klein verify --numbers` passes; the referee hand-checks five numerals against their artifacts and every `klein:numbers-ok` marker. | any numeral with no home, or a marker whose reason does not hold |
 | 8 | **References.** Every citation behind a claim is `verified: true` in `references.yaml` or marked UNVERIFIED; no UNVERIFIED reference supports a `confirmed` claim; the method card's `refs_verified` is honest. | an unverified reference behind a confirmed claim, or a citation absent from `references.yaml` |
-| 9 | **Figures.** `figures/make_figures.py` re-renders byte-identically; the four-point figure critique of `tutorial-spec.md` passes. | a figure that does not re-render, or a truncated axis that inflates a within-noise delta |
+| 9 | **Figures.** `figures/make_figures.py` re-renders pixel-identically on any machine (byte-identically on the one that rendered them; another platform's PNG encoder may write the same pixels in different bytes, which `klein verify` decodes and accepts); the four-point figure critique of `tutorial-spec.md` passes. | a figure whose pixels do not re-render, or a truncated axis that inflates a within-noise delta |
 | 10 | **Vocabulary and scope.** The profile's banned words are absent or qualified; the floor's estimand is named; simulation claims carry their in-silico scope; measurement resolution is never called materiality. | any banned word unqualified, a missing estimand, an unscoped simulation claim, or resolution sold as materiality |
 
 ## The verdict

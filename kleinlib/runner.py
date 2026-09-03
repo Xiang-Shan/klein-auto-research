@@ -78,6 +78,11 @@ def run_logged(
     # archived run.log; uv resolves the project env itself, so drop it.
     env.pop("VIRTUAL_ENV", None)
     env["PYTHONUNBUFFERED"] = "1"
+    # The pump below decodes UTF-8; on Windows a child's piped stdout would
+    # otherwise use the ANSI code page and crash on the first non-ASCII
+    # character an entrypoint prints. An explicit setting in the caller's
+    # environment wins.
+    env.setdefault("PYTHONUTF8", "1")
     env.update(env_overrides or {})
     log_path.parent.mkdir(parents=True, exist_ok=True)
     popen_kwargs: dict[str, object] = {}

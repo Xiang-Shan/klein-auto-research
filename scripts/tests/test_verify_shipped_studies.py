@@ -196,7 +196,8 @@ def test_main_any_failure_exits_one_and_v1_study_skipped_with_note(tmp_path: Pat
 
     assert module.main([]) == 1
     out, err = capsys.readouterr()
-    assert err == ""
+    # a red row names itself on stderr (CI logs show nothing but this script's output)
+    assert "error: studies/09-broken: 2 failed check(s) (exit 2)" in err
     assert "studies/00-legacy is schema v1 (no schema_version key) — skipped" in out
     row = next(line for line in out.splitlines() if line.startswith("studies/09-broken"))
     assert row.split() == ["studies/09-broken", "17", "0", "2", "2"]

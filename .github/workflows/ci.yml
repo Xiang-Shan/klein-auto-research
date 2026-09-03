@@ -61,6 +61,10 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: the suite verifies the shipped locks, whose git_head and
+          # candidate commits must resolve (a shallow clone fails claims ancestry).
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: "3.13"
@@ -237,11 +241,20 @@ jobs:
         run: |
           set -euo pipefail
           unset DATA_HUB
-          uv run --no-sync klein doctor --json --strict
+          uv run --no-sync klein doctor
           uv run --no-sync python - <<'PY'
           from pathlib import Path
 
-          from kleinlib import sources
+          from kleinlib import doctor, sources
+
+          # "Ready" for this job means the toolchain, the renderer and the data
+          # fallback — not every optional extra (torch and the GBDT libraries are
+          # deliberately absent here; the ledgers verify without them).
+          REQUIRED = {"python", "uv", "git", "extra: encoders", "tutorial renderer", "device", "DATA_HUB"}
+          report = doctor.run_doctor()
+          not_ok = {c["name"]: c["message"] for c in report["checks"] if c["name"] in REQUIRED and not c["ok"]}
+          assert not not_ok, f"doctor checks this job requires are not ok: {not_ok}"
+          assert REQUIRED <= {c["name"] for c in report["checks"]}, "a required doctor check was not reported"
 
           # Every bundled dataset, addressed the way a study contract addresses
           # it: `bundled:<name>` for a directory holding one data file, and
@@ -384,6 +397,10 @@ jobs:
           git config --global core.autocrlf false
           git config --global core.longpaths true
       - uses: actions/checkout@v4
+        with:
+          # Full history: the Windows lane runs the whole suite, which verifies the
+          # shipped locks against their pinned commits.
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: "3.13"
@@ -431,7 +448,11 @@ jobs:
           uv run --no-sync klein doctor --help
       - name: Full engine + scripts test suite on Windows (no coverage)
         if: matrix.os == 'windows-latest'
+        # bash, not pwsh: a multi-line pwsh step exits with its LAST command's
+        # status, which hid a failing pytest behind `klein --help` once.
+        shell: bash
         run: |
+          set -euo pipefail
           uv run --no-sync pytest kleinlib/tests scripts/tests -x -q
           uv run --no-sync klein --help
 

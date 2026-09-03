@@ -17,6 +17,8 @@ for schema 2 so studies 03 and 05–09 verify byte-identically.
 from __future__ import annotations
 
 import csv
+import json
+import platform
 import re
 import subprocess
 import sys
@@ -1486,13 +1488,73 @@ def _in_repo(study_dir: Path) -> bool:
     return True
 
 
+def _platform_family(platform_string: str, machine: str) -> tuple[str, str]:
+    """``("macos", "arm64")`` from a fingerprint's ``platform`` and ``machine``."""
+    family = platform_string.split("-", 1)[0].strip().lower()
+    return family, machine.strip().lower()
+
+
+def _current_platform() -> tuple[str, str]:
+    return _platform_family(platform.platform(), platform.machine())
+
+
+def _render_platform(study_dir: Path) -> tuple[str, str] | None:
+    """The platform the study's runs (and so its figures) were produced on.
+
+    Read from the environment fingerprint of the earliest run manifest that
+    carries one; ``None`` when the study has no such record.
+    """
+    for manifest_path in sorted((study_dir / "runs").glob("E*/manifest.json")):
+        try:
+            payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        environment = payload.get("environment") if isinstance(payload, Mapping) else None
+        if not isinstance(environment, Mapping):
+            continue
+        platform_string = environment.get("platform")
+        machine = environment.get("machine")
+        if isinstance(platform_string, str) and isinstance(machine, str) and platform_string:
+            return _platform_family(platform_string, machine)
+    return None
+
+
+def _pixels_identical(committed: Path, rendered: Path) -> bool | None:
+    """Whether two raster files decode to the same pixels.
+
+    ``None`` when the comparison is not possible (not a raster format Pillow
+    reads, or Pillow absent), so the caller falls back to the byte verdict.
+    """
+    try:
+        from PIL import Image
+    except ImportError:  # pragma: no cover - Pillow ships with matplotlib
+        return None
+    try:
+        with Image.open(committed) as left, Image.open(rendered) as right:
+            first = left.convert("RGBA")
+            second = right.convert("RGBA")
+            return first.size == second.size and first.tobytes() == second.tobytes()
+    except (OSError, ValueError):
+        return None
+
+
 def _compare_figures(study_dir: Path, rendered: Path) -> Check:
-    """Byte-compare each re-rendered figure against the committed one."""
+    """Compare each re-rendered figure against the committed one.
+
+    Byte identity is the cheap proof and the common case on the machine that
+    rendered the figures. Across platforms the SAME pixels are written through a
+    different deflate implementation (macOS and Linux link different zlibs), so
+    the PNG container differs while the image does not; a file whose bytes
+    differ is therefore decoded and its pixels compared, and only a pixel
+    difference fails — on any platform, because the image is the evidence and
+    the re-encoding is not.
+    """
     produced = sorted(path for path in rendered.rglob("*") if path.is_file())
     if not produced:
         return Check("figure re-render", True, "[WARN] the script produced no files")
     committed = study_dir / "figures"
     differ: list[str] = []
+    reencoded: list[str] = []
     missing: list[str] = []
     for path in produced:
         name = path.relative_to(rendered).as_posix()
@@ -1500,21 +1562,37 @@ def _compare_figures(study_dir: Path, rendered: Path) -> Check:
         if not target.is_file():
             missing.append(name)
         elif sha256_file(target) != sha256_file(path):
-            differ.append(name)
+            if _pixels_identical(target, path):
+                reencoded.append(name)
+            else:
+                differ.append(name)
     if differ:
+        rendered_on = _render_platform(study_dir)
+        here = _current_platform()
+        where = f"re-rendered on {here[0]}/{here[1]}"
+        if rendered_on is not None:
+            where += f"; the committed figures were rendered on {rendered_on[0]}/{rendered_on[1]}"
         return Check(
             "figure re-render",
             False,
-            "figures/make_figures.py does not re-render byte-identically: "
+            "figures/make_figures.py does not re-render pixel-identically: "
             + ", ".join(differ)
-            + " — a figure whose bytes move with the machine is a figure whose "
-            "numbers cannot be re-checked (tutorial-spec.md; referee rubric 9)",
+            + f" ({where}) — a figure whose image moves with the machine is a figure "
+            "whose numbers cannot be re-checked (tutorial-spec.md; referee rubric 9)",
         )
     if missing:
         return Check(
             "figure re-render",
             True,
             "[WARN] re-rendered but never committed: " + ", ".join(missing),
+        )
+    if reencoded:
+        return Check(
+            "figure re-render",
+            True,
+            f"{len(produced)} figure(s) re-render identically — "
+            f"{len(produced) - len(reencoded)} byte-identical, {len(reencoded)} "
+            f"pixel-identical through a different PNG encoder ({', '.join(reencoded)})",
         )
     return Check(
         "figure re-render",

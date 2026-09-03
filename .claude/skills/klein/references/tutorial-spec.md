@@ -164,7 +164,10 @@ failure:
       `references/claims-protocol.md`; headline numbers are read from `claims.lock`,
       never retyped (formula digits stay greppable via `data-latex`). `klein verify
       --numbers` runs an advisory pass over the built page.
-- [ ] `figures/make_figures.py` re-renders every inlined figure byte-identically.
+- [ ] `figures/make_figures.py` re-renders every inlined figure pixel-identically
+      (byte-identically on the machine that rendered it; another platform's PNG
+      encoder may write the same pixels in different bytes — `klein verify` decodes
+      and compares the image, and only a pixel difference fails).
 - [ ] Every figure is inlined (no `http://` / `https://` in any `src`/`href`
       attribute; plain-text URLs in citations are fine).
 - [ ] The references match the method card (no unverified refs promoted to verified).

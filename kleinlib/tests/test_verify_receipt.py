@@ -23,7 +23,7 @@ from test_referee_gate import FINDINGS, close, write_report
 from test_registered_mode import amend
 from test_workflow_v3 import commit_all, git
 
-from kleinlib import cli
+from kleinlib import checks, cli
 from kleinlib.checks import RECEIPT_NAME, verify_study
 from kleinlib.workflow import load_contract, load_state, record_gate
 
@@ -423,6 +423,69 @@ def test_a_renderer_that_crashes_is_a_warning_not_a_failure(ready_study_v3) -> N
 def test_no_renderer_means_no_line(ready_study_v3) -> None:
     _repo, study = ready_study_v3
     assert _named(verify_study(study, receipt=False), "figure re-render") == []
+
+
+def _png(path: Path, pixel: tuple[int, int, int], *, compress_level: int) -> None:
+    from PIL import Image
+
+    image = Image.new("RGB", (8, 8), pixel)
+    image.save(path, format="PNG", compress_level=compress_level)
+
+
+def test_the_same_pixels_through_another_png_encoder_pass(ready_study_v3, tmp_path: Path) -> None:
+    """macOS and Linux link different zlibs: same image, different bytes."""
+    repo, study = ready_study_v3
+    rendered = tmp_path / "rendered.png"
+    _png(rendered, (10, 20, 30), compress_level=9)
+    _renderer(study, rendered.read_bytes())
+    (study / "figures").mkdir(exist_ok=True)
+    _png(study / "figures" / "exhibit.png", (10, 20, 30), compress_level=1)
+    assert (study / "figures" / "exhibit.png").read_bytes() != rendered.read_bytes()
+    commit_all(repo, "figures re-encoded")
+    check = _named(verify_study(study, receipt=False), "figure re-render")[0]
+    assert check.ok is True
+    assert "pixel-identical through a different PNG encoder (exhibit.png)" in check.message
+
+
+def test_different_pixels_fail_on_any_platform_and_name_both(ready_study_v3, tmp_path: Path, monkeypatch) -> None:
+    repo, study = ready_study_v3
+    rendered = tmp_path / "rendered.png"
+    _png(rendered, (10, 20, 30), compress_level=9)
+    _renderer(study, rendered.read_bytes())
+    (study / "figures").mkdir(exist_ok=True)
+    _png(study / "figures" / "exhibit.png", (11, 20, 30), compress_level=9)
+    commit_all(repo, "figures that drifted by one pixel value")
+    monkeypatch.setattr(checks, "_render_platform", lambda _study: ("macos", "arm64"))
+    monkeypatch.setattr(checks, "_current_platform", lambda: ("linux", "x86_64"))
+    check = _named(verify_study(study, receipt=False), "figure re-render")[0]
+    assert check.ok is False
+    assert "exhibit.png" in check.message
+    assert "re-rendered on linux/x86_64" in check.message
+    assert "rendered on macos/arm64" in check.message
+
+
+def test_render_platform_reads_the_earliest_manifest_fingerprint(tmp_path: Path) -> None:
+    study = tmp_path / "study"
+    (study / "runs" / "E0002").mkdir(parents=True)
+    (study / "runs" / "E0001").mkdir(parents=True)
+    (study / "runs" / "E0002" / "manifest.json").write_text(
+        '{"environment": {"platform": "Linux-6.8.0-x86_64-with-glibc2.39", "machine": "x86_64"}}',
+        encoding="utf-8",
+    )
+    (study / "runs" / "E0001" / "manifest.json").write_text(
+        '{"environment": {"platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O", "machine": "arm64"}}',
+        encoding="utf-8",
+    )
+    assert checks._render_platform(study) == ("macos", "arm64")
+    assert checks._platform_family("Windows-10-10.0.20348-SP0", "AMD64") == ("windows", "amd64")
+
+
+def test_render_platform_is_none_without_a_fingerprint(tmp_path: Path) -> None:
+    study = tmp_path / "study"
+    (study / "runs" / "E0001").mkdir(parents=True)
+    (study / "runs" / "E0001" / "manifest.json").write_text('{"experiment": "E0001"}', encoding="utf-8")
+    assert checks._render_platform(study) is None
+    assert checks._render_platform(tmp_path / "nowhere") is None
 
 
 # ---------------------------------------------------------------------------

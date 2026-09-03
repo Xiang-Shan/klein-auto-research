@@ -170,6 +170,12 @@ def main(argv: list[str] | None = None) -> int:
             total, failed = summary
             passed_s, failed_s = str(total - failed), str(failed)
             study_failed = failed > 0 or result.returncode != 0
+            if study_failed:
+                # A red table row must name its check: CI logs show nothing else.
+                print(f"error: {rel}: {failed} failed check(s) (exit {result.returncode})", file=sys.stderr)
+                for line in (result.stdout + result.stderr).splitlines():
+                    if line.startswith("[FAIL]"):
+                        print(f"  | {line}", file=sys.stderr)
 
         any_failed = any_failed or study_failed
         rows.append((rel, passed_s, str(warned), failed_s, str(result.returncode)))
