@@ -258,6 +258,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "inverse_forward_ratio",
         "k_inverse"
       ],
       "strength": "exploratory"
@@ -367,6 +368,13 @@
       "note": "the mean absolute magnitude Hubble printed under Table 2; the sealed target",
       "precision": 1,
       "value": -15.3
+    },
+    "inverse_forward_ratio": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "k_inverse / k_forward (E0007)",
+      "precision": 6,
+      "value": 1.603771
     },
     "k_free": {
       "art": "fits",
