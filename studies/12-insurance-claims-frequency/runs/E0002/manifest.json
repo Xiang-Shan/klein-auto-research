@@ -1,0 +1,115 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1488,
+      "committed": true,
+      "sha256": "8d0fa69fe98c30e6c4d7f8e08f0eff7cebcdd96192e8bb71cadf10231318f617"
+    },
+    "models/best_primary_E0002_0.650095_b2f6e68ee140.joblib": {
+      "availability": "local",
+      "bytes": 22006,
+      "committed": false,
+      "sha256": "e9c3dc39b4a040145b9a4324974672a8199f9c1201a83de315e238cba7130308"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 496,
+      "committed": true,
+      "sha256": "c3ee43ca4dad1ccfe99a73776b02a75ddeaf3de58366afacdfb37682a49b9d35"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 1384,
+      "committed": true,
+      "sha256": "5cbcac480e227e0eae9047fd330527fbe7859f1a759a7e5c3910815ee3bd8a1b"
+    }
+  },
+  "base_commit": "36805cf1734042badc5d88340cd0d23af3c11f45",
+  "candidate_commit": "765ce2742968cea1701f6ac014b303b07cb2c0ab",
+  "code_patch_hash": "fd94c0e374dbe3d7207fb35e4b7c7dd129ee374a56ddea800c1875d0f17e15fc",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.61414 by minimum_delta=0.0375805",
+  "description": "E0002 spline+isotonic: the v1 E2-redux chain (quantile-knot splines on 3 numerics, log1p density, 2 interactions, isotonic cv=5) against the anchor refitted on the same rows; decides P2 and P3; did not improve track frontier 0.61414 by minimum_delta=0.0375805",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T08:29:11.332252Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7",
+    "split_partition": "7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 300.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "anchor_gap": -0.001612,
+    "brier_delta_vs_reference": -0.181647,
+    "delta_in_floors": 0.9568,
+    "delta_vs_reference": 0.035956,
+    "primary_metric": 0.650095,
+    "reference_auc": 0.61414,
+    "reference_brier": 0.240641,
+    "runner_exit_code": 0.0,
+    "total_seconds": 152.0,
+    "train_rows": 46873.0,
+    "training_seconds": 150.7,
+    "twin_free_auc": 0.64868,
+    "twin_free_gap": -0.001415,
+    "twin_free_rows": 5559.0,
+    "v1_anchor": 0.651707,
+    "val_best_threshold": 0.08,
+    "val_brier": 0.058994,
+    "val_f1_at_best": 0.1648,
+    "val_lift_top10": 1.6559,
+    "val_logloss": 0.229362,
+    "val_pr_auc": 0.097857,
+    "val_rows": 5859.0,
+    "wall_seconds": 151.955497
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P2": {
+      "explanation": "primary_metric 0.650095 within 0.0225 of 0.651707 (|\u0394| = 0.001612) \u2192 supported",
+      "verdict": "supported"
+    },
+    "P3": {
+      "explanation": "delta_in_floors 0.9568 >= 1 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P2",
+    "P3"
+  ],
+  "primary_metric": 0.650095,
+  "schema_version": 3,
+  "started_at": "2026-09-03T08:26:38.510829Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T08:29:11.333990Z",
+    "status": "pending"
+  },
+  "wall_seconds": 152.82130341697484
+}
