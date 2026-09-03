@@ -247,11 +247,15 @@
       "strength": "exploratory"
     },
     "C9": {
-      "claim": "At a fixed step budget, spend the schedule before you spend the capacity. The",
-      "class": null,
+      "claim": "At a fixed step budget spend the schedule before the capacity: a pure schedule change was worth 0.052855 nats while multiplying the parameter count by 3.908075 was worth -0.4742 floors.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0005",
+        "E0006"
+      ],
       "numbers": [
+        "e0005_floors",
         "e0006_val_loss",
         "incumbent_gain_nats",
         "train_chars",
