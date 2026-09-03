@@ -181,6 +181,13 @@
       "note": "the keep bar: max(2*std, range/2) of the ten paired seed differences",
       "precision": 7,
       "value": 0.0149525
+    },
+    "paired_floor_std": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "standard deviation of the ten paired seed differences",
+      "precision": 8,
+      "value": 0.00747623
     }
   },
   "study_id": "13-charlm-fixed-budget"
