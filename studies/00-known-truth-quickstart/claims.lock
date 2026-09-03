@@ -49,6 +49,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "boosted_delta_floors",
         "interaction_delta_floors"
       ],
       "strength": "exploratory"
@@ -129,6 +130,13 @@
       "note": "E0003 val_auc, the boosted incumbent on development",
       "precision": 6,
       "value": 0.87139
+    },
+    "boosted_delta_floors": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0003 delta_in_floors over the interaction reference, same rows",
+      "precision": 4,
+      "value": 4.7779
     },
     "boosted_gap_floors": {
       "art": "aux",
