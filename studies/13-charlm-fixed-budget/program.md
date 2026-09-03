@@ -318,3 +318,25 @@ too aggressive early, which would change the anchor recipe for everything after.
   measured floors. The binding constraint at this budget is optimization, not
   generalization, so making every step noisier is a straight loss. H3 is retired in the
   playbook with this run as its evidence.
+- 2026-09-03 — **E0005 (width 128 → 256) — discard, val_loss 1.576240,
+  `delta_in_floors` = −0.4742. Decision: P5 is REFUTED; width is not carried
+  forward.** Quadrupling the parameter count (824,320 → 3,222,336) at the same 2000
+  steps moved the loss by less than half a floor, in the wrong direction. The
+  pre-scripted branch said "refuted → capacity is not the binding constraint at 2000
+  steps, which is itself the headline", and that is the reading: at a STEP budget the
+  wider model gets the same number of gradient updates and simply has more parameters
+  to move with each of them. This is the honest boundary of `kaplan2020`: its
+  compute-optimal advice grows the model while holding FLOPs fixed, and
+  `hoffmann2022` grows tokens with it — this study grows neither, and the wider model
+  never gets the extra passes it would need.
+- 2026-09-03 — **The sixth slot of `adaptive-2` goes to slate candidate #5, cosine
+  decay.** Four of four registered levers have now failed to clear the floor and two
+  of them cost multiple floors, so the emerging reading is that the binding constraint
+  at 2000 steps is optimization progress per step. Cosine decay is the cheapest direct
+  test of that reading that does not change the tokens seen, the parameters, or the
+  arithmetic per step — only when the learning rate is spent. Candidate #6 (batch
+  32 → 64) is deliberately NOT chosen: it doubles the tokens per step, so a win would
+  be a win for tokens rather than for the schedule, and it would leave the study
+  unable to say which. E0006 carries NO registered prediction and is exploratory by
+  construction; it is run because a phase with a free slot should spend it on the
+  question the first five runs raised.
