@@ -4,6 +4,10 @@
       "path": "aux_metrics.tsv",
       "sha256": "409fedb832b400684cc1e4b466c515f12c44848ad6ed8e39af796d0664b5f062"
     },
+    "derived": {
+      "path": "tables/derived_ratios.tsv",
+      "sha256": "163f7b841602ac7aaa81a687aa3dc164da7f1473cecfed5a762eb2335fa92345"
+    },
     "floors": {
       "path": "tables/pair_floors.tsv",
       "sha256": "9160952654945dc718fee9c21ee289053de7fa84730ec6be86492e5db51846b3"
