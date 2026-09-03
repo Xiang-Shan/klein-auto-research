@@ -111,7 +111,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
+      "message": "PASS-WITH-NOTES \u2014 klein-referee (Claude Code subagent, model: claude-opus-5[1m]), independent-of-experimenter: no",
       "name": "referee gate",
       "ok": true
     },
@@ -176,26 +176,32 @@
       "ok": true
     },
     {
-      "message": "3 figure(s) re-render byte-identically",
+      "message": "all 149 rendered numerals trace to a pinned source",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
+      "message": "5 figure(s) re-render byte-identically",
       "name": "figure re-render",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "c11166fa7dc178483b1c39f6eae650808e6cb346",
+  "git_head": "580896f21348797c08021bf2572f085f43de923a",
   "inputs": {
     "aux_metrics.tsv": "2f2487c39a506a06912067ab5ff1dab003d88b8c605eee74ba614c525cf1d8e0",
     "claims.lock": "968fbab6ec578d08869995f78b910d43170fc963be7643827372cc45e93cf2e2",
-    "events.jsonl": "1bd8f22cf0f758bbca6fd70ce1d058c988025d9bb74797bdb4b0c4799f78fdbc",
-    "findings.md": "89568519d7657be4e4543ab8f28c345b69501bc1f4cef70d62f14337e4966cc4",
+    "events.jsonl": "8f22d35ab2adff679a4887fef78114cbfd79f857c3eb0a81ffb2b467a321fccd",
+    "findings.md": "58b386d0fc6531add90fc32091a7da80924c0e418cd0b7b0a919c5cc17e71ea5",
     "playbook.md": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3",
-    "program.md": "c56bcf46f4a4e3a5ac5691511997e7d3eec0a5cf73723b7da6191a6ee88ec8a4",
+    "program.md": "98347b5abcc3b1eebc2de9c21478d83388095c8b9174364ec8ed4784800a63fd",
     "referee_report.md": "e0996e817cbbfb1675ae0e1dc55e933a1a6b6796cd3d4c1ca27277852e8ec33e",
+    "report/index.html": "360dc5a53291ae5858a75dac72620918c9a502a437171b17ea68fbcf7eca8acd",
     "results.tsv": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757",
     "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3",
-    "study_state.json": "d8dceb6d3669246a5e5497bce8e03612cc4a25efbc6418e5a3dcc25c53773a03"
+    "study_state.json": "cd216c2c02f63d65af4b048c0750322d28d61d28ed74099805b41ba3f1ccc8ac"
   },
-  "klein_commit": "c11166fa7dc178483b1c39f6eae650808e6cb346",
+  "klein_commit": "580896f21348797c08021bf2572f085f43de923a",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "a18e2256c80b30a203cb2856bddb6dddbfdeddb12a9b23c67f51b3d84454c900",
@@ -213,11 +219,11 @@
   "single_source_claims": [],
   "study": "11-exact-verifier-construction",
   "summary": {
-    "checks": 36,
+    "checks": 37,
     "failed": 0,
-    "warned": 3
+    "warned": 2
   },
-  "timestamp": "2026-09-03T08:42:23.541118Z",
+  "timestamp": "2026-09-03T11:27:07.590302Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
