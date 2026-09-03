@@ -1,0 +1,77 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | primary | supported | confirmed | empirical-description | E0001, E0002, E0003, E0005 | the ladder closed the distance to the development ceiling of 0.884116 from 10.4555 measured floors at the raw-feature anchor (val_auc 0.806201) to 1.7077 at the boosted incumbent (val_auc 0.871390); the sealed partition returned val_auc 0.880949 against its own ceiling of 0.893469, a distance of 1.6800 floors. Floor: minimum_delta 0.00745212 from a marginal-resplit lottery of k = 10 draws, std 0.00372606 |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ1 | primary | supported | confirmed | known-dgp-teaching (`scope: in-silico`) | E0002, E0003, E0005 | under THIS declared process, a boosted tree shown none of the true terms out-earned handing a linear model the true interaction: `delta_in_floors` 4.7779 against its predecessor on development and 4.6190 against the same predecessor on the sealed rows, versus 3.9699 for the hand-specified interaction |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ1 | primary | supported | exploratory | empirical-description | E0003, E0004 | more capacity did not merely fail to pay, it cost: the over-capacity boosted tree scored val_auc 0.858049 against the incumbent's 0.871390 (`delta_in_floors` -1.7903), its Brier rose to 0.143658 from 0.109337 and its log-loss to 1.024102 from 0.355165, and it took 18.407609 seconds against 0.647123 |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ2 | primary | refuted | exploratory | procedural-verdict | E0003, E0004 | the headroom did NOT close before the fourth candidate: h stood at 1.708 when it was spent, so the detection-limit law neither refused the run nor required an acknowledgement, and the candidate it did not stop came back 1.7903 floors WORSE rather than within the floor |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "(mechanism-interpretation, exploratory)* The ranking gap and the",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "Measure the floor that will judge YOUR comparison, not whichever one is",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "Declare every artifact your entrypoint reads, or derive it from committed",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "Read a headroom of at least one floor as \"not arithmetically excluded\",",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "2b29e93bf0b3230fa2dcccc7401f9feb35b7aae4",
+  "klein_commit": "2b29e93bf0b3230fa2dcccc7401f9feb35b7aae4",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "00-known-truth-quickstart"
+}
