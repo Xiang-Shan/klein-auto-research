@@ -3,7 +3,9 @@
 Templates live HERE and only here, so the command works from an installed wheel
 and nothing can drift. The card templates under ``.claude/skills/klein/assets``
 are different animals: they are gate-authoring aids (data/method/findings), not
-scaffold sources.
+scaffold sources — ``assets/scouting-ledger-template.md`` documents the ledger's
+shape and rationale for a human author, while :data:`SCOUTING_LEDGER` below is
+what ``klein new`` actually writes (the engine never reads the skill directory).
 """
 
 from __future__ import annotations
@@ -237,9 +239,31 @@ VERIFIER_BLOCK = """\
       artifact_key: solution      # gate, and ITS number decides the disposition.
 """
 
+#: Schema 3 only, spliced into ``PROGRAM`` as ``{{ROSTER}}``. The referee reads
+#: this table for the independence rung (``references/referee-protocol.md``);
+#: nothing else in a study says what model or tool ran the loop, so a blank
+#: experimenter row caps the rung at "fresh session".
+ROSTER = """\
+
+## Roster
+
+Who is doing what, and on what. REFEREE cites this table for the independence rung
+(`references/referee-protocol.md`); a blank `experimenter` row caps the achievable
+rung at "fresh session", because no artifact then says what ran the loop. Fill the
+experimenter row at CONSULT and update a row whenever its model, tool or session
+changes.
+
+| Role | Who (model · tool · session) | Since |
+| --- | --- | --- |
+| experimenter | | |
+| data-gate auditor | | |
+| referee | | |
+| lead | (the human who owns this study) | {{DATE}} |
+"""
+
 PROGRAM = """\
 # Program — {{STUDY_ID}}
-
+{{ROSTER}}
 This is the living lab notebook. `study.yaml` is the machine contract;
 `study_state.json`, `events.jsonl`, and `runs/E####/manifest.json` are generated audit
 state and must not be hand-edited.
@@ -317,6 +341,50 @@ exploratory or confirmed.
 2. Establish an honest baseline.
 3. Test the proposed method and ablations inside phase limits.
 4. Run the chosen track candidate once on the sealed final test.
+"""
+
+#: Schema 3 only: the pre-registration disclosure the consult gate hashes. It
+#: ships SCAFFOLDED (not copied by hand from ``assets/scouting-ledger-template.md``)
+#: so that every new study has one and the gate's hash is the norm rather than the
+#: exception — and it ships placeholder-free, because an unresolved ``{{…}}`` in a
+#: hashed gate artifact is refused at ``klein gate record consult``.
+SCOUTING_LEDGER = """\
+---
+type: scouting-ledger
+study: "{{STUDY_ID}}"
+status: open        # open | closed (closed at the CONSULT gate; later entries are a gate re-record)
+---
+
+# Scouting ledger — {{STUDY_ID}}
+
+> Everything looked at BEFORE the CONSULT gate, so that no registered prediction can
+> pretend to a surprise it already knew. Committed before `klein gate record consult`,
+> which hashes this file into the consult record; an edit afterwards fails
+> `klein verify` until the gate is re-recorded with a reason.
+
+## §0 Disclosure
+
+Nothing was computed, read, or plotted before this contract was written — the study
+was scaffolded first and its questions typed from the brief alone. Replace this
+paragraph the moment that stops being true: values seen before the gate may seed
+anchors and identity checks; they may never be scored predictions.
+
+## Entries
+
+| S# | Date | What was looked at | What was seen | Why it is not evidence | Decision |
+|---|---|---|---|---|---|
+| — | {{DATE}} | nothing scouted before the gate | — | — | — |
+
+## Retirements
+
+Directions or values scouted and dropped before the contract, with the reason, so the
+next study does not re-scout them: none.
+
+## Prior-scorecard eligibility
+
+Every research-question prior that rests on a value seen in this ledger is labelled
+`(source: scouted)` in `study.yaml` — not `uninformed`, not `knowledge/…` — and is
+excluded from the knowledge-vs-uninformed scorecard in findings §⑥.
 """
 
 PLAYBOOK = """\
@@ -786,6 +854,9 @@ def scaffold_study(
             else ""
         ),
         "MAX_RUN_SECONDS": str(int(max_run_seconds)),
+        # Schema 2 renders the roster line away entirely, so its program.md stays
+        # byte-identical to the frozen shape every schema-2 fixture pins.
+        "ROSTER": "",
         "RQ1_QUESTION": "{{RQ1_QUESTION}}",
         "RQ1_PRIOR": "{{RQ1_PRIOR}}",
         "LEVER_1": "{{LEVER_1}}",
@@ -795,6 +866,7 @@ def scaffold_study(
     if schema_3:
         values.update(
             {
+                "ROSTER": _render(ROSTER, values),
                 "KIND": kind or "{{KIND}}",
                 "MODALITY": modality or "{{MODALITY}}",
                 "PROFILE_LINE": (
@@ -845,6 +917,11 @@ def scaffold_study(
         "prepare.py": PREPARE,
         entrypoint: entrypoint_template,
     }
+    if schema_3:
+        # Every schema-3 study starts with a ledger, so the consult gate's hash of
+        # it (kleinlib.contract.GATE_OPTIONAL_ARTIFACTS) is the norm, not the
+        # exception. Schema 2 keeps its frozen file set.
+        files["scouting_ledger.md"] = SCOUTING_LEDGER
     if schema_3 and kind == "optimize":
         files["verify.py"] = VERIFY
     for name, template in files.items():

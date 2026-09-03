@@ -33,6 +33,7 @@ from .primitives import (
 )
 
 __all__ = [
+    "OWN_WRITE_PATHS",
     "STATE_WRITE_PATHS",
     "assert_run_worktree",
     "commit_state_writes",
@@ -94,7 +95,22 @@ def git_blob(repo: Path, commit: str, path: str) -> bytes | None:
     return result.stdout if result.returncode == 0 else None
 
 
-def git_commit(repo: Path, message: str, *, allow_empty: bool = False, amend: bool = False) -> str:
+def git_commit(
+    repo: Path,
+    message: str,
+    *,
+    allow_empty: bool = False,
+    amend: bool = False,
+    only: Sequence[str] | None = None,
+) -> str:
+    """Commit the index, or — with ``only`` — exactly the named paths.
+
+    ``only`` appends ``--only -- <paths>``: git builds the commit from HEAD plus
+    the current state of those paths alone and then restores the real index, so
+    anything else staged or modified stays staged or modified. That is what lets
+    a verb file the files it wrote without also sweeping up the operator's
+    in-flight edits (see :func:`commit_state_writes`'s ``scope="own"``).
+    """
     args = ["-c", "user.name=Klein Workflow", "-c", "user.email=klein@localhost", "commit", "-q"]
     if amend:
         args.extend(["--amend", "--no-edit"])
@@ -102,6 +118,8 @@ def git_commit(repo: Path, message: str, *, allow_empty: bool = False, amend: bo
         if allow_empty:
             args.append("--allow-empty")
         args.extend(["-m", message])
+    if only is not None:
+        args.extend(["--only", "--", *only])
     git(repo, args)
     return git(repo, ["rev-parse", "HEAD"]).stdout.strip()
 
@@ -174,6 +192,48 @@ STATE_WRITE_PATHS = (
     "sweeps",
 )
 
+#: The two files EVERY verb may touch — machine state and the append-only event
+#: log — and therefore the only ones a ``scope="own"`` commit adds to the caller's
+#: own ``paths``.  Narrative and derived files are deliberately absent: under
+#: ``own`` scope they are the operator's edit, not the verb's write.
+OWN_WRITE_PATHS = ("study_state.json", "events.jsonl")
+
+#: How many leftover names the ``own``-scope notice spells out before eliding.
+_NOTICE_LIMIT = 5
+
+
+def _leftover_notice(repo: Path, study_dir: Path) -> str | None:
+    """One line naming the tracked edits an ``own``-scope commit did NOT take.
+
+    Untracked files are out of scope: the notice is about edits the operator made
+    to files git already follows, which a ``state``-scope commit would have
+    swallowed.  Names are shown study-relative when they live inside the study
+    and repo-relative otherwise, so a stray edit elsewhere in the repo is still
+    unambiguous.
+    """
+    status = git(repo, ["status", "--porcelain", "--untracked-files=no"], check=False)
+    if status.returncode:
+        return None
+    study = study_dir.resolve()
+    names = set()
+    for line in status.stdout.splitlines():
+        if not line.strip():
+            continue
+        rel = line[3:].split(" -> ")[-1]
+        try:
+            names.add((repo / rel).relative_to(study).as_posix())
+        except ValueError:
+            names.add(rel)
+    if not names:
+        return None
+    shown = sorted(names)[:_NOTICE_LIMIT]
+    if len(names) > _NOTICE_LIMIT:
+        shown.append("…")
+    return (
+        f"note: {len(names)} uncommitted edit(s) left in the tree "
+        f"({', '.join(shown)}) — not part of this commit"
+    )
+
 
 def commit_state_writes(
     study_dir: Path,
@@ -181,6 +241,7 @@ def commit_state_writes(
     *,
     commit: Committer | None = None,
     paths: Sequence[str] = (),
+    scope: str = "state",
 ) -> str | None:
     """Commit the state/derived files a CLI verb just wrote.
 
@@ -189,16 +250,32 @@ def commit_state_writes(
     the operator. No-op outside a git repository (unit fixtures scaffold studies
     in bare temp dirs) and when nothing actually changed.
 
-    ``paths`` names EXTRA study-relative files or directories to include beyond
-    :data:`STATE_WRITE_PATHS`; each is staged only if it exists, so passing a
-    path a verb did not write is harmless. ``commit`` substitutes the committer
-    (default :func:`git_commit`).
+    ``paths`` names study-relative files or directories the verb wrote; each is
+    staged only if it exists, so passing a path a verb did not write is
+    harmless. ``commit`` substitutes the committer (default :func:`git_commit`).
+
+    ``scope`` decides what else rides along:
+
+    ``"state"``
+        Everything in :data:`STATE_WRITE_PATHS` that changed, plus ``paths``, in
+        one commit of the whole index. A gate record files the artifacts it
+        hashes, and ``run-one``/``finalize``/``recover`` file the study's state,
+        so those verbs deliberately take the tree with them.
+    ``"own"``
+        ONLY ``paths`` plus :data:`OWN_WRITE_PATHS`, committed with
+        ``git commit --only`` so nothing else staged or modified is taken. Any
+        other tracked edit is left alone and named on stdout by
+        :func:`_leftover_notice` — "if the tree is dirty at run time, it is your
+        edit, not Klein's", and it stays yours.
     """
+    if scope not in ("state", "own"):
+        raise WorkflowError(f"unknown commit scope {scope!r} (expected 'state' or 'own')")
     probe = git(study_dir, ["rev-parse", "--show-toplevel"], check=False)
     if probe.returncode:
         return None
     repo = Path(probe.stdout.strip()).resolve()
-    names = [*STATE_WRITE_PATHS, *(name for name in paths if name not in STATE_WRITE_PATHS)]
+    base = OWN_WRITE_PATHS if scope == "own" else STATE_WRITE_PATHS
+    names = [*base, *(name for name in paths if name not in base)]
     existing = [
         relative(repo, study_dir / name)
         for name in names
@@ -207,9 +284,20 @@ def commit_state_writes(
     if not existing:
         return None
     git(repo, ["add", "--", *existing])
-    if git(repo, ["diff", "--cached", "--quiet"], check=False).returncode == 0:
+    # ``state`` scope asks the whole index, exactly as it always has; ``own``
+    # scope asks only about its own paths, so a file the operator happened to
+    # have staged can neither trigger nor suppress this commit.
+    pathspec = ["--", *existing] if scope == "own" else []
+    if git(repo, ["diff", "--cached", "--quiet", *pathspec], check=False).returncode == 0:
         return None
-    return (commit or git_commit)(repo, message)
+    committer = commit or git_commit
+    if scope == "state":
+        return committer(repo, message)
+    head = committer(repo, message, only=existing)
+    notice = _leftover_notice(repo, study_dir)
+    if notice:
+        print(notice)
+    return head
 
 
 def stage_evidence(repo: Path, study_dir: Path, manifest: Mapping[str, Any]) -> None:

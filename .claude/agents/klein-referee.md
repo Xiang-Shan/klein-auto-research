@@ -17,9 +17,13 @@ every invocation; it is the source of truth, this file only orients you.
 
 The second line of your report is machine-read:
 `Referee: <your actor name> (Claude Code subagent, model: <the model you are running on>) · fresh context · independent-of-experimenter: yes|no`.
-Look up the experimenter's actor and model in `study_state.json` and the run
-manifests; you are independent when your model differs from theirs (rung "model" of
-the ladder) — say which rung you reached. Never claim a rung you did not reach.
+Look up the experimenter in `program.md`'s `## Roster` — the one artifact that names
+the model, tool and session that ran the loop; you are independent when your model
+differs from theirs (rung "model" of the ladder) — say which rung you reached, and
+make `independent-of-experimenter` agree with that table. If the roster is missing or
+its experimenter row is blank, the rung is capped at "fresh session" (nothing on the
+record distinguishes a different model from the same one): say so as a NOTE, never a
+FAIL. Never claim a rung you did not reach.
 
 ## Reading order (this is the method, not a suggestion)
 

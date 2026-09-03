@@ -126,7 +126,10 @@ klein verify      --study studies/14-my-question       # writes verify_receipt.j
 
 Gate records, `finalize`, `recover`, `claims`, `predict adjudicate` and `verify`
 commit their own state writes — the loop never dead-ends on receipts the CLI itself
-generated. `klein gate override` records an explicit reason instead of silently
+generated. Verify, claims, predict, replicate, sweep, stop and headroom commit only
+the files they wrote and name what they left behind; gate records, `run-one` and
+`finalize` file the study artifacts they hash. `klein gate override` records an
+explicit reason instead of silently
 bypassing a gate; `klein headroom ack` and `klein stop ack` put a closed door on the
 record; `klein predict adjudicate` records sidecar evidence with its hash; `klein
 sweep register` makes a measurement sweep citable; `klein doctor` says what resolves
@@ -197,7 +200,7 @@ artifact.
 
 | Study | kind · modality · profile | Question | Headline (from its `claims.lock`) |
 |---|---|---|---|
-| `00-known-truth-quickstart` | predict · tabular (synthetic) · generic | With the Bayes-optimal score known, does the loop reach it, and does the headroom law stop it honestly? | <!-- filled from claims.lock at release --> |
+| [`00-known-truth-quickstart`](studies/00-known-truth-quickstart/) | predict · tabular (synthetic) · generic | With the Bayes-optimal score known, does the loop reach it, and does the headroom law stop it honestly? | Three keeps closed the distance to the known ceiling from 10.4555 floors (val_auc 0.806201) to 1.7077 (0.871390); the one sealed look landed 1.68 floors from the sealed partition's own ceiling (confirmed); at h = 1.708 the over-capacity candidate lost 1.7903 floors; both replicate attempts failed for non-scientific reasons and stayed on the record |
 | `10-hubble-1929-replication` | replicate + estimate · tabular · generic | Do Hubble's 1929 values reproduce from his own 24 objects, and what does the 1929 table actually support? | <!-- filled from claims.lock at release --> |
 | `11-exact-verifier-construction` | optimize · none · math | Can a budgeted search match the best-known value under an exact verifier — and what may it claim when it cannot? | <!-- filled from claims.lock at release --> |
 | `12-insurance-claims-frequency` | predict · tabular · insurance | Are GLM and GBDT anchors reproducible on 58k real auto-insurance claims, and how much headroom is there? | <!-- filled from claims.lock at release --> |

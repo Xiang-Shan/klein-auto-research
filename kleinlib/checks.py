@@ -8,10 +8,10 @@ mutates a study — every problem is returned, never raised.
 
 One documented exception: ``klein verify`` on a schema-3 study files its own
 receipt (:func:`write_verify_receipt`, ``verify_receipt.json``) through
-``transaction.commit_state_writes``, the same way every other CLI verb commits
-the state it generates.  That write is the receipt of the audit, never a change
-to the evidence, and it is off for schema 2 so studies 03 and 05–09 verify
-byte-identically.
+``transaction.commit_state_writes(scope="own")`` — the receipt and nothing else,
+the same way every other reading verb commits only what it generated.  That
+write is the receipt of the audit, never a change to the evidence, and it is off
+for schema 2 so studies 03 and 05–09 verify byte-identically.
 """
 
 from __future__ import annotations
@@ -1619,14 +1619,13 @@ def write_verify_receipt(
     checks: Sequence[Check],
     version: int,
 ) -> Path:
-    """Write ``verify_receipt.json`` and file it the way every verb files state.
+    """Write ``verify_receipt.json`` and file exactly that.
 
-    ``commit_state_writes`` always stages :data:`~kleinlib.transaction.STATE_WRITE_PATHS`
-    alongside the extra path, so an in-progress edit to a STATE file — findings,
-    the playbook, a sweep sidecar — is filed with the receipt exactly as it would
-    be by ``klein finalize`` or ``klein claims``.  The mutable surface is
-    deliberately not in that list, so ``run-one``'s restore anchor and its
-    clean-tree guard are untouched.
+    ``scope="own"`` keeps the commit to the receipt (plus state and events when
+    verify touched them).  An in-progress edit to findings, the playbook, a
+    figure or a sweep sidecar is the operator's, and stays theirs — filing it
+    under a ``klein: verify receipt`` subject would describe a tree nobody
+    deliberately committed.  The verb names what it left behind on stdout.
     """
     path = study_dir / RECEIPT_NAME
     atomic_write_json(path, verify_receipt(study_dir, contract, state, checks, version))
@@ -1635,6 +1634,7 @@ def write_verify_receipt(
         study_dir,
         f"klein: verify receipt ({len(checks)} checks, {failed} failed)",
         paths=[RECEIPT_NAME],
+        scope="own",
     )
     return path
 

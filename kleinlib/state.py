@@ -24,6 +24,7 @@ import yaml
 
 from .contract import (
     GATE_ARTIFACTS,
+    GATE_OPTIONAL_ARTIFACTS,
     MODELING_GATES,
     PLACEHOLDER_RE,
     SUPPORTED_SCHEMA_VERSIONS,
@@ -435,6 +436,24 @@ def record_gate(
             if PLACEHOLDER_RE.search(text):
                 raise WorkflowError(f"cannot {verb} {gate}: unresolved placeholder in {name}")
             artifact_hashes[name] = sha256_file(path)
+        # Optional artifacts (schema 3): hashed when present, their ABSENCE
+        # recorded when not. `scouting_ledger.md` is the only one today — the
+        # protocol's "the gate hashes it" becomes true here, and a study that
+        # scouted nothing says so on the record instead of leaving a silence.
+        optional_present: list[str] = []
+        optional_absent: dict[str, str] = {}
+        if schema_version(contract) >= 3:
+            for name in GATE_OPTIONAL_ARTIFACTS.get(gate, ()):
+                path = study_dir / name
+                if not path.is_file():
+                    optional_absent[Path(name).stem] = "absent"
+                    continue
+                if PLACEHOLDER_RE.search(path.read_text(encoding="utf-8")):
+                    raise WorkflowError(
+                        f"cannot {verb} {gate}: unresolved placeholder in {name}"
+                    )
+                artifact_hashes[name] = sha256_file(path)
+                optional_present.append(name)
         referee_facts: dict[str, Any] = {}
         if gate == "referee":
             if schema_version(contract) < 3:
@@ -523,6 +542,7 @@ def record_gate(
             note=note,
             reason=override_reason,
             artifact_hashes=artifact_hashes,
+            **optional_absent,
             **referee_facts,
         )
         save_state(study_dir, state)
@@ -531,7 +551,9 @@ def record_gate(
         # and `referee_report.md` joins its own commit rather than being left
         # untracked for the next clean-tree check to trip over.
         commit_state_writes(
-            study_dir, f"klein: {gate} gate {status}", paths=GATE_ARTIFACTS[gate]
+            study_dir,
+            f"klein: {gate} gate {status}",
+            paths=(*GATE_ARTIFACTS[gate], *optional_present),
         )
         return state
 
@@ -608,7 +630,12 @@ def acknowledge_headroom(
             note=note,
         )
         save_state(study_dir, state)
+        # An acknowledgement writes state and events and nothing else: scope="own"
+        # so a closed door goes on the record without also filing whatever the
+        # operator happened to have open in the tree.
         commit_state_writes(
-            study_dir, f"klein: headroom infeasibility acknowledged ({track})"
+            study_dir,
+            f"klein: headroom infeasibility acknowledged ({track})",
+            scope="own",
         )
         return entry

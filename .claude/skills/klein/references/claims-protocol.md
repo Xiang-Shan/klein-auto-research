@@ -206,6 +206,13 @@ receipt, never hand-edited after `init`); `erratum` also appends the event
 `erratum_filed`. A lock with a `null` class fails verification, so `init` cannot be
 mistaken for a finished lock.
 
+That self-commit carries the lock and nothing else. Verify, claims, predict,
+replicate, sweep, stop and headroom commit only the files they wrote — an
+in-progress `findings.md` beside them stays yours, and is named on stdout rather
+than swept into a `klein: claims …` commit; gate records, `run-one` and `finalize`
+file the study artifacts they hash. Since the lock's history is read commit by
+commit for the append-only check, a `claims` commit is exactly one lock revision.
+
 ## Errata re-scope, never delete
 
 An erratum names the claims it touches and what is now known; the claims keep their

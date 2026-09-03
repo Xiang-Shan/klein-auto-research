@@ -416,10 +416,12 @@ def test_missing_included_file_fails_with_exit_6(build_module, tmp_path, capsys)
 
 
 def test_included_path_escaping_study_dir_is_rejected(build_module, tmp_path, capsys):
-    for bad in ("../../etc/passwd", "/etc/passwd"):
+    for index, bad in enumerate(("../../etc/passwd", "/etc/passwd")):
         frags = dict(FRAGMENTS)
         frags["06-coding-advice.html"] = f'<h2>C</h2><pre data-code="{bad}"></pre>'
-        study = scaffold(tmp_path / f"00-esc{abs(hash(bad)) % 100}", fragments=frags)
+        # Indexed, not hashed: `abs(hash(bad)) % 100` collided under some
+        # PYTHONHASHSEED values and the second scaffold died on FileExistsError.
+        study = scaffold(tmp_path / f"00-esc{index}", fragments=frags)
         rc = build_module.main([str(study)])
         assert rc == 6, bad
         assert "relative path inside the study dir" in capsys.readouterr().err

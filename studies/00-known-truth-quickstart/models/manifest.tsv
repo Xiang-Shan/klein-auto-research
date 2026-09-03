@@ -1,0 +1,5 @@
+experiment	track	path	metric	primary_name	metric_goal	sha256	available	created_utc
+E0001	primary	models/best_primary_E0001_0.806201_f54e47905e2b.joblib	0.80620076372602079	val_auc	higher	a0eaa7c3bf86b5942a884a6c2410773f560551fe61dc930c9b25bed07f291eb0	true	2026-09-03T05:28:30.118384+00:00
+E0002	primary	models/best_primary_E0002_0.835785_60b28d753b36.joblib	0.83578523827486473	val_auc	higher	3a7b82ab0f5d5bdfd9d6deaea16b70de8292303532c0bfbb22e01bbf1445aad8	true	2026-09-03T05:28:53.455944+00:00
+E0003	primary	models/best_primary_E0003_0.87139_f322ed32c8bb.joblib	0.87139047884582799	val_auc	higher	7f505c18211241de729db3766d1815392c0462c15f0cf63b7b103e3d35aab443	true	2026-09-03T05:29:06.071524+00:00
+E0005	primary	models/best_primary_E0005_0.880949_32d175d10fbb.joblib	0.88094920231154661	val_auc	higher	1b297b25a71e0129addf1fca34738393c6c35efb5fa3f9b7915d0c3f66baa3b9	true	2026-09-03T05:31:50.723791+00:00

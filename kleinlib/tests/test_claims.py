@@ -13,6 +13,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from test_commit_state_writes import modified_paths
 
 from kleinlib import claims as claims_module
 from kleinlib import cli
@@ -242,6 +243,39 @@ def locked_study(ready_study) -> tuple[Path, Path]:
         evidence=["E0001"],
     )
     return repo, study
+
+
+def test_a_claims_commit_carries_the_lock_and_nothing_else(locked_study, capsys) -> None:
+    """E15: ``klein claims`` files ``claims.lock``, never the findings draft.
+
+    The lock is append-only across its git history, so its commits are read one
+    by one.  A ``klein: claims`` commit that also carried an in-progress
+    ``findings.md`` would put a sentence on the record that no claims verb ever
+    checked.
+    """
+    repo, study = locked_study
+    findings = study / "findings.md"
+    findings.write_text(
+        findings.read_text(encoding="utf-8") + "\n- a sentence still moving\n",
+        encoding="utf-8",
+    )
+
+    add_claim(
+        study,
+        "C3",
+        claim_class="procedural-verdict",
+        strength="exploratory",
+        claim="A third verdict, filed alone.",
+        evidence=["E0001"],
+    )
+
+    committed = set(_git(repo, "show", "--name-only", "--format=", "HEAD").splitlines())
+    assert committed == {"studies/03-demo/claims.lock"}
+    assert modified_paths(repo) == {"studies/03-demo/findings.md"}
+    assert (
+        "note: 1 uncommitted edit(s) left in the tree (findings.md) "
+        "— not part of this commit"
+    ) in capsys.readouterr().out
 
 
 def test_schema2_lock_round_trips_and_verifies_clean(locked_study) -> None:

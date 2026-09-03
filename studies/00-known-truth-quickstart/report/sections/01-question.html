@@ -1,0 +1,27 @@
+<h2>The question</h2>
+
+<p>Every real study ends with the same unanswerable complaint: <em>my score stopped
+moving &mdash; is my model bad, or is this as good as it gets?</em> Nobody can tell
+you, because on real data nobody knows the best score that was ever available.</p>
+
+<p>This study buys that answer by giving up something else. The evidence here is not
+found, it is <strong>generated</strong>: <code>prepare.py</code> writes out the exact
+process that produced every row, so the best score any model could possibly reach is
+not a guess but a computation. That one fact turns two vague worries into
+arithmetic:</p>
+
+<ul>
+  <li><strong>How far is my model from the best possible?</strong> Computable, because
+      the truth is declared.</li>
+  <li><strong>Is that distance big enough for my measurement to see?</strong>
+      Computable too, once the noise floor has been measured.</li>
+</ul>
+
+<p>So the study climbs a four-rung ladder of ordinary tabular models and asks, at every
+rung, how much of the distance to the known ceiling it has closed &mdash; measured not
+in metric units but in units of what the measurement can actually resolve. Then it
+spends its one look at held-out data to check the answer.</p>
+
+<p>The decision a reader takes away is not &ldquo;use gradient boosting&rdquo;. It is
+<em>when to stop</em>, and how to know you have reached that point rather than
+guessing.</p>

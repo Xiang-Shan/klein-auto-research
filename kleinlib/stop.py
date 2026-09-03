@@ -258,5 +258,9 @@ def acknowledge_stop(
             note=note,
         )
         save_state(study_dir, state)
-        commit_state_writes(study_dir, f"klein: stop rule acknowledged ({key} at {count})")
+        commit_state_writes(
+            study_dir,
+            f"klein: stop rule acknowledged ({key} at {count})",
+            scope="own",
+        )
         return entry

@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import hashlib
 import os
 import re
 import shutil
@@ -1890,6 +1891,21 @@ def run_schema3_lane(
         results,
         "PASS" if recorded else "FAIL",
         "schema-3: consult / data / method gates recorded",
+    )
+    # The scaffolded scouting ledger is the consult gate's optional artifact: hashed
+    # into the record when present, so "pre-registered" rests on a hash and not on a
+    # commit order nobody checks (references/consult-protocol.md).
+    ledger_hash = gates.get("consult", {}).get("artifacts", {}).get("scouting_ledger.md")
+    enforced = study_state().get("artifact_hashes", {})
+    record(
+        results,
+        "PASS"
+        if ledger_hash
+        and enforced.get("scouting_ledger.md") == ledger_hash
+        and ledger_hash
+        == hashlib.sha256((study_dir / "scouting_ledger.md").read_bytes()).hexdigest()
+        else "FAIL",
+        "schema-3: the consult gate hashes the scaffolded scouting_ledger.md",
     )
     split = study_state()["fingerprints"].get("split")
     frozen = isinstance(split, dict) and {"development", "final_test", "policy"} <= set(split)

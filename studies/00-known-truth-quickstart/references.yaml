@@ -1,0 +1,47 @@
+# The citations a `ref:<key>` evidence id resolves to. Written at the METHOD
+# gate; every row was checked against the publisher or arXiv page on the date
+# below, not quoted from memory.
+references:
+  hanley1982:
+    title: "The meaning and use of the area under a receiver operating characteristic (ROC) curve"
+    authors: "Hanley, J. A.; McNeil, B. J."
+    year: 1982
+    venue: "Radiology 143(1), 29-36"
+    doi: "10.1148/radiology.143.1.7063747"
+    url: "https://pubs.rsna.org/doi/10.1148/radiology.143.1.7063747"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch, publisher + author copy)"
+    verified_at: "2026-09-03"
+    why: "AUC = P(score of a random positive > score of a random negative); this identity is why ranking rows by the TRUE probability is optimal, which is what makes a Bayes AUC computable at all."
+  friedman2001:
+    title: "Greedy function approximation: a gradient boosting machine"
+    authors: "Friedman, J. H."
+    year: 2001
+    venue: "The Annals of Statistics 29(5), 1189-1232"
+    doi: "10.1214/aos/1013203451"
+    url: "https://projecteuclid.org/journals/annals-of-statistics/volume-29/issue-5/Greedy-function-approximation-A-gradient-boosting-machine/10.1214/aos/1013203451.full"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch, Project Euclid page)"
+    verified_at: "2026-09-03"
+    why: "The stagewise additive fit the boosted rung of this ladder performs; the source of the claim that boosting approximates an arbitrary smooth log-odds surface without being told its terms."
+  ke2017:
+    title: "LightGBM: a highly efficient gradient boosting decision tree"
+    authors: "Ke, G.; Meng, Q.; Finley, T.; Wang, T.; Chen, W.; Ma, W.; Ye, Q.; Liu, T.-Y."
+    year: 2017
+    venue: "Advances in Neural Information Processing Systems 30, 3146-3154"
+    url: "https://papers.nips.cc/paper/2017/file/6449f44a102fde848669bdd9eb6b76fa-Paper.pdf"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch, NeurIPS proceedings page)"
+    verified_at: "2026-09-03"
+    why: "The histogram-binned, leaf-wise GBDT this study actually runs: scikit-learn's HistGradientBoostingClassifier is modelled on it."
+  grinsztajn2022:
+    title: "Why do tree-based models still outperform deep learning on tabular data?"
+    authors: "Grinsztajn, L.; Oyallon, E.; Varoquaux, G."
+    year: 2022
+    venue: "NeurIPS 2022 Datasets and Benchmarks Track"
+    arxiv: "2207.08815"
+    url: "https://arxiv.org/abs/2207.08815"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch, arXiv + NeurIPS proceedings)"
+    verified_at: "2026-09-03"
+    why: "The doctrine anchor for medium-sized tables (~10k rows): tree ensembles remain the thing to beat, which is why the ladder's top rung is a boosted tree and not a network."

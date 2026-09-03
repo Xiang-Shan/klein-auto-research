@@ -19,10 +19,20 @@ the experimenter.
   tool > a different model > a different backend of the same model > a fresh session
   of the same model. The `Referee:` line states the rung; `independent-of-experimenter:
   no` is allowed but is printed on the gate record and in the README gallery.
+- **The rung is read from `program.md`'s `## Roster`.** That table — `experimenter`,
+  `data-gate auditor`, `referee`, `lead`, each with its model · tool · session — is
+  the only artifact that says what ran the loop, so it is what the rung claim rests
+  on, and the `Referee:` line's `independent-of-experimenter` answer must AGREE with
+  it. A blank `experimenter` row caps the achievable rung at "fresh session": nothing
+  on the record distinguishes a different model from the same one. A missing or
+  incomplete roster is a NOTE in the report (and a capped rung), never a FAIL — the
+  roster is documentation, not evidence.
 - **Reading order is part of the method.** `findings.md` FIRST, forming a view of what
   is claimed and how strongly; then `claims.lock`, `study.yaml`, `results.tsv` and the
   manifests, `data_card.md`, `method_card.md`; `program.md` LAST — the narrative that
   makes a conclusion feel inevitable is read only after the evidence has been weighed.
+  Its `## Roster` table is the one exception: a metadata header, not narrative, read
+  whenever the rung is needed.
 - **Read-only verbs only.** `klein verify --numbers --evidence-use`, `klein claims
   verify`, `klein status`, `klein predict list`, and a figure re-render into a
   temporary directory compared byte-for-byte. No `run-one`, no edits to any study file,

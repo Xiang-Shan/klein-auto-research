@@ -1,0 +1,76 @@
+<h2>The experiment journey</h2>
+
+<h3>Phase 0: two floors, and only one of them is a bar</h3>
+
+<p>Before any candidate ran, the study measured how much its own metric moves when
+nothing improves. It measured this <em>twice</em>, two different ways, and the two
+answers disagreed by everything.</p>
+
+<p>Refitting the same anchor on the same rows under five different fit seeds moved the
+score <strong>not at all</strong>: standard deviation 0, range 0. A convex solver on a
+fixed partition is deterministic. Re-drawing <em>which rows are held out</em> and
+re-measuring moved it with a standard deviation of 0.00372606 over ten draws, giving a
+keep bar of</p>
+
+<div data-math-display="\delta = \max(2\sigma,\ \mathrm{range}/2) = 0.00745212"></div>
+
+<p>This is the trap the whole discipline exists to avoid. A study that had pasted the
+cheap number into its contract would have carried a keep bar of <em>zero</em> and would
+have kept every candidate that moved the last decimal. Klein records the two under
+different keys &mdash; <code>fit_noise</code> for provenance, <code>noise_floor</code>
+for the bar &mdash; so the cheap one can never be mistaken for the expensive one.</p>
+
+<h3>The ladder</h3>
+
+<p>Four candidates, each one falsifiable idea, each committed before it ran. Every run
+printed its own distance to the ceiling and its paired lift over the rung it claimed to
+beat &mdash; the predecessor refitted on the <em>same rows</em> inside the same run, so
+the comparison lives in one printed block instead of being reconstructed
+afterwards.</p>
+
+<!--LEDGER-->
+
+<img data-fig="figures/headroom_bar.png"
+     alt="Left panel: every rung's val_auc on a zero-based axis with the Bayes ceiling and the chance line drawn; the five bars look nearly identical. Right panel: the same distances to the ceiling divided by the measured floor, where they differ by a factor of six.">
+
+<p>The pair of panels is the lesson. On the left, in metric units, all five rungs look
+alike and the ceiling sits just above them &mdash; that is the honest picture, and it
+is why a reader staring at raw AUC cannot tell progress from noise. On the right, the
+same distances divided by the measured floor: the anchor is 10.4555 floors from the
+ceiling and the boosted rung is 1.7077. Same numbers, one division, completely
+different story.</p>
+
+<img data-fig="figures/plot_decision_trajectory__primary.png"
+     alt="The primary track's decision trajectory: three keeps stepping up the frontier, one discard plotted below it, and the sealed run marked separately as a star inside its own phase band.">
+
+<h3>The fourth rung, and the discard that paid for itself</h3>
+
+<p>Before spending the fourth candidate the study read its headroom:
+<span data-math="h = 1.708"></span>. Ajar, not open &mdash; so the detection-limit law
+neither refused the run nor demanded an acknowledgement. The study spent it anyway, on
+an over-capacity boosted tree with five times the trees, no shrinkage discipline and no
+early stopping.</p>
+
+<p>It came back <strong>worse</strong>: <code>delta_in_floors</code> -1.7903 against
+its own reference, a discard. And it broke the probabilities long before it broke the
+ranking &mdash; log-loss went from 0.355165 to 1.024102, nearly triple, while the
+AUC change was only <code>delta_vs_reference</code> -0.013341. It also cost
+18.407609 seconds against 0.647123.</p>
+
+<p>That refuted a registered prediction. P4 was written as a <em>no-effect</em>
+prediction &mdash; &ldquo;within noise&rdquo; &mdash; and the honest reading of a
+refuted no-effect prediction is not &ldquo;nothing happened after all&rdquo; but
+&ldquo;something happened, in the wrong direction&rdquo;. The study wrote that down,
+dated, and stopped buying capacity.</p>
+
+<h3>The one sealed look</h3>
+
+<p>The sealed partition was rehearsed first &mdash; a dry run that executes the whole
+path on development data and spends nothing, because an earlier study lost its only
+seal to a crash that happened before any data was read. Then it was spent once. The
+selected configuration scored 0.880949 against that partition's own ceiling of
+0.893469, a distance of 1.68 floors against 1.7077 on development.</p>
+
+<p>The distance to the ceiling did not grow when the rows changed. That is what
+&ldquo;the remaining gap is irreducible at this sample size&rdquo; looks like when you
+can actually see the ceiling.</p>

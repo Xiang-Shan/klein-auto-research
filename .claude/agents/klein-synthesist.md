@@ -110,6 +110,12 @@ alias in `numbers`.
 
 ## Hand-back to the orchestrator
 
+Before you hand back, confirm `program.md`'s `## Roster` is complete — experimenter,
+data-gate auditor and lead, each with model · tool · session. You are the last reader
+who still knows who ran what, and the referee reads that table for the independence
+rung: a blank experimenter row caps the study's rung at "fresh session". Name any row
+you could not fill.
+
 Your final message is all the orchestrator sees. Report compactly: verdict per RQ (one
 line each, with evidence IDs); the held/falsified score on the predictions table; the
 single biggest surprise + mechanism; the headline practical advice (top 3); any data
