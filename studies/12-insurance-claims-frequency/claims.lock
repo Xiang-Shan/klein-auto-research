@@ -8,6 +8,10 @@
       "path": "tables/derived_ratios.tsv",
       "sha256": "46fa6053dc7898f7abc7f1abfe51a55d37510a931d704048d7a7fd8439b4dd3f"
     },
+    "duplicates": {
+      "path": "tables/duplicate_exposure.tsv",
+      "sha256": "6de85ad5ce406680727dd116e9668a63cc86cf449f924d50f1d167b91479c9b4"
+    },
     "floors": {
       "path": "tables/pair_floors.tsv",
       "sha256": "9160952654945dc718fee9c21ee289053de7fa84730ec6be86492e5db51846b3"
