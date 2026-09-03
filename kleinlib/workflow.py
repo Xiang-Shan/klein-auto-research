@@ -50,6 +50,7 @@ from .checks import (
 from .contract import (
     GATE_ARTIFACTS,
     IDENTIFIER_RE,
+    MODELING_GATES,
     PLACEHOLDER_RE,
     SCHEMA_VERSION,
     STUDY_ID_RE,
@@ -84,6 +85,7 @@ from .decision import (
     parse_printed_lines,  # noqa: F401  (re-export)
     parse_printed_strings,
     printed_values,
+    registered_guardrails,
     track_headroom,
 )
 from .errors import WorkflowError
@@ -100,6 +102,19 @@ from .manifest import (
     load_manifests,
     render_results,
     validate_manifest,
+)
+from .predictions import (
+    counts as prediction_counts,
+)
+from .predictions import (
+    findings_problems as _findings_prediction_problems,
+)
+from .predictions import (
+    ledger as prediction_ledger,
+)
+from .predictions import (
+    open_predictions,
+    record_run_adjudications,
 )
 from .primitives import (
     StudyLock,
@@ -125,6 +140,7 @@ from .state import (
     load_state,
     reconcile_state,
     record_gate,
+    referee_gate,
     registered_partition_fingerprints,
     save_state,
     split_policy_hash,
@@ -161,6 +177,7 @@ from .transaction import (
 #: ``kleinlib.workflow`` and is the SAME object as the one its home module
 #: defines (see kleinlib/tests/test_module_split.py, which freezes this list).
 __all__ = [
+    "ARTIFACT_MISSING",
     "AUTO_PRINTED_METRIC_KEYS",
     "Check",
     "EVALUATOR_PRINTED_KEYS",
@@ -294,6 +311,52 @@ VERIFIER_FAILED = "verifier_failed"
 #: The searcher and the checker disagree by more than the declared tolerance.
 #: One of them is wrong and the run says which numbers were compared.
 VERIFIER_DISAGREEMENT = "verifier_disagreement"
+
+#: A cell printed ``artifact: <path>`` for a path that does not exist, or that
+#: escapes the study.  A cell that cannot produce its table has not measured
+#: anything, so this is a crash and never a ``measured`` row.
+ARTIFACT_MISSING = "artifact_missing"
+
+
+def _declared_artifacts(study_dir: Path, log_path: Path) -> dict[str, dict[str, Any]]:
+    """Hash every ``artifact:`` line the run printed, as ``role: declared``.
+
+    Registered mode's way of making a TABLE first-class evidence
+    (``references/registered-mode.md``): the cell prints the study-relative
+    POSIX path of each artifact it produced, the notary hashes the bytes into
+    the manifest, and a claim can then cite them.  One cell whose artifact is a
+    42-row table is lawful and often better than 42 cells.
+
+    Missing, or escaping the study directory, is a :data:`ARTIFACT_MISSING`
+    crash: the alternative — a ``measured`` row whose evidence is not there —
+    is exactly the receipt the engine exists to refuse.
+    """
+    evidence: dict[str, dict[str, Any]] = {}
+    for raw in parse_printed_strings(log_path).get("artifact", ()):
+        rel = raw.strip()
+        if not rel:
+            continue
+        try:
+            path = _artifact_path(study_dir, rel)
+        except WorkflowError as exc:
+            raise WorkflowError(f"{ARTIFACT_MISSING}: {exc}") from exc
+        if not path.is_file():
+            raise WorkflowError(
+                f"{ARTIFACT_MISSING}: the run declared `artifact: {rel}` but no such "
+                "file exists when the child exited — a cell that cannot produce its "
+                "table has not measured anything"
+            )
+        size = path.stat().st_size
+        committed = (
+            path.suffix.lower() not in UNSAFE_PAYLOAD_SUFFIXES and size <= 10 * 1024 * 1024
+        )
+        evidence[Path(rel).as_posix()] = {
+            "sha256": sha256_file(path),
+            "bytes": size,
+            "committed": committed,
+            "role": "declared",
+        }
+    return evidence
 
 
 def _run_declared_verifier(
@@ -682,7 +745,9 @@ def run_one(
     with StudyLock(study_dir):
         state = load_state(study_dir, contract)
         gates = state.get("gates")
-        for gate in GATE_ARTIFACTS:
+        # The hard-block rule: CONSULT, DATA and METHOD. The referee gate comes
+        # after synthesize and is enforced at `finalize`.
+        for gate in MODELING_GATES:
             entry = gates.get(gate) if isinstance(gates, Mapping) else None
             if (
                 not isinstance(entry, Mapping)
@@ -762,8 +827,17 @@ def run_one(
             )
         timeout = min(timeout, remaining_budget)
         manifests = load_manifests(study_dir)
-        incumbent = _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
-        if not final_test:
+        # `references/registered-mode.md`: a registered track runs CELLS of a
+        # pre-registered measurement program.  It holds no incumbent, so the
+        # headroom law (and the stop rule, which asks the same question) has
+        # nothing to measure a closed door against.
+        registered = str(tracks[track].get("mode", "frontier")) == "registered"
+        incumbent = (
+            None
+            if registered
+            else _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
+        )
+        if not final_test and not registered:
             _enforce_headroom(state, tracks[track], track, incumbent, echo=echo)
             stop.refuse_if_tripped(
                 contract, state, manifests, track=track, phase=phase_id, echo=echo
@@ -782,10 +856,16 @@ def run_one(
             if schema_version(contract) >= 3
             else ("uv", "run", "--locked", "python", "-u", "train.py")
         )
+        # On a REGISTERED track a replication IS evidence: an identical cell
+        # re-run to decide a named prediction is exactly the kind of repeat
+        # science wants, so `--tests P#` earns the same exemption `--allow-rerun`
+        # gives a frontier candidate.
+        replication_adjudicates = registered and bool(requested_predictions)
         if (
             not final_test
             and command is None
             and not allow_rerun
+            and not replication_adjudicates
             and not _git(repo, ["status", "--porcelain", "--", *surface_rels]).stdout.strip()
         ):
             # Before any E#### is allocated, run dir created, or commit made —
@@ -797,6 +877,12 @@ def run_one(
                 f"incumbent configuration and burn a phase slot; edit {surface_names} with "
                 "ONE falsifiable change, or pass --allow-rerun for an intentional "
                 "identical replication"
+                + (
+                    " (on a registered track, --tests P# also allows it — a repeat that "
+                    "adjudicates a prediction is evidence)"
+                    if registered
+                    else ""
+                )
             )
         base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
         _git(repo, ["add", "--", *surface_rels])
@@ -894,6 +980,7 @@ def run_one(
                 "timed_out": process.timed_out,
             }
         )
+        declared_artifacts: dict[str, dict[str, Any]] = {}
         if process.exit_code == 0:
             try:
                 primary, printed_name, printed_goal, metrics = parse_metric_log(log_path)
@@ -913,6 +1000,11 @@ def run_one(
                     manifest=manifest,
                     echo=echo,
                 )
+                if schema_version(contract) >= 3:
+                    # Schema-3 only: a schema-2 study never printed `artifact:`
+                    # lines, so its manifests keep exactly the artifacts the
+                    # before/after inventory diff always recorded.
+                    declared_artifacts = _declared_artifacts(study_dir, log_path)
                 verifier = tracks[track].get("verifier")
                 if isinstance(verifier, Mapping):
                     # The checker is never the searcher: the disposition is
@@ -936,15 +1028,29 @@ def run_one(
                     metrics=metrics,
                     incumbent=incumbent,
                     final_test=final_test,
+                    mode="registered" if registered else "frontier",
                 )
+                if registered:
+                    # A guardrail on a registered cell is DISCLOSED, never
+                    # disposition-flipping: the measurement happened either way
+                    # and findings must be able to weigh it.
+                    guardrails_ok, guardrail_failures = registered_guardrails(
+                        tracks[track], metrics
+                    )
+                    manifest["guardrails_ok"] = guardrails_ok
+                    if guardrail_failures:
+                        manifest["guardrail_failures"] = guardrail_failures
                 if incumbent is not None and incumbent.get("external"):
                     # Found / matched / improved — never "proved". A search that
-                    # reaches the published value and stops there says so.
+                    # reaches the published value and stops there says so. The
+                    # resolution at which "reached" is decided is the checker's
+                    # tolerance where a checker exists, and otherwise the track's
+                    # own measured resolution — never a bare float equality.
                     external = float(incumbent["primary_metric"])
                     tolerance = (
                         float(verifier.get("tolerance", 0.0))
                         if isinstance(verifier, Mapping)
-                        else 0.0
+                        else float(tracks[track]["metric"].get("minimum_delta", 0.0) or 0.0)
                     )
                     manifest["matched_external"] = abs(primary - external) <= tolerance
                     reason = f"{reason} (external incumbent {external:.12g})"
@@ -955,14 +1061,22 @@ def run_one(
                     decision_reason=reason,
                 )
                 # --- predictions ledger hook (WP-E6) -------------------------
-                # The ids are already validated against the register, and the
-                # printed block is in `metrics`.  What is still missing is the
-                # adjudication itself: evaluate each id's rule here, write
-                # `manifest["predictions"] = {P#: {verdict, explanation}}`,
-                # update `state["predictions"]`, and append one
-                # `prediction_adjudicated` event INSIDE this transaction.
-                # Until then the request is recorded but not decided, and
-                # `klein status` counts these ids as still open.
+                # The ids were validated against the register before the lock;
+                # the printed block is in `metrics`.  Adjudication happens HERE,
+                # inside the transaction: the verdicts land on the manifest, in
+                # `state["predictions"]` (saved with this run's state write and
+                # committed with its evidence), and as one
+                # `prediction_adjudicated` event each.  A prediction is never
+                # decided by prose, and never outside a receipt.
+                if requested_predictions:
+                    manifest["predictions"] = record_run_adjudications(
+                        study_dir,
+                        state,
+                        requested_predictions,
+                        contract=contract,
+                        printed=metrics,
+                        experiment=run_id,
+                    )
                 # -------------------------------------------------------------
             except WorkflowError as exc:
                 manifest["decision_reason"] = str(exc)
@@ -977,6 +1091,11 @@ def run_one(
             if rel not in artifacts_before
             or meta.get("sha256") != artifacts_before[rel].get("sha256")
         }
+        for rel, meta in declared_artifacts.items():
+            # A cell may pin a table the inventory never watches (`sweeps/`,
+            # `tables/`) or one it already saw (`figures/`); either way the
+            # DECLARED role is what makes it citable evidence.
+            manifest["artifacts"].setdefault(rel, {}).update(meta)
         for meta in manifest["artifacts"].values():
             meta["availability"] = "recorded" if meta.get("committed") else "local"
         manifest["artifacts"][f"runs/{run_id}/run.log"] = _run_log_evidence(
@@ -1131,7 +1250,15 @@ def recover(study_dir: Path) -> list[str]:
     return recovered
 
 
-def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
+def finalize(
+    study_dir: Path,
+    *,
+    allow_exploratory: bool = False,
+    allow_open_predictions: bool = False,
+    open_predictions_reason: str = "",
+    no_referee: bool = False,
+    referee_reason: str = "",
+) -> str:
     contract = load_contract(study_dir)
     tracks = normalize_tracks(contract)
     with StudyLock(study_dir):
@@ -1195,6 +1322,65 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
         text = findings.read_text(encoding="utf-8")
         if not re.search(rf"(?i)\b{label}\b", text):
             raise WorkflowError(f"findings.md must explicitly label the study `{label}`")
+        # --- the predictions ledger closes with the study (schema 3) --------
+        # A belief written down before the evidence is only worth writing down
+        # if the study says, at the end, what became of it.  Two refusals: an
+        # OPEN prediction (decided nowhere) and an UNREPORTED one (decided in
+        # the ledger, absent from findings §②).
+        closure: dict[str, Any] = {}
+        if schema_version(contract) >= 3:
+            still_open = open_predictions(contract, state)
+            if still_open and not allow_open_predictions:
+                raise WorkflowError(
+                    "cannot finalize with open predictions: "
+                    + ", ".join(still_open)
+                    + " — adjudicate each (`klein run-one --tests P#`, or "
+                    "`klein predict adjudicate P# --verdict … --evidence …`), or "
+                    "record why they stay open with --allow-open-predictions "
+                    '--reason "<why>"'
+                )
+            if still_open:
+                if not open_predictions_reason.strip():
+                    raise WorkflowError(
+                        "--allow-open-predictions requires --reason: an unadjudicated "
+                        "belief is a finding, and the receipt must say which one"
+                    )
+                closure["open_predictions"] = {
+                    "ids": still_open,
+                    "reason": open_predictions_reason,
+                }
+            problems = _findings_prediction_problems(study_dir, contract, text)
+            if problems:
+                raise WorkflowError("; ".join(problems))
+            # Gate 3: an author cannot audit their own conclusions, and neither
+            # can the model that ran the loop.  Closing without a referee is
+            # allowed and is DISCLOSED — on the receipt and in `klein status`.
+            reviewed = referee_gate(state)
+            if reviewed is None and not no_referee:
+                raise WorkflowError(
+                    "the referee gate is not recorded: REFEREE (Gate 3) runs between "
+                    "SYNTHESIZE and finalize — a fresh context on a different model or "
+                    "tool writes referee_report.md, then `klein gate record referee "
+                    "--acknowledged-by <actor>`. To close unrefereed, pass --no-referee "
+                    '--reason "<why>" (recorded; the study is labelled `unrefereed`).'
+                )
+            if reviewed is None:
+                if not referee_reason.strip():
+                    raise WorkflowError(
+                        "--no-referee requires --reason: an unreviewed study says so "
+                        "on its own receipt"
+                    )
+                closure["referee"] = {"status": "unrefereed", "reason": referee_reason}
+            else:
+                closure["referee"] = {
+                    "status": "refereed",
+                    "verdict": reviewed.get("verdict"),
+                    "referee": reviewed.get("referee"),
+                    "independent_of_experimenter": reviewed.get(
+                        "independent_of_experimenter"
+                    ),
+                }
+        # --------------------------------------------------------------------
         if STRONG_CLAIM_RE.search(text) and not UNCERTAINTY_EVIDENCE_RE.search(text):
             # Loud warning, not a hard stop: prose like "the real dataset" is a
             # false positive; the enforceable epistemics live in the label check
@@ -1213,6 +1399,7 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
             "successful_confirmation": successful_confirmation,
             # keyed only when non-empty: a schema-2 receipt keeps its exact shape
             **({"confirmation_gaps": confirmation_gaps} if confirmation_gaps else {}),
+            **closure,
         }
         save_state(study_dir, state)
         append_event(
@@ -1222,6 +1409,7 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
             final_holdout_counts=counts,
             successful_confirmation=successful_confirmation,
             **({"confirmation_gaps": confirmation_gaps} if confirmation_gaps else {}),
+            **closure,
         )
         _commit_state_writes(study_dir, f"klein: finalized {label}")
         return label
@@ -1238,12 +1426,20 @@ def status_summary(study_dir: Path) -> str:
     counts = {key: 0 for key in VALID_DISPOSITIONS}
     for manifest in manifests:
         counts[str(manifest.get("disposition"))] = counts.get(str(manifest.get("disposition")), 0) + 1
+    # A registered track has no keep chain, so `measured` is reported beside
+    # keep/discard rather than folded into either.  Shown for every schema-3
+    # study and for any ledger that actually holds one; a schema-2 status line
+    # is unchanged.
+    measured = (
+        f" measured={counts['measured']}" if version >= 3 or counts["measured"] else ""
+    )
     lines = [
         f"study: {state['study_id']}",
-        "schema: v2",
+        f"schema: v{version}",
         f"status: {state.get('status')}",
         f"current phase: {state.get('current_phase')}",
-        f"experiments: {len(manifests)} (keep={counts['keep']} discard={counts['discard']} crash={counts['crash']})",
+        f"experiments: {len(manifests)} (keep={counts['keep']} discard={counts['discard']}"
+        f"{measured} crash={counts['crash']})",
         "gates: " + ", ".join(f"{k}={v.get('status')}" for k, v in state.get("gates", {}).items()),
         "final holdout: " + ", ".join(f"{k}={v.get('count', 0)}/1" for k, v in state.get("final_holdout_access", {}).items()),
     ]
@@ -1262,6 +1458,34 @@ def status_summary(study_dir: Path) -> str:
             for track in normalize_tracks(contract)
         )
     )
+    if version >= 3:
+        # The four numbers the referee's rubric and findings §② are checked
+        # against.  `open` is the absence of a record, not a stored verdict.
+        tally = prediction_counts(prediction_ledger(contract, state))
+        lines.append(
+            f"predictions: {tally['supported']} supported, {tally['refuted']} refuted, "
+            f"{tally['inconclusive']} inconclusive, {tally['open']} open"
+        )
+        reviewed = referee_gate(state)
+        closed = state.get("finalization")
+        unrefereed = (
+            closed.get("referee", {}) if isinstance(closed, Mapping) else {}
+        ).get("status") == "unrefereed"
+        if reviewed is not None:
+            independence = (
+                "yes" if reviewed.get("independent_of_experimenter") else "no"
+            )
+            lines.append(
+                f"referee: {reviewed.get('verdict')} — {reviewed.get('referee')}, "
+                f"independent-of-experimenter: {independence}"
+            )
+        elif unrefereed:
+            lines.append(
+                "referee: unrefereed (finalized with --no-referee: "
+                f"{closed['referee'].get('reason')})"
+            )
+        else:
+            lines.append("referee: not recorded (Gate 3 runs before finalize)")
     pending = [m["experiment"] for m in manifests if m.get("transaction", {}).get("status") != "complete"]
     lines.append(f"pending transactions: {', '.join(pending) if pending else 'none'}")
     return "\n".join(lines) + "\n"

@@ -23,6 +23,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from test_workflow_v3 import metric_command
 
 from kleinlib.contract import validate_contract
 from kleinlib.scaffold import scaffold_study
@@ -432,6 +433,41 @@ def test_falling_short_of_the_literature_is_a_discard_not_an_impossibility(
     assert json.loads(
         (study / "runs" / "E0001" / "manifest.json").read_text(encoding="utf-8")
     )["matched_external"] is False
+
+
+def test_without_a_verifier_the_match_is_decided_at_the_tracks_minimum_delta(
+    ready_study_v3,
+) -> None:
+    """"Matched" needs a resolution, and a bare float equality is not one.
+
+    With a checker declared, its tolerance says how close counts as reaching
+    the published value.  Without one, the honest resolution is the track's own
+    measured ``minimum_delta`` — the same number that decides every other
+    "did it move?" question on that track.  (Tolerance 0.0 would make
+    ``matched_external`` a coin flip on the last float bit.)
+    """
+    repo, study = ready_study_v3
+    _edit_contract(
+        study,
+        lambda c: c["tracks"]["primary"]["metric"].update(
+            minimum_delta=0.05,
+            incumbent_external={
+                "value": 0.70,
+                "source": "Smith & Jones 2019, Table 2",
+                "verified_on": "2026-08-01",
+            },
+        ),
+    )
+    _commit(repo, "seed the frontier from the literature, no checker declared")
+    train = study / "train.py"
+    train.write_text(train.read_text(encoding="utf-8") + "\nCANDIDATE = 1\n", encoding="utf-8")
+
+    manifest = run_one(study, command=metric_command(0.72), echo=False)
+
+    # 0.72 does not clear 0.70 + 0.05, so it is a discard …
+    assert manifest["disposition"] == "discard"
+    # … and |0.72 - 0.70| <= 0.05, so it MATCHED the literature and says so.
+    assert manifest["matched_external"] is True
 
 
 def test_without_an_external_incumbent_the_first_result_is_still_a_keep(

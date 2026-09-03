@@ -42,8 +42,12 @@ V2_RESULTS_COLUMNS: tuple[str, ...] = (
 #: Columns that MAY follow the canonical five, in this order.
 OPTIONAL_COLUMNS: tuple[str, ...] = ("study_id",)
 
-#: The only honest outcomes for an experiment row.
-VALID_STATUSES: frozenset[str] = frozenset({"keep", "discard", "crash"})
+#: The only honest outcomes for an experiment row.  ``measured`` is schema 3's
+#: registered-mode outcome (``references/registered-mode.md``): a cell of a
+#: pre-registered measurement program neither wins nor loses a frontier, so it
+#: is recorded for what it is.  Widening the set never retro-changes a schema-2
+#: ledger — no schema-2 run can produce the value.
+VALID_STATUSES: frozenset[str] = frozenset({"keep", "discard", "measured", "crash"})
 
 # --------------------------------------------------------------------------
 # The three axes of a schema-3 inquiry (references/inquiry-model.md)

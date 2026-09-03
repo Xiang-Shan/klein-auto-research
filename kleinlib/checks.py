@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from .contract import (
-    GATE_ARTIFACTS,
+    MODELING_GATES,
     _guardrail_entries,
     _phase_ids,
     load_contract,
@@ -346,7 +346,9 @@ def preflight_checks(
         )
 
     gates = state.get("gates", {})
-    for gate in GATE_ARTIFACTS:
+    # The gates that block MODELING. The referee gate (Gate 3) is checked at
+    # `finalize`, not here: a study cannot be refereed before it has run.
+    for gate in MODELING_GATES:
         entry = gates.get(gate, {}) if isinstance(gates, Mapping) else {}
         valid = (
             isinstance(entry, Mapping)

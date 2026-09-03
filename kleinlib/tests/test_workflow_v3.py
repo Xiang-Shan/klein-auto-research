@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 
 import pytest
@@ -118,8 +119,8 @@ def metric_command(
     expected_experiment: str | None = None,
     expected_track: str | None = None,
     split_fingerprint: str | None = None,
-    artifacts: dict[str, str] | None = None,
-    extra: dict[str, float] | None = None,
+    artifacts: Sequence[str] | Mapping[str, str] | None = None,
+    extra: Mapping[str, float] | None = None,
 ) -> list[str]:
     """A stand-in entrypoint that prints one canonical block.
 
@@ -127,6 +128,12 @@ def metric_command(
     notary reads: the partition fingerprint it compares against the DATA gate,
     the ``artifact:`` lines a registered cell pins, and any further printed keys
     a guardrail or a prediction rule names.
+
+    ``artifacts`` are STUDY-RELATIVE POSIX PATHS, printed one per line exactly
+    as ``references/registered-mode.md`` shows them — the manifest keys its
+    artifact map by path, and aliases live in ``claims.lock``, not here.  A
+    mapping is accepted for readability at the call site; only its values are
+    printed.
     """
     check = ""
     if expected_kind:
@@ -145,8 +152,11 @@ def metric_command(
     ]
     if split_fingerprint is not None:
         lines.append(f"print('split_fingerprint: {split_fingerprint}')")
-    for alias, path in (artifacts or {}).items():
-        lines.append(f"print('artifact:          {alias}={path}')")
+    paths = (
+        list(artifacts.values()) if isinstance(artifacts, Mapping) else list(artifacts or ())
+    )
+    for path in paths:
+        lines.append(f"print('artifact:          {path}')")
     for key, number in (extra or {}).items():
         lines.append(f"print('{key}: {number}')")
     return [sys.executable, "-c", check + "; ".join(lines)]

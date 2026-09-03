@@ -9,6 +9,7 @@ from pathlib import Path
 from . import __version__
 from .cli_claims import register as register_claims
 from .cli_doctor import register as register_doctor
+from .cli_predict import register as register_predict
 from .cli_replicate import register as register_replicate
 from .cli_stop import register as register_stop
 from .cli_sweep import register as register_sweep
@@ -110,7 +111,10 @@ def build_parser() -> argparse.ArgumentParser:
     }
     for action in ("record", "override"):
         p = gate_sub.add_parser(action, help=gate_help[action])
-        choices = ("consult", "data", "method", "phase") if action == "record" else (
+        # `referee` is recordable but never overridable: a FAIL is never
+        # softened into a note. The documented escape is
+        # `klein finalize --no-referee --reason`, which labels the study.
+        choices = ("consult", "data", "method", "referee", "phase") if action == "record" else (
             "consult",
             "data",
             "method",
@@ -187,6 +191,23 @@ def build_parser() -> argparse.ArgumentParser:
     final = sub.add_parser("finalize", help="mark findings exploratory or confirmed")
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
+    final.add_argument(
+        "--allow-open-predictions",
+        action="store_true",
+        help="close the study with unadjudicated predictions; needs --reason, which is recorded",
+    )
+    final.add_argument(
+        "--no-referee",
+        action="store_true",
+        help="close without the Gate-3 referee record; needs --reason and labels "
+        "the study `unrefereed` on its receipt and in klein status",
+    )
+    final.add_argument(
+        "--reason",
+        default="",
+        help="why predictions stay open (--allow-open-predictions) or why the "
+        "study closes unrefereed (--no-referee)",
+    )
 
     floor = sub.add_parser(
         "noise-floor",
@@ -219,6 +240,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     register_doctor(sub)
+    register_predict(sub)
     register_replicate(sub)
     register_stop(sub)
     register_sweep(sub)
@@ -406,7 +428,14 @@ def main(argv: list[str] | None = None) -> int:
             print(status_summary(study), end="")
             return 0
         if args.command_name == "finalize":
-            label = finalize(study, allow_exploratory=args.allow_exploratory)
+            label = finalize(
+                study,
+                allow_exploratory=args.allow_exploratory,
+                allow_open_predictions=args.allow_open_predictions,
+                open_predictions_reason=args.reason,
+                no_referee=args.no_referee,
+                referee_reason=args.reason,
+            )
             print(f"finalized: {label}")
             return 0
         if args.command_name == "verify":
