@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-09-03T12:07:18.767788Z"
+      "timestamp": "2026-09-03T12:09:09.430175Z"
     },
     "data": {
       "by": "lead-agent",
@@ -16,9 +16,9 @@
   "artifact_hashes": {
     "data_card.md": "f12048849554f75d60fdb4e700bba4fe4291a56758247e469625729e8087df8c",
     "method_card.md": "ce4a2f1f2d20234d2370fc21f57c71c045533066c9e3e4afc6e73b0b873b0045",
-    "research_plan.md": "4a06dc3fcb74452e748b67e04ab536b4cb4076199f32a173fdead27675c89cd5",
+    "research_plan.md": "5abce1871f588a8f66df19c1044bfcbbbaef58330276d6e3b022ffb9f05e8dda",
     "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
-    "study.yaml": "6dbdabc5b50ef880a9ed9e0490fb931ea12281b0013ac03292754805d5f2ee67"
+    "study.yaml": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332"
   },
   "created_at": "2026-09-03T11:32:09.485992Z",
   "current_phase": "adaptive-1",
@@ -42,15 +42,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-09-03T12:07:18.767788Z",
+      "acknowledged_at": "2026-09-03T12:09:09.430175Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "f1e45d8c6924f26dfcd94357aeeb3f5da234bde5f7459bd0d806194e14f5d211",
-        "research_plan.md": "4a06dc3fcb74452e748b67e04ab536b4cb4076199f32a173fdead27675c89cd5",
+        "program.md": "3897a709322124a1a192669a6a6d3caf7159e2c8735dbf9dcb145242aa347504",
+        "research_plan.md": "5abce1871f588a8f66df19c1044bfcbbbaef58330276d6e3b022ffb9f05e8dda",
         "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
-        "study.yaml": "6dbdabc5b50ef880a9ed9e0490fb931ea12281b0013ac03292754805d5f2ee67"
+        "study.yaml": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332"
       },
-      "note": "RE-RECORD after Phase 0, before any run: minimum_delta 0.0149525 set from the measured paired floor (sweep:paired_floor, estimand paired-comparison, k=10); fit_noise recorded separately as provenance (sweep:fit_noise, k=5); metric.bound.ideal declared at 0.0, the information-theoretic floor of a cross-entropy in nats, and disclosed as loose. No registered prediction's rule changed - every rule was already written as an integer count of a floor that did not yet exist. Ack delegated by the lead.",
+      "note": "RE-RECORD before any run: phase ids renamed to adaptive-1 / adaptive-2 / confirmation to match the ladder klein new recorded in study_state.json at scaffold time (preflight refuses a contract whose phases no longer contain the recorded current_phase). Descriptions, budgets, tracks, metric, floor and every registered prediction are unchanged. Ack delegated by the lead.",
       "status": "recorded"
     },
     "data": {
@@ -111,5 +111,5 @@
       "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
     }
   },
-  "updated_at": "2026-09-03T12:07:18.768615Z"
+  "updated_at": "2026-09-03T12:09:09.430913Z"
 }
