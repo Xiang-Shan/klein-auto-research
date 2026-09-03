@@ -550,12 +550,12 @@ def _complete_evidence_transaction(
 
 
 def _commit_state_writes(
-    study_dir: Path, message: str, *, paths: Sequence[str] = ()
+    study_dir: Path, message: str, *, paths: Sequence[str] = (), scope: str = "state"
 ) -> str | None:
     """Thin wrapper over :func:`kleinlib.transaction.commit_state_writes`, with
     the same call-time ``_git_commit`` lookup as above."""
     return transaction.commit_state_writes(
-        study_dir, message, commit=_git_commit, paths=paths
+        study_dir, message, commit=_git_commit, paths=paths, scope=scope
     )
 
 
