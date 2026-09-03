@@ -63,6 +63,7 @@
       "numbers": [
         "boosted_brier",
         "boosted_logloss",
+        "boosted_wall_seconds",
         "overcapacity_auc",
         "overcapacity_brier",
         "overcapacity_delta_floors",
@@ -167,6 +168,13 @@
       "note": "E0003 val_logloss",
       "precision": 6,
       "value": 0.355165
+    },
+    "boosted_wall_seconds": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0003 wall_seconds",
+      "precision": 6,
+      "value": 0.647123
     },
     "dev_ceiling": {
       "art": "aux",
