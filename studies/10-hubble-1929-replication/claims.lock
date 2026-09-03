@@ -79,10 +79,14 @@
   },
   "claims": {
     "C1": {
-      "claim": "RQ1 | reproduction | **supported** | confirmed | empirical-description | E0002, rep:E0002@20260903T063133Z, art:fits | Neither two-parameter fit returns 465: through the origin 423.937323, free intercept 454.158441; the nearer gap is 10.841559 against a registered tolerance of 10 |",
-      "class": null,
+      "claim": "Neither two-parameter fit returns 465: through the origin 423.937323, free intercept 454.158441; the nearer gap is 10.841559 against a registered tolerance of 10",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0002",
+        "rep:E0002@20260903T063133Z",
+        "art:fits"
+      ],
       "numbers": [
         "gap_465_nearest",
         "hubble_k_24",
@@ -90,7 +94,7 @@
         "k_origin",
         "p1_tolerance"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C10": {
       "claim": "study could not reproduce at all.  *(mechanism-interpretation,",
