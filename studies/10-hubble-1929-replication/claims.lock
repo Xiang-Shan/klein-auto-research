@@ -1,0 +1,157 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | reproduction | **supported** | confirmed | empirical-description | E0002, rep:E0002@20260903T063133Z, art:fits | Neither two-parameter fit returns 465: through the origin 423.937323, free intercept 454.158441; the nearer gap is 10.841559 against a registered tolerance of 10 |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "study could not reproduce at all.  *(mechanism-interpretation,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "(mechanism-interpretation, exploratory, evidence E0007, ref:frost2000)*",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "block.  *(research-discipline, exploratory, evidence sweep:coverage_floor,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "(research-discipline, exploratory, evidence E0011, art:sealed_mags,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "(research-discipline, exploratory, evidence E0011, E0012)* **Read the",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "the prediction.  below is the lesson.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C16": {
+      "claim": "(research-discipline, exploratory, evidence E0007, ref:frost2000)*",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C17": {
+      "claim": "(research-discipline, exploratory, evidence E0011, art:contract)* **A",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C18": {
+      "claim": "difference largely to four galaxies (E0005, `ref:hubble1929`).",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ2 | reproduction | **supported** | confirmed | empirical-description | E0004, E0005, rep:E0004@20260903T063326Z, rep:E0005@20260903T064003Z, art:solar, art:groups | The headline is unreproducible for missing INPUTS, not method: 0 of 24 per-object coordinates and 0 of 9 group memberships are obtainable from the tables, the article text or any offline catalogue |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ3 | estimate | **supported** | confirmed | empirical-description | E0006, E0012, rep:E0006@20260903T064440Z, art:boot | The 24 objects support K = 454.158441 with a 95 % percentile-bootstrap interval of [316.648582, 603.704762], width 287.056180 \u2014 and that interval contains 465 |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ4 | simulate | **supported** | confirmed | known-dgp-teaching | E0013, E0009, E0010, rep:E0009@20260903T065111Z, art:covc | Under the declared DGP the percentile interval covers the truth 0.925000 of the time on the sealed block, against a nominal 0.95 and a registered bar of 0.90 |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "RQ5 | estimate | **supported** | confirmed | empirical-description | E0012, art:sealed_modern | One common distance factor of 6.056247 carries both two-parameter fits to within 4.990073 of the modern 70 \u2014 the 1929-to-today gap behaves as a pure scale error |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "reproduction | confirmed | empirical-description | E0001, rep:E0001@20260903T063009Z, art:anchors | The identity anchor holds exactly: Table 1's published sums reproduce with a maximum absolute deviation of 0.000000, and the two tables carry 24 and 22 rows |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "reproduction | confirmed | empirical-description | E0003, rep:E0003@20260903T063853Z, art:mags | Table 1's printed absolute magnitudes do NOT reproduce to half the paper's own printed precision: the maximum deviation is 0.071213 against a registered 0.06, with 3 of the 24 objects outside |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "reproduction | confirmed | empirical-description | E0011, art:sealed_mags | On the sealed block, this study's own K puts the nebulae at a mean absolute magnitude of -15.524998, within 0.224998 of Hubble's printed -15.3 \u2014 his internal cross-check survives the substitution |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "estimate | confirmed | empirical-description | E0007, E0008, rep:E0007@20260903T064658Z, rep:E0008@20260903T064844Z, art:invfwd, art:jack | Two choices nobody discusses move K more than the data does: inverse regression returns 728.366015 against the forward 454.158441 (a factor of 1.603771), and dropping the four Virgo rows that share one assigned distance moves it by 77.188826 \u2014 more than the analytic standard error of 75.237105 |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "bb55678a14ac2497a4c7ffa8f32d47a06cd162fc",
+  "klein_commit": "bb55678a14ac2497a4c7ffa8f32d47a06cd162fc",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "10-hubble-1929-replication"
+}
