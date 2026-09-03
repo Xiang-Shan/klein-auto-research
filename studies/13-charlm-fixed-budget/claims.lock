@@ -49,6 +49,7 @@
       "evidence": [],
       "numbers": [
         "curve_anchor_end",
+        "curve_cosine_end",
         "e0001_anchor_z",
         "e0002_floors",
         "e0003_floors",
@@ -256,6 +257,13 @@
       "note": "the anchor recipe's curve at 2000 steps",
       "precision": 6,
       "value": 1.563815
+    },
+    "curve_cosine_end": {
+      "art": "curves",
+      "claim": "C1",
+      "note": "the cosine recipe's curve at 2000 steps",
+      "precision": 6,
+      "value": 1.518369
     },
     "development_chars": {
       "art": "corpus",
