@@ -139,6 +139,46 @@ def test_a_dry_run_spends_no_id_commit_manifest_row_or_seal(dryrun_study, capsys
     assert _git(repo, "status", "--porcelain") == ""
 
 
+#: An entrypoint that writes the aux sidecar, the way every real one does.
+EVALUATING_ENTRYPOINT = """\
+import os
+
+from kleinlib.data import load_partition
+from kleinlib.eval import evaluate_scalar
+
+fit_X, eval_X, fit_y, eval_y = load_partition()
+evaluate_scalar(
+    0.71,
+    exp_id=os.environ["KLEIN_EXPERIMENT_ID"],
+    metric_name="val_auc",
+    metric_goal="higher",
+    study_dir=".",
+)
+"""
+
+
+def test_a_rehearsal_files_the_aux_rows_it_wrote_and_leaves_a_clean_tree(
+    dryrun_study,
+) -> None:
+    """The rehearsal is mandatory before the sealed run, so it must not leave the
+    tree in a state `assert_run_worktree` refuses: the real entrypoint runs (smoke
+    is force-cleared), its evaluator appends DRYRUN rows to aux_metrics.tsv, and
+    those go into the rehearsal's own state commit."""
+    repo, study = dryrun_study
+    command = _entrypoint_command(study, EVALUATING_ENTRYPOINT)
+    _commit(repo, "an entrypoint that writes aux rows")
+
+    assert sealed_dry_run(study, command=command, echo=False) == 0
+    aux = (study / "aux_metrics.tsv").read_text(encoding="utf-8")
+    assert any(line.startswith("DRYRUN\t") for line in aux.splitlines())
+    assert _git(repo, "status", "--porcelain") == ""
+
+    # A second rehearsal only moves wall_seconds — it must still land clean, or
+    # the mandatory step blocks the step it is mandatory for.
+    assert sealed_dry_run(study, command=command, echo=False) == 0
+    assert _git(repo, "status", "--porcelain") == ""
+
+
 def test_the_real_sealed_run_is_still_available_after_a_rehearsal(dryrun_study) -> None:
     """The whole point: rehearsing does not consume the one look."""
     repo, study = dryrun_study

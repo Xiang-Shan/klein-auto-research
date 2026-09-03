@@ -153,6 +153,43 @@ def test_fit_noise_alone_is_named_as_not_being_the_bar(ready_study_v3) -> None:
     assert "measures the FIT, not the comparison" in check.message
 
 
+def test_the_block_klein_noise_floor_prints_for_fit_noise_validates(ready_study_v3) -> None:
+    """`klein noise-floor --recipe seed-sweep --estimand fit-noise` prints a
+    `fit_noise:` block carrying `estimand: fit-noise`; the contract must accept
+    its own output, and must still refuse a BAR estimand recorded there."""
+    from kleinlib.contract import load_contract, validate_contract
+
+    _repo, study = ready_study_v3
+    path = study / "study.yaml"
+    contract = yaml.safe_load(path.read_text(encoding="utf-8"))
+    metric = contract["tracks"]["primary"]["metric"]
+    metric["fit_noise"] = {
+        "k": 5,
+        "std": 0.0,
+        "range": 0.0,
+        "mean": 0.87,
+        "values": [0.87] * 5,
+        "source": "sweeps/fit_noise.sidecar.tsv",
+        "method": "seed-sweep",
+        "estimand": "fit-noise",
+    }
+    path.write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+    assert validate_contract(load_contract(study), study) == []
+
+    metric["fit_noise"]["estimand"] = "marginal-resplit"
+    path.write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+    problems = validate_contract(load_contract(study), study)
+    assert any("metric.fit_noise: .estimand must be fit-noise" in p for p in problems), problems
+
+    # ...and the mirror rule is unchanged: a noise_floor block takes a BAR estimand.
+    metric.pop("fit_noise")
+    metric["noise_floor"] = _floor(0.01, 0.02, estimand="fit-noise")
+    metric["minimum_delta"] = 0.02
+    path.write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+    problems = validate_contract(load_contract(study), study)
+    assert any("marginal-resplit or paired-comparison" in p for p in problems), problems
+
+
 def test_an_exact_metric_still_waives_the_floor(ready_study_v3) -> None:
     """Package A's waiver is untouched by the new bar."""
     _repo, study = ready_study_v3
@@ -179,3 +216,22 @@ def test_an_exact_metric_still_waives_the_floor(ready_study_v3) -> None:
 ])
 def test_the_bar_is_exactly_the_maximum_of_the_two_terms(std, rng, delta, ok) -> None:
     assert (floor_bar_problems(_metric(delta), _floor(std, rng), 3) == []) is ok
+
+
+def test_preflight_names_the_schema_version_it_actually_validated(ready_study_v3) -> None:
+    """The contract check reported "schema_version 2 contract valid" for every
+    study; a schema-3 study now sees its own version (schema-2 text unchanged)."""
+    _repo, study = ready_study_v3
+    check = next(c for c in preflight_checks(study) if c.name == "study contract")
+    assert check.ok and check.message == "schema_version 3 contract valid"
+
+    path = study / "study.yaml"
+    contract = yaml.safe_load(path.read_text(encoding="utf-8"))
+    contract["schema_version"] = 2
+    for key in ("kind", "profile", "audience", "entrypoint", "predictions", "confirmation"):
+        contract.pop(key, None)
+    contract["tracks"]["primary"].pop("mode", None)
+    contract["data"].pop("modality", None)
+    path.write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+    check = next(c for c in preflight_checks(study) if c.name == "study contract")
+    assert check.message == "schema_version 2 contract valid"

@@ -275,7 +275,10 @@ def preflight_checks(
         return checks
 
     contract_problems = validate_contract(contract, study_dir)
-    checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or "schema_version 2 contract valid"))
+    # The version is interpolated, not hardcoded: a schema-3 study was being
+    # told its contract was "schema_version 2 valid". Schema-2 output is
+    # byte-identical, which is what studies 03 and 05-09 keep verifying against.
+    checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or f"schema_version {version} contract valid"))
     for track_name, track_spec in normalize_tracks(contract).items():
         metric = track_spec["metric"]
         floor = metric.get("noise_floor")

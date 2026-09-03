@@ -101,8 +101,18 @@ CROSS_STUDY_RE = re.compile(r"^(?P<study>[A-Za-z0-9._-]+)#(?P<claim>C\d+)$")
 REPLICATION_RE = re.compile(r"^(?P<mode>rep|verify):(?P<run>E\d{4})@(?P<stamp>.+)$")
 
 #: Numeric literals in a text artifact or a claim sentence.
+#:
+#: The leading sign is taken only when it is NOT glued to a preceding word
+#: character.  English prose hyphenates constantly — "depth-2 tree", "top-10
+#: lift", "5-fold CV" — and reading that hyphen as a minus reports the numeral
+#: with the WRONG VALUE (``-2`` for a sentence that says two), which is the
+#: false positive this module's docstring calls the worst kind: it looks
+#: plausible and it cannot be found anywhere.  ``x=-5``, ``(-0.5)`` and a
+#: leading ``-0.07`` in a TSV cell all still keep their sign, and an exponent's
+#: sign (``5e-3``) is inside the alternatives, untouched.
 NUMERAL_RE = re.compile(
-    r"[-+]?(?:\d+\.\d+(?:[eE][-+]?\d+)?|\.\d+(?:[eE][-+]?\d+)?|\d+(?:[eE][-+]?\d+)?)"
+    r"(?:(?<![A-Za-z0-9_])[-+])?"
+    r"(?:\d+\.\d+(?:[eE][-+]?\d+)?|\.\d+(?:[eE][-+]?\d+)?|\d+(?:[eE][-+]?\d+)?)"
 )
 
 #: Tokens a claim sentence may carry without an alias (claims-protocol.md, the

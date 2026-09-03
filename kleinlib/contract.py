@@ -973,7 +973,9 @@ def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> li
             if metric.get("fit_noise") is not None:
                 problems.extend(
                     f"{label}: metric.fit_noise: {problem.removeprefix('metric.noise_floor')}"
-                    for problem in _noise_floor_problems(metric.get("fit_noise"))
+                    for problem in _noise_floor_problems(
+                        metric.get("fit_noise"), fit_noise=True
+                    )
                 )
 
     problems.extend(_predictions_problems(contract))
@@ -1045,8 +1047,19 @@ def confirmation_require(contract: Mapping[str, Any]) -> tuple[str, ...]:
     return CONFIRMATION_DEFAULTS.get(str(study_kind(contract)), ("sealed",))
 
 
-def _noise_floor_problems(floor: Any) -> list[str]:
-    from .noise_floor import ALLOWED_KEYS
+def _noise_floor_problems(floor: Any, *, fit_noise: bool = False) -> list[str]:
+    """Validate one measured-floor block.
+
+    Both blocks have the same shape and differ in exactly one field: which
+    estimand may appear in them.  ``noise_floor:`` carries a BAR estimand
+    (``marginal-resplit`` / ``paired-comparison``); ``fit_noise:`` carries
+    ``fit-noise`` and nothing else — that separation is the whole reason
+    :func:`kleinlib.noise_floor.block_key` writes the two under different
+    keys, and it is what stops a seed-only spread from being defended as a
+    keep bar.  Messages keep the ``metric.noise_floor`` prefix the
+    ``fit_noise`` caller rewrites, so a schema-2 study's wording is unchanged.
+    """
+    from .noise_floor import ALLOWED_KEYS, FIT_NOISE
 
     if not isinstance(floor, Mapping):
         return ["metric.noise_floor must be a mapping"]
@@ -1058,7 +1071,14 @@ def _noise_floor_problems(floor: Any) -> list[str]:
     if method is not None and (not isinstance(method, str) or not method.strip()):
         problems.append("metric.noise_floor.method must be a non-empty string")
     estimand = floor.get("estimand")
-    if estimand is not None and estimand not in {"marginal-resplit", "paired-comparison"}:
+    if fit_noise:
+        if estimand is not None and estimand != FIT_NOISE:
+            problems.append(
+                f"metric.noise_floor.estimand must be {FIT_NOISE} in a fit_noise block — "
+                "a bar estimand recorded there is the exact confusion the separate block "
+                "exists to prevent"
+            )
+    elif estimand is not None and estimand not in {"marginal-resplit", "paired-comparison"}:
         problems.append(
             "metric.noise_floor.estimand must be marginal-resplit or paired-comparison"
         )

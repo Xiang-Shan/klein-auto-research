@@ -697,7 +697,16 @@ def sealed_dry_run(
             acknowledged=acknowledged,
             wall_seconds=process.wall_seconds,
         )
-        _commit_state_writes(study_dir, f"klein: sealed dry-run rehearsal ({track})")
+        # The rehearsal runs the REAL entrypoint (KLEIN_SMOKE is force-cleared),
+        # so its evaluator appends DRYRUN-keyed rows to aux_metrics.tsv. Those
+        # rows are filed in this same state commit: a verb that leaves the tree
+        # dirty would have the mandatory rehearsal block, through
+        # `assert_run_worktree`, the very sealed run it is mandatory for.
+        _commit_state_writes(
+            study_dir,
+            f"klein: sealed dry-run rehearsal ({track})",
+            paths=("aux_metrics.tsv",),
+        )
     if echo:
         if exit_code == 0:
             print(f"sealed dry-run OK: {track} rehearsed on development data; nothing spent")
