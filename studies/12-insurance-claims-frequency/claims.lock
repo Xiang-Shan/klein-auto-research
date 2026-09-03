@@ -4,6 +4,10 @@
       "path": "aux_metrics.tsv",
       "sha256": "409fedb832b400684cc1e4b466c515f12c44848ad6ed8e39af796d0664b5f062"
     },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
+    },
     "data_card": {
       "path": "data_card.md",
       "sha256": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923"
