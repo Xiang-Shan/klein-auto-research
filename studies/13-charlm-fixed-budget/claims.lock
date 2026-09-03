@@ -48,6 +48,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "e0001_anchor_z",
         "e0002_floors",
         "e0003_floors",
         "e0004_floors",
@@ -168,6 +169,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "e0001_anchor_z": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "P1's adjudicated key",
+      "precision": 4,
+      "value": 0.3766
+    },
     "e0001_val_loss": {
       "art": "frontier",
       "claim": "C2",
