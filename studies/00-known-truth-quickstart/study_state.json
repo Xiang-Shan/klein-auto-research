@@ -33,6 +33,22 @@
       "experiment": "E0005"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": false,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "primary": "E0005"
+    },
+    "timestamp": "2026-09-03T06:21:24.861806Z"
+  },
   "fingerprints": {
     "data": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
     "split": {
@@ -232,7 +248,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "00-known-truth-quickstart",
   "sweeps": {
     "fit_noise": {
@@ -254,5 +270,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T06:21:16.023981Z"
+  "updated_at": "2026-09-03T06:21:24.861812Z"
 }
