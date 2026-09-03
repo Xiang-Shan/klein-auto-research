@@ -33,6 +33,7 @@
       "evidence": [],
       "numbers": [
         "anchor_auc",
+        "anchor_gap_floors",
         "boosted_auc",
         "dev_ceiling",
         "sealed_auc",
@@ -110,6 +111,13 @@
       "note": "E0001 val_auc, the raw-feature logistic anchor on development",
       "precision": 6,
       "value": 0.806201
+    },
+    "anchor_gap_floors": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0001 gap_in_floors: the anchor's own headroom h",
+      "precision": 4,
+      "value": 10.4555
     },
     "boosted_auc": {
       "art": "aux",
