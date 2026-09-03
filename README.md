@@ -126,7 +126,10 @@ klein verify      --study studies/14-my-question       # writes verify_receipt.j
 
 Gate records, `finalize`, `recover`, `claims`, `predict adjudicate` and `verify`
 commit their own state writes — the loop never dead-ends on receipts the CLI itself
-generated. `klein gate override` records an explicit reason instead of silently
+generated. Verify, claims, predict, replicate, sweep, stop and headroom commit only
+the files they wrote and name what they left behind; gate records, `run-one` and
+`finalize` file the study artifacts they hash. `klein gate override` records an
+explicit reason instead of silently
 bypassing a gate; `klein headroom ack` and `klein stop ack` put a closed door on the
 record; `klein predict adjudicate` records sidecar evidence with its hash; `klein
 sweep register` makes a measurement sweep citable; `klein doctor` says what resolves

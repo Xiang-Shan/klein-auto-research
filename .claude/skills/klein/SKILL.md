@@ -105,8 +105,12 @@ Three layers, one division of labor: **the loop is yours** (think → edit the m
 surface with one falsifiable idea → run → reflect → repeat); **`run-one` is only the
 crash boundary** (commit candidate → one bounded run → the declared verifier →
 honest disposition by YOUR declared contract → adjudicate the named predictions →
-restore); **the state files are receipts** the CLI generates and commits itself. The
-rules below defend that division.
+restore); **the state files are receipts** the CLI generates and commits itself —
+each verb committing only the files it wrote (verify, claims, predict, replicate,
+sweep, stop, headroom), while gate records, `run-one` and `finalize` file the study
+artifacts they hash. If the tree is dirty at run time it is your edit, and it stays
+yours: the verb names it on stdout instead of taking it. The rules below defend that
+division.
 
 ### 1. Commit every candidate before execution; derive the ledger afterward
 

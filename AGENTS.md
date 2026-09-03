@@ -160,7 +160,9 @@ The loop has three layers. Keep them straight and the rest follows:
    record what layer 1 decided and layer 2 observed. Gate records, `klein finalize`,
    `klein recover`, `klein claims`, `klein predict adjudicate` and `klein verify`
    commit their own state writes; if the tree is dirty at run time, it is your edit,
-   not Klein's.
+   not Klein's — and it stays yours: verify, claims, predict, replicate, sweep, stop
+   and headroom commit only the files they wrote; gate records, run-one and finalize
+   file the study artifacts they hash.
 
 The standing rules around those layers:
 

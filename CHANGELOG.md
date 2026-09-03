@@ -136,6 +136,15 @@ re-open a closed study, start a new one and cite the old one's claims.
   inside `max_run_seconds`, and the prepared DIRECTORY is copied in — not only
   `data.prepared_path` — so an entrypoint that reads a sibling `prepare.py` wrote
   still runs. Both were found by exhibit study 00.
+- **A verb commits only the files it wrote.** `klein verify`, `claims`, `predict
+  adjudicate`, `replicate`, `sweep register`, `stop ack` and `headroom ack` file their
+  own receipts through `git commit --only` and name on stdout the tracked edits they
+  declined to take (`note: N uncommitted edit(s) left in the tree (…) — not part of
+  this commit`); previously each swept every modified state file into its own commit,
+  so a verify on a tree with a findings draft filed that draft under a
+  `klein: verify receipt (…)` subject. Gate records, `run-one` and `finalize` still
+  file the study artifacts they hash — "commit before the gate", made mechanical.
+  Found by the study-00 driver.
 - `knowledge/` is reorganised into `knowledge/research-discipline.md` (the ten process
   lessons of studies 07–09, each with a typed claim citation) and
   `knowledge/domains/<profile>/`.
