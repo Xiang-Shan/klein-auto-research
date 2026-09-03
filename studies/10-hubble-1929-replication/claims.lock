@@ -84,6 +84,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "hubble_k_24",
         "k_free",
         "k_origin"
       ],
@@ -233,6 +234,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "hubble_k_24": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "Hubble 1929's published constant for the 24 objects individually",
+      "precision": 0,
+      "value": 465
+    },
     "k_free": {
       "art": "fits",
       "claim": "C1",
