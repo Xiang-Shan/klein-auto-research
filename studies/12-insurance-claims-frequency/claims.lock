@@ -70,7 +70,8 @@
       "evidence": [],
       "numbers": [
         "lift10_dev",
-        "lift10_drop"
+        "lift10_drop",
+        "lift10_sealed"
       ],
       "strength": "exploratory"
     },
@@ -287,6 +288,12 @@
       "claim": "C11",
       "precision": 4,
       "value": 0.5101
+    },
+    "lift10_sealed": {
+      "art": "aux",
+      "claim": "C11",
+      "precision": 4,
+      "value": 1.7067
     },
     "marginal_std": {
       "art": "floors",
