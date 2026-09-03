@@ -105,7 +105,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "e0008_val_loss"
+      ],
       "strength": "exploratory"
     },
     "C5": {
@@ -171,6 +173,13 @@
       "note": "E0006, the only keep: cosine decay",
       "precision": 6,
       "value": 1.519319
+    },
+    "e0008_val_loss": {
+      "art": "frontier",
+      "claim": "C4",
+      "note": "E0008, the sealed final tenth",
+      "precision": 5,
+      "value": 1.56628
     },
     "eval_context": {
       "art": "frontier",
