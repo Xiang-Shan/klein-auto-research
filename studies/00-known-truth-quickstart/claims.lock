@@ -35,6 +35,7 @@
         "anchor_auc",
         "anchor_gap_floors",
         "boosted_auc",
+        "boosted_gap_floors",
         "dev_ceiling",
         "sealed_auc",
         "sealed_ceiling"
@@ -125,6 +126,13 @@
       "note": "E0003 val_auc, the boosted incumbent on development",
       "precision": 6,
       "value": 0.87139
+    },
+    "boosted_gap_floors": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0003 gap_in_floors: the incumbent's headroom h on development",
+      "precision": 4,
+      "value": 1.7077
     },
     "dev_ceiling": {
       "art": "aux",
