@@ -66,6 +66,7 @@
         "boosted_wall_seconds",
         "overcapacity_auc",
         "overcapacity_brier",
+        "overcapacity_delta_auc",
         "overcapacity_delta_floors",
         "overcapacity_logloss",
         "overcapacity_wall_seconds"
@@ -229,6 +230,13 @@
       "note": "E0004 val_brier",
       "precision": 6,
       "value": 0.143658
+    },
+    "overcapacity_delta_auc": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 delta_vs_reference on val_auc",
+      "precision": 6,
+      "value": -0.013341
     },
     "overcapacity_delta_floors": {
       "art": "aux",
