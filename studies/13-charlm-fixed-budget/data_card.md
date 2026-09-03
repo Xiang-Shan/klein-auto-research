@@ -51,9 +51,12 @@ related: []
   fingerprint covers train + development — the first 90.0% of the corpus — which is
   the convention `karpathy/nanoGPT` uses on this same file (1,003,854 / 111,540 there;
   1,003,520 / 111,874 here, the 334-character difference being the block rounding).
-- **Fingerprints frozen at this gate:** prepared data
-  `7e8969ac834e19c2…9644a9`; split policy and realized partitions recorded by
-  `klein gate record data` — development
+- **Fingerprints frozen at this gate** (`study_state.json:fingerprints`): prepared data
+  `801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc` — the engine's
+  name-salted `fingerprint_path` digest, not the plain file hash, which is
+  `sha256(data/prepared/prepared.csv) = 7e8969ac834e19c27cbf5da226ca4fab4e5317704295f419e6a8459d029644a9`;
+  split policy `000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354`;
+  realized partitions — development
   `0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50`, final test
   `bd7849a00c6a8bd856c9136cd211d9ecb7975fbffa9c75b08d78ed51b3e3f155`. Every run prints
   its realized `split_fingerprint:` and the notary compares it.

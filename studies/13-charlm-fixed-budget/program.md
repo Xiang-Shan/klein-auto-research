@@ -129,6 +129,24 @@ pre-candidate base commit.
   a crash, and honest evidence. Recipe knobs (warmup, tying, dropout, width, seed)
   all stay inside the family by construction.
 
+- 2026-09-03 — **Decision: two harness-control EXPECTATIONS were corrected before the
+  DATA gate, not the numbers.** The first run of `sweeps/harness_controls.py` reported
+  FAIL twice: `uniform` at 4.174388 against a 1e-6 tolerance on ln 65 (float32 logits
+  summed over 111k characters reproduce the constant to about 1e-6, so the tolerance
+  was wrong, not the harness) and `untrained_network` at 4.305432 against an
+  "within 0.05 of chance" expectation that rested on a wrong theory — a randomly
+  initialized network is not a uniform predictor, and its unnormalized head makes it
+  slightly WORSE than chance, which is the honest expectation and a stronger control.
+  Both expectations were rewritten and the sweep re-run; no measured value changed and
+  no prediction was involved. The sweep was registered afterwards, so the registered
+  sidecar is the corrected run.
+- 2026-09-03 — **Decision: the DATA gate was re-recorded to correct one transcription
+  on the card.** The card quoted `sha256(prepared.csv)` under the heading "fingerprints
+  frozen at this gate"; the engine actually freezes a name-salted `fingerprint_path`
+  digest. Both numbers are now on the card, each labelled for what it is. No run
+  exists, no partition or policy changed, and the split fingerprints are byte-identical
+  across the two records.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
