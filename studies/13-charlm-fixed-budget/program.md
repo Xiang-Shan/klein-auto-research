@@ -340,3 +340,19 @@ too aggressive early, which would change the anchor recipe for everything after.
   unable to say which. E0006 carries NO registered prediction and is exploratory by
   construction; it is run because a phase with a free slot should spend it on the
   question the first five runs raised.
+- 2026-09-03 — **E0006 (cosine decay to 10% of peak) — KEEP, val_loss 1.519319,
+  `delta_in_floors` = +3.3326.** The first and only frontier improvement in the study:
+  0.052855 nats better than E0001's 1.572174, which is 3.5 times the measured keep bar.
+  Same parameters, same tokens, same arithmetic per step — only when the learning rate
+  is spent. The four levers that carried registered predictions all failed; the lever
+  that did not carry one is the only thing that cleared the floor. That asymmetry is a
+  finding about the priors, not about the machinery, and it goes in §③.
+- 2026-09-03 — **The last slot of `adaptive-2` goes to warmup ON TOP of the new
+  incumbent.** A referee's fair objection to the P2 result is that warmup was tested
+  against a CONSTANT learning rate, whereas in practice warmup is almost always paired
+  with decay: the pairing exists because a high peak is only safe if it is later spent
+  down. E0002 therefore may have been an unfair test of warmup rather than a verdict on
+  it. E0007 is one change from the E0006 incumbent — `warmup_steps: 200` added to the
+  cosine schedule — and it settles which reading is right. It carries no registered
+  prediction (P2 is already adjudicated against the anchor and is not re-opened); it is
+  exploratory evidence that either qualifies or strengthens the P2 finding.
