@@ -186,10 +186,10 @@
   },
   "replications": {
     "E0003": {
-      "attempts": 1,
+      "attempts": 2,
       "modes": {
         "replicate": {
-          "attempts": 1,
+          "attempts": 2,
           "reproduced": false
         }
       },
@@ -200,6 +200,14 @@
           "mode": "replicate",
           "reproduced": false,
           "timestamp": "2026-09-03T05:32:02.216655Z",
+          "tolerance": 0.00745212
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0003@20260903T053344Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T05:33:44.482537Z",
           "tolerance": 0.00745212
         }
       ],
@@ -229,5 +237,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T05:33:02.924341Z"
+  "updated_at": "2026-09-03T05:35:09.031859Z"
 }
