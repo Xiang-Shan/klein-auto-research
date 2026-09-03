@@ -34,6 +34,7 @@
       "numbers": [
         "anchor_auc",
         "boosted_auc",
+        "dev_ceiling",
         "sealed_auc"
       ],
       "strength": "exploratory"
@@ -115,6 +116,13 @@
       "note": "E0003 val_auc, the boosted incumbent on development",
       "precision": 6,
       "value": 0.87139
+    },
+    "dev_ceiling": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "the development partition's Bayes AUC, printed by every development run",
+      "precision": 6,
+      "value": 0.884116
     },
     "sealed_auc": {
       "art": "aux",
