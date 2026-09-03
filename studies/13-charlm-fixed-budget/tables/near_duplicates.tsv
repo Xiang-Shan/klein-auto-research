@@ -1,0 +1,3 @@
+partition	compared_against	n_blocks	exact_duplicate_blocks	near_duplicate_blocks	near_duplicate_rate	max_jaccard	mean_jaccard	ngram	similarity_threshold
+development	train	109	0	0	0.0	0.023131	0.014965	8	0.5
+test	train+development	109	0	0	0.0	0.030059	0.01543	8	0.5
