@@ -149,7 +149,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "bad_rescale_gap"
+        "bad_rescale_gap",
+        "exit_ok"
       ],
       "strength": "exploratory"
     },
@@ -385,6 +386,13 @@
       "note": "k_free / 70 (E0012)",
       "precision": 6,
       "value": 6.487978
+    },
+    "exit_ok": {
+      "art": "dryrun_rescale",
+      "claim": "C14",
+      "note": "the exit code a passing rehearsal returns; C14's point is that 0 is not proof",
+      "precision": 0,
+      "value": 0
     },
     "floor_blocks": {
       "art": "floor_sidecar",
