@@ -151,6 +151,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "v1_sweep_in_floors",
         "v1_sweep_lift"
       ],
       "strength": "exploratory"
@@ -324,6 +325,13 @@
       "note": "v1 results.tsv row 6 minus row 1",
       "precision": 6,
       "value": 0.03886
+    },
+    "v1_sweep_in_floors": {
+      "art": "derived",
+      "claim": "C8",
+      "note": "v1_sweep_lift / minimum_delta",
+      "precision": 4,
+      "value": 0.0379
     },
     "v1_sweep_lift": {
       "art": "derived",
