@@ -1,0 +1,23 @@
+{
+  "claimed_objective": 3,
+  "meta": {
+    "control": "positive",
+    "planted_defect": "a coordinate that is not an integer \u2014 a lattice point that is not one"
+  },
+  "n": 11,
+  "points": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      3.5,
+      2
+    ]
+  ],
+  "problem": "no-three-in-line"
+}

@@ -1,0 +1,59 @@
+{
+  "claimed_objective": 12,
+  "meta": {
+    "control": "positive",
+    "planted_defect": "the 11-point Erdos parabola set plus one cell that creates exactly one collinear triple out of the C(12,3) = 220 triples"
+  },
+  "n": 11,
+  "points": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      3,
+      9
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      5,
+      3
+    ],
+    [
+      6,
+      3
+    ],
+    [
+      7,
+      5
+    ],
+    [
+      8,
+      9
+    ],
+    [
+      9,
+      4
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      0,
+      4
+    ]
+  ],
+  "problem": "no-three-in-line"
+}

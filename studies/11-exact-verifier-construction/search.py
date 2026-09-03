@@ -45,8 +45,8 @@ from lib.nothree import (  # noqa: E402
 # frontier is seeded at the proven maximum), so without a cell label the surface
 # would return to the previous candidate's exact configuration and `run-one`
 # would rightly refuse the next one as an unchanged re-execution.
-CELL = "controls"          # the cell this candidate measures
-MODE = "controls"          # controls | search | overclaim
+CELL = "unassigned"        # the cell this candidate measures
+MODE = "search"            # controls | search | overclaim
 BUDGET = "small"           # small | medium | large — a rung of the frozen ladder
 OVERCLAIM_BY = 0           # points to add to the SEARCH's self-report, not to the object
 # --------------------------------------------------------------------------

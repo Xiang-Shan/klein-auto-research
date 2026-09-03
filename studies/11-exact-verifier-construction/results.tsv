@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	n_small	11	discard	26a63b395686f3ddb633953228812d4cf404ac4e	controls: the declared verifier against the twelve frozen invalid objects, and the known-valid Erdos parabola set handed to the notary as this cell's own artifact; did not improve track frontier 22 by minimum_delta=1 (external incumbent 22)

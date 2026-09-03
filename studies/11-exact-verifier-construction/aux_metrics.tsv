@@ -1,1 +1,15 @@
 experiment	metric	value
+E0001	wall_seconds	9.397040128707886
+E0001	planted	12.0
+E0001	rejected	12.0
+E0001	evaluations	0.0
+E0001	passes	0.0
+E0001	best_at_evaluation	0.0
+E0001	search_seconds	9.396334666991606
+E0001	grid_n	11.0
+E0001	budget	20000.0
+E0001	search_seed	20260903.0
+E0001	sealed_block	0.0
+E0001	overclaim_by	0.0
+E0001	claimed_objective	11.0
+E0001	object_size	11.0

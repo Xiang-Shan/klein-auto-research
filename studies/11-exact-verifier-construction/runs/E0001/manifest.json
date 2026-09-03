@@ -1,0 +1,194 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 373,
+      "committed": true,
+      "sha256": "6da5006782fa9a3f0d57382f036ff7abf0e4f42a605d349b8cb4a703b37f4e6a"
+    },
+    "models/E0001/planted_antidiagonal_triple.json": {
+      "availability": "recorded",
+      "bytes": 281,
+      "committed": true,
+      "sha256": "d133593b548e8819e5d7b5767c697c0766c5d4e635b633aa5caa076333055f8a"
+    },
+    "models/E0001/planted_column_triple.json": {
+      "availability": "recorded",
+      "bytes": 295,
+      "committed": true,
+      "sha256": "366bb397669d03e10a34d6ebbc51373491adac6163cc38a2829752752c40fa34"
+    },
+    "models/E0001/planted_diagonal_triple.json": {
+      "availability": "recorded",
+      "bytes": 281,
+      "committed": true,
+      "sha256": "3ee498bf8806c32d4a62a359a4258d219016fa2e06ebd25e88ad5a7e58f2f837"
+    },
+    "models/E0001/planted_duplicate_point.json": {
+      "availability": "recorded",
+      "bytes": 314,
+      "committed": true,
+      "sha256": "1d516b67adcc16fdf14d46b740644b2e1a0b825a69ad301cde65d28d3f52bd25"
+    },
+    "models/E0001/planted_non_integer_coordinate.json": {
+      "availability": "recorded",
+      "bytes": 326,
+      "committed": true,
+      "sha256": "5e4ea6d6a1cffbf8a73ec8e562a28f98978117aaff72035486d3158682a6fe59"
+    },
+    "models/E0001/planted_out_of_range_high.json": {
+      "availability": "recorded",
+      "bytes": 305,
+      "committed": true,
+      "sha256": "7ed838a4e5fd5481824484a0f8a605b9085b39781cd4213f7b88cb8ad8945ce2"
+    },
+    "models/E0001/planted_out_of_range_negative.json": {
+      "availability": "recorded",
+      "bytes": 272,
+      "committed": true,
+      "sha256": "3f0b6f9dedeafa4250dbfee3d2598b9a3d1cb3f749ca86134ce4ff10fd56786c"
+    },
+    "models/E0001/planted_parabola_plus_one.json": {
+      "availability": "recorded",
+      "bytes": 642,
+      "committed": true,
+      "sha256": "d5a3777cb2d057f21d307e9f1e867bd31a66c98c57e0e2180fad4d094a358d0b"
+    },
+    "models/E0001/planted_row_triple.json": {
+      "availability": "recorded",
+      "bytes": 284,
+      "committed": true,
+      "sha256": "b9a0cad82cf664faf7c80e61dc16e653f5616aaed202b6ab3b4272a569423b86"
+    },
+    "models/E0001/planted_slope_half_triple.json": {
+      "availability": "recorded",
+      "bytes": 311,
+      "committed": true,
+      "sha256": "8351c79759130df2d12999d2bbd5fd17fba67f047a5e0f7be694c933e12a63d2"
+    },
+    "models/E0001/planted_slope_two_triple.json": {
+      "availability": "recorded",
+      "bytes": 281,
+      "committed": true,
+      "sha256": "ded97082a3fe8c3e85749e0a96c3d96b197afd2ab52b7b20470c27f57e8e79cb"
+    },
+    "models/E0001/planted_wide_triple.json": {
+      "availability": "recorded",
+      "bytes": 311,
+      "committed": true,
+      "sha256": "9433452fef70b3c6dddc1c053e285ceacf84e4604d40c2e6c66be85fd9612b7e"
+    },
+    "models/E0001/solution.json": {
+      "availability": "recorded",
+      "bytes": 575,
+      "committed": true,
+      "sha256": "c4946ab6d8637966013636dafe51cb6b0a46df61e9c4f643dee545b929467189"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 1228,
+      "committed": true,
+      "sha256": "28cf07f9cf649304a27e5f22bef2cb0eb31aef1d6b54bbe156b8be4202c0756c"
+    }
+  },
+  "base_commit": "8d2e04a2378b220536ac3d7abc30c7f1fccc837e",
+  "candidate_commit": "26a63b395686f3ddb633953228812d4cf404ac4e",
+  "code_patch_hash": "fa0633aa6da066455b06c3db521415a7ce7e6739a3f3f7f163d792fbca53384c",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "did not improve track frontier 22 by minimum_delta=1 (external incumbent 22)",
+  "description": "controls: the declared verifier against the twelve frozen invalid objects, and the known-valid Erdos parabola set handed to the notary as this cell's own artifact; did not improve track frontier 22 by minimum_delta=1 (external incumbent 22)",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T07:40:09.451865Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055",
+    "split_partition": "3819345e71dfbf7fef36734e0f41f1d40cb53ba45eae5c3c218c0e084a248d78"
+  },
+  "incumbent": null,
+  "matched_external": false,
+  "max_run_seconds": 120.0,
+  "metric": {
+    "reported": 11.0,
+    "verified": 11.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "points",
+  "metrics": {
+    "best_at_evaluation": 0.0,
+    "budget": 20000.0,
+    "claim_excess": 0.0,
+    "claimed_objective": 11.0,
+    "evaluations": 0.0,
+    "grid_n": 11.0,
+    "object_size": 11.0,
+    "overclaim_by": 0.0,
+    "passes": 0.0,
+    "planted": 12.0,
+    "primary_metric": 11.0,
+    "rejected": 12.0,
+    "runner_exit_code": 0.0,
+    "sealed_block": 0.0,
+    "search_seconds": 9.396334666991606,
+    "search_seed": 20260903.0,
+    "total_seconds": 0.0,
+    "triples_checked": 165.0,
+    "wall_seconds": 9.7e-05
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 8,
+  "predictions": {
+    "P3": {
+      "explanation": "rejected 12 == 12 \u00b1 0 (|\u0394| = 0) \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P3"
+  ],
+  "primary_metric": 11.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T07:39:59.280454Z",
+  "timed_out": false,
+  "track": "n_small",
+  "transaction": {
+    "ready_at": "2026-09-03T07:40:10.270937Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0001/solution.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "959ba15bac56cd94f00e7198788601bd87fa38767912ad34e223a0292f739cbe"
+    },
+    "timed_out": false,
+    "wall_seconds": 0.8161054998636246
+  },
+  "wall_seconds": 10.171145250089467
+}

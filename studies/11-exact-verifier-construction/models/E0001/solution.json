@@ -1,0 +1,58 @@
+{
+  "claimed_objective": 11,
+  "meta": {
+    "budget_rung": "small",
+    "experiment": "E0001",
+    "mode": "controls",
+    "seed_block": "development",
+    "track": "n_small"
+  },
+  "n": 11,
+  "points": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      1
+    ],
+    [
+      2,
+      4
+    ],
+    [
+      3,
+      9
+    ],
+    [
+      4,
+      5
+    ],
+    [
+      5,
+      3
+    ],
+    [
+      6,
+      3
+    ],
+    [
+      7,
+      5
+    ],
+    [
+      8,
+      9
+    ],
+    [
+      9,
+      4
+    ],
+    [
+      10,
+      1
+    ]
+  ],
+  "problem": "no-three-in-line"
+}
