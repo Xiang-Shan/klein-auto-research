@@ -155,7 +155,16 @@ def resolve_study(path: str | Path) -> Path:
     return study
 
 
-def load_contract(study_dir: Path) -> dict[str, Any]:
+def load_contract(study_dir: str | Path) -> dict[str, Any]:
+    """The study contract as written.
+
+    Takes a string or a Path, like every neighbouring loader
+    (:func:`resolve_study`, :func:`kleinlib.data.contract_split`,
+    :func:`kleinlib.data.load_partition`): an entrypoint that reads its own
+    contract writes ``load_contract(".")``, and that spelling used to raise a
+    raw ``TypeError`` from a path join instead of a ``WorkflowError``.
+    """
+    study_dir = Path(study_dir)
     try:
         raw = yaml.safe_load((study_dir / "study.yaml").read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as exc:
