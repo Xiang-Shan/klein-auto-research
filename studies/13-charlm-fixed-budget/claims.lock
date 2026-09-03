@@ -1,0 +1,117 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | primary | supported, with the direction reversed | exploratory | empirical-description | E0001, E0002, E0003, E0004, E0005, E0006, E0007, `sweep:paired_floor` | The prior said \"at most one of the four edits clears the floor \u2014 width\". At most one did clear it, but it was none of the four: warmup \u22121.0431, weight tying \u221211.3693, dropout 0.1 \u22124.7255 and width \u22120.4742 floors against the anchor's five-seed mean, with one floor = 0.0149525 nats. The single keep is cosine decay at +3.3326 floors (E0006), which carried no registered prediction. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "Never let the training script grade its own checkpoint. It costs one extra",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "Put a copy-the-input control in your language-model harness. It bets the next",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "If you split ordered text into contiguous blocks, measure the distribution",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "Decide at design time how a comparison gets its sealed number. One track and",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ2 | primary | supported | exploratory | empirical-description | E0001, E0008, `rep:E0001@20260903T121129Z`, `verify:E0001@20260903T121358Z`, `verify:E0001@20260903T121401Z`, `sweep:device_check` | The trainer's own reported loss and the checker's independently recomputed loss never differed by a printable amount on any of the eight runs (largest `verifier_gap` 0.0 nats, declared tolerance 0.01). The same checkpoint re-scored on CPU and on MPS gives 1.572174 nats both times. A full re-execution of E0001 at the same seed on the same backend moved 0.000962 nats \u2014 0.119808 fit-noise standard deviations. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ3 | primary | supported | exploratory | empirical-description | E0003, E0006, `sweep:fit_noise`, `sweep:paired_floor` | This study measured recipes rather than noise, but only just: the largest effect is a cost of 11.3693 floors (weight tying, E0003) and the only gain is 3.53486 floors (E0006 over E0001). The prior said \"a small multiple, not an order of magnitude\" of the seed spread; the gain is a small multiple and the largest cost is an order of magnitude. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ1 (sealed) | primary | measured | confirmed | empirical-description | E0008 | On the sealed final tenth of the corpus, never read before, the selected cosine-decay recipe retrained on train + development scores 1.566280 nats per character (2.259664 bits per character). |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "\u2014 | primary | held | confirmed | procedural-verdict | E0001, E0008, `sweep:harness_controls` | The checker decided every disposition and the searcher never graded itself; the matched-compute guardrails held at 2000 steps and 128 evaluation context on all eight runs; and the four eval-harness controls behaved as a correct harness must, including the copy-the-input negative control at 4.750043 nats \u2014 worse than the chance level of 4.174388, where an off-by-one target alignment would have scored 0.693147. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "RQ1 | primary | interpretation | exploratory | mechanism-interpretation | E0003, `art:frontier` | Weight tying fails here because one matrix is asked to do two jobs at a scale where it has no slack: it removes 8320 parameters, 1.009317 per cent of the model, and the two roles want very different norms with no logit scale to reconcile them. The parameter COUNT was the wrong quantity to reason about. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "RQ1 (sealed) | primary | interpretation | exploratory | mechanism-interpretation | E0006, E0008, `art:neardup` | The sealed block is harder because a contiguous final tenth of a concatenation of plays is a different sample of the corpus's own nonstationarity, not because the model overfitted: the sealed run trained on 111616 more characters than the development incumbent did and still scored 0.046961 nats worse, while the cross-partition audit found nothing to memorise (largest Jaccard similarity 0.030059). |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "Measure your floor on the quantity your decision actually uses. The five-seed",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "At a fixed step budget, spend the schedule before you spend the capacity. The",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "caee71affac94ead50d5e1987a59d239165e6a72",
+  "klein_commit": "caee71affac94ead50d5e1987a59d239165e6a72",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "13-charlm-fixed-budget"
+}
