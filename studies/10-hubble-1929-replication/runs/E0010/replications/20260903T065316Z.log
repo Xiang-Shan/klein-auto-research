@@ -1,0 +1,68 @@
+replicate_setup: uv sync --locked
+Using CPython 3.13.3
+Creating virtual environment at: .venv
+Resolved 95 packages in 2ms
+   Building klein-auto-research @ file:///Users/xiang/.cache/klein-replicate-tmp/klein-replicate-al8rnrdg/worktree
+      Built klein-auto-research @ file:///Users/xiang/.cache/klein-replicate-tmp/klein-replicate-al8rnrdg/worktree
+Prepared 1 package in 163ms
+Installed 29 packages in 75ms
+ + contourpy==1.3.3
+ + coverage==7.15.0
+ + cycler==0.12.1
+ + fonttools==4.63.0
+ + iniconfig==2.3.0
+ + joblib==1.5.3
+ + kiwisolver==1.5.0
+ + klein-auto-research==2.0.0 (from file:///Users/xiang/.cache/klein-replicate-tmp/klein-replicate-al8rnrdg/worktree)
+ + latex2mathml==3.81.0
+ + matplotlib==3.11.0
+ + narwhals==2.23.0
+ + numpy==2.5.1
+ + packaging==26.2
+ + pandas==3.0.3
+ + pillow==12.3.0
+ + pluggy==1.6.0
+ + pygments==2.20.0
+ + pyparsing==3.3.2
+ + pytest==9.1.1
+ + pytest-cov==7.1.0
+ + python-dateutil==2.9.0.post0
+ + pyyaml==6.0.3
+ + ruff==0.15.21
+ + scikit-learn==1.9.0
+ + scipy==1.18.0
+ + six==1.17.0
+ + threadpoolctl==3.6.0
+ + ziafont==0.11
+ + ziamath==0.13
+runner_status: ok
+runner_exit_code: 0
+---
+primary_metric:    0.938000
+metric_name:       coverage
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/coverage_analytic_blockB.tsv
+rows:              2
+sha256:            4aa19dd11b47cf57ec8225883ea33953a6acc4b8cba9659a95f799e4e560ee32
+wall_seconds:      0.038643
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+n_rep: 1000.0
+n_obs: 24.0
+k_true: 450.0
+sigma: 232.91067
+nominal_level: 0.95
+shortfall_from_nominal: 0.01200000000000001
+mean_k_hat: 451.26823189562333
+bias: 1.2682318956233303
+mean_ci_width: 291.87177264431324
+bootstrap_coverage_e0009: 0.911
+analytic_minus_bootstrap: 0.026999999999999913
+seed_block_b: 20260904.0
+runner_status: ok
+runner_exit_code: 0

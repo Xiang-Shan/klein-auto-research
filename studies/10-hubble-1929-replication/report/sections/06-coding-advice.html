@@ -1,0 +1,135 @@
+<h2>6. Method coding advice</h2>
+
+<p>Six things this study would tell you to do differently, each paid for by something
+that actually happened in it.</p>
+
+<h3>6.1 Ask what every column was computed from, and enforce the answer in code</h3>
+
+<p>The single most transferable lesson. A column is evidence about a quantity
+<em>only</em> if it was measured independently of it. Table 2's distances were computed
+from the velocities with the very constant under test; using them would have produced a
+confident, well-formatted tautology.</p>
+
+<p>The fix is not a comment. Put the exclusion at the <strong>one door</strong> every
+cell must pass through, and then have the consumer assert it independently:</p>
+
+<pre><code class="language-python">TABLE2_FORBIDDEN_COLUMNS = ("r_mpc", "vs_kms", "M_t")
+
+def load_block(name, *, echo=True):
+    ...
+    # Drop by what was REQUESTED, not by what was served: under a dry run the
+    # rows come from the development block, but the cell being rehearsed is the
+    # sealed one and its column contract must be rehearsed too.
+    if name == BLOCK_TABLE2:
+        block = block.drop(columns=[c for c in TABLE2_FORBIDDEN_COLUMNS
+                                    if c in block.columns])
+</code></pre>
+
+<pre><code class="language-python"># ...and in the cell, an independent assertion that the door did its job:
+leaked = [c for c in TABLE2_FORBIDDEN_COLUMNS if c in block.columns]
+if leaked:
+    raise RuntimeError(f"forbidden columns reached the sealed cell: {leaked}")
+</code></pre>
+
+<p><strong>Both guards were needed.</strong> The first rehearsal failed precisely
+because the library dropped by the served block while the cell asserted on the
+requested one &mdash; a check at the door <em>and</em> a check at the consumer is what
+turned a silent shape mismatch into a loud, cheap failure.</p>
+
+<h3>6.2 Read the rehearsal's numbers, not its exit code</h3>
+
+<p>The mandatory sealed dry-run saved this study twice. The second time it
+<em>passed</em>: exit <strong>0</strong>, a well-formed block, a pinned table &mdash;
+carrying an inverted rescale that would have recorded a refutation on
+<strong>2680.495911</strong> and spent the track's only access. The bug was one
+character of direction:</p>
+
+<pre><code class="language-python"># WRONG - sends the fits to ~2570 instead of ~70
+r_rescaled = r / factor
+
+# RIGHT - Hubble's distances were too SMALL, so correcting the ladder MULTIPLIES
+# them, which divides the slope:  v = K r = (K/f)(f r)
+r_rescaled = r * factor
+</code></pre>
+
+<p>A sealed run can be wrong without crashing. Budget a minute to read what the
+rehearsal printed and check it against what you expected before you spend the access.</p>
+
+<h3>6.3 When the predictor is the noisy variable, report both regressions</h3>
+
+<p>One number from <code>v ~ r</code> is a lower bound, not an estimate. Reporting the
+inverse fit beside it costs one function and, here, changes the headline by a factor of
+<strong>1.603771</strong>. Pair them on <strong>common random numbers</strong> or the
+difference carries independent noise and looks less decisive than it is:</p>
+
+<pre><code class="language-python">def paired_bootstrap_k(r, v, *, n_boot, seed, estimators):
+    """Several estimators on the SAME resamples - common random numbers.
+
+    Drawing twice would add independent noise to the difference and inflate
+    its standard error.
+    """
+    rng = np.random.default_rng(seed)
+    draws = rng.integers(0, r.size, size=(int(n_boot), r.size))
+    R, V = r[draws], v[draws]
+    return {name: k_of_batch(R, V, name) for name in estimators}
+</code></pre>
+
+<p>If the error ratio is known, use an errors-in-variables fit. If it is not &mdash; as
+here, where the paper prints neither error &mdash; say so and give the bracket rather
+than inventing the ratio. This study declined a Deming fit for exactly that reason and
+recorded the refusal.</p>
+
+<h3>6.4 A floor for a proportion needs more than its observed spread</h3>
+
+<p>Five seed blocks put coverage in a band of <strong>0.007</strong> and produced a
+<code>minimum_delta</code> of <strong>0.0060663</strong>; the next block landed at
+<strong>0.911</strong>, outside every one of them. A small-k spread of a Monte-Carlo
+proportion is a <em>lower bound</em> on that proportion's variability. Size the floor
+against the binomial standard error too, or accept that the floor is optimistic and say
+so where the number is used.</p>
+
+<h3>6.5 Make a pinned table deterministic on purpose</h3>
+
+<p>Ten of ten cells reproduced with difference exactly 0, which is not luck. One writer,
+fixed column order, fixed float formatting, LF endings, no index &mdash; and it does not
+write at all under the smoke flag, so the sanctioned pre-run check leaves the tree
+clean for the notary:</p>
+
+<pre><code class="language-python">def write_table(relative_path, columns, rows, *, float_format="%.6f"):
+    path = study_dir() / relative_path
+    frame = pd.DataFrame(list(rows), columns=list(columns))
+    text = frame.to_csv(index=False, sep="\t",
+                        float_format=float_format, lineterminator="\n")
+    if os.environ.get("KLEIN_SMOKE") == "1":
+        return path              # a smoke run writes no sidecars
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8", newline="")
+    return path
+</code></pre>
+
+<h3>6.6 A prospective lock is a lock &mdash; and the tempting repair is not</h3>
+
+<p>The analyst had read every sealed row before the contract existed. The instinct is
+to recover a "fresh" holdout by bootstrapping a block out of the rows already seen.
+<strong>Reject it.</strong> Resampling rows an analyst has seen creates no new
+information: every resample is a function of the same bytes, so the "holdout" is a
+rearrangement of the training set wearing holdout vocabulary.</p>
+
+<p>What protects a sealed comparison is not the analyst's ignorance &mdash; which
+cannot be restored &mdash; but that the <em>analysis</em> was fixed before the
+comparison ran and the comparison was made once. Write the statistic, the columns, the
+constant it takes and the tolerance into the contract, let the gate hash them, spend the
+access once. Then say "locked before", not "blind".</p>
+
+<h3>6.7 The sealed cell, in full</h3>
+
+<p>Below is the actual entrypoint that spent this study's reproduction seal, read
+byte-for-byte from its candidate commit <code>34107cee</code>. On a registered track
+the mutable surface is restored after every run, so what ran lives in the candidate
+commits rather than in the working tree &mdash; this file is a verbatim copy, and
+<code>git show 34107cee:studies/10-hubble-1929-replication/analyze.py</code> reproduces
+it. Note the three things it does before it computes anything: it reads its constant
+from a <em>pinned table</em> rather than refitting, it goes through the single data
+door, and it re-asserts the column exclusion itself.</p>
+
+<pre data-code="report/e0011-analyze.py" data-lang="python"></pre>

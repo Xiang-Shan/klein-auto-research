@@ -1,0 +1,25 @@
+---
+primary_metric:    1.000000
+metric_name:       targets_outside_tolerance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/table1_absolute_magnitudes.tsv
+rows:              24
+sha256:            0e709cb8bc1cd3fee9ddfcebc741bf9ca054e1543b327cae4a97d4192dda5388
+wall_seconds:      0.009867
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+max_abs_mag_dev: 0.07121254719662495
+mean_abs_mag_dev: 0.022133867019204907
+n_objects: 24.0
+n_outside_tolerance: 3.0
+mean_M_t_computed: -15.483270669070984
+mean_M_t_printed: -15.479166666666666
+paper_printed_mean_M_t: -15.5
+abs_gap_printed_column_mean: 0.020833333333333925
+runner_status: ok
+runner_exit_code: 0

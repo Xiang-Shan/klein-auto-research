@@ -1,0 +1,71 @@
+<h2>3. The data story</h2>
+
+<p>Two CSVs, <strong>46</strong> rows between them, transcribed from a 1929 paper that
+is in the public domain. Small enough to read by eye, which is exactly why the data
+gate mattered: on a table this size every judgement call is visible, and one of them
+decides the whole study.</p>
+
+<h3>3.1 Provenance before anything else</h3>
+
+<p>The publisher's site and its mirror both blocked automated fetching, so the tables
+were transcribed from <em>two independent sources</em> &mdash; a digitised scan of the
+journal pages and a separate manual retyping &mdash; and diffed cell by cell across
+every row. <strong>Zero substantive discrepancies.</strong> The only divergence was
+OCR sign-loss on several absolute magnitudes, resolved in favour of the clean
+transcription and confirmed by the paper's own printed column means.</p>
+
+<p>A candidate second source was <em>rejected</em>: a widely used R package ships a
+dataset called <code>hubble</code>, and its own documentation shows it is a modern
+HST Key Project sample &mdash; different galaxies, different century. Using it would
+have been a data-identity error that no downstream check would ever have caught.</p>
+
+<h3>3.2 The check that decided the study</h3>
+
+<p>Table 2 has a distance column. It looks exactly like what a replication wants:
+<strong>22</strong> more galaxies with distances <em>and</em> velocities, an
+independent check on the constant. It is not a measurement. The data gate tested the
+suspicion with arithmetic rather than asserting it, and found that</p>
+
+<div data-math-display="r = \frac{v - v_s}{500}"></div>
+
+<p>holds to floating-point exactness on all but one of the rows where both columns are
+printed, and misses on that one by exactly one unit in the paper's last printed
+decimal &mdash; the signature of a <em>computed</em>, rounded column. So Table 2's
+distances are Hubble's own adopted constant applied to his velocities. Comparing this
+study's constant against them would have returned the ratio of two constants: a
+tautology wearing the costume of a test.</p>
+
+<p><strong>Consequence, enforced in code rather than in prose:</strong> three columns
+of the sealed block &mdash; the derived distance, the corrected velocity tied to it by
+that identity, and the printed answer itself &mdash; are dropped by the single function
+every cell must call to reach data. The sealed statistic uses only the two columns
+Table 2 actually measured, and the contract names both the allowed and the forbidden
+list so a reader can check that it did.</p>
+
+<h3>3.3 The partition is not a draw</h3>
+
+<p>Nothing here is split at random. The partition is the paper's own structure: Table 1
+is the development block, Table 2 is sealed. That has a mechanical consequence worth
+understanding, because it is the study's most visible rough edge:</p>
+
+<blockquote><p><code>data.split.kind: none</code> means the engine cannot realise
+partitions from the contract, so no fingerprints were frozen at the gate and every run
+prints <code>note: partition not verified</code>. Silence is not a pass &mdash; so the
+two block digests were published on the data card instead, and a stranger recomputes
+them from the contract plus the bytes with one command.</p></blockquote>
+
+<h3>3.4 The go / no-go call</h3>
+
+<p><strong>GO-WITH-CAUTIONS</strong>, with four cautions carried into the findings and
+none of them waved away: the derived columns (mechanised, above); the sample size,
+which is measured rather than assumed by the simulation track; the unregisterable
+partition fingerprints (published by hand instead); and informative missingness that no
+cell reads. Both mechanised leakage audits ran clean &mdash; in index mode, which is how
+a study with no row partition still gets its contamination row checked by machine rather
+than waived.</p>
+
+<p>Row 4 of the audit, the no-information control, had to be done by hand because the
+auditor has no partition to score. Permuting the velocities against the distances two
+thousand times gives a constant near zero with none of the permutations reaching the
+real value. Breaking the pairing destroys the relation, so the evaluation path carries
+no answer of its own.</p>

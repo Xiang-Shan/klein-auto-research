@@ -1,0 +1,792 @@
+{
+  "artifacts": {
+    "anchors": {
+      "path": "tables/identity_anchors.tsv",
+      "sha256": "8f927d354d4f2995f011e4e26dc50ebc51db4880ecefc7358a83693448edef93"
+    },
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "092fbfe0ba2e6d4e5520996efc87631cba0819c738534a2e3ea128222f90c493"
+    },
+    "boot": {
+      "path": "tables/bootstrap_k.tsv",
+      "sha256": "6d2d767236bed00518910255408192fcdf86f313f3b008a33dea2e8cd07fe60b"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
+    },
+    "cova": {
+      "path": "tables/coverage_analytic_blockB.tsv",
+      "sha256": "4aa19dd11b47cf57ec8225883ea33953a6acc4b8cba9659a95f799e4e560ee32"
+    },
+    "covb": {
+      "path": "tables/coverage_bootstrap_blockB.tsv",
+      "sha256": "549885be0218527290642b9a6c757876e802e2cfc44d90cc5e4d72b4e26ae420"
+    },
+    "covc": {
+      "path": "tables/sealed_coverage_blockC.tsv",
+      "sha256": "99aac71a3400c9036e24c943797e97a181515c6b00589ecab4981fa1394659ce"
+    },
+    "dryrun_rescale": {
+      "path": "sweeps/sealed_dryrun.20260903T062602.416191Z.log",
+      "sha256": "d7c9ff702f6cfa5887f7fa8bc6f4b5b1c4adac1bc643173f35172e8ad44de371"
+    },
+    "fits": {
+      "path": "tables/two_parameter_fits.tsv",
+      "sha256": "cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8"
+    },
+    "floor_sidecar": {
+      "path": "sweeps/coverage_floor.sidecar.tsv",
+      "sha256": "a20c005975fb7b996a1c0333b27f2e8ce08991322027c323de0318ece72e6676"
+    },
+    "groups": {
+      "path": "tables/nine_group_inputs.tsv",
+      "sha256": "6cf66ea4f4386d6f969220cfc0586dff7b62041ca0f749db9894ed05c3dbabc3"
+    },
+    "invfwd": {
+      "path": "tables/inverse_vs_forward.tsv",
+      "sha256": "d4166fb2bb12f06539dbaff2119aad49d05c4c8a0dc3e36d9f315bbbf8f6efe3"
+    },
+    "jack": {
+      "path": "tables/jackknife_k.tsv",
+      "sha256": "4e07cf0c14a3f13bbb900445e147e1289f8f89a7732621981dff7c923192ae47"
+    },
+    "mags": {
+      "path": "tables/table1_absolute_magnitudes.tsv",
+      "sha256": "0e709cb8bc1cd3fee9ddfcebc741bf9ca054e1543b327cae4a97d4192dda5388"
+    },
+    "mc_sidecar": {
+      "path": "sweeps/mc_resolution.sidecar.tsv",
+      "sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5"
+    },
+    "sealed_mags": {
+      "path": "tables/sealed_table2_magnitudes.tsv",
+      "sha256": "4b0132c7ff3e7db588f5e527b468a755bbfeb8a0116c358f531e644521959080"
+    },
+    "sealed_modern": {
+      "path": "tables/sealed_modern_comparison.tsv",
+      "sha256": "e3f0aed412837ab0c65bc2c5eb4ba4e9d9aaf97e92c66f4eac6552e3d2b4a232"
+    },
+    "solar": {
+      "path": "tables/solar_motion_inputs.tsv",
+      "sha256": "f68402b5e2c9a910c0a75d55129cb086c0e7f2f5b1d801a43574efca85eeed5b"
+    }
+  },
+  "claims": {
+    "C1": {
+      "claim": "Neither two-parameter fit returns 465: through the origin 423.937323, free intercept 454.158441; the nearer gap is 10.841559 against a registered tolerance of 10",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "rep:E0002@20260903T063133Z",
+        "art:fits"
+      ],
+      "numbers": [
+        "gap_465_nearest",
+        "hubble_k_24",
+        "k_free",
+        "k_origin",
+        "p1_tolerance"
+      ],
+      "strength": "confirmed"
+    },
+    "C10": {
+      "claim": "The analytic probable error of the free-intercept slope is 50.747428, reproducing Hubble's quoted 50 from a fit he did not run - most likely because the probable error is dominated by the residual scatter of 232.910670 km/s, a property of the data rather than of the model form",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "art:aux",
+        "art:fits"
+      ],
+      "numbers": [
+        "hubble_pe_24",
+        "probable_error",
+        "residual_sd"
+      ],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "The paired bootstrap puts the inverse-minus-forward difference at 282.639496 with a standard error of 115.484712, i.e. 2.447419 standard errors: textbook regression dilution, so the ordinary fit of v on r is a lower bound on the slope rather than a best estimate",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0007",
+        "art:invfwd",
+        "ref:frost2000"
+      ],
+      "numbers": [
+        "paired_mean_difference",
+        "paired_se_difference",
+        "se_units"
+      ],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "The Phase 0 floor was optimistic about its own quantity: 5 blocks put coverage between 0.925000 and 0.932000 and gave a minimum_delta of 0.0060663, and the development block then measured 0.911000 against the analytic interval's 0.938000 - a five-block spread of a Monte-Carlo proportion can come in below that proportion's own binomial standard error",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "sweep:coverage_floor",
+        "E0009",
+        "E0010",
+        "art:floor_sidecar"
+      ],
+      "numbers": [
+        "coverage_analytic",
+        "coverage_dev",
+        "floor_blocks",
+        "floor_max",
+        "floor_min",
+        "floor_minimum_delta",
+        "phase_zero"
+      ],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "Before using a column as evidence, ask what it was computed from: Table 2's distance column is the velocity divided by Hubble's adopted constant, so comparing this study's K against it would have returned the ratio of the two constants; the sealed statistic over the 22 rows uses only the columns Table 2 measured",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0011",
+        "art:sealed_mags",
+        "art:contract"
+      ],
+      "numbers": [
+        "n_sealed_rows",
+        "table_two"
+      ],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "Read the sealed rehearsal's numbers, not just its exit code: one dry-run failed loudly on a column-shape defect, and a second PASSED with exit 0 while carrying an inverted distance rescale that would have recorded P7 refuted at 2680.495911 and spent the estimate track's only access on a prediction never actually tested",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0011",
+        "E0012",
+        "art:dryrun_rescale"
+      ],
+      "numbers": [
+        "bad_rescale_gap",
+        "exit_ok"
+      ],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "Measuring a floor for a quantity a prediction reads partly spends the prediction: the coverage floor had to estimate the spread of the very number P6's rule tests, so P6's verdict was foreseeable before the sealed block was read - disclosed the day it happened, with the refutation branch kept live and the verdict taken on evidence the floor never touched",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "sweep:coverage_floor",
+        "E0013",
+        "art:floor_sidecar"
+      ],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C16": {
+      "claim": "When the predictor is the noisy variable, report both regressions: one number from v on r is a lower bound, not an estimate, and here the inverse fit changes the headline by a factor of 1.603771; if the error ratio is unknown, give the bracket rather than inventing the ratio",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0007",
+        "art:invfwd",
+        "ref:frost2000"
+      ],
+      "numbers": [
+        "inverse_forward_ratio"
+      ],
+      "strength": "exploratory"
+    },
+    "C17": {
+      "claim": "A prospective lock is a lock: what protected this study's sealed comparison was not the analyst's ignorance of the 22 sealed rows, which could not be restored, but that the statistic, the columns, the source of K and the tolerance were hashed into the contract before any cell ran and the access was spent once",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0011",
+        "art:contract"
+      ],
+      "numbers": [
+        "n_sealed_rows"
+      ],
+      "strength": "exploratory"
+    },
+    "C18": {
+      "claim": "The textbook value 500 is in neither published solution: the article adopts it as an intermediate between 465 with a probable error of 50 and 513 with a probable error of 60, after attributing their difference largely to four galaxies",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0005",
+        "art:groups",
+        "ref:hubble1929"
+      ],
+      "numbers": [
+        "hubble_k_24",
+        "hubble_k_9group",
+        "hubble_pe_24",
+        "hubble_pe_9group",
+        "textbook_500"
+      ],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "The headline is unreproducible for missing INPUTS, not method: 0 of 24 per-object coordinates and 0 of 9 group memberships are obtainable from the tables, the article text or any offline catalogue",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0004",
+        "E0005",
+        "rep:E0004@20260903T063326Z",
+        "rep:E0005@20260903T064003Z",
+        "art:solar",
+        "art:groups",
+        "ref:hubble1929"
+      ],
+      "numbers": [
+        "coords_available",
+        "coords_required",
+        "groups_reconstructed",
+        "groups_required"
+      ],
+      "strength": "confirmed"
+    },
+    "C3": {
+      "claim": "The 24 objects support K = 454.158441 with a 95 per cent percentile-bootstrap interval of 316.648582 to 603.704762, width 287.056180 - and that interval contains 465",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0006",
+        "E0012",
+        "rep:E0006@20260903T064440Z",
+        "art:boot"
+      ],
+      "numbers": [
+        "ci_high",
+        "ci_level",
+        "ci_low",
+        "ci_width",
+        "hubble_k_24",
+        "k_free",
+        "n_table1"
+      ],
+      "strength": "confirmed"
+    },
+    "C4": {
+      "claim": "Under the declared DGP the percentile interval covers the truth 0.925000 of the time on the sealed block, against a nominal 0.95 and a registered bar of 0.90",
+      "class": "known-dgp-teaching",
+      "errata": [],
+      "evidence": [
+        "E0013",
+        "E0009",
+        "E0010",
+        "rep:E0009@20260903T065111Z",
+        "art:covc"
+      ],
+      "numbers": [
+        "coverage_sealed",
+        "nominal_level",
+        "p6_bar"
+      ],
+      "scope": "in-silico",
+      "strength": "confirmed"
+    },
+    "C5": {
+      "claim": "One common distance factor of 6.056247 carries both two-parameter fits to within 4.990073 of the modern 70 - the 1929-to-today gap behaves as a pure scale error, and the ratio of the 1929 estimate to today's is 6.487978",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0012",
+        "art:sealed_modern",
+        "ref:sandage1958",
+        "E0002",
+        "rep:E0002@20260903T063133Z",
+        "art:fits"
+      ],
+      "numbers": [
+        "estimate_over_modern",
+        "max_gap_70",
+        "modern_h0",
+        "rescale_factor"
+      ],
+      "strength": "confirmed"
+    },
+    "C6": {
+      "claim": "The identity anchor holds exactly: Table 1's published sums reproduce with a maximum absolute deviation of 0.000000, and the two tables carry 24 and 22 rows",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "rep:E0001@20260903T063009Z",
+        "art:anchors"
+      ],
+      "numbers": [
+        "anchor_max_deviation",
+        "n_table1",
+        "n_table2",
+        "table_one"
+      ],
+      "strength": "confirmed"
+    },
+    "C7": {
+      "claim": "Table 1's printed absolute magnitudes do NOT reproduce to half the paper's own printed precision: the maximum deviation is 0.071213 against a registered 0.06, with 3 of the 24 objects outside",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0003",
+        "rep:E0003@20260903T063853Z",
+        "art:mags"
+      ],
+      "numbers": [
+        "max_mag_deviation",
+        "n_outside_p9",
+        "n_table1",
+        "p9_tolerance",
+        "table_one"
+      ],
+      "strength": "confirmed"
+    },
+    "C8": {
+      "claim": "On the sealed block, this study's own K puts the nebulae at a mean absolute magnitude of -15.524998, within 0.224998 of Hubble's printed -15.3 - his internal cross-check survives the substitution",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0011",
+        "art:sealed_mags",
+        "art:contract",
+        "E0002",
+        "E0003",
+        "rep:E0002@20260903T063133Z",
+        "rep:E0003@20260903T063853Z"
+      ],
+      "numbers": [
+        "hubble_table2_mean",
+        "sealed_deviation",
+        "sealed_mean_abs_mag"
+      ],
+      "strength": "confirmed"
+    },
+    "C9": {
+      "claim": "Two choices nobody discusses move K more than the data does: inverse regression returns 728.366015 against the forward 454.158441 (a factor of 1.603771), and dropping the four Virgo rows that share one assigned distance moves it to 531.347267, a shift of 77.188826 - more than the analytic standard error of 75.237105",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0007",
+        "E0008",
+        "rep:E0007@20260903T064658Z",
+        "rep:E0008@20260903T064844Z",
+        "art:invfwd",
+        "art:jack"
+      ],
+      "numbers": [
+        "analytic_se",
+        "inverse_forward_ratio",
+        "k_free",
+        "k_inverse",
+        "k_without_virgo",
+        "virgo_influence"
+      ],
+      "strength": "confirmed"
+    }
+  },
+  "errata": {},
+  "git_head": "5b521ac2d0da981ff8b5215f48546bee941649b6",
+  "klein_commit": "5b521ac2d0da981ff8b5215f48546bee941649b6",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {
+    "analytic_se": {
+      "art": "boot",
+      "claim": "C9",
+      "note": "closed-form standard error of the free-intercept slope (E0002, E0006, E0008)",
+      "precision": 6,
+      "value": 75.237105
+    },
+    "anchor_max_deviation": {
+      "art": "anchors",
+      "claim": "C6",
+      "note": "largest absolute deviation across the four identity anchors (E0001)",
+      "precision": 6,
+      "value": 0.0
+    },
+    "bad_rescale_gap": {
+      "art": "dryrun_rescale",
+      "claim": "C14",
+      "note": "max_abs_gap_70 the inverted rescale produced in the rehearsal; its only home is the dry-run log, because a rehearsal spends nothing and writes no manifest",
+      "precision": 6,
+      "value": 2680.495911
+    },
+    "ci_high": {
+      "art": "boot",
+      "claim": "C3",
+      "note": "95pct percentile bootstrap upper bound for K (E0006)",
+      "precision": 6,
+      "value": 603.704762
+    },
+    "ci_level": {
+      "art": "contract",
+      "claim": "C3",
+      "note": "the interval's nominal level in per cent",
+      "precision": 0,
+      "value": 95
+    },
+    "ci_low": {
+      "art": "boot",
+      "claim": "C3",
+      "note": "95pct percentile bootstrap lower bound for K (E0006, re-run sealed at E0012)",
+      "precision": 6,
+      "value": 316.648582
+    },
+    "ci_width": {
+      "art": "boot",
+      "claim": "C3",
+      "note": "width of the 95pct interval for K (E0006)",
+      "precision": 6,
+      "value": 287.05618
+    },
+    "coords_available": {
+      "art": "solar",
+      "claim": "C2",
+      "note": "per-object coordinates obtainable for the four-parameter fit (E0004)",
+      "precision": 0,
+      "value": 0
+    },
+    "coords_required": {
+      "art": "solar",
+      "claim": "C2",
+      "note": "coordinates the four-parameter fit needs (E0004)",
+      "precision": 0,
+      "value": 24
+    },
+    "coverage_analytic": {
+      "art": "cova",
+      "claim": "C12",
+      "note": "coverage of the analytic interval on the same block and DGP (E0010)",
+      "precision": 6,
+      "value": 0.938
+    },
+    "coverage_dev": {
+      "art": "covb",
+      "claim": "C12",
+      "note": "coverage of the percentile interval on development seed block B (E0009)",
+      "precision": 6,
+      "value": 0.911
+    },
+    "coverage_sealed": {
+      "art": "covc",
+      "claim": "C4",
+      "note": "coverage of the percentile interval on sealed seed block C (E0013)",
+      "precision": 6,
+      "value": 0.925
+    },
+    "estimate_over_modern": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "k_free / 70 (E0012)",
+      "precision": 6,
+      "value": 6.487978
+    },
+    "exit_ok": {
+      "art": "dryrun_rescale",
+      "claim": "C14",
+      "note": "the exit code a passing rehearsal returns; C14's point is that 0 is not proof",
+      "precision": 0,
+      "value": 0
+    },
+    "floor_blocks": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "seed blocks in the Phase-0 coverage floor (sweep:coverage_floor)",
+      "precision": 0,
+      "value": 5
+    },
+    "floor_max": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "highest coverage across the five Phase-0 floor blocks (sweep:coverage_floor)",
+      "precision": 6,
+      "value": 0.932
+    },
+    "floor_min": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "lowest coverage across the five Phase-0 floor blocks (sweep:coverage_floor)",
+      "precision": 6,
+      "value": 0.925
+    },
+    "floor_minimum_delta": {
+      "art": "contract",
+      "claim": "C12",
+      "note": "the simulate track's measured minimum_delta = max(2*std, range/2)",
+      "precision": 7,
+      "value": 0.0060663
+    },
+    "gap_465_nearest": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "the nearer fit's distance from 465 (E0002)",
+      "precision": 6,
+      "value": 10.841559
+    },
+    "groups_reconstructed": {
+      "art": "groups",
+      "claim": "C2",
+      "note": "of Hubble's nine groups reconstructible from the paper (E0005)",
+      "precision": 0,
+      "value": 0
+    },
+    "groups_required": {
+      "art": "groups",
+      "claim": "C2",
+      "note": "groups in Hubble's second solution (E0005)",
+      "precision": 0,
+      "value": 9
+    },
+    "hubble_k_24": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "Hubble 1929's published constant for the 24 objects individually",
+      "precision": 0,
+      "value": 465
+    },
+    "hubble_k_9group": {
+      "art": "contract",
+      "claim": "C18",
+      "note": "Hubble's nine-group solution",
+      "precision": 0,
+      "value": 513
+    },
+    "hubble_pe_24": {
+      "art": "contract",
+      "claim": "C10",
+      "note": "the probable error Hubble quotes with his 24-object solution",
+      "precision": 0,
+      "value": 50
+    },
+    "hubble_pe_9group": {
+      "art": "contract",
+      "claim": "C18",
+      "note": "the probable error Hubble quotes with the nine-group solution",
+      "precision": 0,
+      "value": 60
+    },
+    "hubble_table2_mean": {
+      "art": "contract",
+      "claim": "C8",
+      "note": "the mean absolute magnitude Hubble printed under Table 2; the sealed target",
+      "precision": 1,
+      "value": -15.3
+    },
+    "inverse_forward_ratio": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "k_inverse / k_forward (E0007)",
+      "precision": 6,
+      "value": 1.603771
+    },
+    "k_free": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "free-intercept OLS slope, 24 objects (E0002)",
+      "precision": 6,
+      "value": 454.158441
+    },
+    "k_inverse": {
+      "art": "invfwd",
+      "claim": "C9",
+      "note": "K from regressing r on v and inverting (E0007)",
+      "precision": 6,
+      "value": 728.366015
+    },
+    "k_origin": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "OLS through the origin, 24 objects (E0002)",
+      "precision": 6,
+      "value": 423.937323
+    },
+    "k_without_virgo": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "K with the four Virgo-cluster rows removed (E0008)",
+      "precision": 6,
+      "value": 531.347267
+    },
+    "max_gap_70": {
+      "art": "sealed_modern",
+      "claim": "C5",
+      "note": "the larger of the two rescaled fits' gaps to 70 (E0012)",
+      "precision": 6,
+      "value": 4.990073
+    },
+    "max_mag_deviation": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "largest deviation of the recomputed absolute magnitude from Table 1's printed M_t (E0003)",
+      "precision": 6,
+      "value": 0.071213
+    },
+    "modern_h0": {
+      "art": "sealed_modern",
+      "claim": "C5",
+      "note": "the modern Hubble constant, to the round figure this study compares against",
+      "precision": 0,
+      "value": 70
+    },
+    "n_outside_p9": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "objects outside P9's tolerance (E0003)",
+      "precision": 0,
+      "value": 3
+    },
+    "n_sealed_rows": {
+      "art": "contract",
+      "claim": "C13",
+      "note": "rows in the sealed block (study.yaml:sealed_lock.rows)",
+      "precision": 0,
+      "value": 22
+    },
+    "n_table1": {
+      "art": "anchors",
+      "claim": "C6",
+      "note": "rows in Hubble's Table 1 (E0001)",
+      "precision": 0,
+      "value": 24
+    },
+    "n_table2": {
+      "art": "anchors",
+      "claim": "C6",
+      "note": "rows in Hubble's Table 2 (E0001)",
+      "precision": 0,
+      "value": 22
+    },
+    "nominal_level": {
+      "art": "covc",
+      "claim": "C4",
+      "note": "the interval's nominal coverage",
+      "precision": 2,
+      "value": 0.95
+    },
+    "p1_tolerance": {
+      "art": "contract",
+      "claim": "C1",
+      "note": "the tolerance registered for P1 in study.yaml",
+      "precision": 0,
+      "value": 10
+    },
+    "p6_bar": {
+      "art": "contract",
+      "claim": "C4",
+      "note": "the coverage bar registered for P6",
+      "precision": 2,
+      "value": 0.9
+    },
+    "p9_tolerance": {
+      "art": "mags",
+      "claim": "C7",
+      "note": "half the paper's printed precision; the tolerance registered for P9",
+      "precision": 2,
+      "value": 0.06
+    },
+    "paired_mean_difference": {
+      "art": "invfwd",
+      "claim": "C11",
+      "note": "mean paired bootstrap difference, inverse minus forward (E0007)",
+      "precision": 6,
+      "value": 282.639496
+    },
+    "paired_se_difference": {
+      "art": "invfwd",
+      "claim": "C11",
+      "note": "standard error of that paired difference (E0007)",
+      "precision": 6,
+      "value": 115.484712
+    },
+    "phase_zero": {
+      "art": "contract",
+      "claim": "C12",
+      "note": "the numeral in the name 'Phase 0' - it names a phase, not a measurement",
+      "precision": 0,
+      "value": 0
+    },
+    "probable_error": {
+      "art": "aux",
+      "claim": "C10",
+      "note": "0.6745 x the analytic SE - the 1929 convention (E0002)",
+      "precision": 6,
+      "value": 50.747428
+    },
+    "rescale_factor": {
+      "art": "sealed_modern",
+      "claim": "C5",
+      "note": "f = k_origin / 70, the single factor applied to every distance (E0012)",
+      "precision": 6,
+      "value": 6.056247
+    },
+    "residual_sd": {
+      "art": "aux",
+      "claim": "C10",
+      "note": "residual standard deviation about the free-intercept fit (E0002); the DGP's sigma",
+      "precision": 6,
+      "value": 232.91067
+    },
+    "se_units": {
+      "art": "aux",
+      "claim": "C11",
+      "note": "the paired difference in units of its own standard error; the key P5 reads (E0007)",
+      "precision": 6,
+      "value": 2.447419
+    },
+    "sealed_deviation": {
+      "art": "aux",
+      "claim": "C8",
+      "note": "distance from Hubble's printed Table 2 mean (E0011)",
+      "precision": 6,
+      "value": 0.224998
+    },
+    "sealed_mean_abs_mag": {
+      "art": "aux",
+      "claim": "C8",
+      "note": "mean implied absolute magnitude of the sealed block under this study's K (E0011)",
+      "precision": 6,
+      "value": -15.524998
+    },
+    "table_one": {
+      "art": "contract",
+      "claim": "C6",
+      "note": "the numeral in the name 'Table 1' \u2014 it names a table, not a measurement",
+      "precision": 0,
+      "value": 1
+    },
+    "table_two": {
+      "art": "contract",
+      "claim": "C13",
+      "note": "the numeral in the name 'Table 2' - it names a table, not a measurement",
+      "precision": 0,
+      "value": 2
+    },
+    "textbook_500": {
+      "art": "groups",
+      "claim": "C18",
+      "note": "the value Hubble ADOPTED as an intermediate; neither published solution",
+      "precision": 0,
+      "value": 500
+    },
+    "virgo_influence": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "shift in K from dropping the four Virgo-cluster rows (E0008)",
+      "precision": 6,
+      "value": 77.188826
+    }
+  },
+  "study_id": "10-hubble-1929-replication"
+}

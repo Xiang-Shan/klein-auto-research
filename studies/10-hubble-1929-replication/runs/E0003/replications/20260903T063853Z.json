@@ -1,0 +1,153 @@
+{
+  "baseline": 1.0,
+  "block_differences": {
+    "abs_gap_printed_column_mean": {
+      "difference": 0.0,
+      "original": 0.020833333333333925,
+      "replicate": 0.020833333333333925
+    },
+    "max_abs_mag_dev": {
+      "difference": 0.0,
+      "original": 0.07121254719662495,
+      "replicate": 0.07121254719662495
+    },
+    "mean_M_t_computed": {
+      "difference": 0.0,
+      "original": -15.483270669070984,
+      "replicate": -15.483270669070984
+    },
+    "mean_M_t_printed": {
+      "difference": 0.0,
+      "original": -15.479166666666666,
+      "replicate": -15.479166666666666
+    },
+    "mean_abs_mag_dev": {
+      "difference": 0.0,
+      "original": 0.022133867019204907,
+      "replicate": 0.022133867019204907
+    },
+    "n_objects": {
+      "difference": 0.0,
+      "original": 24.0,
+      "replicate": 24.0
+    },
+    "n_outside_tolerance": {
+      "difference": 0.0,
+      "original": 3.0,
+      "replicate": 3.0
+    },
+    "paper_printed_mean_M_t": {
+      "difference": 0.0,
+      "original": -15.5,
+      "replicate": -15.5
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 1.0,
+      "replicate": 1.0
+    },
+    "rows": {
+      "difference": 0.0,
+      "original": 24.0,
+      "replicate": 24.0
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "total_seconds": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "wall_seconds": {
+      "difference": 0.002867999999999999,
+      "original": 0.009867,
+      "replicate": 0.012735
+    }
+  },
+  "candidate_commit": "19ee81f77341307ef869dd61952bc40c789ad0b6",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+  "difference": 0.0,
+  "ended_at": "2026-09-03T06:40:01.834650Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0003@20260903T063853Z",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "log": "runs/E0003/replications/20260903T063853Z.log",
+  "max_run_seconds": 600.0,
+  "metric_name": "targets_outside_tolerance",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "abs_gap_printed_column_mean": 0.020833333333333925,
+    "max_abs_mag_dev": 0.07121254719662495,
+    "mean_M_t_computed": -15.483270669070984,
+    "mean_M_t_printed": -15.479166666666666,
+    "mean_abs_mag_dev": 0.022133867019204907,
+    "n_objects": 24.0,
+    "n_outside_tolerance": 3.0,
+    "paper_printed_mean_M_t": -15.5,
+    "primary_metric": 1.0,
+    "rows": 24.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.009867
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 1.0,
+  "record": "runs/E0003/replications/20260903T063853Z.json",
+  "replicate_block": {
+    "abs_gap_printed_column_mean": 0.020833333333333925,
+    "max_abs_mag_dev": 0.07121254719662495,
+    "mean_M_t_computed": -15.483270669070984,
+    "mean_M_t_printed": -15.479166666666666,
+    "mean_abs_mag_dev": 0.022133867019204907,
+    "n_objects": 24.0,
+    "n_outside_tolerance": 3.0,
+    "paper_printed_mean_M_t": -15.5,
+    "primary_metric": 1.0,
+    "rows": 24.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.012735
+  },
+  "replicate_primary_metric": 1.0,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [],
+  "setup_seconds": 2.012239584000781,
+  "stamp": "20260903T063853Z",
+  "started_at": "2026-09-03T06:38:55.731065Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T06:38:53.578348Z",
+  "tolerance": 0.0,
+  "tolerance_source": "exact",
+  "track": "reproduction",
+  "wall_seconds": 66.10331733385101,
+  "worktree_prepared": true
+}

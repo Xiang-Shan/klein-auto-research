@@ -16,7 +16,7 @@ claims: [07-iris-90years#C12, 07-iris-90years#C13, 07-iris-90years#C14, 07-iris-
 > studies asked whether ninety years of classifiers beat Fisher's 1936 discriminant on
 > Fisher's 150 irises; what they found about *how to ask* is what generalizes.
 
-## The ten lessons
+## The lessons
 
 ### 1. Measure the floor that will judge the comparison before the first challenger runs
 A `minimum_delta` is measured, never guessed — and the measurement must be of the
@@ -129,6 +129,15 @@ floor of 0.08 Brier, the 42-cell map, the rung where fog outruns ceiling — bel
 transfers is the order of operations: provenance diff, floor, headroom, permission,
 contest, one sealed look, errata. Klein 2.0 encodes the order, not the numbers.
 
+### 11. A lock that never verified still has a history — retract on the record, never rewrite
+Study 10 recorded a number whose value its pinned artifact did not hold; the claims law then
+failed the lock (check 5) and forbade repointing it (check 6), and the study reset the lock's
+git history to re-author it. The reset was disclosed in program.md, the discarded revision was
+tagged (`discarded/10-claims-lock-draft`) so a clone can see it, and the referee judged it a
+note. **Mechanism:** `klein claims number` now refuses at write time a value its artifact does
+not hold (engine commit b35acc4); a disclosed retraction verb is the open follow-up. The lesson
+is about the framework, not the data, so it carries no claim citation.
+
 ## Lesson → mechanism, in one table
 
 | Lesson | Mechanism in Klein 2.0 |
@@ -142,3 +151,4 @@ contest, one sealed look, errata. Klein 2.0 encodes the order, not the numbers.
 | 8 crash rows | retained `crash`; `klein sweep register`; no retries |
 | 9 operator-catching | contract splits + printed fingerprint; `verify --numbers`; append-only lock; scouting ledger |
 | 10 detectable ≠ actionable | `materiality:` block; vocabulary scan |
+| 11 retract on the record | `klein claims number` refuses at write time; append-only lock; a tagged discarded revision |

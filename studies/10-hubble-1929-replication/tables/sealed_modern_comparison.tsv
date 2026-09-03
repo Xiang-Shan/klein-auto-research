@@ -1,0 +1,5 @@
+comparison	value	ci_low	ci_high	reference	detail
+P4_interval_vs_modern_H0	454.158441	316.648582	603.704762	70.000000	95% percentile bootstrap, 2000 resamples, seed block 20260903; modern determinations bracket it: Planck 67.4, SH0ES 73.04
+P7_rescale_factor	6.056247			70.000000	f = k_origin / 70, the single factor applied to every distance
+P7_origin_fit_rescaled	70.000000			70.000000	gap to 70 = 0.000000 (zero by construction of f)
+P7_free_intercept_fit_rescaled	74.990073			70.000000	gap to 70 = 4.990073; intercept -40.783649 km/s is unchanged by a distance rescale

@@ -200,6 +200,14 @@ re-open a closed study, start a new one and cite the old one's claims.
     sealed partition's own ceiling (confirmed), the over-capacity candidate at h = 1.708
     lost 1.7903 floors (P4 refuted, decision recorded), and both `klein replicate`
     attempts failed for non-scientific reasons — the defects E13 fixed.
+  - **10 `hubble-1929-replication`** (2026-09-03) — Hubble's two 1929 tables, bundled; three
+    registered tracks (replicate, estimate, simulate), 13 measured cells, three sealed
+    accesses (one per track): neither two-parameter fit returns 465 (423.937323 / 454.158441),
+    the headline is unreproducible for missing inputs rather than method, the 24 objects support
+    K = 454.158441 with a 95 % bootstrap interval 316.648582–603.704762, and a single distance
+    factor of 6.056247 carries the 1929 fits to within 4.990073 of the modern 70. The first
+    referee round FAILED on a spelled-out ratio the numbers scan could not see; cleared, and
+    round 2 passed with notes.
 
 ## [1.3.0] — 2026-08-26
 

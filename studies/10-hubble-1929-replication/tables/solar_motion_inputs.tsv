@@ -1,0 +1,10 @@
+required_input	needed_per_object	source_checked	available	detail
+r_mpc (distance)	yes	bundled Table 1	yes	present for all 24 objects
+v_kms (radial velocity)	yes	bundled Table 1	yes	present for all 24 objects
+right_ascension_alpha	yes	bundled Table 1	no	no column matching ra/alpha/dec/delta/coord/lon/lat/glon/glat; columns present: block, object_id, object, m_s, r_mpc, v_kms, vs_kms, m_t, m_t
+right_ascension_alpha	yes	the article text (references.yaml:hubble1929)	no	the paper prints no equatorial coordinates for any object; the only direction it gives is the apex of its OWN solution (A = 286 deg, D = +40 deg, V0 = 306 km/s), which is an output of the fit, not an input to it
+right_ascension_alpha	yes	offline catalogue in this repository	no	data/catalogues holds 0 file(s); fetching 24 sky positions by hand at an epoch the paper never states was retired at design time as a fabrication risk (scouting_ledger.md, Retirements)
+declination_delta	yes	bundled Table 1	no	no column matching ra/alpha/dec/delta/coord/lon/lat/glon/glat; columns present: block, object_id, object, m_s, r_mpc, v_kms, vs_kms, m_t, m_t
+declination_delta	yes	the article text (references.yaml:hubble1929)	no	the paper prints no equatorial coordinates for any object; the only direction it gives is the apex of its OWN solution (A = 286 deg, D = +40 deg, V0 = 306 km/s), which is an output of the fit, not an input to it
+declination_delta	yes	offline catalogue in this repository	no	data/catalogues holds 0 file(s); fetching 24 sky positions by hand at an epoch the paper never states was retired at design time as a fabrication risk (scouting_ledger.md, Retirements)
+K, X, Y, Z (the four fitted parameters)	no	least squares on the above	no	not attempted: the design matrix needs 24 coordinate pairs and 0 are obtainable, so no solution exists to compare with 465 +/- 50

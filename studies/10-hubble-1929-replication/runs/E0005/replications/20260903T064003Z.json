@@ -1,0 +1,153 @@
+{
+  "baseline": 1.0,
+  "block_differences": {
+    "distinct_distances": {
+      "difference": 0.0,
+      "original": 15.0,
+      "replicate": 15.0
+    },
+    "groups_reconstructed": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "groups_required": {
+      "difference": 0.0,
+      "original": 9.0,
+      "replicate": 9.0
+    },
+    "n_objects": {
+      "difference": 0.0,
+      "original": 24.0,
+      "replicate": 24.0
+    },
+    "objects_sharing_a_distance": {
+      "difference": 0.0,
+      "original": 14.0,
+      "replicate": 14.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 1.0,
+      "replicate": 1.0
+    },
+    "rows": {
+      "difference": 0.0,
+      "original": 5.0,
+      "replicate": 5.0
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "target_k": {
+      "difference": 0.0,
+      "original": 513.0,
+      "replicate": 513.0
+    },
+    "target_tolerance": {
+      "difference": 0.0,
+      "original": 60.0,
+      "replicate": 60.0
+    },
+    "textbook_value": {
+      "difference": 0.0,
+      "original": 500.0,
+      "replicate": 500.0
+    },
+    "total_seconds": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "wall_seconds": {
+      "difference": 0.004288,
+      "original": 0.009634,
+      "replicate": 0.013922
+    }
+  },
+  "candidate_commit": "1e844f2251a36a9e8027cf12d011ce1acadb3dc2",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+  "difference": 0.0,
+  "ended_at": "2026-09-03T06:41:19.676095Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0005@20260903T064003Z",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "log": "runs/E0005/replications/20260903T064003Z.log",
+  "max_run_seconds": 600.0,
+  "metric_name": "targets_outside_tolerance",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "distinct_distances": 15.0,
+    "groups_reconstructed": 0.0,
+    "groups_required": 9.0,
+    "n_objects": 24.0,
+    "objects_sharing_a_distance": 14.0,
+    "primary_metric": 1.0,
+    "rows": 5.0,
+    "runner_exit_code": 0.0,
+    "target_k": 513.0,
+    "target_tolerance": 60.0,
+    "textbook_value": 500.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.009634
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 1.0,
+  "record": "runs/E0005/replications/20260903T064003Z.json",
+  "replicate_block": {
+    "distinct_distances": 15.0,
+    "groups_reconstructed": 0.0,
+    "groups_required": 9.0,
+    "n_objects": 24.0,
+    "objects_sharing_a_distance": 14.0,
+    "primary_metric": 1.0,
+    "rows": 5.0,
+    "runner_exit_code": 0.0,
+    "target_k": 513.0,
+    "target_tolerance": 60.0,
+    "textbook_value": 500.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.013922
+  },
+  "replicate_primary_metric": 1.0,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [],
+  "setup_seconds": 0.2965166671201587,
+  "stamp": "20260903T064003Z",
+  "started_at": "2026-09-03T06:40:03.744341Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T06:40:03.295093Z",
+  "tolerance": 0.0,
+  "tolerance_source": "exact",
+  "track": "reproduction",
+  "wall_seconds": 75.93156970804557,
+  "worktree_prepared": true
+}

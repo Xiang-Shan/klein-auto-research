@@ -1,0 +1,97 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1815,
+      "committed": true,
+      "sha256": "77f8330748ab14bf178d40803861237492e06889e8cff34719cb750f3ce2636a"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 692,
+      "committed": true,
+      "sha256": "45c711961a28e71b1bbdeb0c28aa9b72365ae666b6bce6382e115ec30c322672"
+    },
+    "tables/solar_motion_inputs.tsv": {
+      "availability": "recorded",
+      "bytes": 1849,
+      "committed": true,
+      "role": "declared",
+      "sha256": "f68402b5e2c9a910c0a75d55129cb086c0e7f2f5b1d801a43574efca85eeed5b"
+    }
+  },
+  "base_commit": "b36eacf571f495c67c6eb6cdfc3523cc2cef327f",
+  "candidate_commit": "86ffbdc768b30aad538aaec14edd939e6def18f1",
+  "code_patch_hash": "b48650735f81d4b4fdb1d27aa6dd23155d013eef2c4bb47bfc86272bca10b2d3",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "four-parameter solar-motion refit against 465 +/- 50: audit whether the model's per-object coordinate inputs are obtainable from the tables, the article text, or an offline catalogue; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:07:28.920184Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "coordinate_columns_found": 0.0,
+    "coords_available": 0.0,
+    "coords_required": 24.0,
+    "offline_catalogue_files": 0.0,
+    "primary_metric": 1.0,
+    "rows": 9.0,
+    "runner_exit_code": 0.0,
+    "sources_checked": 3.0,
+    "target_k": 465.0,
+    "target_tolerance": 50.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.009654
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P2": {
+      "explanation": "inconclusive_if fired: coords_available 0 < 24 \u2192 supported",
+      "verdict": "inconclusive"
+    }
+  },
+  "predictions_requested": [
+    "P2"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:07:28.255179Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "committed_at": "2026-09-03T06:07:28.992151Z",
+    "evidence_commit": "a79ff3e1303d173cbfd63a8858730b4f20563dd4",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6649073329754174
+}

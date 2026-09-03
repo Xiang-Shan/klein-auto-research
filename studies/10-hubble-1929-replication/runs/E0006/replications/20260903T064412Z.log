@@ -1,0 +1,24 @@
+replicate_setup: uv sync --locked
+Using CPython 3.13.3
+Creating virtual environment at: .venv
+Resolved 95 packages in 2ms
+   Building klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-ahcqj9l0/worktree
+  × Failed to build `klein-auto-research @
+  │ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-ahcqj9l0/worktree`
+  ├─▶ The build backend returned an error
+  ╰─▶ Call to `hatchling.build.build_editable` failed (exit status: 1)
+
+      [stderr]
+      Traceback (most recent call last):
+        File "<string>", line 14, in <module>
+          requires = get_requires_for_build({})
+        File
+      "/Users/xiang/.cache/uv/builds-v0/.tmplMAVDn/lib/python3.13/site-packages/hatchling/build.py",
+      line 68, in get_requires_for_build_editable
+          builder = WheelBuilder(os.getcwd())
+                                 ~~~~~~~~~^^
+      FileNotFoundError: [Errno 2] No such file or directory
+
+
+hint: Build failures usually indicate a problem with the package or the build environmentrunner_status: crash
+runner_exit_code: 1
