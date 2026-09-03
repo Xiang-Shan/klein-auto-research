@@ -40,7 +40,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "anchor_residual_glm"
+        "anchor_residual_glm",
+        "anchor_residual_splines"
       ],
       "strength": "exploratory"
     },
@@ -146,6 +147,13 @@
       "note": "magnitude of E0001 anchor_gap",
       "precision": 6,
       "value": 0.011322
+    },
+    "anchor_residual_splines": {
+      "art": "derived",
+      "claim": "C1",
+      "note": "magnitude of E0002 anchor_gap",
+      "precision": 6,
+      "value": 0.001612
     }
   },
   "study_id": "12-insurance-claims-frequency"
