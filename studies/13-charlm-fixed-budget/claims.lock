@@ -136,6 +136,7 @@
       "evidence": [],
       "numbers": [
         "control_uniform",
+        "control_unigram",
         "control_untrained"
       ],
       "strength": "exploratory"
@@ -205,6 +206,13 @@
       "note": "negative control: chance, at float32 resolution",
       "precision": 6,
       "value": 4.174388
+    },
+    "control_unigram": {
+      "art": "controls",
+      "claim": "C5",
+      "note": "positive control: real but minimal information beats chance",
+      "precision": 6,
+      "value": 3.306991
     },
     "control_untrained": {
       "art": "controls",
