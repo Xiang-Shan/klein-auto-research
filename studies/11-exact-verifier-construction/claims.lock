@@ -119,6 +119,13 @@
       "note": "2n at n = 11: tracks.n_small.metric.bound.ideal, equal to incumbent_external.value",
       "precision": 0,
       "value": 22
+    },
+    "grid_small": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the n_small instance's grid size, printed by every run of that track as grid_n",
+      "precision": 0,
+      "value": 11
     }
   },
   "study_id": "11-exact-verifier-construction"
