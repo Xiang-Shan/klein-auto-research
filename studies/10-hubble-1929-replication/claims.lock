@@ -28,6 +28,10 @@
       "path": "tables/inverse_vs_forward.tsv",
       "sha256": "d4166fb2bb12f06539dbaff2119aad49d05c4c8a0dc3e36d9f315bbbf8f6efe3"
     },
+    "jack": {
+      "path": "tables/jackknife_k.tsv",
+      "sha256": "4e07cf0c14a3f13bbb900445e147e1289f8f89a7732621981dff7c923192ae47"
+    },
     "mags": {
       "path": "tables/table1_absolute_magnitudes.tsv",
       "sha256": "0e709cb8bc1cd3fee9ddfcebc741bf9ca054e1543b327cae4a97d4192dda5388"
