@@ -140,7 +140,8 @@
       "evidence": [],
       "numbers": [
         "dev_incumbent",
-        "sealed_auc"
+        "sealed_auc",
+        "sealed_shift_in_floors"
       ],
       "strength": "exploratory"
     },
@@ -278,6 +279,13 @@
       "claim": "C7",
       "precision": 6,
       "value": 0.657739
+    },
+    "sealed_shift_in_floors": {
+      "art": "derived",
+      "claim": "C7",
+      "note": "magnitude of E0005 sealed_shift_in_floors",
+      "precision": 4,
+      "value": 0.168
     },
     "splines_in_floors": {
       "art": "verdicts",
