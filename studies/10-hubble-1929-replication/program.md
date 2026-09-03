@@ -311,3 +311,38 @@ here rather than quietly citing `ref:frost2000` as if it had been. The Phase-0
 sweep `sweep:mc_resolution` already fixed the resolution of that comparison
 (mean 2.36499, std 0.0382297 across master seeds), so a verdict either way is
 outside the seed's reach.
+
+
+### Phase adaptive-3 outcome
+
+Three cells, all `measured`. The estimate track's answer to "what do those 24
+objects actually support?" is not one number but a spread that is much wider
+than 1929 admitted, and it moves under choices the paper never discussed.
+
+| Cell | What it measured | Result |
+|---|---|---|
+| E0006 | 95 % percentile bootstrap for K, 2000 resamples, seed block A | `k_free` **454.158441**, interval **[316.648582, 603.704762]**, width 287.056180; bootstrap SE 72.933862 against analytic 75.237105 |
+| E0007 | inverse vs forward, paired on common random numbers | `k_forward` 454.158441, `k_inverse` **728.366015**, ratio 1.603771; paired difference 282.639496 ± 115.484712, i.e. **2.447419 SE units** → **P5 supported** |
+| E0008 | jackknife influence, and the Virgo group | jackknife SE 80.485894 (bootstrap 72.933862); largest single influence 50.020227, at r = 2.0 Mpc; dropping all four Virgo rows moves K from 454.158441 to **531.347267**, a shift of **77.188826** |
+
+Three things to carry into synthesis:
+
+- **Hubble's 465 lies inside this study's interval** (`target_inside_ci` = 1 at
+  E0006). The reproduction track's verdict — that no two-parameter fit *returns*
+  465 — and the estimate track's — that 465 is *not excluded* — are different
+  statements, and findings must keep them apart. The first is about arithmetic;
+  the second is about resolution at n = 24.
+- **Which variable is called the response changes K by 60 %.** The inverse fit
+  gives 728.4 against the forward 454.2. Hubble's own 465 sits between them.
+  With distances this noisy the ordinary fit is a lower bound on the slope, not
+  a best estimate; `ref:frost2000`'s dilution is not a footnote here, it is the
+  dominant term.
+- **Four objects sharing one assigned distance move the constant by more than a
+  standard error.** The Virgo group's joint influence, 77.188826, exceeds the
+  analytic SE of 75.237105. Hubble himself attributed the 465-vs-513 difference
+  "largely to the four Virgo-cluster nebulae" (`ref:hubble1929`, read at the
+  METHOD gate); this reproduces that attribution from his own numbers, which is
+  the one part of his uncertainty discussion that DOES reproduce.
+
+**Phase adaptive-3 acknowledged** with `klein gate record phase --phase
+adaptive-3 --acknowledged-by lead-agent` (ack delegated by the lead).
