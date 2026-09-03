@@ -11,11 +11,16 @@
     "method": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T05:25:18.740641Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T06:21:16.023471Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "94a8ecd1ee18a4cbddbde234326867a022d09ac235b20fb4b88486e1fbf9c881",
     "method_card.md": "dba8356eb4b2e2a867e517500cd83187825ae1b2d7b1c82d2963c52b4600ae64",
+    "referee_report.md": "1b49636093f3c7af32eb4bde08d71397fa8eafb1d1d3dd8a890c7fd4e46be902",
     "research_plan.md": "3ef7c78c973090eb4fa83e6e4e5ee78b9f7d3d536aa0c8f73bbe13bba3373149",
     "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
   },
@@ -66,6 +71,18 @@
       },
       "note": "triad complete: theory (notation table + four display equations), papers (all four references verified against publisher/arXiv pages on 2026-09-03, refs_verified true), practice (the from-scratch plan for both the ceiling and the floor that train.py and sweeps/noise_floor.py realize)",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T06:21:16.023471Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "1b49636093f3c7af32eb4bde08d71397fa8eafb1d1d3dd8a890c7fd4e46be902"
+      },
+      "independent_of_experimenter": false,
+      "note": "PASS-WITH-NOTES; all seven notes answered with dated Referee note: lines in program.md. Rung: fresh session (same model family as the experimenter), independent-of-experimenter: no, as the report states.",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "last_experiment": 5,
@@ -237,5 +254,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T05:35:09.031859Z"
+  "updated_at": "2026-09-03T06:21:16.023981Z"
 }
