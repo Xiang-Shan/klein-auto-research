@@ -36,3 +36,14 @@ E0003	mean_M_t_computed	-15.483270669070984
 E0003	mean_M_t_printed	-15.479166666666666
 E0003	paper_printed_mean_M_t	-15.5
 E0003	abs_gap_printed_column_mean	0.020833333333333925
+E0004	artifact	tables/solar_motion_inputs.tsv
+E0004	wall_seconds	0.009654045104980469
+E0004	rows	9
+E0004	sha256	f68402b5e2c9a910c0a75d55129cb086c0e7f2f5b1d801a43574efca85eeed5b
+E0004	coords_available	0.0
+E0004	coords_required	24.0
+E0004	coordinate_columns_found	0.0
+E0004	offline_catalogue_files	0.0
+E0004	sources_checked	3.0
+E0004	target_k	465.0
+E0004	target_tolerance	50.0
