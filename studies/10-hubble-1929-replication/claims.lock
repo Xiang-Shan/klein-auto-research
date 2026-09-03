@@ -16,6 +16,10 @@
       "path": "study.yaml",
       "sha256": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
     },
+    "covb": {
+      "path": "tables/coverage_bootstrap_blockB.tsv",
+      "sha256": "549885be0218527290642b9a6c757876e802e2cfc44d90cc5e4d72b4e26ae420"
+    },
     "fits": {
       "path": "tables/two_parameter_fits.tsv",
       "sha256": "cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8"
