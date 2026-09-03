@@ -38,6 +38,32 @@
       "experiment": "E0009"
     }
   },
+  "finalization": {
+    "confirmation_gaps": {
+      "n_large": [
+        "verify: track 'n_large' has no development run to reproduce (confirmation.require names verify)"
+      ],
+      "n_small": [
+        "verify: track 'n_small' has no development run to reproduce (confirmation.require names verify)"
+      ]
+    },
+    "final_holdout_counts": {
+      "n_large": 1,
+      "n_small": 1
+    },
+    "label": "exploratory",
+    "referee": {
+      "independent_of_experimenter": false,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "n_large": "E0010",
+      "n_small": "E0009"
+    },
+    "timestamp": "2026-09-03T08:44:15.007730Z"
+  },
   "fingerprints": {
     "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
     "split": {
@@ -452,7 +478,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T08:43:19.020890Z"
+  "updated_at": "2026-09-03T08:44:15.007738Z"
 }
