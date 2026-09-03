@@ -166,7 +166,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] 6 of 70 rendered numerals have no home \u2014 line 223: 0.013341 (by only 0.013341. It also cost 18.407609 seconds against 0.647123.); line 391: 143 (operating characteristic (ROC) curve , Radiology 143(1), 29-36 (1982),); line 395: 1189 (machine , The Annals of Statistics 29(5), 1189-1232 (2001),); line 395: 1232 (machine , The Annals of Statistics 29(5), 1189-1232 (2001),); line 399: 3146 (tree , Advances in Neural Information Processing Systems 30, 3146-3154); \u2026 1 more (advisory: the tutorial pass never fails a study; the referee reads the list)",
+      "message": "all 59 rendered numerals trace to a pinned source",
       "name": "tutorial numbers",
       "ok": true
     },
@@ -177,7 +177,7 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "6ac6e72fccd453774aab65a68d1052fdb2f0a6db",
+  "git_head": "ca1bf2b22c3177f495bb52964be4c567051cae3e",
   "inputs": {
     "aux_metrics.tsv": "e17bd6f44ea73d9f253428bd90dce3ddd5f6b770a0a2d2c75ba61b57f647918f",
     "claims.lock": "941347b424a7cdbe770fe2aa9d3410f9527883cb67a0f06473264fbffba6ddac",
@@ -186,12 +186,12 @@
     "playbook.md": "64da873113a814a2c7e3e4f215deebd7ef3d4903dd7fd5614726df1754c18ee1",
     "program.md": "40633d808c4d4c56400bc8b53498609727e0edf1c0c4921ac1dec7447bb9c32a",
     "referee_report.md": "1b49636093f3c7af32eb4bde08d71397fa8eafb1d1d3dd8a890c7fd4e46be902",
-    "report/index.html": "e83413732a41f1e876476c00c0a103534fb3d3ef79a06a9dbc0cdfd30a0ccbb3",
+    "report/index.html": "b5040d81f6dde9ded285204585284e67f8b1c91086dc7b6a67c197b775218204",
     "results.tsv": "d802518273c96ed9c093792d7be286a0a09e03f55f7d8c14f0252fe4fbf3bce0",
     "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96",
     "study_state.json": "10289d00867463bc0230afeeded1774163f4f7b032505d9207d71c4e41c86086"
   },
-  "klein_commit": "6ac6e72fccd453774aab65a68d1052fdb2f0a6db",
+  "klein_commit": "ca1bf2b22c3177f495bb52964be4c567051cae3e",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "61dc934bcb9d230b81db769b705b940a340c4e8f97075bb5ecd1553318abb1c8",
@@ -206,9 +206,9 @@
   "summary": {
     "checks": 35,
     "failed": 0,
-    "warned": 1
+    "warned": 0
   },
-  "timestamp": "2026-09-03T06:31:09.883445Z",
+  "timestamp": "2026-09-03T06:32:29.486644Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
