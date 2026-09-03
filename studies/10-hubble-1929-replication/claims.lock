@@ -28,6 +28,10 @@
       "path": "tables/sealed_coverage_blockC.tsv",
       "sha256": "99aac71a3400c9036e24c943797e97a181515c6b00589ecab4981fa1394659ce"
     },
+    "dryrun_rescale": {
+      "path": "sweeps/sealed_dryrun.20260903T062602.416191Z.log",
+      "sha256": "d7c9ff702f6cfa5887f7fa8bc6f4b5b1c4adac1bc643173f35172e8ad44de371"
+    },
     "fits": {
       "path": "tables/two_parameter_fits.tsv",
       "sha256": "cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8"
