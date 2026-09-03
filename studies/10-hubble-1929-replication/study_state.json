@@ -20,7 +20,7 @@
     "study.yaml": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
   },
   "created_at": "2026-09-03T05:15:56.712689Z",
-  "current_phase": "adaptive-2",
+  "current_phase": "adaptive-3",
   "final_holdout_access": {
     "estimate": {
       "accessed_at": null,
@@ -85,6 +85,12 @@
       "acknowledged_by": "lead-agent",
       "note": "",
       "playbook_sha256": "d07f54f2e661bc0eefc177bb1dc604f5025cf6e8d5d318099daa436a4f95a55b"
+    },
+    "adaptive-2": {
+      "acknowledged_at": "2026-09-03T06:09:30.231220Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "597e828bff3c8bd884b7296a916997ff5a25f429e6cd9a3725ea9977854341c5"
     }
   },
   "predictions": {
@@ -216,5 +222,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:08:33.846503Z"
+  "updated_at": "2026-09-03T06:09:30.231659Z"
 }
