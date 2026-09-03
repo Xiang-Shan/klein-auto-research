@@ -136,24 +136,23 @@ jobs:
           enable-cache: true
       - name: Locked reproduction environment
         run: uv sync --locked --extra encoders
-      - name: Execute the Study 00 README bootstrap and committed state
+      # EXHIBIT-ANCHOR: 00-known-truth-quickstart
+      # The v1 study-00 bootstrap that used to live here anchored a study this
+      # release replaces. Fill this step in when the new study 00 lands: copy the
+      # exhibit to $RUNNER_TEMP, run prepare.py, re-run its anchor cell through
+      # scripts/run_with_log.py, and assert the printed primary_metric against
+      # the value its claims.lock pins. Until then the step is a no-op that says
+      # so, so a green CI never implies an anchor that is not being checked.
+      - name: Study 00 anchor (placeholder until the new exhibit lands)
         shell: bash
         run: |
           set -euo pipefail
-          copy="$RUNNER_TEMP/study00"
-          cp -R studies/00-glm-claims-quickstart "$copy"
-          cd "$copy"
-          unset DATA_HUB
-          uv --project "$GITHUB_WORKSPACE" run --no-sync python \
-            "$GITHUB_WORKSPACE/scripts/run_with_log.py" --timeout-seconds 300 \
-            --log "$RUNNER_TEMP/study00-prepare.log" -- \
-            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py
-          grep -q "data source: bundled" "$RUNNER_TEMP/study00-prepare.log"
-          uv --project "$GITHUB_WORKSPACE" run --no-sync python \
-            "$GITHUB_WORKSPACE/scripts/run_with_log.py" --timeout-seconds 600 \
-            --log "$RUNNER_TEMP/study00-train.log" -- \
-            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py
-          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-0.664322; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study00-train.log"
+          if [ -f studies/00-known-truth-quickstart/study.yaml ]; then
+            echo "EXHIBIT-ANCHOR 00-known-truth-quickstart is present but this step is" \
+                 "still a placeholder — fill it in." >&2
+            exit 1
+          fi
+          echo "note: EXHIBIT-ANCHOR 00-known-truth-quickstart not present yet; no anchor to re-run"
       - name: Execute the Study 03 v2 anchor (seed-block determinism on Linux)
         shell: bash
         run: |
@@ -172,10 +171,109 @@ jobs:
       - name: Checked-out exhibits remain byte-clean
         run: test -z "$(git status --porcelain)"
 
+  exhibits:
+    name: schema-3 exhibits verify from a clean checkout
+    runs-on: ubuntu-latest
+    # Budgeted under four minutes of work: a sync, one doctor report, the shipped
+    # schema-2 sweep, and a short verify per exhibit.
+    timeout-minutes: 6
+    env:
+      # The exhibits must resolve their evidence from the repository alone — no
+      # data hub on the box, no network — which is the promise a stranger cloning
+      # this repository is given.
+      KLEIN_OFFLINE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Locked exhibit environment
+        run: uv sync --locked --extra encoders
+      - name: klein doctor reports a ready machine and every bundled source resolves
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset DATA_HUB
+          uv run --no-sync klein doctor --json --strict
+          uv run --no-sync python - <<'PY'
+          from pathlib import Path
+
+          from kleinlib import sources
+
+          # Every bundled dataset, addressed the way a study contract addresses
+          # it: `bundled:<name>` for a directory holding one data file, and
+          # `bundled:<name>/<file>` for a multi-file one (hubble1929 ships two
+          # tables and no single one). Prose beside the data is not data.
+          PROSE = {"README.md", "DATA_LICENSE", "LICENSE", "NOTES.md"}
+          directories = sorted(q for q in Path("datasets").iterdir() if q.is_dir())
+          assert directories, "no bundled datasets found under datasets/"
+          tags = []
+          for directory in directories:
+              files = sorted(
+                  q.name for q in directory.iterdir() if q.is_file() and q.name not in PROSE
+              )
+              assert files, f"bundled dataset {directory.name} carries no data file"
+              if len(files) == 1 and files[0].endswith((".csv", ".csv.gz")):
+                  tags.append(f"bundled:{directory.name}")
+              else:
+                  tags += [f"bundled:{directory.name}/{name}" for name in files]
+          bad = []
+          for tag in tags:
+              report = sources.describe(tag)
+              print(f"{tag} -> resolvable={report['resolvable']} {report['detail']}")
+              if not report["resolvable"]:
+                  bad.append(tag)
+          assert not bad, f"bundled sources that do not resolve offline: {bad}"
+          PY
+      - name: Every shipped schema-2 study verifies clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset DATA_HUB
+          uv run --no-sync python scripts/verify_shipped_studies.py
+      - name: Every schema-3 exhibit verifies, locks and re-renders identically
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          unset DATA_HUB
+          found=0
+          for study in studies/00-* studies/1[0-3]-*; do
+            [ -f "$study/study.yaml" ] || continue
+            grep -qE '^schema_version:[[:space:]]*3[[:space:]]*$' "$study/study.yaml" || continue
+            found=1
+            echo "::group::$study"
+            if [ -f "$study/prepare.py" ]; then
+              ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
+            fi
+            uv run --no-sync klein verify --study "$study" --numbers --evidence-use --require-local
+            uv run --no-sync klein claims verify --study "$study"
+            if [ -f "$study/figures/make_figures.py" ]; then
+              keep="$RUNNER_TEMP/figures-$(basename "$study")"
+              mkdir -p "$keep"
+              cp "$study"/figures/*.png "$keep"/
+              ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python figures/make_figures.py )
+              for png in "$keep"/*.png; do
+                cmp -s "$png" "$study/figures/$(basename "$png")" \
+                  || { echo "figure does not re-render byte-identically: $(basename "$png")" >&2; exit 1; }
+              done
+              echo "figures re-render byte-identically"
+            fi
+            echo "::endgroup::"
+          done
+          if [ "$found" = 0 ]; then
+            echo "note: no schema-3 exhibit present yet (studies/00-*, studies/1[0-3]-*) — nothing to verify"
+          fi
+      - name: A verified checkout is byte-clean
+        run: test -z "$(git status --porcelain)"
+
   e2e:
-    name: legacy compatibility end to end / ${{ matrix.os }}
+    name: both lanes end to end / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    # Two lanes now: the v1 compatibility path and the schema-3 proof, each in
+    # its own throwaway worktree with its own uv sync.
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -193,8 +291,8 @@ jobs:
           enable-cache: true
       - name: Locked outer environment (the script syncs its own throwaway worktree separately)
         run: uv sync --locked
-      - name: Verify the portable temporary-worktree lifecycle
-        run: uv run --no-sync python scripts/verify_e2e.py
+      - name: Both lanes — v1 compatibility, and one typed inquiry end to end
+        run: uv run --no-sync python scripts/verify_e2e.py --lane all
 
   cli-portability:
     name: CLI smoke / ${{ matrix.os }}
@@ -222,18 +320,43 @@ jobs:
         run: uv sync --locked --extra encoders
       - name: Split determinism holds on ${{ matrix.os }}
         run: uv run --no-sync pytest -q kleinlib/tests/test_data_splits.py
+      # Every verb and sub-verb the 2.0 documents promise (AGENTS.md, README.md,
+      # CLAUDE.md, the protocols under .claude/skills/klein/references/): a verb
+      # a document names but the parser does not carry is a broken instruction,
+      # and --help is the cheapest way to prove the whole surface loads on a
+      # platform that is not Linux.
       - name: Public command surface is importable
         run: |
           uv run --no-sync klein --help
           uv run --no-sync klein new --help
           uv run --no-sync klein gate --help
-          uv run --no-sync klein headroom --help
+          uv run --no-sync klein gate record --help
+          uv run --no-sync klein gate override --help
           uv run --no-sync klein preflight --help
           uv run --no-sync klein run-one --help
           uv run --no-sync klein recover --help
           uv run --no-sync klein status --help
           uv run --no-sync klein finalize --help
+          uv run --no-sync klein noise-floor --help
           uv run --no-sync klein verify --help
+          uv run --no-sync klein headroom --help
+          uv run --no-sync klein headroom ack --help
+          uv run --no-sync klein stop --help
+          uv run --no-sync klein stop ack --help
+          uv run --no-sync klein predict --help
+          uv run --no-sync klein predict list --help
+          uv run --no-sync klein predict adjudicate --help
+          uv run --no-sync klein claims --help
+          uv run --no-sync klein claims init --help
+          uv run --no-sync klein claims pin --help
+          uv run --no-sync klein claims number --help
+          uv run --no-sync klein claims add --help
+          uv run --no-sync klein claims erratum --help
+          uv run --no-sync klein claims verify --help
+          uv run --no-sync klein replicate --help
+          uv run --no-sync klein sweep --help
+          uv run --no-sync klein sweep register --help
+          uv run --no-sync klein doctor --help
       - name: Full engine + scripts test suite on Windows (no coverage)
         if: matrix.os == 'windows-latest'
         run: |
