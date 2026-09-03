@@ -118,6 +118,46 @@ pre-candidate base commit.
   chosen over `block` deliberately — this study wants to walk through the closed
   door on the record, not be stopped by it.
 
+- 2026-09-03 — E0001 KEEPS at val_auc 0.806201 and anchors the track. Its printed
+  `gap_in_floors` is 10.4555: a single hyperplane over the raw features sits more
+  than ten measured floors below the known ceiling of 0.884116. P1 SUPPORTED by
+  the notary on the printed block.
+- 2026-09-03 — E0002 KEEPS at val_auc 0.835785. Handing the linear model the DGP's
+  true `x1*x2` term bought `delta_in_floors` 3.9699 over the same rung refitted on
+  the same rows, and cut the distance to the ceiling from 10.4555 to 6.4856
+  floors. P2 SUPPORTED. Decision: the remaining distance is the quadratic the
+  linear model still cannot express, so the next rung changes model class rather
+  than adding another hand-specified term.
+- 2026-09-03 — E0003 KEEPS at val_auc 0.871390 and takes the frontier. A boosted
+  tree told NONE of the true terms beat the hand-specified interaction rung by
+  `delta_in_floors` 4.7779, leaving `gap_in_floors` 1.7077. P3 SUPPORTED.
+- 2026-09-03 — headroom read before spending the fourth candidate:
+  h = (0.87139 - 0.884116) / 0.00745212 = 1.708. The door is AJAR, not open. The
+  study proceeds and records in advance that `h >= 1` means only "not
+  arithmetically excluded": the attainable ceiling may sit well short of the ideal
+  one, and study 08 stood at h = 1.015 and produced zero keeps in twenty-one
+  attempts. No `klein headroom ack` is required at h > 1, and none is filed.
+- 2026-09-03 — Decision: **P4 REFUTED** by E0004. The over-capacity boosted tree
+  (500 trees, 127 leaves, `min_samples_leaf` 1, no L2, no early stopping) did not
+  land within noise of its own reference — it lost `delta_in_floors` -1.7903, a
+  degradation nearly twice the floor, and DISCARDS at val_auc 0.858049 against the
+  incumbent 0.87139. The prediction said "within noise"; the measurement says
+  "measurably worse", so the prediction is refuted rather than supported, and the
+  study records that the honest reading of a refuted "no-effect" prediction is a
+  real effect in the wrong direction. Its `val_logloss` 1.024102 against E0003's
+  0.355165 says why: unregularized depth on 12 000 rows destroys the probabilities
+  long before it destroys the ranking. Consequence: capacity is now a ruled-out
+  direction on this table, the ladder stops here, and the confirmation phase
+  spends the one sealed access on E0003's configuration.
+- 2026-09-03 — Decision: RQ2's prior is WRONG so far. It said the headroom would
+  close (h < 1) before the fourth candidate; it stood at 1.708 instead, so the law
+  did not stop the study and the discard had to be paid for in full. That prior was
+  `(source: uninformed)` and is recorded as a miss, not quietly rewritten.
+- 2026-09-03 — Phase `adaptive-1` closes with its four experiments spent: three
+  keeps (E0001, E0002, E0003) and one discard (E0004); P1, P2, P3 supported and P4
+  refuted, all four adjudicated by the notary on printed blocks. Playbook
+  refreshed; the acknowledgement is the lead's delegated one.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
