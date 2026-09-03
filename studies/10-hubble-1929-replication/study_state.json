@@ -23,9 +23,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "estimate": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-03T06:27:06.601809Z",
+      "count": 1,
+      "experiment": "E0012"
     },
     "reproduction": {
       "accessed_at": "2026-09-03T06:24:28.984201Z",
@@ -77,7 +77,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 11,
+  "last_experiment": 12,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -186,6 +186,26 @@
       "source": "run",
       "verdict": "inconclusive"
     },
+    "P4": {
+      "evidence": [
+        "E0012"
+      ],
+      "explanation": "ci_low 316.648582 > 70 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0012"
+          ],
+          "explanation": "ci_low 316.648582 > 70 \u2192 supported",
+          "recorded_at": "2026-09-03T06:27:07.414167Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:27:07.414167Z",
+      "source": "run",
+      "verdict": "supported"
+    },
     "P5": {
       "evidence": [
         "E0007"
@@ -203,6 +223,26 @@
         }
       ],
       "recorded_at": "2026-09-03T06:11:59.842097Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P7": {
+      "evidence": [
+        "E0012"
+      ],
+      "explanation": "max_abs_gap_70 4.99007311327 <= 15 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0012"
+          ],
+          "explanation": "max_abs_gap_70 4.99007311327 <= 15 \u2192 supported",
+          "recorded_at": "2026-09-03T06:27:07.414432Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:27:07.414432Z",
       "source": "run",
       "verdict": "supported"
     },
@@ -274,5 +314,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:24:29.641258Z"
+  "updated_at": "2026-09-03T06:27:07.415297Z"
 }
