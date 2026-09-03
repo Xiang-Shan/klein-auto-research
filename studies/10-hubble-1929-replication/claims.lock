@@ -228,7 +228,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "max_mag_deviation"
+        "max_mag_deviation",
+        "p9_tolerance"
       ],
       "strength": "exploratory"
     },
@@ -409,6 +410,13 @@
       "note": "the coverage bar registered for P6",
       "precision": 2,
       "value": 0.9
+    },
+    "p9_tolerance": {
+      "art": "mags",
+      "claim": "C7",
+      "note": "half the paper's printed precision; the tolerance registered for P9",
+      "precision": 2,
+      "value": 0.06
     },
     "rescale_factor": {
       "art": "sealed_modern",
