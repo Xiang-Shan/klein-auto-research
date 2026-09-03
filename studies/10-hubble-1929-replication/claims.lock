@@ -1,5 +1,9 @@
 {
   "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "092fbfe0ba2e6d4e5520996efc87631cba0819c738534a2e3ea128222f90c493"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5"
