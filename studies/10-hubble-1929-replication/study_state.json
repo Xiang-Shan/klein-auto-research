@@ -77,7 +77,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 9,
+  "last_experiment": 10,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -248,5 +248,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:19:03.189182Z"
+  "updated_at": "2026-09-03T06:20:47.798820Z"
 }
