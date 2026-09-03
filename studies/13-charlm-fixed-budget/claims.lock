@@ -155,15 +155,17 @@
       "strength": "exploratory"
     },
     "C4": {
-      "claim": "RQ1 (sealed) | primary | measured | confirmed | empirical-description | E0008 | On the sealed final tenth of the corpus, never read before, the selected cosine-decay recipe retrained on train + development scores 1.566280 nats per character (2.259664 bits per character). |",
-      "class": null,
+      "claim": "On the sealed final tenth of the corpus the selected cosine-decay recipe scores 1.56628 nats per character, or 2.259664 bits per character.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0008"
+      ],
       "numbers": [
         "e0008_bpc",
         "e0008_val_loss"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C5": {
       "claim": "\u2014 | primary | held | confirmed | procedural-verdict | E0001, E0008, `sweep:harness_controls` | The checker decided every disposition and the searcher never graded itself; the matched-compute guardrails held at 2000 steps and 128 evaluation context on all eight runs; and the four eval-harness controls behaved as a correct harness must, including the copy-the-input negative control at 4.750043 nats \u2014 worse than the chance level of 4.174388, where an off-by-one target alignment would have scored 0.693147. |",
