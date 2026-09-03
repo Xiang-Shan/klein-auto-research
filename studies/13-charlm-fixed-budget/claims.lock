@@ -514,6 +514,13 @@
       "precision": 2,
       "value": 0.01
     },
+    "vocabulary_size": {
+      "art": "corpus",
+      "claim": "contract",
+      "note": "distinct characters",
+      "precision": 0,
+      "value": 65
+    },
     "warmup_on_cosine_floors": {
       "art": "summary",
       "claim": "C1",
