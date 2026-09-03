@@ -118,11 +118,17 @@
       "strength": "exploratory"
     },
     "C6": {
-      "claim": "Measure the floor that will judge YOUR comparison, not whichever one is",
-      "class": null,
+      "claim": "Measure the floor that will judge your comparison, not whichever one is cheapest to compute: refitting a deterministic learner under different seeds on fixed rows moved this study's metric not at all, while re-drawing which rows are held out moved it with a standard deviation of 0.00372606, and only the second is a keep bar",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "sweep:fit_noise",
+        "sweep:split_lottery",
+        "art:contract"
+      ],
+      "numbers": [
+        "floor_std"
+      ],
       "strength": "exploratory"
     },
     "C7": {
