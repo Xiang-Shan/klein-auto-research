@@ -121,7 +121,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "floor_min"
+      ],
       "strength": "exploratory"
     },
     "C13": {
@@ -351,6 +353,13 @@
       "note": "k_free / 70 (E0012)",
       "precision": 6,
       "value": 6.487978
+    },
+    "floor_min": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "lowest coverage across the five Phase-0 floor blocks (sweep:coverage_floor)",
+      "precision": 6,
+      "value": 0.925
     },
     "gap_465_nearest": {
       "art": "fits",
