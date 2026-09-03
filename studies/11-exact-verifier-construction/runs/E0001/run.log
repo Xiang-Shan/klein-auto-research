@@ -1,0 +1,41 @@
+control row_triple: exit=2 REJECTED
+control column_triple: exit=2 REJECTED
+control diagonal_triple: exit=2 REJECTED
+control antidiagonal_triple: exit=2 REJECTED
+control slope_two_triple: exit=2 REJECTED
+control slope_half_triple: exit=2 REJECTED
+control wide_triple: exit=2 REJECTED
+control duplicate_point: exit=2 REJECTED
+control out_of_range_high: exit=2 REJECTED
+control out_of_range_negative: exit=2 REJECTED
+control non_integer_coordinate: exit=2 REJECTED
+control parabola_plus_one: exit=2 REJECTED
+control erdos-parabola-p11: handed to the notary as this cell's artifact
+solution: models/E0001/solution.json
+---
+primary_metric:    11.000000
+metric_name:       points
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     9.4
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+wall_seconds:      9.397040
+split_fingerprint: 3819345e71dfbf7fef36734e0f41f1d40cb53ba45eae5c3c218c0e084a248d78
+planted: 12.0
+rejected: 12.0
+evaluations: 0.0
+passes: 0.0
+best_at_evaluation: 0.0
+search_seconds: 9.396334666991606
+grid_n: 11.0
+budget: 20000.0
+search_seed: 20260903.0
+sealed_block: 0.0
+overclaim_by: 0.0
+claimed_objective: 11.0
+object_size: 11.0
+runner_status: ok
+runner_exit_code: 0

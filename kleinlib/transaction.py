@@ -308,6 +308,11 @@ def stage_evidence(repo: Path, study_dir: Path, manifest: Mapping[str, Any]) -> 
         study_dir / "playbook.md",
         study_dir / "runs" / str(manifest["experiment"]) / "manifest.json",
         study_dir / "runs" / str(manifest["experiment"]) / "run.log",
+        # The declared verifier's own log. On an `optimize` track it is the
+        # primary evidence that the checker ran and what it said, and leaving it
+        # untracked also left the tree dirty after every verified run, which the
+        # NEXT run-one refuses. It exists only when a verifier ran.
+        study_dir / "runs" / str(manifest["experiment"]) / "verify.log",
     ]
     for rel, meta in manifest.get("artifacts", {}).items():
         if meta.get("committed"):

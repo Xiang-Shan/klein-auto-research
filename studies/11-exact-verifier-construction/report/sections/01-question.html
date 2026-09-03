@@ -1,0 +1,69 @@
+<h2>1 · The question</h2>
+
+<p>Put as many points as you can on the <span data-math="n \times n"></span> grid of
+lattice points so that <strong>no straight line passes through three of them</strong> —
+any line, not just rows, columns and diagonals. Dudeney posed it in 1900 with sixteen
+pawns on a chessboard.</p>
+
+<p>The ceiling is free. Three points in one row are collinear, so each row holds at most
+two, and there are <span data-math="n"></span> rows:</p>
+
+<div data-math-display="k \;\le\; 2n \qquad \text{for every } n."></div>
+
+<p>That is a one-line argument, and it is a <em>theorem</em>: no configuration found by
+any method can exceed it. The floor is not free — whether <span data-math="2n"></span> is
+actually <em>attained</em> at a given <span data-math="n"></span> is a hard question, and
+past the small cases the answers come from computer search.</p>
+
+<p>So this study asks a question with two halves, and the second half is the one it
+exists for:</p>
+
+<blockquote>
+<p>On an <span data-math="n \times n"></span> integer grid, how many points can a budgeted
+iterated local search place with no three collinear — <strong>judged only by a declared
+exact verifier that shares no code with the search</strong> — at an
+<span data-math="n"></span> where the proven maximum should be reachable and at an
+<span data-math="n"></span> where it should not?</p>
+</blockquote>
+
+<h3>Why an <code>optimize</code> study, and why this problem</h3>
+
+<p>A search that scores itself is a witness testifying about its own case. Klein's
+<code>optimize</code> contract breaks that mechanically: the track declares a
+<strong>verifier</strong>, the verifier lives outside the per-experiment mutable surface,
+the METHOD gate hashes it so it can never change again, and <code>klein run-one</code>
+runs it as a second process on the artifact the search wrote. <em>Its</em> number is the
+one that enters the ledger. The searcher's own claim is recorded beside it, and a
+disagreement is a crash.</p>
+
+<p>No-three-in-line is the right problem to demonstrate that on, for one reason: the
+objective is an <strong>integer</strong> — how many points are in the set — so the checker
+needs no tolerance. Two integers either agree or they do not.</p>
+
+<h3>The two instances, and a frontier that was closed before it opened</h3>
+
+<table>
+<thead><tr><th>Track</th><th>Grid</th><th>Proven maximum <span data-math="2n"></span></th><th>Best known value</th><th>Headroom <span data-math="h"></span></th></tr></thead>
+<tbody>
+<tr><td><code>n_small</code></td><td>11 × 11</td><td>22</td><td>22</td><td>0</td></tr>
+<tr><td><code>n_large</code></td><td>31 × 31</td><td>62</td><td>62</td><td>0</td></tr>
+</tbody>
+</table>
+
+<p>The best known value <em>equals</em> the pigeonhole bound at both sizes
+(<code>ref:flammenkamp_records</code>, <code>ref:mathworld_no3</code>), so the
+detection-limit arithmetic</p>
+
+<div data-math-display="h \;=\; \frac{\text{ideal} - \text{incumbent}}{\text{minimum delta}}"></div>
+
+<p>gives zero on both tracks. <strong>No run in this study could ever have been a
+keep</strong> — a keep would have had to beat a theorem — and the study computed that,
+acknowledged the closed door with <code>klein headroom ack</code>, and redefined success
+before spending anything:</p>
+
+<blockquote>
+<p>This study is not looking for an improvement. It is looking for an object that
+<strong>attains</strong> the known maximum, and for a record of who certified it.</p>
+</blockquote>
+
+<p>Ten runs later: zero keeps, exactly as registered.</p>

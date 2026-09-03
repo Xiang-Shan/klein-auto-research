@@ -1,0 +1,16 @@
+---
+primary_metric:    21.000000
+metric_name:       points
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+wall_seconds:      0.000165
+grid_n: 11.0
+triples_checked: 1330.0
+claim_excess: 0.0
+runner_status: ok
+runner_exit_code: 0

@@ -1,0 +1,23 @@
+{
+  "claimed_objective": 3,
+  "meta": {
+    "control": "positive",
+    "planted_defect": "a negative coordinate"
+  },
+  "n": 11,
+  "points": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      3,
+      -1
+    ]
+  ],
+  "problem": "no-three-in-line"
+}

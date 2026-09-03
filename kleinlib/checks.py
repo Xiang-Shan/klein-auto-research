@@ -38,7 +38,12 @@ from .contract import (
     split_fingerprint,
     validate_contract,
 )
-from .decision import _headroom_ack, _headroom_context, _incumbent
+from .decision import (
+    _headroom_ack,
+    _headroom_context,
+    _incumbent,
+    _seed_external_incumbent,
+)
 from .errors import WorkflowError
 from .events import verify_event_chain
 from .manifest import (
@@ -680,7 +685,11 @@ def _headroom_check(
             True,
             f"track {track_name!r}: no metric.bound declared — not audited",
         )
-    context = _headroom_context(track_spec, _incumbent(manifests, track_name))
+    # The same incumbent run-one enforces on: an externally seeded frontier
+    # HAS an incumbent before its first keep, and h is knowable then.
+    context = _headroom_context(
+        track_spec, _seed_external_incumbent(track_spec, _incumbent(manifests, track_name))
+    )
     if context is None:
         return Check(
             "headroom",

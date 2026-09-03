@@ -1,0 +1,111 @@
+# The citations a `ref:<key>` evidence id resolves to. Written at the METHOD
+# gate; every row was checked against the publisher, arXiv or maintainer page on
+# the date below, not quoted from memory. Network access is allowed at this gate
+# and nowhere else in the study: no run touches the network (KLEIN_OFFLINE=1).
+references:
+  dudeney1900:
+    title: "The no-three-in-line puzzle (16 pawns on a chessboard, no three in a line)"
+    authors: "Dudeney, H. E."
+    year: 1900
+    venue: "The Weekly Dispatch, 29 April and 13 May 1900; later Amusements in Mathematics (1917), problem 317"
+    url: "https://en.wikipedia.org/wiki/No-three-in-line_problem"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch, Wikipedia article, cross-checked against MathWorld)"
+    verified_at: "2026-09-03"
+    why: "Where the problem comes from. Cited for provenance only: the study's numbers rest on the pigeonhole bound and on the record page, not on this."
+  roth1951:
+    title: "On a problem of Heilbronn"
+    authors: "Roth, K. F."
+    year: 1951
+    venue: "Journal of the London Mathematical Society 26, 198-204"
+    doi: "10.1112/jlms/s1-26.3.198"
+    url: "https://en.wikipedia.org/wiki/No-three-in-line_problem"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch, Wikipedia article: 'the parabola method ... published by Roth (1951)')"
+    verified_at: "2026-09-03"
+    why: "The paper in which Erdos's parabola construction {(i, i^2 mod p)}, p prime, is published. It is this study's NEGATIVE control: a known-valid object whose objective (exactly p) is known before the checker runs, and whose validity is a theorem rather than a measurement."
+  guy1968:
+    title: "The no-three-in-line problem"
+    authors: "Guy, R. K.; Kelly, P. A."
+    year: 1968
+    venue: "Canadian Mathematical Bulletin 11, 527-531"
+    url: "https://mathworld.wolfram.com/No-Three-in-a-LineProblem.html"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch, MathWorld bibliography entry, quoted verbatim)"
+    verified_at: "2026-09-03"
+    why: "The conjecture that for large n the attainable maximum falls strictly below 2n, with an asymptotic constant (c ~ 1.874, later corrected to c ~ 1.814). It is the reason 'the search did not reach 2n' can never be read as evidence about the problem: at large n nobody expects 2n to be attainable, and at the two sizes this study uses it demonstrably is."
+  hall1975:
+    title: "Some advances in the no-three-in-line problem"
+    authors: "Hall, R. R.; Jackson, T. H.; Sudbery, A.; Wild, K."
+    year: 1975
+    venue: "Journal of Combinatorial Theory, Series A 18(3), 336-341"
+    doi: "10.1016/0097-3165(75)90043-6"
+    url: "https://en.wikipedia.org/wiki/No-three-in-line_problem"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch, Wikipedia article: journal, volume, issue and page range)"
+    verified_at: "2026-09-03"
+    why: "The hyperbola construction reaching 3(n-2)/2 points: the best constructive lower bound that holds for all large n, and the yardstick against which a heuristic search's output should be read."
+  flammenkamp1992:
+    title: "Progress in the no-three-in-line problem"
+    authors: "Flammenkamp, A."
+    year: 1992
+    venue: "Journal of Combinatorial Theory, Series A 60(2), 305-311"
+    doi: "10.1016/0097-3165(92)90012-J"
+    url: "https://en.wikipedia.org/wiki/No-three-in-line_problem"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch, Wikipedia article)"
+    verified_at: "2026-09-03"
+    why: "The first of the two computational-search papers that pushed 2n-point solutions to larger grids; the historical source of the claim that 2n is attained well past both of this study's instances."
+  flammenkamp1998:
+    title: "Progress in the no-three-in-line problem, II"
+    authors: "Flammenkamp, A."
+    year: 1998
+    venue: "Journal of Combinatorial Theory, Series A 81(1), 108-113"
+    doi: "10.1006/jcta.1997.2829"
+    url: "https://en.wikipedia.org/wiki/No-three-in-line_problem"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch, Wikipedia article)"
+    verified_at: "2026-09-03"
+    why: "The sequel that extended the same computational record; together with flammenkamp1992 it is why the value 2n at n = 11 and n = 31 is 'best known' rather than merely 'not excluded'."
+  flammenkamp_records:
+    title: "The no-three-in-line problem (record page, last updated 2026-08-31)"
+    authors: "Flammenkamp, A. (maintainer)"
+    year: 2026
+    venue: "Universitat Bielefeld, https://wwwhomes.uni-bielefeld.de/achim/no3in/readme.html"
+    url: "https://wwwhomes.uni-bielefeld.de/achim/no3in/readme.html"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch of the page itself on 2026-09-03; the page states 'now no-three-in-line solutions are known for all grid sizes <= 70' and lists exhaustive enumerations for n = 31)"
+    verified_at: "2026-09-03"
+    why: "THE source for this study's metric.incumbent_external. It is the maintained record page for the problem, and it establishes that 2n points are attainable at both n = 11 and n = 31 - so the external incumbent equals the pigeonhole bound on both tracks, a keep is impossible, and headroom h = 0 before the first run."
+  mathworld_no3:
+    title: "No-Three-in-a-Line Problem"
+    authors: "Weisstein, E. W."
+    year: 2026
+    venue: "MathWorld - A Wolfram Web Resource"
+    url: "https://mathworld.wolfram.com/No-Three-in-a-LineProblem.html"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch on 2026-09-03; the page states 'For 2 <= n <= 32, it is possible to select 2n such points')"
+    verified_at: "2026-09-03"
+    why: "The independent second source for the attainability of 2n at n = 11 and n = 31. A single source for a number that seeds a frontier is a single point of failure; this one names the exact range that covers both instances."
+  ramanathan2025:
+    title: "Three methods, one problem: classical and AI approaches to no-three-in-line"
+    authors: "Ramanathan, P.; Prellberg, T.; Lewis, M.; Joshi, P. D.; Dandekar, R. A.; Dandekar, R.; Panat, S."
+    year: 2025
+    venue: "arXiv preprint (v1 2025-12-12, v2 2025-12-22)"
+    arxiv: "2512.11469"
+    url: "https://arxiv.org/abs/2512.11469"
+    verified: true
+    verified_by: "orchestrating agent (WebFetch of the arXiv abstract page on 2026-09-03)"
+    verified_at: "2026-09-03"
+    why: "The closest modern comparison, and the honest regime table's anchor: integer linear programming reaches provably optimal solutions to 19x19, a transformer (PatternBoost) matches them to 14x14, and a PPO agent solves 10x10 but fails at 11x11 on constraint violations. It was read at the METHOD gate, AFTER this study's predictions were registered and hashed at the consult gate, and it changed no rule."
+  lourenco2019:
+    title: "Iterated local search: framework and applications"
+    authors: "Lourenco, H. R.; Martin, O. C.; Stutzle, T."
+    year: 2019
+    venue: "Handbook of Metaheuristics, 3rd edition (Gendreau, M.; Potvin, J.-Y., eds), Springer, 129-168"
+    doi: "10.1007/978-3-319-91086-4_5"
+    url: "https://link.springer.com/chapter/10.1007/978-3-319-91086-4_5"
+    verified: true
+    verified_by: "orchestrating agent (WebSearch, Springer chapter page; the 2003 first-edition chapter is doi 10.1007/0-306-48056-5_11)"
+    verified_at: "2026-09-03"
+    why: "The method this study's search implements: a local search to a maximal state, a perturbation, and an acceptance rule, iterated. Section 3 of the method card is the from-scratch realization of exactly this skeleton."

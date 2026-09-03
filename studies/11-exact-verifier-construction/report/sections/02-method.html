@@ -1,0 +1,95 @@
+<h2>2 · The method taught</h2>
+
+<p>Two pieces of code do all the work here, and the whole point of the study is that they
+must not be the same piece. Learn the checker first — in an <code>optimize</code> study
+the checker is the load-bearing part, and Klein's METHOD gate treats it that way: the
+Practice leg of the Theory + Papers + Practice triad is the from-scratch
+<strong>verifier</strong>, not the searcher.</p>
+
+<h3>§2.1 · The one equation</h3>
+
+<p>Three points <span data-math="p, q, r"></span> with integer coordinates are collinear
+exactly when the cross product of the two edge vectors vanishes:</p>
+
+<div data-math-display="(q-p) \times (r-p) \;=\; (q_x-p_x)(r_y-p_y) - (q_y-p_y)(r_x-p_x)"></div>
+
+<p>The quantity is twice the signed area of the triangle. It is an <strong>integer</strong>,
+so the test is exact: there is no division, no slope, no floating point and no rounding
+decision anywhere on the path. A configuration <span data-math="S"></span> is valid when
+that expression is non-zero for every triple it contains.</p>
+
+<h3>§2.2 · The checker: enumerate everything</h3>
+
+<p>The verifier is deliberately the dumbest correct implementation. It reads the artifact,
+checks it is well-formed — integer coordinates (a Python <code>bool</code> is an
+<code>int</code>, and is refused explicitly), on the grid, no repeats — and then walks
+<em>every</em> triple:</p>
+
+<pre><code class="language-python">for a, b, c in combinations(points, 3):
+    cross = (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0])
+    if cross == 0:
+        raise Rejected(f"points {a}, {b} and {c} are collinear")
+return len(points)
+</code></pre>
+
+<p>No sampling, no early exit that could hide a triple, no clever geometry. On the largest
+object this study verified that is 26235 cross products, and the checker's own log records
+0.002046 seconds for it — cheap, and the cost is charged to no guardrail.</p>
+
+<h3>§2.3 · The searcher: hash directions instead</h3>
+
+<p>The search may be as clever as it likes. Adding a point <span data-math="p"></span> to a
+valid set can only create triples that <em>contain</em> <span data-math="p"></span>, and
+<span data-math="\{p,q,r\}"></span> is collinear exactly when
+<span data-math="q-p"></span> is parallel to <span data-math="r-p"></span>. So look at the
+world from <span data-math="p"></span>: reduce each offset to its primitive direction and
+ask whether two of them collide.</p>
+
+<div data-math-display="d(p,q) \;=\; \frac{q-p}{\gcd\big(|q_x-p_x|,\; |q_y-p_y|\big)} \quad\text{(sign-normalized)}"></div>
+
+<p>That turns an <span data-math="O(k^2)"></span> question into an
+<span data-math="O(k)"></span> one — and it is <strong>not</strong> what the checker does.
+Two deliberately different algorithms agreeing is evidence; one algorithm agreeing with
+itself is a tautology.</p>
+
+<h3>§2.4 · The search loop</h3>
+
+<p>Iterated local search over configurations that are valid at every instant: complete
+greedily, keep improvements, perturb, repeat.</p>
+
+<pre><code class="language-python">S = []                                  # always a VALID configuration
+while evaluations &lt; B:
+    order = shuffle(all cells); order.sort(key=lambda c: rows[c.y] + cols[c.x])
+    for p in order:                     # one pass = one greedy completion
+        evaluations += 1                # ONE EVALUATION = one addability test
+        if addable(p, S): S.append(p)
+    if len(S) &gt; len(best): best = S[:]  # accept improvements only
+    elif stale &gt;= 2n:     S = []        # restart from empty
+    else:                 remove 1-3 random points from S
+</code></pre>
+
+<p>Two details matter. <strong>The budget unit</strong> is one call to
+<code>addable</code> — the atomic cost of the search — and it is what the registered
+guardrail caps. <strong>The ordering</strong> is most-constrained-first: a
+<span data-math="2n"></span> configuration needs <em>exactly</em> two points in every row
+and every column, so the emptiest lines are the ones still to be filled; the shuffle comes
+before the sort, so ties break randomly and every pass is a fresh sample.</p>
+
+<p>The whole thing is deterministic in <span data-math="(n, \text{seed}, B)"></span>: one
+random stream drives every choice and the budget only says when to stop. A larger budget is
+therefore a strict extension of a smaller one, which is why the ladder below is
+<em>one trajectory read at three points</em> and its objective is monotone by construction
+rather than by luck.</p>
+
+<h3>§2.5 · The one construction we knew in advance</h3>
+
+<p>For prime <span data-math="p"></span>, the parabola
+<span data-math="P = \{(x,\; x^2 \bmod p)\}"></span> has <span data-math="p"></span> points
+and no three collinear. If three were, the integer determinant above would vanish, hence
+vanish mod <span data-math="p"></span>, where it factors as</p>
+
+<div data-math-display="(b-a)(c-a)(c-b) \pmod p"></div>
+
+<p>— a product of units for distinct <span data-math="a,b,c \in [0,p)"></span>.
+Contradiction. That is why this object can serve as a control whose score is known
+<em>before any code runs</em>: exactly <span data-math="p"></span>.</p>

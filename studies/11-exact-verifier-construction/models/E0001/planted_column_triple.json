@@ -1,0 +1,23 @@
+{
+  "claimed_objective": 3,
+  "meta": {
+    "control": "positive",
+    "planted_defect": "three points share a column (undefined slope)"
+  },
+  "n": 11,
+  "points": [
+    [
+      4,
+      0
+    ],
+    [
+      4,
+      3
+    ],
+    [
+      4,
+      8
+    ]
+  ],
+  "problem": "no-three-in-line"
+}

@@ -1,0 +1,26 @@
+solution: models/E0007/solution.json
+---
+primary_metric:    54.000000
+metric_name:       points
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     1.1
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+wall_seconds:      1.061062
+split_fingerprint: f0d4b0509c8b7edee3d503eff8f5da7129c9fc9a12b48e1cff408fd1bff590c9
+evaluations: 2000000.0
+passes: 2190.0
+best_at_evaluation: 326744.0
+search_seconds: 1.0604316669050604
+grid_n: 31.0
+budget: 2000000.0
+search_seed: 20260903.0
+sealed_block: 0.0
+overclaim_by: 0.0
+claimed_objective: 54.0
+object_size: 54.0
+runner_status: ok
+runner_exit_code: 0

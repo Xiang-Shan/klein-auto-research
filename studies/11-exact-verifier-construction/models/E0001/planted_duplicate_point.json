@@ -1,0 +1,23 @@
+{
+  "claimed_objective": 3,
+  "meta": {
+    "control": "positive",
+    "planted_defect": "the same lattice point listed twice \u2014 a multiset, not a set"
+  },
+  "n": 11,
+  "points": [
+    [
+      1,
+      1
+    ],
+    [
+      4,
+      7
+    ],
+    [
+      1,
+      1
+    ]
+  ],
+  "problem": "no-three-in-line"
+}
