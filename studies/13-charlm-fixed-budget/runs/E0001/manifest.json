@@ -1,0 +1,143 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 401,
+      "committed": true,
+      "sha256": "8213458a552d81bcf8cbd523aaca5f9ad964311039286a2abc53b05133f79027"
+    },
+    "models/E0001.pt": {
+      "availability": "local",
+      "bytes": 3308534,
+      "committed": false,
+      "role": "declared",
+      "sha256": "f1408df06f0a87a854f11841443a5b3eb0eaa4487415fca3ecd9adc06d1df799"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 696,
+      "committed": true,
+      "sha256": "71bfa5a0735d264105b01bd77f86c9e01dc52c13241b1a090e081043c5736915"
+    }
+  },
+  "base_commit": "3c7602913b698bee37896509d685d0186a429cf9",
+  "candidate_commit": "d17fc8ef2e95e3a863732d426f0fa7c00c3f0934",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "E0001 identity anchor: the committed anchor recipe at seed 20260903, a seed the Phase-0 floor sweep never used; adjudicates P1; first valid result on this track",
+  "disposition": "keep",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-09-03T12:10:40.519342Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354",
+    "split_partition": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50"
+  },
+  "incumbent": null,
+  "max_run_seconds": 900.0,
+  "metric": {
+    "reported": 1.572174,
+    "verified": 1.572174
+  },
+  "metric_goal": "lower",
+  "metric_name": "val_loss",
+  "metrics": {
+    "anchor_mean": 1.56915,
+    "anchor_z": 0.3766,
+    "bpc": 2.268167,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 128.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 0.0,
+    "cfg_warmup_steps": 0.0,
+    "delta_in_floors": -0.2022,
+    "delta_vs_anchor": -0.003024,
+    "eval_chars": 111616.0,
+    "eval_context": 128.0,
+    "eval_windows": 871.0,
+    "final_train_batch_loss": 1.411588,
+    "fit_seconds": 19.95,
+    "n_params": 824320.0,
+    "n_partition_chars": 111616.0,
+    "n_scored_chars": 111488.0,
+    "n_val_windows": 871.0,
+    "primary_metric": 1.572174,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_n_embd": 128.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 0.0,
+    "recipe_warmup_steps": 0.0,
+    "reported_val_loss": 1.572174,
+    "runner_exit_code": 0.0,
+    "steps": 2000.0,
+    "total_seconds": 0.8,
+    "train_bpc": 2.268167,
+    "train_chars": 891904.0,
+    "train_steps": 2000.0,
+    "verifier_gap": 0.0,
+    "wall_seconds": 0.812435
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 5400.0,
+  "phase_experiment_limit": 1,
+  "predictions": {
+    "P1": {
+      "explanation": "anchor_z 0.3766 <= 2 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P1"
+  ],
+  "primary_metric": 1.572174,
+  "schema_version": 3,
+  "started_at": "2026-09-03T12:10:17.019743Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T12:10:43.578046Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0001.pt",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
+    },
+    "timed_out": false,
+    "wall_seconds": 3.0349470840301365
+  },
+  "wall_seconds": 23.4992029578425
+}

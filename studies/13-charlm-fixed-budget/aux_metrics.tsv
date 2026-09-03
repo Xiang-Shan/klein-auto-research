@@ -1,1 +1,15 @@
 experiment	metric	value
+E0001	wall_seconds	21.262423038482666
+E0001	train_steps	2000
+E0001	fit_seconds	19.950
+E0001	train_chars	891904
+E0001	eval_chars	111616
+E0001	eval_windows	871
+E0001	final_train_batch_loss	1.411588
+E0001	train_bpc	2.268167
+E0001	recipe_warmup_steps	0
+E0001	recipe_lr	0.003
+E0001	recipe_dropout	0.0000
+E0001	recipe_n_embd	128
+E0001	recipe_tie_weights	0
+E0001	recipe_seed	20260903
