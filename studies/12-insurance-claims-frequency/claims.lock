@@ -81,7 +81,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "v1_validation_twin_share"
+      ],
       "strength": "exploratory"
     },
     "C2": {
@@ -414,6 +416,12 @@
       "claim": "C8",
       "precision": 6,
       "value": 0.001425
+    },
+    "v1_validation_twin_share": {
+      "art": "duplicates",
+      "claim": "C12",
+      "precision": 6,
+      "value": 0.052223
     }
   },
   "study_id": "12-insurance-claims-frequency"
