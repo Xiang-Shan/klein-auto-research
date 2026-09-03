@@ -1,0 +1,109 @@
+# Program — 00-known-truth-quickstart
+
+This is the living lab notebook. `study.yaml` is the machine contract;
+`study_state.json`, `events.jsonl`, and `runs/E####/manifest.json` are generated audit
+state and must not be hand-edited.
+
+## Goal and track contract
+
+- Goal: On a synthetic table whose Bayes-optimal AUC is computable from the declared
+  generating process, how close to that known ideal does a short ladder of tabular
+  models get, and does the headroom law correctly call the point at which further
+  development is arithmetically pointless?
+- Kind / modality / profile: `predict` / `tabular` / `generic`. Schema 3.
+- Track: `primary`, mode `frontier`.
+- Primary metric: `val_auc` (higher is better). `minimum_delta` is measured at
+  Phase 0 with a named estimand and pasted into the contract; it is never guessed.
+- `metric.bound.ideal` is the development partition's Bayes AUC — the best score any
+  model could reach on those rows — declared only after the DATA gate has hashed the
+  generator that computes it.
+- Results are exploratory until the track's one sealed final-test run confirms them.
+  A small delta without uncertainty must not be described as real or decisive.
+
+## Data and split
+
+- Source: `synthetic:prepare.py`. The generator seed is read from
+  `data.split.seed`; no seed and no partition rule is written as a literal anywhere
+  in a script (war story 8).
+- 20 000 rows, 8 standard-normal features. Six enter the true log-odds; `x7` and
+  `x8` enter nothing. One two-way interaction (`x1·x2`) and one quadratic (`x3²`)
+  are the two things a linear-in-raw-features model cannot express.
+- `data/prepared/truth.json` carries the per-row true log-odds and, per contract
+  partition, the Bayes AUC and Bayes Brier those log-odds imply.
+- Adaptive work uses train + development only. The test partition stays sealed.
+- Gate 1 records the prepared-data SHA-256 and the realized partition fingerprints.
+
+## Research questions
+
+- **RQ1** — how much of the distance between a linear-in-raw-features baseline and
+  the known Bayes ceiling does each rung of a short ladder close, in units of the
+  measured floor? Prior: the anchor stops several floors short; the true interaction
+  closes part of it; a boosted tree closes most of the rest without being told which
+  terms are true `(source: scouted — scouting_ledger.md S2)`.
+- **RQ2** — does the headroom law call the end of this ladder correctly: does
+  `h = (ideal − incumbent) / minimum_delta` fall below 1 before a challenger with
+  real capacity is spent, and does the run spent anyway come back within the floor?
+  Prior: yes, the door closes before the fourth candidate `(source: uninformed —
+  the floor is measured at Phase 0, after the scouting ledger closes)`.
+
+## Registered predictions
+
+Every rule is a threshold in units of the MEASURED floor, so every numeral in the
+prediction block is an integer count of floors, fixed before the floor was known.
+`gap_in_floors` is the run's own headroom against the declared ideal;
+`delta_in_floors` is its paired lift over the named reference rung, refitted on the
+same rows inside the same run so the comparison lives in one printed block.
+
+| P# | Statement | Rule | Decided by |
+|---|---|---|---|
+| P1 | the raw-feature logistic model cannot reach the ceiling: more than one floor of distance is left | `gap_in_floors > 1` | E0001 `--tests P1` |
+| P2 | handing it the DGP's true interaction beats it by at least one floor on the same rows | `delta_in_floors >= 1` | E0002 `--tests P2` |
+| P3 | a boosted tree, told none of the true terms, beats the hand-specified interaction rung by at least one floor | `delta_in_floors >= 1` | E0003 `--tests P3` |
+| P4 | buying capacity on top of the boosted rung is within noise (< 1 floor from its own reference) | `abs(delta_in_floors) < 1` | E0004 `--tests P4` |
+| P5 | the sealed run lands within two floors of the sealed partition's ceiling | `abs(gap_in_floors) <= 2` | E0005 `--tests P5` |
+
+## Phase plan
+
+| Phase | What happens | Budget | Max experiments |
+|---|---|---|---|
+| (Phase 0, no ledger rows) | two floor recipes into two sidecars; `klein noise-floor` prints the contract block; consult re-record pastes it | — | — |
+| `adaptive-1` | E0001 anchor → E0002 interaction → E0003 boosted → E0004 over-capacity | 3600 s | 4 |
+| `confirmation` | sealed dry-run, then E0005 once on the held-out partition | 900 s | 1 |
+
+## Workflow
+
+1. `klein gate record consult` (the scouting ledger is committed first, so the gate
+   hashes it).
+2. `prepare.py`, the profile, the clean-room leakage audit, `data_card.md` = GO;
+   `klein gate record data`.
+3. `method_card.md` + `references.yaml`; `klein gate record method`.
+4. Phase 0 floors; paste the measured block; consult re-record with a reason;
+   `klein preflight`.
+5. The loop: edit `train.py` (two constants), `klein run-one --tests P#`.
+
+Every candidate is committed before execution. Discards and crashes remain
+resolvable commits; the evidence transaction then restores `train.py` to the
+pre-candidate base commit.
+
+## Decisions (append-only)
+
+- 2026-09-03 — schema-3 study scaffolded (`predict` / `tabular` / `generic`); gates
+  pending.
+- 2026-09-03 — `study.yaml:target` is the target COLUMN, so it reads `y`; the
+  "synthetic" part of the study's identity lives in `data.source`
+  (`synthetic:prepare.py`), which is what `contract_split` and the DATA gate read.
+- 2026-09-03 — the user's gate acknowledgements are DELEGATED to this agent for the
+  Klein 2.0 exhibit studies. Every gate below is therefore recorded with
+  `--acknowledged-by lead-agent`, on the lead's standing instruction, and the same
+  applies to the phase acknowledgements. Nothing else about the gates changes: the
+  artifacts still have to exist, be placeholder-free, and hash.
+- 2026-09-03 — the smoke check of `train.py` ran before the consult gate was
+  recorded and is disclosed as entry S4 of `scouting_ledger.md` rather than left
+  silent. It wrote nothing and could not have set a rule: no floor existed yet.
+
+## Phase slates
+
+At every phase start, run the slate ritual (references/phase-ritual.md):
+propose 4-6 falsifiable candidates, score novelty / testability / expected
+information 1-3, record the table and the chosen candidate here, and mirror
+the ranked survivors into playbook.md "Next-best candidates".
