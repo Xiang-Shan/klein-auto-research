@@ -1,0 +1,52 @@
+<h2>Method coding advice</h2>
+
+<p>Here is the entire per-experiment surface of this study &mdash; the actual bytes,
+included by reference so this page cannot drift from the code that produced the numbers
+above. Read the two constants in the middle first: <code>CANDIDATE</code> and
+<code>REFERENCE</code>. That two-line diff <em>is</em> an experiment.</p>
+
+<pre data-code="train.py" data-lang="python"></pre>
+
+<h3>Four things worth stealing</h3>
+
+<ul>
+  <li><strong>Read the bar from the contract; never write it as a literal.</strong>
+      <code>minimum_delta</code> is loaded from <code>study.yaml</code> at the top of
+      <code>main</code>. A hardcoded bar and a hardcoded split seed are the same bug,
+      and the second one already cost an earlier study a whole ledger lane measured on
+      the wrong partition.</li>
+  <li><strong>Route every partition through <code>load_partition</code>.</strong> It
+      prints the <code>split_fingerprint:</code> line the notary compares against the
+      fingerprint the data gate froze, so a partition that silently changed is a crash
+      by design rather than a mystery. It is also what lets the sealed dry run hand
+      back development rows without the entrypoint knowing anything about it.</li>
+  <li><strong>Print the comparison; do not reconstruct it.</strong> Every run refits its
+      named reference rung on the <em>same rows</em> and prints
+      <code>delta_vs_reference</code> and <code>delta_in_floors</code>. That costs one
+      cheap fit and buys a registered prediction that arithmetic can decide from a
+      single printed block.</li>
+  <li><strong>Guard the divide.</strong> The floor-relative keys are printed only when
+      <code>minimum_delta</code> is above zero. Before Phase 0 there is no floor to
+      divide by, and a prediction whose key was never printed comes back
+      <em>inconclusive</em> rather than refuted &mdash; the honest answer, and also what
+      made the pre-gate smoke check harmless.</li>
+</ul>
+
+<h3>Two things this study got wrong, kept, and wrote down</h3>
+
+<ul>
+  <li><strong>An undeclared artifact breaks replication.</strong>
+      <code>train.py</code> reads <code>data/prepared/truth.json</code>, which the
+      contract never declared, so the replication harness never copied it and the
+      re-run crashed. Declare every artifact your entrypoint reads, or derive it from
+      committed code. This was found by <em>attempting</em> a replication the
+      confirmation contract did not even require &mdash; which is the argument for
+      attempting one anyway.</li>
+  <li><strong>An audit that reaches past its own reading scope writes confident, false
+      sentences.</strong> The data card asserts there is no literal seed in any script
+      the study owns; <code>RANDOM_SEED = 42</code> is right there in the file above. It
+      is a fit seed, it is harmless, and the split is contract-driven &mdash; but the
+      sentence was asserted about a file the clean-room auditor states it never read.
+      The card is gate-hashed, so it was not edited after the fact; the correction lives
+      in the lab notebook and the findings, where an append-only record belongs.</li>
+</ul>

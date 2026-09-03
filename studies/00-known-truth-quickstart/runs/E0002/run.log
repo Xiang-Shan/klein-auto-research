@@ -1,0 +1,26 @@
+split_fingerprint: f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122
+---
+primary_metric:    0.835785
+metric_name:       val_auc
+metric_goal:       higher
+training_seconds:  0.0
+total_seconds:     0.0
+train_rows:        12000
+val_rows:          4000
+status:            ok
+--- aux_metrics ---
+val_pr_auc:        0.691617
+val_logloss:       0.398632
+val_brier:         0.122839
+val_lift_top10:    3.4336
+val_best_threshold: 0.3400
+val_f1_at_best:    0.6229
+wall_seconds:      0.042691
+bayes_auc: 0.884116
+gap_to_ideal: 0.048331
+gap_in_floors: 6.4856
+reference_auc: 0.806201
+delta_vs_reference: 0.029584
+delta_in_floors: 3.9699
+runner_status: ok
+runner_exit_code: 0
