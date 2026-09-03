@@ -27,10 +27,15 @@
   },
   "claims": {
     "C1": {
-      "claim": "RQ1 | primary | supported | confirmed | empirical-description | E0001, E0002, E0003, E0005 | the ladder closed the distance to the development ceiling of 0.884116 from 10.4555 measured floors at the raw-feature anchor (val_auc 0.806201) to 1.7077 at the boosted incumbent (val_auc 0.871390); the sealed partition returned val_auc 0.880949 against its own ceiling of 0.893469, a distance of 1.6800 floors. Floor: minimum_delta 0.00745212 from a marginal-resplit lottery of k = 10 draws, std 0.00372606 |",
-      "class": null,
+      "claim": "The ladder closed the distance to the development ceiling of 0.884116 from 10.4555 measured floors at the raw-feature anchor (val_auc 0.806201) to 1.7077 at the boosted incumbent (val_auc 0.871390), and the sealed partition returned val_auc 0.880949 against its own ceiling of 0.893469, a distance of 1.68 floors",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0005"
+      ],
       "numbers": [
         "anchor_auc",
         "anchor_gap_floors",
@@ -41,7 +46,7 @@
         "sealed_ceiling",
         "sealed_gap_floors"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C2": {
       "claim": "RQ1 | primary | supported | confirmed | known-dgp-teaching (`scope: in-silico`) | E0002, E0003, E0005 | under THIS declared process, a boosted tree shown none of the true terms out-earned handing a linear model the true interaction: `delta_in_floors` 4.7779 against its predecessor on development and 4.6190 against the same predecessor on the sealed rows, versus 3.9699 for the hand-specified interaction |",
