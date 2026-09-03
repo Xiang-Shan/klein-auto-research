@@ -52,7 +52,8 @@
         "e0003_floors",
         "e0004_floors",
         "e0005_floors",
-        "e0006_floors"
+        "e0006_floors",
+        "e0007_floors"
       ],
       "strength": "exploratory"
     },
@@ -215,6 +216,13 @@
       "note": "E0006, the only keep: cosine decay",
       "precision": 6,
       "value": 1.519319
+    },
+    "e0007_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "cosine plus warmup, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": 3.2291
     },
     "e0008_bpc": {
       "art": "frontier",
