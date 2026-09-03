@@ -426,3 +426,16 @@ Six experiments, 6 of 6 slots used, one keep.
   consequence is that findings must call the improvement exploratory and say why, and
   that is what §① and §③ do. It is also the study's clearest process lesson for
   `knowledge/`.
+
+### Corrections to this notebook (append-only, per the heading)
+
+- 2026-09-03 — Two numerals were mistyped in the entries above and are corrected here
+  rather than edited in place. The E0005 parameter count is **3,221,504**, not
+  3,222,336 (`tables/frontier.tsv`, `n_params`); the ratio to the anchor's 824,320 is
+  3.908075 (`tables/study_summary.tsv`). The E0006 incumbent is **2.191915** bits per
+  character, not 2.191912 (`tables/frontier.tsv`, `val_bits_per_char`). Both were
+  retyped by hand into prose; neither ever reached a printed block, a manifest, a
+  figure or `findings.md`, all of which read the artifacts. `playbook.md` is the
+  rolling map rather than a dated record, so its copy of the second number was
+  corrected in place. This is the reason the numbers law exists: prose is where
+  numbers go wrong.

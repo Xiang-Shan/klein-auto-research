@@ -16,9 +16,10 @@ pinned artifact and CROSS-CHECKED against a second source before it is plotted
   tables/learning_curves.tsv           val_loss against steps, anchor and cosine
   tables/reference_losses.tsv          uniform and unigram reference levels
 
-Writes `tables/frontier.tsv` — one row per ledger run, the synthesis table
-`findings.md` and `claims.lock` quote from — and four PNGs (200 dpi, white
-background) into --out:
+Writes `tables/frontier.tsv` (one row per ledger run) and `tables/study_summary.tsv`
+(the derived scalars findings quotes but no single run prints — the headroom, the
+incumbent's gain, the sealed gap in floors, the parameter arithmetic), plus four PNGs
+(200 dpi, white background) into --out:
 
   learning_curves.png   val_loss against optimizer steps, anchor vs cosine
   seed_variance.png     the measured floors: zero-based bars + a zoomed spread
@@ -160,6 +161,51 @@ def frontier_table(study: Path, ledger: pd.DataFrame, manifests: dict) -> pd.Dat
     (study / "tables").mkdir(exist_ok=True)
     table.to_csv(study / "tables" / "frontier.tsv", sep="\t", index=False)
     return table
+
+
+def summary_table(study: Path, table: pd.DataFrame, refs: pd.DataFrame, fit: dict,
+                  delta: float) -> pd.DataFrame:
+    """Derived scalars: computed here from pinned inputs, so they have a home.
+
+    Nothing in this table is typed by hand — every value is arithmetic on
+    `tables/frontier.tsv`, `study.yaml`'s floor blocks,
+    `tables/reference_losses.tsv` and the E0001 replication records.
+    """
+    row = {r["experiment"]: r for _, r in table.iterrows()}
+    anchor = float(row["E0001"]["val_nats_per_char"])
+    incumbent = float(row["E0006"]["val_nats_per_char"])
+    sealed = float(row["E0008"]["val_nats_per_char"])
+    warm = float(row["E0007"]["val_nats_per_char"])
+    unigram = float(refs.loc[refs["reference"] == "unigram", "val_nats_per_char"].iloc[0])
+    uniform = float(refs.loc[refs["reference"] == "uniform", "val_nats_per_char"].iloc[0])
+    records = sorted((study / "runs" / "E0001" / "replications").glob("*.json"))
+    full = [json.loads(path.read_text(encoding="utf-8")) for path in records]
+    rerun = [r for r in full if r["mode"] == "replicate"][0]
+
+    values = {
+        "headroom_h_at_incumbent": incumbent / delta,
+        "incumbent_gain_nats": anchor - incumbent,
+        "incumbent_gain_floors": (anchor - incumbent) / delta,
+        "sealed_minus_dev_nats": sealed - incumbent,
+        "sealed_minus_dev_floors": (sealed - incumbent) / delta,
+        "warmup_on_cosine_minus_incumbent_nats": warm - incumbent,
+        "warmup_on_cosine_minus_incumbent_floors": (warm - incumbent) / delta,
+        "anchor_below_unigram_nats": unigram - float(fit["mean"]),
+        "anchor_below_uniform_nats": uniform - float(fit["mean"]),
+        "incumbent_below_unigram_nats": unigram - incumbent,
+        "tying_params_removed": float(row["E0001"]["n_params"] - row["E0003"]["n_params"]),
+        "tying_params_share_percent": 100.0
+        * (row["E0001"]["n_params"] - row["E0003"]["n_params"]) / row["E0001"]["n_params"],
+        "width_params_ratio": float(row["E0005"]["n_params"]) / float(row["E0001"]["n_params"]),
+        "max_verifier_gap_nats": float(table["verifier_gap"].max()),
+        "replication_difference_nats": float(rerun["difference"]),
+        "replication_difference_in_fit_noise_std": float(rerun["difference"]) / float(fit["std"]),
+        "replication_tolerance_nats": float(rerun["tolerance"]),
+        "verify_only_records": float(sum(1 for r in full if r["mode"] == "verify")),
+    }
+    out = pd.DataFrame([{"quantity": k, "value": round(v, 6)} for k, v in values.items()])
+    out.to_csv(study / "tables" / "study_summary.tsv", sep="\t", index=False)
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -367,11 +413,12 @@ def main() -> None:
     ):
         ledger, manifests, aux, curves, refs, seeds, pairs, delta, fit, paired = load_everything(study)
         table = frontier_table(study, ledger, manifests)
+        summary_table(study, table, refs, fit, delta)
         figure_learning_curves(out, curves, refs, table)
         figure_seed_variance(out, seeds, pairs, table, delta, fit, paired)
         figure_candidate_effects(out, table, delta)
         figure_trajectory(out, table, refs, delta)
-    print(f"wrote 4 figures to {out} and tables/frontier.tsv")
+    print(f"wrote 4 figures to {out}, tables/frontier.tsv and tables/study_summary.tsv")
 
 
 if __name__ == "__main__":

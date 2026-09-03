@@ -10,7 +10,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary | E0006 | val_loss 1.519319 nats (2.191912 bpc) | the anchor with ONE change: cosine LR decay from 3e-3 to 10% of it over the 2000 steps | 2026-09-03 (phase adaptive-2) |
+| primary | E0006 | val_loss 1.519319 nats (2.191915 bpc) | the anchor with ONE change: cosine LR decay from 3e-3 to 10% of it over the 2000 steps | 2026-09-03 (phase adaptive-2) |
 
 ## Ruled out (evidence, not opinion)
 
