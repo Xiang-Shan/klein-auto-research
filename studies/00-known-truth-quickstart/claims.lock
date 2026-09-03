@@ -64,7 +64,8 @@
         "boosted_brier",
         "overcapacity_auc",
         "overcapacity_brier",
-        "overcapacity_delta_floors"
+        "overcapacity_delta_floors",
+        "overcapacity_logloss"
       ],
       "strength": "exploratory"
     },
@@ -192,6 +193,13 @@
       "note": "E0004 delta_in_floors against its own default-capacity reference",
       "precision": 4,
       "value": -1.7903
+    },
+    "overcapacity_logloss": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 val_logloss",
+      "precision": 6,
+      "value": 1.024102
     },
     "sealed_auc": {
       "art": "aux",
