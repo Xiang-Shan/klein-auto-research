@@ -198,7 +198,9 @@
         "E0004",
         "E0007",
         "E0009",
-        "E0010"
+        "E0010",
+        "art:proof",
+        "ref:mathworld_no3"
       ],
       "numbers": [
         "bound_large",
