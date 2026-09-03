@@ -287,6 +287,15 @@
       "sidecar": "sweeps/harness_controls.sidecar.tsv",
       "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
     },
+    "learning_curves": {
+      "registered_at": "2026-09-03T12:40:46.154981Z",
+      "rows_crash": 0,
+      "rows_ok": 2,
+      "script": "sweeps/learning_curves.py",
+      "script_sha256": "ffea6022371ff47d0a8b52388f2980405cbf0a58149e8698f7c811fdcab0b7d3",
+      "sidecar": "sweeps/learning_curves.sidecar.tsv",
+      "sidecar_sha256": "ad00c99828f3c01c9614a91d6871cc91575a53f4cabfee339c19c04b8ab401d9"
+    },
     "paired_floor": {
       "registered_at": "2026-09-03T12:06:09.180260Z",
       "rows_crash": 0,
@@ -297,5 +306,5 @@
       "sidecar_sha256": "830acfb75ece5ad25803d1c950fc50788db14bfe9f4f32740e5f426c73be84f5"
     }
   },
-  "updated_at": "2026-09-03T12:37:20.958937Z"
+  "updated_at": "2026-09-03T12:40:46.155348Z"
 }
