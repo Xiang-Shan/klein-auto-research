@@ -143,11 +143,17 @@
       "strength": "exploratory"
     },
     "C8": {
-      "claim": "Read a headroom of at least one floor as \"not arithmetically excluded\",",
-      "class": null,
+      "claim": "Read a headroom of at least one floor as not arithmetically excluded, never as worth trying: this study read 1.708 before its fourth candidate, which is exactly the regime where the law has nothing to say, and that candidate came back at delta_in_floors -1.7903",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0003",
+        "E0004"
+      ],
+      "numbers": [
+        "headroom_at_e0004",
+        "overcapacity_delta_floors"
+      ],
       "strength": "exploratory"
     }
   },
