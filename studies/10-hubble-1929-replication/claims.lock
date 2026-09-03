@@ -222,7 +222,8 @@
       "evidence": [],
       "numbers": [
         "anchor_max_deviation",
-        "n_table1"
+        "n_table1",
+        "n_table2"
       ],
       "strength": "exploratory"
     },
@@ -383,6 +384,13 @@
       "note": "rows in Hubble's Table 1 (E0001)",
       "precision": 0,
       "value": 24
+    },
+    "n_table2": {
+      "art": "anchors",
+      "claim": "C6",
+      "note": "rows in Hubble's Table 2 (E0001)",
+      "precision": 0,
+      "value": 22
     },
     "nominal_level": {
       "art": "covc",
