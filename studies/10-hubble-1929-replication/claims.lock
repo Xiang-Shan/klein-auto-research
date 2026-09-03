@@ -24,6 +24,10 @@
       "path": "tables/coverage_bootstrap_blockB.tsv",
       "sha256": "549885be0218527290642b9a6c757876e802e2cfc44d90cc5e4d72b4e26ae420"
     },
+    "covc": {
+      "path": "tables/sealed_coverage_blockC.tsv",
+      "sha256": "99aac71a3400c9036e24c943797e97a181515c6b00589ecab4981fa1394659ce"
+    },
     "fits": {
       "path": "tables/two_parameter_fits.tsv",
       "sha256": "cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8"
