@@ -97,7 +97,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "probable_error"
+      ],
       "strength": "exploratory"
     },
     "C11": {
@@ -483,6 +485,13 @@
       "note": "half the paper's printed precision; the tolerance registered for P9",
       "precision": 2,
       "value": 0.06
+    },
+    "probable_error": {
+      "art": "aux",
+      "claim": "C10",
+      "note": "0.6745 x the analytic SE - the 1929 convention (E0002)",
+      "precision": 6,
+      "value": 50.747428
     },
     "rescale_factor": {
       "art": "sealed_modern",
