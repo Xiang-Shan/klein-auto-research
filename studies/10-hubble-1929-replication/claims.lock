@@ -204,6 +204,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "max_gap_70",
         "rescale_factor"
       ],
       "strength": "exploratory"
@@ -338,6 +339,13 @@
       "note": "OLS through the origin, 24 objects (E0002)",
       "precision": 6,
       "value": 423.937323
+    },
+    "max_gap_70": {
+      "art": "sealed_modern",
+      "claim": "C5",
+      "note": "the larger of the two rescaled fits' gaps to 70 (E0012)",
+      "precision": 6,
+      "value": 4.990073
     },
     "nominal_level": {
       "art": "covc",
