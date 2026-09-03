@@ -69,6 +69,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "claim_rate",
         "lift10_dev",
         "lift10_drop",
         "lift10_sealed"
@@ -241,6 +242,13 @@
       "note": "E0004 reference_brier / val_brier",
       "precision": 3,
       "value": 4.055
+    },
+    "claim_rate": {
+      "art": "data_card",
+      "claim": "C11",
+      "note": "portfolio claim rate",
+      "precision": 6,
+      "value": 0.063968
     },
     "dev_incumbent": {
       "art": "results",
