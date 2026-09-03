@@ -71,10 +71,13 @@ TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
 # --- the candidate: the whole per-experiment diff surface -------------------
 # Empty between experiments. Choosing a rung IS the falsifiable idea a candidate
 # transaction carries, so the surface carries no rung until one is chosen.
-CANDIDATE = "hgbt_balanced"          # E0003: the v1 tree rung, recoverable verbatim
-REFERENCE = "glm_splines_isotonic"   # the calibrated GLM rung it claims to beat
-V1_ANCHOR = 0.662897                 # scouting_ledger.md S1, v1 results.tsv row 3
-DEV_INCUMBENT = None             # set only for the sealed confirmation run
+CANDIDATE = "hgbt_balanced"  # E0005: the frontier's incumbent, unchanged, on the seal
+REFERENCE = None             # a sealed run evaluates the selected configuration; it is
+                             # not another comparison, and refitting a second rung on
+                             # train+development would spend the seal on two models
+V1_ANCHOR = None             # the v1 study had no sealed partition; anchoring a sealed
+                             # number to a development-partition value is a category error
+DEV_INCUMBENT = 0.664051     # E0003's development score — the number P7 is written against
 
 
 def main() -> None:
