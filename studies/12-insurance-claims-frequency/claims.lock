@@ -216,10 +216,15 @@
       "strength": "exploratory"
     },
     "C9": {
-      "claim": "study is 10.92 times the narrowest, on the same rows with the same instrument.",
-      "class": null,
+      "claim": "Pairing cancels shared sampling error only when the two scores move together, and a GLM and a boosted tree rank these policies too differently for that: their paired spread is 0.013942 against a marginal spread of 0.017964, while two rungs differing by one lever pair down to 0.001276 - a ratio of 10.92 across the same rows with the same instrument.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "sweep:paired_bootstrap_b1000",
+        "sweep:split_lottery",
+        "sweep:pair_anchor_doctrine",
+        "ref:delong1988"
+      ],
       "numbers": [
         "marginal_std",
         "paired_std_far",
