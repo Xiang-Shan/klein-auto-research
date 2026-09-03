@@ -4,6 +4,10 @@
       "path": "aux_metrics.tsv",
       "sha256": "409fedb832b400684cc1e4b466c515f12c44848ad6ed8e39af796d0664b5f062"
     },
+    "floors": {
+      "path": "tables/pair_floors.tsv",
+      "sha256": "9160952654945dc718fee9c21ee289053de7fa84730ec6be86492e5db51846b3"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38"
