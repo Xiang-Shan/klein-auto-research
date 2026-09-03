@@ -203,6 +203,13 @@
       "precision": 6,
       "value": 0.884116
     },
+    "floor_std": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the marginal-resplit floor standard deviation over ten draws",
+      "precision": 8,
+      "value": 0.00372606
+    },
     "headroom_at_e0004": {
       "art": "aux",
       "claim": "C4",
