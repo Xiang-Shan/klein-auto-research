@@ -19,6 +19,10 @@
     "solution": {
       "path": "models/E0009/solution.json",
       "sha256": "1ef97ed58056c312116ad6901f78f9c1bacadc1f4bde6fe785a15c3025d3c486"
+    },
+    "verify_log_large": {
+      "path": "runs/E0007/verify.log",
+      "sha256": "6bdc556184f32439d4deee1dd224d93101c366aca881a8fdb097b118524cac8b"
     }
   },
   "claims": {
