@@ -72,7 +72,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "best_at_dev"
+        "best_at_dev",
+        "best_at_sealed"
       ],
       "strength": "exploratory"
     },
@@ -130,6 +131,13 @@
       "note": "E0004 best_at_evaluation: where the development lane found its best object and stopped improving",
       "precision": 0,
       "value": 152572
+    },
+    "best_at_sealed": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0009 best_at_evaluation: where the sealed lane reached the proven maximum",
+      "precision": 0,
+      "value": 1612132
     },
     "bound_large": {
       "art": "contract",
