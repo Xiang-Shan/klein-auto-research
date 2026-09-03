@@ -409,3 +409,38 @@ each estimate carries a binomial Monte-Carlo error of about
 sqrt(0.92 x 0.08 / 1000) ≈ 0.0086, which is far smaller than any shortfall worth
 diagnosing. Option 1 is recorded in findings §⑦ as the sharper design for a
 study that needs to resolve a small difference between two interval methods.
+
+
+### Phase adaptive-4 outcome
+
+Two cells, both `measured`, and together they are a diagnosis rather than a
+number.
+
+| Cell | Interval | Coverage on block B | Shortfall from 0.95 | Mean width |
+|---|---|---|---|---|
+| E0009 | percentile bootstrap (500 resamples) | **0.911** | 0.039 | 288.833955 |
+| E0010 | analytic normal-theory | **0.938** | 0.012 | 291.871773 |
+
+**Both under-cover, and the bootstrap under-covers more.** Each estimate carries
+a binomial Monte-Carlo error of about sqrt(0.92 × 0.08 / 1000) ≈ 0.0086, so the
+0.027 gap between them is roughly 2.2 standard errors of the difference — small,
+but pointing the same way `ref:diciccio1996` predicts: the plain percentile
+interval is only first-order accurate and at n = 24 that costs real coverage,
+over and above what the sample size costs by itself. The estimator is
+essentially unbiased on both (bias −2.117216 and +1.268232 against k_true = 450),
+so this is an interval problem, not an estimation problem.
+
+**An honest note about the Phase-0 floor.** `sweep:coverage_floor` measured
+coverage on five floor blocks as 0.9268 ± 0.003033, and gave
+`minimum_delta` = 0.0060663. Block B's bootstrap coverage is 0.911 — outside the
+floor's whole observed range. The floor is not wrong; it is *optimistic*, because
+a k = 5 spread of a binomial proportion can easily come in below the binomial
+standard error itself (0.0086 here). The floor recipe's `max(2 × std, range/2)`
+guard exists for exactly this, and it still under-shot. Findings will say so: a
+five-block floor on a Monte-Carlo proportion is a lower bound on that
+proportion's true variability, and a study that needs the difference between two
+coverages should size the floor against the binomial SE, not only against the
+observed spread.
+
+**Phase adaptive-4 acknowledged** with `klein gate record phase --phase
+adaptive-4 --acknowledged-by lead-agent` (ack delegated by the lead).
