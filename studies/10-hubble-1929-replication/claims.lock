@@ -137,7 +137,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "n_sealed_rows"
+      ],
       "strength": "exploratory"
     },
     "C14": {
@@ -506,6 +508,13 @@
       "note": "objects outside P9's tolerance (E0003)",
       "precision": 0,
       "value": 3
+    },
+    "n_sealed_rows": {
+      "art": "contract",
+      "claim": "C13",
+      "note": "rows in the sealed block (study.yaml:sealed_lock.rows)",
+      "precision": 0,
+      "value": 22
     },
     "n_table1": {
       "art": "anchors",
