@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 
 import pytest
+from test_commit_state_writes import modified_paths, operator_edits, seed_tracked
 
 from kleinlib import cli
 from kleinlib.checks import sweep_registry_problems, verify_study
@@ -82,6 +83,36 @@ def test_register_logs_the_event_and_files_its_own_state_commit(study_with_sweep
 
     assert git(repo, "status", "--porcelain") == ""
     assert "measurement sweep registered" in git(repo, "log", "-1", "--pretty=%s")
+
+
+def test_register_files_the_evidence_it_hashes_and_nothing_else(ready_study, capsys) -> None:
+    """E15: the sidecar and the script ARE the measurement, so they must land.
+
+    Everything else stays the operator's: a ``klein: measurement sweep
+    registered`` commit that also swept a findings draft would put the digests
+    and an unrelated sentence on the record under one subject line.
+    """
+    repo, study = ready_study
+    seed_tracked(repo, study, "findings.md")
+    sweeps = study / "sweeps"
+    sweeps.mkdir(exist_ok=True)
+    (sweeps / "noise_floor.sidecar.tsv").write_text(SIDECAR, encoding="utf-8")
+    (sweeps / "noise_floor.py").write_text("# the frozen measurement\n", encoding="utf-8")
+    operator_edits(study, "findings.md")
+
+    _register(study)
+
+    from test_workflow_v2 import git
+
+    committed = set(git(repo, "show", "--name-only", "--format=", "HEAD").splitlines())
+    assert committed == {
+        "studies/03-demo/sweeps/noise_floor.sidecar.tsv",
+        "studies/03-demo/sweeps/noise_floor.py",
+        "studies/03-demo/study_state.json",
+        "studies/03-demo/events.jsonl",
+    }
+    assert modified_paths(repo) == {"studies/03-demo/findings.md"}
+    assert "note: 1 uncommitted edit(s) left in the tree (findings.md)" in capsys.readouterr().out
 
 
 def test_verify_fails_when_a_registered_sidecar_changed(study_with_sweep) -> None:

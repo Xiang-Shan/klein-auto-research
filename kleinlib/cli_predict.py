@@ -172,7 +172,9 @@ def _run_adjudicate(args: argparse.Namespace) -> int:
             reason=args.reason if args.force else None,
         )
         save_state(study, state)
-        commit_state_writes(study, f"klein: {name} adjudicated {args.verdict}")
+        # The verdict IS the write: state and events. The evidence it pins is
+        # pinned by sha256, and the file behind it is the operator's to commit.
+        commit_state_writes(study, f"klein: {name} adjudicated {args.verdict}", scope="own")
 
     pins = "".join(
         f"\n  pinned {rel} sha256={meta['sha256'][:12]}…" for rel, meta in pinned.items()

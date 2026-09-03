@@ -145,7 +145,16 @@ def register_sweep(
         state.setdefault("sweeps", {})[name] = record
         append_event(study_dir, "sweep_registered", sweep=name, **record)
         save_state(study_dir, state)
-        commit_state_writes(study_dir, f"klein: measurement sweep registered ({name})")
+        # The sidecar and the script are what the registration HASHES — they are
+        # the measurement's evidence and must land in the same commit as the
+        # digests that pin them. Everything else in the tree stays the
+        # operator's.
+        commit_state_writes(
+            study_dir,
+            f"klein: measurement sweep registered ({name})",
+            paths=(record["sidecar"], record["script"]),
+            scope="own",
+        )
     return record
 
 

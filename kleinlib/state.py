@@ -608,7 +608,12 @@ def acknowledge_headroom(
             note=note,
         )
         save_state(study_dir, state)
+        # An acknowledgement writes state and events and nothing else: scope="own"
+        # so a closed door goes on the record without also filing whatever the
+        # operator happened to have open in the tree.
         commit_state_writes(
-            study_dir, f"klein: headroom infeasibility acknowledged ({track})"
+            study_dir,
+            f"klein: headroom infeasibility acknowledged ({track})",
+            scope="own",
         )
         return entry
