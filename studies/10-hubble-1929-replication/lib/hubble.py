@@ -229,6 +229,29 @@ def load_block(
 # --------------------------------------------------------------------------
 
 
+def acknowledge_sealed_dryrun() -> bool:
+    """Print `sealed_dryrun: 1` when rehearsing; return whether we are.
+
+    `load_block` prints this line for a cell whose seal is a PARTITION. A cell
+    whose seal is an external reference value compared once — kind `estimate`,
+    per `inquiry-model.md` — reads no sealed rows at all, so it never reaches
+    that path and must acknowledge the flag itself. `klein run-one --final-test
+    --dry-run` reads the ABSENCE of the line as "the entrypoint ignored
+    KLEIN_SEALED_DRYRUN and would have read the sealed rows" and exits 3.
+
+    For such a cell the rehearsal computes the same numbers the real run will,
+    because there is no held-out data to substitute; what the rehearsal proves
+    is that the cell runs to completion BEFORE the one access is recorded as
+    spent. That is the failure the mandatory dry-run exists for (study 09 lost
+    its only seal to a crash that ran before any data was read), and it is worth
+    the rehearsal even when the arithmetic is identical.
+    """
+    rehearsing = os.environ.get("KLEIN_SEALED_DRYRUN") == "1"
+    if rehearsing:
+        print(f"{SEALED_DRYRUN_KEY}: 1")
+    return rehearsing
+
+
 def ols_through_origin(r: np.ndarray, v: np.ndarray) -> float:
     """K0 = sum(r*v) / sum(r*r) — the one-parameter fit v = K r."""
     r = np.asarray(r, dtype=float)
