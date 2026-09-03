@@ -280,7 +280,9 @@ jobs:
               keep="$RUNNER_TEMP/figures-$(basename "$study")"
               mkdir -p "$keep"
               cp "$study"/figures/*.png "$keep"/
-              ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python figures/make_figures.py )
+              # The same invocation `klein verify` uses (study 09's shape): from the repo
+              # root, `--study` and `--out`; a script may default both, but must accept them.
+              uv run --no-sync python "$study/figures/make_figures.py" --study "$study" --out "$study/figures"
               for png in "$keep"/*.png; do
                 cmp -s "$png" "$study/figures/$(basename "$png")" \
                   || { echo "figure does not re-render byte-identically: $(basename "$png")" >&2; exit 1; }
@@ -292,6 +294,20 @@ jobs:
           if [ "$found" = 0 ]; then
             echo "note: no schema-3 exhibit present yet (studies/00-*, studies/1[0-3]-*) — nothing to verify"
           fi
+      - name: Study 10 — a development cell replicates in a detached worktree (E0002)
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset DATA_HUB
+          study=studies/10-hubble-1929-replication
+          uv run --no-sync klein replicate E0002 --study "$study"
+          uv run --no-sync python - "$study" <<'PY'
+          import glob, json, sys
+          records = sorted(glob.glob(f"{sys.argv[1]}/runs/E0002/replications/*.json"))
+          last = json.load(open(records[-1]))
+          assert last["mode"] == "replicate" and last["reproduced"] is True, last
+          print("E0002 reproduced:", last["evidence_id"], "difference", last["difference"])
+          PY
       - name: A verified checkout is byte-clean
         run: test -z "$(git status --porcelain)"
 
