@@ -113,6 +113,7 @@ def test_runner_timeout_terminates_descendants(tmp_path: Path) -> None:
     assert not marker.exists(), "a timed-out run left its descendant alive"
 
 
+@pytest.mark.skipif(os.name != "posix", reason="drives the bash shim; on Windows `bash` is WSL and the Python e2e is the path")
 def test_verifier_refuses_to_delete_preexisting_branch(tmp_path: Path) -> None:
     branch = f"e2e-collision-test-{uuid.uuid4().hex}"
     _git("branch", branch, "HEAD")
@@ -136,6 +137,7 @@ def test_verifier_refuses_to_delete_preexisting_branch(tmp_path: Path) -> None:
         _git("branch", "-D", "--", branch, check=False)
 
 
+@pytest.mark.skipif(os.name != "posix", reason="drives the bash shim; on Windows `bash` is WSL and the Python e2e is the path")
 def test_verifier_cleans_owned_worktree_branch_and_temp_root(tmp_path: Path) -> None:
     branch = f"e2e-owned-test-{uuid.uuid4().hex}"
     env = os.environ.copy()

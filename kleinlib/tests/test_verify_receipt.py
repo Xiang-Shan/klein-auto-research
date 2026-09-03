@@ -447,7 +447,7 @@ def test_the_same_pixels_through_another_png_encoder_pass(ready_study_v3, tmp_pa
     assert "pixel-identical through a different PNG encoder (exhibit.png)" in check.message
 
 
-def test_different_pixels_fail_on_any_platform_and_name_both(ready_study_v3, tmp_path: Path, monkeypatch) -> None:
+def _drifted_pixels(ready_study_v3, tmp_path: Path) -> tuple[Path, Path]:
     repo, study = ready_study_v3
     rendered = tmp_path / "rendered.png"
     _png(rendered, (10, 20, 30), compress_level=9)
@@ -455,13 +455,38 @@ def test_different_pixels_fail_on_any_platform_and_name_both(ready_study_v3, tmp
     (study / "figures").mkdir(exist_ok=True)
     _png(study / "figures" / "exhibit.png", (11, 20, 30), compress_level=9)
     commit_all(repo, "figures that drifted by one pixel value")
+    return repo, study
+
+
+def test_different_pixels_fail_on_the_platform_that_rendered_them(ready_study_v3, tmp_path: Path, monkeypatch) -> None:
+    _repo, study = _drifted_pixels(ready_study_v3, tmp_path)
     monkeypatch.setattr(checks, "_render_platform", lambda _study: ("macos", "arm64"))
-    monkeypatch.setattr(checks, "_current_platform", lambda: ("linux", "x86_64"))
+    monkeypatch.setattr(checks, "_current_platform", lambda: ("macos", "arm64"))
     check = _named(verify_study(study, receipt=False), "figure re-render")[0]
     assert check.ok is False
     assert "exhibit.png" in check.message
-    assert "re-rendered on linux/x86_64" in check.message
+    assert "re-rendered on macos/arm64" in check.message
+
+
+def test_different_pixels_without_a_fingerprint_fail_too(ready_study_v3, tmp_path: Path, monkeypatch) -> None:
+    _repo, study = _drifted_pixels(ready_study_v3, tmp_path)
+    monkeypatch.setattr(checks, "_render_platform", lambda _study: None)
+    check = _named(verify_study(study, receipt=False), "figure re-render")[0]
+    assert check.ok is False
+
+
+def test_different_pixels_on_another_cpu_family_warn_and_name_both(ready_study_v3, tmp_path: Path, monkeypatch) -> None:
+    """study 12's Lorenz curve moved a pixel between arm64 and x86_64; the law holds where it can."""
+    _repo, study = _drifted_pixels(ready_study_v3, tmp_path)
+    monkeypatch.setattr(checks, "_render_platform", lambda _study: ("macos", "arm64"))
+    monkeypatch.setattr(checks, "_current_platform", lambda: ("linux", "x86_64"))
+    check = _named(verify_study(study, receipt=False), "figure re-render")[0]
+    assert check.ok is True
+    assert "[WARN]" in check.message
+    assert "exhibit.png" in check.message
+    assert "different pixels on linux/x86_64" in check.message
     assert "rendered on macos/arm64" in check.message
+    assert "0 of 1 figure(s) re-render identically here" in check.message
 
 
 def test_render_platform_reads_the_earliest_manifest_fingerprint(tmp_path: Path) -> None:

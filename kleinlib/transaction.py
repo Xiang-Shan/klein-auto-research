@@ -65,8 +65,23 @@ def environment_fingerprint(repo_root: Path) -> tuple[str, dict[str, Any]]:
     return sha256_bytes(canonical_json(details).encode()), details
 
 
+#: How ``git()`` decodes what git prints. UTF-8 with surrogateescape round-trips
+#: every byte (``text.encode(*GIT_TEXT)`` is the original output), so a diff hash
+#: computed from it is the same on macOS, Linux and Windows — the console code
+#: page must never enter a ledger (the Windows lane failed ledger integrity on
+#: every study whose surface carries a non-ASCII character).
+GIT_TEXT = ("utf-8", "surrogateescape")
+
+
 def git(repo: Path, args: Sequence[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
-    result = subprocess.run(["git", *args], cwd=repo, text=True, capture_output=True)
+    result = subprocess.run(
+        ["git", *args],
+        cwd=repo,
+        text=True,
+        encoding=GIT_TEXT[0],
+        errors=GIT_TEXT[1],
+        capture_output=True,
+    )
     if check and result.returncode:
         detail = result.stderr.strip() or result.stdout.strip()
         raise WorkflowError(f"git {' '.join(args)} failed: {detail}")

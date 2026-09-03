@@ -149,15 +149,16 @@ from .state import (
     state_path,
 )
 from .transaction import (
+    GIT_TEXT,
+    current_branch,
+    environment_fingerprint,
+    repo_root_for,
+)
+from .transaction import (
     STATE_WRITE_PATHS as _STATE_WRITE_PATHS,  # noqa: F401  (re-export)
 )
 from .transaction import (
     assert_run_worktree as _assert_run_worktree,
-)
-from .transaction import (
-    current_branch,
-    environment_fingerprint,
-    repo_root_for,
 )
 from .transaction import (
     git as _git,
@@ -870,7 +871,7 @@ def run_one(
         base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
         _git(repo, ["add", "--", *surface_rels])
         candidate_commit = _git_commit(repo, f"candidate {run_id}: {description or track}", allow_empty=True)
-        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", *surface_rels]).stdout.encode()
+        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", *surface_rels]).stdout.encode(*GIT_TEXT)
         patch_hash = sha256_bytes(patch)
         empty_diff = patch == b""
         env_hash, env_details = environment_fingerprint(repo)

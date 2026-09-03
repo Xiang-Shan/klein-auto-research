@@ -84,7 +84,9 @@ re-open a closed study, start a new one and cite the old one's claims.
   `confirmed` claim rests on two kinds of evidence. The figure re-render check
   compares bytes first and, when they differ, the decoded pixels: the same image
   written through another platform's PNG encoder passes (macOS and Linux link
-  different zlibs), and only a pixel difference fails — on any machine.
+  different zlibs); a pixel difference fails on the platform family that rendered
+  the figures and is a `[WARN]` naming both platforms elsewhere (a computed curve
+  can move a pixel between arm64 and x86_64 in its last floating-point bits).
 - **Metrology** (`references/consult-protocol.md` Phase 0): `klein noise-floor
   --recipe {seed-sweep, split-lottery, paired-bootstrap} --estimand {fit-noise,
   marginal-resplit, paired-comparison}` prints the contract block, the schema-3 floor
