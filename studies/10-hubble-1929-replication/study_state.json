@@ -11,11 +11,16 @@
     "method": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T05:46:33.111731Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:16:40.059609Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "ca3a6ec9c74e594084082f4738d3f10e2e470c0cc8498857c4c062a07978f3df",
     "method_card.md": "94434f3bc564521c56afa41680bc6534472b51a45dfd448d661aeaaf20637605",
+    "referee_report.md": "c87666aa78cd5f3f504d839612b9935abca17876558ac2ca7a13a5163c9c7f00",
     "research_plan.md": "5d4a75a26b151e225960d1284d8c1dc908d90dda81c9d6977333ccb7a6589c6d",
     "study.yaml": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
   },
@@ -75,6 +80,18 @@
       },
       "note": "triad complete: theory (notation table + 5 display equations), papers (8/8 references verified against landing pages 2026-09-03), practice (lib/hubble.py exists and prepare.py runs on it). No verifier declared \u2014 the card says why. Ack delegated to the driving agent by the lead.",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T08:16:40.059609Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "c87666aa78cd5f3f504d839612b9935abca17876558ac2ca7a13a5163c9c7f00"
+      },
+      "independent_of_experimenter": false,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: Opus 5 / claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "last_experiment": 13,
@@ -662,5 +679,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:56:49.445253Z"
+  "updated_at": "2026-09-03T08:16:40.060296Z"
 }
