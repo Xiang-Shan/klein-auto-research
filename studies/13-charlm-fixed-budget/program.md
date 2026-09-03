@@ -197,3 +197,34 @@ At every phase start, run the slate ritual (references/phase-ritual.md):
 propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
+
+### Phase adaptive-1 slate
+
+Phase `adaptive-1` has `max_experiments: 1` and one pre-registered job — the identity
+anchor — so the slate is a record of what else was weighed for that single slot, not a
+tournament. Re-read `playbook.md` first: it is empty of ruled-out directions, because
+nothing has run.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Σ |
+|---|---|---|---|---|---|
+| 1 | The anchor recipe at seed 20260903 — a seed the floor sweep never used: `anchor_z <= 2`, i.e. the recipe reproduces within the measured fit noise | 3 | 3 | 3 | 9 |
+| 2 | The anchor recipe at seed 5 — one of the floor's own seeds; would reproduce 1.58128 exactly if the pipeline is deterministic | 2 | 3 | 2 | 7 |
+| 3 | An untrained (0-step) checkpoint through the entrypoint as a live negative control | 2 | 1 | 2 | 5 |
+| 4 | The anchor at 200 steps, to price the budget's marginal value before spending the phase | 3 | 1 | 2 | 6 |
+| 5 | The anchor with a fixed batch order instead of sampled offsets | 2 | 3 | 1 | 6 |
+
+Chosen: **#1** — it is the only candidate that adjudicates P1 as registered, and it
+answers the question the floor cannot answer about itself: whether a sixth,
+never-swept seed lands inside the spread the first five described. #2 scores lower on
+information because a within-sweep seed tests determinism, which the paired sweep
+already showed (every paired difference equalled the difference of the two recorded
+losses to the last digit). #3 is already covered off-ledger by `sweep:harness_controls`
+and would spend the phase's only slot on a control that has passed. #4 and #5 are
+testable but decide nothing registered; #5 stays in the playbook's queue as the
+cheapest way to ask whether the sampled-offset stream contributes to the floor.
+
+E0001 is run with `--allow-rerun`: the anchor configuration is exactly what the METHOD
+gate committed, so its candidate diff is empty by construction. That is the sanctioned
+flag for an intentional identical execution of a committed configuration, and it is
+what an identity anchor is.
+

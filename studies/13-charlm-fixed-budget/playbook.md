@@ -16,7 +16,8 @@
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
-| (nothing yet — Phase 0 has not run) | | |
+| A split-lottery (marginal-resplit) floor | retired before the CONSULT gate (scouting_ledger, Retirements) | the study never re-draws its split, so a re-drawn validation block measures a counterfactual no comparison here runs |
+| Sampled validation batches (`eval_iters` style) | retired before the CONSULT gate | it makes the trainer's number and the checker's number disagree for a reason unrelated to the checkpoint |
 
 ## Open hypotheses
 
@@ -29,4 +30,9 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. (fill at the phase-start slate ritual)
+1. E0002 warmup (adjudicates P2) — `adaptive-2`, registered
+2. E0003 weight tying (adjudicates P3) — `adaptive-2`, registered
+3. E0004 dropout 0.1 (adjudicates P4) — `adaptive-2`, registered; H3 says it may go the other way
+4. E0005 width 128 -> 256 (adjudicates P5) — `adaptive-2`, registered
+5. A fixed batch order instead of sampled offsets: does the offset stream contribute to the floor? (from the `adaptive-1` slate, #5, unchosen)
+6. The anchor at 200 steps, to price the marginal value of the budget (from the `adaptive-1` slate, #4, unchosen)
