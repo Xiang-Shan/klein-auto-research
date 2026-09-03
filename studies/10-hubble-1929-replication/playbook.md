@@ -1,0 +1,39 @@
+# Playbook — 10-hubble-1929-replication
+
+> Rolling state of play (keep under ~120 lines). RE-READ this file before
+> choosing every candidate; refresh at every phase boundary or every 5
+> experiments, whichever comes first. `program.md` is the append-only journal;
+> THIS is the current map. SYNTHESIZE mines both. Swept into the next state
+> commit automatically; its hash is recorded at every phase acknowledgement.
+
+## Current best (per track)
+
+Registered tracks have no incumbent — a cell measures, it does not climb. This table
+therefore records the LATEST measurement of each track's summary scalar, not a winner.
+
+| Track | Exp | Metric | Config one-liner | Held since |
+| --- | --- | --- | --- | --- |
+| reproduction | — | — | — | — |
+| estimate | — | — | — | — |
+| simulate | — | — | — | — |
+
+## Ruled out (evidence, not opinion)
+
+| Direction | Evidence (exp IDs) | Why it lost (one line) |
+| --- | --- | --- |
+| a "fresh bootstrap block" seal on the 46 rows | (pre-contract) | resampling seen rows creates no information; it launders a look into holdout vocabulary — `scouting_ledger.md` §Retirements |
+| fetching J2000 coordinates for the 24 objects | (pre-contract) | 24 hand-transcribed positions at an unstated epoch is a fabrication risk, not a replication — P2 carries an `inconclusive_if` instead |
+
+## Open hypotheses
+
+| ID | Hypothesis | Prior | Cheapest next test |
+| --- | --- | --- | --- |
+| RQ1 | no two-parameter fit returns 465 | scouted: the fits land at ~424 and ~454 | E0002 (P1) |
+| RQ2 | the paper's headline is unreproducible for lack of printed INPUTS, not method | uninformed | E0004 (P2), E0005 (P3) |
+| RQ3 | the 24 objects estimate K ≈ 450 with a wide interval | scouted centre, uninformed width | E0006 |
+| RQ4 | percentile bootstrap under-covers at n = 24 | uninformed | E0009, E0010, sealed E0013 (P6) |
+| RQ5 | the 1929-vs-today gap is a pure distance-scale error | scouted (arithmetically implied) | sealed E0012 (P7) |
+
+## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
+
+1. (fill at the phase-start slate ritual)
