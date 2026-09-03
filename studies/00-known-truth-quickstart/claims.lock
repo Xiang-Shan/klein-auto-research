@@ -15,6 +15,10 @@
     "results": {
       "path": "results.tsv",
       "sha256": "d802518273c96ed9c093792d7be286a0a09e03f55f7d8c14f0252fe4fbf3bce0"
+    },
+    "split_lottery": {
+      "path": "sweeps/split_lottery.sidecar.tsv",
+      "sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
   "claims": {
