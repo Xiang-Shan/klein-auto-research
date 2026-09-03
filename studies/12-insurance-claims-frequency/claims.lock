@@ -1,0 +1,109 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1** \u2014 do the three v1 rungs reproduce within two standard deviations of the transfer? | **SUPPORTED**, all three |  | E0001, E0002, E0003, P1, P2, P4 | residuals 0.011322 / 0.001612 / 0.001154 against a registered tolerance of 0.0225 | exploratory |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "against 0.4624) and P6 (0.0390 against 0.3229) do not flip.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "(sentence for C11 \u2014 copy it from findings.md)",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "been worth nothing.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ2** \u2014 does a description that names its non-default kwargs reproduce as tightly as a committed file? | **SUPPORTED in direction, almost empty in size** |  | E0002, E0003, art:derived | the verbatim rung is closer by 0.000458 of AUC | exploratory |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ3** \u2014 how large is the paired-comparison floor here, and how many of v1's six keeps clear it? | **ANSWERED**: the bar is 0.0375805 and the ladder yields one keep | , ,  | sweep:paired_bootstrap, E0001, E0005, art:verdicts | the bar is 0.9671 of the v1 ledger's entire spread | exploratory |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ3** \u2014 how large is the paired-comparison floor here, and how many of v1's six keeps clear it? | **ANSWERED**: the bar is 0.0375805 and the ladder yields one keep | , ,  | sweep:paired_bootstrap, E0001, E0005, art:verdicts | the bar is 0.9671 of the v1 ledger's entire spread | exploratory |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "RQ4** \u2014 does the calibration-first doctrine reproduce? | **SUPPORTED** |  | E0004, P6 | Brier improves by a factor of 4.055 for 0.0390 of a floor of AUC | exploratory |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "The DATA gate's overridden BLOCKER is real as a fact and small as an effect:",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "The frontier incumbent's level holds on evidence it never saw: fitted on train",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "RQ3** \u2014 how large is the paired-comparison floor here, and how many of v1's six keeps clear it? | **ANSWERED**: the bar is 0.0375805 and the ladder yields one keep | , ,  | sweep:paired_bootstrap, E0001, E0005, art:verdicts | the bar is 0.9671 of the v1 ledger's entire spread | exploratory |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "study is 10.92 times the narrowest, on the same rows with the same instrument.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "0b05de5a9580ce7a83ddc0ff8f01023d39659236",
+  "klein_commit": "0b05de5a9580ce7a83ddc0ff8f01023d39659236",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "12-insurance-claims-frequency"
+}
