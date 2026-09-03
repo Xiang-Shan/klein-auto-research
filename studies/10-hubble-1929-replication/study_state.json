@@ -417,11 +417,11 @@
       "track": "reproduction"
     },
     "E0005": {
-      "attempts": 2,
+      "attempts": 3,
       "modes": {
         "replicate": {
-          "attempts": 2,
-          "reproduced": false
+          "attempts": 3,
+          "reproduced": true
         }
       },
       "records": [
@@ -439,6 +439,14 @@
           "mode": "replicate",
           "reproduced": false,
           "timestamp": "2026-09-03T06:37:26.777322Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0005@20260903T064003Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T06:40:03.295093Z",
           "tolerance": 0.0
         }
       ],
@@ -468,5 +476,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:40:02.338694Z"
+  "updated_at": "2026-09-03T06:41:20.205619Z"
 }
