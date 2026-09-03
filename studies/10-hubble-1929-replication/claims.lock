@@ -359,7 +359,11 @@
       "evidence": [
         "E0011",
         "art:sealed_mags",
-        "art:contract"
+        "art:contract",
+        "E0002",
+        "E0003",
+        "rep:E0002@20260903T063133Z",
+        "rep:E0003@20260903T063853Z"
       ],
       "numbers": [
         "hubble_table2_mean",
