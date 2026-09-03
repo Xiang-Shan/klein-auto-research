@@ -1,0 +1,8 @@
+fit_noise: k=5 ok trials
+  {'seed': 1} -> 1.564806 (84.7s, ok)
+  {'seed': 2} -> 1.559798 (139.0s, ok)
+  {'seed': 3} -> 1.568690 (122.2s, ok)
+  {'seed': 4} -> 1.571185 (56.8s, ok)
+  {'seed': 5} -> 1.581283 (20.9s, ok)
+runner_status: ok
+runner_exit_code: 0
