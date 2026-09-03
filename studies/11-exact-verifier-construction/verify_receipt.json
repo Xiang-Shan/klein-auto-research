@@ -106,6 +106,11 @@
       "ok": true
     },
     {
+      "message": "[WARN] findings.md uses words the 'math' profile bans: line 221: **Vocabulary, deliberately.** The words \"proved\", \"optimal\" and \"impossible\" do not; line 223: reader can check that. There is no proof artifact pinned in `claims.lock`, so nothing is; line 224: proved here; the only proof invoked, the pigeonhole bound, is cited as a theorem from \u2014 see the profile's \u00a77 (the referee checks the same list)",
+      "name": "profile vocabulary",
+      "ok": true
+    },
+    {
       "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
       "name": "referee gate",
       "ok": true
@@ -121,23 +126,75 @@
       "ok": true
     },
     {
+      "message": "lock schema 2: fields and classes valid",
+      "name": "claims shape",
+      "ok": true
+    },
+    {
+      "message": "6 pinned artifacts hash as recorded",
+      "name": "claims artifacts",
+      "ok": true
+    },
+    {
+      "message": "every claim id resolves in findings.md",
+      "name": "claims presence",
+      "ok": true
+    },
+    {
+      "message": "every cited evidence id resolves",
+      "name": "claims evidence",
+      "ok": true
+    },
+    {
+      "message": "every pinned value is found in its artifact and every claim numeral has an alias",
+      "name": "claims numbers",
+      "ok": true
+    },
+    {
+      "message": "no claim or number removed or mutated across git history",
+      "name": "claims append-only",
+      "ok": true
+    },
+    {
+      "message": "git_head is an ancestor of HEAD",
+      "name": "claims ancestry",
+      "ok": true
+    },
+    {
       "message": "evidence_use_rate 1.00 \u2014 all 10 non-keep run(s) and registered sweep(s) are cited",
       "name": "evidence use",
+      "ok": true
+    },
+    {
+      "message": "[WARN] convergent evidence absent \u2014 C3 is confirmed on run \u2014 a confirmed claim cites at least two of: a development run (E####), a sealed final test, a replication (rep:), a re-verification (verify:)",
+      "name": "convergent evidence",
+      "ok": true
+    },
+    {
+      "message": "4 of 109 numerals have no home in 17 pinned source(s) \u2014 line 55: -1 (seven geometric defects spanning slopes 0, undefined, +1, -1, +2, +1/2 and a +2 line); line 124: 1847428 (development trajectory found 21 at evaluation 152572 and then spent 1847428 further); line 134: 1847428 (was found at evaluation 152572 of 2000000 and the remaining 1847428 changed nothing.); line 161: 37820 (cross-product test \u2014 37820 of them at the largest size, and still sub-millisecond. The) \u2014 pin each with `klein claims number`, or mark the line `<!-- klein:numbers-ok: <reason> -->`",
+      "name": "findings numbers",
+      "ok": false
+    },
+    {
+      "message": "3 figure(s) re-render byte-identically",
+      "name": "figure re-render",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "cad543978d31e428947530d27e55ca652277e461",
+  "git_head": "c92b6488d73a06076b442846ccfffd6d701512b9",
   "inputs": {
     "aux_metrics.tsv": "2f2487c39a506a06912067ab5ff1dab003d88b8c605eee74ba614c525cf1d8e0",
+    "claims.lock": "df300abce9e1ebecc5bcf0787ac10b3fef1376b9e81262ba65f062d13aaf3d04",
     "events.jsonl": "f58f5a34304566500613485b774f5ce505e2a23a48556d09b2b7d525ec591513",
+    "findings.md": "aefc7a179e02b54039540e9d53eb9dbd1b4f8b58d074244efb7beb7d729f4d9d",
     "playbook.md": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3",
     "program.md": "8e631c6b6dfa913d951972d9b4cf018946ad3ad7abc4a28a1f25471c952bc5f2",
     "results.tsv": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757",
     "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3",
     "study_state.json": "d8dceb6d3669246a5e5497bce8e03612cc4a25efbc6418e5a3dcc25c53773a03"
   },
-  "klein_commit": "cad543978d31e428947530d27e55ca652277e461",
+  "klein_commit": "c92b6488d73a06076b442846ccfffd6d701512b9",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "a18e2256c80b30a203cb2856bddb6dddbfdeddb12a9b23c67f51b3d84454c900",
@@ -152,14 +209,16 @@
     "E0010": "ba1f70d1dbbf2b429cc34524db8118b38c048bcc1a7ef841939de6f52ef5bd2e"
   },
   "schema": 3,
-  "single_source_claims": [],
+  "single_source_claims": [
+    "C3"
+  ],
   "study": "11-exact-verifier-construction",
   "summary": {
-    "checks": 25,
-    "failed": 0,
-    "warned": 2
+    "checks": 36,
+    "failed": 1,
+    "warned": 4
   },
-  "timestamp": "2026-09-03T07:52:16.728541Z",
+  "timestamp": "2026-09-03T08:05:08.366968Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
