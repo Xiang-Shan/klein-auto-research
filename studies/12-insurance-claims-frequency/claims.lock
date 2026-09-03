@@ -162,6 +162,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "marginal_std",
         "paired_std_far"
       ],
       "strength": "exploratory"
@@ -257,6 +258,12 @@
       "claim": "C4",
       "precision": 6,
       "value": 0.049911
+    },
+    "marginal_std": {
+      "art": "floors",
+      "claim": "C9",
+      "precision": 6,
+      "value": 0.017964
     },
     "max_twin_gap": {
       "art": "derived",
