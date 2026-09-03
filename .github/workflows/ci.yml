@@ -51,22 +51,7 @@ jobs:
           kleinlib/tests
           .claude/skills/klein/scripts/tests
           scripts/tests
-      - name: All immutable v1 studies validate with an explicit warning
-        if: matrix.python-version == '3.13'
-        shell: bash
-        run: |
-          set -euo pipefail
-          for study in \
-            studies/00-glm-claims-quickstart
-          do
-            output="$(uv run --no-sync klein verify --study "$study")"
-            printf '%s\n' "$output"
-            case "$output" in
-              *deprecated*) ;;
-              *) echo "missing explicit v1 warning for $study" >&2; exit 1 ;;
-            esac
-          done
-      - name: Every shipped schema-2 study verifies clean
+      - name: Every shipped study verifies clean (schema 2 and 3)
         if: matrix.python-version == '3.13'
         run: uv run --no-sync python scripts/verify_shipped_studies.py
 
@@ -176,6 +161,36 @@ jobs:
           awk -F': *' -v t="$target" -v tol="$tol" \
             '/^primary_metric:/{m=$2} END{d=m-t; if(d<0)d=-d; printf "metric=%s target=%s |delta|=%.6f tol=%s\n", m, t, d, tol; exit (d<=tol)?0:1}' \
             "$RUNNER_TEMP/study00-train.log"
+      # EXHIBIT-ANCHOR: 12-insurance-claims-frequency
+      # Same shape as study 00's anchor: E0003 (the boosted-tree rung, the study's
+      # incumbent) re-runs on a throwaway copy with the train.py its candidate
+      # commit recorded; the target is the lock's `dev_incumbent`; the tolerance
+      # is the plan's ±0.003 reproduction band for this dataset (well inside the
+      # study's measured floor of 0.0375805, which is a comparison floor, not a
+      # reproduction band).
+      - name: Study 12 anchor (E0003 reproduces within ±0.003)
+        shell: bash
+        run: |
+          set -euo pipefail
+          study=studies/12-insurance-claims-frequency
+          copy="$RUNNER_TEMP/study12"
+          cp -R "$study" "$copy"
+          read -r commit target < <(uv run --no-sync python - "$study" <<'PY'
+          import json, sys
+          study = sys.argv[1]
+          manifest = json.load(open(f"{study}/runs/E0003/manifest.json"))
+          lock = json.load(open(f"{study}/claims.lock"))
+          print(manifest["candidate_commit"], lock["numbers"]["dev_incumbent"]["value"])
+          PY
+          )
+          git show "$commit:$study/train.py" > "$copy/train.py"
+          cd "$copy"
+          uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py
+          KLEIN_EVALUATION_KIND=development KLEIN_EXPERIMENT_ID=E0003 KLEIN_TRACK=primary \
+            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py | tee "$RUNNER_TEMP/study12-train.log"
+          awk -F': *' -v t="$target" \
+            '/^primary_metric:/{m=$2} END{d=m-t; if(d<0)d=-d; printf "metric=%s target=%s |delta|=%.6f tol=0.003\n", m, t, d; exit (d<=0.003)?0:1}' \
+            "$RUNNER_TEMP/study12-train.log"
       - name: Execute the Study 03 v2 anchor (seed-block determinism on Linux)
         shell: bash
         run: |

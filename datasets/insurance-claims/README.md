@@ -1,6 +1,6 @@
 # insurance-claims — bundled dataset
 
-The full auto-insurance claims dataset used by `studies/00-glm-claims-quickstart`,
+The full auto-insurance claims dataset used by `studies/12-insurance-claims-frequency`,
 bundled so a fresh clone reproduces the study with
 **no credentials, no downloads, no private infrastructure**.
 
@@ -27,5 +27,5 @@ copy fed an experiment. Both paths read the same bytes with the same
 `pandas.read_csv` call, so results are identical either way.
 
 A 2,000-row stratified sample of this file is committed at
-`studies/00-glm-claims-quickstart/fixtures/` for fast CI smoke runs; column
+`studies/12-insurance-claims-frequency/fixtures/` for fast CI smoke runs; column
 definitions and value-pattern notes live in the study's `data_card.md`.

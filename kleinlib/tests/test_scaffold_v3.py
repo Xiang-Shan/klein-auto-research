@@ -236,6 +236,27 @@ def test_what_consult_must_still_decide_stays_a_placeholder(tmp_path: Path) -> N
     assert unresolved(study)
 
 
+def test_the_scaffolded_notebook_states_its_own_schema_version(tmp_path: Path) -> None:
+    """A schema-3 study's lab notebook must not open by calling itself schema 2.
+
+    `program.md` is the study's own record of what it is; the scaffold used to
+    hard-code "schema-v2" into every study's first Decisions line, so every
+    schema-3 study was born with a false sentence in the file SYNTHESIZE later
+    mines.  Schema 2's wording is unchanged, byte for byte.
+    """
+    for schema_version in (2, 3):
+        study = build(
+            tmp_path / f"v{schema_version}",
+            slug=f"0{schema_version}-notebook",
+            schema_version=schema_version,
+            **({"kind": "predict", "modality": "tabular", "profile": "generic"}
+               if schema_version == 3 else {}),
+        )
+        text = (study / "program.md").read_text(encoding="utf-8")
+        assert f"schema-v{schema_version} study scaffolded" in text
+        assert f"schema-v{3 if schema_version == 2 else 2} study" not in text
+
+
 def test_schema_3_options_are_refused_on_a_schema_2_scaffold(tmp_path: Path) -> None:
     for kwargs, expected in (
         ({"kind": "predict"}, "schema-3 options"),

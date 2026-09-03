@@ -1,0 +1,393 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:23:23.948377Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:18:38.452188Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:18:49.643931Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T12:49:33.594813Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923",
+    "method_card.md": "5afdd080a2fda15fed8ace7d5902a6f0d7364b3b4c92db46bda7d234c90153f5",
+    "referee_report.md": "98931ace51ab6a9f39338a96110ef85860e9cb4dfffb6413cf4fe844faccd726",
+    "research_plan.md": "e252b06c81629365b39ab708d34cfeafa41afe0bfe00f788d1c09ddfb45590c4",
+    "scouting_ledger.md": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9",
+    "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
+  },
+  "created_at": "2026-09-03T07:43:46.996540Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": "2026-09-03T08:38:50.518876Z",
+      "count": 1,
+      "experiment": "E0005"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": false,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "primary": "E0005"
+    },
+    "timestamp": "2026-09-03T12:50:13.532242Z"
+  },
+  "fingerprints": {
+    "data": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab",
+    "split": {
+      "development": "7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3",
+      "final_test": "06d18ee16624e7e0d12f0ece4f08cc37321bc61802ff155e08d07e23b2cb0631",
+      "policy": "075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7"
+    },
+    "verifier": {}
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-09-03T08:23:23.948377Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "7de96a0ae8746b15bea5f6daa73e5e4ec4a884082c40e445df30b63ceb89dc6f",
+        "research_plan.md": "e252b06c81629365b39ab708d34cfeafa41afe0bfe00f788d1c09ddfb45590c4",
+        "scouting_ledger.md": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9",
+        "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
+      },
+      "note": "minimum_delta set from the measured noise floor (paired-bootstrap / paired-comparison, k=20, sweeps/paired_bootstrap.sidecar.tsv) and metric.bound.ideal declared as 1.0 in the same edit \u2014 the engine refuses a bound without a floor estimand, so the two could not be separated. No prediction, tolerance, target, rung or phase changed: study.yaml's diff is the two floor blocks plus the bound. Phase 0 ran after the DATA and METHOD gates and before any ledger row.",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-09-03T08:18:38.452188Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923"
+      },
+      "note": "",
+      "reason": "data_card.md is NO-GO on one mechanized leakage row: 615 row-content hashes straddle the partitions (5.12% of development rows, 5.32% of sealed rows have a byte-identical training twin). Accepted, not fixed, for three reasons on the record in program.md: (1) the cause is the dataset's coarse rating structure, not this study's preparation - 6.1% of the whole table sits in a duplicate-content group, and tables/duplicate_exposure.tsv shows the v1 study this port reproduces carried the same 5.22% in its own validation partition, unmeasured; (2) both available fixes (dedupe in prepare.py, or a content-hash group split) change which rows are trained on, which destroys the train-partition identity with v1 that predictions P1, P2 and P4 are registered against, and repairs nothing about the v1 number being reproduced; (3) policy_id, the only identifier of an individual policy, is dropped and crosses nothing - what the check reports is feature resolution, and for a rating model the modelling unit is the cell, not the policy. The risk is carried with a number attached: train.py prints twin_free_rows, twin_free_auc and twin_free_gap on every run, so every rung reports its AUC on the evaluation rows with no training twin, and findings scope every generalisation sentence by that gap. data_card.md is left saying NO-GO - the auditor's verdict is not edited to unlock a gate.",
+      "status": "overridden"
+    },
+    "method": {
+      "acknowledged_at": "2026-09-03T08:18:49.643931Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "5afdd080a2fda15fed8ace7d5902a6f0d7364b3b4c92db46bda7d234c90153f5"
+      },
+      "note": "triad complete: theory (notation table + five load-bearing equations), papers (10 references, each verified against its publisher/arXiv page 2026-09-03, refs_verified true), practice (from-scratch PAVA and paired bootstrap, plus the four rungs lib/rungs.py realizes)",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T12:49:33.594813Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "98931ace51ab6a9f39338a96110ef85860e9cb4dfffb6413cf4fe844faccd726"
+      },
+      "independent_of_experimenter": false,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 5,
+  "overrides": [
+    {
+      "acknowledged_at": "2026-09-03T08:18:38.452188Z",
+      "acknowledged_by": "lead-agent",
+      "gate": "data",
+      "reason": "data_card.md is NO-GO on one mechanized leakage row: 615 row-content hashes straddle the partitions (5.12% of development rows, 5.32% of sealed rows have a byte-identical training twin). Accepted, not fixed, for three reasons on the record in program.md: (1) the cause is the dataset's coarse rating structure, not this study's preparation - 6.1% of the whole table sits in a duplicate-content group, and tables/duplicate_exposure.tsv shows the v1 study this port reproduces carried the same 5.22% in its own validation partition, unmeasured; (2) both available fixes (dedupe in prepare.py, or a content-hash group split) change which rows are trained on, which destroys the train-partition identity with v1 that predictions P1, P2 and P4 are registered against, and repairs nothing about the v1 number being reproduced; (3) policy_id, the only identifier of an individual policy, is dropped and crosses nothing - what the check reports is feature resolution, and for a rating model the modelling unit is the cell, not the policy. The risk is carried with a number attached: train.py prints twin_free_rows, twin_free_auc and twin_free_gap on every run, so every rung reports its AUC on the evaluation rows with no training twin, and findings scope every generalisation sentence by that gap. data_card.md is left saying NO-GO - the auditor's verdict is not edited to unlock a gate."
+    }
+  ],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T08:37:46.287114Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "45b423b0d948024bb847cdf62850e9e107de123c229627671cdb78f034bb6575"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-09-03T11:16:26.271729Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "45b423b0d948024bb847cdf62850e9e107de123c229627671cdb78f034bb6575"
+    }
+  },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 0.61414 within 0.0225 of 0.625462 (|\u0394| = 0.011322) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 0.61414 within 0.0225 of 0.625462 (|\u0394| = 0.011322) \u2192 supported",
+          "recorded_at": "2026-09-03T08:25:45.816989Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:25:45.816989Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "primary_metric 0.650095 within 0.0225 of 0.651707 (|\u0394| = 0.001612) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "primary_metric 0.650095 within 0.0225 of 0.651707 (|\u0394| = 0.001612) \u2192 supported",
+          "recorded_at": "2026-09-03T08:29:11.332587Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:29:11.332587Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P3": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "delta_in_floors 0.9568 >= 1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "delta_in_floors 0.9568 >= 1 \u2192 refuted",
+          "recorded_at": "2026-09-03T08:29:11.333173Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:29:11.333173Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "primary_metric 0.664051 within 0.0225 of 0.662897 (|\u0394| = 0.001154) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "primary_metric 0.664051 within 0.0225 of 0.662897 (|\u0394| = 0.001154) \u2192 supported",
+          "recorded_at": "2026-09-03T08:33:25.410594Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:33:25.410594Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P5": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "delta_in_floors 0.3714 >= 1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "delta_in_floors 0.3714 >= 1 \u2192 refuted",
+          "recorded_at": "2026-09-03T08:33:25.411555Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:33:25.411555Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P6": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "all_of[brier_delta_vs_reference -0.181304 < 0 \u2192 supported; |delta_in_floors| 0.039 < 1 (from -0.039) \u2192 supported] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "all_of[brier_delta_vs_reference -0.181304 < 0 \u2192 supported; |delta_in_floors| 0.039 < 1 (from -0.039) \u2192 supported] \u2192 supported",
+          "recorded_at": "2026-09-03T08:36:35.107163Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:36:35.107163Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P7": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "|sealed_shift_in_floors| 0.168 <= 2 (from -0.168) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "|sealed_shift_in_floors| 0.168 <= 2 (from -0.168) \u2192 supported",
+          "recorded_at": "2026-09-03T08:38:53.310190Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T08:38:53.310190Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P8": {
+      "acknowledged_by": "lead-agent",
+      "evidence": [
+        "sweep:paired_bootstrap",
+        "sweep:paired_bootstrap_b1000"
+      ],
+      "explanation": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+      "history": [
+        {
+          "acknowledged_by": "lead-agent",
+          "evidence": [
+            "sweep:paired_bootstrap",
+            "sweep:paired_bootstrap_b1000"
+          ],
+          "explanation": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+          "note": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+          "recorded_at": "2026-09-03T08:39:19.472285Z",
+          "source": "manual",
+          "verdict": "supported"
+        }
+      ],
+      "note": "The v1 ledger's row 6 recorded a keep on a learning-rate sweep whose lift over row 3 was 0.664322 - 0.662897 = 0.001425. This study's measured paired-comparison floor is minimum_delta 0.0375805 (sweep:paired_bootstrap, k=20, max(2*std, range/2), std 0.0173021). 0.001425 / 0.0375805 = 0.0379 floors, so that transaction moved the metric by under four hundredths of the smallest difference this instrument can resolve on these rows; under the stricter 1000-replicate bar (0.043229, sweep:paired_bootstrap_b1000) it is 0.0330 floors. Under a measured keep bar it would have been a discard. The prediction carries no arithmetic rule because no single run prints both numbers: one is a scouted constant from another study's ledger and the other is a Phase 0 sidecar.",
+      "recorded_at": "2026-09-03T08:39:19.472285Z",
+      "source": "manual",
+      "verdict": "supported"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679/studies/12-insurance-claims-frequency/data/prepared/insurance_claims_prepared.csv",
+    "sha256": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab"
+  },
+  "replications": {
+    "E0003": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0003@20260903T083929Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-03T08:39:29.306758Z",
+          "tolerance": 0.0375805
+        }
+      ],
+      "track": "primary"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "12-insurance-claims-frequency",
+  "sweeps": {
+    "fit_noise": {
+      "registered_at": "2026-09-03T08:22:31.797617Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "f50058c4f8bb2facae7383c4fa02b9db48f7214c07a9eba347d02e9e27b694d3",
+      "sidecar": "sweeps/fit_noise.sidecar.tsv",
+      "sidecar_sha256": "63b64258c56cf3759b6e6dc7c6b3f807aeb47892dbb6dcb25e724139713e7d90"
+    },
+    "pair_anchor_doctrine": {
+      "registered_at": "2026-09-03T11:13:55.611783Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/pair_floors.py",
+      "script_sha256": "f55ab43e1655a7dd32ab3d4ead7451f53fadf14891765109814d5ef5ac1fdf65",
+      "sidecar": "sweeps/pair_anchor_doctrine.sidecar.tsv",
+      "sidecar_sha256": "36008608a98186a1fd489317ed620cb7d5cbd6cde1b8faf10477e3fb6dc9aa46"
+    },
+    "pair_anchor_splines": {
+      "registered_at": "2026-09-03T08:50:53.392572Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/pair_floors.py",
+      "script_sha256": "f55ab43e1655a7dd32ab3d4ead7451f53fadf14891765109814d5ef5ac1fdf65",
+      "sidecar": "sweeps/pair_anchor_splines.sidecar.tsv",
+      "sidecar_sha256": "3e5ca9d917f497d247baee3a05b31dd50f3e7a58be72da8d69731534237a2d56"
+    },
+    "pair_splines_hgbt": {
+      "registered_at": "2026-09-03T08:51:03.058385Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/pair_floors.py",
+      "script_sha256": "f55ab43e1655a7dd32ab3d4ead7451f53fadf14891765109814d5ef5ac1fdf65",
+      "sidecar": "sweeps/pair_splines_hgbt.sidecar.tsv",
+      "sidecar_sha256": "47e3d2fdb7d521e3030fd58eaf15f96ba2e4fe17d65e6bc3774a96ff23d79687"
+    },
+    "paired_bootstrap": {
+      "registered_at": "2026-09-03T08:22:48.704767Z",
+      "rows_crash": 0,
+      "rows_ok": 20,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "f50058c4f8bb2facae7383c4fa02b9db48f7214c07a9eba347d02e9e27b694d3",
+      "sidecar": "sweeps/paired_bootstrap.sidecar.tsv",
+      "sidecar_sha256": "5a5390363a97ef0a361f2da30e936260abd52e9d6400112a717d03a8cc5ed6c0"
+    },
+    "paired_bootstrap_b1000": {
+      "registered_at": "2026-09-03T08:22:57.311005Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "f50058c4f8bb2facae7383c4fa02b9db48f7214c07a9eba347d02e9e27b694d3",
+      "sidecar": "sweeps/paired_bootstrap_b1000.sidecar.tsv",
+      "sidecar_sha256": "8c15612ca55aeaa4002540211933965bf819952d0f9a25c6adabd4b3c95e75c4"
+    },
+    "split_lottery": {
+      "registered_at": "2026-09-03T08:22:40.079575Z",
+      "rows_crash": 0,
+      "rows_ok": 10,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "f50058c4f8bb2facae7383c4fa02b9db48f7214c07a9eba347d02e9e27b694d3",
+      "sidecar": "sweeps/split_lottery.sidecar.tsv",
+      "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
+    }
+  },
+  "updated_at": "2026-09-03T12:50:13.532247Z"
+}

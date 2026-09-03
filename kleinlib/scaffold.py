@@ -299,7 +299,8 @@ base commit.
 
 ## Decisions (append-only)
 
-- {{DATE}} — schema-v2 study scaffolded; gates pending.
+- {{DATE}} — schema-v{{SCHEMA_VERSION}} study scaffolded; gates pending.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
@@ -823,6 +824,7 @@ def scaffold_study(
     values: dict[str, str] = {
         "STUDY_ID": slug,
         "DATE": dt.date.today().isoformat(),
+        "SCHEMA_VERSION": str(int(schema_version)),
         "GOAL": _quote_text(goal or "{{GOAL}}"),
         "DOMAIN": _quote_text(domain or "{{DOMAIN}}"),
         "TARGET": _quote_text(target or "{{TARGET}}"),

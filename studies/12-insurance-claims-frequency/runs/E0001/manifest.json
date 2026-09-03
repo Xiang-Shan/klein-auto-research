@@ -1,0 +1,107 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 645,
+      "committed": true,
+      "sha256": "3b4ad5d60d1d774c7c4c034c1e2ca8affc3b6662f0aced4d18d34cdb5a7c39cf"
+    },
+    "models/best_primary_E0001_0.61414_6a8843fdf853.joblib": {
+      "availability": "local",
+      "bytes": 9962,
+      "committed": false,
+      "sha256": "483fe5a725cb58532bd0d26468f82776bdcae6a968b3f70c3cdfc55419870ef5"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 289,
+      "committed": true,
+      "sha256": "2148ff841d804e1929647afd91f362b50d4a86b963cd0d65d7642567919a0681"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 669,
+      "committed": true,
+      "sha256": "0dbfb770698aca29d4f27b8cecca0945ef06e5dc05d3d45084616e0819c534db"
+    }
+  },
+  "base_commit": "64688331281f49ae9856631b1fdd2766c92d7ccb",
+  "candidate_commit": "edb1ce6b605fb6b091b2a52121848fa9ec42df88",
+  "code_patch_hash": "438e35dbd9f34acbd017e575731559fe2224a9da6569d25a32cb8b711e203ac7",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "E0001 anchor: the v1 split-identity rung (LR + OHE(min_frequency=20) + class_weight=balanced) refitted on the identical v1 training rows; decides P1; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-09-03T08:25:45.816718Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7",
+    "split_partition": "7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3"
+  },
+  "incumbent": null,
+  "max_run_seconds": 300.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "anchor_gap": -0.011322,
+    "primary_metric": 0.61414,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1.2,
+    "train_rows": 46873.0,
+    "training_seconds": 1.0,
+    "twin_free_auc": 0.615337,
+    "twin_free_gap": 0.001198,
+    "twin_free_rows": 5559.0,
+    "v1_anchor": 0.625462,
+    "val_best_threshold": 0.56,
+    "val_brier": 0.240641,
+    "val_f1_at_best": 0.1593,
+    "val_lift_top10": 1.736,
+    "val_logloss": 0.673642,
+    "val_pr_auc": 0.094421,
+    "val_rows": 5859.0,
+    "wall_seconds": 1.151679
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P1": {
+      "explanation": "primary_metric 0.61414 within 0.0225 of 0.625462 (|\u0394| = 0.011322) \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P1"
+  ],
+  "primary_metric": 0.61414,
+  "schema_version": 3,
+  "started_at": "2026-09-03T08:25:43.857201Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-09-03T08:25:45.910930Z",
+    "evidence_commit": "5a30226d7b6e449bfc99cc27274d15c8ff70618a",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 1.9594046249985695
+}
