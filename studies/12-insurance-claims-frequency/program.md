@@ -510,3 +510,69 @@ the phase budget and by the discipline.
 
 The rehearsal (`klein run-one --final-test --dry-run`) runs first and is not optional:
 study 09 lost its only seal to a crash that happened before any data was read.
+- 2026-09-03 — **E0005 spends the one sealed access**: the incumbent's configuration,
+  unchanged, fitted on train + development and evaluated once on the sealed half of the
+  v1 validation set. `val_auc` **0.657739** against a development incumbent of 0.664051 —
+  `sealed_shift_in_floors` **-0.1680**. **P7 SUPPORTED.** The seal is spent and no
+  further sealed access exists on this track. Two things an actuary should read off it:
+  the level held (a sixth of one floor is nothing), and `val_lift_top10` did NOT —
+  2.2167 on development, **1.7067** on the sealed rows. Top-decile lift is a much noisier
+  statistic than AUC at this prevalence, and a triage list built on the development
+  decile would have over-promised.
+- 2026-09-03 — Decision: P3 stands REFUTED on the registered bar. The spline + isotonic
+  chain's paired lift over the anchor is 0.035956 = 0.9568 of the declared floor
+  0.0375805 (`sweep:paired_bootstrap`), and 0.83 of the stricter 1000-replicate bar
+  0.043229 (`sweep:paired_bootstrap_b1000`). The belief that "feature engineering plus
+  calibration is worth more than measurement noise" is revised to: on this portfolio it
+  is worth almost exactly one floor of rank and a factor of four of level, and only the
+  second of those is resolvable. Consequence already taken: feature engineering on the
+  linear rung is recorded as a ruled-out direction for KEEP purposes in `playbook.md`.
+- 2026-09-03 — Decision: P5 stands REFUTED on the registered bar. The tree's paired lift
+  over the calibrated GLM is 0.013956 = 0.3714 floors (`sweep:paired_bootstrap`), 0.32
+  floors under the stricter bar (`sweep:paired_bootstrap_b1000`). The belief that "the
+  price of a filable GLM is larger than measurement noise" is revised to its opposite:
+  at n = 5859 development rows and a 6.4 % claim rate, the tree's edge over a calibrated
+  linear model is not resolvable, so the transparency argument costs nothing this study
+  can measure. Consequence already taken: the GLM-vs-tree gap is recorded in
+  `playbook.md` as unusable for a filing argument, and section 5 of findings says so
+  rather than quoting the 0.013956 as if it were a finding.
+- 2026-09-03 — `klein replicate E0003` reproduced the kept run exactly in a detached
+  worktree: `difference=0`, tolerance 0.0375805, record `rep:E0003@20260903T083929Z`.
+  The engine builds that environment on its own clock, so the study's honest
+  `max_run_seconds` of 300 was not consumed by the build (study 00 lost two attempts to
+  exactly that).
+
+## Post-loop metrology: the pair-specific floors
+
+Registered before the loop and run after it closed, exactly as declared. One index draw
+per replicate applied to both rungs, 1000 replicates, rungs from `lib/rungs.py`.
+
+| Sweep | Pair | mean delta | std | max(2*std, range/2) |
+|---|---|---|---|---|
+| `sweep:paired_bootstrap` (the declared bar, k=20) | anchor -> tree | 0.0457044 | 0.0173021 | **0.0375805** |
+| `sweep:paired_bootstrap_b1000` | anchor -> tree | 0.049029 | 0.013942 | 0.043229 |
+| `sweep:pair_anchor_splines` | anchor -> spline+isotonic | 0.035339 | 0.009894 | 0.032908 |
+| `sweep:pair_splines_hgbt` | spline+isotonic -> tree | 0.013690 | 0.008690 | 0.030184 |
+| `sweep:pair_anchor_doctrine` | anchor -> doctrine A/B | -0.001509 | 0.001276 | 0.004537 |
+| `sweep:fit_noise` (never a bar) | the anchor under 5 fit seeds | 0.614142 | 0.00000250998 | — |
+| `sweep:split_lottery` (reported, never a rule) | the anchor under 10 re-splits | 0.606522 | 0.0179641 | 0.0359282 |
+
+- 2026-09-03 — **The pre-committed disclosure fires, and it fires on P3.** The paired
+  standard deviation across the ladder's own comparisons spans 0.001276 to 0.013942 — an
+  order of magnitude, on the same rows, with the same instrument. Consequences, stated
+  because the pre-commitment requires them and NOT as a re-adjudication:
+  * P3: the lift is 0.035956. Against the declared bar (0.0375805) that is 0.9568 floors
+    — refuted. Against the floor of the comparison it actually makes
+    (`sweep:pair_anchor_splines`, 0.032908) it is **1.0865 floors — it would have been
+    SUPPORTED.** The registered verdict stands, because the bar was declared at Phase 0
+    with its pair and its replicate count on the record and a bar chosen after the
+    measurement is not a bar. But the honest sentence for a reader is that this verdict
+    is instrument-limited, and findings section 3 says exactly that.
+  * P5: 0.013956 against `sweep:pair_splines_hgbt`'s 0.030184 is 0.4624 floors — refuted
+    either way. No flip.
+  * P6: |-0.001465| against `sweep:pair_anchor_doctrine`'s 0.004537 is 0.3229 floors,
+    still inside one floor — supported either way. No flip. The doctrine A/B is the one
+    comparison in this study whose own instrument is sharp enough (std 0.001276) to
+    resolve differences a tenth the size of anything else here.
+  * The conservative bar cost the study one supported prediction and cost it nothing
+    else: it never turned a discard into a keep, which is the direction that matters.
