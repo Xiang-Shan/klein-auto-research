@@ -106,6 +106,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "e0008_bpc",
         "e0008_val_loss"
       ],
       "strength": "exploratory"
@@ -173,6 +174,13 @@
       "note": "E0006, the only keep: cosine decay",
       "precision": 6,
       "value": 1.519319
+    },
+    "e0008_bpc": {
+      "art": "frontier",
+      "claim": "C4",
+      "note": "E0008 in bits per character",
+      "precision": 6,
+      "value": 2.259664
     },
     "e0008_val_loss": {
       "art": "frontier",
