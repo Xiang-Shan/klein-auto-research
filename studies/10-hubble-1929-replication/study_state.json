@@ -28,9 +28,9 @@
       "experiment": null
     },
     "reproduction": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-03T06:24:28.984201Z",
+      "count": 1,
+      "experiment": "E0011"
     },
     "simulate": {
       "accessed_at": null,
@@ -77,7 +77,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 10,
+  "last_experiment": 11,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -206,6 +206,26 @@
       "source": "run",
       "verdict": "supported"
     },
+    "P8": {
+      "evidence": [
+        "E0011"
+      ],
+      "explanation": "mean_abs_mag -15.5249981286 within 0.3 of -15.3 (|\u0394| = 0.224998128649) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0011"
+          ],
+          "explanation": "mean_abs_mag -15.5249981286 within 0.3 of -15.3 (|\u0394| = 0.224998128649) \u2192 supported",
+          "recorded_at": "2026-09-03T06:24:29.640271Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T06:24:29.640271Z",
+      "source": "run",
+      "verdict": "supported"
+    },
     "P9": {
       "evidence": [
         "E0003"
@@ -254,5 +274,5 @@
       "sidecar_sha256": "25d90b84554a46bdfa74205a9d621fbf3bc1a5beddb33ed4eff170f073095b5e"
     }
   },
-  "updated_at": "2026-09-03T06:21:33.219830Z"
+  "updated_at": "2026-09-03T06:24:29.641258Z"
 }
