@@ -29,6 +29,7 @@ __all__ = [
     "parse_printed_lines",
     "parse_printed_strings",
     "printed_values",
+    "registered_guardrails",
     "track_headroom",
     "validate_rule",
 ]
@@ -242,9 +243,10 @@ def parse_printed_strings(path: Path) -> dict[str, list[str]]:
 
     :func:`parse_metric_log` keeps only the floats a guardrail or a metric can
     be, and drops everything else.  Some printed lines are evidence anyway:
-    ``split_fingerprint:`` (which partition the numbers came from) today,
-    ``artifact:`` lines when registered mode lands.  Values are lists because a
-    cell may pin several artifacts.
+    ``split_fingerprint:`` (which partition the numbers came from) and the
+    ``artifact:`` lines a registered cell pins (each a study-relative POSIX
+    path the notary hashes into ``manifest.artifacts``).  Values are lists
+    because a cell may pin several artifacts.
     """
     found: dict[str, list[str]] = {}
     for key, raw in parse_printed_lines(path):
@@ -295,6 +297,24 @@ def _guardrails_pass(
     return not failures, failures
 
 
+def registered_guardrails(
+    track_spec: Mapping[str, Any], metrics: Mapping[str, float]
+) -> tuple[bool, list[str]]:
+    """Guardrails on a registered cell: RECORDED, never disposition-flipping.
+
+    A frontier guardrail answers "may this candidate become the incumbent?" and
+    a failure is a ``discard``.  A registered cell has no incumbent to become,
+    so the same arithmetic answers a different question — "is this measurement
+    inside the conditions the contract declared?" — and its answer belongs on
+    the manifest (``guardrails_ok``) and in findings, where a reader can weigh
+    it.  Flipping the cell to ``discard`` would delete the measurement instead.
+
+    ``incumbent=None`` on purpose: a ``maximum_degradation`` guardrail is a
+    frontier comparison and has nothing to compare against here.
+    """
+    return _guardrails_pass(track_spec.get("guardrails", {}), metrics, None)
+
+
 def choose_disposition(
     *,
     primary_metric: float,
@@ -302,7 +322,21 @@ def choose_disposition(
     metrics: Mapping[str, float],
     incumbent: Mapping[str, Any] | None,
     final_test: bool,
+    mode: str = "frontier",
 ) -> tuple[str, str]:
+    if mode == "registered":
+        # `references/registered-mode.md`: a run on a registered track is a
+        # CELL of a pre-registered measurement program.  There is no incumbent,
+        # so there is nothing to keep or discard — the disposition says only
+        # that the cell measured what it said it would.  Sealed cells included:
+        # a registered kind's confirmation is still a measurement.
+        _, guard_failures = registered_guardrails(track_spec, metrics)
+        detail = (
+            f"; guardrails failed (recorded, not hidden): {'; '.join(guard_failures)}"
+            if guard_failures
+            else ""
+        )
+        return "measured", f"registered cell measured{detail}"
     if final_test:
         return "discard", "sealed final-test evidence; excluded from the adaptive frontier"
     guard_ok, guard_failures = _guardrails_pass(track_spec.get("guardrails", {}), metrics, incumbent)

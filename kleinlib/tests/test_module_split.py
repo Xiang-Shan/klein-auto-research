@@ -26,6 +26,7 @@ import kleinlib.workflow as workflow
 # --------------------------------------------------------------------------
 
 PUBLIC_SURFACE: dict[str, tuple[str, str]] = {
+    "ARTIFACT_MISSING": ("kleinlib.workflow", "ARTIFACT_MISSING"),
     "AUTO_PRINTED_METRIC_KEYS": ("kleinlib.schema", "AUTO_PRINTED_METRIC_KEYS"),
     "Check": ("kleinlib.checks", "Check"),
     "EVALUATOR_PRINTED_KEYS": ("kleinlib.schema", "EVALUATOR_PRINTED_KEYS"),

@@ -84,6 +84,7 @@ from .decision import (
     parse_printed_lines,  # noqa: F401  (re-export)
     parse_printed_strings,
     printed_values,
+    registered_guardrails,
     track_headroom,
 )
 from .errors import WorkflowError
@@ -161,6 +162,7 @@ from .transaction import (
 #: ``kleinlib.workflow`` and is the SAME object as the one its home module
 #: defines (see kleinlib/tests/test_module_split.py, which freezes this list).
 __all__ = [
+    "ARTIFACT_MISSING",
     "AUTO_PRINTED_METRIC_KEYS",
     "Check",
     "EVALUATOR_PRINTED_KEYS",
@@ -294,6 +296,52 @@ VERIFIER_FAILED = "verifier_failed"
 #: The searcher and the checker disagree by more than the declared tolerance.
 #: One of them is wrong and the run says which numbers were compared.
 VERIFIER_DISAGREEMENT = "verifier_disagreement"
+
+#: A cell printed ``artifact: <path>`` for a path that does not exist, or that
+#: escapes the study.  A cell that cannot produce its table has not measured
+#: anything, so this is a crash and never a ``measured`` row.
+ARTIFACT_MISSING = "artifact_missing"
+
+
+def _declared_artifacts(study_dir: Path, log_path: Path) -> dict[str, dict[str, Any]]:
+    """Hash every ``artifact:`` line the run printed, as ``role: declared``.
+
+    Registered mode's way of making a TABLE first-class evidence
+    (``references/registered-mode.md``): the cell prints the study-relative
+    POSIX path of each artifact it produced, the notary hashes the bytes into
+    the manifest, and a claim can then cite them.  One cell whose artifact is a
+    42-row table is lawful and often better than 42 cells.
+
+    Missing, or escaping the study directory, is a :data:`ARTIFACT_MISSING`
+    crash: the alternative — a ``measured`` row whose evidence is not there —
+    is exactly the receipt the engine exists to refuse.
+    """
+    evidence: dict[str, dict[str, Any]] = {}
+    for raw in parse_printed_strings(log_path).get("artifact", ()):
+        rel = raw.strip()
+        if not rel:
+            continue
+        try:
+            path = _artifact_path(study_dir, rel)
+        except WorkflowError as exc:
+            raise WorkflowError(f"{ARTIFACT_MISSING}: {exc}") from exc
+        if not path.is_file():
+            raise WorkflowError(
+                f"{ARTIFACT_MISSING}: the run declared `artifact: {rel}` but no such "
+                "file exists when the child exited — a cell that cannot produce its "
+                "table has not measured anything"
+            )
+        size = path.stat().st_size
+        committed = (
+            path.suffix.lower() not in UNSAFE_PAYLOAD_SUFFIXES and size <= 10 * 1024 * 1024
+        )
+        evidence[Path(rel).as_posix()] = {
+            "sha256": sha256_file(path),
+            "bytes": size,
+            "committed": committed,
+            "role": "declared",
+        }
+    return evidence
 
 
 def _run_declared_verifier(
@@ -762,8 +810,17 @@ def run_one(
             )
         timeout = min(timeout, remaining_budget)
         manifests = load_manifests(study_dir)
-        incumbent = _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
-        if not final_test:
+        # `references/registered-mode.md`: a registered track runs CELLS of a
+        # pre-registered measurement program.  It holds no incumbent, so the
+        # headroom law (and the stop rule, which asks the same question) has
+        # nothing to measure a closed door against.
+        registered = str(tracks[track].get("mode", "frontier")) == "registered"
+        incumbent = (
+            None
+            if registered
+            else _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
+        )
+        if not final_test and not registered:
             _enforce_headroom(state, tracks[track], track, incumbent, echo=echo)
             stop.refuse_if_tripped(
                 contract, state, manifests, track=track, phase=phase_id, echo=echo
@@ -782,10 +839,16 @@ def run_one(
             if schema_version(contract) >= 3
             else ("uv", "run", "--locked", "python", "-u", "train.py")
         )
+        # On a REGISTERED track a replication IS evidence: an identical cell
+        # re-run to decide a named prediction is exactly the kind of repeat
+        # science wants, so `--tests P#` earns the same exemption `--allow-rerun`
+        # gives a frontier candidate.
+        replication_adjudicates = registered and bool(requested_predictions)
         if (
             not final_test
             and command is None
             and not allow_rerun
+            and not replication_adjudicates
             and not _git(repo, ["status", "--porcelain", "--", *surface_rels]).stdout.strip()
         ):
             # Before any E#### is allocated, run dir created, or commit made —
@@ -797,6 +860,12 @@ def run_one(
                 f"incumbent configuration and burn a phase slot; edit {surface_names} with "
                 "ONE falsifiable change, or pass --allow-rerun for an intentional "
                 "identical replication"
+                + (
+                    " (on a registered track, --tests P# also allows it — a repeat that "
+                    "adjudicates a prediction is evidence)"
+                    if registered
+                    else ""
+                )
             )
         base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
         _git(repo, ["add", "--", *surface_rels])
@@ -894,6 +963,7 @@ def run_one(
                 "timed_out": process.timed_out,
             }
         )
+        declared_artifacts: dict[str, dict[str, Any]] = {}
         if process.exit_code == 0:
             try:
                 primary, printed_name, printed_goal, metrics = parse_metric_log(log_path)
@@ -913,6 +983,11 @@ def run_one(
                     manifest=manifest,
                     echo=echo,
                 )
+                if schema_version(contract) >= 3:
+                    # Schema-3 only: a schema-2 study never printed `artifact:`
+                    # lines, so its manifests keep exactly the artifacts the
+                    # before/after inventory diff always recorded.
+                    declared_artifacts = _declared_artifacts(study_dir, log_path)
                 verifier = tracks[track].get("verifier")
                 if isinstance(verifier, Mapping):
                     # The checker is never the searcher: the disposition is
@@ -936,15 +1011,29 @@ def run_one(
                     metrics=metrics,
                     incumbent=incumbent,
                     final_test=final_test,
+                    mode="registered" if registered else "frontier",
                 )
+                if registered:
+                    # A guardrail on a registered cell is DISCLOSED, never
+                    # disposition-flipping: the measurement happened either way
+                    # and findings must be able to weigh it.
+                    guardrails_ok, guardrail_failures = registered_guardrails(
+                        tracks[track], metrics
+                    )
+                    manifest["guardrails_ok"] = guardrails_ok
+                    if guardrail_failures:
+                        manifest["guardrail_failures"] = guardrail_failures
                 if incumbent is not None and incumbent.get("external"):
                     # Found / matched / improved — never "proved". A search that
-                    # reaches the published value and stops there says so.
+                    # reaches the published value and stops there says so. The
+                    # resolution at which "reached" is decided is the checker's
+                    # tolerance where a checker exists, and otherwise the track's
+                    # own measured resolution — never a bare float equality.
                     external = float(incumbent["primary_metric"])
                     tolerance = (
                         float(verifier.get("tolerance", 0.0))
                         if isinstance(verifier, Mapping)
-                        else 0.0
+                        else float(tracks[track]["metric"].get("minimum_delta", 0.0) or 0.0)
                     )
                     manifest["matched_external"] = abs(primary - external) <= tolerance
                     reason = f"{reason} (external incumbent {external:.12g})"
@@ -977,6 +1066,11 @@ def run_one(
             if rel not in artifacts_before
             or meta.get("sha256") != artifacts_before[rel].get("sha256")
         }
+        for rel, meta in declared_artifacts.items():
+            # A cell may pin a table the inventory never watches (`sweeps/`,
+            # `tables/`) or one it already saw (`figures/`); either way the
+            # DECLARED role is what makes it citable evidence.
+            manifest["artifacts"].setdefault(rel, {}).update(meta)
         for meta in manifest["artifacts"].values():
             meta["availability"] = "recorded" if meta.get("committed") else "local"
         manifest["artifacts"][f"runs/{run_id}/run.log"] = _run_log_evidence(
@@ -1238,12 +1332,20 @@ def status_summary(study_dir: Path) -> str:
     counts = {key: 0 for key in VALID_DISPOSITIONS}
     for manifest in manifests:
         counts[str(manifest.get("disposition"))] = counts.get(str(manifest.get("disposition")), 0) + 1
+    # A registered track has no keep chain, so `measured` is reported beside
+    # keep/discard rather than folded into either.  Shown for every schema-3
+    # study and for any ledger that actually holds one; a schema-2 status line
+    # is unchanged.
+    measured = (
+        f" measured={counts['measured']}" if version >= 3 or counts["measured"] else ""
+    )
     lines = [
         f"study: {state['study_id']}",
-        "schema: v2",
+        f"schema: v{version}",
         f"status: {state.get('status')}",
         f"current phase: {state.get('current_phase')}",
-        f"experiments: {len(manifests)} (keep={counts['keep']} discard={counts['discard']} crash={counts['crash']})",
+        f"experiments: {len(manifests)} (keep={counts['keep']} discard={counts['discard']}"
+        f"{measured} crash={counts['crash']})",
         "gates: " + ", ".join(f"{k}={v.get('status')}" for k, v in state.get("gates", {}).items()),
         "final holdout: " + ", ".join(f"{k}={v.get('count', 0)}/1" for k, v in state.get("final_holdout_access", {}).items()),
     ]

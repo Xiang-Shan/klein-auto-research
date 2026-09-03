@@ -76,7 +76,13 @@ SOURCE_TAG_RE = re.compile(
 PINNED_SOURCE_SCHEMES: frozenset[str] = frozenset({"openml", "url"})
 
 VALID_GOALS = frozenset({"higher", "lower"})
-VALID_DISPOSITIONS = frozenset({"keep", "discard", "crash"})
+
+#: What one run transaction may conclude.  ``keep``/``discard`` belong to a
+#: frontier track; ``measured`` to a registered one (schema 3,
+#: ``references/registered-mode.md``) — a cell of a pre-registered measurement
+#: program has nothing to beat, so it is neither kept nor discarded; ``crash``
+#: belongs to both.
+VALID_DISPOSITIONS = frozenset({"keep", "discard", "measured", "crash"})
 
 #: The seven question shapes (``references/inquiry-model.md``).
 KNOWN_KINDS: tuple[str, ...] = (
