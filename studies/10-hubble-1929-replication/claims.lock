@@ -117,7 +117,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "floor_min"
+      ],
       "strength": "exploratory"
     },
     "C13": {
@@ -336,6 +338,13 @@
       "art": "covc",
       "claim": "C4",
       "note": "coverage of the percentile interval on sealed seed block C (E0013)",
+      "precision": 6,
+      "value": 0.925
+    },
+    "floor_min": {
+      "art": "floor_sidecar",
+      "claim": "C12",
+      "note": "lowest coverage across the five Phase-0 floor blocks (sweep:coverage_floor)",
       "precision": 6,
       "value": 0.925
     },
