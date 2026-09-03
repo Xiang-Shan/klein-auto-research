@@ -101,7 +101,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "keep_lift"
+        "keep_lift",
+        "splines_in_floors"
       ],
       "strength": "exploratory"
     },
@@ -208,6 +209,13 @@
       "note": "anchor_residual_margin",
       "precision": 6,
       "value": 0.000458
+    },
+    "splines_in_floors": {
+      "art": "verdicts",
+      "claim": "C4",
+      "note": "E0002 lift in declared floors",
+      "precision": 4,
+      "value": 0.9568
     },
     "v1_ledger_spread": {
       "art": "derived",
