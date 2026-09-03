@@ -66,7 +66,8 @@
         "overcapacity_auc",
         "overcapacity_brier",
         "overcapacity_delta_floors",
-        "overcapacity_logloss"
+        "overcapacity_logloss",
+        "overcapacity_wall_seconds"
       ],
       "strength": "exploratory"
     },
@@ -208,6 +209,13 @@
       "note": "E0004 val_logloss",
       "precision": 6,
       "value": 1.024102
+    },
+    "overcapacity_wall_seconds": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 wall_seconds",
+      "precision": 6,
+      "value": 18.407609
     },
     "sealed_auc": {
       "art": "aux",
