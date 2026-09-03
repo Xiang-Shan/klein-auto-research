@@ -12,6 +12,10 @@
       "path": "runs/E0008/manifest.json",
       "sha256": "aa63b49dc640c72e7da5e63c624ddaa56e1335ec1189ff3180935aeec0d65927"
     },
+    "proof": {
+      "path": "research_plan.md",
+      "sha256": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757"
