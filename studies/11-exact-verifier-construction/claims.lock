@@ -120,6 +120,13 @@
       "precision": 0,
       "value": 22
     },
+    "budget_large": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the largest rung of the registered budget ladder; also the declared guardrail maximum",
+      "precision": 0,
+      "value": 2000000
+    },
     "budget_medium": {
       "art": "aux",
       "claim": "contract",
