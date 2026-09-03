@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T11:50:00.444033Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T11:56:39.414963Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "f12048849554f75d60fdb4e700bba4fe4291a56758247e469625729e8087df8c",
+    "method_card.md": "ce4a2f1f2d20234d2370fc21f57c71c045533066c9e3e4afc6e73b0b873b0045",
     "research_plan.md": "4a06dc3fcb74452e748b67e04ab536b4cb4076199f32a173fdead27675c89cd5",
     "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
     "study.yaml": "3ecc5dbf32de211c1232188e86cc077c927d76b180550ee5bdfdc60db19aca97"
@@ -30,6 +35,9 @@
       "development": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50",
       "final_test": "bd7849a00c6a8bd856c9136cd211d9ecb7975fbffa9c75b08d78ed51b3e3f155",
       "policy": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354"
+    },
+    "verifier": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
     }
   },
   "gates": {
@@ -55,9 +63,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T11:56:39.414963Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "ce4a2f1f2d20234d2370fc21f57c71c045533066c9e3e4afc6e73b0b873b0045"
+      },
+      "note": "triad complete: theory (notation table + 4 display equations), papers (references.yaml, 10 rows, all verified 2026-09-03), practice (the plan model.py/train.py realize; verify.py written and smoke-checked). The gate hashes verify.py \u2014 the checker never changes again. Ack delegated by the lead.",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -81,5 +93,5 @@
       "sidecar_sha256": "f8eb2d65a83201c5ed606d42db333deafc577b34fe75f206e5fdfd07343cfc6a"
     }
   },
-  "updated_at": "2026-09-03T11:50:01.338742Z"
+  "updated_at": "2026-09-03T11:56:39.416028Z"
 }
