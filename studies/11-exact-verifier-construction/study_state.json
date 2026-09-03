@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T07:11:46.287520Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T07:16:16.173922Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "a9d70a033e7c7499162feac858b74e653ff0550a87ae52ca9f63073a830b49b3",
+    "method_card.md": "563759c87ab9b2a6fa8accf181ea635d2b5f8f3c4ea2ebe4eded00c2be7ee01c",
     "research_plan.md": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e",
     "study.yaml": "85b788b9f465ceaecdb2b65f774f27a46a37a028552632c6a76586c142be540b"
   },
@@ -33,6 +38,9 @@
     "split": {
       "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
       "policy": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055"
+    },
+    "verifier": {
+      "verify.py": "959ba15bac56cd94f00e7198788601bd87fa38767912ad34e223a0292f739cbe"
     }
   },
   "gates": {
@@ -57,9 +65,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T07:16:16.173922Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "563759c87ab9b2a6fa8accf181ea635d2b5f8f3c4ea2ebe4eded00c2be7ee01c"
+      },
+      "note": "delegated ack; triad complete: theory + papers (10 refs verified 2026-09-03) + practice (the from-scratch verifier, written and tested before any search)",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -72,5 +84,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:11:47.182678Z"
+  "updated_at": "2026-09-03T07:16:16.174845Z"
 }
