@@ -80,6 +80,7 @@ from .decision import (
     _headroom_ack,  # noqa: F401  (re-export)
     _headroom_context,  # noqa: F401  (re-export)
     _incumbent,
+    _seed_external_incumbent,
     choose_disposition,
     parse_metric_log,
     parse_printed_lines,  # noqa: F401  (re-export)
@@ -453,34 +454,6 @@ def _run_declared_verifier(
     # A guardrail the checker printed wins over the searcher's own value.
     merged = {**reported_metrics, **verified_metrics}
     return verified, merged
-
-
-def _seed_external_incumbent(
-    track_spec: Mapping[str, Any], incumbent: Mapping[str, Any] | None
-) -> Mapping[str, Any] | None:
-    """Start the frontier at the best KNOWN value, not at the first run.
-
-    With ``metric.incumbent_external`` declared, a ``keep`` means "beat the
-    literature" rather than "beat yourself".  A first result that merely matches
-    the published value is a ``discard`` with the match disclosed — and a search
-    that fails is a search limit, never evidence of impossibility.
-    """
-    if incumbent is not None:
-        return incumbent
-    external = track_spec.get("metric", {}).get("incumbent_external")
-    if not isinstance(external, Mapping):
-        return None
-    try:
-        value = float(external["value"])
-    except (KeyError, TypeError, ValueError):
-        return None
-    return {
-        "experiment": None,
-        "primary_metric": value,
-        "external": True,
-        "source": external.get("source"),
-        "verified_on": external.get("verified_on"),
-    }
 
 
 def _assert_registered_partition(

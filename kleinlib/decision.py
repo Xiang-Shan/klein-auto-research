@@ -459,6 +459,39 @@ def _incumbent(manifests: Sequence[Mapping[str, Any]], track: str) -> Mapping[st
     return keeps[-1] if keeps else None
 
 
+def _seed_external_incumbent(
+    track_spec: Mapping[str, Any], incumbent: Mapping[str, Any] | None
+) -> Mapping[str, Any] | None:
+    """Start the frontier at the best KNOWN value, not at the first run.
+
+    With ``metric.incumbent_external`` declared, a ``keep`` means "beat the
+    literature" rather than "beat yourself".  A first result that merely matches
+    the published value is a ``discard`` with the match disclosed — and a search
+    that fails is a search limit, never evidence of impossibility.
+
+    It lives beside :func:`_incumbent` because both the RUNNER (which enforces
+    the headroom law) and the CHECKS (which disclose it) have to resolve the
+    same incumbent: a preflight that reports "no incumbent yet" while run-one
+    refuses the run on h = 0 is a disclosure disagreeing with an enforcement.
+    """
+    if incumbent is not None:
+        return incumbent
+    external = track_spec.get("metric", {}).get("incumbent_external")
+    if not isinstance(external, Mapping):
+        return None
+    try:
+        value = float(external["value"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return {
+        "experiment": None,
+        "primary_metric": value,
+        "external": True,
+        "source": external.get("source"),
+        "verified_on": external.get("verified_on"),
+    }
+
+
 def _guardrails_pass(
     guardrails: Mapping[str, Any] | list[Any],
     metrics: Mapping[str, float],

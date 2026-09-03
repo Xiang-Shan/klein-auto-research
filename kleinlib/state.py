@@ -34,7 +34,7 @@ from .contract import (
     schema_version,
     split_fingerprint,
 )
-from .decision import _headroom_context, _incumbent
+from .decision import _headroom_context, _incumbent, _seed_external_incumbent
 from .errors import WorkflowError
 from .events import append_event
 from .manifest import load_manifests
@@ -571,8 +571,14 @@ def acknowledge_headroom(
         )
     with StudyLock(study_dir):
         state = load_state(study_dir, contract)
+        # The same incumbent run-one enforces on and preflight discloses:
+        # an externally seeded frontier HAS one before its first keep, and it
+        # is exactly the case where the ack has to be recordable.
         context = _headroom_context(
-            tracks[track], _incumbent(load_manifests(study_dir), track)
+            tracks[track],
+            _seed_external_incumbent(
+                tracks[track], _incumbent(load_manifests(study_dir), track)
+            ),
         )
         if context is None:
             raise WorkflowError(
