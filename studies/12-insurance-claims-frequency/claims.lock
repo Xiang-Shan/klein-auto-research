@@ -163,7 +163,8 @@
       "evidence": [],
       "numbers": [
         "marginal_std",
-        "paired_std_far"
+        "paired_std_far",
+        "paired_std_ratio"
       ],
       "strength": "exploratory"
     }
@@ -293,6 +294,13 @@
       "note": "paired_bootstrap_b1000 std: the GLM-vs-tree pair",
       "precision": 6,
       "value": 0.013942
+    },
+    "paired_std_ratio": {
+      "art": "derived",
+      "claim": "C9",
+      "note": "widest paired std / narrowest paired std",
+      "precision": 2,
+      "value": 10.92
     },
     "residual_margin": {
       "art": "derived",
