@@ -157,7 +157,8 @@
         "art:contract"
       ],
       "numbers": [
-        "n_sealed_rows"
+        "n_sealed_rows",
+        "table_two"
       ],
       "strength": "exploratory"
     },
@@ -740,6 +741,13 @@
       "note": "the numeral in the name 'Table 1' \u2014 Hubble's development block; it names a table, not a measurement",
       "precision": 0,
       "value": 1
+    },
+    "table_two": {
+      "art": "contract",
+      "claim": "C13",
+      "note": "the numeral in the name 'Table 2' \u2014 Hubble's sealed block; it names a table, not a measurement",
+      "precision": 0,
+      "value": 2
     },
     "textbook_500": {
       "art": "groups",
