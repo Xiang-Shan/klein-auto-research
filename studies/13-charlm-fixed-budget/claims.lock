@@ -87,7 +87,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "e0001_val_loss"
+      ],
       "strength": "exploratory"
     },
     "C3": {
@@ -154,6 +156,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "e0001_val_loss": {
+      "art": "frontier",
+      "claim": "C2",
+      "note": "E0001, the identity anchor at a sixth seed",
+      "precision": 6,
+      "value": 1.572174
+    },
     "eval_context": {
       "art": "frontier",
       "claim": "contract",
