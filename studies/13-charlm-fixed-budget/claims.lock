@@ -47,7 +47,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "e0002_floors"
+      ],
       "strength": "exploratory"
     },
     "C10": {
@@ -167,6 +169,13 @@
       "note": "E0001, the identity anchor at a sixth seed",
       "precision": 6,
       "value": 1.572174
+    },
+    "e0002_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "warmup on a constant learning rate, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": -1.0431
     },
     "e0006_val_loss": {
       "art": "frontier",
