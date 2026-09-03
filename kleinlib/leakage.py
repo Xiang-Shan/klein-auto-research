@@ -19,8 +19,9 @@ Contract-driven and hope-free: the audit reads the prepared artifact and the
   (``strip().casefold()``): the same entity under a dirty key (``"G7"`` vs
   ``"g7 "``) is precisely the leak a by-construction split cannot see.
 - **metric-direction / constant-chance / shuffled-chance** (per track) — the
-  contract's metric direction must match the canonical registry (a custom
-  simulation metric's declared direction is accepted as-is), and two
+  contract's metric direction must match the canonical registry (in the SCALAR
+  metric family — ``task_type: scalar``, or its schema-2 spelling
+  ``simulation`` — a custom metric's declared direction is accepted as-is), and two
   no-information predictors — the train-target mean, and a label shuffle —
   must score at chance on the development partition.  A "shuffled" predictor
   scoring far from chance means the harness is showing it the answers.
@@ -62,6 +63,7 @@ from sklearn.metrics import (
     mean_tweedie_deviance,
 )
 
+from .contract import task_family
 from .data import RANDOM_SEED, load_prepared, three_way_split
 from .eval import (
     _METRIC_SPECS,
@@ -261,7 +263,13 @@ def _track_checks(contract: Mapping[str, Any], parts: tuple | None, *,
     if not tracks:
         return [Check("metric-direction", False,
                       "study.yaml declares no tracks — no metric contract to audit")]
-    simulation = contract.get("task_type") == "simulation"
+    # The scalar metric family is spelled `scalar` in schema 3 and `simulation`
+    # in schema 2; `contract.task_family` is the single source of truth for that
+    # alias, so this check never has to know both spellings.  Testing only the
+    # retired one made every schema-3 study with a CUSTOM metric name — which is
+    # every registered track — a DATA-gate BLOCKER, while the byte-identical
+    # schema-2 contract passed.
+    scalar_family = task_family(contract) == "scalar"
     checks: list[Check] = []
     rng = np.random.default_rng(seed)
     for track, spec_dict in tracks.items():
@@ -273,8 +281,8 @@ def _track_checks(contract: Mapping[str, Any], parts: tuple | None, *,
             spec = get_metric_spec(
                 str(metric.get("name")),
                 goal=goal,
-                task="scalar" if simulation else str(contract.get("task_type")),
-                allow_custom=simulation,
+                task=task_family(contract),
+                allow_custom=scalar_family,
             )
         except ValueError as exc:
             checks.append(Check(f"metric-direction[{track}]", False, str(exc)))
@@ -286,7 +294,7 @@ def _track_checks(contract: Mapping[str, Any], parts: tuple | None, *,
         else:
             direction_message = (
                 f"{spec.name}: contract-declared direction {spec.goal!r} accepted "
-                "(custom simulation metric)"
+                "(custom metric of the scalar family)"
             )
         checks.append(Check(f"metric-direction[{track}]", True, direction_message))
         if parts is None:
