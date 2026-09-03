@@ -39,6 +39,7 @@ import csv
 import importlib.util
 import json
 import math
+import shutil
 import sys
 from pathlib import Path
 
@@ -130,8 +131,14 @@ def figure_trajectory(study: Path, contract: dict, out: Path) -> Path:
         noise_floor_std=float(metric["noise_floor"]["std"]),
         name="plot_decision_trajectory__primary",
     )
-    if path.parent != out:  # the helper always writes into <study>/figures
-        _fail(f"the engine wrote the trajectory to {path.parent}, not {out}")
+    # The engine helper always writes into <study>/figures. When --out points
+    # somewhere else (klein verify re-renders into a temp dir and compares the
+    # bytes), copy the result across rather than refusing: the helper's write is
+    # deterministic, so the in-place overwrite is a no-op on the same bytes.
+    if path.parent != out:
+        out.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, out / path.name)
+        path = out / path.name
     print(f"wrote {path}")
     return path
 
