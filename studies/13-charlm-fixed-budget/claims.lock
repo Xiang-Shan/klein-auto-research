@@ -174,7 +174,8 @@
       "evidence": [],
       "numbers": [
         "e0006_val_loss",
-        "incumbent_gain_nats"
+        "incumbent_gain_nats",
+        "width_params_ratio"
       ],
       "strength": "exploratory"
     }
@@ -416,6 +417,13 @@
       "note": "E0007 minus the incumbent, in floors \u2014 inside the floor",
       "precision": 6,
       "value": 0.103528
+    },
+    "width_params_ratio": {
+      "art": "summary",
+      "claim": "C9",
+      "note": "E0005's parameter count divided by the anchor's",
+      "precision": 6,
+      "value": 3.908075
     }
   },
   "study_id": "13-charlm-fixed-budget"
