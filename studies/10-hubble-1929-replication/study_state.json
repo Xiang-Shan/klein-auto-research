@@ -3,9 +3,14 @@
     "consult": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T05:26:18.637128Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:41:06.681169Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "ca3a6ec9c74e594084082f4738d3f10e2e470c0cc8498857c4c062a07978f3df",
     "research_plan.md": "7791550bc6b2c924a7d4f8bbe221452aeeb16721a2f56feb9eae36c88c03554c",
     "study.yaml": "d7c5a9da535a8974a3a4968aad25c3d6f485f69e2586bb8cff6dbb7d69af5649"
   },
@@ -29,8 +34,11 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "split": {
+      "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
+      "policy": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    }
   },
   "gates": {
     "consult": {
@@ -45,9 +53,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T05:41:06.681169Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "ca3a6ec9c74e594084082f4738d3f10e2e470c0cc8498857c4c062a07978f3df"
+      },
+      "note": "GO-WITH-CAUTIONS accepted: (1) Table 2's r_mpc/vs_kms/M_t are derived-from-K and excluded at load_block; (2) n=24, addressed by the simulate track's coverage measurement; (3) split.kind none registers no realized fingerprints \u2014 the two block digests are published on the card instead; (4) informative missingness no cell reads. Ack delegated to the driving agent by the lead.",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -60,10 +72,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/studies/10-hubble-1929-replication/data/prepared/prepared.csv",
-    "sha256": null
+    "sha256": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d"
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "10-hubble-1929-replication",
-  "updated_at": "2026-09-03T05:26:18.637772Z"
+  "updated_at": "2026-09-03T05:41:07.549177Z"
 }
