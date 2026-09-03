@@ -595,6 +595,38 @@ def test_a_number_never_changes_its_value_art_or_claim(locked_study) -> None:
     assert entry["note"] == "E0001"
 
 
+def test_a_number_whose_artifact_lacks_the_value_is_refused_before_it_is_written(
+    locked_study,
+) -> None:
+    """Regression: a mis-homed number must never reach the lock.
+
+    Check 5 fails a number its artifact does not spell out, and check 6 makes a
+    number's ``art`` immutable once the verb has committed it — so an alias
+    written against the wrong home could never be repointed, never removed, and
+    the lock could never verify again. Study 10 hit exactly that. The refusal
+    happens at write time, which is the last moment it is recoverable.
+    """
+    _repo, study = locked_study
+    before = canonical_lock_text(load_lock(study))
+
+    with pytest.raises(WorkflowError, match="is not in artifact"):
+        add_number(study, "typo", value=2680.495911, art="anchor", claim="C1", commit=False)
+
+    # Nothing was written: the lock is byte-identical, so the alias can still be
+    # created against the artifact that really holds the value.
+    assert canonical_lock_text(load_lock(study)) == before
+
+    entry = add_number(study, "typo", value=0.055198, art="anchor", claim="C1", commit=False)
+    assert entry["art"] == "anchor"
+
+    # The two cases check 5 only WARNS about still pass: a prose value, and a
+    # value that rounds into the artifact at the declared precision.
+    assert add_number(study, "prose", value="see the card", art="anchor", commit=False)
+    assert add_number(
+        study, "rounded", value=0.0267, art="anchor", precision=4, commit=False
+    )
+
+
 def test_pin_refuses_absolute_paths_and_missing_files(locked_study, tmp_path: Path) -> None:
     _repo, study = locked_study
     with pytest.raises(WorkflowError, match="study-relative"):
@@ -626,6 +658,8 @@ def test_cli_claims_pin_number_add_are_wired(locked_study, capsys) -> None:
     _repo, study = locked_study
     assert cli.main(["claims", "pin", "--study", str(study), "sealed", "results.tsv"]) == 0
     assert "pinned sealed: results.tsv" in capsys.readouterr().out
+    # The number goes to the artifact that HOLDS it: the scaffolded results.tsv
+    # is a bare header, and a number needs a home that actually spells it out.
     assert (
         cli.main(
             [
@@ -633,18 +667,18 @@ def test_cli_claims_pin_number_add_are_wired(locked_study, capsys) -> None:
                 "number",
                 "--study",
                 str(study),
-                "n_transactions",
+                "challenger_brier",
                 "--value",
-                "0",
+                "0.055198",
                 "--art",
-                "sealed",
+                "anchor",
                 "--claim",
                 "contract",
             ]
         )
         == 0
     )
-    assert load_lock(study)["numbers"]["n_transactions"]["value"] == 0
+    assert load_lock(study)["numbers"]["challenger_brier"]["value"] == 0.055198
 
 
 def test_cli_claims_errors_exit_two(locked_study, capsys) -> None:
