@@ -214,7 +214,8 @@
         "E0005",
         "E0003",
         "P7",
-        "rep:E0003@20260903T083929Z"
+        "rep:E0003@20260903T083929Z",
+        "art:derived"
       ],
       "numbers": [
         "dev_incumbent",
