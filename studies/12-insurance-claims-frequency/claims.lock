@@ -110,6 +110,7 @@
       "evidence": [],
       "numbers": [
         "brier_balanced",
+        "brier_doctrine",
         "brier_ratio_doctrine"
       ],
       "strength": "exploratory"
@@ -193,6 +194,12 @@
       "claim": "C5",
       "precision": 6,
       "value": 0.240641
+    },
+    "brier_doctrine": {
+      "art": "aux",
+      "claim": "C5",
+      "precision": 6,
+      "value": 0.059337
     },
     "brier_ratio_doctrine": {
       "art": "derived",
