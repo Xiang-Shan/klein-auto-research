@@ -39,14 +39,22 @@
   },
   "claims": {
     "C1": {
-      "claim": "RQ1** \u2014 do the three v1 rungs reproduce within two standard deviations of the transfer? | **SUPPORTED**, all three |  | E0001, E0002, E0003, P1, P2, P4 | residuals 0.011322 / 0.001612 / 0.001154 against a registered tolerance of 0.0225 | exploratory |",
-      "class": null,
+      "claim": "All three v1 rungs reproduce on the ported contract: refitted on the identical v1 training rows and graded on the development half of the v1 validation set, the raw GLM anchor lands 0.011322 from the value the v1 ledger recorded, the spline + isotonic rung 0.001612, and the boosted tree 0.001154 - every one inside the 0.0225 tolerance that was derived from row counts and a class balance before any model was fitted.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "P1",
+        "P2",
+        "P4"
+      ],
       "numbers": [
         "anchor_residual_glm",
         "anchor_residual_splines",
-        "anchor_residual_tree"
+        "anchor_residual_tree",
+        "anchor_tolerance"
       ],
       "strength": "exploratory"
     },
