@@ -1,5 +1,10 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "results": {
+      "path": "results.tsv",
+      "sha256": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "RQ1 | n_small | supported | exploratory | empirical-description | E0002, E0003, E0004, E0009 | on the 11 \u00d7 11 grid the verifier scored 20 points at 20000 addability tests, 21 at 200000 and 21 at 2000000 from the development seed block; from the sealed seed block, at the same largest budget, it scored 22 \u2014 the proven maximum 2n, `matched_external: true`. The objective is exact: `minimum_delta` is 1 and every value is an integer recomputed from the artifact's bytes |",
