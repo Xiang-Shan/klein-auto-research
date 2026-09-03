@@ -1,0 +1,212 @@
+{
+  "checks": [
+    {
+      "message": "schema_version 3 contract valid",
+      "name": "study contract",
+      "ok": true
+    },
+    {
+      "message": "track 'primary': minimum_delta 0.0375805 >= max(2*std, range/2) = 0.0375805, estimand 'paired-comparison'",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "study_state.json loaded",
+      "name": "study state",
+      "ok": true
+    },
+    {
+      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679",
+      "name": "git repository",
+      "ok": true
+    },
+    {
+      "message": "current='confirmation'; ladder consistent",
+      "name": "phase ladder",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate consult",
+      "ok": true
+    },
+    {
+      "message": "status=overridden",
+      "name": "gate data",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate method",
+      "ok": true
+    },
+    {
+      "message": "match",
+      "name": "gate artifact hashes",
+      "ok": true
+    },
+    {
+      "message": "valid",
+      "name": "event chain",
+      "ok": true
+    },
+    {
+      "message": "current=7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab; recorded=7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab",
+      "name": "prepared-data fingerprint",
+      "ok": true
+    },
+    {
+      "message": "current=075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7; recorded=075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7",
+      "name": "split fingerprint",
+      "ok": true
+    },
+    {
+      "message": "lib/duplicate_exposure.py, train.py; registered development=7e3d3ff85e62, final_test=06d18ee16624",
+      "name": "contract-driven split",
+      "ok": true
+    },
+    {
+      "message": "no track declares a verifier",
+      "name": "verifier",
+      "ok": true
+    },
+    {
+      "message": "derived view matches manifests",
+      "name": "ledger integrity",
+      "ok": true
+    },
+    {
+      "message": "none pending",
+      "name": "transactions",
+      "ok": true
+    },
+    {
+      "message": "track 'primary': h = (0.664051 - 1) / 0.0375805 = 8.939 \u2014 a keep is arithmetically possible (h >= 1 means not excluded, NOT plausible: the attainable ceiling may sit short of the ideal)",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "syntax valid",
+      "name": "train.py",
+      "ok": true
+    },
+    {
+      "message": "every declared guardrail metric is printed by the evaluator or named in the study's Python sources",
+      "name": "guardrail visibility",
+      "ok": true
+    },
+    {
+      "message": "7 registered sweep(s) hash unchanged: sweep:fit_noise, sweep:pair_anchor_doctrine, sweep:pair_anchor_splines, sweep:pair_splines_hgbt, sweep:paired_bootstrap, sweep:paired_bootstrap_b1000, sweep:split_lottery",
+      "name": "registered sweeps",
+      "ok": true
+    },
+    {
+      "message": "[WARN] findings.md uses words the 'insurance' profile bans: line 77: recorded lift of 0.001425 is 0.0379 of this study's floor.; line 92: | P8 | manual: the v1 sweep's lift is under the measured floor | 0.0379 floors | **supported** | sweep:paired_bootstrap,; line 135: pre-committed to saying so.** P3's lift is 0.035956. Against the bar declared at Phase 0 \u2014 see the profile's \u00a77 (the referee checks the same list)",
+      "name": "profile vocabulary",
+      "ok": true
+    },
+    {
+      "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
+      "name": "referee gate",
+      "ok": true
+    },
+    {
+      "message": "8 registered prediction(s), all adjudicated",
+      "name": "predictions closure",
+      "ok": true
+    },
+    {
+      "message": "every refuted prediction (P3, P5) has a dated `Decision:` line in program.md",
+      "name": "belief revision",
+      "ok": true
+    },
+    {
+      "message": "lock schema 2: fields and classes valid",
+      "name": "claims shape",
+      "ok": true
+    },
+    {
+      "message": "9 pinned artifacts hash as recorded",
+      "name": "claims artifacts",
+      "ok": true
+    },
+    {
+      "message": "every claim id resolves in findings.md",
+      "name": "claims presence",
+      "ok": true
+    },
+    {
+      "message": "every cited evidence id resolves",
+      "name": "claims evidence",
+      "ok": true
+    },
+    {
+      "message": "every pinned value is found in its artifact and every claim numeral has an alias",
+      "name": "claims numbers",
+      "ok": true
+    },
+    {
+      "message": "no claim or number removed or mutated across git history",
+      "name": "claims append-only",
+      "ok": true
+    },
+    {
+      "message": "git_head is an ancestor of HEAD",
+      "name": "claims ancestry",
+      "ok": true
+    },
+    {
+      "message": "evidence_use_rate 1.00 \u2014 all 10 non-keep run(s) and registered sweep(s) are cited",
+      "name": "evidence use",
+      "ok": true
+    },
+    {
+      "message": "1 confirmed claim(s) cite two or more evidence kinds",
+      "name": "convergent evidence",
+      "ok": true
+    },
+    {
+      "message": "all 146 scanned numerals trace to 23 pinned source(s)",
+      "name": "findings numbers",
+      "ok": true
+    },
+    {
+      "message": "2 figure(s) re-render byte-identically",
+      "name": "figure re-render",
+      "ok": true
+    }
+  ],
+  "evidence_use_rate": 1.0,
+  "git_head": "99bf32ed1ffcbc664f9da4a2c081aa96d0f97684",
+  "inputs": {
+    "aux_metrics.tsv": "409fedb832b400684cc1e4b466c515f12c44848ad6ed8e39af796d0664b5f062",
+    "claims.lock": "d705dfd8f81188cb48979e231b7682d8a9f057fdfdd7e0ddf7e2683d8e5332c1",
+    "events.jsonl": "236d33a0658ab07bba2cd85db531e89950a4d059cd33fd8bc1128f67dfad8592",
+    "findings.md": "927dbe6db6dbea55b01b6afd6e1d78e146148f4b1458d6478f2df9afc02bfacc",
+    "playbook.md": "45b423b0d948024bb847cdf62850e9e107de123c229627671cdb78f034bb6575",
+    "program.md": "899d2dbcb75f12b46a2a84a4eb6dff542c504f538f7a9c1db0d748e4718a6b10",
+    "results.tsv": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38",
+    "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0",
+    "study_state.json": "845f19e1a750faf87a4145737e6d1d7a2f652beca399bdd3b314ee46432cb5e9"
+  },
+  "klein_commit": "99bf32ed1ffcbc664f9da4a2c081aa96d0f97684",
+  "klein_version": "2.0.0",
+  "manifests": {
+    "E0001": "561bb3798d1b695a8acc91f330cab9634163adb98f187a640b2e8211f55a956a",
+    "E0002": "c7c9801383431add6976ff8b66b3d43ae3d5bc9a0eae5982a8549054109a7518",
+    "E0003": "0cd76f4dff9b93014a72f34fe4613566f93fb51df6cedbeb6a280c9bfde39abe",
+    "E0004": "40b2ba95645317981d59ac1548464b81fbd0175ba9c47ad38eed0945eec06f39",
+    "E0005": "57ce67bf215f3400384a0969f93e99b1216438341434869be08aeafe2a7b44f0"
+  },
+  "schema": 3,
+  "single_source_claims": [],
+  "study": "12-insurance-claims-frequency",
+  "summary": {
+    "checks": 35,
+    "failed": 0,
+    "warned": 2
+  },
+  "timestamp": "2026-09-03T12:08:06.943380Z",
+  "uncited_evidence": [],
+  "undecided_refutations": []
+}
