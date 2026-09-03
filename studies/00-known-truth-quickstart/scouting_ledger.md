@@ -7,8 +7,22 @@ status: closed        # closed at the CONSULT gate; later entries are a gate re-
 # Scouting ledger — 00-known-truth-quickstart
 
 > Everything looked at BEFORE the CONSULT gate, so that no registered prediction can
-> pretend to a surprise it already knew. Committed before `klein gate record consult`;
-> the gate hashes it.
+> pretend to a surprise it already knew.
+>
+> **What freezes this file (corrected 2026-09-03, referee note 6).** Klein's own
+> template says "the gate hashes it"; that is not true at the engine level —
+> `GATE_ARTIFACTS["consult"]` in `kleinlib/contract.py` is `study.yaml`,
+> `research_plan.md` and `program.md`, and no gate hashes a scouting ledger. What
+> IS true, and is what a reader should check: this file was committed BEFORE the
+> consult gate was recorded, in the single commit
+> `5bda63da06f16c9a6476b49ada9e43fb226dd94b`, and that commit is where the
+> `study.yaml` the gate DID hash comes from — event `sequence` 2 of
+> `events.jsonl` records `study.yaml` at sha256 `c4f66ed893b543e8…`, which is
+> byte-for-byte the blob at `5bda63da:studies/00-known-truth-quickstart/study.yaml`.
+> So the ledger is frozen by the same commit whose contract the gate notarized,
+> one step removed rather than directly. Entries S1–S4 and the Retirements below
+> have not been touched since that commit; only this boilerplate paragraph was
+> corrected, after the referee, and the correction is dated in `program.md`.
 
 ## §0 Disclosure
 
