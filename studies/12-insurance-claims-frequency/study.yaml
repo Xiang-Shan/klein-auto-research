@@ -28,15 +28,37 @@ tracks:
     metric:
       name: "val_auc"
       goal: "higher"     # higher | lower
-      minimum_delta: 0
+      # MEASURED at Phase 0 and pasted in by a consult re-record; never guessed.
+      # The bar is the PAIRED floor, because every keep on this track is a
+      # COMPARISON of two candidates predicting the SAME development rows. Both
+      # the pair (glm_ohe_balanced vs hgbt_balanced — the ladder's most dissimilar
+      # scorers, so the bar is conservative for every other comparison) and the
+      # replicate count were declared in program.md BEFORE the measurement.
+      minimum_delta: 0.0375805   # = max(2*std, range/2), std 0.0173021
+      noise_floor:
+        k: 20
+        std: 0.0173021
+        range: 0.075161
+        mean: 0.0457044
+        values: [0.043921, 0.047325, 0.030693, 0.04711, 0.006834, 0.035021, 0.037407, 0.046462, 0.058525, 0.027954, 0.039832, 0.045401, 0.039669, 0.042213, 0.07884, 0.058671, 0.081995, 0.058894, 0.028959, 0.058362]
+        source: "sweeps/paired_bootstrap.sidecar.tsv"
+        method: "paired-bootstrap"
+        estimand: "paired-comparison"
+      # PROVENANCE, never the bar: five fit seeds on the same rows move the anchor
+      # by 2.5e-06. Pasting this into minimum_delta would put the keep bar at zero.
+      fit_noise:
+        k: 5
+        std: 2.50998e-06
+        range: 6e-06
+        mean: 0.614142
+        values: [0.614141, 0.614141, 0.61414, 0.614146, 0.61414]
+        source: "sweeps/fit_noise.sidecar.tsv"
+        method: "seed-sweep"
+        estimand: "fit-noise"
       exactness: stochastic       # exact for an integer/closed-form objective
-      # noise_floor: / fit_noise: / bound: — measured at Phase 0 and pasted in by a
-      # consult RE-RECORD with a reason (research_plan.md "Phase 0"). The bar comes
-      # from `paired-bootstrap` / `paired-comparison`, because every keep on this
-      # track is a COMPARISON of two candidates predicting the SAME development
-      # rows; the k=5 seed sweep is recorded as `fit_noise` and can never be the
-      # bar. `bound.ideal` is 1.0, the ceiling of an ROC-AUC, and it can only be
-      # declared once a floor with an estimand exists (kleinlib/contract.py).
+      bound:
+        ideal: 1.0                # a perfect ROC-AUC; arms the headroom audit
+        on_infeasible: ack
     guardrails: {}
     # No guardrail is declared. The v1 study declared none, every rung here runs in
     # seconds under a 300 s cap, and `kleinlib.eval.evaluate`'s own collapsed-

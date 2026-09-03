@@ -278,3 +278,54 @@ commit.
      its rows duplicated from training. Findings §③ carries this as a surprise and §⑤ as
      a scope limit; no claim in this study may be read as a clean generalisation
      estimate, and the `twin_free_auc` column is what a reader should use instead.
+
+## Phase 0 — the floors
+
+- 2026-09-03 — Three recipes measured, and they disagree by four orders of magnitude.
+  * `seed-sweep` (k = 5, estimand `fit-noise`): std **2.50998e-06**, range 6e-06, mean
+    0.614142. Five different fit seeds move the anchor in the sixth decimal. Recorded
+    under `fit_noise:` as provenance; a study that had pasted this into `minimum_delta`
+    would carry a keep bar of essentially zero and would keep everything that moved the
+    fifth decimal.
+  * `split-lottery` (k = 10, estimand `marginal-resplit`): std **0.0179641**, range
+    0.055312, mean 0.606522. Re-drawing the train/development partition inside the
+    train+development pool moves the anchor's OWN score by ±0.018. Reported, never a
+    rule — it is the right yardstick for reading an anchor residual, and it says the
+    smoke check's residual of −0.011322 against the v1 value is 0.63 of one such
+    standard deviation.
+  * `paired-bootstrap` (k = 20, estimand `paired-comparison`, the declared pair
+    `glm_ohe_balanced` vs `hgbt_balanced`): std **0.0173021**, range 0.075161, mean
+    0.0457044 → **`minimum_delta` 0.0375805 = max(2*std, range/2)**. Pasted into the
+    contract with `metric.bound.ideal: 1.0` by a consult re-record.
+- 2026-09-03 — Decision: the declared k = 20 block is what goes into the contract, as
+  registered. Two numbers are recorded beside it because the pre-commitment above
+  requires it: the 1000-replicate run of the same pair (`sweeps/paired_bootstrap_b1000`)
+  gives std **0.013942** and mean 0.049029, so (i) the k = 20 spread was 24 % high,
+  which is ordinary sampling error for an SD estimated from twenty draws, and (ii) the
+  same `max(2*std, range/2)` rule at k = 1000 returns **0.043229** — a LARGER bar, not a
+  smaller one, because the range term grows with the replicate count exactly as
+  predicted. The declared bar is therefore the more permissive of the two, and any
+  verdict it supports would also have to survive the stricter one; findings §③ reports
+  every verdict against both.
+- 2026-09-03 — Surprise, recorded before the loop: the paired floor (std 0.0173) is
+  essentially the SAME SIZE as the marginal re-split floor (std 0.0180), where the
+  literature and the framework's own doctrine expect the paired one to be several times
+  smaller. The two rungs' AUCs correlate only ≈0.4 across resamples — a logistic
+  regression and a boosted tree rank these policies differently enough that pairing buys
+  almost nothing. This is the reason the bar is so large, and it is a property of the
+  PAIR, not of the study's arithmetic.
+- 2026-09-03 — Decision, registered BEFORE the loop: the contract carries ONE bar, but
+  the ladder makes three comparisons of very different similarity (a spline GLM against
+  a raw GLM; a tree against a calibrated GLM; a doctrine A/B differing by one lever).
+  A single bar measured on the most dissimilar pair is conservative for the other two,
+  which can suppress a real effect but can never manufacture one. After the loop closes,
+  a PAIR-SPECIFIC paired floor will be measured for each of the ladder's three
+  comparisons and registered as measurement sweeps, so findings can report what each
+  comparison's own floor would have said. Those numbers cannot and will not change a
+  registered verdict — the bar was declared at Phase 0 and stays declared; they exist so
+  a reader can see how much of a "within noise" verdict is the instrument rather than
+  the effect. RQ3 asks exactly this question.
+- 2026-09-03 — Headroom at the start of the loop: `h = (1.0 − incumbent) / 0.0375805`.
+  With no incumbent yet the audit is armed but not binding; at an anchor near 0.61 it
+  sits above 10, so the frontier is not arithmetically closed. `h >= 1` is read as "not
+  excluded", never as "plausible".
