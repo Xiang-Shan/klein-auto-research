@@ -18,6 +18,7 @@ import subprocess
 from pathlib import Path
 
 import pytest
+from test_commit_state_writes import modified_paths
 from test_referee_gate import FINDINGS, close, write_report
 from test_registered_mode import amend
 from test_workflow_v3 import commit_all, git
@@ -51,6 +52,43 @@ def test_schema_3_verify_writes_and_commits_the_receipt(ready_study_v3) -> None:
     # clean tree at run-one and verify must not be the thing that dirties it.
     assert git(repo, "status", "--porcelain") == ""
     assert RECEIPT_NAME in git(repo, "show", "--name-only", "--format=", "HEAD")
+
+
+def test_the_receipt_commit_leaves_the_operators_own_edits_alone(
+    ready_study_v3, capsys
+) -> None:
+    """E15: verify files ``verify_receipt.json`` — not the draft beside it.
+
+    The defect: ``klein verify`` on a tree with an in-progress findings edit, a
+    program note and a re-rendered figure filed all three under a
+    ``klein: verify receipt (…)`` subject, so the receipt described a tree
+    nobody had deliberately committed.
+    """
+    repo, study = ready_study_v3
+    (study / "figures").mkdir(exist_ok=True)
+    (study / "figures" / "x.png").write_bytes(b"\x89PNG first\n")
+    (study / "findings.md").write_text("# Findings\n\nstill a draft\n", encoding="utf-8")
+    commit_all(repo, "a draft and a figure")
+
+    # the operator is mid-edit when verify runs
+    (study / "findings.md").write_text("# Findings\n\nstill a draft, moving\n", encoding="utf-8")
+    (study / "figures" / "x.png").write_bytes(b"\x89PNG second\n")
+    program = study / "program.md"
+    program.write_text(program.read_text(encoding="utf-8") + "\n- a note\n", encoding="utf-8")
+
+    verify_study(study)
+
+    committed = set(git(repo, "show", "--name-only", "--format=", "HEAD").splitlines())
+    assert committed == {f"studies/03-demo/{RECEIPT_NAME}"}
+    assert modified_paths(repo) == {
+        "studies/03-demo/findings.md",
+        "studies/03-demo/figures/x.png",
+        "studies/03-demo/program.md",
+    }
+    out = capsys.readouterr().out
+    assert "note: 3 uncommitted edit(s) left in the tree" in out
+    assert "(figures/x.png, findings.md, program.md)" in out
+    assert "not part of this commit" in out
 
 
 def test_the_receipt_records_the_engine_the_head_and_the_bytes(ready_study_v3) -> None:

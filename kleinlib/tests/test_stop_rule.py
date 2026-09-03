@@ -271,6 +271,28 @@ def test_ack_records_the_event_and_files_its_own_state_commit(losing_study) -> N
     assert "stop rule acknowledged" in git(repo, "log", "-1", "--pretty=%s")
 
 
+def test_ack_commits_only_the_record_it_wrote(losing_study, capsys) -> None:
+    """E15: an acknowledgement puts a branch on the record, not the whole tree."""
+    from test_commit_state_writes import modified_paths, operator_edits, seed_tracked
+    from test_workflow_v3 import git
+
+    repo, study = losing_study
+    seed_tracked(repo, study, "findings.md")
+    operator_edits(study, "findings.md")
+
+    acknowledge_stop(
+        study, track="primary", acknowledged_by="tester", note="continue: one more idea"
+    )
+
+    committed = set(git(repo, "show", "--name-only", "--format=", "HEAD").splitlines())
+    assert committed == {
+        "studies/03-demo/study_state.json",
+        "studies/03-demo/events.jsonl",
+    }
+    assert modified_paths(repo) == {"studies/03-demo/findings.md"}
+    assert "note: 1 uncommitted edit(s) left in the tree (findings.md)" in capsys.readouterr().out
+
+
 def test_ack_refuses_before_the_rule_has_fired(ready_study_v3) -> None:
     from test_workflow_v3 import commit_all
 

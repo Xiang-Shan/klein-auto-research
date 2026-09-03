@@ -228,6 +228,36 @@ def test_a_development_run_reproduces_and_the_manifest_is_never_touched(
     assert git(repo, "worktree", "list").count("\n") == 0
 
 
+def test_the_replication_commit_carries_only_the_record_and_its_log(
+    replicable, capsys
+) -> None:
+    """E15: replicate files ``runs/E####/replications/`` — not the tree beside it."""
+    from test_commit_state_writes import modified_paths, operator_edits, seed_tracked
+
+    repo, study, _value, _marker, _manifest = replicable
+    seed_tracked(repo, study, "findings.md", "playbook.md")
+    operator_edits(study, "findings.md", "playbook.md")
+
+    record = replicate_run(study, "E0001", echo=False)
+    stamp = record["stamp"]
+
+    committed = set(git(repo, "show", "--name-only", "--format=", "HEAD").splitlines())
+    assert committed == {
+        f"studies/03-demo/runs/E0001/replications/{stamp}.json",
+        f"studies/03-demo/runs/E0001/replications/{stamp}.log",
+        "studies/03-demo/study_state.json",
+        "studies/03-demo/events.jsonl",
+    }
+    assert modified_paths(repo) == {
+        "studies/03-demo/findings.md",
+        "studies/03-demo/playbook.md",
+    }
+    assert (
+        "note: 2 uncommitted edit(s) left in the tree (findings.md, playbook.md)"
+        in capsys.readouterr().out
+    )
+
+
 def test_a_second_replication_appends_a_second_record(replicable) -> None:
     _repo, study, _value, _marker, _manifest = replicable
     first = replicate_run(study, "E0001", echo=False)

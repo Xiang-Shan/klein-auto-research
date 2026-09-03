@@ -1161,7 +1161,14 @@ def _findings_claims(study_dir: Path) -> dict[str, str]:
 
 
 def _commit(study_dir: Path, message: str) -> None:
-    commit_state_writes(study_dir, message, paths=[LOCK_NAME])
+    """File the lock the verb just wrote — the lock, and nothing else.
+
+    The lock is append-only across its git history, so its commits must be
+    readable one by one: a ``klein claims`` commit that also carried an
+    in-progress ``findings.md`` edit would put a sentence into the record that
+    no claims verb ever checked.  ``scope="own"`` leaves that edit in the tree.
+    """
+    commit_state_writes(study_dir, message, paths=[LOCK_NAME], scope="own")
 
 
 def _require_schema2(lock: Mapping[str, Any], verb: str) -> None:
