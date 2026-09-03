@@ -15,7 +15,7 @@ therefore records the LATEST measurement of each track's summary scalar, not a w
 | --- | --- | --- | --- | --- |
 | reproduction | E0005 | `targets_outside_tolerance` 1 | four cells run; 1 of 5 declared targets reproduced (the identity anchor). E0002 K=423.94/454.16 vs 465; E0003 M_t off by 0.0712 on 3 rows; E0004/E0005 documented method gaps | 2026-09-03 |
 | estimate | E0006 | `k_kms_per_mpc` 454.158441 | free-intercept OLS on the 24 objects; 95% percentile bootstrap [316.648582, 603.704762], 2000 resamples, seed block A | 2026-09-03 |
-| simulate | — | — | floor measured (`sweep:coverage_floor`, minimum_delta 0.0060663); no cell yet | — |
+| simulate | E0010 | `coverage` 0.938 (analytic) / 0.911 (bootstrap, E0009) | both intervals under-cover at n = 24 on block B; the bootstrap by more | 2026-09-03 |
 
 ## Ruled out (evidence, not opinion)
 
@@ -37,17 +37,21 @@ therefore records the LATEST measurement of each track's summary scalar, not a w
 | ~~RQ1~~ | **settled** by E0002: neither fit reaches 465; nearest gap 10.84 | scouted | done (P1 supported) |
 | ~~RQ2~~ | **settled** by E0004+E0005: both gaps are missing INPUTS, exactly as the uninformed prior said | uninformed | done (P2, P3 inconclusive by their `inconclusive_if`) |
 | ~~RQ3~~ | **settled** by E0006: 454.158441 with a 95% interval of [316.6, 603.7] — width 287.1, far wider than Hubble's ±50 | scouted centre, uninformed width | done |
-| RQ4 | percentile bootstrap under-covers at n = 24 | uninformed | E0009, E0010, sealed E0013 (P6) |
-| RQ5 | the 1929-vs-today gap is a pure distance-scale error | scouted (arithmetically implied) | sealed E0012 (P7) |
+| RQ4 | percentile bootstrap under-covers at n = 24 | uninformed | **prior held on block B** (0.911 vs nominal 0.95); sealed adjudication of P6 pending on block C |
+| RQ5 | the 1929-vs-today gap is a pure distance-scale error | scouted (arithmetically implied) | sealed cell, estimate track (P7) — pending |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. **Bootstrap interval for K** on the 24 objects, seed block A — phase adaptive-3, Σ 8.
-2. **Inverse vs forward regression in paired-SE units** (P5) — phase adaptive-3.
-3. **Jackknife influence of each of the 24 objects** — phase adaptive-3; subsumes the
-   Virgo-cluster question (data card issue 6).
-4. **Coverage of the percentile interval under the declared DGP**, seed block B —
-   phase adaptive-4, Σ 8.
-5. Reproduce Hubble's quoted probable error ±50 from Table 1's own scatter — Σ 7,
-   not a registered target, so it rides along in the estimate cells' printed keys
-   rather than spending a cell.
+All development cells are run. The confirmation phase spends the three sealed
+accesses, one per track, each preceded by its mandatory dry-run:
+
+1. **`reproduction` sealed** — Table 2's implied mean absolute magnitude under this
+   study's own K, against Hubble's printed −15.3 ± 0.3 (**P8**).
+2. **`estimate` sealed** — the once-only comparison against the external reference
+   H₀ = 70: the interval's lower bound (**P4**) and the single-factor rescale
+   (**P7**).
+3. **`simulate` sealed** — coverage on the fresh seed block C (**P6**).
+
+Carried past the confirmation phase, for findings §⑦ rather than for a cell:
+coverage as a function of σ, coverage under a heavy-tailed error law, and the
+split-generator design that would let two interval methods share replicates.
