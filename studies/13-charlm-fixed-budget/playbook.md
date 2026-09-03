@@ -34,8 +34,10 @@
 2. E0003 weight tying (adjudicates P3) — `adaptive-2`, registered
 3. E0004 dropout 0.1 (adjudicates P4) — `adaptive-2`, registered; H3 says it may go the other way
 4. E0005 width 128 -> 256 (adjudicates P5) — `adaptive-2`, registered
-5. A fixed batch order instead of sampled offsets: does the offset stream contribute to the floor? (from the `adaptive-1` slate, #5, unchosen) — now partly answered by rep:E0001@20260903T121129Z, which held the offset stream fixed and still moved 0.000962 nats
-6. The anchor at 200 steps, to price the marginal value of the budget (from the `adaptive-1` slate, #4, unchosen)
+5. Cosine LR decay to 10% of peak (from the `adaptive-2` slate, #5) — an untouched lever, no registered prediction
+6. Batch 32 -> 64 at the same 2000 steps (from the `adaptive-2` slate, #6) — what does a STEP budget actually hold fixed?
+7. A fixed batch order instead of sampled offsets (from the `adaptive-1` slate, #5) — partly answered by rep:E0001@20260903T121129Z, which held the offset stream fixed and still moved 0.000962 nats
+8. The anchor at 200 steps, to price the marginal value of the budget (from the `adaptive-1` slate, #4, unchosen)
 
 ## Measured facts to reuse (phase adaptive-1)
 

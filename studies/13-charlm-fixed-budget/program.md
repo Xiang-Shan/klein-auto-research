@@ -256,3 +256,28 @@ what an identity anchor is.
   and findings will say so.
 - **Budget.** 1 of 1 experiments used; the phase's registered job is done.
 
+### Phase adaptive-2 slate
+
+Playbook re-read first. Ruled out before this phase: a split-lottery floor and sampled
+validation batches (both retired pre-gate). Open hypotheses H1–H4 map one-to-one onto
+the four registered levers, and H3 is live AGAINST the registered P4.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Σ |
+|---|---|---|---|---|---|
+| 1 | 200-step linear LR warmup: `delta_in_floors >= 1` (adjudicates **P2**, tests H2) | 3 | 3 | 3 | 9 |
+| 2 | Weight tying, head shares `tok_emb`: `abs(delta_in_floors) < 1` (adjudicates **P3**, tests H4) | 3 | 3 | 3 | 9 |
+| 3 | Dropout 0.1: `delta_in_floors <= -1` (adjudicates **P4**, tests H3 against the registered prior) | 3 | 3 | 3 | 9 |
+| 4 | Width 128 → 256: `delta_in_floors >= 1` (adjudicates **P5**, tests H1) | 3 | 3 | 3 | 9 |
+| 5 | Cosine LR decay to 10% of peak over the 2000 steps: expected −0.02 nats, an untouched lever with no registered prediction | 3 | 3 | 2 | 8 |
+| 6 | Batch 32 → 64 at the same 2000 steps: doubles the tokens seen while holding the STEP budget — the honest probe of what a step budget actually holds fixed | 3 | 3 | 2 | 8 |
+
+All four registered candidates tie at 9 because each decides a pre-registered
+prediction either way; the tie-break is expected information, and it is genuinely equal
+— so they run in the contract's order (#1 → #4), and the phase's sixth slot goes to
+whichever of #5 / #6 the first four make most informative. #5 and #6 are mirrored into
+the playbook's queue.
+
+Chosen first: **#1**, warmup — `xiong2020` says a Pre-LN stack should not need it, so a
+refutation confirms the doctrine cheaply and a support would say the constant 3e-3 is
+too aggressive early, which would change the anchor recipe for everything after.
+
