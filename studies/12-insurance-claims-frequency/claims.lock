@@ -55,7 +55,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "splines_lift"
+      ],
       "strength": "exploratory"
     },
     "C11": {
@@ -337,6 +339,13 @@
       "note": "E0002 lift in declared floors",
       "precision": 4,
       "value": 0.9568
+    },
+    "splines_lift": {
+      "art": "verdicts",
+      "claim": "C10",
+      "note": "E0002 delta_vs_reference",
+      "precision": 6,
+      "value": 0.035956
     },
     "straddling_hashes": {
       "art": "data_card",
