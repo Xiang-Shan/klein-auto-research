@@ -1,0 +1,183 @@
+{
+  "baseline": 0.87139,
+  "block_differences": {
+    "bayes_auc": {
+      "difference": null,
+      "original": 0.884116,
+      "replicate": null
+    },
+    "delta_in_floors": {
+      "difference": null,
+      "original": 4.7779,
+      "replicate": null
+    },
+    "delta_vs_reference": {
+      "difference": null,
+      "original": 0.035605,
+      "replicate": null
+    },
+    "gap_in_floors": {
+      "difference": null,
+      "original": 1.7077,
+      "replicate": null
+    },
+    "gap_to_ideal": {
+      "difference": null,
+      "original": 0.012726,
+      "replicate": null
+    },
+    "primary_metric": {
+      "difference": null,
+      "original": 0.87139,
+      "replicate": null
+    },
+    "reference_auc": {
+      "difference": null,
+      "original": 0.835785,
+      "replicate": null
+    },
+    "runner_exit_code": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "total_seconds": {
+      "difference": null,
+      "original": 0.6,
+      "replicate": null
+    },
+    "train_rows": {
+      "difference": null,
+      "original": 12000.0,
+      "replicate": null
+    },
+    "training_seconds": {
+      "difference": null,
+      "original": 0.6,
+      "replicate": null
+    },
+    "val_best_threshold": {
+      "difference": null,
+      "original": 0.32,
+      "replicate": null
+    },
+    "val_brier": {
+      "difference": null,
+      "original": 0.109337,
+      "replicate": null
+    },
+    "val_f1_at_best": {
+      "difference": null,
+      "original": 0.6734,
+      "replicate": null
+    },
+    "val_lift_top10": {
+      "difference": null,
+      "original": 3.7033,
+      "replicate": null
+    },
+    "val_logloss": {
+      "difference": null,
+      "original": 0.355165,
+      "replicate": null
+    },
+    "val_pr_auc": {
+      "difference": null,
+      "original": 0.752535,
+      "replicate": null
+    },
+    "val_rows": {
+      "difference": null,
+      "original": 4000.0,
+      "replicate": null
+    },
+    "wall_seconds": {
+      "difference": null,
+      "original": 0.647123,
+      "replicate": null
+    }
+  },
+  "candidate_commit": "061a079ab2b901f421af60f904ee744cfb8bf7cb",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "data_fingerprint": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
+  "difference": null,
+  "ended_at": "2026-09-03T05:35:08.549306Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0003@20260903T053344Z",
+  "exit_code": 1,
+  "experiment": "E0003",
+  "failure_reason": "process exit code 1",
+  "log": "runs/E0003/replications/20260903T053344Z.log",
+  "max_run_seconds": 300.0,
+  "metric_name": "val_auc",
+  "mismatched_keys": [
+    "bayes_auc",
+    "delta_in_floors",
+    "delta_vs_reference",
+    "gap_in_floors",
+    "gap_to_ideal",
+    "primary_metric",
+    "reference_auc",
+    "train_rows",
+    "val_best_threshold",
+    "val_brier",
+    "val_f1_at_best",
+    "val_lift_top10",
+    "val_logloss",
+    "val_pr_auc",
+    "val_rows"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "bayes_auc": 0.884116,
+    "delta_in_floors": 4.7779,
+    "delta_vs_reference": 0.035605,
+    "gap_in_floors": 1.7077,
+    "gap_to_ideal": 0.012726,
+    "primary_metric": 0.87139,
+    "reference_auc": 0.835785,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.6,
+    "train_rows": 12000.0,
+    "training_seconds": 0.6,
+    "val_best_threshold": 0.32,
+    "val_brier": 0.109337,
+    "val_f1_at_best": 0.6734,
+    "val_lift_top10": 3.7033,
+    "val_logloss": 0.355165,
+    "val_pr_auc": 0.752535,
+    "val_rows": 4000.0,
+    "wall_seconds": 0.647123
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 0.87139,
+  "record": "runs/E0003/replications/20260903T053344Z.json",
+  "replicate_block": {},
+  "replicate_primary_metric": null,
+  "reproduced": false,
+  "schema_version": 1,
+  "stamp": "20260903T053344Z",
+  "started_at": "2026-09-03T05:33:44.653754Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T05:33:44.482537Z",
+  "tolerance": 0.00745212,
+  "tolerance_source": "minimum_delta",
+  "track": "primary",
+  "wall_seconds": 83.89536533388309,
+  "worktree_prepared": true
+}

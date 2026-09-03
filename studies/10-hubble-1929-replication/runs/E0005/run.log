@@ -1,0 +1,25 @@
+---
+primary_metric:    1.000000
+metric_name:       targets_outside_tolerance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/nine_group_inputs.tsv
+rows:              5
+sha256:            6cf66ea4f4386d6f969220cfc0586dff7b62041ca0f749db9894ed05c3dbabc3
+wall_seconds:      0.009634
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+groups_reconstructed: 0.0
+groups_required: 9.0
+distinct_distances: 15.0
+objects_sharing_a_distance: 14.0
+n_objects: 24.0
+target_k: 513.0
+target_tolerance: 60.0
+textbook_value: 500.0
+runner_status: ok
+runner_exit_code: 0

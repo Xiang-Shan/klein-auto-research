@@ -1,0 +1,50 @@
+<h2>The method</h2>
+
+<p>Two ideas do all the work here, and neither of them is a model.</p>
+
+<h3>The ceiling</h3>
+
+<p>Imagine grading weather forecasters. Even a forecaster who knows the true
+probability of rain for every single day will not score perfectly, because it
+sometimes fails to rain on an eighty-percent day. There is a best possible score, and
+the world's coin flips set it, not the forecaster. That is the <strong>Bayes
+ceiling</strong>.</p>
+
+<p>The generating process is a logistic model with one interaction and one quadratic
+term, so the truth is smooth but <em>not</em> linear in the raw features:</p>
+
+<div data-math-display="\eta(x) = \beta_0 + \sum_{j=1}^{6} \beta_j x_j + \beta_{12}\, x_1 x_2 + \beta_{33}\, x_3^2"></div>
+
+<p>and each row's label is a coin flip weighted by that log-odds:</p>
+
+<div data-math-display="y \sim \mathrm{Bernoulli}(\sigma(\eta(x)))"></div>
+
+<p>AUC is the probability that a random positive outranks a random negative, so it
+depends on a score only through the <em>order</em> it puts the rows in. The true
+probability is by construction the best ordering there is, so no score can beat it:</p>
+
+<div data-math-display="A[s] \le A[p] = A_{\mathrm{Bayes}} \quad \text{for every } s"></div>
+
+<p>That is why the ceiling is computable here and nowhere else. Note the subtlety the
+study had to respect: it is a ceiling for <em>these rows</em>. A different draw of four
+thousand rows has its own ceiling, which is why the sealed prediction was written with
+a tolerance instead of as an equality.</p>
+
+<h3>The detection limit</h3>
+
+<p>Now put the ceiling next to the noise floor &mdash; how much the metric moves when
+nothing about the model changes. Their ratio is the <strong>headroom</strong>:</p>
+
+<div data-math-display="h = \frac{A_{\mathrm{Bayes}} - A[\hat{s}]}{\delta}"></div>
+
+<p>where <span data-math="\delta"></span> is the measured floor, the smallest
+improvement that counts. If <span data-math="h &lt; 1"></span>, then even a
+<em>perfect</em> model could not beat your current one by an amount your measurement
+could tell apart from noise. The tournament is decided before it runs.</p>
+
+<p>Two warnings the field paid for, repeated here. First,
+<span data-math="h \ge 1"></span> means only &ldquo;not arithmetically
+excluded&rdquo; &mdash; never &ldquo;worth trying&rdquo;; the attainable ceiling
+usually sits well below the ideal one. Second, the floor you divide by must be the
+floor that judges <em>your</em> comparison. That second warning is the one this study
+nearly walked into, and section four shows how close it came.</p>

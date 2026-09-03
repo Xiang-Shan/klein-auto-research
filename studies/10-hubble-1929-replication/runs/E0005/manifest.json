@@ -1,0 +1,98 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2212,
+      "committed": true,
+      "sha256": "ae2ccb5bb5ddd8cbcbf73102cfe4d0795a1da4c0bb64768a3acd88c08c14b854"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 709,
+      "committed": true,
+      "sha256": "abd8cd884ad1b5bb6c1243991eda4c561559aff7d475ef9a6107f01e6b1a7a48"
+    },
+    "tables/nine_group_inputs.tsv": {
+      "availability": "recorded",
+      "bytes": 1263,
+      "committed": true,
+      "role": "declared",
+      "sha256": "6cf66ea4f4386d6f969220cfc0586dff7b62041ca0f749db9894ed05c3dbabc3"
+    }
+  },
+  "base_commit": "3fa371febb8b2c52c3e488743d3c0af7f0f90bc9",
+  "candidate_commit": "1e844f2251a36a9e8027cf12d011ce1acadb3dc2",
+  "code_patch_hash": "0a5ea6aac3d1782502404ec2ce0a7949e6ce6df0d09b73650df8515db4e37da6",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "nine-group solution against 513 +/- 60: audit whether the paper's grouping can be reconstructed from what it prints, and record where the textbook 500 actually comes from; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:08:33.844809Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "distinct_distances": 15.0,
+    "groups_reconstructed": 0.0,
+    "groups_required": 9.0,
+    "n_objects": 24.0,
+    "objects_sharing_a_distance": 14.0,
+    "primary_metric": 1.0,
+    "rows": 5.0,
+    "runner_exit_code": 0.0,
+    "target_k": 513.0,
+    "target_tolerance": 60.0,
+    "textbook_value": 500.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.009634
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P3": {
+      "explanation": "inconclusive_if fired: groups_reconstructed 0 < 9 \u2192 supported",
+      "verdict": "inconclusive"
+    }
+  },
+  "predictions_requested": [
+    "P3"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:08:33.176850Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "committed_at": "2026-09-03T06:08:33.916064Z",
+    "evidence_commit": "8bc2188d8e3f463843c16c740dbe27b347c73f03",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6678492079954594
+}

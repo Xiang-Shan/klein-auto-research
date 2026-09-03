@@ -1,0 +1,96 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2424,
+      "committed": true,
+      "sha256": "1a4dcd020fd918ccbad580079dc221477ae1faca506909aa99c70741bf7ec7b5"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 682,
+      "committed": true,
+      "sha256": "257acc645db69d3dc6d2ab8dd9f5e7bbbbc26f2fd8b4ce6cfd6ef06fba2baf32"
+    }
+  },
+  "base_commit": "96b9ff23ded1eaa189708036cd36464688966f48",
+  "candidate_commit": "a6c5fa494e8f10edbc8dfa6a9c14d890be8a0b87",
+  "code_patch_hash": "d3c5c70b4e3749eae9d372a2f5d5922b23ab0087ec0e7bef270e0adbb5122752",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.87139 by minimum_delta=0.00745212",
+  "description": "E0004: the over-capacity boosted tree \u2014 500 trees, 127 leaves, no shrinkage discipline, no early stopping. Does buying capacity at h = 1.708 buy anything the floor can see?; did not improve track frontier 0.87139 by minimum_delta=0.00745212",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T05:29:52.182701Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "20e5ea3a0d642ffb7053d546967e64dc674f69fe62f2eed4f06ed841756f736d",
+    "split_partition": "f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "bayes_auc": 0.884116,
+    "delta_in_floors": -1.7903,
+    "delta_vs_reference": -0.013341,
+    "gap_in_floors": 3.498,
+    "gap_to_ideal": 0.026067,
+    "primary_metric": 0.858049,
+    "reference_auc": 0.87139,
+    "runner_exit_code": 0.0,
+    "total_seconds": 18.4,
+    "train_rows": 12000.0,
+    "training_seconds": 17.7,
+    "val_best_threshold": 0.03,
+    "val_brier": 0.143658,
+    "val_f1_at_best": 0.6485,
+    "val_lift_top10": 3.61,
+    "val_logloss": 1.024102,
+    "val_pr_auc": 0.73092,
+    "val_rows": 4000.0,
+    "wall_seconds": 18.407609
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P4": {
+      "explanation": "|delta_in_floors| 1.7903 < 1 (from -1.7903) \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P4"
+  ],
+  "primary_metric": 0.858049,
+  "schema_version": 3,
+  "started_at": "2026-09-03T05:29:32.962853Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-09-03T05:29:52.266506Z",
+    "evidence_commit": "df1c837071be87e741c51bcc22094d6c1f7131d9",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 19.21972308307886
+}

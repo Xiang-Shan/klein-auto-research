@@ -7,7 +7,16 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .cli_claims import register as register_claims
+from .cli_doctor import register as register_doctor
+from .cli_predict import register as register_predict
+from .cli_replicate import register as register_replicate
+from .cli_stop import register as register_stop
+from .cli_sweep import register as register_sweep
+from .contract import KNOWN_KINDS, load_contract, mutable_surface
+from .noise_floor import add_recipe_arguments
 from .scaffold import scaffold_study
+from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
 from .workflow import (
     WorkflowError,
     acknowledge_headroom,
@@ -17,6 +26,7 @@ from .workflow import (
     recover,
     resolve_study,
     run_one,
+    sealed_dry_run,
     status_summary,
     verify_study,
 )
@@ -31,16 +41,53 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"klein {__version__}")
     sub = parser.add_subparsers(dest="command_name", required=True)
 
-    new = sub.add_parser("new", help="scaffold a schema-v2 study")
+    new = sub.add_parser("new", help="scaffold a schema-3 study (--schema-version 2 for the frozen v2 shape)")
     new.add_argument("slug", help="study id, e.g. 03-calibration")
     new.add_argument("--root", type=Path, default=Path("studies"), help="parent directory for the study (default: studies/)")
     new.add_argument("--goal", help="one-sentence falsifiable study goal")
     new.add_argument("--domain", help="problem domain, e.g. insurance, optimization")
     new.add_argument("--target", help="target column (or 'synthetic' for known-truth labs)")
-    new.add_argument("--task-type", choices=("classification", "regression", "simulation"), default="classification", help="evaluator shape for the study (simulation = scalar/known-truth labs)")
+    new.add_argument("--task-type", choices=("classification", "regression", "simulation", "scalar"), default="classification", help="evaluator shape for the study (scalar = known-truth labs and closed-form objectives; simulation is its schema-2 spelling)")
     new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
     new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
-    new.add_argument("--track", default="primary", help="name of the first metric track (default: primary)")
+    new.add_argument(
+        "--schema-version",
+        type=int,
+        choices=(2, 3),
+        default=3,
+        help="contract rule set (default: 3 — the typed inquiry; 2 is the frozen shape)",
+    )
+    new.add_argument(
+        "--kind",
+        choices=KNOWN_KINDS,
+        help="the question's shape; also names the scaffolded entrypoint "
+        "(train.py / analyze.py / simulate.py / search.py). Schema 3 only",
+    )
+    new.add_argument(
+        "--modality",
+        choices=KNOWN_MODALITIES,
+        help="the evidence source's shape; selects the Gate-1 card. Schema 3 only",
+    )
+    new.add_argument(
+        "--profile",
+        choices=KNOWN_PROFILES,
+        help="the audience whose vocabulary is honest here. Schema 3 only",
+    )
+    new.add_argument(
+        "--profile-doc",
+        help="a repo-relative .md profile of your own, instead of --profile. Schema 3 only",
+    )
+    new.add_argument(
+        "--audience",
+        help="who reads this study, in a sentence. Schema 3 only",
+    )
+    new.add_argument(
+        "--track",
+        action="append",
+        metavar="NAME[:MODE]",
+        help="a metric track, repeatable; MODE is frontier or registered "
+        "(default: primary, mode from --kind)",
+    )
     new.add_argument("--metric", help="primary metric name, e.g. val_auc (see kleinlib.eval metric registry)")
     new.add_argument("--goal-direction", choices=("higher", "lower"), help="metric direction; must match the metric's canonical direction")
     new.add_argument("--minimum-delta", type=float, default=0.0, help="smallest improvement that counts as a keep (measure it at Phase 0)")
@@ -53,6 +100,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     new.add_argument("--group-column", help="grouping column for split-kind=group")
     new.add_argument("--time-column", help="timestamp column for split-kind=time")
+    new.add_argument("--split-seed", type=int, default=42, help="seed written into data.split (default: 42)")
     new.add_argument("--max-run-seconds", type=int, default=600, help="hard per-run timeout enforced by run-one (default: 600)")
 
     gate = sub.add_parser("gate", help="record or explicitly override a gate")
@@ -63,7 +111,10 @@ def build_parser() -> argparse.ArgumentParser:
     }
     for action in ("record", "override"):
         p = gate_sub.add_parser(action, help=gate_help[action])
-        choices = ("consult", "data", "method", "phase") if action == "record" else (
+        # `referee` is recordable but never overridable: a FAIL is never
+        # softened into a note. The documented escape is
+        # `klein finalize --no-referee --reason`, which labels the study.
+        choices = ("consult", "data", "method", "referee", "phase") if action == "record" else (
             "consult",
             "data",
             "method",
@@ -108,6 +159,19 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--description", default="")
     run.add_argument("--timeout-seconds", type=float)
     run.add_argument("--final-test", action="store_true")
+    run.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="with --final-test: rehearse the sealed run on development data. "
+        "Spends no id, commit, manifest, row or seal; exits 3 if the entrypoint "
+        "never printed `sealed_dryrun: 1`",
+    )
+    run.add_argument(
+        "--tests",
+        metavar="P1[,P2]",
+        help="adjudicate these registered predictions against this run's printed "
+        "block (schema 3)",
+    )
     run.add_argument("--quiet", action="store_true")
     run.add_argument(
         "--allow-rerun",
@@ -127,6 +191,23 @@ def build_parser() -> argparse.ArgumentParser:
     final = sub.add_parser("finalize", help="mark findings exploratory or confirmed")
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
+    final.add_argument(
+        "--allow-open-predictions",
+        action="store_true",
+        help="close the study with unadjudicated predictions; needs --reason, which is recorded",
+    )
+    final.add_argument(
+        "--no-referee",
+        action="store_true",
+        help="close without the Gate-3 referee record; needs --reason and labels "
+        "the study `unrefereed` on its receipt and in klein status",
+    )
+    final.add_argument(
+        "--reason",
+        default="",
+        help="why predictions stay open (--allow-open-predictions) or why the "
+        "study closes unrefereed (--no-referee)",
+    )
 
     floor = sub.add_parser(
         "noise-floor",
@@ -142,17 +223,67 @@ def build_parser() -> argparse.ArgumentParser:
     floor.add_argument("--values", help="comma-separated metric values (instead of --sidecar)")
     floor.add_argument("--seeds", help="comma-separated seeds (with --values)")
     floor.add_argument("--measured-after", help="anchor experiment id, e.g. E0001")
-    floor.add_argument(
-        "--method",
-        help="how the floor was measured (default: seed-sweep for a sidecar; "
-        "the consult protocol also names paired-bootstrap)",
-    )
+    add_recipe_arguments(floor)  # --recipe / --estimand / --method, declared once
 
     verify = sub.add_parser(
         "verify",
         help="validate a v1 or v2 study; v1 studies get deprecation errata, never a rewrite",
     )
     _study_arg(verify)
+    verify.add_argument(
+        "--require-local",
+        action="store_true",
+        help="fail (instead of [WARN]) when an artifact policy keeps out of git — "
+        "prepared data, a model blob marked committed:false — is absent; use after "
+        "regenerating the study's local artifacts",
+    )
+    # Tri-state on purpose: absent means "the default for this study's schema"
+    # (schema 3 on, schema 2 off), so a schema-2 study's output stays byte-identical.
+    verify.add_argument(
+        "--numbers",
+        action="store_true",
+        default=None,
+        help="scan findings.md for numerals with no home in a pinned artifact "
+        "(enforcing on schema 3, advisory on schema 2); report/index.html always "
+        "gets a second, always-advisory pass. Default: on for schema 3",
+    )
+    verify.add_argument(
+        "--claims",
+        action="store_true",
+        default=None,
+        help="add the claim-sentence numeral scan to the claims law's check 5 "
+        "(`references/claims-protocol.md`). Default: on for schema 3",
+    )
+    verify.add_argument(
+        "--evidence-use",
+        dest="evidence_use",
+        action="store_true",
+        default=None,
+        help="check that every discard, crash, measured cell and registered sweep is "
+        "cited in program.md or findings.md (evidence_use_rate), that every refuted "
+        "prediction has a dated `Decision:` line, and that confirmed claims cite two "
+        "or more evidence kinds. Default: on for schema 3",
+    )
+    verify.add_argument(
+        "--receipt",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="write and commit verify_receipt.json (--no-receipt to skip). "
+        "Default: on for schema 3, off for schema 2",
+    )
+    verify.add_argument(
+        "--strict",
+        action="store_true",
+        help="promote every [WARN] this verb owns into a failure — an uncited "
+        "discard, an advisory claims warning, a single-source confirmed claim",
+    )
+
+    register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
+    register_doctor(sub)
+    register_predict(sub)
+    register_replicate(sub)
+    register_stop(sub)
+    register_sweep(sub)
     return parser
 
 
@@ -166,9 +297,41 @@ def _print_checks(checks) -> int:
     return int(failures)
 
 
+def _resolve_sidecar(study: Path, sidecar: Path | None) -> Path:
+    """Locate ``klein noise-floor --sidecar`` the way its own default reads.
+
+    The default is ``<study>/sweeps/noise_floor.sidecar.tsv`` and every
+    documented invocation writes the study-relative spelling
+    (``--sidecar sweeps/<name>.sidecar.tsv``, as ``consult-protocol.md``
+    Phase 0 and ``klein sweep register --sidecar`` both do), so a relative
+    path is resolved against the STUDY first.  A path that only exists
+    relative to the process working directory still resolves, so a caller
+    already inside the study directory keeps working.  A path that exists
+    nowhere is a :class:`WorkflowError` naming both places it was looked
+    for — never a bare ``FileNotFoundError`` traceback.
+    """
+    if sidecar is None:
+        return study / "sweeps" / "noise_floor.sidecar.tsv"
+    if sidecar.is_absolute():
+        if not sidecar.is_file():
+            raise WorkflowError(f"--sidecar does not exist: {sidecar.as_posix()}")
+        return sidecar
+    in_study = study / sidecar
+    if in_study.is_file():
+        return in_study
+    if sidecar.is_file():
+        return sidecar
+    raise WorkflowError(
+        f"--sidecar does not exist: looked for {in_study.as_posix()} (study-relative) "
+        f"and {sidecar.as_posix()} (working-directory-relative)"
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
+        if (handler := getattr(args, "handler", None)) is not None:
+            return handler(args)  # a cli_<group> module's verb, dispatched generically
         if args.command_name == "new":
             study = scaffold_study(
                 args.root,
@@ -179,57 +342,63 @@ def main(argv: list[str] | None = None) -> int:
                 task_type=args.task_type,
                 method_depth=args.method_depth,
                 family=args.family,
-                track=args.track,
+                tracks=args.track,
                 metric_name=args.metric,
                 metric_goal=args.goal_direction,
                 minimum_delta=args.minimum_delta,
                 data_source=args.data,
                 data_path=args.prepared_path,
                 split_kind=args.split_kind,
+                split_seed=args.split_seed,
                 group_column=args.group_column,
                 time_column=args.time_column,
                 max_run_seconds=args.max_run_seconds,
+                schema_version=args.schema_version,
+                kind=args.kind,
+                modality=args.modality,
+                profile=args.profile,
+                profile_doc=args.profile_doc,
+                audience=args.audience,
             )
             print(f"scaffolded {study}")
             print(f"next: git switch -c experiments/{args.slug}")
             return 0
         if args.command_name == "noise-floor":
-            from .noise_floor import floor_from_sidecar, summarize_noise, yaml_block
+            from .noise_floor import (
+                floor_from_sidecar,
+                floor_report,
+                resolve_estimand,
+                summarize_noise,
+            )
 
+            method = args.recipe or args.method
             if args.values:
                 seeds = [int(v) for v in args.seeds.split(",")] if args.seeds else None
                 floor_stats = summarize_noise(
                     [float(v) for v in args.values.split(",")], seeds=seeds
                 )
                 source = "--values"
-                method = args.method
             else:
                 study = resolve_study(args.study)
-                sidecar = args.sidecar or (study / "sweeps" / "noise_floor.sidecar.tsv")
+                sidecar = _resolve_sidecar(study, args.sidecar)
                 floor_stats = floor_from_sidecar(sidecar)
                 try:
-                    source = str(sidecar.resolve().relative_to(study.resolve()))
+                    source = sidecar.resolve().relative_to(study.resolve()).as_posix()
                 except ValueError:
-                    source = str(sidecar)
-                method = args.method or "seed-sweep"
+                    source = sidecar.as_posix()
+                # Unchanged default when no recipe is declared: a bare
+                # `klein noise-floor --sidecar ...` prints exactly what it did.
+                method = method or "seed-sweep"
             print(
-                f"k={floor_stats.k}  mean={floor_stats.mean:.6g}  std={floor_stats.std:.6g}  "
-                f"range={floor_stats.value_range:.6g}  suggested minimum_delta="
-                f"{floor_stats.suggested_minimum_delta:.6g}"
-            )
-            print()
-            print(
-                yaml_block(
+                floor_report(
                     args.track,
                     floor_stats,
                     source=source,
                     measured_after=args.measured_after,
                     method=method,
-                )
-            )
-            print(
-                "next: edit study.yaml, then re-record the consult gate --note "
-                '"minimum_delta set from the measured noise floor"'
+                    estimand=resolve_estimand(args.recipe, args.estimand),
+                ),
+                end="",
             )
             return 0
         study = resolve_study(args.study)
@@ -260,6 +429,25 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "preflight":
             return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
         if args.command_name == "run-one":
+            if args.dry_run:
+                if not args.final_test:
+                    raise WorkflowError(
+                        "--dry-run rehearses a sealed run: pass it with --final-test "
+                        "(a development run needs no rehearsal — it spends nothing "
+                        "that cannot be spent again)"
+                    )
+                if args.tests:
+                    raise WorkflowError(
+                        "--dry-run adjudicates nothing: a rehearsal on development "
+                        "data is not evidence for a registered prediction"
+                    )
+                return sealed_dry_run(
+                    study,
+                    track=args.track,
+                    timeout_seconds=args.timeout_seconds,
+                    command=args.command or None,
+                    echo=not args.quiet,
+                )
             manifest = run_one(
                 study,
                 track=args.track,
@@ -269,6 +457,7 @@ def main(argv: list[str] | None = None) -> int:
                 command=args.command or None,
                 echo=not args.quiet,
                 allow_rerun=args.allow_rerun,
+                tests=args.tests,
             )
             label = manifest["disposition"]
             if (
@@ -295,8 +484,9 @@ def main(argv: list[str] | None = None) -> int:
                 holder = (
                     f"(= {anchor}'s kept config)" if anchor else "(pre-candidate scaffold state)"
                 )
+                surface = ", ".join(mutable_surface(load_contract(study)))
                 print(
-                    f"train.py restored to pre-candidate base "
+                    f"{surface} restored to pre-candidate base "
                     f"{manifest['base_commit'][:12]} {holder}; "
                     f"candidate stays resolvable at {manifest['candidate_commit'][:12]}"
                 )
@@ -309,11 +499,28 @@ def main(argv: list[str] | None = None) -> int:
             print(status_summary(study), end="")
             return 0
         if args.command_name == "finalize":
-            label = finalize(study, allow_exploratory=args.allow_exploratory)
+            label = finalize(
+                study,
+                allow_exploratory=args.allow_exploratory,
+                allow_open_predictions=args.allow_open_predictions,
+                open_predictions_reason=args.reason,
+                no_referee=args.no_referee,
+                referee_reason=args.reason,
+            )
             print(f"finalized: {label}")
             return 0
         if args.command_name == "verify":
-            return _print_checks(verify_study(study))
+            return _print_checks(
+                verify_study(
+                    study,
+                    require_local=args.require_local,
+                    numbers=args.numbers,
+                    claims=args.claims,
+                    evidence=args.evidence_use,
+                    strict=args.strict,
+                    receipt=args.receipt,
+                )
+            )
     except (WorkflowError, FileExistsError, ValueError) as exc:
         print(f"klein: error: {exc}", file=sys.stderr)
         return 2

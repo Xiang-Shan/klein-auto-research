@@ -1,0 +1,99 @@
+<h2>5 · Findings &amp; insights</h2>
+
+<h3>§5.1 · The object</h3>
+
+<p>The study's one construction: a 22-point configuration on the 11 × 11 grid with no
+three collinear, found by E0009 from the sealed seed block, accepted by the declared
+verifier, committed as bytes at <code>models/E0009/solution.json</code>. Twenty-two is
+<span data-math="2n"></span> at <span data-math="n = 11"></span>, so the object
+<strong>attains the proven maximum</strong> and matches the best known value for this
+instance. Beside it, the negative control it was checked against.</p>
+
+<img data-fig="figures/verified_object.png" alt="Left: the sealed run's 22-point object on the 11 by 11 grid, exactly two points per row and per column. Right: the eleven-point Erdos parabola control.">
+
+<p>Count the rows and columns in the left panel: exactly two points in each. That is what
+attaining <span data-math="2n"></span> looks like, and it is what the checker verified over
+every triple — twice, since <code>figures/make_figures.py</code> re-runs the collinearity
+test on the same bytes before it will draw them.</p>
+
+<h3>§5.2 · The verdicts</h3>
+
+<table>
+<thead><tr><th>Claim</th><th>Class</th><th>Strength</th><th>What it says</th></tr></thead>
+<tbody>
+<tr><td><strong>C1</strong></td><td>empirical-description</td><td>exploratory</td><td>on 11 × 11: 20 points at 20000 tests, 21 at 200000, 21 at 2000000 from the development block — and 22 from the sealed block at that same budget</td></tr>
+<tr><td><strong>C2</strong></td><td>empirical-description</td><td>exploratory</td><td>on 31 × 31: 50, 53, 54, and 55 sealed — it did not reach 62 at either seed; the same budget bought 19014 completions at the smaller instance and 2190 at this one</td></tr>
+<tr><td><strong>C3</strong></td><td>procedural-verdict</td><td><strong>confirmed</strong></td><td>12 of 12 planted objects rejected, the known-valid object accepted at its predicted 11, and the one overclaiming run refused: reported 21.0 against verified 20.0, crash, ledger row NA</td></tr>
+<tr><td><strong>C4</strong></td><td>procedural-verdict</td><td><strong>confirmed</strong></td><td>the two lanes differ only in the seed and disagree about the maximum: 21 at evaluation 152572, against 22 at evaluation 1612132, at the same budget of 2000000</td></tr>
+<tr><td><strong>C5</strong></td><td>mechanism-interpretation</td><td>exploratory</td><td>a single run of a randomized heuristic reports a draw, not a property</td></tr>
+<tr><td><strong>C6–C9</strong></td><td>research-discipline</td><td>exploratory</td><td>the four lessons in §6</td></tr>
+</tbody>
+</table>
+
+<p>All seven registered predictions closed: six supported, one refuted, none inconclusive,
+none open.</p>
+
+<h3>§5.3 · The surprise, and what it does not license</h3>
+
+<p>P1 was written expecting the maximum at n = 11 and got 21. P6 was written expecting the
+same thing from a block nobody had touched, and got 22. The development trajectory found its
+best at evaluation 152572 and then spent the rest of 2000000 without improving, so "more
+budget" was demonstrably not the missing ingredient — the honest reading of the development
+lane <em>alone</em> ("this search plateaus at 21 here") was a statement about one draw
+wearing the costume of a statement about the search.</p>
+
+<blockquote>
+<p><strong>A difference, not a rate.</strong> Two seeds, one success. This study cannot say
+how often the search reaches 22, and does not. A registered seed sweep is the first item in
+§7 for exactly that reason.</p>
+</blockquote>
+
+<p>P1 stays refuted and is <em>not</em> re-scoped by P6. Two predictions, two lanes, two
+verdicts — rewriting the first in the light of the second would delete the most informative
+thing the study measured.</p>
+
+<h3>§5.4 · Consequences for the bound</h3>
+
+<p>What the objects establish: a lower bound. The 22-point object attains
+<span data-math="2n"></span> at <span data-math="n=11"></span>; the 55-point object is a
+lower bound on what this search reaches at <span data-math="n=31"></span> and nothing more.</p>
+
+<p>What they do not establish: <strong>nothing about the problem</strong>. The 21-point
+plateau and the 54/55-point results are <em>search limits</em> — facts about one algorithm
+under one budget from two named seeds — and the correct reading of every one of them is
+"did not reach", never "cannot". The study can say that with unusual confidence because
+the counterexample is inside it: the same search missed 22 from one seed and reached it
+from another. No upper bound is established or improved; the only one in play,
+<span data-math="2n"></span>, was a theorem before the study began, which is precisely what
+headroom zero means.</p>
+
+<h3>§5.5 · The erratum, and why it is in the tutorial</h3>
+
+<p>The referee found that C6's locked sentence ends "and stayed sub-millisecond", and that
+C6's <em>own pinned artifact</em> refutes it: <code>runs/E0010/verify.log</code>, the file
+that supplies C6's 26235, records 0.002046 seconds beside it. Four of the ten verifier logs
+exceed a millisecond; sub-millisecond holds only for the 11 × 11 objects, where E0009 reads
+0.000169.</p>
+
+<p>The phrase came from the data card, which wrote it at Gate 1 as a pre-run cost estimate
+— before any run existed — and it was never re-checked once the logs existed. So:
+<strong>erratum E1</strong> is filed against C6, the two measured seconds are now pinned
+numbers attached to it, and the findings and the knowledge entry quote them. C6's sentence
+itself is untouched, because <code>claims.lock</code> is append-only and an erratum re-scopes
+rather than rewrites — a reader sees both what was claimed and what was later learned.</p>
+
+<blockquote>
+<p>Why it survived every mechanical check: "sub-millisecond" is a <em>word</em>, not a
+numeral, so <code>klein verify --numbers</code> was never looking at it. A numeral scan
+catches invented numbers; it does not catch an adjective that has quietly become a claim.</p>
+</blockquote>
+
+<h3>§5.6 · Why this study closes <code>exploratory</code></h3>
+
+<p>Not a shortfall — arithmetic. <code>confirmation.require</code> is <code>[verify]</code>,
+which on a frontier track resolves to a re-verification record for the track's final
+<em>keep</em>. There are no keeps and there could not have been, so there is no incumbent to
+confirm and the engine labels the study <code>exploratory</code>. The label does not mean the
+objects are unverified: every development run carries a re-verification at tolerance 0, both
+<code>procedural-verdict</code> claims close <code>confirmed</code>, and the referee re-ran
+the declared verifier itself, in a fresh process, on the pinned object — and got 22.</p>

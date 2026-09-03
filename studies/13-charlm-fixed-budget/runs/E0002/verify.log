@@ -1,0 +1,36 @@
+split_fingerprint: 0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50
+---
+primary_metric:    1.584747
+metric_name:       val_loss
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.2
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+wall_seconds:      0.238162
+steps: 2000
+eval_context: 128
+n_val_windows: 871
+n_scored_chars: 111488
+n_partition_chars: 111616
+n_params: 824320
+bpc: 2.286307
+reported_val_loss: 1.584747
+verifier_gap: 0.00000000
+cfg_n_layer: 4
+cfg_n_head: 4
+cfg_n_embd: 128
+cfg_tie_weights: 0
+cfg_dropout: 0.0000
+cfg_warmup_steps: 200
+cfg_lr: 0.003
+cfg_batch_size: 32
+cfg_seed: 20260903
+anchor_mean: 1.569150
+delta_vs_anchor: -0.015597
+delta_in_floors: -1.0431
+anchor_z: 1.9425
+runner_status: ok
+runner_exit_code: 0

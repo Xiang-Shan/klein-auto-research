@@ -11,7 +11,7 @@ unmodified CSV published by the author (58,592 records + header;
 sha256 of the decompressed bytes:
 99d5ae7398e6fb1983701977295e0417d8bcee9c60b17ad73b08841bef194d29).
 The 2,000-row stratified sample at
-studies/00-glm-claims-quickstart/fixtures/insurance_claims_sample_2k.csv
+studies/12-insurance-claims-frequency/fixtures/insurance_claims_sample_2k.csv
 is a derivative of the same file.
 
 The full text of the Apache License 2.0 follows.

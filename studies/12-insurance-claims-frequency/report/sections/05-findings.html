@@ -1,0 +1,74 @@
+<h2>Findings &amp; insights</h2>
+
+<h3>The ladder reproduced; the keeps did not</h3>
+
+<p>All three rungs land inside the tolerance that was derived before any fit &mdash;
+residuals of 0.011322, 0.001612 and 0.001154 against 0.0225. The models port. What does
+not port is the <em>verdict</em>: under a measured bar the same ladder yields exactly one
+frontier improvement instead of six keeps, and the earlier study's sixth row &mdash; a
+learning-rate sweep recorded as a keep on an AUC lift of 0.001425 &mdash; is 0.0379 of one
+floor. Under a measured bar it is a discard.</p>
+
+<h3>Prose that names its kwargs is nearly as good as a commit</h3>
+
+<p>One rung was recoverable verbatim from a committed file; two survived only as prose.
+But that prose named its three non-default constructor arguments, because the earlier study
+had made naming them its own parting advice. The verbatim rung reproduces to 0.001154 and
+the prose rung to 0.001612: the whole advantage of having the code is 0.000458 of AUC.
+That is a stronger endorsement of the advice than the prior that predicted it.</p>
+
+<h3>Calibration is cheap and enormous; rank is expensive and invisible</h3>
+
+<img data-fig="figures/plot_reliability.png" alt="Reliability diagram for the frontier incumbent: predicted probability against observed frequency by bin.">
+
+<p>Replacing balanced class weighting with unweighted fitting plus a cross-fitted isotonic
+wrapper improves the Brier score by a factor of 4.055, from 0.240641 to 0.059337, and pays
+0.001465 of AUC &mdash; 0.0390 of one floor, one twenty-fifth of the smallest difference
+this study can resolve. Meanwhile the tree that ranks best carries a Brier score worse by
+a factor of 3.789 than the calibrated GLM, and its rank advantage over that GLM is 0.3714
+of a floor. Rank and level are not two views of one quantity; they are two currencies, and
+the exchange rate here is brutal.</p>
+
+<p>The profile's rank views of the same incumbent, for completeness: the ROC curve
+the primary metric integrates, and the precision-recall curve, which is the harder
+read at a claim rate of 0.063968 and the one that shows how little of the book any
+model can pick out with confidence.</p>
+
+<img data-fig="figures/plot_roc.png" alt="ROC curve for the frontier incumbent on the development partition, with the chance diagonal.">
+
+<img data-fig="figures/plot_pr.png" alt="Precision-recall curve for the frontier incumbent on the development partition.">
+
+<img data-fig="figures/lorenz_gini.png" alt="Lorenz curves for all three rungs on the development partition, each with its Gini in the legend.">
+
+<h3>Four surprises, each with a mechanism</h3>
+
+<ul>
+  <li><strong>Pairing barely helped.</strong> The paired spread between the GLM and the
+      tree is 0.013942 against a marginal spread of 0.017964. Cancellation needs the two
+      scores to move together, and these two models rank these policies too differently.
+      Two rungs differing by one lever pair down to 0.001276 instead &mdash; a ratio of
+      10.92 on the same rows with the same instrument.</li>
+  <li><strong>A verdict flipped between two defensible floors,</strong> and the study had
+      pre-committed to reporting it. Exactly one registered verdict in this study is
+      instrument-limited, and it says so.</li>
+  <li><strong>The duplicated rows flattered nobody.</strong> The prior was that a tree
+      could memorise a duplicated rating cell and a GLM could not. It did not: three of
+      four development rungs score <em>higher</em> on the twin-free rows, and the largest
+      gap in either direction is 0.001415. A coarse cell is what all of these models price
+      as a group anyway &mdash; there is nothing individual left in the row to memorise.
+      The confirmed claim was checked the same way: on the 5528 sealed rows with no
+      training twin the incumbent scores 0.656647, a gap of 0.001091.</li>
+  <li><strong>A rung reproduced while failing to converge.</strong> The spline fits hit
+      the solver's iteration cap; the plain anchor does not. The rung still lands 0.001612
+      from its target, which means the original fit was equally unconverged. What
+      reproduced was an implementation, not an ideal &mdash; and a study that
+      &ldquo;fixed&rdquo; the convergence would have missed the anchor it was chasing.</li>
+</ul>
+
+<h3>What the lock says</h3>
+
+<p>Twelve claims across four classes. Exactly <strong>one</strong> reaches
+<em>confirmed</em> &mdash; the incumbent's level on the sealed partition &mdash; because
+one track gets one sealed access, and that confirms a level, never a difference. Every
+rung-to-rung gap on this page is development evidence and is exploratory by construction,
+which the plan registered before the first run rather than discovering afterwards.</p>

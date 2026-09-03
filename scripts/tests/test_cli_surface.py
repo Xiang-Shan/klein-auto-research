@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -42,6 +43,51 @@ def test_cli_new_builds_v2_study(tmp_path: Path, capsys) -> None:
     assert rc == 0
     assert (tmp_path / "03-cli-smoke" / "study_state.json").is_file()
     assert "experiments/03-cli-smoke" in capsys.readouterr().out
+
+
+def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
+    """The docs are the spec for the surface: what they promise must parse."""
+    parser = cli.build_parser()
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--help"])
+    top = capsys.readouterr().out
+    for verb in ("new", "gate", "preflight", "run-one", "recover", "status",
+                 "finalize", "noise-floor", "verify", "headroom", "predict"):
+        assert verb in top
+
+    for argv, attr, expected in (
+        (["new", "x", "--schema-version", "2"], "schema_version", 2),
+        (["new", "x"], "schema_version", 3),
+        (["new", "x", "--kind", "optimize"], "kind", "optimize"),
+        (["new", "x", "--modality", "graph"], "modality", "graph"),
+        (["new", "x", "--profile", "math"], "profile", "math"),
+        (["new", "x", "--profile-doc", "profiles/p.md"], "profile_doc", "profiles/p.md"),
+        (["new", "x", "--audience", "chemists"], "audience", "chemists"),
+        (["new", "x", "--track", "a", "--track", "b:registered"], "track", ["a", "b:registered"]),
+        (["new", "x", "--split-seed", "7"], "split_seed", 7),
+        (["verify", "--require-local"], "require_local", True),
+        # E9: the numbers law, the evidence-use checks and the receipt.  Absent
+        # means "the default for this study's schema", so a schema-2 study keeps
+        # printing byte-identical output; only an explicit flag changes it.
+        (["verify"], "numbers", None),
+        (["verify"], "claims", None),
+        (["verify"], "evidence_use", None),
+        (["verify"], "receipt", None),
+        (["verify"], "strict", False),
+        (["verify", "--numbers"], "numbers", True),
+        (["verify", "--claims"], "claims", True),
+        (["verify", "--evidence-use"], "evidence_use", True),
+        (["verify", "--receipt"], "receipt", True),
+        (["verify", "--no-receipt"], "receipt", False),
+        (["verify", "--strict"], "strict", True),
+    ):
+        assert getattr(parser.parse_args(argv), attr) == expected
+
+    for argv in (["new", "x", "--kind", "guess"], ["new", "x", "--modality", "audio"],
+                 ["new", "x", "--profile", "climate"], ["new", "x", "--schema-version", "4"]):
+        with pytest.raises(SystemExit):
+            parser.parse_args(argv)
+        capsys.readouterr()
 
 
 def test_cli_gate_and_preflight_paths(monkeypatch, study: Path, capsys) -> None:
@@ -102,9 +148,34 @@ def test_cli_run_status_recover_finalize_and_verify(monkeypatch, study: Path, ca
     assert cli.main(["finalize", "--study", str(study), "--allow-exploratory"]) == 0
     assert "finalized: exploratory" in capsys.readouterr().out
 
-    monkeypatch.setattr(cli, "verify_study", lambda _study: [Check("contract", True, "valid")])
+    seen: dict[str, object] = {}
+
+    def _verify(_study, *, require_local=False, **kwargs):
+        seen["require_local"] = require_local
+        seen.update(kwargs)
+        return [Check("contract", True, "valid")]
+
+    monkeypatch.setattr(cli, "verify_study", _verify)
     assert cli.main(["verify", "--study", str(study)]) == 0
     assert "0 failed" in capsys.readouterr().out
+    assert seen["require_local"] is False
+    assert cli.main(["verify", "--study", str(study), "--require-local"]) == 0
+    capsys.readouterr()
+    assert seen["require_local"] is True
+    # every E9 flag reaches verify_study, tri-state intact
+    assert cli.main(
+        ["verify", "--study", str(study), "--numbers", "--claims",
+         "--evidence-use", "--no-receipt", "--strict"]
+    ) == 0
+    capsys.readouterr()
+    assert seen == {
+        "require_local": False,
+        "numbers": True,
+        "claims": True,
+        "evidence": True,
+        "strict": True,
+        "receipt": False,
+    }
 
 
 def test_cli_verify_reports_v1_errata_without_rewriting(monkeypatch, tmp_path: Path, capsys) -> None:
@@ -126,6 +197,25 @@ def test_cli_verify_reports_v1_errata_without_rewriting(monkeypatch, tmp_path: P
     assert ledger.read_bytes() == before
 
 
+def test_cli_doctor_help_and_text_and_json_smoke(capsys) -> None:
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(["doctor", "--help"])
+    assert excinfo.value.code == 0
+    help_text = capsys.readouterr().out
+    assert "--study" in help_text
+    assert "--json" in help_text
+    assert "--strict" in help_text
+
+    assert cli.main(["doctor"]) == 0
+    text_out = capsys.readouterr().out
+    assert "[OK] python:" in text_out
+    assert "summary:" in text_out
+
+    assert cli.main(["doctor", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert "ok" in payload and "checks" in payload
+
+
 def test_cli_crash_exit_and_workflow_error(monkeypatch, study: Path, capsys) -> None:
     monkeypatch.setattr(cli, "resolve_study", lambda _path: study)
     monkeypatch.setattr(
@@ -143,3 +233,171 @@ def test_cli_crash_exit_and_workflow_error(monkeypatch, study: Path, capsys) -> 
     monkeypatch.setattr(cli, "status_summary", lambda _study: (_ for _ in ()).throw(WorkflowError("nope")))
     assert cli.main(["status", "--study", str(study)]) == 2
     assert "klein: error: nope" in capsys.readouterr().err
+
+
+CLAIMS_VERBS = ("init", "pin", "number", "add", "erratum", "verify")
+
+
+def test_cli_claims_verbs_are_registered_with_help(capsys) -> None:
+    """`klein claims <verb>` exists with the spelling the protocol documents."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    claims = actions[0].choices["claims"]
+    sub = [a for a in claims._subparsers._group_actions if a.dest == "claims_action"][0]
+    assert set(sub.choices) == set(CLAIMS_VERBS)
+    for verb in CLAIMS_VERBS:
+        help_text = sub.choices[verb].format_help()
+        assert "--study" in help_text
+        assert sub.choices[verb].description or sub._choices_actions
+
+    flags = sub.choices["verify"].format_help()
+    assert "--numbers" in flags and "--strict" in flags
+    assert "--from-legacy" in sub.choices["init"].format_help()
+    for flag in ("--value", "--art", "--claim", "--precision", "--note"):
+        assert flag in sub.choices["number"].format_help(), flag
+    for flag in ("--class", "--strength", "--claim", "--numbers", "--evidence"):
+        assert flag in sub.choices["add"].format_help(), flag
+    for flag in ("--claims", "--note", "--strength"):
+        assert flag in sub.choices["erratum"].format_help(), flag
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["claims", "--help"])
+    assert exit_info.value.code == 0
+    assert "claims.lock" in capsys.readouterr().out
+
+
+def test_cli_claims_dispatches_through_the_generic_handler(monkeypatch, tmp_path: Path) -> None:
+    """A cli_<group> module hangs its handler on the namespace; main() calls it."""
+    seen: list[str] = []
+
+    def fake(args) -> int:
+        seen.append(args.claims_action)
+        return 0
+
+    parser = cli.build_parser()
+    for verb in CLAIMS_VERBS:
+        argv = ["claims", verb, *(["a", "b"] if verb == "pin" else []), *_required(verb)]
+        assert callable(parser.parse_args(argv).handler), verb
+
+    args = parser.parse_args(["claims", "verify", "--study", str(tmp_path)])
+    args.handler = fake
+    monkeypatch.setattr(cli, "build_parser", lambda: parser)
+    monkeypatch.setattr(parser, "parse_args", lambda _argv=None: args)
+    assert cli.main(["claims", "verify"]) == 0
+    assert seen == ["verify"]
+
+
+def test_cli_sweep_register_is_registered_with_help(capsys) -> None:
+    """`klein sweep register` exists with the spelling sweep-rules.md documents."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    sweep = actions[0].choices["sweep"]
+    sub = [a for a in sweep._subparsers._group_actions if a.dest == "sweep_action"][0]
+    assert set(sub.choices) == {"register"}
+
+    help_text = sub.choices["register"].format_help()
+    for flag in ("--study", "--sidecar", "--script"):
+        assert flag in help_text, flag
+    assert "name" in help_text
+
+    argv = ["sweep", "register", "noise_floor", "--sidecar", "s.tsv", "--script", "s.py"]
+    assert callable(parser.parse_args(argv).handler)
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["sweep", "--help"])
+    assert exit_info.value.code == 0
+    assert "sweep-rules.md" in capsys.readouterr().out
+
+
+def test_cli_stop_ack_is_registered_with_help(capsys) -> None:
+    """`klein stop ack` exists with the spelling SKILL.md documents."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    stop = actions[0].choices["stop"]
+    sub = [a for a in stop._subparsers._group_actions if a.dest == "stop_action"][0]
+    assert set(sub.choices) == {"ack"}
+
+    help_text = sub.choices["ack"].format_help()
+    for flag in ("--study", "--track", "--acknowledged-by", "--note"):
+        assert flag in help_text, flag
+
+    argv = ["stop", "ack", "--acknowledged-by", "tester", "--note", "continue: x"]
+    assert callable(parser.parse_args(argv).handler)
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["stop", "--help"])
+    assert exit_info.value.code == 0
+    assert "consecutive discards" in capsys.readouterr().out
+
+
+PREDICT_VERBS = ("list", "adjudicate")
+
+
+def test_cli_predict_verbs_are_registered_with_help(capsys) -> None:
+    """`klein predict list|adjudicate` exists with the spelling the docs promise."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    predict = actions[0].choices["predict"]
+    sub = [a for a in predict._subparsers._group_actions if a.dest == "predict_action"][0]
+    assert set(sub.choices) == set(PREDICT_VERBS)
+
+    listing = sub.choices["list"].format_help()
+    for flag in ("--study", "--open", "--json"):
+        assert flag in listing, flag
+    adjudicate = sub.choices["adjudicate"].format_help()
+    for flag in ("--verdict", "--evidence", "--note", "--acknowledged-by", "--force", "--reason"):
+        assert flag in adjudicate, flag
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["predict", "--help"])
+    assert exit_info.value.code == 0
+    assert "belief" in capsys.readouterr().out.lower()
+
+
+def test_cli_predict_dispatches_through_the_generic_handler(tmp_path: Path) -> None:
+    parser = cli.build_parser()
+    assert callable(parser.parse_args(["predict", "list", "--study", str(tmp_path)]).handler)
+    args = parser.parse_args(
+        ["predict", "adjudicate", "P7", "--verdict", "refuted",
+         "--evidence", "sweeps/x.tsv", "--acknowledged-by", "me"]
+    )
+    assert callable(args.handler)
+    assert (args.prediction, args.verdict, args.evidence) == ("P7", "refuted", ["sweeps/x.tsv"])
+
+
+def test_cli_finalize_carries_the_open_predictions_override() -> None:
+    parser = cli.build_parser()
+    args = parser.parse_args(
+        ["finalize", "--allow-open-predictions", "--reason", "the wave has not returned"]
+    )
+    assert args.allow_open_predictions is True
+    assert args.reason == "the wave has not returned"
+
+
+def _required(verb: str) -> list[str]:
+    """The smallest argv each verb's required flags accept."""
+    return {
+        "number": ["alias", "--value", "1", "--art", "a"],
+        "add": ["C1", "--class", "procedural-verdict", "--strength", "exploratory", "--claim", "x"],
+        "erratum": ["E1", "--claims", "C1", "--note", "n"],
+    }.get(verb, [])
+
+
+def test_cli_replicate_verb_is_registered_with_help(capsys) -> None:
+    """`klein replicate` exists with the spelling the protocol documents."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    replicate = actions[0].choices["replicate"]
+    help_text = replicate.format_help()
+    for flag in ("--study", "--tolerance", "--verify-only", "--list"):
+        assert flag in help_text, flag
+    args = parser.parse_args(["replicate", "E0003", "--tolerance", "0.01"])
+    assert (args.experiment, args.tolerance) == ("E0003", 0.01)
+    assert args.verify_only is False and args.list_records is False
+    assert callable(args.handler)
+    assert parser.parse_args(["replicate", "--list"]).list_records is True
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["replicate", "--help"])
+    assert exit_info.value.code == 0
+    assert "replication-protocol.md" in capsys.readouterr().out

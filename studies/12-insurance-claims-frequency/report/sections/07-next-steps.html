@@ -1,0 +1,69 @@
+<h2>Next steps + references</h2>
+
+<h3>What to try next, in priority order</h3>
+
+<ol>
+  <li><strong>Give each model family its own track.</strong> The one question this study
+      could not answer &mdash; is the calibrated GLM's rank shortfall real? &mdash; needs
+      the gap to be a difference of two <em>sealed</em> numbers, and one track gets one
+      seal. Two tracks declared at the consult gate is the single highest-information
+      change to this design.</li>
+  <li><strong>Re-measure the floor on a larger development partition.</strong> The bar
+      here is 0.0375805 on 5859 rows. Doubling the development partition roughly halves
+      the sampling variance &mdash; at the cost of the training-row identity with the
+      earlier study, which is the trade this study made in the other direction and
+      recorded.</li>
+  <li><strong>Test the duplicate-row question instead of bounding it.</strong> Fit on a
+      deduplicated training partition and evaluate on the same development rows. This
+      study bounded the effect at 0.001415 without ever separating &ldquo;the duplicates
+      do not help&rdquo; from &ldquo;these models cannot exploit them&rdquo;.</li>
+  <li><strong>Threshold tuning, with a decile-stability measurement.</strong> The doctrine
+      is unweighted fitting plus isotonic calibration plus threshold tuning, and only the
+      first two were tested here. The sealed drop of 0.5101 in top-decile lift says the
+      third deserves its own registered measurement rather than an assumption.</li>
+</ol>
+
+<h3>What an actuary should carry away</h3>
+
+<p>Calibration first: on this book a filable probability is available at a rank cost the
+measurement cannot resolve. Balanced class weighting should not reach a rate filing &mdash;
+it costs a factor of 4.055 on Brier and buys 0.0390 of a floor. And a fourth decimal of
+AUC is not a rate change: nothing here is priced, no materiality block is registered, so
+the honest statement is simply that the registered keep-sized bar was not cleared.</p>
+
+<h3>Verified references</h3>
+
+<p>Every entry was checked against its publisher, arXiv or proceedings page on the date
+recorded in <code>references.yaml</code>; none is unverified.</p>
+
+<ul>
+  <li>Hanley, J. A. &amp; McNeil, B. J. (1982). The meaning and use of the area under a
+      receiver operating characteristic (ROC) curve. <em>Radiology</em> 143(1), 29-36.
+      doi:10.1148/radiology.143.1.7063747 &mdash; the closed-form variance that fixed this
+      study's tolerance before any fit.</li>
+  <li>DeLong, E. R., DeLong, D. M. &amp; Clarke-Pearson, D. L. (1988). Comparing the areas
+      under two or more correlated ROC curves. <em>Biometrics</em> 44(3), 837-845.
+      doi:10.2307/2531595 &mdash; why a paired comparison <em>can</em> be sharper, and the
+      doctrine this study found empirically weak.</li>
+  <li>Efron, B. (1979). Bootstrap methods: another look at the jackknife. <em>Annals of
+      Statistics</em> 7(1), 1-26. doi:10.1214/aos/1176344552.</li>
+  <li>Ayer, M., Brunk, H. D., Ewing, G. M., Reid, W. T. &amp; Silverman, E. (1955). An
+      empirical distribution function for sampling with incomplete information.
+      <em>Annals of Mathematical Statistics</em> 26(4), 641-647.
+      doi:10.1214/aoms/1177728423 &mdash; pool-adjacent-violators itself.</li>
+  <li>Zadrozny, B. &amp; Elkan, C. (2002). Transforming classifier scores into accurate
+      multiclass probability estimates. <em>KDD</em>, 694-699. doi:10.1145/775047.775151.</li>
+  <li>Niculescu-Mizil, A. &amp; Caruana, R. (2005). Predicting good probabilities with
+      supervised learning. <em>ICML</em>, 625-632. doi:10.1145/1102351.1102430.</li>
+  <li>Dal Pozzolo, A., Caelen, O., Johnson, R. A. &amp; Bontempi, G. (2015). Calibrating
+      probability with undersampling for unbalanced classification. <em>IEEE SSCI</em>,
+      159-166. doi:10.1109/SSCI.2015.33 &mdash; the prior shift behind the doctrine.</li>
+  <li>Brier, G. W. (1950). Verification of forecasts expressed in terms of probability.
+      <em>Monthly Weather Review</em> 78(1), 1-3.</li>
+  <li>Perperoglou, A., Sauerbrei, W., Abrahamowicz, M. &amp; Schmid, M. (2019). A review of
+      spline function procedures in R. <em>BMC Medical Research Methodology</em> 19(1), 46.
+      doi:10.1186/s12874-019-0666-3 &mdash; the published grounding for quantile knots.</li>
+  <li>Grinsztajn, L., Oyallon, E. &amp; Varoquaux, G. (2022). Why do tree-based models
+      still outperform deep learning on tabular data? <em>NeurIPS Datasets &amp;
+      Benchmarks</em>. arXiv:2207.08815 &mdash; the profile's doctrine anchor.</li>
+</ul>

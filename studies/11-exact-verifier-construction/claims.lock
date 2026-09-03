@@ -1,0 +1,404 @@
+{
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "2f2487c39a506a06912067ab5ff1dab003d88b8c605eee74ba614c525cf1d8e0"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3"
+    },
+    "crash": {
+      "path": "runs/E0008/manifest.json",
+      "sha256": "aa63b49dc640c72e7da5e63c624ddaa56e1335ec1189ff3180935aeec0d65927"
+    },
+    "proof": {
+      "path": "research_plan.md",
+      "sha256": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757"
+    },
+    "solution": {
+      "path": "models/E0009/solution.json",
+      "sha256": "1ef97ed58056c312116ad6901f78f9c1bacadc1f4bde6fe785a15c3025d3c486"
+    },
+    "verify_log_large": {
+      "path": "runs/E0010/verify.log",
+      "sha256": "1de9ce669ea72e73a6dcecbe6be6f6af429bf6c2a85a5cb587041ef92038506a"
+    },
+    "verify_log_small": {
+      "path": "runs/E0009/verify.log",
+      "sha256": "4a0f9e90e67d3bd0f4e57d9e3e2bd7f66ae47ecddbf311154a4193afdf239668"
+    }
+  },
+  "claims": {
+    "C1": {
+      "claim": "On the 11 by 11 grid the declared verifier scored 20 points at a budget of 20000 addability tests, 21 at 200000 and 21 again at 2000000 from the development seed block, and 22 - the proven maximum - from the sealed seed block at that same largest budget",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0009",
+        "ref:flammenkamp_records",
+        "ref:mathworld_no3"
+      ],
+      "numbers": [
+        "bound_small",
+        "budget_large",
+        "budget_medium",
+        "budget_small",
+        "grid_small",
+        "small_200k",
+        "small_20k",
+        "small_sealed"
+      ],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "On the 31 by 31 grid the same search scored 50, 53 and 54 across the same budget ladder and 55 from the sealed seed block, so it did not reach 62 at either seed; the largest budget bought 19014 greedy completions at the smaller instance and 2190 at this one",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0010",
+        "ref:flammenkamp_records",
+        "ref:mathworld_no3"
+      ],
+      "numbers": [
+        "bound_large",
+        "grid_large",
+        "large_200k",
+        "large_20k",
+        "large_2M",
+        "large_sealed",
+        "passes_large",
+        "passes_small"
+      ],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "The declared verifier rejected 12 of 12 planted invalid objects and accepted the known-valid object at its predicted 11 points, and the one run made to report a single extra point was refused rather than recorded: reported 21.0 against verified 20.0, disposition crash, ledger row NA",
+      "class": "procedural-verdict",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0008",
+        "P3",
+        "P5",
+        "verify:E0001@20260903T074705Z",
+        "verify:E0004@20260903T074710Z",
+        "verify:E0007@20260903T074714Z"
+      ],
+      "numbers": [
+        "control_objective",
+        "planted",
+        "reported_e0008",
+        "verified_e0008"
+      ],
+      "strength": "confirmed"
+    },
+    "C4": {
+      "claim": "The development lane and the sealed lane of the smaller instance differ only in the seed block and disagree about whether this search reaches the proven maximum: 21 points, found at evaluation 152572 and never improved, against 22 found at evaluation 1612132, both at the same budget of 2000000 addability tests",
+      "class": "procedural-verdict",
+      "errata": [],
+      "evidence": [
+        "E0004",
+        "E0009",
+        "P1",
+        "P6"
+      ],
+      "numbers": [
+        "best_at_dev",
+        "best_at_sealed",
+        "budget_large",
+        "small_200k",
+        "small_sealed"
+      ],
+      "strength": "confirmed"
+    },
+    "C5": {
+      "claim": "A single run of a randomized heuristic reports a draw rather than a property: the same search at the same budget on the same instance scored 21 from one seed block and 22 from the other, and this study measured a difference, never a rate",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0004",
+        "E0009"
+      ],
+      "numbers": [
+        "small_200k",
+        "small_sealed"
+      ],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "Write the checker as the dumbest correct thing and let the searcher be the clever one: two implementations that share no code agreed on the integer objective in every honest run, and the checker's exhaustive triple test cost 26235 integer cross products on the largest object this study verified and stayed sub-millisecond",
+      "class": "research-discipline",
+      "errata": [
+        "E1"
+      ],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "P4"
+      ],
+      "numbers": [
+        "triples_largest",
+        "verifier_seconds_largest",
+        "verifier_seconds_small"
+      ],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "Freeze the controls before the checker meets them: the planted invalid objects and the known-valid object were hashed into the DATA gate record before any run existed, so the positive control could not be softened after it fired",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "P3"
+      ],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "Give the guard a test it can fail: one run was spent making the searcher overclaim by a single point, and it turned the documented refusal into a receipt - reported 21.0 against verified 20.0, disposition crash, and an NA ledger row where the inflated number would have gone",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0008",
+        "P5"
+      ],
+      "numbers": [
+        "reported_e0008",
+        "verified_e0008"
+      ],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "When the best known value equals a proven bound, do the headroom arithmetic before the first run: here it was 22 against 22 on one track and 62 against 62 on the other, so the headroom was exactly zero, no run could ever be a keep, and the study registered that before spending anything",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0004",
+        "E0007",
+        "E0009",
+        "E0010",
+        "art:proof",
+        "ref:mathworld_no3"
+      ],
+      "numbers": [
+        "bound_large",
+        "bound_small"
+      ],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {
+    "E1": {
+      "claims": [
+        "C6"
+      ],
+      "filed": "2026-09-03",
+      "note": "C6's sentence ends 'and stayed sub-millisecond'. Its own pinned artifact refutes that half: runs/E0010/verify.log, alias verify_log_large, records wall_seconds 0.002046 beside triples_checked 26235 - about two milliseconds, twice the stated bound. Four of the ten verifier logs exceed a millisecond (E0005 0.001528, E0006 0.001915, E0007 0.001969, E0010 0.002046); sub-millisecond holds only for the n = 11 objects, where E0009 reads wall_seconds 0.000169. The phrase's origin is data_card.md line 90, which wrote 'sub-millisecond at every size this study uses' at Gate 1, BEFORE any run existed - a fair pre-run estimate that was never re-checked against the logs and was then promoted into a post-hoc factual claim, and from there into knowledge/domains/math/README.md. The card is gate-hashed and is not edited; findings.md and the knowledge entry are corrected to the pinned numbers, which are now attached to C6 as verifier_seconds_largest and verifier_seconds_small. Nothing rests on the speed: the verifier's cost is charged to no guardrail, and C6's advice rests on two independent implementations agreeing. Raised as referee NOTE 1, 2026-09-03."
+    }
+  },
+  "git_head": "7d55da17c43a33db33b2d832e723f7578fca15f2",
+  "klein_commit": "7d55da17c43a33db33b2d832e723f7578fca15f2",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {
+    "best_at_dev": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0004 best_at_evaluation: where the development lane found its best object and stopped improving",
+      "precision": 0,
+      "value": 152572
+    },
+    "best_at_sealed": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0009 best_at_evaluation: where the sealed lane reached the proven maximum",
+      "precision": 0,
+      "value": 1612132
+    },
+    "bound_large": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "2n at n = 31: tracks.n_large.metric.bound.ideal, equal to incumbent_external.value",
+      "precision": 0,
+      "value": 62
+    },
+    "bound_small": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "2n at n = 11: tracks.n_small.metric.bound.ideal, equal to incumbent_external.value",
+      "precision": 0,
+      "value": 22
+    },
+    "budget_large": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the largest rung of the registered budget ladder; also the declared guardrail maximum",
+      "precision": 0,
+      "value": 2000000
+    },
+    "budget_medium": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the middle rung of the registered budget ladder",
+      "precision": 0,
+      "value": 200000
+    },
+    "budget_small": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the smallest rung of the registered evaluation-budget ladder, in addability tests",
+      "precision": 0,
+      "value": 20000
+    },
+    "control_objective": {
+      "art": "results",
+      "claim": "C3",
+      "note": "E0001: the Erdos parabola set, scored by the notary's own verifier run at the value its theorem predicts",
+      "precision": 0,
+      "value": 11
+    },
+    "grid_large": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the n_large instance's grid size, printed as grid_n",
+      "precision": 0,
+      "value": 31
+    },
+    "grid_small": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the n_small instance's grid size, printed by every run of that track as grid_n",
+      "precision": 0,
+      "value": 11
+    },
+    "large_200k": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0006: n = 31 at the middle budget",
+      "precision": 0,
+      "value": 53
+    },
+    "large_20k": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0005: n = 31 at the smallest budget",
+      "precision": 0,
+      "value": 50
+    },
+    "large_2M": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0007: n = 31 at the largest budget, the cell that decided P2",
+      "precision": 0,
+      "value": 54
+    },
+    "large_sealed": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0010, the sealed cell of n_large",
+      "precision": 0,
+      "value": 55
+    },
+    "passes_large": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "greedy completions E0007 bought with the SAME budget at n = 31",
+      "precision": 0,
+      "value": 2190
+    },
+    "passes_small": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "greedy completions E0004 bought with the largest budget at n = 11",
+      "precision": 0,
+      "value": 19014
+    },
+    "planted": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0001 printed planted: the count of invalid objects frozen at the DATA gate; rejected equals it",
+      "precision": 0,
+      "value": 12
+    },
+    "reported_e0008": {
+      "art": "crash",
+      "claim": "C3",
+      "note": "E0008 manifest.metric.reported \u2014 what the searcher said about itself",
+      "precision": 1,
+      "value": 21.0
+    },
+    "small_200k": {
+      "art": "results",
+      "claim": "C1",
+      "note": "the verifier's number for E0003 and, unchanged, for E0004",
+      "precision": 0,
+      "value": 21
+    },
+    "small_20k": {
+      "art": "results",
+      "claim": "C1",
+      "note": "E0009 aside, the verifier's number for E0002: n = 11 at the smallest budget",
+      "precision": 0,
+      "value": 20
+    },
+    "small_sealed": {
+      "art": "results",
+      "claim": "C1",
+      "note": "E0009, the sealed cell of n_small: the proven maximum, matched_external true",
+      "precision": 0,
+      "value": 22
+    },
+    "triples_largest": {
+      "art": "verify_log_large",
+      "claim": "C6",
+      "note": "triples_checked in E0010's verifier log: every triple of the largest object this study verified, enumerated by the checker",
+      "precision": 0,
+      "value": 26235
+    },
+    "verified_e0008": {
+      "art": "crash",
+      "claim": "C3",
+      "note": "E0008 manifest.metric.verified \u2014 what the checker measured from the artifact's bytes",
+      "precision": 1,
+      "value": 20.0
+    },
+    "verifier_seconds_largest": {
+      "art": "verify_log_large",
+      "claim": "C6",
+      "note": "wall_seconds in E0010's verifier log: the checker's own cost on the largest object this study verified, beside its triples_checked 26235",
+      "precision": 6,
+      "value": 0.002046
+    },
+    "verifier_seconds_small": {
+      "art": "verify_log_small",
+      "claim": "C6",
+      "note": "wall_seconds in E0009's verifier log: the checker's cost on the 22-point object, the size at which sub-millisecond does hold",
+      "precision": 6,
+      "value": 0.000169
+    }
+  },
+  "study_id": "11-exact-verifier-construction"
+}

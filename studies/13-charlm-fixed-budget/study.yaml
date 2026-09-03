@@ -1,0 +1,220 @@
+schema_version: 3
+study_id: "13-charlm-fixed-budget"
+goal: "Under a fixed 2000-step training budget on a character-level corpus, which single-change training-recipe edits to a small char transformer improve held-out validation loss by more than the measured run-to-run floor, when every checkpoint is scored by a verifier the training script cannot touch?"
+domain: "language modeling"
+# The prepared artifact is a BLOCK INDEX, not a feature table: one row per
+# contiguous 1024-character block of the corpus. A character language model's
+# real target is the next character, which no column can hold, so `target`
+# names the only column the contract's splitter needs to drop (`n_chars`).
+# Nothing is regressed on it; the data card says so in full.
+target: "n_chars"
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "predict"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "ml-research"            # generic | ml-research | math | insurance
+audience: "An ML researcher who knows transformers, expects seed variance to be reported, and asks 'at what compute?' before 'by how much?'"
+
+task_type: "scalar"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "transformer"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+#
+# `model.py` carries the architecture and its config; `train.py` carries the
+# optimization recipe. The ml-research profile's §8 note applies: a candidate is
+# ONE idea, whatever number of these two files it touches.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "train.py"]
+  mutable: ["model.py", "train.py"]
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  primary:
+    mode: frontier          # frontier (climbs an incumbent) | registered (measures a cell)
+    metric:
+      # Mean next-character cross-entropy in NATS per character (natural log),
+      # computed by the verifier over every full 128-character window of the
+      # evaluation partition, with no sampling. Divide by ln 2 for bits per
+      # character; the verifier prints `bpc` alongside for readers who think in
+      # bits.
+      name: "val_loss"
+      goal: "lower"     # higher | lower
+      minimum_delta: 0.0149525   # = max(2*std, range/2), std 0.00747623
+      exactness: stochastic       # the fit is seeded but the recipe is stochastic
+      # THE BAR. Measured at Phase 0 on the quantity a keep actually produces:
+      # the difference between two independently seeded runs of the SAME recipe,
+      # re-scored on identical validation windows. Ten unordered pairs of the
+      # five fit_noise checkpoints; the sign is fixed by the seed order (i < j)
+      # and never by the outcome, so these are a spread and not folded absolute
+      # deviations. The mean is not zero because the five seeds happen to order
+      # with their index; only std and range enter the bar, and both are
+      # translation-invariant.
+      noise_floor:
+        k: 10
+        std: 0.00747623
+        range: 0.026494
+        mean: -0.0088684
+        values: [0.005008, -0.003884, -0.006379, -0.016477, -0.008892, -0.011387, -0.021486, -0.002495, -0.012594, -0.010098]
+        source: "sweeps/paired_floor.sidecar.tsv"
+        method: "seed-pair-difference: L_i - L_j for the ten unordered pairs of the five fit_noise checkpoints, re-scored on identical validation windows"
+        estimand: "paired-comparison"
+      # PROVENANCE, never the bar: how much the FIT moves when only the seed
+      # changes. `anchor_z` and `delta_in_floors` are computed against this
+      # block's mean, and P1 is written in units of this block's std.
+      fit_noise:
+        k: 5
+        seeds: [1, 2, 3, 4, 5]
+        std: 0.00802952
+        range: 0.021485
+        mean: 1.56915
+        values: [1.56481, 1.5598, 1.56869, 1.57119, 1.58128]
+        source: "sweeps/fit_noise.sidecar.tsv"
+        method: "seed-sweep"
+        estimand: "fit-noise"
+      bound:
+        # A cross-entropy in nats is bounded below by 0 by definition, so this
+        # is a TRUE bound — and a deliberately LOOSE one: natural English has
+        # positive entropy and no model reaches 0. h = (incumbent - 0)/delta is
+        # therefore an upper bound on the floors of headroom left, around 105 at
+        # the anchor, and it says only "a keep is not arithmetically excluded".
+        # It is declared so the disclosure machinery runs and so findings can
+        # say plainly that the headroom law does no work in this study.
+        ideal: 0.0
+        on_infeasible: ack
+    guardrails:
+      # MATCHED COMPUTE, enforced by the checker, not by the searcher: the
+      # verifier reads the optimizer-step count out of the checkpoint it is
+      # scoring and prints it, so a candidate that bought its improvement with
+      # extra steps is a discard rather than a keep. `wall_seconds` stays
+      # informational (ml-research profile §6) so a CPU run and an MPS run of
+      # the same recipe are comparable.
+      steps: {min: 2000, max: 2000}
+      # MATCHED MEASUREMENT: the evaluation context length is part of the
+      # contract, not of the candidate. A model that widened its context would
+      # be graded on a different set of predicted characters.
+      eval_context: {min: 128, max: 128}
+    verifier:
+      # The checker is never the searcher (Hard Rule 10). `verify.py` carries
+      # its OWN implementation of the architecture family, loads the checkpoint
+      # named by the run's `checkpoint:` line, asks the contract for the
+      # partition, and re-derives val_loss from scratch. Its number is the one
+      # the disposition uses; train.py's own reported loss is recorded beside it.
+      command: ["uv", "run", "--locked", "python", "-u", "verify.py"]
+      # 0.01 nats. The two numbers being compared are the SAME deterministic
+      # full-coverage cross-entropy computed twice, so this tolerance guards
+      # float and device drift (observed scale ~1e-6 nats), not fit variance:
+      # it is roughly a hundred times the drift it must survive and roughly a
+      # tenth of the smallest recipe effect worth reporting. Declared a priori,
+      # before any floor or any result existed, and never moved.
+      tolerance: 0.01
+      artifact_key: checkpoint
+
+data:
+  source: "bundled:tinyshakespeare/tinyshakespeare.txt.gz"      # csv: | parquet: | synthetic: | bundled: | hub: | sklearn: | openml: | url:
+  modality: "text"       # tabular | timeseries | image | sequence | graph | text | simulation | none
+  prepared_path: "data/prepared/prepared.csv"
+  split:
+    # Contiguous-block time split over character offsets: the corpus is ordered
+    # natural language, so the partitions are ranges, never a shuffle. train =
+    # the first 80% of the blocks, development = the next 10%, sealed = the
+    # final 10%. Klein's "development" fingerprint covers train+development —
+    # the first 90% of the corpus — and the sealed final tenth is touched once.
+    kind: time           # stratified | random | group | time | none (scalar)
+    seed: 20260903       # recorded for the contract's identity; the time
+                         # strategy orders by start_char and draws no lottery
+    development_size: 0.10
+    test_size: 0.10
+    time_column: "start_char"
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+# One 2000-step anchor run takes ~17 s on this machine's MPS and ~60 s on its
+# CPU (scouting_ledger S3); 900 s is the runaway stop, not the budget. The
+# BUDGET is `max_steps`, printed and guarded above.
+max_run_seconds: 900
+# The ids are the ladder `klein new` initialized this study's state with; only
+# the descriptions and budgets are this study's own. Renaming the first id after
+# scaffolding would leave `study_state.json:current_phase` pointing at a phase
+# the contract no longer declares, which `klein preflight` refuses by design.
+phases:
+  - id: adaptive-1
+    description: "Phase 0: measure the run-to-run floor on the anchor recipe (registered measurement sweeps, no ledger rows), then run the identity anchor E0001"
+    budget_seconds: 5400
+    max_experiments: 1
+  - id: adaptive-2
+    description: "one single-change recipe edit per candidate, all at the same 2000-step budget"
+    budget_seconds: 9000
+    max_experiments: 6
+  - id: confirmation
+    description: "one sealed final-test evaluation of the selected candidate"
+    budget_seconds: 1800
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "At a fixed 2000-step budget, which single-change edits to a small char-transformer training recipe (warmup, weight tying, dropout, width) clear the measured run-to-run floor on held-out validation loss, and which are indistinguishable from re-running the same recipe under a different seed?"
+    prior: "at most one of the four edits clears the floor — width, because capacity is the only one of the four that buys anything the optimizer can spend 2000 steps on; warmup and tying land inside the floor and dropout costs, because at nine epochs over 892k characters a 0.8M-parameter model is not yet regularization-limited (source: uninformed — no edit other than the anchor was run before this contract)"
+  - id: RQ2
+    question: "Does a verifier that re-scores the checkpoint from disk agree with the training script's own reported loss, and does the same checkpoint re-score the same way when the device changes?"
+    prior: "same-device agreement lands two or more orders of magnitude inside the declared 0.01-nat tolerance; a device change moves a full re-execution by less than one fit-noise standard deviation (source: scouted — the design-time CPU/MPS anchor pair, scouting_ledger S3)"
+  - id: RQ3
+    question: "How large is the largest recipe effect at this budget compared with the seed-to-seed spread of the anchor recipe — is the study measuring recipes or measuring noise?"
+    prior: "the largest effect is a small multiple of the fit-noise standard deviation, not an order of magnitude (source: uninformed)"
+
+# Registered BEFORE the evidence exists; the consult gate hashes this file, so a
+# prediction added later is visible as a gate re-record with a reason.
+#
+# Every numeral in this block is an INTEGER COUNT OF FLOORS or of fit-noise
+# standard deviations, fixed here, before the floor itself is measured. The
+# verifier computes and prints the two derived keys from the contract:
+#
+#   delta_in_floors = (anchor_mean - val_loss) / minimum_delta
+#       positive = better than the anchor recipe's 5-seed mean, in units of the
+#       measured floor. Printed only once the contract carries a measured
+#       minimum_delta and a fit_noise mean.
+#   anchor_z = |val_loss - anchor_mean| / fit_noise.std
+#       how far this run sits from the anchor's 5-seed mean, in seed-spread
+#       standard deviations.
+#   sealed_gap_in_fit_noise = |val_loss - development incumbent's val_loss| /
+#       fit_noise.std, printed only on a final-test evaluation.
+predictions:
+  - id: P1
+    track: primary
+    statement: "the anchor recipe, refit at a seed the floor sweep never used, lands within two fit-noise standard deviations of the anchor's 5-seed mean validation loss"
+    rule: {key: anchor_z, op: "le", value: 2}
+    inconclusive_if: "the contract carries no measured fit_noise block, so the verifier prints no anchor_z line"
+  - id: P2
+    track: primary
+    statement: "adding a linear learning-rate warmup improves validation loss by at least one measured floor over the anchor recipe at the same 2000 steps"
+    rule: {key: delta_in_floors, op: ">=", value: 1}
+    inconclusive_if: "the contract carries no measured minimum_delta, so the verifier prints no delta_in_floors line"
+  - id: P3
+    track: primary
+    statement: "tying the output head to the token embedding leaves validation loss within one measured floor of the anchor recipe at the same 2000 steps"
+    rule: {key: delta_in_floors, op: "abs_lt", value: 1}
+    inconclusive_if: "the contract carries no measured minimum_delta, so the verifier prints no delta_in_floors line"
+  - id: P4
+    track: primary
+    statement: "dropout 0.1 costs more optimization than it returns in regularization at this budget: validation loss is at least one measured floor WORSE than the anchor recipe"
+    rule: {key: delta_in_floors, op: "le", value: -1}
+    inconclusive_if: "the contract carries no measured minimum_delta, so the verifier prints no delta_in_floors line"
+  - id: P5
+    track: primary
+    statement: "doubling the model width from 128 to 256 at the same 2000 steps improves validation loss by at least one measured floor over the anchor recipe"
+    rule: {key: delta_in_floors, op: ">=", value: 1}
+    inconclusive_if: "the contract carries no measured minimum_delta, so the verifier prints no delta_in_floors line"
+  - id: P6
+    track: primary
+    statement: "on the sealed final tenth of the corpus the selected candidate scores within two fit-noise standard deviations of the development incumbent's validation loss"
+    rule: {key: sealed_gap_in_fit_noise, op: "abs_le", value: 2}
+    inconclusive_if: "the sealed access is never spent, or the run crashes before the verifier prints, or no development keep exists to compare against"
+
+confirmation:
+  require: [sealed]            # sealed | replicate | verify (default: by kind)
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html

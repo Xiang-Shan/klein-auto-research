@@ -1,6 +1,7 @@
 ---
 type: method-card
 domain: "{{DOMAIN}}"
+profile: "{{PROFILE}}"
 status: draft
 concepts: []
 related: []
@@ -19,7 +20,8 @@ triad:                 # the Theory + Papers + Practice contract — self-assert
 
 ## 1. Intuition (for a practitioner)
 
-Explain it to an actuary / data scientist who has NOT read the paper. Lead with an
+Explain it to {{AUDIENCE}} who has NOT read the paper (the audience sentence comes
+from the study's profile — `references/profiles/<profile>.md` §1). Lead with an
 analogy to something they already know (e.g. "a denoising autoencoder is nonlinear
 PCA"). No equations yet — build the mental model first.
 

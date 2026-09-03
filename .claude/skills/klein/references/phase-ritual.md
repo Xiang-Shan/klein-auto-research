@@ -2,7 +2,7 @@
 
 At every phase start — immediately after the previous phase's acknowledgement is
 recorded (`klein gate record phase --phase <id>`) — lay out a slate of candidate
-experiments BEFORE touching `train.py`. Output: a `### Phase <id> slate` block in
+experiments BEFORE touching the mutable surface. Output: a `### Phase <id> slate` block in
 `program.md` and a refreshed "Next-best candidates" section in the study playbook
 (`playbook.md`). Re-read the playbook first so the slate never re-proposes a
 direction already ruled out with evidence.
@@ -12,10 +12,14 @@ none is missing: proposing and choosing is the loop's judgment layer.
 
 ## 1. Propose 4–6 candidates
 
-Each candidate is ONE falsifiable hypothesis achievable in a ≤15-line `train.py`
-diff. "Try feature engineering" is not a candidate; "log1p the three right-skewed
-numerics: +0.002 val_auc" is. Draw from the playbook's open hypotheses, the method
-card's when-it-pays conditions, and the contract's `predictions_to_falsify`.
+Each candidate is ONE falsifiable hypothesis achievable in ONE candidate transaction
+— for a `predict` track typically a small `train.py` diff (the size is profile
+guidance, not a rule: one idea per candidate, whatever the diff); for a **registered
+track a candidate is a cell**: which measurement, on which partition, adjudicating
+which `P#`, at what cost. "Try feature engineering" is not a candidate; "log1p the
+three right-skewed numerics: +0.002 val_auc" is; "bootstrap CI of K, 1000 resamples,
+seed block A, adjudicates P4" is. Draw from the playbook's open hypotheses, the
+method card's when-it-pays conditions, and the contract's `predictions`.
 
 ## 2. Score each candidate 1–3 on three axes
 
@@ -57,7 +61,7 @@ written down, not to pretend a ranking model exists. Do not automate it.
 ```markdown
 ### Phase adaptive-2 slate
 
-| # | Candidate (one hypothesis, ≤15-line diff)                  | Nov | Test | Info | Σ |
+| # | Candidate (one hypothesis, one transaction)                | Nov | Test | Info | Σ |
 |---|------------------------------------------------------------|-----|------|------|---|
 | 1 | Target-encode `region` (smoothing=20): +0.004 val_auc      | 3   | 3    | 3    | 9 |
 | 2 | log1p the 3 right-skewed numerics: +0.002 val_auc          | 2   | 3    | 3    | 8 |

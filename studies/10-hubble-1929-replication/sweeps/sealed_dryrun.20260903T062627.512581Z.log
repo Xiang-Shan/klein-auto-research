@@ -1,0 +1,33 @@
+sealed_dryrun: 1
+---
+primary_metric:    454.158441
+metric_name:       k_kms_per_mpc
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            316.648582
+ci_high:           603.704762
+n:                 24
+wall_seconds:      0.017314
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+artifact: tables/sealed_modern_comparison.tsv
+n_boot: 2000.0
+modern_h0: 70.0
+planck_h0: 67.4
+shoes_h0: 73.04
+ci_width: 287.056179860023
+ratio_estimate_over_modern: 6.487977727466119
+rescale_factor: 6.056247474737575
+k_origin: 423.9373232316303
+k_origin_rescaled: 70.0
+k_free_rescaled: 74.99007311327009
+gap_70_origin: 0.0
+gap_70_free: 4.9900731132700855
+max_abs_gap_70: 4.9900731132700855
+bootstrap_se: 72.93386164166547
+runner_status: ok
+runner_exit_code: 0

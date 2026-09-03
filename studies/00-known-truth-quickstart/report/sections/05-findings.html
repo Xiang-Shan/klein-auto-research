@@ -1,0 +1,60 @@
+<h2>Findings and insights</h2>
+
+<p>The ladder closed the distance to the development ceiling of 0.884116 from 10.4555
+measured floors at the raw-feature anchor to 1.7077 at the boosted incumbent, and the
+sealed partition returned 0.880949 against its own ceiling of 0.893469. That claim is
+the only kind this study is allowed to call <strong>confirmed</strong>: it cites both a
+development run and the sealed run, which are two different kinds of evidence.</p>
+
+<p>The result a practitioner should take away is the second confirmed claim, and it
+carries the scope tag <code>in-silico</code> because it is a statement about behaviour
+under <em>this declared process</em> and not about the world: a boosted tree shown
+<em>none</em> of the true terms out-earned handing a linear model the true interaction
+&mdash; 4.7779 floors against 3.9699, and 4.6190 on the sealed rows. Nobody had to know
+which term to specify.</p>
+
+<h3>Where the linear model actually goes wrong</h3>
+
+<img data-fig="figures/known_truth_calibration.png"
+     alt="Left panel: mean predicted probability against mean true probability in twenty equal-count bins; the linear model bows away from the diagonal while the boosted tree tracks it. Right panel: mean predicted minus true against true probability; the linear model over-predicts below a true probability of about 0.3 and under-predicts sharply above it.">
+
+<p>This is the plot only a known-truth study can draw: predicted probability against
+the <strong>true</strong> probability of the same rows, not against observed
+frequencies. And the shape of the error matters more than its size. The linear model's
+error is not noise but a clean sign flip &mdash; it over-predicts the low-probability
+rows and under-predicts the high-probability ones, crossing zero around the middle of
+the range. That is shrinkage toward the base rate, which is exactly what a model that
+cannot express the curvature of the true log-odds must do: unable to reach the
+extremes, it pulls every row toward the average.</p>
+
+<p>The ranking gap and the probability gap are the same missing structure seen twice:
+Brier 0.132010 for the linear model against the boosted tree's 0.109337 and the
+irreducible Bayes floor of 0.103604.</p>
+
+<h3>The prediction the study got wrong, and the one it was wrong about</h3>
+
+<p>Five predictions were registered before any evidence existed. Four were supported
+and one refuted, every one adjudicated by arithmetic on a printed block rather than by
+prose. The family size is five, each bound to exactly one run, with no post-hoc
+selection &mdash; so the guard here is pre-registration rather than an alpha
+correction.</p>
+
+<p>The second research question was <em>refuted</em>, and that is the most useful
+sentence on this page. It predicted the headroom would close before the fourth
+candidate was spent; it stood at 1.708 instead. The law did not stop the study, the
+study paid for the discard in full, and the prior that said otherwise was recorded as a
+miss rather than quietly rewritten.</p>
+
+<h3>Two replications that failed, and were kept</h3>
+
+<p>Both attempts to replicate the incumbent run failed, and neither failure was
+scientific. The first timed out: a replication builds its own environment in a detached
+worktree before the entrypoint runs at all, and this study's honest per-run budget was
+sized for runs that take under a second. The second crashed on a prepared artifact that
+the entrypoint reads but the contract never declared &mdash; so the replication
+harness, which copies exactly what the contract names, never copied it.</p>
+
+<p>Both records stand at <em>not reproduced</em>. Neither was retried into a pass, and
+the entrypoint was not quietly edited afterwards to make an unproven fix look proven.
+The failure became a claim instead, which is the single most useful thing here for the
+next author.</p>

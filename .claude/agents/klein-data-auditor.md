@@ -15,15 +15,21 @@ value-pattern check encodes a real war story (`references/war-stories.md`, story
 
 ## Inputs you receive
 
-- The study directory (`studies/NN-slug/`) with `study.yaml` (target, data source, split)
-  and a `prepare.py`.
+- The study directory (`studies/NN-slug/`) with `study.yaml` (target, `data.modality`,
+  `data.source` tag and pin, split) and a `prepare.py`.
 - Stage context from the orchestrator: what CONSULT promised about the data, anything
   marked `TO-VERIFY`.
 
 ## Steps
 
 1. Read the protocol, `study.yaml`, and `prepare.py`. All Python runs through `uv run`,
-   never bare `python`.
+   never bare `python`. Note the declared modality — it decides which card sections
+   you must write (time policy, group policy, DGP card, verifier card) — and run
+   `uv run --locked klein doctor --study <dir>` to confirm the source tag resolves on
+   this machine and its pin is present when required.
+   **Grep for literal partition seeds** — `grep -n "random_state\|seed\|train_test_split"
+   prepare.py <entrypoint> lib/*.py` — anything that decides a partition outside
+   `kleinlib.data.contract_split` / `load_partition` is a BLOCKER (war story 8).
 2. Run prep so you profile the PREPARED artifact — the thing train.py will actually see:
    from the study directory use `uv run --locked python ../../scripts/run_with_log.py
    --timeout-seconds <limit> --log prepare.log -- uv run --locked python -u prepare.py`.
@@ -45,7 +51,11 @@ value-pattern check encodes a real war story (`references/war-stories.md`, story
    leakage audit — a fresh pass reading ONLY `study.yaml`, `prepare.py`, the prepared
    artifact, and the profile — filling the card's four-row checklist and mechanizing
    rows 3–4 with `uv run --locked python -m kleinlib.leakage <prepared> --target <col>
-   --study <dir>`; any `[FAIL]` is a BLOCKER.
+   --study <dir>` (tabular) or `... --index data/prepared/index.csv --study <dir>` (any
+   modality whose `prepare.py` emits the index table); any `[FAIL]` is a BLOCKER. For
+   `simulation` write the DGP card and for `none` the verifier card instead (with the
+   positive and negative control the verifier must pass); the leakage rows read N/A
+   with that reason.
 6. Copy `.claude/skills/klein/assets/data-card-template.md` to the study as
    `data_card.md`; fill the profile summary table from the profiler output.
 7. Rank every issue most-severe first, each with a severity and a recommended action:

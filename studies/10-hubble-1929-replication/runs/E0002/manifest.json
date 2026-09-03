@@ -1,0 +1,102 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 941,
+      "committed": true,
+      "sha256": "1ac29f63b5b9ba6ea67ac21f381674e2f945a6348aa533824c19b14914791616"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 899,
+      "committed": true,
+      "sha256": "7117d0a4860f95b0dc609a102087db6271c49450ff48987cf91758f9800b3859"
+    },
+    "tables/two_parameter_fits.tsv": {
+      "availability": "recorded",
+      "bytes": 240,
+      "committed": true,
+      "role": "declared",
+      "sha256": "cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8"
+    }
+  },
+  "base_commit": "155b4146c9b0265eb493a4e693530b9d93f83c46",
+  "candidate_commit": "67599afebbe767bc81c437e81805dd13bad5eabc",
+  "code_patch_hash": "f90dbd9b072133a7e2da382a7c1d3dd39356624c013e65f64347c3149c43fbe3",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "two-parameter fits of Table 1 (through the origin, and free-intercept) against Hubble's published K = 465 +/- 10; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:04:07.521127Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "abs_gap_465_free": 10.841559077371642,
+    "abs_gap_465_origin": 41.06267676836973,
+    "intercept_free": -40.78364909586038,
+    "k_free": 454.15844092262836,
+    "k_origin": 423.9373232316303,
+    "min_abs_gap_465": 10.841559077371642,
+    "n": 24.0,
+    "primary_metric": 1.0,
+    "probable_error_k_free": 50.74742755666556,
+    "r2_free": 0.6235305209067517,
+    "r2_origin": 0.6194422240017304,
+    "residual_sd_kms": 232.9106701830066,
+    "rows": 2.0,
+    "runner_exit_code": 0.0,
+    "se_k_free": 75.2371053471691,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.010588
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P1": {
+      "explanation": "min_abs_gap_465 10.8415590774 > 10 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P1"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:04:06.825876Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "committed_at": "2026-09-03T06:04:07.595771Z",
+    "evidence_commit": "989c1dfd31d764fc7cacfebc4958d33ac22c40e0",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.6951468749903142
+}

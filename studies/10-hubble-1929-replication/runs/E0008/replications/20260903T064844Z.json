@@ -1,0 +1,167 @@
+{
+  "baseline": 454.337124,
+  "block_differences": {
+    "analytic_se": {
+      "difference": 0.0,
+      "original": 75.2371053471691,
+      "replicate": 75.2371053471691
+    },
+    "jackknife_se": {
+      "difference": 0.0,
+      "original": 80.48589430090415,
+      "replicate": 80.48589430090415
+    },
+    "k_full": {
+      "difference": 0.0,
+      "original": 454.15844092262836,
+      "replicate": 454.15844092262836
+    },
+    "k_jackknife_mean": {
+      "difference": 0.0,
+      "original": 454.3371239860412,
+      "replicate": 454.3371239860412
+    },
+    "k_without_virgo_group": {
+      "difference": 0.0,
+      "original": 531.3472665929448,
+      "replicate": 531.3472665929448
+    },
+    "max_abs_influence": {
+      "difference": 0.0,
+      "original": 50.02022664066345,
+      "replicate": 50.02022664066345
+    },
+    "max_influence_r_mpc": {
+      "difference": 0.0,
+      "original": 2.0,
+      "replicate": 2.0
+    },
+    "n_objects": {
+      "difference": 0.0,
+      "original": 24.0,
+      "replicate": 24.0
+    },
+    "n_virgo_objects": {
+      "difference": 0.0,
+      "original": 4.0,
+      "replicate": 4.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 454.337124,
+      "replicate": 454.337124
+    },
+    "rows": {
+      "difference": 0.0,
+      "original": 24.0,
+      "replicate": 24.0
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "total_seconds": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "virgo_group_influence": {
+      "difference": 0.0,
+      "original": 77.18882567031648,
+      "replicate": 77.18882567031648
+    },
+    "wall_seconds": {
+      "difference": 0.007824000000000001,
+      "original": 0.011007,
+      "replicate": 0.018831
+    }
+  },
+  "candidate_commit": "b4fd7521481c5b4d3e9005817b8c0f6d66eca17c",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+  "difference": 0.0,
+  "ended_at": "2026-09-03T06:51:10.618865Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0008@20260903T064844Z",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "log": "runs/E0008/replications/20260903T064844Z.log",
+  "max_run_seconds": 600.0,
+  "metric_name": "k_kms_per_mpc",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "analytic_se": 75.2371053471691,
+    "jackknife_se": 80.48589430090415,
+    "k_full": 454.15844092262836,
+    "k_jackknife_mean": 454.3371239860412,
+    "k_without_virgo_group": 531.3472665929448,
+    "max_abs_influence": 50.02022664066345,
+    "max_influence_r_mpc": 2.0,
+    "n_objects": 24.0,
+    "n_virgo_objects": 4.0,
+    "primary_metric": 454.337124,
+    "rows": 24.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "virgo_group_influence": 77.18882567031648,
+    "wall_seconds": 0.011007
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 454.337124,
+  "record": "runs/E0008/replications/20260903T064844Z.json",
+  "replicate_block": {
+    "analytic_se": 75.2371053471691,
+    "jackknife_se": 80.48589430090415,
+    "k_full": 454.15844092262836,
+    "k_jackknife_mean": 454.3371239860412,
+    "k_without_virgo_group": 531.3472665929448,
+    "max_abs_influence": 50.02022664066345,
+    "max_influence_r_mpc": 2.0,
+    "n_objects": 24.0,
+    "n_virgo_objects": 4.0,
+    "primary_metric": 454.337124,
+    "rows": 24.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "virgo_group_influence": 77.18882567031648,
+    "wall_seconds": 0.018831
+  },
+  "replicate_primary_metric": 454.337124,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [],
+  "setup_seconds": 0.34978404198773205,
+  "stamp": "20260903T064844Z",
+  "started_at": "2026-09-03T06:48:45.166299Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T06:48:44.679588Z",
+  "tolerance": 0.0,
+  "tolerance_source": "exact",
+  "track": "estimate",
+  "wall_seconds": 145.45235391589813,
+  "worktree_prepared": true
+}

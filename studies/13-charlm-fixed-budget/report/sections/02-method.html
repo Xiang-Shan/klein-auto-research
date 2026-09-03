@@ -1,0 +1,99 @@
+<h2>The Method</h2>
+
+<p><strong>The model, in one paragraph.</strong> A character-level language model is a
+lookup table plus a mixer. Every one of the 65 characters in the vocabulary gets a
+128-dimensional vector; a stack of four pre-norm transformer blocks lets each position
+mix in information from the positions before it &mdash; never after, which is what
+&ldquo;causal&rdquo; means; a final linear layer turns each mixed vector back into a
+score for each of the 65 characters. Train it to put probability on the character that
+actually comes next, and the loss it reports is the average surprise, in nats, of the
+next character given everything before it in the window.</p>
+
+<div data-math-display="\mathcal{L}(\theta) = -\frac{1}{|W|\,T}\sum_{s \in W}\sum_{k=0}^{T-1} \log p_\theta\big(x_{s+k+1} \,\text{given}\, x_{s},\dots,x_{s+k}\big)"></div>
+
+<p>where <span data-math="W"></span> is the complete, non-overlapping tiling of the
+evaluation range into windows of <span data-math="T=128"></span> characters &mdash; no
+sampling, no seed. A model that has learned nothing scores a uniform 4.174387 nats
+(<span data-math="\ln 65"></span>); one that has learned only which characters are
+common scores 3.307264, an add-one unigram fitted on the train partition alone.
+Anything below that is the model actually using context.</p>
+
+<p><strong>The budget, in one paragraph.</strong> The honest way to compare training
+recipes is at matched compute, and the honest unit of compute is <em>optimizer
+steps</em>, not seconds &mdash; a step is the same amount of arithmetic on a laptop CPU
+and on an accelerator; a second is not. Every candidate here runs for exactly 2000
+steps of 32 windows of 128 characters, and the guardrail that enforces it does not
+read <code>train.py</code> &mdash; it reads the step count back out of the saved
+checkpoint. That is the difference between a budget and a promise.</p>
+
+<p><strong>The verifier &mdash; the idea this study exists to demonstrate.</strong>
+Almost every training script in the world computes its own validation loss and prints
+it, and that number is then the thing everyone believes. But a training script has a
+thousand ways to be quietly wrong about it &mdash; an evaluation batch drawn from the
+training range, a target sequence never shifted, a checkpoint saved one step later than
+the loss was measured, a dropout mask left on at evaluation. So this study separates
+the searcher from the checker. <code>train.py</code> trains and saves a checkpoint. A
+second, immutable program, <code>verify.py</code>, then runs in its own process: it
+loads that checkpoint from disk, asks the contract &mdash; never the training script
+&mdash; which characters are the validation partition, rebuilds the model from the
+checkpoint&rsquo;s own config with its own independent implementation of the
+architecture, and recomputes the loss from scratch. <strong>The checker&rsquo;s number
+is the one the study uses.</strong> The trainer&rsquo;s own estimate is recorded beside
+it, and if the two disagree by more than <span data-math="0.01"></span> nats the run is
+a crash &mdash; not a result to be argued about. The person who ran the assay does not
+also certify the standard.</p>
+
+<h3>Weight tying, and why the parameter count is the wrong quantity</h3>
+
+<p>One recipe edit shares the output layer with the input embedding instead of giving
+it independent weights:</p>
+
+<div data-math-display="\ell = E^{T} h"></div>
+
+<p>with <code>E</code> the token-embedding matrix. Tying removes one whole weight
+matrix, which sounds like a free parameter saving &mdash; and it is, at the word-level
+vocabularies of tens of thousands where the original result was measured, because the
+same matrix is most of the model and each row is seen rarely. At a 65-character
+vocabulary the table is tiny and every row is seen constantly, and tying forces one
+matrix to serve as both the input lookup and the output classifier with no logit scale
+to reconcile the very different norms the two roles want. Whether that mechanism holds
+is exactly what this study measures, in the journey section below.</p>
+
+<h3>The keep rule, in floors</h3>
+
+<p>A candidate improves the frontier only if it clears a bar measured, not guessed, at
+Phase 0 &mdash; the spread between two independently seeded runs of the <em>same</em>
+recipe, re-scored on identical validation windows, across the ten unordered pairs of
+five such checkpoints:</p>
+
+<div data-math-display="\mathcal{L}_{\text{incumbent}} - \mathcal{L}_{\text{candidate}} \ge \delta, \qquad \delta = \max\left(2\,\hat\sigma_{\text{paired}},\ \tfrac{1}{2}\,\mathrm{range}_{\text{paired}}\right)"></div>
+
+<p>Every registered prediction below is written as an integer count of
+<span data-math="\delta"></span>, fixed before <span data-math="\delta"></span> itself
+was known.</p>
+
+<h3>Three deliberate design choices, and what each costs</h3>
+
+<ol>
+<li><strong>The checker re-implements the architecture instead of importing
+<code>model.py</code>.</strong> Cost: duplicated code, and the architecture family
+becomes part of the contract &mdash; a candidate that changes the module tree produces
+an artifact the checker cannot load, and the run crashes. Benefit: the checker cannot
+be edited by the search. Two implementations that agree are evidence; one
+implementation compared with itself is not.</li>
+<li><strong>The evaluation is a complete tiling, not sampled batches.</strong> Cost: the
+first character of every window is predicted from no context at all, and the last
+partial window of each partition is read as context but never scored. Benefit: the
+trainer&rsquo;s number and the checker&rsquo;s number are the <em>same deterministic
+quantity</em>, so the verifier tolerance can guard float and device drift rather than
+hide a real disagreement inside a fit-noise-sized fudge factor.</li>
+<li><strong>The budget is steps, not seconds.</strong> Cost: a wider model gets the same
+number of steps and therefore more arithmetic per step &mdash; not the compute-optimal
+frontier of scaling-law doctrine, which grows model size and data together. Benefit:
+the comparison is device-independent and reproducible on a CPU in CI.</li>
+</ol>
+
+<p>The regime this study sits in is small on every axis: 891904 training characters,
+an 824320-parameter model, a 2000-step budget with a 128-character evaluation
+context. What that regime does to four textbook levers is the rest of this
+report.</p>

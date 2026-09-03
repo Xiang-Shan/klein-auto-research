@@ -1,0 +1,100 @@
+<h2>Training-recipe advice</h2>
+
+<p><strong>The change.</strong> Replace a constant learning rate with a cosine decay
+to a tenth of the peak over the whole budget. <strong>The matched-compute condition
+it held under.</strong> 2000 AdamW steps, the same 4-layer 4-head 128-wide causal
+transformer (824320 parameters), on the same 891904 training characters &mdash;
+every candidate at exactly the same step count, enforced by the checker reading
+<code>steps</code> out of the checkpoint rather than promised by the training script.
+<strong>The seed spread it was measured against.</strong> A paired-comparison bar of
+0.0149525 nats. <strong>The size of the change.</strong> 0.052855 nats, 3.53486
+floors &mdash; it clears the bar by more than three times, and it is the only one of
+six single changes that clears it at all. <strong>The hardware.</strong> Apple
+silicon, MPS-selected by default; the same checkpoint re-scores identically on CPU.
+<strong>What this does not say.</strong> It does not say cosine decay beats a schedule
+this study never ran, and it does not say the improvement survives to unseen text: the
+sealed block was 3.140679 floors harder than development for the same recipe, and with
+one track and one sealed access there is no sealed measurement of the anchor to
+difference against. Nothing here is priced &mdash; this study registers no
+materiality block, so &ldquo;improvement&rdquo; means only that a pre-registered,
+measured bar was cleared.</p>
+
+<h3>Six lessons, each with the run that paid for it</h3>
+
+<ol>
+<li><p><strong>Measure your floor on the quantity your decision actually uses.</strong>
+The five-seed LEVEL spread here has standard deviation 0.00802952; the ten paired
+DIFFERENCES between two seeds of the same recipe have standard deviation 0.00747623
+and range 0.026494, and it is the paired spread a candidate-versus-anchor comparison
+has to clear. A level spread and a comparison spread are different quantities, and the
+gap between them is exactly why this contract derives <code>minimum_delta</code> from
+the second one, never the first.</p></li>
+<li><p><strong>At a fixed step budget, spend the schedule before you spend the
+capacity.</strong> The only keep in this study was a pure schedule change worth
+0.052855 nats, while multiplying the parameter count by 3.908075 was worth -0.4742
+floors. A step budget rewards changing WHEN the optimizer moves, not how much it has
+to move with.</p></li>
+<li><p><strong>Never let the training script grade its own checkpoint.</strong> It
+costs one extra file: a checker that loads the artifact, asks the contract which rows
+are the validation set, rebuilds the model from the checkpoint&rsquo;s own config with
+its own implementation, and recomputes the loss. Here the two never disagreed by a
+printable amount against a declared tolerance of 0.01 &mdash; the outcome you want, and
+one you cannot assume without checking.</p></li>
+<li><p><strong>Put a copy-the-input control in your language-model harness.</strong> It
+bets the next character equals the current one, so a correct harness scores it WORSE
+than chance &mdash; 4.750043 against 4.174388 nats here &mdash; while the classic
+off-by-one target-alignment bug would score it 0.693147. None of this study&rsquo;s
+other three controls could have caught that particular bug.</p></li>
+<li><p><strong>If you split ordered text into contiguous blocks, measure the
+distribution shift you just bought instead of assuming it away.</strong> The identical
+recipe with MORE training data scored 0.046961 nats worse on the sealed block than on
+the development block. A contiguous split buys leakage safety; it does not buy
+identically-distributed partitions, and the honest move is to measure the difference
+rather than hope it is zero.</p></li>
+<li><p><strong>Decide at design time how a comparison gets its sealed number.</strong>
+One track and one sealed access can confirm a LEVEL and never a DIFFERENCE. This
+study&rsquo;s contract declared one track and said nothing about the gap, so its
+headline schedule improvement stays exploratory by arithmetic, not by modesty. Either
+give each family its own track, or pre-register the gap itself as
+exploratory-by-construction &mdash; deciding afterwards is how sealed vocabulary gets
+stretched.</p></li>
+</ol>
+
+<h3>The entrypoint that produced every number above</h3>
+
+<p>The mutable surface this study&rsquo;s search actually touches is exactly two files.
+<code>model.py</code> carries the architecture and the <code>CONFIG</code> dict a
+width or weight-tying candidate edits; <code>verify.py</code> &mdash; outside the
+mutable surface, hashed at the METHOD gate &mdash; carries its OWN separate
+implementation of the same class, so a candidate that changes the module tree produces
+a checkpoint the checker cannot load, and the run crashes rather than silently
+comparing two different architectures.</p>
+
+<pre data-code="model.py" data-lang="python"></pre>
+
+<p><code>train.py</code> carries the recipe: everything in the <code>RECIPE</code>
+dict at the top is the whole per-experiment diff, and everything below it is fixed
+machinery that a candidate transaction never touches. The version below is the
+E0006 incumbent &mdash; the winning cosine-decay recipe, exactly as committed.</p>
+
+<pre data-code="train.py" data-lang="python"></pre>
+
+<p>Three details in that file are worth reading deliberately rather than skimming
+past. <strong>The batching is a streamed index shuffle straight out of a numpy array</strong>
+&mdash; no <code>DataLoader</code>, no <code>TensorDataset</code> &mdash; because on
+Apple-silicon MPS that combination has silently collapsed predictions to a constant in
+earlier work in this repository; drawing offsets directly from the token array sidesteps
+the failure mode entirely rather than working around it after the fact. <strong>The
+model is built on CPU and moved to the device afterward</strong>
+(<code>arch.build(config).to(device)</code>), which is deliberate and easy to delete
+by accident: it is what makes a CPU run and an MPS run of the same seed start from
+identical weights, and is the reason the device-agreement check in the journey section
+above is a meaningful comparison rather than a coincidence. <strong>The partition
+never comes from a literal seed or a hardcoded split</strong> &mdash; every run asks
+<code>kleinlib.data.load_partition</code>, which prints the realized
+<code>split_fingerprint</code> back for the notary to compare against the one frozen
+at the DATA gate. A study elsewhere in this repository once hardcoded a retired split
+seed directly into an evaluator and silently scored the wrong partition for an entire
+ledger lane; the fingerprint check exists specifically so that failure mode is caught
+by the notary before a single number is trusted, not discovered later by a numeral
+that happens to look wrong.</p>

@@ -150,6 +150,33 @@ def test_disclosure_ack_flow_and_run_gating(ready_study) -> None:
     assert sum(not c.ok for c in verify_study(study)) == 0
 
 
+def test_ack_commits_only_the_record_it_wrote(ready_study, capsys) -> None:
+    """E15: a closed door goes on the record without filing the tree around it."""
+    from test_commit_state_writes import modified_paths, operator_edits, seed_tracked
+    from test_workflow_v2 import git
+
+    repo, study = ready_study
+    seed_keep(study, 0.9)
+    set_metric(repo, study, minimum_delta=0.2, bound={"ideal": 1.0})
+    seed_tracked(repo, study, "findings.md")
+    operator_edits(study, "findings.md")
+
+    acknowledge_headroom(
+        study,
+        track="primary",
+        acknowledged_by="tester",
+        note="run-anyway: the arithmetic closed the door and we publish where each lands",
+    )
+
+    committed = set(git(repo, "show", "--name-only", "--format=", "HEAD").splitlines())
+    assert committed == {
+        "studies/03-demo/study_state.json",
+        "studies/03-demo/events.jsonl",
+    }
+    assert modified_paths(repo) == {"studies/03-demo/findings.md"}
+    assert "note: 1 uncommitted edit(s) left in the tree (findings.md)" in capsys.readouterr().out
+
+
 def test_block_posture_refuses_even_after_ack(ready_study) -> None:
     repo, study = ready_study
     seed_keep(study, 0.9)

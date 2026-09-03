@@ -1,0 +1,27 @@
+Using CPython 3.13.3
+Creating virtual environment at: /private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-n6wt361g/worktree/.venv
+   Building klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-n6wt361g/worktree
+      Built klein-auto-research @ file:///private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-n6wt361g/worktree
+Installed 29 packages in 88ms
+split_fingerprint: f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122
+Traceback (most recent call last):
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-n6wt361g/worktree/studies/00-known-truth-quickstart/train.py", line 207, in <module>
+    main()
+    ~~~~^^
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-n6wt361g/worktree/studies/00-known-truth-quickstart/train.py", line 170, in main
+    bayes_auc = ceiling_for(X_eval.index, y_eval)
+  File "/private/var/folders/nh/j7c3k64d2g3_swv1tnh2kwyw0000gn/T/klein-replicate-n6wt361g/worktree/studies/00-known-truth-quickstart/train.py", line 129, in ceiling_for
+    eta = np.asarray(json.loads(TRUTH_PATH.read_text(encoding="utf-8"))["true_log_odds"], dtype=float)
+                                ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/.local/share/uv/python/cpython-3.13-macos-aarch64-none/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/.local/share/uv/python/cpython-3.13-macos-aarch64-none/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/xiang/.local/share/uv/python/cpython-3.13-macos-aarch64-none/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data/prepared/truth.json'
+runner_status: crash
+runner_exit_code: 1

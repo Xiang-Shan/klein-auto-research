@@ -728,11 +728,15 @@ def render_tsv_table(path: Path) -> str:
 
 
 def _display_source(results_path: Path) -> str:
-    """Repo-relative when possible — committed summaries must not embed machine paths."""
+    """Repo-relative when possible — committed summaries must not embed machine paths.
+
+    POSIX separators either way: `results_summary.md` is committed, and a
+    summary generated on Windows must read the same as one generated on Linux.
+    """
     try:
-        return str(results_path.relative_to(_REPO_ROOT))
+        return results_path.relative_to(_REPO_ROOT).as_posix()
     except ValueError:
-        return str(results_path)
+        return results_path.as_posix()
 
 
 def build_summary(
@@ -753,7 +757,9 @@ def build_summary(
     baseline = valid_rows[0] if valid_rows else None
     best = frontier[-1] if frontier else None
 
-    counts = {"keep": 0, "discard": 0, "crash": 0}
+    # `measured` is schema 3's registered-mode status (a cell of a
+    # pre-registered measurement program, which neither keeps nor discards).
+    counts = {"keep": 0, "discard": 0, "measured": 0, "crash": 0}
     for row in rows:
         counts[row.status] = counts.get(row.status, 0) + 1
 
@@ -794,6 +800,13 @@ def build_summary(
             f"confirmation{'s' if sealed_count != 1 else ''})"
             if sealed_count
             else ""
+        ),
+        # Emitted only when the ledger actually holds registered cells, so a
+        # schema-2 study's summary is byte-identical to what it always was.
+        *(
+            [f"- measured: {counts['measured']}"]
+            if counts.get("measured")
+            else []
         ),
         f"- crash: {counts.get('crash', 0)}",
         "",
@@ -920,7 +933,9 @@ def build_plot_svg(title: str, metric_col: str, goal: str, rows: list[ResultRow]
         )
 
     for row in valid_rows:
-        color = "#16a34a" if row.status == "keep" else "#9ca3af"
+        # keep = green, measured = teal (a registered cell is evidence, not a
+        # loss), everything else = grey.
+        color = {"keep": "#16a34a", "measured": "#0f766e"}.get(row.status, "#9ca3af")
         elements.append(
             f'<circle cx="{x_pos(row.row_number):.1f}" cy="{y_pos(row.metric):.1f}" r="4.5" fill="{color}" stroke="#111827" stroke-width="0.8"/>'
         )

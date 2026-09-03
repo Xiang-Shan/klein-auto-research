@@ -1,0 +1,235 @@
+{
+  "artifact": "models/E0001.pt",
+  "artifact_sha256": "f1408df06f0a87a854f11841443a5b3eb0eaa4487415fca3ecd9adc06d1df799",
+  "baseline": 1.572174,
+  "baseline_source": "manifest.metric.verified",
+  "block_differences": {
+    "anchor_mean": {
+      "difference": null,
+      "original": null,
+      "replicate": 1.56915
+    },
+    "anchor_z": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.3766
+    },
+    "bpc": {
+      "difference": null,
+      "original": null,
+      "replicate": 2.268167
+    },
+    "cfg_batch_size": {
+      "difference": null,
+      "original": null,
+      "replicate": 32.0
+    },
+    "cfg_dropout": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "cfg_lr": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.003
+    },
+    "cfg_n_embd": {
+      "difference": null,
+      "original": null,
+      "replicate": 128.0
+    },
+    "cfg_n_head": {
+      "difference": null,
+      "original": null,
+      "replicate": 4.0
+    },
+    "cfg_n_layer": {
+      "difference": null,
+      "original": null,
+      "replicate": 4.0
+    },
+    "cfg_seed": {
+      "difference": null,
+      "original": null,
+      "replicate": 20260903.0
+    },
+    "cfg_tie_weights": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "cfg_warmup_steps": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "delta_in_floors": {
+      "difference": null,
+      "original": null,
+      "replicate": -0.2022
+    },
+    "delta_vs_anchor": {
+      "difference": null,
+      "original": null,
+      "replicate": -0.003024
+    },
+    "eval_context": {
+      "difference": null,
+      "original": null,
+      "replicate": 128.0
+    },
+    "n_params": {
+      "difference": null,
+      "original": null,
+      "replicate": 824320.0
+    },
+    "n_partition_chars": {
+      "difference": null,
+      "original": null,
+      "replicate": 111616.0
+    },
+    "n_scored_chars": {
+      "difference": null,
+      "original": null,
+      "replicate": 111488.0
+    },
+    "n_val_windows": {
+      "difference": null,
+      "original": null,
+      "replicate": 871.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 1.572174,
+      "replicate": 1.572174
+    },
+    "reported_val_loss": {
+      "difference": null,
+      "original": null,
+      "replicate": 1.572174
+    },
+    "runner_exit_code": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "steps": {
+      "difference": null,
+      "original": null,
+      "replicate": 2000.0
+    },
+    "total_seconds": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.8
+    },
+    "verifier_gap": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.0
+    },
+    "wall_seconds": {
+      "difference": null,
+      "original": null,
+      "replicate": 0.828212
+    }
+  },
+  "candidate_commit": "d17fc8ef2e95e3a863732d426f0fa7c00c3f0934",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "verify.py"
+  ],
+  "difference": 0.0,
+  "ended_at": "2026-09-03T12:14:00.961623Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "verify:E0001@20260903T121358Z",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "log": "runs/E0001/replications/20260903T121358Z.log",
+  "max_run_seconds": 900.0,
+  "metric_name": "val_loss",
+  "mismatched_keys": [
+    "anchor_mean",
+    "anchor_z",
+    "bpc",
+    "cfg_batch_size",
+    "cfg_dropout",
+    "cfg_lr",
+    "cfg_n_embd",
+    "cfg_n_head",
+    "cfg_n_layer",
+    "cfg_seed",
+    "cfg_tie_weights",
+    "cfg_warmup_steps",
+    "delta_in_floors",
+    "delta_vs_anchor",
+    "eval_context",
+    "n_params",
+    "n_partition_chars",
+    "n_scored_chars",
+    "n_val_windows",
+    "reported_val_loss",
+    "steps",
+    "verifier_gap"
+  ],
+  "mode": "verify",
+  "original_block": {
+    "primary_metric": 1.572174
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 1.572174,
+  "record": "runs/E0001/replications/20260903T121358Z.json",
+  "replicate_block": {
+    "anchor_mean": 1.56915,
+    "anchor_z": 0.3766,
+    "bpc": 2.268167,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 128.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 0.0,
+    "cfg_warmup_steps": 0.0,
+    "delta_in_floors": -0.2022,
+    "delta_vs_anchor": -0.003024,
+    "eval_context": 128.0,
+    "n_params": 824320.0,
+    "n_partition_chars": 111616.0,
+    "n_scored_chars": 111488.0,
+    "n_val_windows": 871.0,
+    "primary_metric": 1.572174,
+    "reported_val_loss": 1.572174,
+    "runner_exit_code": 0.0,
+    "steps": 2000.0,
+    "total_seconds": 0.8,
+    "verifier_gap": 0.0,
+    "wall_seconds": 0.828212
+  },
+  "replicate_primary_metric": 1.572174,
+  "reproduced": true,
+  "schema_version": 1,
+  "stamp": "20260903T121358Z",
+  "started_at": "2026-09-03T12:13:58.182995Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T12:13:58.140425Z",
+  "tolerance": 0.01,
+  "tolerance_source": "verifier.tolerance",
+  "track": "primary",
+  "wall_seconds": 2.77646275004372,
+  "worktree_prepared": false
+}

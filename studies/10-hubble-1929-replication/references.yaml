@@ -1,0 +1,141 @@
+# Citations a `ref:<key>` evidence id resolves to. Written at the METHOD gate.
+# Every entry was checked against the publisher or arXiv landing page on the date
+# below — venue, year and locator — never cited from memory.
+references:
+
+  hubble1929:
+    title: "A relation between distance and radial velocity among extra-galactic nebulae"
+    authors: "Hubble, E."
+    year: 1929
+    venue: "Proceedings of the National Academy of Sciences 15(3):168-173"
+    doi: "10.1073/pnas.15.3.168"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      THE object of this study. The DOI resolves (302 to pnas.org/doi/full/...).
+      The article text was read through NASA APOD's manual transcription
+      (https://apod.nasa.gov/debate/1996/hub_1929.html, accessed 2026-09-03),
+      which is source (b) of the two-source diff behind datasets/hubble1929.
+      Confirmed from that text, and quoted in method_card.md §2: the two
+      solutions K = +465 +/- 50 (24 objects, apex A = 286 deg, D = +40 deg,
+      V0 = 306 km/s) and K = +513 +/- 60 (9 groups, A = 269 deg, D = +33 deg,
+      V0 = 247 km/s); the adopted intermediate K = 500, A = 277 deg, D = +36
+      deg, V0 = 280 km/s; the four-parameter equation
+      "rK + X cos(alpha) cos(delta) + Y sin(alpha) cos(delta) + Z sin(delta) = v";
+      and the Table 1 / Table 2 mean absolute magnitudes -15.5 and -15.3.
+      Also confirmed, and load-bearing for P2 and P3: the article prints NO
+      equatorial coordinates for any object, and does NOT list which nebulae
+      belong to each of the nine groups ("combining them into 9 groups
+      according to proximity in direction and in distance").
+
+  lemaitre1927:
+    title: >-
+      Un Univers homogene de masse constante et de rayon croissant rendant compte
+      de la vitesse radiale des nebuleuses extra-galactiques
+    authors: "Lemaitre, G."
+    year: 1927
+    venue: "Annales de la Societe Scientifique de Bruxelles A47:49-59; republished in English, General Relativity and Gravitation 45 (2013)"
+    doi: "10.1007/s10714-013-1548-3"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      Two years before Hubble, from Slipher's velocities and Hubble's own
+      distances, Lemaitre derived the linear relation and a rate of
+      625 km/s/Mpc (575 under a different weighting). Cited in findings §6 for
+      what it says about a replication of "Hubble's constant": the number is a
+      product of the distance scale of its era, not of one paper. The locator is
+      the 2013 English republication in GRG; the 1927 original is
+      1927ASSB...47...49L.
+
+  sandage1958:
+    title: "Current Problems in the Extragalactic Distance Scale"
+    authors: "Sandage, A. R."
+    year: 1958
+    venue: "The Astrophysical Journal 127:513-526"
+    doi: "10.1086/146483"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      The recalibration that cut the constant from Hubble's ~530 to ~75 by
+      correcting the distance scale, not the velocities. The external anchor for
+      RQ5 and P7: the 1929-to-today gap is a distance-ladder story.
+
+  planck2018:
+    title: "Planck 2018 results. VI. Cosmological parameters"
+    authors: "Planck Collaboration (Aghanim, N. et al.)"
+    year: 2020
+    venue: "Astronomy & Astrophysics 641:A6 (ADS 2020A&A...641A...6P)"
+    arxiv: "1807.06209"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      H0 = 67.4 +/- 0.5 km/s/Mpc from the CMB under base-LambdaCDM. One of the
+      two modern determinations that bracket this study's round reference value
+      of 70.
+
+  riess2022:
+    title: >-
+      A Comprehensive Measurement of the Local Value of the Hubble Constant with
+      1 km/s/Mpc Uncertainty from the Hubble Space Telescope and the SH0ES Team
+    authors: "Riess, A. G. et al."
+    year: 2022
+    venue: "The Astrophysical Journal Letters 934(1):L7"
+    doi: "10.3847/2041-8213/ac5c5b"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      H0 = 73.04 +/- 1.04 km/s/Mpc from the local distance ladder. The other
+      bracket around 70; the ~5.6 km/s/Mpc disagreement with planck2018 is the
+      "Hubble tension" and is an order of magnitude smaller than the gap this
+      study measures against 1929.
+
+  efron1979:
+    title: "Bootstrap Methods: Another Look at the Jackknife"
+    authors: "Efron, B."
+    year: 1979
+    venue: "The Annals of Statistics 7(1):1-26"
+    doi: "10.1214/aos/1176344552"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      The bootstrap, and its relation to the jackknife — the two uncertainty
+      methods this study's estimate track runs side by side.
+
+  diciccio1996:
+    title: "Bootstrap confidence intervals"
+    authors: "DiCiccio, T. J. and Efron, B."
+    year: 1996
+    venue: "Statistical Science 11(3):189-228"
+    doi: "10.1214/ss/1032280214"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      The survey of bootstrap interval procedures (percentile, BCa, bootstrap-t,
+      ABC) and their accuracy. The reason RQ4's prior is "close but under
+      nominal": the plain percentile interval is only first-order accurate, so
+      at n = 24 it is expected to under-cover. P6 measures it rather than
+      assuming it.
+
+  frost2000:
+    title: >-
+      Correcting for regression dilution bias: comparison of methods for a single
+      predictor variable
+    authors: "Frost, C. and Thompson, S. G."
+    year: 2000
+    venue: "Journal of the Royal Statistical Society Series A 163(2):173-189"
+    doi: "10.1111/1467-985X.00164"
+    verified: true
+    verified_by: "driving agent (Claude Fable 5.1)"
+    verified_at: "2026-09-03"
+    note: >-
+      Regression dilution: error in the PREDICTOR biases the least-squares slope
+      toward zero, and the forward and inverse fits are not the same line. The
+      prior behind P5 — Hubble's distances are far noisier than his velocities,
+      so v-on-r should under-estimate K relative to the inverted r-on-v fit.

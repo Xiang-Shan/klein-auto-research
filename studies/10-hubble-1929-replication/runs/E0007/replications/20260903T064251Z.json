@@ -1,0 +1,179 @@
+{
+  "baseline": 728.366015,
+  "block_differences": {
+    "ci_high": {
+      "difference": null,
+      "original": 1003.887093,
+      "replicate": null
+    },
+    "ci_low": {
+      "difference": null,
+      "original": 558.930637,
+      "replicate": null
+    },
+    "difference_ci_high": {
+      "difference": null,
+      "original": 564.8125094420406,
+      "replicate": null
+    },
+    "difference_ci_low": {
+      "difference": null,
+      "original": 113.85372381237195,
+      "replicate": null
+    },
+    "inverse_minus_forward_se_units": {
+      "difference": null,
+      "original": 2.447419144680689,
+      "replicate": null
+    },
+    "k_forward": {
+      "difference": null,
+      "original": 454.15844092262836,
+      "replicate": null
+    },
+    "k_inverse": {
+      "difference": null,
+      "original": 728.36601528692,
+      "replicate": null
+    },
+    "n": {
+      "difference": null,
+      "original": 24.0,
+      "replicate": null
+    },
+    "n_boot": {
+      "difference": null,
+      "original": 2000.0,
+      "replicate": null
+    },
+    "paired_mean_difference": {
+      "difference": null,
+      "original": 282.63949628059436,
+      "replicate": null
+    },
+    "paired_se_difference": {
+      "difference": null,
+      "original": 115.48471249597496,
+      "replicate": null
+    },
+    "point_difference": {
+      "difference": null,
+      "original": 274.2075743642916,
+      "replicate": null
+    },
+    "primary_metric": {
+      "difference": null,
+      "original": 728.366015,
+      "replicate": null
+    },
+    "ratio_inverse_over_forward": {
+      "difference": null,
+      "original": 1.6037707320978898,
+      "replicate": null
+    },
+    "runner_exit_code": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "total_seconds": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "wall_seconds": {
+      "difference": null,
+      "original": 0.0179,
+      "replicate": null
+    }
+  },
+  "candidate_commit": "86d942c630ad244d18b040bc32470b67a0efa2e7",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+  "difference": null,
+  "ended_at": "2026-09-03T06:43:45.847107Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0007@20260903T064251Z",
+  "exit_code": 1,
+  "experiment": "E0007",
+  "failure_reason": "process exit code 1",
+  "log": "runs/E0007/replications/20260903T064251Z.log",
+  "max_run_seconds": 600.0,
+  "metric_name": "k_kms_per_mpc",
+  "mismatched_keys": [
+    "ci_high",
+    "ci_low",
+    "difference_ci_high",
+    "difference_ci_low",
+    "inverse_minus_forward_se_units",
+    "k_forward",
+    "k_inverse",
+    "n",
+    "n_boot",
+    "paired_mean_difference",
+    "paired_se_difference",
+    "point_difference",
+    "primary_metric",
+    "ratio_inverse_over_forward"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "ci_high": 1003.887093,
+    "ci_low": 558.930637,
+    "difference_ci_high": 564.8125094420406,
+    "difference_ci_low": 113.85372381237195,
+    "inverse_minus_forward_se_units": 2.447419144680689,
+    "k_forward": 454.15844092262836,
+    "k_inverse": 728.36601528692,
+    "n": 24.0,
+    "n_boot": 2000.0,
+    "paired_mean_difference": 282.63949628059436,
+    "paired_se_difference": 115.48471249597496,
+    "point_difference": 274.2075743642916,
+    "primary_metric": 728.366015,
+    "ratio_inverse_over_forward": 1.6037707320978898,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.0179
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 728.366015,
+  "record": "runs/E0007/replications/20260903T064251Z.json",
+  "replicate_block": {},
+  "replicate_primary_metric": null,
+  "reproduced": false,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [],
+  "setup_seconds": 0.34112975001335144,
+  "stamp": "20260903T064251Z",
+  "started_at": "2026-09-03T06:42:52.446394Z",
+  "timed_out": false,
+  "timestamp": "2026-09-03T06:42:51.955220Z",
+  "tolerance": 0.0,
+  "tolerance_source": "exact",
+  "track": "estimate",
+  "wall_seconds": 53.40055162506178,
+  "worktree_prepared": true
+}

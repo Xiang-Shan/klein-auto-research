@@ -1,0 +1,13 @@
+paired_floor: k=10 ok trials
+  {'seed_i': 1, 'seed_j': 2} -> 0.005008 (1.0s, ok)
+  {'seed_i': 1, 'seed_j': 3} -> -0.003884 (0.2s, ok)
+  {'seed_i': 1, 'seed_j': 4} -> -0.006379 (0.2s, ok)
+  {'seed_i': 1, 'seed_j': 5} -> -0.016477 (0.2s, ok)
+  {'seed_i': 2, 'seed_j': 3} -> -0.008892 (0.2s, ok)
+  {'seed_i': 2, 'seed_j': 4} -> -0.011387 (0.2s, ok)
+  {'seed_i': 2, 'seed_j': 5} -> -0.021486 (0.3s, ok)
+  {'seed_i': 3, 'seed_j': 4} -> -0.002495 (0.2s, ok)
+  {'seed_i': 3, 'seed_j': 5} -> -0.012594 (0.2s, ok)
+  {'seed_i': 4, 'seed_j': 5} -> -0.010098 (0.2s, ok)
+runner_status: ok
+runner_exit_code: 0

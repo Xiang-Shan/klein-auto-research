@@ -1,0 +1,344 @@
+{
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "e17bd6f44ea73d9f253428bd90dce3ddd5f6b770a0a2d2c75ba61b57f647918f"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
+    },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "94a8ecd1ee18a4cbddbde234326867a022d09ac235b20fb4b88486e1fbf9c881"
+    },
+    "fit_noise": {
+      "path": "sweeps/fit_noise.sidecar.tsv",
+      "sha256": "9b6ade9dac985dc926a335d0f22c90c5a710dcb2b41d23fbbb3a2e3e1c7aa161"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "d802518273c96ed9c093792d7be286a0a09e03f55f7d8c14f0252fe4fbf3bce0"
+    },
+    "split_lottery": {
+      "path": "sweeps/split_lottery.sidecar.tsv",
+      "sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
+    }
+  },
+  "claims": {
+    "C1": {
+      "claim": "The ladder closed the distance to the development ceiling of 0.884116 from 10.4555 measured floors at the raw-feature anchor (val_auc 0.806201) to 1.7077 at the boosted incumbent (val_auc 0.871390), and the sealed partition returned val_auc 0.880949 against its own ceiling of 0.893469, a distance of 1.68 floors",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0005"
+      ],
+      "numbers": [
+        "anchor_auc",
+        "anchor_gap_floors",
+        "boosted_auc",
+        "boosted_gap_floors",
+        "dev_ceiling",
+        "sealed_auc",
+        "sealed_ceiling",
+        "sealed_gap_floors"
+      ],
+      "strength": "confirmed"
+    },
+    "C2": {
+      "claim": "Under the declared generating process of prepare.py, a boosted tree shown none of the true terms out-earned handing a linear model the DGP's true interaction: delta_in_floors 4.7779 against its predecessor on development and 4.6190 against the same predecessor on the sealed rows, against 3.9699 for the hand-specified interaction",
+      "class": "known-dgp-teaching",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0005"
+      ],
+      "numbers": [
+        "boosted_delta_floors",
+        "interaction_delta_floors",
+        "sealed_delta_floors"
+      ],
+      "scope": "in-silico",
+      "strength": "confirmed"
+    },
+    "C3": {
+      "claim": "More capacity did not merely fail to pay, it cost: the over-capacity boosted tree scored val_auc 0.858049 against the incumbent's 0.871390 (delta_vs_reference -0.013341, delta_in_floors -1.7903), its Brier rose to 0.143658 from 0.109337 and its log-loss to 1.024102 from 0.355165, and it spent 18.407609 seconds against 0.647123",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0003",
+        "E0004"
+      ],
+      "numbers": [
+        "boosted_auc",
+        "boosted_brier",
+        "boosted_logloss",
+        "boosted_wall_seconds",
+        "overcapacity_auc",
+        "overcapacity_brier",
+        "overcapacity_delta_auc",
+        "overcapacity_delta_floors",
+        "overcapacity_logloss",
+        "overcapacity_wall_seconds"
+      ],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "The headroom did not close before the fourth candidate: it stood at 1.708 when the candidate was spent, so the detection-limit law neither refused the run nor required an acknowledgement, and the candidate it did not stop came back at delta_in_floors -1.7903 rather than within the floor",
+      "class": "procedural-verdict",
+      "errata": [],
+      "evidence": [
+        "E0003",
+        "E0004"
+      ],
+      "numbers": [
+        "headroom_at_e0004",
+        "overcapacity_delta_floors"
+      ],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "The ranking gap and the probability gap are the same missing structure seen twice: the raw-feature logistic model cannot express the DGP's interaction or its quadratic and pays in both currencies at once, Brier 0.132010 against the boosted tree's 0.109337 and the irreducible Bayes floor of 0.103604",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0003",
+        "art:data_card"
+      ],
+      "numbers": [
+        "anchor_brier",
+        "bayes_brier_dev",
+        "boosted_brier"
+      ],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "Measure the floor that will judge your comparison, not whichever one is cheapest to compute: refitting a deterministic learner under different seeds on fixed rows moved this study's metric not at all, while re-drawing which rows are held out moved it with a standard deviation of 0.00372606, and only the second is a keep bar",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "sweep:fit_noise",
+        "sweep:split_lottery",
+        "art:contract"
+      ],
+      "numbers": [
+        "floor_std"
+      ],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "Declare every artifact the entrypoint reads, or derive it from committed code: both replication attempts on this study failed for non-scientific reasons, the first on a timeout while the detached worktree built its own environment and the second on a prepared artifact the contract never declared and the replication harness therefore never copied",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "rep:E0003@20260903T053202Z",
+        "rep:E0003@20260903T053344Z"
+      ],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "Read a headroom of at least one floor as not arithmetically excluded, never as worth trying: this study read 1.708 before its fourth candidate, which is exactly the regime where the law has nothing to say, and that candidate came back at delta_in_floors -1.7903",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0003",
+        "E0004"
+      ],
+      "numbers": [
+        "headroom_at_e0004",
+        "overcapacity_delta_floors"
+      ],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "2b29e93bf0b3230fa2dcccc7401f9feb35b7aae4",
+  "klein_commit": "2b29e93bf0b3230fa2dcccc7401f9feb35b7aae4",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {
+    "anchor_auc": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0001 val_auc, the raw-feature logistic anchor on development",
+      "precision": 6,
+      "value": 0.806201
+    },
+    "anchor_brier": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0001 val_brier",
+      "precision": 6,
+      "value": 0.13201
+    },
+    "anchor_gap_floors": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0001 gap_in_floors: the anchor's own headroom h",
+      "precision": 4,
+      "value": 10.4555
+    },
+    "bayes_brier_dev": {
+      "art": "data_card",
+      "claim": "C5",
+      "note": "the irreducible Bayes Brier of the development partition, from the DGP appendix",
+      "precision": 6,
+      "value": 0.103604
+    },
+    "boosted_auc": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0003 val_auc, the boosted incumbent on development",
+      "precision": 6,
+      "value": 0.87139
+    },
+    "boosted_brier": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0003 val_brier",
+      "precision": 6,
+      "value": 0.109337
+    },
+    "boosted_delta_floors": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0003 delta_in_floors over the interaction reference, same rows",
+      "precision": 4,
+      "value": 4.7779
+    },
+    "boosted_gap_floors": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0003 gap_in_floors: the incumbent's headroom h on development",
+      "precision": 4,
+      "value": 1.7077
+    },
+    "boosted_logloss": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0003 val_logloss",
+      "precision": 6,
+      "value": 0.355165
+    },
+    "boosted_wall_seconds": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0003 wall_seconds",
+      "precision": 6,
+      "value": 0.647123
+    },
+    "dev_ceiling": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "the development partition's Bayes AUC, printed by every development run",
+      "precision": 6,
+      "value": 0.884116
+    },
+    "floor_std": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the marginal-resplit floor standard deviation over ten draws",
+      "precision": 8,
+      "value": 0.00372606
+    },
+    "headroom_at_e0004": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "the headroom disclosed at the preflight before E0004; the same number the incumbent printed as gap_in_floors",
+      "precision": 3,
+      "value": 1.708
+    },
+    "interaction_delta_floors": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0002 delta_in_floors over the raw-feature reference, same rows",
+      "precision": 4,
+      "value": 3.9699
+    },
+    "minimum_delta": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the keep bar: max(2*std, range/2) of the split-lottery floor",
+      "precision": 8,
+      "value": 0.00745212
+    },
+    "overcapacity_auc": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 val_auc",
+      "precision": 6,
+      "value": 0.858049
+    },
+    "overcapacity_brier": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 val_brier",
+      "precision": 6,
+      "value": 0.143658
+    },
+    "overcapacity_delta_auc": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 delta_vs_reference on val_auc",
+      "precision": 6,
+      "value": -0.013341
+    },
+    "overcapacity_delta_floors": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 delta_in_floors against its own default-capacity reference",
+      "precision": 4,
+      "value": -1.7903
+    },
+    "overcapacity_logloss": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 val_logloss",
+      "precision": 6,
+      "value": 1.024102
+    },
+    "overcapacity_wall_seconds": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0004 wall_seconds",
+      "precision": 6,
+      "value": 18.407609
+    },
+    "sealed_auc": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0005 val_auc, the one sealed access",
+      "precision": 6,
+      "value": 0.880949
+    },
+    "sealed_ceiling": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "the sealed partition's own Bayes AUC, printed by E0005",
+      "precision": 6,
+      "value": 0.893469
+    },
+    "sealed_delta_floors": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0005 delta_in_floors over the same reference on the sealed rows",
+      "precision": 4,
+      "value": 4.619
+    },
+    "sealed_gap_floors": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0005 gap_in_floors on the sealed partition",
+      "precision": 4,
+      "value": 1.68
+    }
+  },
+  "study_id": "00-known-truth-quickstart"
+}

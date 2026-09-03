@@ -1,0 +1,122 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3326,
+      "committed": true,
+      "sha256": "95deb942694d7e017b1abd21931a3e62b0ea0717e5d60d11a9ab865968035ba9"
+    },
+    "models/E0009/solution.json": {
+      "availability": "recorded",
+      "bytes": 901,
+      "committed": true,
+      "sha256": "1ef97ed58056c312116ad6901f78f9c1bacadc1f4bde6fe785a15c3025d3c486"
+    },
+    "runs/E0009/run.log": {
+      "availability": "recorded",
+      "bytes": 640,
+      "committed": true,
+      "sha256": "de5ed145a6064bb3d000b9874d6d017f2c73a5045032a4babc2a46a4c89ca404"
+    }
+  },
+  "base_commit": "0d531a8585905aac71e7edb2bd842d36be8da533",
+  "candidate_commit": "f1edd1d9fa3825b790b507785c8933cfaf8f0cf0",
+  "code_patch_hash": "9b8dfaa8c2a83979b26edd7af9c31ff55bbc72d36f6729e0bd06795120542bf2",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier (external incumbent 22)",
+  "description": "sealed confirmation on n_small: the same search at the largest budget from the sealed seed block, which no development run has used; decides P6; sealed final-test evidence; excluded from the adaptive frontier (external incumbent 22)",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T07:50:01.009372Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0009",
+  "fingerprints": {
+    "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055",
+    "split_partition": "8bc68575ac8c255157c863f173309c22eaf03119500abc24a6d925021881e538"
+  },
+  "incumbent": null,
+  "matched_external": true,
+  "max_run_seconds": 120.0,
+  "metric": {
+    "reported": 22.0,
+    "verified": 22.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "points",
+  "metrics": {
+    "best_at_evaluation": 1612132.0,
+    "budget": 2000000.0,
+    "claim_excess": 0.0,
+    "claimed_objective": 22.0,
+    "evaluations": 1612132.0,
+    "grid_n": 11.0,
+    "object_size": 22.0,
+    "overclaim_by": 0.0,
+    "passes": 15327.0,
+    "primary_metric": 22.0,
+    "runner_exit_code": 0.0,
+    "sealed_block": 1.0,
+    "search_seconds": 0.6296950001269579,
+    "search_seed": 20260917.0,
+    "total_seconds": 0.0,
+    "triples_checked": 1540.0,
+    "wall_seconds": 0.000169
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P6": {
+      "explanation": "primary_metric 22 >= 22 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P6"
+  ],
+  "primary_metric": 22.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T07:49:59.682289Z",
+  "timed_out": false,
+  "track": "n_small",
+  "transaction": {
+    "committed_at": "2026-09-03T07:50:01.720343Z",
+    "evidence_commit": "fcbe36462dff6fb25fcb919eaeb39ad3526e34d4",
+    "recovered": false,
+    "status": "complete"
+  },
+  "verifier": {
+    "artifact": "models/E0009/solution.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "959ba15bac56cd94f00e7198788601bd87fa38767912ad34e223a0292f739cbe"
+    },
+    "timed_out": false,
+    "wall_seconds": 0.6353027089498937
+  },
+  "wall_seconds": 1.326956250006333
+}

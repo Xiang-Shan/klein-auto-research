@@ -66,6 +66,14 @@ transaction discipline it references lives in `.claude/skills/klein/SKILL.md` Ha
 - `models/best_<exp>_<metric>.pkl` + manifest.
 - Exactly one new run manifest and derived result (the winner) pointing at the sidecar.
 
+## Measurement sweeps (no winner)
+
+A noise-floor, split-lottery, paired-floor or permission-map sweep promotes NO winner
+and NO ledger row. After it completes, register it so findings and the claims lock
+can cite it as `sweep:<name>`:
+`uv run --locked klein sweep register --study <dir> <name> --sidecar sweeps/<name>.sidecar.tsv --script sweeps/<name>.py`.
+Crash rows stay in the sidecar — they are data about where a method breaks.
+
 ## Hand-back to the orchestrator
 
 Your final message is all the orchestrator sees. Report compactly:

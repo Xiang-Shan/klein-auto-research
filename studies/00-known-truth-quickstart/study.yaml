@@ -1,0 +1,160 @@
+schema_version: 3
+study_id: "00-known-truth-quickstart"
+goal: "On a synthetic table whose Bayes-optimal AUC is computable from the declared generating process, how close to that known ideal does a short ladder of tabular models get, and does the headroom law correctly call the point at which further development is arithmetically pointless?"
+domain: "synthetic"
+target: "y"          # the target COLUMN of the prepared table; the source tag carries the "synthetic" part
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "predict"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "generic"            # generic | ml-research | math | insurance
+# profile_doc: profiles/my-field.md   # ... or a repo-relative profile of your own
+audience: "A scientist or analyst meeting Klein for the first time, who wants to see the whole lifecycle end to end in five minutes."
+
+task_type: "classification"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "linear"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "train.py"]
+  mutable: ["train.py"]
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  primary:
+    mode: frontier          # frontier (climbs an incumbent) | registered (measures a cell)
+    metric:
+      name: "val_auc"
+      goal: "higher"     # higher | lower
+      minimum_delta: 0.00745212   # = max(2*std, range/2), std 0.00372606
+      noise_floor:
+        k: 10
+        std: 0.00372606
+        range: 0.012855
+        mean: 0.804577
+        values: [0.804224, 0.800879, 0.804918, 0.808895, 0.804812, 0.796877, 0.803582, 0.809732, 0.804964, 0.806886]
+        source: "sweeps/split_lottery.sidecar.tsv"
+        method: "split-lottery"
+        estimand: "marginal-resplit"
+      fit_noise:
+        k: 5
+        std: 0
+        range: 0
+        mean: 0.806201
+        values: [0.806201, 0.806201, 0.806201, 0.806201, 0.806201]
+        source: "sweeps/fit_noise.sidecar.tsv"
+        method: "seed-sweep"
+        estimand: "fit-noise"
+      exactness: stochastic       # exact for an integer/closed-form objective
+      # exactness_note: "..."     # required when exactness is exact: the objective's resolution
+      bound:                      # arms the headroom (detection-limit) audit:
+        ideal: 0.884116           # the DEVELOPMENT partition's Bayes AUC — the best score
+                                  # any model could reach on those rows — computed by
+                                  # prepare.py from the declared DGP and recorded in
+                                  # data/prepared/truth.json. Declared here only after the
+                                  # DATA gate hashed the generator that computes it.
+        on_infeasible: ack        # h < 1 refuses further development runs until acked
+      # incumbent_external:         # beat the literature, not just yourself
+      #   value: ...
+      #   source: "<citation>"
+      #   verified_on: "<yyyy-mm-dd>"
+    guardrails: {}
+    # verifier:                   # REQUIRED for kind: optimize, recommended for
+    #   command: ["uv", "run", "--locked", "python", "-u", "verify.py"]
+    #   tolerance: 0.0            # checkpoint-scored DL and simulator-scored
+    #   artifact_key: solution    # designs. Outside mutable[]; hashed at METHOD;
+    #                             # ITS number decides the run.
+
+data:
+  source: "synthetic:prepare.py"      # csv: | parquet: | synthetic: | bundled: | hub: | sklearn: | openml: | url:
+  # sha256: "..."                # mandatory for openml: and url: — bytes that can change are pinned
+  modality: "tabular"       # tabular | timeseries | image | sequence | graph | text | simulation | none
+  prepared_path: "data/prepared/prepared.csv"
+  split:
+    kind: stratified           # stratified | random | group | time | none (scalar)
+    seed: 20260903
+    development_size: 0.20
+    test_size: 0.20
+
+    # group_column: account_id     # required when kind=group
+    # time_column: event_time      # required when kind=time
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 60
+phases:
+  - id: adaptive-1
+    description: "split-identity anchor, baseline, then bounded adaptive work"
+    budget_seconds: 3600
+    max_experiments: 4
+  - id: confirmation
+    description: "one sealed final-test evaluation per track"
+    budget_seconds: 900
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "How much of the distance between a linear-in-raw-features baseline and the KNOWN Bayes ceiling does each rung of a short tabular ladder close, measured in units of the measured noise floor?"
+    prior: "the raw-feature anchor stops several floors short of the ceiling; handing it the DGP's true interaction closes part of the distance; a gradient-boosted model closes most of what is left without ever being told which terms are true (source: scouted — the design-time linear-oracle diagnostic, scouting_ledger.md S2)"
+  - id: RQ2
+    question: "Does the headroom law call the end of this ladder correctly — does h = (ideal - incumbent) / minimum_delta fall below 1 before a challenger with real capacity is spent, and does the run that is then spent anyway come back within the floor?"
+    prior: "yes: once the boosted rung holds the frontier, the distance left to the ceiling should be under one measured floor, so the door closes before the fourth candidate (source: uninformed — the floor is measured at Phase 0, after the scouting ledger closes)"
+
+# Registered BEFORE the evidence exists; the consult gate hashes this file, so a
+# prediction added later is visible as a gate re-record with a reason. Each
+# carries an arithmetic rule on a printed key, or `manual: true` when no run can
+# decide it. Operators: lt le gt ge ne abs_lt abs_le (value), eq (+ tol),
+# within (target + tol), between (value: [low, high]); combine with all_of /
+# any_of / not, at most three deep. `<`, `<=`, `>`, `>=`, `==`, `!=` also work.
+# Every rule below is a threshold in units of the MEASURED floor, so every
+# numeral in this block is an integer count of floors fixed here, before the
+# floor itself is known. `gap_in_floors` is the run's own headroom h against the
+# declared ideal; `delta_in_floors` is its paired lift over the named reference
+# rung, both computed by train.py from the contract and printed in the block.
+predictions:
+  - id: P1
+    track: primary
+    statement: "a logistic regression on the raw features cannot reach the known Bayes ceiling: more than one measured floor of distance is left"
+    rule: {key: gap_in_floors, op: ">", value: 1}
+    inconclusive_if: "minimum_delta is still 0, so train.py prints no gap_in_floors line"
+  - id: P2
+    track: primary
+    statement: "handing the linear model the DGP's true interaction term beats the raw-feature reference by at least one measured floor on the same rows"
+    rule: {key: delta_in_floors, op: ">=", value: 1}
+    inconclusive_if: "the run declares no reference rung, so train.py prints no delta_in_floors line"
+  - id: P3
+    track: primary
+    statement: "a gradient-boosted model, told none of the true terms, beats the hand-specified interaction rung by at least one measured floor on the same rows"
+    rule: {key: delta_in_floors, op: ">=", value: 1}
+    inconclusive_if: "the run declares no reference rung, so train.py prints no delta_in_floors line"
+  - id: P4
+    track: primary
+    statement: "buying more capacity on top of the boosted rung is within noise: the over-capacity model lands less than one measured floor from its own reference"
+    rule: {key: delta_in_floors, op: "abs_lt", value: 1}
+    inconclusive_if: "the run declares no reference rung, so train.py prints no delta_in_floors line"
+  - id: P5
+    track: primary
+    statement: "on the sealed partition the selected candidate lands within two measured floors of that partition's Bayes ceiling (the `within {target: Bayes AUC, tol: 2x floor}` rule, written on the printed headroom key)"
+    rule: {key: gap_in_floors, op: "abs_le", value: 2}
+    inconclusive_if: "the sealed access is never spent, or the sealed run crashes before the evaluator prints"
+
+confirmation:
+  require: [sealed]            # sealed | replicate | verify (default: by kind)
+# stop:
+#   max_consecutive_discards: 5  # end a losing phase on the record; klein stop ack
+#   scope: track
+# materiality:                   # "material"/"actionable" is priced or absent
+#   currency: EUR
+#   unit: "per policy-year"
+#   threshold: 0.0
+#   priced_by: "<who>"
+#   priced_on: "<yyyy-mm-dd>"
+#   basis: "<at least 40 characters saying what was priced, on what data, under which assumptions>"
+#   applies_to: "<the decision this bar governs>"
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html

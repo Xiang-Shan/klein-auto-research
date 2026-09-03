@@ -42,8 +42,59 @@ V2_RESULTS_COLUMNS: tuple[str, ...] = (
 #: Columns that MAY follow the canonical five, in this order.
 OPTIONAL_COLUMNS: tuple[str, ...] = ("study_id",)
 
-#: The only honest outcomes for an experiment row.
-VALID_STATUSES: frozenset[str] = frozenset({"keep", "discard", "crash"})
+#: The only honest outcomes for an experiment row.  ``measured`` is schema 3's
+#: registered-mode outcome (``references/registered-mode.md``): a cell of a
+#: pre-registered measurement program neither wins nor loses a frontier, so it
+#: is recorded for what it is.  Widening the set never retro-changes a schema-2
+#: ledger — no schema-2 run can produce the value.
+VALID_STATUSES: frozenset[str] = frozenset({"keep", "discard", "measured", "crash"})
+
+# --------------------------------------------------------------------------
+# The three axes of a schema-3 inquiry (references/inquiry-model.md)
+# --------------------------------------------------------------------------
+
+#: Audience profiles that ship with Klein.  A repo that needs its own writes a
+#: markdown profile and points ``profile_doc:`` at it — the ENGINE never reads
+#: the skill directory, so a wheel installed in a foreign repo keeps working.
+KNOWN_PROFILES: tuple[str, ...] = ("generic", "ml-research", "math", "insurance")
+
+#: The evidence source's shape.  Selects the Gate-1 card variant and the split
+#: vocabulary; it never changes what the engine checks.
+KNOWN_MODALITIES: tuple[str, ...] = (
+    "tabular",
+    "timeseries",
+    "image",
+    "sequence",
+    "graph",
+    "text",
+    "simulation",
+    "none",
+)
+
+_CARD_SECTIONS_EVERY: tuple[str, ...] = (
+    "Source & shape",
+    "Ranked go / no-go issues",
+    "Go / no-go",
+)
+_CARD_SECTIONS_TABLE: tuple[str, ...] = (
+    "Profile summary",
+    "Clean-room leakage audit",
+)
+
+#: Headings ``data_card.md`` must carry for each modality.  The DATA gate checks
+#: heading PRESENCE only — the prose that belongs under each lives in
+#: ``references/data-gate-protocol.md`` and ``assets/data-card-template.md``, and
+#: this registry is what those two documents point at.
+MODALITY_CARD_SECTIONS: dict[str, tuple[str, ...]] = {
+    "tabular": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE,
+    "timeseries": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Time policy",),
+    "image": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
+    "sequence": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
+    "graph": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
+    "text": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
+    "simulation": _CARD_SECTIONS_EVERY + ("DGP card",),
+    "none": _CARD_SECTIONS_EVERY + ("Verifier card",),
+}
 
 #: Placeholder in the commit field for a row with no surviving commit.
 NO_COMMIT: str = "-"
@@ -207,4 +258,16 @@ EVALUATOR_PRINTED_KEYS: dict[str, frozenset[str]] = {
         "val_r2",
     }),
     "evaluate_scalar": frozenset(),
+    # The three registered-cell shapes (references/registered-mode.md). Only
+    # keys that are numeric on EVERY successful run are listed: `stat` and
+    # `effect` print NA when non-finite (an infinite t is real), and `artifact`
+    # / `sha256` are text, so none of them may be blessed here.
+    "evaluate_estimate": frozenset({"ci_low", "ci_high", "n"}),
+    "evaluate_test": frozenset({
+        "p_value",
+        "n",
+        "n_comparisons",
+        "bonferroni_alpha",
+    }),
+    "evaluate_table": frozenset({"rows"}),
 }

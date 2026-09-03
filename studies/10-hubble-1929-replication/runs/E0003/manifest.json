@@ -1,0 +1,98 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1440,
+      "committed": true,
+      "sha256": "0d22b7596b44de73a422ceb58950b10b5da95c0bf743c21a447c7c668d730a4d"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 811,
+      "committed": true,
+      "sha256": "cce7018eb0bc0a6d16478624ca488d5cb312b26dae4938ced52380df1194abc9"
+    },
+    "tables/table1_absolute_magnitudes.tsv": {
+      "availability": "recorded",
+      "bytes": 1696,
+      "committed": true,
+      "role": "declared",
+      "sha256": "0e709cb8bc1cd3fee9ddfcebc741bf9ca054e1543b327cae4a97d4192dda5388"
+    }
+  },
+  "base_commit": "68dbc427fdc02c2f7cf8976e37c3e022720c7f21",
+  "candidate_commit": "19ee81f77341307ef869dd61952bc40c789ad0b6",
+  "code_patch_hash": "f1e76fd7fc0759cf682b9a8e757e61b768cc61b1f4a0750af0452397f7aa0ded",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "reproduce Table 1's printed absolute magnitudes from its own m_t and r_mpc via M = m - 5log10(r) - 25, tolerance 0.06 mag per object; rehearsal of the sealed cell's machinery; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:05:03.125842Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "abs_gap_printed_column_mean": 0.020833333333333925,
+    "max_abs_mag_dev": 0.07121254719662495,
+    "mean_M_t_computed": -15.483270669070984,
+    "mean_M_t_printed": -15.479166666666666,
+    "mean_abs_mag_dev": 0.022133867019204907,
+    "n_objects": 24.0,
+    "n_outside_tolerance": 3.0,
+    "paper_printed_mean_M_t": -15.5,
+    "primary_metric": 1.0,
+    "rows": 24.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.009867
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P9": {
+      "explanation": "max_abs_mag_dev 0.0712125471966 <= 0.06 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P9"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:05:02.404242Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "committed_at": "2026-09-03T06:05:03.196089Z",
+    "evidence_commit": "90aaaf2de9e6314dda97c5ce5e9c6269b6c495d9",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.7214768750127405
+}

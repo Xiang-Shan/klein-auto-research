@@ -1,0 +1,6 @@
+control	role	expectation	val_nats_per_char	val_bits_per_char	chance_nats_per_char	verdict
+uniform	negative	== ln 65 = 4.174387 nats (chance), to float32 resolution	4.174388	6.022369	4.174387	PASS
+untrained_network	negative	no BETTER than chance — a random network holds no information, and its unnormalized head makes it slightly worse; the band is [chance, chance + 0.5]	4.305432	6.211425	4.174387	PASS
+unigram_train_fit	positive	strictly better than chance	3.306991	4.770979	4.174387	PASS
+copy_input	negative	strictly WORSE than chance (targets are shifted by one)	4.750043	6.852864	4.174387	PASS
+target_equals_input_rate	diagnostic	far below 1.0 — 1.0 would mean the targets were never shifted	0.024523			PASS

@@ -1,9 +1,10 @@
-"""Tests for build_tutorial.py — the Route B tutorial assembler.
+"""Tests for build_tutorial.py — the bundled tutorial assembler (the route of
+record; see tutorial-spec.md § Optional: an external renderer).
 
 Scripts under ``.claude/skills/klein/scripts/`` are deliberately not a package
 (the skill must stay copy-a-directory portable), so the module is loaded
 directly via ``importlib.util`` rather than imported — same pattern as
-conftest.py uses for preflight/summarize.
+conftest.py uses for summarize.
 """
 
 from __future__ import annotations
@@ -415,10 +416,12 @@ def test_missing_included_file_fails_with_exit_6(build_module, tmp_path, capsys)
 
 
 def test_included_path_escaping_study_dir_is_rejected(build_module, tmp_path, capsys):
-    for bad in ("../../etc/passwd", "/etc/passwd"):
+    for index, bad in enumerate(("../../etc/passwd", "/etc/passwd")):
         frags = dict(FRAGMENTS)
         frags["06-coding-advice.html"] = f'<h2>C</h2><pre data-code="{bad}"></pre>'
-        study = scaffold(tmp_path / f"00-esc{abs(hash(bad)) % 100}", fragments=frags)
+        # Indexed, not hashed: `abs(hash(bad)) % 100` collided under some
+        # PYTHONHASHSEED values and the second scaffold died on FileExistsError.
+        study = scaffold(tmp_path / f"00-esc{index}", fragments=frags)
         rc = build_module.main([str(study)])
         assert rc == 6, bad
         assert "relative path inside the study dir" in capsys.readouterr().err

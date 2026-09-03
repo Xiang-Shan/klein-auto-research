@@ -1,0 +1,80 @@
+<h2>4. The experiment journey</h2>
+
+<p>Thirteen cells, three tracks, five phases, zero crashes. Every track is
+<em>registered</em>, which changes what a run means: a cell does not climb a frontier,
+it <strong>measures</strong> a pre-registered quantity, and its disposition is
+<code>measured</code> or <code>crash</code> &mdash; never "keep". There is no incumbent
+to beat and no headroom to audit, so the trajectory below is a programme being
+executed, not a search converging.</p>
+
+<img data-fig="figures/trajectory.png"
+     alt="Decision trajectory: thirteen cells across three tracks and five phases, with one sealed cell per track marked as a diamond.">
+
+<h3>4.1 The programme, phase by phase</h3>
+
+<p><strong>adaptive-1 &mdash; anchor first, and only then anything else.</strong> The
+identity anchor recomputes the paper's published column sums and both row counts, with
+a hard STOP on mismatch. It reproduced with a maximum absolute deviation of
+<strong>0.000000</strong>. This ran before every other candidate on the slate &mdash;
+not because it scored highest (three candidates tied) but because it is the only one
+whose failure invalidates the rest: if the bytes are not Hubble's, every later cell is a
+confidently wrong measurement of the wrong table.</p>
+
+<p>Two <em>measurement sweeps</em> also belong to this phase and spend no experiment
+budget: the Monte-Carlo resolution of the estimate track's deciding key, and the
+coverage floor over five simulation seed blocks, which produced the measured
+<code>minimum_delta</code> of <strong>0.0060663</strong>.</p>
+
+<p><strong>adaptive-2 &mdash; reproduction, one published target per cell.</strong> The
+two-parameter fits against 465; the printed absolute magnitudes; the four-parameter
+solar-motion solution; the nine-group solution. The order was deliberate: the two cells
+that could still surprise the machinery ran before the two expected to document a gap,
+so that a broken distance modulus would be discovered while the seal was still
+unspent.</p>
+
+<p><strong>adaptive-3 &mdash; what the objects actually estimate.</strong> The bootstrap
+interval, the inverse-versus-forward comparison on common random numbers, and the
+jackknife influence of every object. A fourth candidate &mdash; an errors-in-variables
+fit &mdash; was <strong>declined and recorded as declined</strong>: it needs the ratio
+of velocity to distance variance, which the paper does not print, so its estimate would
+have been a function of a number this study invented.</p>
+
+<p><strong>adaptive-4 &mdash; audit the interval before leaning on it.</strong> Coverage
+of the bootstrap interval and of the analytic interval under the declared truth. Two
+cells rather than one, because one coverage number is a fact and two are a diagnosis.</p>
+
+<p><strong>confirmation &mdash; three seals, one per track.</strong> Each was preceded
+by the mandatory rehearsal. What "sealed" means differs by track kind, and the study
+uses each definition rather than inventing a fourth: the original's reported value
+compared once (Table 2), an external reference value compared once (the modern
+constant), and a fresh seed block never used in development.</p>
+
+<h3>4.2 The rehearsals earned their keep twice, in two different ways</h3>
+
+<p>This is the part of the journey worth copying. Both sealed dry-runs caught a real
+defect, and the second is the instructive one:</p>
+
+<ul>
+  <li><strong>The first rehearsal failed loudly.</strong> The sealed cell's own guard
+      fired: the library dropped the forbidden columns by the block it <em>served</em>
+      rather than the block <em>requested</em>, so the rehearsal handed the cell a
+      frame of a different shape than the real run would. A rehearsal that exercises a
+      different code path is not a rehearsal. Fixed; the seal was untouched.</li>
+  <li><strong>The second rehearsal passed &mdash; and was still wrong.</strong> Exit
+      code <strong>0</strong>, a well-formed printed block, a pinned table &mdash; and
+      an inverted distance rescale that would have recorded a prediction as refuted on
+      a value of <strong>2680.495911</strong>, spending the estimate track's only
+      access on a prediction that was never actually tested. Nothing but reading the
+      rehearsal's <em>numbers</em> would have caught it.</li>
+</ul>
+
+<h3>4.3 The ledger</h3>
+
+<!--LEDGER-->
+
+<p>Every one of the ten development cells was then re-executed in a detached worktree
+at its own candidate commit. <strong>All ten reproduced with difference exactly
+0</strong> &mdash; not "within tolerance". Getting there took twenty-five records, of
+which fifteen are failures, and <em>none was deleted</em>: the environment refused to
+load freshly built libraries and the ledger says so, because the rule is that every
+attempt leaves a record.</p>

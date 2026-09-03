@@ -128,3 +128,39 @@ def test_device_selection_preference_and_name(monkeypatch):
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     assert torch_device.device_name(torch_device.pick_device("mps")) == "cpu"
     assert torch_device.device_name(torch_device.pick_device("cuda")) == "cpu"
+
+
+def test_auto_is_the_default_and_orders_mps_then_cuda_then_cpu(monkeypatch):
+    monkeypatch.delenv("KLEIN_DEVICE", raising=False)
+
+    # Both accelerators available: mps wins (first in the order), whether
+    # "auto" is passed explicitly or left as the (new) default.
+    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: True)
+    monkeypatch.setattr(torch.backends.mps, "is_built", lambda: True)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    assert torch_device.device_name(torch_device.pick_device("auto")) == "mps"
+    assert torch_device.device_name(torch_device.pick_device()) == "mps"
+
+    # mps unavailable, cuda available: falls through to cuda.
+    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: False)
+    assert torch_device.device_name(torch_device.pick_device("auto")) == "cuda"
+
+    # Neither available: cpu.
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
+    assert torch_device.device_name(torch_device.pick_device("auto")) == "cpu"
+    assert torch_device.device_name(torch_device.pick_device()) == "cpu"
+
+
+def test_klein_device_env_override_wins_over_every_prefer(monkeypatch):
+    # Both accelerators report available, so a cascading "auto" (and the
+    # explicit single-backend modes) would normally pick one of them — the
+    # env override must win regardless, per compute-and-devices.md.
+    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: True)
+    monkeypatch.setattr(torch.backends.mps, "is_built", lambda: True)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setenv("KLEIN_DEVICE", "cpu")
+
+    assert torch_device.device_name(torch_device.pick_device("auto")) == "cpu"
+    assert torch_device.device_name(torch_device.pick_device("mps")) == "cpu"
+    assert torch_device.device_name(torch_device.pick_device("cuda")) == "cpu"
+    assert torch_device.device_name(torch_device.pick_device()) == "cpu"

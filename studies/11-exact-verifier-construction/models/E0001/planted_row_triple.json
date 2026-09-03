@@ -1,0 +1,23 @@
+{
+  "claimed_objective": 3,
+  "meta": {
+    "control": "positive",
+    "planted_defect": "three points share a row (slope 0)"
+  },
+  "n": 11,
+  "points": [
+    [
+      2,
+      5
+    ],
+    [
+      6,
+      5
+    ],
+    [
+      9,
+      5
+    ]
+  ],
+  "problem": "no-three-in-line"
+}

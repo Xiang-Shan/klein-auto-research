@@ -1,0 +1,80 @@
+<h2>Next Steps</h2>
+
+<ol>
+<li><p><strong>A second schedule setting, since the schedule is the only lever that
+paid.</strong> Cosine to zero rather than to a tenth of the peak, and a higher peak
+paid for by the decay. This is the cheapest test of whether E0006 found the lever
+itself or merely one point on it.</p></li>
+<li><p><strong>Weight tying WITH a learned logit scale.</strong> [C6] blames the
+shared-norm constraint rather than the parameter sharing itself; a single scalar
+multiplying the tied logits separates those two explanations in one run.</p></li>
+<li><p><strong>Width at matched FLOPs instead of matched steps</strong> &mdash; the
+wider model with proportionally fewer steps, the scaling-law condition this study
+deliberately did not run. It converts &ldquo;capacity does not pay at fixed
+steps&rdquo; into a statement about where the exchange rate actually sits.</p></li>
+<li><p><strong>A two-track version of this study</strong>, one track per schedule
+family, so the gap between them gets two sealed numbers instead of one. [C13] is the
+reason, and it is the cheapest way to turn this study&rsquo;s exploratory headline into
+a confirmed one.</p></li>
+</ol>
+
+<h3>Verified references</h3>
+
+<p>Every entry below was checked against its arXiv, publisher or repository page on
+2026-09-03; none is unverified.</p>
+
+<ul>
+<li>Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones, L.; Gomez, A. N.;
+Kaiser, L.; Polosukhin, I. (2017). Attention Is All You Need. <em>Advances in Neural
+Information Processing Systems 30</em>. arXiv:1706.03762 &mdash; the architecture
+family this study fixes: causal multi-head self-attention with a position-wise
+MLP.</li>
+<li>Loshchilov, I. &amp; Hutter, F. (2019). Decoupled Weight Decay Regularization.
+<em>ICLR 2019</em>. arXiv:1711.05101 &mdash; the anchor recipe&rsquo;s optimizer,
+AdamW, and why weight decay is decoupled from the loss gradient.</li>
+<li>Xiong, R.; Yang, Y.; He, D.; Zheng, K.; Zheng, S.; Xing, C.; Zhang, H.; Lan, Y.;
+Wang, L.; Liu, T.-Y. (2020). On Layer Normalization in the Transformer Architecture.
+<em>ICML 2020</em>. arXiv:2002.04745 &mdash; why P2&rsquo;s prior expected warmup not
+to pay: Pre-LN transformers have well-behaved gradients at initialization.</li>
+<li>Press, O. &amp; Wolf, L. (2017). Using the Output Embedding to Improve Language
+Models. <em>EACL 2017</em>. arXiv:1608.05859 &mdash; the weight-tying result P3
+tested, measured originally at word-level vocabularies of tens of thousands.</li>
+<li>Srivastava, N.; Hinton, G.; Krizhevsky, A.; Sutskever, I.; Salakhutdinov, R.
+(2014). Dropout: A Simple Way to Prevent Neural Networks from Overfitting.
+<em>Journal of Machine Learning Research</em> 15(56), 1929-1958 &mdash; the
+regularizer P4 tested, and the trade it bets against: dropout buys generalization by
+slowing optimization.</li>
+<li>Kaplan, J.; McCandlish, S.; Henighan, T.; Brown, T. B.; Chess, B.; Child, R.; Gray,
+S.; Radford, A.; Wu, J.; Amodei, D. (2020). Scaling Laws for Neural Language Models.
+arXiv:2001.08361 &mdash; the doctrine anchor behind P5: at fixed COMPUTE, larger
+models trained for fewer steps are efficient. This study holds steps fixed instead of
+FLOPs, a different and harsher condition for the wider model.</li>
+<li>Hoffmann, J.; Borgeaud, S.; Mensch, A.; et al. (2022). Training Compute-Optimal
+Large Language Models. arXiv:2203.15556 &mdash; the correction that matters here:
+model size and training tokens should scale together, so a width change at fixed
+tokens is deliberately off the compute-optimal frontier.</li>
+<li>Picard, D. (2021). <code>Torch.manual_seed(3407)</code> is all you need. arXiv:2109.08203
+&mdash; why this study measures a seed floor before it compares anything: seed-to-seed
+spread produces outliers large enough to be mistaken for a method effect.</li>
+<li>Bouthillier, X.; Delaunay, P.; Bronzi, M.; Trofimov, A.; Nichyporuk, B.; Szeto, J.;
+Mohammadi Sepahvand, N.; Raff, E.; Madan, K.; Voleti, V.; Ebrahimi Kahou, S.;
+Michalski, V.; Arbel, T.; Pal, C.; Varoquaux, G.; Vincent, P. (2021). Accounting for
+Variance in Machine Learning Benchmarks. <em>MLSys 2021</em>. arXiv:2103.03098
+&mdash; the methodological anchor for the floor design: benchmark variance has several
+distinct sources, and which one you measure decides which differences you can
+honestly call real.</li>
+<li>Karpathy, A. nanoGPT &mdash; &ldquo;The simplest, fastest repository for
+training/finetuning medium-sized GPTs&rdquo;. github.com/karpathy/nanoGPT, MIT license
+&mdash; the lineage of this exact setting: nanoGPT&rsquo;s <code>shakespeare_char</code>
+example reads the same tiny-Shakespeare file this study bundles, with the same
+contiguous 90/10 convention. Cited for provenance of the corpus and the split
+convention, not for any number.</li>
+</ul>
+
+<p>This is the first Klein study to close under the <code>ml-research</code> profile,
+and its literature scorecard is the first entry in
+<code>knowledge/domains/ml-research/</code>: of two <code>uninformed</code> priors,
+RQ1&rsquo;s was half right (at most one lever cleared the floor, but not the one it
+named) and RQ3&rsquo;s was right in magnitude for the gain and wrong for the largest
+cost. The next study in this profile is the one with a knowledge base to start
+from.</p>

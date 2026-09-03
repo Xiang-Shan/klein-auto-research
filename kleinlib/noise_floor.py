@@ -20,7 +20,54 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-__all__ = ["NoiseFloor", "summarize_noise", "floor_from_sidecar", "yaml_block"]
+__all__ = [
+    "ESTIMANDS",
+    "add_recipe_arguments",
+    "FIT_NOISE",
+    "NoiseFloor",
+    "RECIPES",
+    "block_key",
+    "floor_from_sidecar",
+    "floor_report",
+    "resolve_estimand",
+    "summarize_noise",
+    "yaml_block",
+]
+
+#: The floor recipes and estimands the consult protocol names. Re-exported from
+#: :mod:`kleinlib.metrology` so this stdlib-only module (and the CLI it backs)
+#: does not import numpy just to spell three strings; a drift test pins them.
+RECIPES: tuple[str, ...] = ("seed-sweep", "split-lottery", "paired-bootstrap")
+ESTIMANDS: tuple[str, ...] = ("fit-noise", "marginal-resplit", "paired-comparison")
+
+#: The one estimand that is NEVER the keep bar.
+FIT_NOISE: str = "fit-noise"
+
+#: Which estimand a recipe measures unless the caller says otherwise.
+RECIPE_ESTIMAND: dict[str, str] = {
+    "seed-sweep": "fit-noise",
+    "split-lottery": "marginal-resplit",
+    "paired-bootstrap": "paired-comparison",
+}
+
+
+def resolve_estimand(recipe: str | None, estimand: str | None) -> str | None:
+    """The estimand to record: the declared one, else the recipe's default.
+
+    A recipe/estimand pair outside :data:`RECIPE_ESTIMAND` is allowed but must
+    be stated: study 09 ran a split lottery that produced PAIRED differences
+    (`--recipe split-lottery --estimand paired-comparison`), and silently
+    relabelling it would have made a paired floor look marginal.
+    """
+    if estimand is not None:
+        if estimand not in ESTIMANDS:
+            raise ValueError(f"estimand must be one of {list(ESTIMANDS)}, got {estimand!r}")
+        return estimand
+    if recipe is None:
+        return None
+    if recipe not in RECIPES:
+        raise ValueError(f"recipe must be one of {list(RECIPES)}, got {recipe!r}")
+    return RECIPE_ESTIMAND[recipe]
 
 #: Keys a study.yaml ``metric.noise_floor`` block may carry (validated in
 #: kleinlib.workflow.validate_contract). ``method`` is free-text provenance for
@@ -107,6 +154,18 @@ def floor_from_sidecar(path: Path, *, metric: str = "primary_metric") -> NoiseFl
     return summarize_noise(values)
 
 
+def block_key(estimand: str | None) -> str:
+    """``fit_noise`` for the fit-noise estimand, ``noise_floor`` otherwise.
+
+    A seed-only spread measures how much the FIT moves, not how much a
+    COMPARISON moves; pasting it as ``minimum_delta`` is how a study ends up
+    defending a bar it never measured (consult protocol, Phase 0). It is
+    recorded as provenance under its own key and the block carries no
+    ``minimum_delta:`` line at all.
+    """
+    return "fit_noise" if estimand == FIT_NOISE else "noise_floor"
+
+
 def yaml_block(
     track: str,
     floor: NoiseFloor,
@@ -114,15 +173,30 @@ def yaml_block(
     source: str,
     measured_after: str | None = None,
     method: str | None = None,
+    estimand: str | None = None,
 ) -> str:
-    """The paste-able ``study.yaml`` snippet (indented for tracks.<t>.metric)."""
-    lines = [
-        f"# tracks.{track}.metric — set minimum_delta from the measured floor:",
-        f"      minimum_delta: {floor.suggested_minimum_delta:.6g}"
-        f"   # = max(2*std, range/2), std {floor.std:.6g}",
-        "      noise_floor:",
-        f"        k: {floor.k}",
-    ]
+    """The paste-able ``study.yaml`` snippet (indented for tracks.<t>.metric).
+
+    ``estimand`` names WHICH question the floor answers and selects the key the
+    block lands under (:func:`block_key`): a bar-carrying estimand gets
+    ``minimum_delta:`` + ``noise_floor:``; ``fit-noise`` gets ``fit_noise:``
+    alone.
+    """
+    key = block_key(estimand)
+    if key == "fit_noise":
+        lines = [
+            f"# tracks.{track}.metric — fit noise is PROVENANCE about the fit, "
+            "NOT the keep bar:",
+            "      fit_noise:",
+        ]
+    else:
+        lines = [
+            f"# tracks.{track}.metric — set minimum_delta from the measured floor:",
+            f"      minimum_delta: {floor.suggested_minimum_delta:.6g}"
+            f"   # = max(2*std, range/2), std {floor.std:.6g}",
+            "      noise_floor:",
+        ]
+    lines.append(f"        k: {floor.k}")
     if floor.seeds is not None:
         lines.append(f"        seeds: [{', '.join(str(s) for s in floor.seeds)}]")
     lines += [
@@ -136,11 +210,89 @@ def yaml_block(
         lines.append(f'        measured_after: "{measured_after}"')
     if method:
         lines.append(f'        method: "{method}"')
+    if estimand:
+        lines.append(f'        estimand: "{estimand}"')
     return "\n".join(lines) + "\n"
+
+
+def floor_report(
+    track: str,
+    floor: NoiseFloor,
+    *,
+    source: str,
+    measured_after: str | None = None,
+    method: str | None = None,
+    estimand: str | None = None,
+) -> str:
+    """Everything ``klein noise-floor`` prints: summary, block, and next step.
+
+    One implementation so the packaged verb and ``python -m kleinlib.noise_floor``
+    can never drift.
+    """
+    header = f"k={floor.k}  mean={floor.mean:.6g}  std={floor.std:.6g}  range={floor.value_range:.6g}"
+    if method:
+        header = f"recipe={method}  " + header
+    if estimand:
+        header = f"estimand={estimand}  " + header
+    if block_key(estimand) == "fit_noise":
+        header += "  (fit noise — NOT a keep bar)"
+        footer = (
+            "next: paste the fit_noise block, then measure the floor that will JUDGE "
+            "the comparison — --recipe split-lottery (marginal-resplit) or "
+            "--recipe paired-bootstrap (paired-comparison). Neither the marginal nor "
+            "the paired spread is sharper a priori; for a COMPARISON the honest floor "
+            "is the paired one."
+        )
+    else:
+        header += f"  suggested minimum_delta={floor.suggested_minimum_delta:.6g}"
+        footer = (
+            "next: edit study.yaml, then re-record the consult gate --note "
+            '"minimum_delta set from the measured noise floor"'
+        )
+    block = yaml_block(
+        track,
+        floor,
+        source=source,
+        measured_after=measured_after,
+        method=method,
+        estimand=estimand,
+    )
+    return f"{header}\n\n{block}\n{footer}\n"
 
 
 def _finite(value: float) -> bool:
     return value == value and value not in (float("inf"), float("-inf"))
+
+
+def add_recipe_arguments(parser) -> None:
+    """Declare ``--recipe``/``--estimand``/``--method`` on a floor parser.
+
+    One declaration so the packaged ``klein noise-floor`` verb and
+    ``python -m kleinlib.noise_floor`` cannot drift in spelling or help text.
+    ``--recipe`` is the vocabulary-constrained flag the consult protocol names;
+    ``--method`` remains as free text for a recipe Klein does not ship, and the
+    two are mutually exclusive so a block can never claim both.
+    """
+    recipe = parser.add_mutually_exclusive_group()
+    recipe.add_argument(
+        "--recipe",
+        choices=list(RECIPES),
+        help="how the floor was measured: seed-sweep (fit noise), split-lottery "
+        "(marginal re-split), paired-bootstrap (paired comparison, common random "
+        "numbers) — written to the block as method:",
+    )
+    recipe.add_argument(
+        "--method",
+        help="free-text provenance for a recipe Klein does not ship (use --recipe "
+        "for the three the consult protocol names)",
+    )
+    parser.add_argument(
+        "--estimand",
+        choices=list(ESTIMANDS),
+        help="WHICH question the floor answers (default: the recipe's own). "
+        "fit-noise is provenance, never the bar: it lands under fit_noise: with "
+        "no minimum_delta line",
+    )
 
 
 def _main(argv: list[str] | None = None) -> int:
@@ -155,41 +307,28 @@ def _main(argv: list[str] | None = None) -> int:
     group.add_argument("--values", help="comma-separated metric values")
     parser.add_argument("--seeds", help="comma-separated seeds (with --values)")
     parser.add_argument("--measured-after", help="anchor experiment id, e.g. E0001")
-    parser.add_argument(
-        "--method",
-        help="how the floor was measured (default: seed-sweep for a sidecar; "
-        "the consult protocol also names paired-bootstrap)",
-    )
+    add_recipe_arguments(parser)
     args = parser.parse_args(argv)
     if args.sidecar is not None:
         floor = floor_from_sidecar(args.sidecar)
         source = str(args.sidecar)
-        method = args.method or "seed-sweep"
+        args.method = args.method or ("seed-sweep" if args.recipe is None else None)
     else:
         seeds = [int(s) for s in args.seeds.split(",")] if args.seeds else None
         floor = summarize_noise(
             [float(v) for v in args.values.split(",")], seeds=seeds
         )
         source = "--values"
-        method = args.method
     print(
-        f"k={floor.k}  mean={floor.mean:.6g}  std={floor.std:.6g}  "
-        f"range={floor.value_range:.6g}  suggested minimum_delta="
-        f"{floor.suggested_minimum_delta:.6g}"
-    )
-    print()
-    print(
-        yaml_block(
+        floor_report(
             args.track,
             floor,
             source=source,
             measured_after=args.measured_after,
-            method=method,
-        )
-    )
-    print(
-        "next: edit study.yaml, then re-record the consult gate --note "
-        '"minimum_delta set from the measured noise floor"'
+            method=args.recipe or args.method,
+            estimand=resolve_estimand(args.recipe, args.estimand),
+        ),
+        end="",
     )
     return 0
 

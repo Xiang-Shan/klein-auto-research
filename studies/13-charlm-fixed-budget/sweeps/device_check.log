@@ -1,0 +1,6 @@
+device_check on E0001 (checkpoint sha256 f1408df06f0a…):
+  cpu  -> 1.572174 nats
+  mps  -> 1.572174 nats
+  |cpu - mps| = 0.000000000 nats
+runner_status: ok
+runner_exit_code: 0

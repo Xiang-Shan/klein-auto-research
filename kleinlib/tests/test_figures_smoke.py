@@ -166,3 +166,44 @@ def test_decision_trajectory_declares_log_scale_on_extreme_range(tmp_path):
         manifests, tmp_path, track="primary", metric_goal="lower", metric_name="gap"
     )
     assert path.exists() and path.stat().st_size > 5000
+
+
+def test_measured_cell_gets_its_own_mark_and_stays_off_the_frontier(tmp_path):
+    """A registered cell has no incumbent to beat (references/registered-mode.md):
+    it is drawn in the palette's `measured` BLUE with its own legend entry, and it
+    never joins the keep step-line."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from matplotlib import pyplot as plt
+
+    assert figures.STATUS_COLOR["measured"] == "#2a78d6"
+
+    manifests = [
+        _manifest(1, track="cells", disposition="measured", metric=0.71),
+        _manifest(2, track="cells", disposition="measured", metric=0.74),
+        _manifest(3, track="cells", disposition="crash", metric=None),
+    ]
+    captured: dict[str, object] = {}
+    original = figures._save_fig
+
+    def _capture(fig, study_dir, name):
+        axis = fig.axes[0]
+        handles, labels = axis.get_legend_handles_labels()
+        captured["labels"] = labels
+        captured["lines"] = [line for line in axis.get_lines() if line.get_label() != "_nolegend_"]
+        return original(fig, study_dir, name)
+
+    figures._save_fig = _capture
+    try:
+        path = figures.plot_decision_trajectory(
+            manifests, tmp_path, track="cells", metric_goal="higher", metric_name="val_auc"
+        )
+    finally:
+        figures._save_fig = original
+        plt.close("all")
+
+    assert path.exists() and path.stat().st_size > 0
+    assert "measured cell" in captured["labels"]
+    # no keep frontier: the step-line is never drawn for a registered track
+    assert "keep (development frontier)" not in captured["labels"]

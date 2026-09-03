@@ -26,8 +26,9 @@ the dtype label. See :func:`detect_yes_no_columns`.
 
 from __future__ import annotations
 
+import hashlib
 import os
-import sys
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, Literal
 
@@ -76,64 +77,39 @@ def load_xy(path: str | Path, target_column: str) -> tuple[pd.DataFrame, pd.Seri
     return X, y
 
 
-def _bundled_dataset_dir(name: str) -> Path:
-    """Path of the repo-bundled ``datasets/<name>/`` directory.
-
-    Anchored on this module's own location (repo root = parent of the
-    ``kleinlib`` package), NEVER on the working directory — CI and study
-    scripts routinely run with cwd outside the repo. The directory only
-    exists in a clone of the klein-auto-research repo; a bare
-    ``pip install git+…`` ships the ``kleinlib`` package alone.
-    """
-    return Path(__file__).resolve().parent.parent / "datasets" / name
-
-
 def load_data_hub(name: str) -> Any:
     """Load a dataset by name — from a data-hub if configured, else the repo bundle.
 
-    Resolution order (the loader prints a ``data source:`` line naming which
-    branch fed the run, so every log records its data provenance):
+    A thin wrapper over :func:`kleinlib.sources.resolve` (``hub:<name>``),
+    which owns the resolution chain and prints the ``data source: ...``
+    provenance line — BYTE-IDENTICAL to this function's own pre-Klein-2.0
+    printed lines for the two paths that predate it, because studies
+    00/05/06's run logs already contain them as evidence:
 
     1. **``$DATA_HUB``** (explicit env var only — there is deliberately no
-       implicit home-directory default): inserts the hub root onto
-       ``sys.path`` and calls its ``loaders.python.hub.load_dataset(name)``.
-       Whatever that loader returns (typically a DataFrame, sometimes a dict
-       of DataFrames for multi-table datasets) is returned unchanged.
-    2. **Repo-bundled copy** at ``datasets/<name>/`` (single ``*.csv`` /
-       ``*.csv.gz`` file, read with a plain ``pandas.read_csv`` — the same
-       call the hub loader uses, so both branches yield identical frames
-       from identical bytes).
-    3. Otherwise raises with the available options spelled out.
+       implicit home-directory default): a ``loaders.python.hub.load_dataset``
+       module, if importable — whatever it returns (typically a DataFrame,
+       sometimes a dict of DataFrames for multi-table datasets) comes back
+       unchanged; otherwise a plain ``<name>/*.csv`` (or ``.csv.gz``)
+       directory straight under ``$DATA_HUB`` (new in Klein 2.0 — a hub that
+       ships no loader module is no longer a dead end).
+    2. **Repo-bundled copy** at ``datasets/<name>/`` (the same single-file
+       convention, read with the same plain ``pandas.read_csv``).
+    3. Otherwise raises :class:`FileNotFoundError` with the available options
+       spelled out — :func:`kleinlib.sources.resolve` itself raises
+       :class:`kleinlib.errors.WorkflowError`; this wrapper translates it
+       back to keep this function's long-standing public contract.
     """
-    hub_root = os.environ.get("DATA_HUB")
-    if hub_root:
-        if hub_root not in sys.path:
-            sys.path.insert(0, hub_root)
-        from loaders.python.hub import load_dataset  # type: ignore[import-not-found]
+    from .errors import WorkflowError
+    from .sources import resolve
 
-        result = load_dataset(name)
-        print(f"data source: hub — {Path(hub_root) / 'datasets' / name}")
-        return result
-
-    bundled = _bundled_dataset_dir(name)
-    if bundled.is_dir():
-        files = sorted(bundled.glob("*.csv")) + sorted(bundled.glob("*.csv.gz"))
-        if len(files) != 1:
-            raise FileNotFoundError(
-                f"bundled dataset dir {bundled} must contain exactly one "
-                f"*.csv/*.csv.gz file, found {len(files)}: {[f.name for f in files]}"
-            )
-        frame = pd.read_csv(files[0])
-        print(f"data source: bundled — {files[0]}")
-        return frame
-
-    raise FileNotFoundError(
-        f"cannot resolve dataset {name!r}: $DATA_HUB is not set and no bundled "
-        f"copy exists at {bundled}. Options: (1) export DATA_HUB=<your data-hub "
-        f"root>; (2) run from a clone of the klein-auto-research repo, which "
-        f"bundles its study datasets under datasets/; (3) point the study at a "
-        f"local file instead (data source csv:<path> via kleinlib.data.load_prepared)."
-    )
+    try:
+        resolved = resolve(f"hub:{name}", study_dir=None, offline=os.environ.get("KLEIN_OFFLINE") == "1")
+    except WorkflowError as exc:
+        raise FileNotFoundError(str(exc)) from exc
+    if resolved.loaded is not None:
+        return resolved.loaded
+    return pd.read_csv(resolved.path)
 
 
 def fixed_split(
@@ -388,3 +364,170 @@ def yes_no_to_int(
     for col in cols:
         out[col] = out[col].map(mapping)
     return out
+
+
+# ---------------------------------------------------------------------------
+# Contract-driven partitions (schema 3) — war story 8
+#
+# A study-09 evaluator hardcoded a retired split seed and a whole ledger lane
+# measured the wrong partition; the lock's numeral scan caught it a study later.
+# The fix is structural: the entrypoint never chooses a partition, it ASKS the
+# contract for one, and the partition it got prints a fingerprint the notary
+# compares against the one frozen at the DATA gate. A number computed on the
+# wrong partition is a crash now, not a result.
+# ---------------------------------------------------------------------------
+
+#: Bump only if the canonical encoding below changes; a bump invalidates every
+#: recorded fingerprint, which is why it is versioned rather than implicit.
+SPLIT_FINGERPRINT_VERSION = "klein-split-v1"
+
+#: The line every evaluator prints so the notary can check the partition.
+SPLIT_FINGERPRINT_KEY = "split_fingerprint"
+
+#: What a sealed dry-run prints to prove it ran with substituted data.
+SEALED_DRYRUN_KEY = "sealed_dryrun"
+
+
+def split_fingerprint(*index_arrays: Any) -> str:
+    """Hash the REALIZED membership of one or more partitions.
+
+    Order-insensitive within a partition (a partition is a set of rows, not a
+    sequence) and order-sensitive between them, so ``(train, dev)`` and
+    ``(dev, train)`` are different fingerprints. Row labels are canonicalized to
+    text, so an int64 index and a Python-int index over the same rows agree.
+
+    This is the counterpart of :func:`kleinlib.contract.split_fingerprint`,
+    which hashes the declared POLICY. The policy says how to split; this says
+    what the split actually was.
+    """
+    digest = hashlib.sha256()
+    digest.update(SPLIT_FINGERPRINT_VERSION.encode("utf-8") + b"\n")
+    digest.update(f"partitions={len(index_arrays)}\n".encode())
+    for position, values in enumerate(index_arrays):
+        labels = sorted(str(item) for item in _index_labels(values))
+        digest.update(f"partition={position} n={len(labels)}\n".encode())
+        for label in labels:
+            digest.update(label.encode("utf-8") + b"\n")
+    return digest.hexdigest()
+
+
+def _index_labels(values: Any) -> list[Any]:
+    """Row labels of a frame / series / index / array, as plain Python objects."""
+    if isinstance(values, (pd.DataFrame, pd.Series)):
+        return list(values.index)
+    if isinstance(values, pd.Index):
+        return list(values)
+    return list(np.asarray(values).ravel())
+
+
+def _split_task(contract: Mapping[str, Any]) -> SplitTask:
+    return "classification" if contract.get("task_type") == "classification" else "regression"
+
+
+def contract_split(
+    study_dir: str | Path = ".", *, target: str | None = None
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+    """``(X_train, X_dev, X_test, y_train, y_dev, y_test)`` from ``study.yaml`` alone.
+
+    Reads ``data.prepared_path`` and every knob of ``data.split`` — kind, seed,
+    sizes, group/time column — and hands them to the UNMODIFIED
+    :func:`three_way_split`, so a study that switches to this helper keeps the
+    exact partitions it had. No argument of this function can change the split:
+    that is the point.
+    """
+    from .contract import load_contract, prepared_data_path, resolve_study
+
+    study = resolve_study(study_dir)
+    contract = load_contract(study)
+    data = contract.get("data")
+    if not isinstance(data, Mapping):
+        raise ValueError("study.yaml:data must be a mapping")
+    split = data.get("split")
+    if not isinstance(split, Mapping):
+        raise ValueError("study.yaml:data.split is required")
+    kind = split.get("kind")
+    if kind == "none":
+        raise ValueError(
+            "data.split.kind is 'none': this study's comparability comes from "
+            "declared seed blocks, not from row partitions — build them in the "
+            "entrypoint and print split_fingerprint yourself"
+        )
+    column = target or contract.get("target")
+    if not isinstance(column, str) or not column.strip():
+        raise ValueError("study.yaml:target is required to split the prepared data")
+
+    frame = load_prepared(prepared_data_path(study, contract))
+    if column not in frame.columns:
+        raise ValueError(f"target column {column!r} is not in the prepared data")
+    X = frame.drop(columns=[column])
+    y = frame[column]
+    return three_way_split(
+        X,
+        y,
+        task=_split_task(contract),
+        strategy=kind,
+        development_size=float(split.get("development_size", 0.2)),
+        test_size=float(split.get("test_size", 0.2)),
+        seed=int(split.get("seed", RANDOM_SEED)),
+        groups=frame[split["group_column"]] if kind == "group" else None,
+        time_values=frame[split["time_column"]] if kind == "time" else None,
+    )
+
+
+def partition_fingerprints(study_dir: str | Path = ".") -> dict[str, str]:
+    """``{"development": ..., "final_test": ...}`` for the contract's split.
+
+    What ``klein gate record data`` freezes, and what ``klein run-one`` compares
+    the printed line against.
+    """
+    X_tr, X_dev, X_te, _, _, _ = contract_split(study_dir)
+    return {
+        "development": split_fingerprint(X_tr, X_dev),
+        "final_test": split_fingerprint(pd.concat([X_tr, X_dev]), X_te),
+    }
+
+
+def load_partition(
+    kind: str | None = None,
+    *,
+    study_dir: str | Path = ".",
+    target: str | None = None,
+    echo: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+    """``(X_fit, X_eval, y_fit, y_eval)`` for one evaluation kind; prints its fingerprint.
+
+    ``development`` fits on train and evaluates on development. ``final_test``
+    fits on train + development — the frozen chosen configuration's training
+    data — and evaluates on the sealed partition, once.
+
+    ``kind`` defaults to ``KLEIN_EVALUATION_KIND``, which ``klein run-one``
+    sets; an entrypoint never chooses its own partition. Under
+    ``KLEIN_SEALED_DRYRUN=1`` a requested ``final_test`` is answered with the
+    DEVELOPMENT data plus a ``sealed_dryrun: 1`` line: the rehearsal exercises
+    the whole path and spends no seal.
+    """
+    kind = kind or os.environ.get("KLEIN_EVALUATION_KIND") or "development"
+    if kind not in {"development", "final_test"}:
+        raise ValueError(f"invalid evaluation kind {kind!r}")
+    dry_run = kind == "final_test" and os.environ.get("KLEIN_SEALED_DRYRUN") == "1"
+    if dry_run:
+        kind = "development"
+
+    X_tr, X_dev, X_te, y_tr, y_dev, y_te = contract_split(study_dir, target=target)
+    if kind == "development":
+        fit_X, eval_X, fit_y, eval_y = X_tr, X_dev, y_tr, y_dev
+    else:
+        fit_X, fit_y = pd.concat([X_tr, X_dev]), pd.concat([y_tr, y_dev])
+        eval_X, eval_y = X_te, y_te
+    if echo:
+        print(f"{SPLIT_FINGERPRINT_KEY}: {split_fingerprint(fit_X, eval_X)}")
+    # The dry-run acknowledgement is NOT part of ``echo``. ``echo=False`` means
+    # "I will print the fingerprint myself" — every evaluator takes a
+    # ``split_fingerprint=`` kwarg for exactly that — but this line has no other
+    # channel, and `klein run-one --final-test --dry-run` reads its ABSENCE as
+    # "the entrypoint ignored KLEIN_SEALED_DRYRUN and would have read the sealed
+    # rows" (exit 3). Silencing a safety acknowledgement must never be a side
+    # effect of tidying the printed block.
+    if dry_run:
+        print(f"{SEALED_DRYRUN_KEY}: 1")
+    return fit_X, eval_X, fit_y, eval_y

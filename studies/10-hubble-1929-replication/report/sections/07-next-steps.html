@@ -1,0 +1,121 @@
+<h2>7. Next steps &amp; references</h2>
+
+<h3>7.1 What a follow-up should run, in priority order</h3>
+
+<ol>
+  <li><strong>Bundle a coordinate catalogue and finish the four-parameter fit.</strong>
+      This study declined at design time because hand-transcribing that many sky
+      positions at an epoch the paper never states is a fabrication risk, not a
+      replication. A follow-up that bundles a documented catalogue as a dataset &mdash;
+      with its own README, licence and two-source diff, exactly as this study's data was
+      built &mdash; converts the gap into a measurement, and would settle whether the
+      four-parameter model really is what separates <strong>423.937323</strong> from
+      <strong>465</strong>.</li>
+  <li><strong>Split the generator so two interval methods share replicates.</strong>
+      Here they could not: the bootstrap consumes random draws, so the two methods
+      diverge after the first replicate at the same seed. Common random numbers would
+      turn the <strong>0.911</strong>-versus-<strong>0.938</strong> comparison from two
+      independent estimates into a paired one, and sharpen a diagnosis that currently
+      rests on a difference of about two standard errors.</li>
+  <li><strong>Vary the declared truth.</strong> Sweep the scatter; swap the Gaussian
+      error law for a heavy-tailed one. Both were declined here as questions about a
+      <em>different</em> truth than the one the data gate hashed &mdash; changing the
+      declared DGP mid-study to explore is how a simulation lane starts answering
+      questions nobody registered. A study that registers them up front can ask whether
+      the under-coverage is about the sample size or about the error law.</li>
+  <li><strong>Register the errors-in-variables fit that was declined.</strong> A Deming
+      fit needs the ratio of velocity to distance variance, which Hubble does not print.
+      A follow-up could register a <em>range</em> of plausible ratios and report the
+      resulting range of the constant &mdash; the honest version of the number the
+      forward fit under-states.</li>
+</ol>
+
+<h3>7.2 Verified references</h3>
+
+<p>Every entry was checked against its publisher, arXiv or archive landing page on
+2026-09-03. Two of them stand behind confirmed claims; the rest sit behind exploratory
+claims or appear in the literature discussion only. No unverified reference stands
+behind anything.</p>
+
+<table>
+  <thead>
+    <tr><th>Reference</th><th>Where</th><th>Why this study cites it</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Hubble, E. (1929). <em>A relation between distance and radial velocity among
+          extra-galactic nebulae.</em></td>
+      <td>PNAS 15(3):168&ndash;173 &middot; doi:10.1073/pnas.15.3.168</td>
+      <td>The object of study. Its text settled that the article prints no per-object
+          coordinates and never lists the nine groups &mdash; which is what turned two
+          failures into documented gaps.</td>
+    </tr>
+    <tr>
+      <td>Lema&icirc;tre, G. (1927). <em>Un Univers homog&egrave;ne de masse constante
+          et de rayon croissant&hellip;</em></td>
+      <td>Ann. Soc. Sci. Bruxelles A47:49&ndash;59 &middot; English republication
+          doi:10.1007/s10714-013-1548-3</td>
+      <td>The same relation, derived two years earlier from overlapping data. A caution
+          about what "Hubble's constant" names.</td>
+    </tr>
+    <tr>
+      <td>Sandage, A. R. (1958). <em>Current Problems in the Extragalactic Distance
+          Scale.</em></td>
+      <td>ApJ 127:513&ndash;526 &middot; doi:10.1086/146483</td>
+      <td>The recalibration that moved the constant by correcting the distance ladder,
+          not the velocities. The frame for this study's single-factor rescale.</td>
+    </tr>
+    <tr>
+      <td>Planck Collaboration (2020). <em>Planck 2018 results. VI. Cosmological
+          parameters.</em></td>
+      <td>A&amp;A 641:A6 &middot; arXiv:1807.06209</td>
+      <td>One of the two modern determinations that bracket the round reference value
+          this study compares against.</td>
+    </tr>
+    <tr>
+      <td>Riess, A. G. et al. (2022). <em>A Comprehensive Measurement of the Local
+          Value of the Hubble Constant&hellip;</em></td>
+      <td>ApJL 934(1):L7 &middot; doi:10.3847/2041-8213/ac5c5b</td>
+      <td>The other bracket. Their mutual disagreement is far smaller than the gap under
+          study, which is why a round figure is adequate here and would not be in a
+          cosmology paper.</td>
+    </tr>
+    <tr>
+      <td>Efron, B. (1979). <em>Bootstrap Methods: Another Look at the Jackknife.</em></td>
+      <td>Ann. Statist. 7(1):1&ndash;26 &middot; doi:10.1214/aos/1176344552</td>
+      <td>The two uncertainty methods this study runs side by side.</td>
+    </tr>
+    <tr>
+      <td>DiCiccio, T. J. &amp; Efron, B. (1996). <em>Bootstrap confidence
+          intervals.</em></td>
+      <td>Statist. Sci. 11(3):189&ndash;228 &middot; doi:10.1214/ss/1032280214</td>
+      <td>Why the percentile interval was expected to under-cover at this sample size
+          &mdash; a prior the simulation track measured rather than assumed.</td>
+    </tr>
+    <tr>
+      <td>Frost, C. &amp; Thompson, S. G. (2000). <em>Correcting for regression dilution
+          bias&hellip;</em></td>
+      <td>JRSS-A 163(2):173&ndash;189 &middot; doi:10.1111/1467-985X.00164</td>
+      <td>The direction of the least-squares bias when the predictor is noisy. The
+          method card's most exposed prior, and it held.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>7.3 How to check any number on this page</h3>
+
+<p>Every headline value here is a copy of a value pinned in <code>claims.lock</code>,
+which names the artifact it lives in and its sha256. Nothing was retyped from memory,
+and the study's own verifier scans this page for numerals that trace nowhere. To
+re-check the whole thing from a clone:</p>
+
+<pre><code class="language-bash">uv run --locked klein verify  --study studies/10-hubble-1929-replication --numbers --evidence-use
+uv run --locked klein claims verify --study studies/10-hubble-1929-replication --numbers
+uv run --locked python studies/10-hubble-1929-replication/figures/make_figures.py \
+    --study studies/10-hubble-1929-replication --out /tmp/refigs
+</code></pre>
+
+<p>The discarded drafts of this study's claims lock &mdash; thrown away during
+synthesis and disclosed in the lab notebook &mdash; are preserved at the annotated tag
+<code>discarded/10-claims-lock-draft</code>, so a stranger can read what was removed
+rather than taking the disclosure on trust.</p>

@@ -1,0 +1,5 @@
+comparison	experiment	prediction	observed_lift	in_declared_floors	in_strict_floors	own_pair_bar	in_own_pair_floors	abs_in_declared_floors	abs_in_own_pair_floors
+E0002_vs_anchor	E0002	P3	0.035956	0.9568	0.8318	0.032908	1.0926	0.9568	1.0926
+E0003_vs_splines	E0003	P5	0.013956	0.3714	0.3228	0.030184	0.4624	0.3714	0.4624
+E0004_vs_anchor	E0004	P6	-0.001465	-0.0390	-0.0339	0.004536	-0.3229	0.0390	0.3229
+E0003_vs_incumbent	E0003	frontier keep	0.049911	1.3281	1.1546	0.037581	1.3281	1.3281	1.3281

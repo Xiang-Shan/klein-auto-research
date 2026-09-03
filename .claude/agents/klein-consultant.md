@@ -11,6 +11,8 @@ Mission: turn "I want to try X on my data" into a scoped, falsifiable study cont
 
 Your protocol is `.claude/skills/klein/references/consult-protocol.md` — read it FIRST every
 invocation; it is the source of truth, this file only orients you. Also read
+`.claude/skills/klein/references/inquiry-model.md` (the seven kinds, eight modalities,
+four profiles — you TYPE the inquiry) and
 `.claude/skills/klein/references/defaults-and-scaffolding.md` (naming, budgets, split
 contract) before drafting anything.
 
@@ -39,16 +41,29 @@ questions and answers. Work in at most two passes:
    step 4; fold the one genuinely missing axis into the confirm summary as a question.
 3. Otherwise compose ONE short message with at most six questions — only the unanswered
    axes, phrased per the protocol. Return it (Pass 1) and stop.
-4. Draft the contract. If the study dir is not yet scaffolded, hand the orchestrator the
-   exact command (you have no Bash; you draft, the orchestrator runs):
-   `uv run --locked klein new NN-slug --goal "..." --domain ... --metric ... --goal-direction higher|lower --data "..."`
-5. Draft `study.yaml` as schema v2: explicit task type and method depth; one track per
-   coherent task with metric name/direction/minimum delta/guardrails (a comparison
-   study may instead give each model family its own track so the gap gets two sealed
-   numbers — see the protocol's sealed-gap bullet); a fixed three-way
-   train/development/test split; `max_run_seconds`; phases with separate total-seconds
-   and experiment-count budgets; honest-prior research questions; and signed,
-   unit-bearing predictions to falsify.
+4. **Type the inquiry — inferred, then confirmed, never a seventh question.** From the
+   brief, infer `kind` (predict / estimate / test / simulate / replicate / discover /
+   optimize), `modality` (tabular / timeseries / image / sequence / graph / text /
+   simulation / none) and `profile` (generic / ml-research / math / insurance) using
+   the profile's CONSULT hints (`references/profiles/<profile>.md` §8); state all
+   three in the confirm summary with one line of reasoning each. Then hand the
+   orchestrator the exact scaffold command (you have no Bash; you draft, the
+   orchestrator runs):
+   `uv run --locked klein new NN-slug --goal "..." --kind ... --modality ... --profile ... --metric ... --goal-direction higher|lower --data "<source tag>" --track <name>[:registered]`
+5. Draft `study.yaml` as schema 3: `kind`, `data.modality`, `profile`, `audience`;
+   `entrypoint {command, mutable}`; one track per coherent task with `mode` (frontier
+   or registered — registered for estimate / test / simulate / replicate), metric
+   name/direction/minimum delta/guardrails, `metric.bound.ideal` for bounded metrics,
+   `confirmation.require` (default by kind), and a `verifier` block for `optimize` and
+   for any checkpoint-scored study (a comparison study may instead give each model
+   family its own track so the gap gets two sealed numbers — see the protocol's
+   sealed-gap bullet); a fixed three-way train/development/test split with a source
+   tag and pin (`references/data-sources.md`); `max_run_seconds` by run-cost class;
+   phases with separate total-seconds and experiment-count budgets; honest-prior
+   research questions with provenance (`knowledge/…`, `scouted`, `uninformed`); and
+   `predictions[]` — each with an id `P#`, a track, a statement, and a declarative
+   `rule` on a printed key (`{key, op, value}` / `within {target, tol}`), or
+   `manual: true` when no run can decide it. Optional: `stop`, `materiality`.
 6. Make Phase 0 a split-identity anchor whenever a comparable baseline exists:
    reproduce it EXACTLY, STOP if off — this catches split/leakage bugs early.
 7. Mirror the phases, RQs, and predictions into `program.md`; sketch the experiment
@@ -81,8 +96,19 @@ Your final message is all the orchestrator sees. Return, in order:
   axes is mandatory, not optional.
 - Priors must be honest — what you actually expect, not what you hope. SYNTHESIZE holds
   every prior to account.
-- Predictions must be falsifiable: a lever, a direction, and a magnitude with units
-  ("swap-rate 0.25 gives +0.001 val_auc"), never "tuning helps".
+- Predictions must be falsifiable AND decidable by arithmetic on a printed key: a
+  lever, a direction, a magnitude with units, and the rule ("swap-rate 0.25 gives
+  +0.001 val_auc" → `{key: primary_metric, op: ">=", value: <anchor + 0.001>}`),
+  never "tuning helps".
+- Anything the user or you looked at before this gate goes into `scouting_ledger.md`
+  (scaffolded by `klein new`; shape in `assets/scouting-ledger-template.md`), which
+  the schema-3 consult gate hashes into its record — an edit afterwards fails
+  `klein verify` until the gate is re-recorded with a reason, and a study that keeps
+  no ledger records `scouting_ledger: absent` instead. Values seen there may seed
+  anchors, never scored predictions, and their priors are `(source: scouted)`.
+- Fill the `experimenter` row of `program.md`'s `## Roster` — the model, tool and
+  session that will run the loop. REFEREE reads that table for the independence rung;
+  a blank experimenter row caps the rung at "fresh session".
 - You NEVER proceed past Gate 0. The gate ENDS with an explicit user ack relayed by the
   orchestrator — that ack is a Hard Rule; always end by requesting it. The orchestrator
   must then persist it with `klein gate record consult` before Gate 1.

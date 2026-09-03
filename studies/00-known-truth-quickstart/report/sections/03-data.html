@@ -1,0 +1,46 @@
+<h2>The data story</h2>
+
+<p>Twenty thousand rows, eight standard-normal features, one binary label. Six features
+enter the true log-odds; <code>x7</code> and <code>x8</code> enter nothing at all, and
+they are there so the study can watch a high-capacity model spend budget on columns
+that carry no signal. The positive rate is 24.115%, and the contract splits the table
+60/20/20 into 12000 training rows, 4000 development rows, and 4000 rows that stay
+sealed until the very last run.</p>
+
+<p>The value-pattern check &mdash; the one the data gate never skips, because pandas
+cannot tell a Yes/No column from any other string column by dtype alone &mdash; found
+eight honest floats and a genuine binary integer. No sentinels, no numbers-in-strings,
+no string-encoded booleans. On synthetic data that is unsurprising; running it anyway
+is the point, because the day you skip it is the day it would have mattered.</p>
+
+<h3>Where the truth lives, and where it must not</h3>
+
+<p><code>prepare.py</code> computes the true log-odds for every row and writes them to
+<code>data/prepared/truth.json</code> &mdash; and <strong>only</strong> there. Joining
+that column into the feature table would be perfect target leakage: the model would be
+handed the answer. The clean-room audit checked exactly this, in a fresh context on a
+different model, reading only the contract, the preparation script and the prepared
+table &mdash; never the lab notebook, whose hopes and priors are what make a leak look
+plausible.</p>
+
+<h3>The two controls</h3>
+
+<p>Before trusting any verdict the pipeline was checked in both directions. Most
+studies do this and never name it; naming it is half the teaching.</p>
+
+<ul>
+  <li><strong>Negative control</strong> &mdash; a known-<em>absent</em> effect must
+      score at chance. A constant predictor and a label-shuffled predictor scored
+      <code>val_auc=0.5000</code> and <code>val_auc=0.5011</code> against a chance
+      anchor of 0.5. A harness that scores noise above chance cannot be believed about
+      anything else.</li>
+  <li><strong>Positive control</strong> &mdash; a known-<em>present</em> effect must be
+      detected. The second rung hands the model the interaction the generating process
+      is known to contain, so a working pipeline is obliged to find it. It did, by
+      3.9699 floors.</li>
+</ul>
+
+<p>The gate ruled <strong>GO</strong> with two warnings carried forward rather than
+argued away: a 24% positive rate, and a development partition of only four thousand
+rows &mdash; which is what makes the noise floor wide, and therefore what makes the
+headroom close early. Both warnings landed in the arithmetic, not in a claim.</p>

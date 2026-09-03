@@ -1,0 +1,108 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1218,
+      "committed": true,
+      "sha256": "ac2366307073958935895c447a0f371d7e113f49867d8787d146c1d1149bb7fe"
+    },
+    "models/best_primary_E0002_0.835785_60b28d753b36.joblib": {
+      "availability": "local",
+      "bytes": 1937,
+      "committed": false,
+      "sha256": "3a7b82ab0f5d5bdfd9d6deaea16b70de8292303532c0bfbb22e01bbf1445aad8"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 497,
+      "committed": true,
+      "sha256": "a440e0f1f258bda252890af886c734ae0046c6a6d70e2a92b080cab62f398222"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 677,
+      "committed": true,
+      "sha256": "0ef0ea159908a9160eadfbf1d1c1013e3f625561e4b413a8829a24c7ee140293"
+    }
+  },
+  "base_commit": "2653d74ddcf00e8b39a16ae2ce68f891264af9f6",
+  "candidate_commit": "a3236e68ff6439b43da333f925271f05976c29f8",
+  "code_patch_hash": "7a15203eceb2292edde8e05e979389d522446ba16211ff17d9dca2e05f1efcf4",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 0.806201 with minimum_delta=0.00745212",
+  "description": "E0002: hand the linear model the DGP's true x1*x2 interaction \u2014 does the term the hyperplane could not express buy more than a floor?; frontier improvement over 0.806201 with minimum_delta=0.00745212",
+  "disposition": "keep",
+  "ended_at": "2026-09-03T05:28:53.529983Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "20e5ea3a0d642ffb7053d546967e64dc674f69fe62f2eed4f06ed841756f736d",
+    "split_partition": "f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "bayes_auc": 0.884116,
+    "delta_in_floors": 3.9699,
+    "delta_vs_reference": 0.029584,
+    "gap_in_floors": 6.4856,
+    "gap_to_ideal": 0.048331,
+    "primary_metric": 0.835785,
+    "reference_auc": 0.806201,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 12000.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.34,
+    "val_brier": 0.122839,
+    "val_f1_at_best": 0.6229,
+    "val_lift_top10": 3.4336,
+    "val_logloss": 0.398632,
+    "val_pr_auc": 0.691617,
+    "val_rows": 4000.0,
+    "wall_seconds": 0.042691
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P2": {
+      "explanation": "delta_in_floors 3.9699 >= 1 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P2"
+  ],
+  "primary_metric": 0.835785,
+  "schema_version": 3,
+  "started_at": "2026-09-03T05:28:52.745165Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-09-03T05:28:53.580008Z",
+    "evidence_commit": "e0e5eb8a5646a984b853fef69f2e8a6066fdb947",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.7847270001657307
+}

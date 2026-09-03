@@ -14,9 +14,19 @@ The printed canonical block — the eight lines from ``primary_metric``
 through ``status``, and (for :func:`evaluate`) the six classification aux
 lines beneath ``--- aux_metrics ---`` — is preserved **exactly, line for
 line** (including the original's spacing) from the campaign source, so any
-existing summarizer keeps parsing it unchanged. All three evaluator shapes
-below (:func:`evaluate`, :func:`evaluate_regression`, :func:`evaluate_scalar`)
-share that same canonical-block format via `_print_canonical_block`.
+existing summarizer keeps parsing it unchanged. Every evaluator shape below
+(:func:`evaluate`, :func:`evaluate_regression`, :func:`evaluate_scalar`, and
+the three registered-cell shapes :func:`evaluate_estimate`,
+:func:`evaluate_test`, :func:`evaluate_table`) shares that same canonical-block
+format via `_print_canonical_block`.
+
+A **registered** track measures instead of climbing
+(`.claude/skills/klein/references/registered-mode.md`): each run is a cell of a
+pre-registered measurement program, and its printed block is what a registered
+prediction's rule reads. The three cell shapes are an estimate with an interval,
+a hypothesis test with its family size, and a table that IS the measurement.
+Every key they print is registered in `kleinlib.schema.EVALUATOR_PRINTED_KEYS`,
+so `klein preflight` knows which guardrail keys will be visible.
 
 The ONE sanctioned addition since the campaign source: every evaluator also
 prints a ``wall_seconds:`` aux line (via `_print_wall_seconds`) unless the
@@ -57,15 +67,19 @@ from sklearn.metrics import (
     r2_score,
     roc_auc_score,
 )
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedGroupKFold, StratifiedKFold
 
 from . import schema, snapshot
+from .primitives import sha256_file
 
 __all__ = [
     "MetricSpec",
     "evaluate",
+    "evaluate_estimate",
     "evaluate_regression",
     "evaluate_scalar",
+    "evaluate_table",
+    "evaluate_test",
     "evaluate_with_inner_cv",
     "get_metric_spec",
     "save_holdout_predictions",
@@ -452,6 +466,18 @@ def _print_wall_seconds(total_seconds: float, extra: dict[str, Any] | None) -> N
         print(f"wall_seconds:      {total_seconds:.6f}")
 
 
+def _print_split_fingerprint(split_fingerprint: str | None) -> None:
+    """Print the partition the numbers were computed on (war story 8).
+
+    ``kleinlib.data.load_partition`` already prints this line for the studies
+    that call it; an evaluator fed partitions some other way passes the
+    fingerprint through here instead, so `klein run-one` can still refuse a
+    number measured on the wrong rows. Absent, the run proceeds with a notice.
+    """
+    if split_fingerprint:
+        print(f"split_fingerprint: {split_fingerprint}")
+
+
 def _append_aux_rows(
     study_dir: str | Path, exp_id: int | str, rows: dict[str, Any]
 ) -> None:
@@ -509,6 +535,7 @@ def evaluate(
     metric_name: str = "val_auc",
     metric_goal: str = "higher",
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     min_proba_std: float | None = None,
     collapse_rtol: float = 1e-12,
@@ -564,6 +591,7 @@ def evaluate(
     print(f"val_best_threshold: {val_best_threshold:.4f}")
     print(f"val_f1_at_best:    {val_f1_at_best:.4f}")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -617,6 +645,7 @@ def evaluate_regression(
     sample_weight: Any = None,
     tweedie_power: float | None = None,
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
 ) -> float:
@@ -701,6 +730,7 @@ def evaluate_regression(
         if spec.name == "val_tweedie_deviance":
             print(f"tweedie_power: {float(tweedie_power):.6g}")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -745,6 +775,7 @@ def evaluate_scalar(
     metric_name: str,
     metric_goal: str,
     extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
     status: str = "ok",
     study_dir: str | Path | None = None,
     t0: float | None = None,
@@ -777,6 +808,7 @@ def evaluate_scalar(
     )
     print("--- aux_metrics ---")
     _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
     if extra:
         for k, v in extra.items():
             print(f"{k}: {v}")
@@ -790,6 +822,355 @@ def evaluate_scalar(
         _append_aux_rows(study_dir, exp_id, aux_rows)
 
     return primary_value
+
+
+def evaluate_estimate(
+    value: float,
+    ci_low: float,
+    ci_high: float,
+    n: int,
+    *,
+    exp_id: int | str,
+    metric_name: str,
+    metric_goal: str,
+    extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
+    status: str = "ok",
+    study_dir: str | Path | None = None,
+    t0: float | None = None,
+) -> float:
+    """The printed block of an ESTIMATION cell: a value with its interval.
+
+    One of the three cell shapes of a registered track
+    (``references/registered-mode.md``).  A registered cell has no incumbent to
+    beat — it measures — so what the ledger needs is the point estimate, and
+    what a registered prediction reads is the interval::
+
+        predictions:
+          - {id: P4, statement: "the CI lower bound exceeds 70",
+             rule: {key: ci_low, op: ">", value: 70}}
+
+    ``ci_low``/``ci_high`` must be finite and ordered: an interval is the whole
+    point of this shape, and a one-sided bound printed as ``NA`` would let a
+    rule silently read "inconclusive" forever (use :func:`evaluate_scalar` plus
+    ``extra=`` for a genuinely one-sided summary).  ``n`` is the number of
+    observations the estimate rests on, so a reader can size the claim.
+
+    ``split_fingerprint`` is the partition the estimate was computed on, the
+    same explicit kwarg :func:`evaluate` / :func:`evaluate_regression` /
+    :func:`evaluate_scalar` take.  It is PRINTED, never appended to
+    ``aux_metrics.tsv``: passing a digest through ``extra=`` writes a 64-char
+    hex string into the aux ledger's numeric ``value`` column, which is not a
+    measurement.
+    """
+    spec = get_metric_spec(
+        metric_name, goal=metric_goal, task="scalar", allow_custom=True
+    )
+    primary_value = spec.validate_value(value)
+    low = _finite_or_raise(ci_low, "ci_low")
+    high = _finite_or_raise(ci_high, "ci_high")
+    if low > high:
+        raise ValueError(f"ci_low {low!r} must not exceed ci_high {high!r}")
+    if not (low <= primary_value <= high):
+        raise ValueError(
+            f"the estimate {primary_value!r} lies outside its own interval "
+            f"[{low!r}, {high!r}] — an interval that excludes its point estimate "
+            "is a sign convention bug, not a measurement"
+        )
+    count = _count_or_raise(n, "n")
+    total_seconds = 0.0 if t0 is None else time.time() - t0
+
+    _print_canonical_block(
+        primary_value=primary_value,
+        metric_name=metric_name,
+        metric_goal=metric_goal,
+        fit_seconds=None,
+        total_seconds=total_seconds,
+        train_n=None,
+        val_n=None,
+        status=status,
+    )
+    print("--- aux_metrics ---")
+    print(f"ci_low:            {low:.6f}")
+    print(f"ci_high:           {high:.6f}")
+    print(f"n:                 {count}")
+    _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
+    _print_extra(extra)
+
+    _write_aux(
+        study_dir,
+        exp_id,
+        {"ci_low": low, "ci_high": high, "n": count, "wall_seconds": total_seconds},
+        extra,
+    )
+    return primary_value
+
+
+def evaluate_test(
+    stat: float | None,
+    p_value: float,
+    effect: float | None,
+    n: int,
+    n_comparisons: int,
+    *,
+    exp_id: int | str,
+    metric_name: str,
+    metric_goal: str,
+    alpha: float = 0.05,
+    extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
+    status: str = "ok",
+    study_dir: str | Path | None = None,
+    t0: float | None = None,
+) -> float:
+    """The printed block of a HYPOTHESIS-TEST cell; ``p_value`` is the primary metric.
+
+    The ledger's summary scalar for a test cell is the p-value (``goal:
+    lower``): it is the quantity a reader scans the ledger for, and every other
+    printed key stays available to a registered rule (``{key: effect, op:
+    ">=", value: 0.02}``).  ``stat`` and ``effect`` may be ``None`` or
+    non-finite — an infinite t on a zero-spread cell is real — and print as
+    ``NA``; a non-finite line would abort the whole run at the notary's parser.
+
+    ``n_comparisons`` is the size of the family this test belongs to, declared
+    BEFORE the test ran, and ``bonferroni_alpha = alpha / n_comparisons`` is
+    printed from it.  Bonferroni is the crude bar; above one comparison the
+    block also names the sharper instrument
+    (:func:`kleinlib.metrology.family_maxt`, the sign-flip max-t guard over
+    the FIXED family), because a selection guard is not a significance test
+    and an unguarded family caps its claims at exploratory
+    (``knowledge/research-discipline.md`` lesson 6).
+
+    ``split_fingerprint`` is the explicit partition kwarg every other
+    evaluator takes: printed, never written to ``aux_metrics.tsv``.
+    """
+    spec = get_metric_spec(
+        metric_name, goal=metric_goal, task="scalar", allow_custom=True
+    )
+    p = spec.validate_value(p_value)
+    if not 0.0 <= p <= 1.0:
+        raise ValueError(f"p_value must lie in [0, 1], got {p!r}")
+    count = _count_or_raise(n, "n")
+    family = _count_or_raise(n_comparisons, "n_comparisons")
+    if family < 1:
+        raise ValueError("n_comparisons must be >= 1 — a test is its own family of one")
+    alpha_value = _finite_or_raise(alpha, "alpha")
+    if not 0.0 < alpha_value < 1.0:
+        raise ValueError(f"alpha must lie in (0, 1), got {alpha_value!r}")
+    bonferroni_alpha = alpha_value / family
+    total_seconds = 0.0 if t0 is None else time.time() - t0
+
+    _print_canonical_block(
+        primary_value=p,
+        metric_name=metric_name,
+        metric_goal=metric_goal,
+        fit_seconds=None,
+        total_seconds=total_seconds,
+        train_n=None,
+        val_n=None,
+        status=status,
+    )
+    print("--- aux_metrics ---")
+    print(f"stat:              {_fmt_finite(stat)}")
+    print(f"p_value:           {p:.6f}")
+    print(f"effect:            {_fmt_finite(effect)}")
+    print(f"n:                 {count}")
+    print(f"n_comparisons:     {family}")
+    print(f"bonferroni_alpha:  {bonferroni_alpha:.6g}")
+    if family > 1:
+        # A comment line: the notary's parser only reads `key: value` lines.
+        print(
+            f"# family of {family} comparisons — bonferroni_alpha {bonferroni_alpha:.6g} "
+            "is the crude bar; kleinlib.metrology.family_maxt gives the sign-flip "
+            "max-t guard over the FIXED family (a selection guard, not a "
+            "significance test: it limits false detection, never effect size)"
+        )
+    _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
+    _print_extra(extra)
+
+    aux: dict[str, Any] = {
+        "p_value": p,
+        "n": count,
+        "n_comparisons": family,
+        "bonferroni_alpha": bonferroni_alpha,
+        "wall_seconds": total_seconds,
+    }
+    if stat is not None and np.isfinite(stat):
+        aux["stat"] = float(stat)
+    if effect is not None and np.isfinite(effect):
+        aux["effect"] = float(effect)
+    _write_aux(study_dir, exp_id, aux, extra)
+    return p
+
+
+def evaluate_table(
+    path: str | Path,
+    summary: float,
+    *,
+    exp_id: int | str,
+    metric_name: str,
+    metric_goal: str,
+    rows: int | None = None,
+    extra: dict[str, Any] | None = None,
+    split_fingerprint: str | None = None,
+    status: str = "ok",
+    study_dir: str | Path | None = None,
+    t0: float | None = None,
+) -> float:
+    """The printed block of a TABLE cell: the table is the measurement.
+
+    "One cell whose artifact is a 42-row table is lawful and often better than
+    42 cells" (``references/registered-mode.md``): the table is hashed and
+    citable as ``art:<alias>``, the summary scalar goes in the ledger, and the
+    registered rules read printed keys.  Prints the three lines that make the
+    table evidence rather than a file that happened to be written::
+
+        artifact: sweeps/rq0_map.tsv
+        rows:              42
+        sha256:            8f21…
+
+    The path must exist and, when ``study_dir`` is given, must live inside the
+    study and is printed study-relative and POSIX — a path that escapes the
+    study is refused here rather than becoming an unresolvable pin later.
+    ``rows`` is counted from a ``.tsv``/``.csv`` header + data rows unless the
+    caller passes it (any other artifact must).
+
+    Under ``KLEIN_SMOKE=1`` a missing artifact is a notice, not an error: a
+    smoke run does no work, so it has no table to hash.  ``klein run-one``
+    force-clears the flag in its child, so a real cell that failed to write its
+    table still crashes.
+
+    ``split_fingerprint`` is the explicit partition kwarg every other
+    evaluator takes: printed, never written to ``aux_metrics.tsv``.
+    """
+    spec = get_metric_spec(
+        metric_name, goal=metric_goal, task="scalar", allow_custom=True
+    )
+    primary_value = spec.validate_value(summary)
+    total_seconds = 0.0 if t0 is None else time.time() - t0
+    artifact = Path(path)
+    display = artifact.as_posix()
+    if study_dir is not None:
+        root = Path(study_dir).resolve()
+        resolved = artifact if artifact.is_absolute() else (root / artifact)
+        try:
+            display = resolved.resolve().relative_to(root).as_posix()
+        except ValueError as exc:
+            raise ValueError(
+                f"artifact {artifact.as_posix()!r} escapes the study directory "
+                f"{root} — a cell's evidence must live inside the study it belongs to"
+            ) from exc
+        artifact = resolved
+
+    digest: str | None = None
+    row_count = None if rows is None else _count_or_raise(rows, "rows")
+    if not artifact.is_file():
+        if not _smoke_mode():
+            raise FileNotFoundError(
+                f"artifact {display!r} does not exist — a cell that cannot produce "
+                "its table has not measured anything"
+            )
+    else:
+        digest = sha256_file(artifact)
+        if row_count is None:
+            row_count = _delimited_row_count(artifact)
+
+    _print_canonical_block(
+        primary_value=primary_value,
+        metric_name=metric_name,
+        metric_goal=metric_goal,
+        fit_seconds=None,
+        total_seconds=total_seconds,
+        train_n=None,
+        val_n=None,
+        status=status,
+    )
+    print("--- aux_metrics ---")
+    print(f"artifact: {display}")
+    print(f"rows:              {_fmt_int(row_count)}")
+    print(f"sha256:            {digest or 'NA'}")
+    _print_wall_seconds(total_seconds, extra)
+    _print_split_fingerprint(split_fingerprint)
+    _print_extra(extra)
+
+    aux: dict[str, Any] = {"artifact": display, "wall_seconds": total_seconds}
+    if row_count is not None:
+        aux["rows"] = row_count
+    if digest is not None:
+        aux["sha256"] = digest
+    _write_aux(study_dir, exp_id, aux, extra)
+    return primary_value
+
+
+def _finite_or_raise(value: Any, name: str) -> float:
+    try:
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must be numeric, got {value!r}") from exc
+    if not np.isfinite(result):
+        raise ValueError(f"{name} must be finite, got {result!r}")
+    return result
+
+
+def _count_or_raise(value: Any, name: str) -> int:
+    try:
+        result = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must be an integer, got {value!r}") from exc
+    if result < 0:
+        raise ValueError(f"{name} must be >= 0, got {result!r}")
+    return result
+
+
+def _fmt_finite(value: Any, spec: str = ".6f") -> str:
+    """A float line, or ``NA`` when it is missing or non-finite.
+
+    The notary REFUSES a non-finite `key: value` line (it aborts the whole
+    run), so an infinite statistic prints as ``NA`` and lands nowhere the
+    parser reads it — the number itself belongs in the cell's own table.
+    """
+    if value is None:
+        return "NA"
+    try:
+        result = float(value)
+    except (TypeError, ValueError):
+        return "NA"
+    return format(result, spec) if np.isfinite(result) else "NA"
+
+
+def _delimited_row_count(path: Path) -> int | None:
+    """Data rows (header excluded) of a .tsv/.csv artifact; None for anything else."""
+    delimiter = {".tsv": "\t", ".csv": ","}.get(path.suffix.lower())
+    if delimiter is None:
+        return None
+    with path.open("r", encoding="utf-8", newline="") as stream:
+        return max(sum(1 for _ in csv.reader(stream, delimiter=delimiter)) - 1, 0)
+
+
+def _print_extra(extra: dict[str, Any] | None) -> None:
+    if extra:
+        for key, value in extra.items():
+            print(f"{key}: {value}")
+
+
+def _write_aux(
+    study_dir: str | Path | None,
+    exp_id: int | str,
+    rows: dict[str, Any],
+    extra: dict[str, Any] | None,
+) -> None:
+    """Append the cell's aux rows unless smoke mode is suppressing every write."""
+    if study_dir is None:
+        return
+    if _smoke_mode():
+        print(_SMOKE_NOTICE)
+        return
+    aux = dict(rows)
+    if extra:
+        aux.update(extra)
+    _append_aux_rows(study_dir, exp_id, aux)
 
 
 def save_holdout_predictions(
@@ -864,6 +1245,7 @@ def evaluate_with_inner_cv(
     *,
     n_splits: int = 3,
     metric: str = "val_auc",
+    groups: Any = None,
 ) -> tuple[float, list[float]]:
     """Inner stratified-k-fold CV on training data; returns (mean, fold_scores).
 
@@ -871,11 +1253,32 @@ def evaluate_with_inner_cv(
     that need an inner CV loop without double-using the held-out validation
     split for both early-stopping and trial-selection. `model_factory` must
     be a callable returning a fresh sklearn-compatible estimator each call.
+
+    Pass ``groups`` (one label per row) whenever rows share an entity — a
+    policy, a patient, a document, a simulation replicate — and the folds are
+    built with ``StratifiedGroupKFold`` so no group straddles the inner split.
+    Without it, an inner CV on grouped data leaks the same entity into both
+    sides of every fold and reports a tuning score the outer split will not
+    honour; the DATA gate's ``group-overlap`` row audits the OUTER split for
+    exactly this, and nothing was auditing the inner one.
     """
     spec = get_metric_spec(metric, task="classification")
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+    if groups is None:
+        splitter: Any = StratifiedKFold(
+            n_splits=n_splits, shuffle=True, random_state=42
+        )
+        folds = splitter.split(X, y)
+    else:
+        group_labels = np.asarray(groups)
+        if group_labels.ndim != 1 or group_labels.shape[0] != len(X):
+            raise ValueError(
+                f"groups must be 1-D with one label per row ({len(X)}), got shape "
+                f"{group_labels.shape}"
+            )
+        splitter = StratifiedGroupKFold(n_splits=n_splits, shuffle=True, random_state=42)
+        folds = splitter.split(X, y, groups=group_labels)
     scores: list[float] = []
-    for _fold, (tr_idx, va_idx) in enumerate(skf.split(X, y)):
+    for _fold, (tr_idx, va_idx) in enumerate(folds):
         X_tr, X_va = X.iloc[tr_idx], X.iloc[va_idx]
         y_tr, y_va = y.iloc[tr_idx], y.iloc[va_idx]
         m = model_factory()

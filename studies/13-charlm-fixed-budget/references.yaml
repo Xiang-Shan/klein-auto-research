@@ -1,0 +1,112 @@
+# The citations a `ref:<key>` evidence id resolves to. Written at the METHOD
+# gate; every row was checked against the arXiv, publisher or repository page on
+# the date below, not quoted from memory.
+references:
+  vaswani2017:
+    title: "Attention Is All You Need"
+    authors: "Vaswani, A.; Shazeer, N.; Parmar, N.; Uszkoreit, J.; Jones, L.; Gomez, A. N.; Kaiser, L.; Polosukhin, I."
+    year: 2017
+    venue: "Advances in Neural Information Processing Systems 30"
+    arxiv: "1706.03762"
+    url: "https://arxiv.org/abs/1706.03762"
+    verified: true
+    verified_by: "driving agent (WebFetch, arXiv abstract page)"
+    verified_at: "2026-09-03"
+    why: "The architecture family this study fixes: multi-head causal self-attention with a position-wise MLP. Everything the candidates vary is a recipe knob on top of it."
+  loshchilov2019:
+    title: "Decoupled Weight Decay Regularization"
+    authors: "Loshchilov, I.; Hutter, F."
+    year: 2019
+    venue: "ICLR 2019 (arXiv v3; first posted 2017)"
+    arxiv: "1711.05101"
+    url: "https://arxiv.org/abs/1711.05101"
+    verified: true
+    verified_by: "driving agent (WebFetch, arXiv abstract page — 'Published as a conference paper at ICLR 2019')"
+    verified_at: "2026-09-03"
+    why: "AdamW is the anchor recipe's optimizer; the paper is why weight decay is decoupled from the loss gradient rather than folded in as L2."
+  xiong2020:
+    title: "On Layer Normalization in the Transformer Architecture"
+    authors: "Xiong, R.; Yang, Y.; He, D.; Zheng, K.; Zheng, S.; Xing, C.; Zhang, H.; Lan, Y.; Wang, L.; Liu, T.-Y."
+    year: 2020
+    venue: "ICML 2020"
+    arxiv: "2002.04745"
+    url: "https://arxiv.org/abs/2002.04745"
+    verified: true
+    verified_by: "driving agent (WebFetch, arXiv abstract page — venue ICML 2020)"
+    verified_at: "2026-09-03"
+    why: "The reason P2's prior is honestly pessimistic: Pre-LN transformers have well-behaved gradients at initialization and, the paper argues, do not need learning-rate warmup, while Post-LN ones do. This study's blocks are Pre-LN."
+  press2017:
+    title: "Using the Output Embedding to Improve Language Models"
+    authors: "Press, O.; Wolf, L."
+    year: 2017
+    venue: "EACL 2017 (arXiv v3, Feb 2017; first posted Aug 2016)"
+    arxiv: "1608.05859"
+    url: "https://arxiv.org/abs/1608.05859"
+    verified: true
+    verified_by: "driving agent (WebFetch, arXiv abstract page — comments field 'To appear in EACL 2017')"
+    verified_at: "2026-09-03"
+    why: "The weight-tying result P3 tests. Their gains are on word-level vocabularies of tens of thousands; the honest question here is whether anything survives at a 65-character vocabulary."
+  srivastava2014:
+    title: "Dropout: A Simple Way to Prevent Neural Networks from Overfitting"
+    authors: "Srivastava, N.; Hinton, G.; Krizhevsky, A.; Sutskever, I.; Salakhutdinov, R."
+    year: 2014
+    venue: "Journal of Machine Learning Research 15(56), 1929-1958"
+    url: "https://jmlr.org/papers/v15/srivastava14a.html"
+    verified: true
+    verified_by: "driving agent (WebFetch, JMLR paper page)"
+    verified_at: "2026-09-03"
+    why: "The regularizer P4 tests, and the source of the framing P4 bets against: dropout buys generalization by slowing optimization, which is a bad trade when the budget is the binding constraint."
+  kaplan2020:
+    title: "Scaling Laws for Neural Language Models"
+    authors: "Kaplan, J.; McCandlish, S.; Henighan, T.; Brown, T. B.; Chess, B.; Child, R.; Gray, S.; Radford, A.; Wu, J.; Amodei, D."
+    year: 2020
+    venue: "arXiv preprint"
+    arxiv: "2001.08361"
+    url: "https://arxiv.org/abs/2001.08361"
+    verified: true
+    verified_by: "driving agent (WebFetch, arXiv abstract page)"
+    verified_at: "2026-09-03"
+    why: "The doctrine anchor behind P5: at a fixed compute budget, larger models trained for fewer steps are compute-efficient — 'training very large models on a relatively modest amount of data and stopping significantly before convergence'. This study holds STEPS fixed rather than FLOPs, which is a different and harsher condition for the wider model, and says so."
+  hoffmann2022:
+    title: "Training Compute-Optimal Large Language Models"
+    authors: "Hoffmann, J.; Borgeaud, S.; Mensch, A.; et al. (22 authors)"
+    year: 2022
+    venue: "arXiv preprint (Chinchilla)"
+    arxiv: "2203.15556"
+    url: "https://arxiv.org/abs/2203.15556"
+    verified: true
+    verified_by: "driving agent (WebFetch, arXiv abstract page)"
+    verified_at: "2026-09-03"
+    why: "The correction to kaplan2020 that matters here: model size and training tokens should scale together, so a width change at FIXED tokens is deliberately off the compute-optimal frontier — the regime this study is actually in."
+  picard2021:
+    title: "Torch.manual_seed(3407) is all you need: On the influence of random seeds in deep learning architectures for computer vision"
+    authors: "Picard, D."
+    year: 2021
+    venue: "arXiv preprint"
+    arxiv: "2109.08203"
+    url: "https://arxiv.org/abs/2109.08203"
+    verified: true
+    verified_by: "driving agent (WebFetch, arXiv abstract page)"
+    verified_at: "2026-09-03"
+    why: "Why this study measures a seed floor before it compares anything: seed-to-seed spread is modest on average but produces outliers large enough to be mistaken for a method effect. A single seed is an anecdote."
+  bouthillier2021:
+    title: "Accounting for Variance in Machine Learning Benchmarks"
+    authors: "Bouthillier, X.; Delaunay, P.; Bronzi, M.; Trofimov, A.; Nichyporuk, B.; Szeto, J.; Mohammadi Sepahvand, N.; Raff, E.; Madan, K.; Voleti, V.; Ebrahimi Kahou, S.; Michalski, V.; Arbel, T.; Pal, C.; Varoquaux, G.; Vincent, P."
+    year: 2021
+    venue: "Proceedings of Machine Learning and Systems (MLSys) 2021"
+    arxiv: "2103.03098"
+    url: "https://arxiv.org/abs/2103.03098"
+    verified: true
+    verified_by: "driving agent (WebSearch, arXiv listing + MLSys proceedings PDF + dblp record)"
+    verified_at: "2026-09-03"
+    why: "The methodological anchor for the floor design: benchmark variance has several distinct sources (data sampling, initialization, hyperparameters), and which one you measure decides which differences you can honestly call real."
+  karpathy_nanogpt:
+    title: "nanoGPT — 'The simplest, fastest repository for training/finetuning medium-sized GPTs'"
+    authors: "Karpathy, A."
+    year: 2026
+    venue: "GitHub repository (MIT license); `data/shakespeare_char` example"
+    url: "https://github.com/karpathy/nanoGPT"
+    verified: true
+    verified_by: "driving agent (WebFetch, repository page — owner, purpose, MIT license and the data/shakespeare_char example confirmed on the date below)"
+    verified_at: "2026-09-03"
+    why: "The lineage of this exact setting: nanoGPT's shakespeare_char example reads the same tiny-Shakespeare file this study bundles, with the same contiguous 90/10 convention. Cited for provenance of the corpus and the split convention, not for any number."

@@ -1,0 +1,274 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:27:25.780654Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:25:17.732600Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T05:25:18.740641Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T06:21:16.023471Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "94a8ecd1ee18a4cbddbde234326867a022d09ac235b20fb4b88486e1fbf9c881",
+    "method_card.md": "dba8356eb4b2e2a867e517500cd83187825ae1b2d7b1c82d2963c52b4600ae64",
+    "referee_report.md": "1b49636093f3c7af32eb4bde08d71397fa8eafb1d1d3dd8a890c7fd4e46be902",
+    "research_plan.md": "3ef7c78c973090eb4fa83e6e4e5ee78b9f7d3d536aa0c8f73bbe13bba3373149",
+    "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
+  },
+  "created_at": "2026-09-03T05:06:04.636641Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": "2026-09-03T05:31:48.862341Z",
+      "count": 1,
+      "experiment": "E0005"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": false,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "primary": "E0005"
+    },
+    "timestamp": "2026-09-03T06:21:24.861806Z"
+  },
+  "fingerprints": {
+    "data": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
+    "split": {
+      "development": "f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122",
+      "final_test": "21fcf05b28979cad84c35b4ea8ec90a7103c5a60d72a4747f41c63261bc3a424",
+      "policy": "20e5ea3a0d642ffb7053d546967e64dc674f69fe62f2eed4f06ed841756f736d"
+    },
+    "verifier": {}
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-09-03T05:27:25.780654Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "a0a7188c1cd5dedeafdce0899fecf0174b8698f699b8c8825d2661427e182303",
+        "research_plan.md": "3ef7c78c973090eb4fa83e6e4e5ee78b9f7d3d536aa0c8f73bbe13bba3373149",
+        "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96"
+      },
+      "note": "minimum_delta set from the measured noise floor (split-lottery, marginal-resplit, k=10); metric.bound.ideal declared at the development partition's Bayes AUC now that the DATA gate has hashed the generator that computes it. No run exists yet; no registered prediction's rule changed.",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-09-03T05:25:17.732600Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "94a8ecd1ee18a4cbddbde234326867a022d09ac235b20fb4b88486e1fbf9c881"
+      },
+      "note": "GO with two WARNs accepted (24.1% positive rate; a 4000-row development partition that will make the marginal floor wide) \u2014 both are carried into the Phase 0 floor and the headroom arithmetic, not into a claim; clean-room audit run in a fresh context on a different model, 6/6 mechanized checks clean",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-09-03T05:25:18.740641Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "dba8356eb4b2e2a867e517500cd83187825ae1b2d7b1c82d2963c52b4600ae64"
+      },
+      "note": "triad complete: theory (notation table + four display equations), papers (all four references verified against publisher/arXiv pages on 2026-09-03, refs_verified true), practice (the from-scratch plan for both the ceiling and the floor that train.py and sweeps/noise_floor.py realize)",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T06:21:16.023471Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "1b49636093f3c7af32eb4bde08d71397fa8eafb1d1d3dd8a890c7fd4e46be902"
+      },
+      "independent_of_experimenter": false,
+      "note": "PASS-WITH-NOTES; all seven notes answered with dated Referee note: lines in program.md. Rung: fresh session (same model family as the experimenter), independent-of-experimenter: no, as the report states.",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 5,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive-1": {
+      "acknowledged_at": "2026-09-03T05:31:09.319830Z",
+      "acknowledged_by": "lead-agent",
+      "note": "four experiments spent: three keeps and one discard; P1-P3 supported, P4 refuted with a dated decision; headroom stood at h = 1.708 (ajar, not open). The user's phase ack is delegated to the orchestrating agent for the Klein 2.0 exhibits.",
+      "playbook_sha256": "64da873113a814a2c7e3e4f215deebd7ef3d4903dd7fd5614726df1754c18ee1"
+    }
+  },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "gap_in_floors 10.4555 > 1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "gap_in_floors 10.4555 > 1 \u2192 supported",
+          "recorded_at": "2026-09-03T05:28:30.208493Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:28:30.208493Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "delta_in_floors 3.9699 >= 1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "delta_in_floors 3.9699 >= 1 \u2192 supported",
+          "recorded_at": "2026-09-03T05:28:53.530256Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:28:53.530256Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P3": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "delta_in_floors 4.7779 >= 1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "delta_in_floors 4.7779 >= 1 \u2192 supported",
+          "recorded_at": "2026-09-03T05:29:06.163473Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:29:06.163473Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P4": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "|delta_in_floors| 1.7903 < 1 (from -1.7903) \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "|delta_in_floors| 1.7903 < 1 (from -1.7903) \u2192 refuted",
+          "recorded_at": "2026-09-03T05:29:52.183092Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:29:52.183092Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P5": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "|gap_in_floors| 1.68 <= 2 (from 1.68) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "|gap_in_floors| 1.68 <= 2 (from 1.68) \u2192 supported",
+          "recorded_at": "2026-09-03T05:31:50.814409Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:31:50.814409Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a2505303497ddbacd/studies/00-known-truth-quickstart/data/prepared/prepared.csv",
+    "sha256": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453"
+  },
+  "replications": {
+    "E0003": {
+      "attempts": 2,
+      "modes": {
+        "replicate": {
+          "attempts": 2,
+          "reproduced": false
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0003@20260903T053202Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T05:32:02.216655Z",
+          "tolerance": 0.00745212
+        },
+        {
+          "difference": null,
+          "evidence_id": "rep:E0003@20260903T053344Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T05:33:44.482537Z",
+          "tolerance": 0.00745212
+        }
+      ],
+      "track": "primary"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "00-known-truth-quickstart",
+  "sweeps": {
+    "fit_noise": {
+      "registered_at": "2026-09-03T05:27:26.058413Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "fdd97f974be077646290551759efb9218e00e537ffcb022341b5aad55ace70c8",
+      "sidecar": "sweeps/fit_noise.sidecar.tsv",
+      "sidecar_sha256": "9b6ade9dac985dc926a335d0f22c90c5a710dcb2b41d23fbbb3a2e3e1c7aa161"
+    },
+    "split_lottery": {
+      "registered_at": "2026-09-03T05:27:25.915123Z",
+      "rows_crash": 0,
+      "rows_ok": 10,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "fdd97f974be077646290551759efb9218e00e537ffcb022341b5aad55ace70c8",
+      "sidecar": "sweeps/split_lottery.sidecar.tsv",
+      "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
+    }
+  },
+  "updated_at": "2026-09-03T06:21:24.861812Z"
+}

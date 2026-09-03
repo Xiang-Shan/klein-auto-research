@@ -1,0 +1,107 @@
+<h2>The Data</h2>
+
+<p><strong>Source and shape.</strong> The corpus is <code>tinyshakespeare</code>,
+bundled inside the repository and re-derived by <code>prepare.py</code> against the
+packager&rsquo;s published sha256 on every run &mdash; 1115394 characters, pure ASCII,
+a 65-character vocabulary (<code>\n</code>, space, punctuation, and upper- and
+lower-case letters). Public-domain text, packaged by <code>karpathy/char-rnn</code>
+under an MIT-declared README.</p>
+
+<p><strong>The prepared artifact is a block index, not a feature table.</strong> One
+row per contiguous 1024-character block, 1089 rows in total &mdash; not one row per
+training example. A character language model&rsquo;s real target is the next
+character, which no column can hold, so the contract names a placeholder column
+(<code>n_chars</code>) purely so the splitter has something to drop. A generic tabular
+profiler reads that placeholder as a 0.09%-minority &ldquo;imbalanced target&rdquo;;
+nothing in this study ever predicts it, and the data card exists partly to say so in
+writing before that misreading can propagate anywhere.</p>
+
+<h3>The split: contiguous blocks, ordered in time</h3>
+
+<p>The corpus is ordered natural language, so partitions are character-offset ranges,
+never a shuffle &mdash; a shuffled split would let a training window straddle a
+boundary and read the second half of a sentence whose first half sits in a different
+partition.</p>
+
+<table>
+<thead><tr><th>Partition</th><th>Blocks</th><th>Characters</th><th>Share</th></tr></thead>
+<tbody>
+<tr><td>train</td><td>871</td><td>891904</td><td>79.96%</td></tr>
+<tr><td>development</td><td>109</td><td>111616</td><td>10.01%</td></tr>
+<tr><td>sealed final test</td><td>109</td><td>111874</td><td>10.03%</td></tr>
+</tbody>
+</table>
+
+<p>All three are contiguous, verified by <code>prepare.py</code> at write time. Klein&rsquo;s
+<em>development</em> fingerprint covers train + development &mdash; the first 90% of
+the corpus &mdash; and the sealed final tenth is opened exactly once. Every fingerprint
+(prepared data, split policy, both realized partitions) is frozen at the DATA gate and
+every run prints its own realized <code>split_fingerprint</code> back for the notary
+to compare.</p>
+
+<h3>The leak detector: hash the content, not the position</h3>
+
+<p>Each block also carries a group id: the sha256 prefix of its <em>normalized</em>
+text &mdash; casefolded, whitespace collapsed. Hashing content instead of a trivial
+block-position id gives the check teeth: it would fail if the same passage reappeared
+in two partitions under a cosmetic case or spacing difference. It found nothing to
+flag &mdash; every one of the 1089 blocks stays inside one partition. A second,
+finer-grained audit measures Jaccard similarity of character 8-grams across
+partitions:</p>
+
+<table>
+<thead><tr><th>Later partition</th><th>Compared against</th><th>Max Jaccard</th></tr></thead>
+<tbody>
+<tr><td>development</td><td>train</td><td>0.023131</td></tr>
+<tr><td>sealed</td><td>train + development</td><td>0.030059</td></tr>
+</tbody>
+</table>
+
+<p>The largest similarity any held-out block has to anything the model may train on is
+an overlap of common English 8-grams, not of content. There is nothing to memorize
+across the split.</p>
+
+<h3>Four eval-harness controls, run through the study&rsquo;s own scoring path</h3>
+
+<p>A tabular profiler has nothing to check on an index table with no features and no
+real target, so the harness itself was audited by feeding it four known predictors and
+checking that a correct harness scores each one where theory says it must:</p>
+
+<table>
+<thead><tr><th>Control</th><th>Role</th><th>Score (nats/char)</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>uniform</td><td>negative &mdash; chance</td><td>4.174388</td><td>PASS</td></tr>
+<tr><td>untrained network</td><td>negative &mdash; no information</td><td>4.305432</td><td>PASS</td></tr>
+<tr><td>add-one unigram</td><td>positive &mdash; real information</td><td>3.306991</td><td>PASS</td></tr>
+<tr><td>copy-the-input</td><td>negative &mdash; off-by-one detector</td><td>4.750043</td><td>PASS</td></tr>
+</tbody>
+</table>
+
+<p>The last row is the interesting one. A predictor that bets the next character
+equals the current one has no business scoring near chance either way &mdash; a
+correct harness must score it <em>worse</em> than chance, because it is confidently
+wrong on every character where the text actually changes. If the harness aligned
+targets with inputs by one position instead of shifting them, that same predictor
+would score exactly <span data-math="\ln 2 = 0.693147"></span> nats, which is the
+classic off-by-one bug this control exists to catch. All four controls PASS, and the
+diagnostic rate of the model&rsquo;s predicted character actually matching the one
+just read is 0.024523, not 1.0.</p>
+
+<h3>Go / no-go</h3>
+
+<p>No BLOCKER is open. Two WARNs are accepted and disclosed rather than fixed, because
+both are identical for every candidate and both are pinned by the
+<code>eval_context</code> guardrail: the fixed 128-character evaluation window
+handicaps the first predicted character of every window with no context at all, and
+the final partial window of each partition is read as context but never scored.
+Neither can favor one candidate over another, so both cancel in every comparison this
+study makes. In particular there is no literal split seed anywhere in an evaluator or
+entrypoint &mdash; every run asks the contract for its partition and the verifier
+additionally refuses any checkpoint whose recorded split fingerprint disagrees with
+the realized one.</p>
+
+<p><strong>Decision: GO.</strong> The corpus reproduces its published identity
+exactly, the partitions are contiguous ranges with no window able to straddle them, no
+block is a near-duplicate of anything in an earlier partition, and every eval-harness
+control &mdash; including the one built to catch an off-by-one bug &mdash; behaves as a
+correct harness must.</p>

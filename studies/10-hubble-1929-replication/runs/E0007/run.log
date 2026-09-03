@@ -1,0 +1,28 @@
+---
+primary_metric:    728.366015
+metric_name:       k_kms_per_mpc
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            558.930637
+ci_high:           1003.887093
+n:                 24
+wall_seconds:      0.017900
+split_fingerprint: 106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24
+artifact: tables/inverse_vs_forward.tsv
+n_boot: 2000.0
+k_forward: 454.15844092262836
+k_inverse: 728.36601528692
+point_difference: 274.2075743642916
+paired_mean_difference: 282.63949628059436
+paired_se_difference: 115.48471249597496
+inverse_minus_forward_se_units: 2.447419144680689
+difference_ci_low: 113.85372381237195
+difference_ci_high: 564.8125094420406
+ratio_inverse_over_forward: 1.6037707320978898
+runner_status: ok
+runner_exit_code: 0
