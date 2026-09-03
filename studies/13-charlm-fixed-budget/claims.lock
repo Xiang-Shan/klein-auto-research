@@ -142,7 +142,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "e0008_sealed_gap"
+      ],
       "strength": "exploratory"
     },
     "C8": {
@@ -247,6 +249,13 @@
       "note": "E0008 in bits per character",
       "precision": 6,
       "value": 2.259664
+    },
+    "e0008_sealed_gap": {
+      "art": "frontier",
+      "claim": "C7",
+      "note": "P6's adjudicated key: the sealed gap in fit-noise standard deviations",
+      "precision": 4,
+      "value": 5.8485
     },
     "e0008_val_loss": {
       "art": "frontier",
