@@ -51,11 +51,20 @@
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ1 | n_large | supported | exploratory | empirical-description | E0005, E0006, E0007, E0010 | on the 31 \u00d7 31 grid the same search scored 50, 53 and 54 across the same budget ladder, and 55 from the sealed seed block: it did not reach 62 at either seed. The largest budget bought 19014 greedy completions at n = 11 and 2190 at n = 31, because one completion costs about n\u00b2 addability tests |",
-      "class": null,
+      "claim": "On the 31 by 31 grid the same search scored 50, 53 and 54 across the same budget ladder and 55 from the sealed seed block, so it did not reach 62 at either seed; the largest budget bought 19014 greedy completions at the smaller instance and 2190 at this one",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0010",
+        "ref:flammenkamp_records",
+        "ref:mathworld_no3"
+      ],
       "numbers": [
+        "bound_large",
+        "grid_large",
         "large_200k",
         "large_20k",
         "large_2M",
