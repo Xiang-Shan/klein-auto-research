@@ -1,6 +1,15 @@
 {
-  "acknowledgements": {},
-  "artifact_hashes": {},
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T11:38:55.411723Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "4a06dc3fcb74452e748b67e04ab536b4cb4076199f32a173fdead27675c89cd5",
+    "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
+    "study.yaml": "3ecc5dbf32de211c1232188e86cc077c927d76b180550ee5bdfdc60db19aca97"
+  },
   "created_at": "2026-09-03T11:32:09.485992Z",
   "current_phase": "adaptive-1",
   "final_holdout_access": {
@@ -16,9 +25,16 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T11:38:55.411723Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "dfe4e9be89f3d53a8da80cf9dad547538e0c4db58476aae19d0d496c105a5bac",
+        "research_plan.md": "4a06dc3fcb74452e748b67e04ab536b4cb4076199f32a173fdead27675c89cd5",
+        "scouting_ledger.md": "9c4442af51a9144688f218c0ebbb0bc4ce6fc36165f64c9e827567b2c9b44752",
+        "study.yaml": "3ecc5dbf32de211c1232188e86cc077c927d76b180550ee5bdfdc60db19aca97"
+      },
+      "note": "gate ack delegated by the lead to the driving agent for the Klein 2.0 exhibit set (program.md Roster); contract registered before any modeling",
+      "status": "recorded"
     },
     "data": {
       "acknowledged_at": null,
@@ -41,5 +57,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "13-charlm-fixed-budget",
-  "updated_at": "2026-09-03T11:32:09.486004Z"
+  "updated_at": "2026-09-03T11:38:55.412678Z"
 }
