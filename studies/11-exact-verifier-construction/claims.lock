@@ -88,7 +88,10 @@
         "E0007",
         "E0008",
         "P3",
-        "P5"
+        "P5",
+        "verify:E0001@20260903T074705Z",
+        "verify:E0004@20260903T074710Z",
+        "verify:E0007@20260903T074714Z"
       ],
       "numbers": [
         "control_objective",
