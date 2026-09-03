@@ -111,12 +111,17 @@
       "strength": "exploratory"
     },
     "C3": {
-      "claim": "RQ3** \u2014 how large is the paired-comparison floor here, and how many of v1's six keeps clear it? | **ANSWERED**: the bar is 0.0375805 and the ladder yields one keep | , ,  | sweep:paired_bootstrap, E0001, E0005, art:verdicts | the bar is 0.9671 of the v1 ledger's entire spread | exploratory |",
-      "class": null,
+      "claim": "The paired-comparison floor on this portfolio is 0.0375805, which is 0.9671 of the v1 ledger's entire spread of 0.038860 - the smallest difference this instrument can resolve between two candidate rungs on these rows is almost exactly as large as the distance from the v1 study's worst recorded model to its best.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "sweep:paired_bootstrap",
+        "art:floors",
+        "art:derived"
+      ],
       "numbers": [
         "bar_over_v1_spread",
+        "minimum_delta",
         "v1_ledger_spread"
       ],
       "strength": "exploratory"
