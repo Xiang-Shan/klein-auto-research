@@ -413,6 +413,13 @@
       "precision": 0,
       "value": 8320
     },
+    "uniform_reference": {
+      "art": "refs_losses",
+      "claim": "contract",
+      "note": "a uniform predictor over the 65-character vocabulary: ln 65",
+      "precision": 6,
+      "value": 4.174387
+    },
     "verifier_tolerance": {
       "art": "contract",
       "claim": "contract",
