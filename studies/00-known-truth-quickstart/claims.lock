@@ -38,7 +38,8 @@
         "boosted_gap_floors",
         "dev_ceiling",
         "sealed_auc",
-        "sealed_ceiling"
+        "sealed_ceiling",
+        "sealed_gap_floors"
       ],
       "strength": "exploratory"
     },
@@ -154,6 +155,13 @@
       "note": "the sealed partition's own Bayes AUC, printed by E0005",
       "precision": 6,
       "value": 0.893469
+    },
+    "sealed_gap_floors": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0005 gap_in_floors on the sealed partition",
+      "precision": 4,
+      "value": 1.68
     }
   },
   "study_id": "00-known-truth-quickstart"
