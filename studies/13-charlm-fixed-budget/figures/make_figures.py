@@ -202,6 +202,11 @@ def summary_table(study: Path, table: pd.DataFrame, refs: pd.DataFrame, fit: dic
         "replication_difference_in_fit_noise_std": float(rerun["difference"]) / float(fit["std"]),
         "replication_tolerance_nats": float(rerun["tolerance"]),
         "verify_only_records": float(sum(1 for r in full if r["mode"] == "verify")),
+        # What the copy-the-input control WOULD score if the harness aligned the
+        # targets with the inputs instead of shifting them by one: the predictor
+        # puts 0.5 on the current character, so every prediction would be right
+        # with probability one half and the loss would be ln 2.
+        "copy_input_loss_under_off_by_one": math.log(2.0),
     }
     out = pd.DataFrame([{"quantity": k, "value": round(v, 6)} for k, v in values.items()])
     out.to_csv(study / "tables" / "study_summary.tsv", sep="\t", index=False)

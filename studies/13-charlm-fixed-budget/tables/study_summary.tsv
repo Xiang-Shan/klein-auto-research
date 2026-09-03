@@ -17,3 +17,4 @@ replication_difference_nats	0.000962
 replication_difference_in_fit_noise_std	0.119808
 replication_tolerance_nats	0.014953
 verify_only_records	2.0
+copy_input_loss_under_off_by_one	0.693147
