@@ -373,3 +373,21 @@ coefficient stability is not a question this study registered). #6 scores 1 on
 testability for the same reason — the v1 sweep's own lift was +0.001425, which P8 exists
 to compare against the floor arithmetically, with no run needed. Both go to the playbook
 queue rather than the ledger.
+
+## Decisions — the loop
+
+- 2026-09-03 — **E0001 KEEPS at val_auc 0.614140** and anchors the track. **P1 SUPPORTED**
+  by the notary on the printed block: `|0.614140 − 0.625462| = 0.011322 ≤ 0.0225`. The
+  residual is 0.63 of one marginal-resplit standard deviation (0.0179641,
+  `sweep:split_lottery`) and 1.01 of the closed-form transfer standard deviation the
+  tolerance was built from (0.011226, `scouting_ledger.md` S5) — the port landed
+  almost exactly one predicted standard deviation from the v1 value, in a study that
+  fixed that standard deviation before it ran anything. The positive control fired: a
+  number an independent study recorded on the identical training rows is recovered on
+  the half of its validation set this study is allowed to see.
+- 2026-09-03 — First `twin_free` reading, and it goes the other way: the anchor's AUC on
+  the 5,559 development rows with NO training twin is 0.615337, i.e. **+0.001198 HIGHER**
+  than on the full 5,859. The duplicated rows very slightly DEPRESS the GLM rather than
+  inflating it — exactly what a linear model on coarse rating cells should do, because it
+  cannot memorise a cell it has already priced. H1 in the playbook predicts a tree will
+  behave differently; E0003 will say.
