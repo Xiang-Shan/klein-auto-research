@@ -477,10 +477,18 @@ def write_table(
     Fixed column order, fixed float formatting, LF endings, no index — so a
     re-execution in a detached worktree produces byte-identical bytes and
     `klein replicate` can compare hashes rather than hope.
+
+    Under ``KLEIN_SMOKE=1`` the text is still BUILT (so a formatting bug is
+    caught by the sanctioned pre-run check) but not written: a smoke run writes
+    no sidecars or snapshots, and `evaluate_table` treats the absent artifact as
+    a notice rather than an error. That also keeps the working tree clean, which
+    `klein run-one` requires.
     """
     path = study_dir() / relative_path
-    path.parent.mkdir(parents=True, exist_ok=True)
     frame = pd.DataFrame(list(rows), columns=list(columns))
     text = frame.to_csv(index=False, sep="\t", float_format=float_format, lineterminator="\n")
+    if os.environ.get("KLEIN_SMOKE") == "1":
+        return path
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="")
     return path
