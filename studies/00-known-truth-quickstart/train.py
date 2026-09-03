@@ -107,8 +107,8 @@ RECIPES = {
 }
 
 # --- the candidate: the whole per-experiment diff surface -------------------
-CANDIDATE = "logreg_raw"          # E0001: the identity anchor
-REFERENCE = None                  # the anchor has no predecessor to beat
+CANDIDATE = "logreg_interaction"  # E0002: hand the linear model the DGP's true x1*x2
+REFERENCE = "logreg_raw"          # the rung it claims to beat, refitted on the same rows
 
 
 def fit_recipe(name: str, X_fit: pd.DataFrame, y_fit: pd.Series):
