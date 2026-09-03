@@ -121,12 +121,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] findings.md uses words the 'generic' profile bans: line 98: word \"significant\" appears nowhere in this document. The reproduction comparisons \u2014 see the profile's \u00a77 (the referee checks the same list)",
-      "name": "profile vocabulary",
-      "ok": true
-    },
-    {
-      "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
+      "message": "PASS-WITH-NOTES \u2014 klein-referee (Claude Code subagent, model: Opus 5 / claude-opus-5[1m]), independent-of-experimenter: no",
       "name": "referee gate",
       "ok": true
     },
@@ -191,26 +186,32 @@
       "ok": true
     },
     {
+      "message": "[WARN] 19 of 164 rendered numerals have no home \u2014 line 101: 2.2 (2.2 Regression dilution: the direction of the bias); line 213: 3.4 (3.4 The go / no-go call); line 242: 4.1 (4.1 The programme, phase by phase); line 281: 4.2 (4.2 The rehearsals earned their keep twice, in two different ways); line 300: 4.3 (4.3 The ledger); \u2026 14 more (advisory: the tutorial pass never fails a study; the referee reads the list)",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
       "message": "4 figure(s) re-render byte-identically",
       "name": "figure re-render",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "6ee2fe35e2f7b8990ddcbf87bfc9afcdb84d0065",
+  "git_head": "aa8fdf0190c95352e7c54c7d32792d0569a73f64",
   "inputs": {
     "aux_metrics.tsv": "092fbfe0ba2e6d4e5520996efc87631cba0819c738534a2e3ea128222f90c493",
     "claims.lock": "07d7a83fa2589c9030e79b0abe12975338812aa8638d02671acfae7789c2639b",
-    "events.jsonl": "e3e26420953e2642ee6fdd467ffddaa91db104fbf5e31f5d91d4c4f5f6433ce9",
-    "findings.md": "9bd0efb08f7bd3112c6db030e9b225418354a4a18d5d1652ce339388262a3390",
+    "events.jsonl": "e2357206334edf55b84958ff7f130c28cf26b5907a43f17413e46fd2a93f9ac6",
+    "findings.md": "2540ff403c3203c70dfaabf2e9a86df1ce20ca6cdf7a5d19383653c8076386a6",
     "playbook.md": "4518ca3c85eb7d7a2ccb4dcde274f8ffd18bd2b71f066d867b4daa7be4e61b1c",
-    "program.md": "225cf0c2744d8d6652dbb8ac0cbb68029de51f749ee5ea39e1abe4c7d9cd8bb7",
-    "referee_report.md": "beb78119be03727b99647cc13e14595cb21483d77d3e7e344d4e19d0d197b499",
+    "program.md": "e13be54a2e256aa6d7153c3b4016c29e46ae02515886814167fca75f7014641c",
+    "referee_report.md": "c87666aa78cd5f3f504d839612b9935abca17876558ac2ca7a13a5163c9c7f00",
+    "report/index.html": "933a0147f7e7e79ce71b48c89e9386fa772e0699f762207e186bb6723dc38c1e",
     "results.tsv": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5",
     "study.yaml": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627",
-    "study_state.json": "28fd431a63c4c032ef0aad3739e2bf8ca73f2bad47cf17a802882bd97a184403"
+    "study_state.json": "5db945cff25c4b9f13e38fe7a89a72b373a93edbf5640d9b01f4e4374d8aaea0"
   },
-  "klein_commit": "6ee2fe35e2f7b8990ddcbf87bfc9afcdb84d0065",
+  "klein_commit": "aa8fdf0190c95352e7c54c7d32792d0569a73f64",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "d6c7a294aa13eb8c500a8f13b026e6a2b22a79e2c8582d31c34522e61dafbad2",
@@ -233,9 +234,9 @@
   "summary": {
     "checks": 39,
     "failed": 0,
-    "warned": 4
+    "warned": 3
   },
-  "timestamp": "2026-09-03T08:05:41.065213Z",
+  "timestamp": "2026-09-03T08:24:27.773614Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
