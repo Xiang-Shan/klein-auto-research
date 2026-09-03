@@ -120,6 +120,13 @@
       "precision": 0,
       "value": 22
     },
+    "grid_large": {
+      "art": "aux",
+      "claim": "contract",
+      "note": "the n_large instance's grid size, printed as grid_n",
+      "precision": 0,
+      "value": 31
+    },
     "grid_small": {
       "art": "aux",
       "claim": "contract",
