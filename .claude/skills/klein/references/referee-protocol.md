@@ -68,6 +68,41 @@ Referee: <actor> (<tool / model>) · fresh context · independent-of-experimente
 Then the ten-row table with the evidence each check rested on (ids, file paths, the
 verifier output), the notes, and — on FAIL — the clearing conditions.
 
+Those two lines are all `klein gate record referee` reads, and a FAIL is refused
+rather than recorded:
+
+<!-- test:referee-verdict-parse:start -->
+```python
+from kleinlib.errors import WorkflowError
+from kleinlib.state import referee_report_facts
+
+report = (
+    "Verdict: PASS-WITH-NOTES\n"
+    "Referee: r-2 (opus, a different model than the experimenter) \u00b7 fresh"
+    " context \u00b7 independent-of-experimenter: yes\n"
+    "\n# Referee report \u2014 10-hubble-1929-replication\n"
+)
+facts = referee_report_facts(report)
+assert facts["verdict"] == "PASS-WITH-NOTES"
+assert facts["independent_of_experimenter"] is True
+assert facts["referee"].startswith("r-2 (opus")
+
+# A FAIL is never softened into a note: the gate cannot be recorded at all.
+try:
+    referee_report_facts(report.replace("PASS-WITH-NOTES", "FAIL"))
+except WorkflowError as exc:
+    assert "never softened into a note" in str(exc)
+else:
+    raise AssertionError("a FAIL verdict must be refused")
+
+# A report missing either machine-read line is refused too, by name.
+try:
+    referee_report_facts("Verdict: PASS\n")
+except WorkflowError as exc:
+    assert "Referee:" in str(exc)
+```
+<!-- test:referee-verdict-parse:end -->
+
 ## Recording and override
 
 ```bash

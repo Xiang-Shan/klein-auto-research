@@ -35,6 +35,49 @@ study_dir)` / `load_partition(kind)` — never from a literal seed. For a non-ta
 modality it also emits the **split index table** `data/prepared/index.csv`
 (`id, group, time, split`), which is what the mechanized leakage rows read.
 
+No argument of `contract_split` can change the split — that is the point. The
+partitions and their fingerprint come from `study.yaml` alone, so two machines
+that read the same contract measure the same rows:
+
+<!-- test:contract-split:start -->
+```python
+from pathlib import Path
+
+import pandas as pd
+
+from kleinlib.data import contract_split, partition_fingerprints
+
+study = Path("studies/99-split-demo")
+(study / "data" / "prepared").mkdir(parents=True)
+pd.DataFrame({"x": range(40), "y": [i % 2 for i in range(40)]}).to_csv(
+    study / "data" / "prepared" / "prepared.csv", index=False
+)
+(study / "study.yaml").write_text(
+    "schema_version: 3\n"
+    "study_id: 99-split-demo\n"
+    "target: y\n"
+    "task_type: classification\n"
+    "data:\n"
+    "  prepared_path: data/prepared/prepared.csv\n"
+    "  split:\n"
+    "    kind: stratified\n"
+    "    seed: 20260903\n"
+    "    development_size: 0.20\n"
+    "    test_size: 0.20\n",
+    encoding="utf-8",
+)
+
+X_train, X_dev, X_test, y_train, y_dev, y_test = contract_split(study)
+assert (len(X_train), len(X_dev), len(X_test)) == (24, 8, 8)
+assert not set(X_train.index) & set(X_dev.index) & set(X_test.index)
+
+# The fingerprint the DATA gate freezes, and every later run prints back.
+first = partition_fingerprints(study)
+assert set(first) == {"development", "final_test"}
+assert partition_fingerprints(study) == first  # stable: it is a function of the contract
+```
+<!-- test:contract-split:end -->
+
 Then profile. Prefer the global skill; fall back to the bundled profiler:
 
 - **If the `dataset-profiler` skill is available** (check: does
