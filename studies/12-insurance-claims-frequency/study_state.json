@@ -3,9 +3,14 @@
     "consult": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T07:57:41.581729Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:18:38.452188Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923",
     "research_plan.md": "e252b06c81629365b39ab708d34cfeafa41afe0bfe00f788d1c09ddfb45590c4",
     "scouting_ledger.md": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9",
     "study.yaml": "49a59d02fe9a0157a6b195a4347b6fa86fce82ddeded81f2fca0c6193a86bba4"
@@ -20,8 +25,12 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "42aa1fa107e783ccb4bfff2f570587e8ddd83ad0548581022023f23b5a5536ec"
+    "data": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab",
+    "split": {
+      "development": "7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3",
+      "final_test": "06d18ee16624e7e0d12f0ece4f08cc37321bc61802ff155e08d07e23b2cb0631",
+      "policy": "075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7"
+    }
   },
   "gates": {
     "consult": {
@@ -37,9 +46,14 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T08:18:38.452188Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923"
+      },
+      "note": "",
+      "reason": "data_card.md is NO-GO on one mechanized leakage row: 615 row-content hashes straddle the partitions (5.12% of development rows, 5.32% of sealed rows have a byte-identical training twin). Accepted, not fixed, for three reasons on the record in program.md: (1) the cause is the dataset's coarse rating structure, not this study's preparation - 6.1% of the whole table sits in a duplicate-content group, and tables/duplicate_exposure.tsv shows the v1 study this port reproduces carried the same 5.22% in its own validation partition, unmeasured; (2) both available fixes (dedupe in prepare.py, or a content-hash group split) change which rows are trained on, which destroys the train-partition identity with v1 that predictions P1, P2 and P4 are registered against, and repairs nothing about the v1 number being reproduced; (3) policy_id, the only identifier of an individual policy, is dropped and crosses nothing - what the check reports is feature resolution, and for a rating model the modelling unit is the cell, not the policy. The risk is carried with a number attached: train.py prints twin_free_rows, twin_free_auc and twin_free_gap on every run, so every rung reports its AUC on the evaluation rows with no training twin, and findings scope every generalisation sentence by that gap. data_card.md is left saying NO-GO - the auditor's verdict is not edited to unlock a gate.",
+      "status": "overridden"
     },
     "method": {
       "acknowledged_at": null,
@@ -48,14 +62,21 @@
     }
   },
   "last_experiment": 0,
-  "overrides": [],
+  "overrides": [
+    {
+      "acknowledged_at": "2026-09-03T08:18:38.452188Z",
+      "acknowledged_by": "lead-agent",
+      "gate": "data",
+      "reason": "data_card.md is NO-GO on one mechanized leakage row: 615 row-content hashes straddle the partitions (5.12% of development rows, 5.32% of sealed rows have a byte-identical training twin). Accepted, not fixed, for three reasons on the record in program.md: (1) the cause is the dataset's coarse rating structure, not this study's preparation - 6.1% of the whole table sits in a duplicate-content group, and tables/duplicate_exposure.tsv shows the v1 study this port reproduces carried the same 5.22% in its own validation partition, unmeasured; (2) both available fixes (dedupe in prepare.py, or a content-hash group split) change which rows are trained on, which destroys the train-partition identity with v1 that predictions P1, P2 and P4 are registered against, and repairs nothing about the v1 number being reproduced; (3) policy_id, the only identifier of an individual policy, is dropped and crosses nothing - what the check reports is feature resolution, and for a rating model the modelling unit is the cell, not the policy. The risk is carried with a number attached: train.py prints twin_free_rows, twin_free_auc and twin_free_gap on every run, so every rung reports its AUC on the evaluation rows with no training twin, and findings scope every generalisation sentence by that gap. data_card.md is left saying NO-GO - the auditor's verdict is not edited to unlock a gate."
+    }
+  ],
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679/studies/12-insurance-claims-frequency/data/prepared/insurance_claims_prepared.csv",
-    "sha256": null
+    "sha256": "7b92b06191a9285ee98715f98f222afe63e73a8a3012d5f929cae5ce119327ab"
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "12-insurance-claims-frequency",
-  "updated_at": "2026-09-03T07:57:41.582188Z"
+  "updated_at": "2026-09-03T08:18:39.504991Z"
 }
