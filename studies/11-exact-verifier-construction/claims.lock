@@ -132,10 +132,19 @@
       "strength": "exploratory"
     },
     "C6": {
-      "claim": "Write the checker as the dumbest correct thing you can, and let the searcher be",
-      "class": null,
+      "claim": "Write the checker as the dumbest correct thing and let the searcher be the clever one: two implementations that share no code agreed on the integer objective in every honest run, and the checker's exhaustive triple test cost 26235 integer cross products on the largest object this study verified and stayed sub-millisecond",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "P4"
+      ],
       "numbers": [
         "triples_largest"
       ],
