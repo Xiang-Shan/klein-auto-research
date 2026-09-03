@@ -217,6 +217,13 @@
       "precision": 4,
       "value": 3.9699
     },
+    "minimum_delta": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the keep bar: max(2*std, range/2) of the split-lottery floor",
+      "precision": 8,
+      "value": 0.00745212
+    },
     "overcapacity_auc": {
       "art": "aux",
       "claim": "C3",
