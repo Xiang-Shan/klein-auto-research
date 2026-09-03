@@ -126,7 +126,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "straddling_hashes"
+      ],
       "strength": "exploratory"
     },
     "C7": {
@@ -258,6 +260,13 @@
       "note": "E0002 lift in declared floors",
       "precision": 4,
       "value": 0.9568
+    },
+    "straddling_hashes": {
+      "art": "data_card",
+      "claim": "C6",
+      "note": "kleinlib.leakage: row-content hashes spanning more than one partition",
+      "precision": 0,
+      "value": 615
     },
     "tree_over_glm_in_floors": {
       "art": "verdicts",
