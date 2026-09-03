@@ -12,6 +12,7 @@ from .cli_doctor import register as register_doctor
 from .cli_replicate import register as register_replicate
 from .cli_sweep import register as register_sweep
 from .contract import KNOWN_KINDS
+from .noise_floor import add_recipe_arguments
 from .scaffold import scaffold_study
 from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
 from .workflow import (
@@ -200,11 +201,7 @@ def build_parser() -> argparse.ArgumentParser:
     floor.add_argument("--values", help="comma-separated metric values (instead of --sidecar)")
     floor.add_argument("--seeds", help="comma-separated seeds (with --values)")
     floor.add_argument("--measured-after", help="anchor experiment id, e.g. E0001")
-    floor.add_argument(
-        "--method",
-        help="how the floor was measured (default: seed-sweep for a sidecar; "
-        "the consult protocol also names paired-bootstrap)",
-    )
+    add_recipe_arguments(floor)  # --recipe / --estimand / --method, declared once
 
     verify = sub.add_parser(
         "verify",
@@ -273,15 +270,20 @@ def main(argv: list[str] | None = None) -> int:
             print(f"next: git switch -c experiments/{args.slug}")
             return 0
         if args.command_name == "noise-floor":
-            from .noise_floor import floor_from_sidecar, summarize_noise, yaml_block
+            from .noise_floor import (
+                floor_from_sidecar,
+                floor_report,
+                resolve_estimand,
+                summarize_noise,
+            )
 
+            method = args.recipe or args.method
             if args.values:
                 seeds = [int(v) for v in args.seeds.split(",")] if args.seeds else None
                 floor_stats = summarize_noise(
                     [float(v) for v in args.values.split(",")], seeds=seeds
                 )
                 source = "--values"
-                method = args.method
             else:
                 study = resolve_study(args.study)
                 sidecar = args.sidecar or (study / "sweeps" / "noise_floor.sidecar.tsv")
@@ -290,25 +292,19 @@ def main(argv: list[str] | None = None) -> int:
                     source = str(sidecar.resolve().relative_to(study.resolve()))
                 except ValueError:
                     source = str(sidecar)
-                method = args.method or "seed-sweep"
+                # Unchanged default when no recipe is declared: a bare
+                # `klein noise-floor --sidecar ...` prints exactly what it did.
+                method = method or "seed-sweep"
             print(
-                f"k={floor_stats.k}  mean={floor_stats.mean:.6g}  std={floor_stats.std:.6g}  "
-                f"range={floor_stats.value_range:.6g}  suggested minimum_delta="
-                f"{floor_stats.suggested_minimum_delta:.6g}"
-            )
-            print()
-            print(
-                yaml_block(
+                floor_report(
                     args.track,
                     floor_stats,
                     source=source,
                     measured_after=args.measured_after,
                     method=method,
-                )
-            )
-            print(
-                "next: edit study.yaml, then re-record the consult gate --note "
-                '"minimum_delta set from the measured noise floor"'
+                    estimand=resolve_estimand(args.recipe, args.estimand),
+                ),
+                end="",
             )
             return 0
         study = resolve_study(args.study)

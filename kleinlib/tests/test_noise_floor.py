@@ -75,3 +75,163 @@ def test_yaml_block_round_trips_through_safe_load() -> None:
         )
     )
     assert parsed_method["noise_floor"]["method"] == "paired-bootstrap"
+
+
+# --------------------------------------------------------------------------
+# `klein noise-floor --recipe --estimand` (the consult protocol's vocabulary)
+# --------------------------------------------------------------------------
+
+
+def test_recipe_defaults_the_estimand_and_a_mismatch_may_be_declared() -> None:
+    from kleinlib.noise_floor import resolve_estimand
+
+    assert resolve_estimand("seed-sweep", None) == "fit-noise"
+    assert resolve_estimand("split-lottery", None) == "marginal-resplit"
+    assert resolve_estimand("paired-bootstrap", None) == "paired-comparison"
+    assert resolve_estimand(None, None) is None
+    # Study 09 ran a split lottery that produced PAIRED differences; the pair
+    # is legal, but it has to be said out loud.
+    assert resolve_estimand("split-lottery", "paired-comparison") == "paired-comparison"
+    with pytest.raises(ValueError, match="estimand must be one of"):
+        resolve_estimand(None, "vibes")
+    with pytest.raises(ValueError, match="recipe must be one of"):
+        resolve_estimand("grid-search", None)
+
+
+def test_the_recipes_and_estimands_match_the_metrology_module() -> None:
+    """Two spellings of one vocabulary would be one spelling too many."""
+    from kleinlib import metrology
+    from kleinlib.noise_floor import ESTIMANDS, RECIPE_ESTIMAND, RECIPES
+
+    assert RECIPES == metrology.RECIPES
+    assert ESTIMANDS == metrology.ESTIMANDS
+    assert RECIPE_ESTIMAND == metrology.RECIPE_ESTIMAND
+
+
+def test_fit_noise_lands_under_its_own_key_with_no_minimum_delta() -> None:
+    from kleinlib.noise_floor import block_key, yaml_block
+
+    assert block_key("fit-noise") == "fit_noise"
+    assert block_key("marginal-resplit") == "noise_floor"
+    assert block_key(None) == "noise_floor"
+
+    floor = summarize_noise([1.0, 1.1, 0.9], seeds=[1, 2, 3])
+    block = yaml_block("primary", floor, source="--values", estimand="fit-noise")
+    parsed = yaml.safe_load(
+        "\n".join(line[6:] for line in block.splitlines() if line.startswith("      "))
+    )
+    assert set(parsed) == {"fit_noise"}
+    assert "minimum_delta" not in block
+    assert parsed["fit_noise"]["estimand"] == "fit-noise"
+    assert "NOT the keep bar" in block
+
+
+def test_a_bar_carrying_estimand_is_written_into_the_noise_floor_block() -> None:
+    from kleinlib.noise_floor import yaml_block
+
+    floor = summarize_noise([1.0, 1.1, 0.9])
+    block = yaml_block(
+        "primary",
+        floor,
+        source="sweeps/lottery.sidecar.tsv",
+        method="split-lottery",
+        estimand="marginal-resplit",
+    )
+    parsed = yaml.safe_load(
+        "\n".join(line[6:] for line in block.splitlines() if line.startswith("      "))
+    )
+    assert parsed["noise_floor"]["estimand"] == "marginal-resplit"
+    assert parsed["noise_floor"]["method"] == "split-lottery"
+    assert parsed["minimum_delta"] == pytest.approx(
+        floor.suggested_minimum_delta, rel=1e-4
+    )
+
+
+def test_cli_seed_sweep_refuses_to_hand_over_a_bar(capsys) -> None:
+    from kleinlib import cli
+
+    argv = ["noise-floor", "--values", "1.0,1.1,0.9", "--recipe", "seed-sweep"]
+    assert cli.main(argv) == 0
+    out = capsys.readouterr().out
+    assert "estimand=fit-noise" in out
+    assert "recipe=seed-sweep" in out
+    assert "fit noise — NOT a keep bar" in out
+    assert "fit_noise:" in out
+    assert "minimum_delta" not in out
+    assert "measure the floor that will JUDGE the comparison" in out
+
+
+def test_cli_paired_bootstrap_prints_the_estimand_line_and_the_bar(capsys) -> None:
+    from kleinlib import cli
+
+    argv = [
+        "noise-floor",
+        "--values",
+        "0.01,0.02,0.015,0.03",
+        "--recipe",
+        "paired-bootstrap",
+    ]
+    assert cli.main(argv) == 0
+    out = capsys.readouterr().out
+    assert 'estimand: "paired-comparison"' in out
+    assert 'method: "paired-bootstrap"' in out
+    assert "suggested minimum_delta=" in out
+
+
+def test_cli_estimand_may_be_declared_against_the_recipe_default(capsys) -> None:
+    from kleinlib import cli
+
+    argv = [
+        "noise-floor",
+        "--values",
+        "0.1,0.2,0.15",
+        "--recipe",
+        "split-lottery",
+        "--estimand",
+        "paired-comparison",
+    ]
+    assert cli.main(argv) == 0
+    out = capsys.readouterr().out
+    assert 'method: "split-lottery"' in out
+    assert 'estimand: "paired-comparison"' in out
+
+
+def test_cli_refuses_recipe_and_method_together() -> None:
+    from kleinlib import cli
+
+    argv = [
+        "noise-floor",
+        "--values",
+        "1,2,3",
+        "--recipe",
+        "seed-sweep",
+        "--method",
+        "hand-waving",
+    ]
+    with pytest.raises(SystemExit):
+        cli.main(argv)
+
+
+def test_cli_without_a_recipe_prints_exactly_what_it_always_did(capsys) -> None:
+    """The legacy invocation is byte-identical: no recipe, no estimand line."""
+    from kleinlib import cli
+
+    assert cli.main(["noise-floor", "--values", "1.0,1.1,0.9"]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith(
+        "k=3  mean=1  std=0.1  range=0.2  suggested minimum_delta=0.2\n"
+    )
+    assert "estimand" not in out
+    assert "recipe=" not in out
+    assert "noise_floor:" in out
+
+
+def test_module_entry_point_and_cli_verb_print_the_same_report(capsys) -> None:
+    from kleinlib import cli
+    from kleinlib.noise_floor import _main
+
+    argv = ["--values", "1.0,1.1,0.9", "--recipe", "split-lottery"]
+    assert _main(argv) == 0
+    module_out = capsys.readouterr().out
+    assert cli.main(["noise-floor", *argv]) == 0
+    assert capsys.readouterr().out == module_out
