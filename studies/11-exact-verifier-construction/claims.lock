@@ -23,6 +23,10 @@
     "verify_log_large": {
       "path": "runs/E0010/verify.log",
       "sha256": "1de9ce669ea72e73a6dcecbe6be6f6af429bf6c2a85a5cb587041ef92038506a"
+    },
+    "verify_log_small": {
+      "path": "runs/E0009/verify.log",
+      "sha256": "4a0f9e90e67d3bd0f4e57d9e3e2bd7f66ae47ecddbf311154a4193afdf239668"
     }
   },
   "claims": {
