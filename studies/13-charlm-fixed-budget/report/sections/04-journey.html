@@ -1,0 +1,143 @@
+<h2>The Journey</h2>
+
+<h3>Phase 0 &mdash; measuring the floor before comparing anything</h3>
+
+<p>Five identically-configured runs of the anchor recipe, differing only in seed, give
+a level: mean 1.56915 nats, standard deviation 0.00802952, range 0.021485. That
+spread describes how much a single FIT moves &mdash; it is provenance, never the bar.
+The bar a candidate must actually clear is the spread of a <em>comparison</em>: the
+ten unordered pairs among those same five checkpoints, each pair re-scored on
+identical validation windows and differenced. That paired spread has standard
+deviation 0.00747623 and range 0.026494, and the bar is
+<span data-math="\delta = \max(2\cdot 0.00747623,\ 0.026494/2) = 0.0149525"></span>
+nats &mdash; set from the comparison quantity, not the level quantity, because a keep
+IS a comparison.</p>
+
+<img data-fig="figures/seed_variance.png" alt="Left panel: the anchor's five seeds as zero-based bars around their mean. Right panel: the ten paired differences that actually set the bar, with the +/-1-floor band shaded.">
+
+<h3>The anchor</h3>
+
+<p><strong>E0001</strong> reruns the exact committed anchor recipe at a sixth seed the
+floor sweep never used, and scores 1.572174 nats &mdash; 0.3766 fit-noise standard
+deviations from the five-seed mean, comfortably inside the registered bound of two.
+<strong>P1 is supported</strong>: the recipe reproduces, and the floor is usable as
+registered. Two more checks ride along for free. The trainer&rsquo;s own reported loss
+and the checker&rsquo;s independently recomputed loss agree to 0.0 nats, against a
+declared tolerance of 0.01 &mdash; the first of eight runs where that holds. And the
+same checkpoint, re-scored under <code>KLEIN_DEVICE=cpu</code> and
+<code>KLEIN_DEVICE=mps</code>, prints 1.572174 both times: a device change moves
+nothing at the printed resolution. A full re-execution in a detached worktree, same
+seed, same device, different process, lands 0.000962 nats away &mdash; 0.119808
+fit-noise standard deviations, because MPS training is not bit-deterministic even
+when nothing else changes.</p>
+
+<h3>Four registered levers, four discards</h3>
+
+<p>One idea per transaction, all at the same 2000-step budget, all adjudicated by the
+notary on the verifier&rsquo;s printed block &mdash; never by prose:</p>
+
+<ul>
+<li><strong>E0002, linear warmup on a constant learning rate</strong> &mdash;
+1.584747 nats, <span data-math="-1.0431"></span> floors. <strong>P2 refuted</strong>,
+and refuted on the wrong side of &ldquo;no effect&rdquo;: warmup did not merely fail
+to help, it cost more than a full floor. The steps spent ramping up to the target
+rate are steps not spent learning, and a fixed budget never gives them back.</li>
+<li><strong>E0003, weight tying</strong> &mdash; 1.739149 nats,
+<span data-math="-11.3693"></span> floors, 21.1718 fit-noise standard deviations from
+the anchor. <strong>P3 refuted</strong> by an order of magnitude, in the losing
+direction &mdash; the single largest effect measured anywhere in this study. Tying
+removes 8320 of 824320 parameters, 1.009317 percent, which is why the method card
+expected it to be invisible; forcing one matrix to be both the input lookup and the
+output classifier, with no logit scale to reconcile the two roles&rsquo; very
+different norms, was not invisible at all.</li>
+<li><strong>E0004, dropout 0.1</strong> &mdash; 1.639808 nats,
+<span data-math="-4.7255"></span> floors. <strong>P4 supported</strong> &mdash; the
+card&rsquo;s least safe prior, because enough passes over the train partition can make
+a model regularization-limited, and dropout would then pay. It did not: at this
+budget the binding constraint is optimization, not generalization, and making every
+step noisier is a straight loss.</li>
+<li><strong>E0005, width 128 &rarr; 256</strong> &mdash; 1.576240 nats,
+<span data-math="-0.4742"></span> floors, on a model with 3.908075 times the anchor&rsquo;s
+parameters. <strong>P5 refuted</strong> &mdash; inside the floor, in the wrong
+direction. A wider model gets the same number of gradient updates as a narrower one at
+a fixed STEP budget, and simply has more parameters to move with each of them; this is
+not the compute-optimal regime scaling-law doctrine describes, and the honest
+statement is that capacity was not the binding constraint here.</li>
+</ul>
+
+<p>Four levers, four failures to clear the floor, two of them costing multiple floors.
+That pattern is itself the result that chose the next candidate.</p>
+
+<h3>The keep nobody registered</h3>
+
+<p>With every registered lever spent, the phase&rsquo;s free slot went to the reading
+the first four runs raised: if the binding constraint is optimization progress per
+step, the cheapest direct test is a schedule change that touches nothing else.
+<strong>E0006</strong>, cosine decay from the anchor&rsquo;s learning rate down to a
+tenth of it over the same 2000 steps, scores 1.519319 nats &mdash;
+<span data-math="+3.3326"></span> floors better than the anchor, 0.052855 nats in
+absolute terms. Same parameters, same tokens, same arithmetic per step: only WHEN the
+learning rate is spent changed. It carried no registered prediction and is the only
+frontier improvement in the study.</p>
+
+<img data-fig="figures/learning_curves.png" alt="Validation loss against optimizer steps on a log scale, anchor versus cosine decay: the two schedules are indistinguishable for the first few hundred steps and separate once the decay bites.">
+
+<p><em>A referee note on this exact figure: the first render distinguished the two
+curves by colour alone (same marker, same solid line). Fixed for the version above
+&mdash; the anchor now draws solid with a circle marker, cosine decay dashed with a
+square marker &mdash; so the two stay legible without relying on hue at all. Every
+value the chart carries was already independently legible from its text annotations,
+so nothing about the finding changed; the figure is simply easier to read now.</em></p>
+
+<h3>Does warmup&rsquo;s verdict survive its partner?</h3>
+
+<p>A fair objection to E0002: warmup is almost always paired with decay in practice,
+because a high peak learning rate is only safe if it is later spent down, so testing
+warmup against a CONSTANT rate may have been an unfair trial. <strong>E0007</strong>
+adds 200 steps of warmup on top of the new E0006 incumbent and scores 1.520867 nats
+&mdash; <span data-math="+3.2291"></span> floors from the anchor but only 0.001548
+nats, 0.103528 floors, from the E0006 incumbent it started from: inside the floor,
+neither cost nor benefit. P2&rsquo;s registered verdict stands exactly as adjudicated
+against the anchor, but the honest advice sharpens: decay, and warmup is then
+optional &mdash; not &ldquo;warmup is harmful.&rdquo;</p>
+
+<img data-fig="figures/candidate_effects.png" alt="All six single-change candidates, in units of the measured floor, against the anchor's five-seed mean. Four fail outright, one sits inside the floor, one clears it.">
+
+<p>Six candidate transactions, six single ideas, six notarized verdicts: zero crashes,
+one keep. The searcher-versus-checker gap stayed at 0.0 nats on every one of them, and
+the <code>steps</code>/<code>eval_context</code> guardrails held at 2000 and 128 on
+every run &mdash; no candidate bought anything with extra compute.</p>
+
+<img data-fig="figures/trajectory.png" alt="The full decision trajectory: eight runs in order, the development incumbent as a step line, the one keep as a star, and the sealed final test as a diamond.">
+
+<h3>The sealed look</h3>
+
+<p>The law requires a dry run before any real sealed access, spending nothing:
+<code>klein run-one --final-test --dry-run</code> executed the frozen E0006
+configuration against development rows and printed confirmation before a single
+sealed character was ever read. <strong>E0008</strong> then retrained the selected
+cosine-decay recipe on train + development &mdash; 111616 more characters than the
+development incumbent ever saw &mdash; and scored it once, on the sealed final tenth:
+1.56628 nats, 2.259664 bits per character. That is 5.8485 fit-noise standard
+deviations from the development incumbent, well outside the registered band of two.
+<strong>P6 is refuted.</strong> The sealed run had MORE training data than the
+incumbent it is compared against, so this is not overfitting; it is 3.140679 measured
+floors of distribution shift between a contiguous final tenth of a concatenation of
+plays &mdash; different plays, different speakers, different proper nouns &mdash; and
+the rest of the corpus. A contiguous-block split buys leakage safety (the largest
+cross-partition 8-gram similarity anywhere is 0.030059) and pays for it with exactly
+this kind of shift, which a shuffled split would have hidden instead of measured.</p>
+
+<p>One track, one sealed access: that arithmetic confirms the selected recipe&rsquo;s
+LEVEL on unseen text and nothing else. The 0.052855-nat improvement of cosine decay
+over the anchor was measured entirely on the development partition, and no sealed
+measurement of the anchor exists to difference against &mdash; so the improvement
+itself stays exploratory by construction, while the sealed level, 1.56628 nats, is
+confirmed. The full run-by-run ledger:</p>
+
+<!--LEDGER-->
+
+<p>Headroom at the incumbent, against cross-entropy&rsquo;s true-but-unreachable lower
+bound of zero, is <span data-math="h = 1.519319 / 0.0149525 \approx 101.609697"></span>
+floors &mdash; &ldquo;not arithmetically excluded,&rdquo; and nothing stronger. The
+detection-limit law does no work in this study; the floor did all of it.</p>
