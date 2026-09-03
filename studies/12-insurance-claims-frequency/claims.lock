@@ -113,6 +113,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "brier_balanced",
         "brier_ratio_doctrine"
       ],
       "strength": "exploratory"
@@ -191,6 +192,13 @@
       "note": "minimum_delta / v1_ledger_spread",
       "precision": 4,
       "value": 0.9671
+    },
+    "brier_balanced": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0004 reference_brier, the class_weight=balanced anchor",
+      "precision": 6,
+      "value": 0.240641
     },
     "brier_ratio_doctrine": {
       "art": "derived",
