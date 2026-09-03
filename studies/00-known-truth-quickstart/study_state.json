@@ -184,6 +184,28 @@
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a2505303497ddbacd/studies/00-known-truth-quickstart/data/prepared/prepared.csv",
     "sha256": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453"
   },
+  "replications": {
+    "E0003": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": false
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0003@20260903T053202Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-03T05:32:02.216655Z",
+          "tolerance": 0.00745212
+        }
+      ],
+      "track": "primary"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "00-known-truth-quickstart",
@@ -207,5 +229,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T05:31:50.815782Z"
+  "updated_at": "2026-09-03T05:33:02.924341Z"
 }
