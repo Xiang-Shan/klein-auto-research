@@ -83,7 +83,8 @@
         "gap_465_nearest",
         "hubble_k_24",
         "k_free",
-        "k_origin"
+        "k_origin",
+        "p1_tolerance"
       ],
       "strength": "exploratory"
     },
@@ -258,6 +259,13 @@
       "note": "OLS through the origin, 24 objects (E0002)",
       "precision": 6,
       "value": 423.937323
+    },
+    "p1_tolerance": {
+      "art": "contract",
+      "claim": "C1",
+      "note": "the tolerance registered for P1 in study.yaml",
+      "precision": 0,
+      "value": 10
     }
   },
   "study_id": "10-hubble-1929-replication"
