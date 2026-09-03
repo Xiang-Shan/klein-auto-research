@@ -356,3 +356,39 @@ too aggressive early, which would change the anchor recipe for everything after.
   cosine schedule — and it settles which reading is right. It carries no registered
   prediction (P2 is already adjudicated against the anchor and is not re-opened); it is
   exploratory evidence that either qualifies or strengthens the P2 finding.
+- 2026-09-03 — **E0007 (warmup 200 on top of cosine) — discard, val_loss 1.520867,
+  0.001548 nats from the E0006 incumbent — about a tenth of a floor.** The reading is
+  the interesting one: warmup is not intrinsically expensive at this budget, and
+  E0002's −1.04 floors was an artifact of pairing warmup with a CONSTANT learning rate,
+  where the steps spent below the target rate are never compensated by a later
+  reduction. Once warmup is paired with the decay it is normally used with, it is
+  neither a cost nor a benefit — it is inside the floor. The P2 verdict stands exactly
+  as registered (warmup did not improve the anchor by a floor) and is now qualified
+  rather than merely repeated: the honest advice is "decay; warmup is optional", not
+  "warmup is harmful".
+
+### Phase adaptive-2 summary (for the boundary acknowledgement)
+
+Six experiments, 6 of 6 slots used, one keep.
+
+| Run | One idea | val_loss | `delta_in_floors` | Disposition | Prediction |
+|---|---|---|---|---|---|
+| E0002 | 200-step linear warmup (constant LR) | 1.584747 | −1.0431 | discard | P2 refuted |
+| E0003 | weight tying | 1.739149 | −11.3693 | discard | P3 refuted |
+| E0004 | dropout 0.1 | 1.639808 | −4.7255 | discard | P4 supported |
+| E0005 | width 128 → 256 | 1.576240 | −0.4742 | discard | P5 refuted |
+| E0006 | cosine decay to 10% of peak | 1.519319 | +3.3326 | **keep** | — (exploratory) |
+| E0007 | warmup 200 on top of cosine | 1.520867 | +3.2291 | discard | — (exploratory) |
+
+- **Incumbent:** E0006, val_loss 1.519319 nats (2.191912 bits/char), 0.052855 nats
+  better than the E0001 anchor — 3.5 times the measured keep bar.
+- **Searcher vs checker:** `verifier_gap` = 0.00000000 on all seven runs. The two
+  independent implementations have never disagreed by a printable amount, against a
+  declared tolerance of 0.01 nats.
+- **Guardrails:** `steps` = 2000 and `eval_context` = 128 on every run, read by the
+  checker out of the checkpoint. No candidate bought anything with extra compute.
+- **Headroom:** h = 1.519319 / 0.0149525 ≈ 102 floors against an unreachable
+  information-theoretic bound — "not excluded", and nothing more.
+- **Budget:** the six runs cost about four minutes of wall clock in total; the phase's
+  9000-second budget was never the binding constraint. The BUDGET in this study is
+  2000 steps, and it bound every candidate equally.
