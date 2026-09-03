@@ -60,7 +60,8 @@
       "evidence": [],
       "numbers": [
         "control_objective",
-        "reported_e0008"
+        "reported_e0008",
+        "verified_e0008"
       ],
       "strength": "exploratory"
     },
@@ -245,6 +246,13 @@
       "note": "E0009, the sealed cell of n_small: the proven maximum, matched_external true",
       "precision": 0,
       "value": 22
+    },
+    "verified_e0008": {
+      "art": "crash",
+      "claim": "C3",
+      "note": "E0008 manifest.metric.verified \u2014 what the checker measured from the artifact's bytes",
+      "precision": 1,
+      "value": 20.0
     }
   },
   "study_id": "11-exact-verifier-construction"
