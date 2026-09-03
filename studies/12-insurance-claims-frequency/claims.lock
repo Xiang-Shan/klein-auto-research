@@ -116,7 +116,8 @@
         "brier_balanced",
         "brier_doctrine",
         "brier_ratio_doctrine",
-        "doctrine_auc_cost"
+        "doctrine_auc_cost",
+        "doctrine_in_floors"
       ],
       "strength": "exploratory"
     },
@@ -222,6 +223,13 @@
       "note": "E0004 delta_vs_reference, absolute",
       "precision": 6,
       "value": 0.001465
+    },
+    "doctrine_in_floors": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0004 delta_in_floors, absolute",
+      "precision": 4,
+      "value": 0.039
     },
     "keep_lift": {
       "art": "verdicts",
