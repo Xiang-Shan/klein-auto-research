@@ -176,6 +176,13 @@
       "precision": 4,
       "value": 0.0225
     },
+    "minimum_delta": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "the registered keep bar, paired-bootstrap k=20",
+      "precision": 7,
+      "value": 0.0375805
+    },
     "residual_margin": {
       "art": "derived",
       "claim": "C2",
