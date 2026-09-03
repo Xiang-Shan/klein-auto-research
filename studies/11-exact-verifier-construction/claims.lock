@@ -31,7 +31,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "small_20k"
+      ],
       "strength": "exploratory"
     },
     "C2": {
@@ -154,6 +156,13 @@
       "note": "the n_small instance's grid size, printed by every run of that track as grid_n",
       "precision": 0,
       "value": 11
+    },
+    "small_20k": {
+      "art": "results",
+      "claim": "C1",
+      "note": "E0009 aside, the verifier's number for E0002: n = 11 at the smallest budget",
+      "precision": 0,
+      "value": 20
     }
   },
   "study_id": "11-exact-verifier-construction"
