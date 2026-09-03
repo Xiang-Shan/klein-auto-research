@@ -101,12 +101,12 @@
       "ok": true
     },
     {
-      "message": "[WARN] findings.md uses words the 'insurance' profile bans: line 77: recorded lift of 0.001425 is 0.0379 of this study's floor.; line 92: | P8 | manual: the v1 sweep's lift is under the measured floor | 0.0379 floors | **supported** | sweep:paired_bootstrap,; line 135: pre-committed to saying so.** P3's lift is 0.035956. Against the bar declared at Phase 0 \u2014 see the profile's \u00a77 (the referee checks the same list)",
+      "message": "[WARN] findings.md uses words the 'insurance' profile bans: line 81: recorded AUC lift of 0.001425 is an improvement of 0.0379 floors against this study's bar.; line 96: | P8 | manual: the v1 sweep's AUC lift is under the measured floor | 0.0379 floors | **supported** | sweep:paired_bootst; line 139: pre-committed to saying so.** P3's paired AUC lift is 0.035956. Against the bar declared at Phase 0 \u2014 see the profile's \u00a77 (the referee checks the same list)",
       "name": "profile vocabulary",
       "ok": true
     },
     {
-      "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
+      "message": "PASS-WITH-NOTES \u2014 klein-referee (Claude Code subagent, model: claude-opus-5[1m]), independent-of-experimenter: no",
       "name": "referee gate",
       "ok": true
     },
@@ -166,30 +166,37 @@
       "ok": true
     },
     {
-      "message": "all 146 scanned numerals trace to 23 pinned source(s)",
+      "message": "all 150 scanned numerals trace to 23 pinned source(s)",
       "name": "findings numbers",
       "ok": true
     },
     {
-      "message": "2 figure(s) re-render byte-identically",
+      "message": "all 144 rendered numerals trace to a pinned source",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
+      "message": "7 figure(s) re-render byte-identically",
       "name": "figure re-render",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "99bf32ed1ffcbc664f9da4a2c081aa96d0f97684",
+  "git_head": "e7b642b82d68ad2da780b963a38a7bb94e4ed19f",
   "inputs": {
     "aux_metrics.tsv": "409fedb832b400684cc1e4b466c515f12c44848ad6ed8e39af796d0664b5f062",
-    "claims.lock": "d705dfd8f81188cb48979e231b7682d8a9f057fdfdd7e0ddf7e2683d8e5332c1",
-    "events.jsonl": "236d33a0658ab07bba2cd85db531e89950a4d059cd33fd8bc1128f67dfad8592",
-    "findings.md": "927dbe6db6dbea55b01b6afd6e1d78e146148f4b1458d6478f2df9afc02bfacc",
+    "claims.lock": "9f3088505bf5f48515360e02afb28b4fc266fe55696df55973b50f41a69b01d2",
+    "events.jsonl": "0e43c98c79f5d357a1832f8400ac556592bed988ce3547ea4c16eb342c7c5ba5",
+    "findings.md": "203c2551a2364d93dfffff4b13041dd9cf6c6d5634a3470362ab6f5604f2170d",
     "playbook.md": "45b423b0d948024bb847cdf62850e9e107de123c229627671cdb78f034bb6575",
-    "program.md": "899d2dbcb75f12b46a2a84a4eb6dff542c504f538f7a9c1db0d748e4718a6b10",
+    "program.md": "7639635e73949578e9f3365646bdb271c9538b489f9ff902aecea36ea93fe982",
+    "referee_report.md": "98931ace51ab6a9f39338a96110ef85860e9cb4dfffb6413cf4fe844faccd726",
+    "report/index.html": "69787e6bff3094f0265471e551ee7399a7923dc88251cece4901ce4b0fc6dcd4",
     "results.tsv": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38",
     "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0",
-    "study_state.json": "845f19e1a750faf87a4145737e6d1d7a2f652beca399bdd3b314ee46432cb5e9"
+    "study_state.json": "accc89b880311c3eaeafb0d25d2ed99e384163f9ad6429bba9d3ed354ec7478c"
   },
-  "klein_commit": "99bf32ed1ffcbc664f9da4a2c081aa96d0f97684",
+  "klein_commit": "e7b642b82d68ad2da780b963a38a7bb94e4ed19f",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "561bb3798d1b695a8acc91f330cab9634163adb98f187a640b2e8211f55a956a",
@@ -202,11 +209,11 @@
   "single_source_claims": [],
   "study": "12-insurance-claims-frequency",
   "summary": {
-    "checks": 35,
+    "checks": 36,
     "failed": 0,
-    "warned": 2
+    "warned": 1
   },
-  "timestamp": "2026-09-03T12:08:06.943380Z",
+  "timestamp": "2026-09-03T13:09:25.349858Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
