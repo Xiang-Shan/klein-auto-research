@@ -42,17 +42,17 @@ from kleinlib.torch_device import pick_device
 
 # --- the candidate: the whole per-experiment diff surface -------------------
 RECIPE: dict[str, object] = {
-    "name": "cosine_warmup200",
-    # E0007: ONE change from the E0006 incumbent — a 200-step linear warmup
-    # added to the cosine decay, the pairing warmup is normally used in. Tests
-    # whether E0002's verdict on warmup was a verdict on warmup or an artifact
-    # of pairing it with a constant learning rate. No registered prediction.
+    "name": "cosine",
+    # E0006: ONE change from the anchor — the learning rate decays on a cosine
+    # from 3e-3 to 10% of it over the 2000 steps, instead of staying constant.
+    # Same parameters, same tokens, same arithmetic per step: only WHEN the
+    # learning rate is spent changes. No registered prediction; exploratory.
     "seed": 20260903,
     "max_steps": 2000,      # the BUDGET. The verifier reads it back out of the
                             # checkpoint and the `steps` guardrail pins it.
     "batch_size": 32,
     "lr": 3.0e-3,
-    "warmup_steps": 200,
+    "warmup_steps": 0,
     "schedule": "cosine",   # "constant" | "cosine"
     "lr_final_frac": 0.1,
     "weight_decay": 0.1,

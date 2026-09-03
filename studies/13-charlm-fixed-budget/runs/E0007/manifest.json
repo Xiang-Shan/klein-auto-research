@@ -1,0 +1,136 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2780,
+      "committed": true,
+      "sha256": "d3dc7cc5df93a745200074319b2999a568dfc9737af60723dd42ec2aa9b40fcc"
+    },
+    "models/E0007.pt": {
+      "availability": "local",
+      "bytes": 3308662,
+      "committed": false,
+      "role": "declared",
+      "sha256": "88fc584a3b59e864093f063b767671dd938b5e1a42529b0859aa7af0ec6acf4a"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 744,
+      "committed": true,
+      "sha256": "d06778d7325caae2a83a982fbc3bb493735dea9a842247ff3c4db1000aca3fc1"
+    }
+  },
+  "base_commit": "a0e80bd568e9724752f17aba2d793bfd0b11cf4e",
+  "candidate_commit": "05c4b0afb669d05a10fcacd62da5135a695ef4c7",
+  "code_patch_hash": "3235e7ca7d0c1752174b2fbba507f5713379f6a910d3cc75dd3d1b0962d9b846",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 1.519319 by minimum_delta=0.0149525",
+  "description": "E0007: 200-step linear warmup added to the E0006 cosine incumbent \u2014 does warmup pay once it is paired with the decay it is normally used with? No registered prediction, exploratory; did not improve track frontier 1.519319 by minimum_delta=0.0149525",
+  "disposition": "discard",
+  "ended_at": "2026-09-03T12:32:51.094243Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "801aec6cd07b138f979b0419a61af64a80ec83b15b6d90f0697546eb9cd370fc",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "000400d6694c1c22559eecb23175961266decc14f6a9e73be2eed03dd6dad354",
+    "split_partition": "0f602fcef2e45e7bdebf1a20281a4141c806c4abdaf943df9e46307d02c5ec50"
+  },
+  "incumbent": "E0006",
+  "max_run_seconds": 900.0,
+  "metric": {
+    "reported": 1.520867,
+    "verified": 1.520867
+  },
+  "metric_goal": "lower",
+  "metric_name": "val_loss",
+  "metrics": {
+    "anchor_mean": 1.56915,
+    "anchor_z": 6.0132,
+    "bpc": 2.194148,
+    "cfg_batch_size": 32.0,
+    "cfg_dropout": 0.0,
+    "cfg_lr": 0.003,
+    "cfg_n_embd": 128.0,
+    "cfg_n_head": 4.0,
+    "cfg_n_layer": 4.0,
+    "cfg_seed": 20260903.0,
+    "cfg_tie_weights": 0.0,
+    "cfg_warmup_steps": 200.0,
+    "delta_in_floors": 3.2291,
+    "delta_vs_anchor": 0.048283,
+    "eval_chars": 111616.0,
+    "eval_context": 128.0,
+    "eval_windows": 871.0,
+    "final_train_batch_loss": 1.33511,
+    "fit_seconds": 51.284,
+    "n_params": 824320.0,
+    "n_partition_chars": 111616.0,
+    "n_scored_chars": 111488.0,
+    "n_val_windows": 871.0,
+    "primary_metric": 1.520867,
+    "recipe_cosine": 1.0,
+    "recipe_dropout": 0.0,
+    "recipe_lr": 0.003,
+    "recipe_lr_final_frac": 0.1,
+    "recipe_n_embd": 128.0,
+    "recipe_seed": 20260903.0,
+    "recipe_tie_weights": 0.0,
+    "recipe_warmup_steps": 200.0,
+    "reported_val_loss": 1.520867,
+    "runner_exit_code": 0.0,
+    "steps": 2000.0,
+    "total_seconds": 0.4,
+    "train_bpc": 2.194148,
+    "train_chars": 891904.0,
+    "train_steps": 2000.0,
+    "verifier_gap": 0.0,
+    "wall_seconds": 0.378851
+  },
+  "phase": "adaptive-2",
+  "phase_budget_seconds": 9000.0,
+  "phase_experiment_limit": 6,
+  "predictions_requested": [],
+  "primary_metric": 1.520867,
+  "schema_version": 3,
+  "started_at": "2026-09-03T12:31:55.372859Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T12:32:53.362587Z",
+    "status": "pending"
+  },
+  "verifier": {
+    "artifact": "models/E0007.pt",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "3859f2f3b8e05ee9720e375c15c71c79810f64f5d309b11eae82df30b5959ec9"
+    },
+    "timed_out": false,
+    "wall_seconds": 2.229636959033087
+  },
+  "wall_seconds": 55.72098529222421
+}
