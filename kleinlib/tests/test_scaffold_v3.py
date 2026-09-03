@@ -265,3 +265,34 @@ def test_the_scaffold_rejects_unknown_axis_values(tmp_path: Path) -> None:
             build(tmp_path / str(sorted(kwargs)), schema_version=3, **kwargs)
     with pytest.raises(ValueError, match="schema_version must be 2 or 3"):
         build(tmp_path / "bad-version", schema_version=4)
+
+
+@pytest.mark.parametrize("kind", sorted(ENTRYPOINT_BY_KIND))
+def test_preflight_checks_the_entrypoint_the_kind_named(tmp_path: Path, kind: str) -> None:
+    """Regression: preflight must audit the DECLARED entrypoint, not `train.py`.
+
+    `klein new --kind replicate` scaffolds `analyze.py` and records it in
+    `entrypoint`; the preflight syntax/stub check used to open the literal path
+    `train.py`, so every non-`predict` schema-3 study reported
+    `[FAIL] train.py: missing` while the file `run-one` actually executes went
+    unchecked. `contract.mutable_surface` is the single source of truth.
+    """
+    from kleinlib.checks import preflight_checks
+
+    study = build(
+        tmp_path / kind,
+        schema_version=3,
+        kind=kind,
+        modality="tabular",
+        profile="generic",
+        audience="researchers",
+    )
+    expected = ENTRYPOINT_BY_KIND[kind]
+    named = {c.name: c for c in preflight_checks(study, require_branch=False)}
+    assert expected in named, sorted(named)
+    assert named[expected].ok, named[expected].message
+    # The scaffold still carries its stubs, so the check is a [WARN], not a pass
+    # that hides an unfilled entrypoint.
+    assert "scaffold stubs remain" in named[expected].message
+    if expected != "train.py":
+        assert "train.py" not in named
