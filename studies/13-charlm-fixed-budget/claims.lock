@@ -54,6 +54,7 @@
       "numbers": [
         "curve_anchor_end",
         "curve_cosine_end",
+        "dropout_rate",
         "e0001_anchor_z",
         "e0002_floors",
         "e0003_floors",
@@ -282,6 +283,13 @@
       "note": "the E0001 checkpoint re-scored under KLEIN_DEVICE=cpu and =mps; identical at the printed resolution",
       "precision": 6,
       "value": 1.572174
+    },
+    "dropout_rate": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "the dropout rate E0004 tried, as train.py printed it",
+      "precision": 4,
+      "value": 0.1
     },
     "e0001_anchor_z": {
       "art": "frontier",
