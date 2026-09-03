@@ -142,7 +142,8 @@
       "evidence": [],
       "numbers": [
         "anchor_n_params",
-        "e0003_anchor_z"
+        "e0003_anchor_z",
+        "tying_params_removed"
       ],
       "strength": "exploratory"
     },
@@ -386,6 +387,13 @@
       "note": "the matched-compute guardrail, read by the checker out of every checkpoint",
       "precision": 0,
       "value": 2000
+    },
+    "tying_params_removed": {
+      "art": "summary",
+      "claim": "C6",
+      "note": "parameters weight tying removes",
+      "precision": 0,
+      "value": 8320
     },
     "verifier_tolerance": {
       "art": "contract",
