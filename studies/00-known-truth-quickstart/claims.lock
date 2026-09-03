@@ -48,7 +48,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "interaction_delta_floors"
+      ],
       "strength": "exploratory"
     },
     "C3": {
@@ -141,6 +143,13 @@
       "note": "the development partition's Bayes AUC, printed by every development run",
       "precision": 6,
       "value": 0.884116
+    },
+    "interaction_delta_floors": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0002 delta_in_floors over the raw-feature reference, same rows",
+      "precision": 4,
+      "value": 3.9699
     },
     "sealed_auc": {
       "art": "aux",
