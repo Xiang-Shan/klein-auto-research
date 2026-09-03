@@ -28,9 +28,9 @@
       "experiment": null
     },
     "n_small": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-03T07:49:59.681978Z",
+      "count": 1,
+      "experiment": "E0009"
     }
   },
   "fingerprints": {
@@ -96,7 +96,7 @@
       "note": "run-anyway: the door is closed by a theorem, not by a losing phase. The best known value at n = 11 is 22 and 22 is also the pigeonhole upper bound, so h = 0 and a keep would have to beat a theorem. This study is not looking for an improvement; it is looking for an object that ATTAINS the known maximum, and for a record of who certified it. Every run it files is therefore a discard by construction, and matched_external: true is the outcome that matters."
     }
   },
-  "last_experiment": 8,
+  "last_experiment": 9,
   "overrides": [],
   "phase_acknowledgements": {
     "adaptive-1": {
@@ -239,6 +239,26 @@
       "note": "Both halves hold. On all seven honest runs the verifier's own claim_excess (claimed_objective minus the objective recomputed from the artifact's bytes) is 0.0. On E0008, where the searcher was made to report exactly ONE point more than the object it wrote, the notary refused the number: manifest.metric records reported 21.0 against verified 20.0, disposition crash, decision_reason 'verifier_disagreement: the run reported 21 but the verifier measured 20 (tolerance 0)'. The inflated value appears nowhere in results.tsv, which carries NA for E0008.",
       "recorded_at": "2026-09-03T07:48:13.815885Z",
       "source": "manual",
+      "verdict": "supported"
+    },
+    "P6": {
+      "evidence": [
+        "E0009"
+      ],
+      "explanation": "primary_metric 22 >= 22 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0009"
+          ],
+          "explanation": "primary_metric 22 >= 22 \u2192 supported",
+          "recorded_at": "2026-09-03T07:50:01.645735Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T07:50:01.645735Z",
+      "source": "run",
       "verdict": "supported"
     }
   },
@@ -391,5 +411,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:48:59.281478Z"
+  "updated_at": "2026-09-03T07:50:01.647745Z"
 }
