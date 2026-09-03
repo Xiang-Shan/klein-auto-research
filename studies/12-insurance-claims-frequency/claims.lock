@@ -138,7 +138,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "sealed_auc"
+      ],
       "strength": "exploratory"
     },
     "C8": {
@@ -263,6 +265,12 @@
       "note": "anchor_residual_margin",
       "precision": 6,
       "value": 0.000458
+    },
+    "sealed_auc": {
+      "art": "results",
+      "claim": "C7",
+      "precision": 6,
+      "value": 0.657739
     },
     "splines_in_floors": {
       "art": "verdicts",
