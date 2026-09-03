@@ -60,8 +60,15 @@ def run_logged(
     echo: bool = True,
     env_overrides: Mapping[str, str] | None = None,
     write_footer: bool = True,
+    append: bool = False,
 ) -> LoggedRun:
-    """Execute *command* once and return its real status (124 on timeout)."""
+    """Execute *command* once and return its real status (124 on timeout).
+
+    ``append`` keeps whatever the log already holds: one log file can then carry
+    two consecutive sections (``klein replicate`` writes its environment-setup
+    step before the run it is judged on). The default truncates, so a run log is
+    the log of that run alone.
+    """
     if timeout_seconds <= 0:
         raise ValueError("timeout must be greater than zero")
     if not command:
@@ -79,7 +86,7 @@ def run_logged(
     elif os.name == "nt":  # pragma: no cover - exercised by Windows smoke CI
         popen_kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     started = time.monotonic()
-    with log_path.open("w", encoding="utf-8", newline="") as log:
+    with log_path.open("a" if append else "w", encoding="utf-8", newline="") as log:
         process = subprocess.Popen(
             list(command),
             cwd=cwd,
