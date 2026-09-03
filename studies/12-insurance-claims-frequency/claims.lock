@@ -102,7 +102,8 @@
       "evidence": [],
       "numbers": [
         "keep_lift",
-        "splines_in_floors"
+        "splines_in_floors",
+        "tree_over_glm_in_floors"
       ],
       "strength": "exploratory"
     },
@@ -216,6 +217,13 @@
       "note": "E0002 lift in declared floors",
       "precision": 4,
       "value": 0.9568
+    },
+    "tree_over_glm_in_floors": {
+      "art": "verdicts",
+      "claim": "C4",
+      "note": "E0003 lift over the calibrated GLM in declared floors",
+      "precision": 4,
+      "value": 0.3714
     },
     "v1_ledger_spread": {
       "art": "derived",
