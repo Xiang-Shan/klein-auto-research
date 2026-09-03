@@ -114,6 +114,7 @@
       "evidence": [],
       "numbers": [
         "brier_balanced",
+        "brier_doctrine",
         "brier_ratio_doctrine"
       ],
       "strength": "exploratory"
@@ -199,6 +200,13 @@
       "note": "E0004 reference_brier, the class_weight=balanced anchor",
       "precision": 6,
       "value": 0.240641
+    },
+    "brier_doctrine": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0004 val_brier",
+      "precision": 6,
+      "value": 0.059337
     },
     "brier_ratio_doctrine": {
       "art": "derived",
