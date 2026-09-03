@@ -35,7 +35,8 @@
         "anchor_auc",
         "boosted_auc",
         "dev_ceiling",
-        "sealed_auc"
+        "sealed_auc",
+        "sealed_ceiling"
       ],
       "strength": "exploratory"
     },
@@ -130,6 +131,13 @@
       "note": "E0005 val_auc, the one sealed access",
       "precision": 6,
       "value": 0.880949
+    },
+    "sealed_ceiling": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "the sealed partition's own Bayes AUC, printed by E0005",
+      "precision": 6,
+      "value": 0.893469
     }
   },
   "study_id": "00-known-truth-quickstart"
