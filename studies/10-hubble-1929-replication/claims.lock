@@ -193,7 +193,8 @@
       "evidence": [],
       "numbers": [
         "coverage_sealed",
-        "nominal_level"
+        "nominal_level",
+        "p6_bar"
       ],
       "strength": "exploratory"
     },
@@ -349,6 +350,13 @@
       "note": "the tolerance registered for P1 in study.yaml",
       "precision": 0,
       "value": 10
+    },
+    "p6_bar": {
+      "art": "contract",
+      "claim": "C4",
+      "note": "the coverage bar registered for P6",
+      "precision": 2,
+      "value": 0.9
     }
   },
   "study_id": "10-hubble-1929-replication"
