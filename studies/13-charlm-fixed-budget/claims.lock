@@ -195,6 +195,13 @@
       "note": "standard deviation of the ten paired seed differences",
       "precision": 8,
       "value": 0.00747623
+    },
+    "verifier_tolerance": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "declared a priori at CONSULT; the checker-vs-searcher disagreement that is a crash",
+      "precision": 2,
+      "value": 0.01
     }
   },
   "study_id": "13-charlm-fixed-budget"
