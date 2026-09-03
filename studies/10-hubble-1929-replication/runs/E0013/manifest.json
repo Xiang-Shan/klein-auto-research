@@ -1,0 +1,102 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 7300,
+      "committed": true,
+      "sha256": "092fbfe0ba2e6d4e5520996efc87631cba0819c738534a2e3ea128222f90c493"
+    },
+    "runs/E0013/run.log": {
+      "availability": "recorded",
+      "bytes": 875,
+      "committed": true,
+      "sha256": "486f1ea7b367eb543796553dc4778b164f9b90fd776310e79b6bf1b2d3fdf746"
+    },
+    "tables/sealed_coverage_blockC.tsv": {
+      "availability": "recorded",
+      "bytes": 253,
+      "committed": true,
+      "role": "declared",
+      "sha256": "99aac71a3400c9036e24c943797e97a181515c6b00589ecab4981fa1394659ce"
+    }
+  },
+  "base_commit": "64fc4648fdddbe57f1c79813511e56f1c8549e53",
+  "candidate_commit": "f91c2987ec6ae6b752c2ec36a430f77b43a09b3d",
+  "code_patch_hash": "72b3bd15299c9d569d565bb7dde61ac9adb2c395f93a9135daefc6de3b3c7936",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed confirmation on the simulate track: coverage of the 95% percentile-bootstrap interval on fresh seed block C, 1000 replicates x 500 resamples; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:28:05.856286Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0013",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "106a725532097219283d5c3bf547d675af5a4b7227101b1d85a413cae0ccfd24"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "coverage",
+  "metrics": {
+    "bias": 0.417531559417057,
+    "development_coverage_block_b": 0.911,
+    "k_true": 450.0,
+    "mean_ci_width": 287.021258112542,
+    "mean_k_hat": 450.41753155941706,
+    "n_boot": 500.0,
+    "n_obs": 24.0,
+    "n_rep": 1000.0,
+    "nominal_level": 0.95,
+    "primary_metric": 0.925,
+    "rows": 1.0,
+    "runner_exit_code": 0.0,
+    "sealed_minus_development": 0.014000000000000012,
+    "sealed_seed_block_c": 20260905.0,
+    "seed_used": 20260905.0,
+    "shortfall_from_nominal": 0.02499999999999991,
+    "sigma": 232.91067,
+    "total_seconds": 0.1,
+    "wall_seconds": 0.106223
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 3,
+  "predictions": {
+    "P6": {
+      "explanation": "primary_metric 0.925 >= 0.9 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P6"
+  ],
+  "primary_metric": 0.925,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:28:05.025129Z",
+  "timed_out": false,
+  "track": "simulate",
+  "transaction": {
+    "ready_at": "2026-09-03T06:28:05.857179Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.8310565000865608
+}
