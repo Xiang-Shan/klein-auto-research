@@ -42,15 +42,16 @@ from kleinlib.torch_device import pick_device
 
 # --- the candidate: the whole per-experiment diff surface -------------------
 RECIPE: dict[str, object] = {
-    "name": "anchor",
-    # E0001: the identity anchor at a seed the Phase-0 floor sweep never used
-    # (the floor used 1-5), so "reproduces within fit noise" is a real test.
+    "name": "warmup200",
+    # E0002: ONE change from the anchor — a 200-step linear learning-rate
+    # warmup (10% of the budget), everything else identical, same seed.
+    # Adjudicates P2.
     "seed": 20260903,
     "max_steps": 2000,      # the BUDGET. The verifier reads it back out of the
                             # checkpoint and the `steps` guardrail pins it.
     "batch_size": 32,
     "lr": 3.0e-3,
-    "warmup_steps": 0,
+    "warmup_steps": 200,
     "weight_decay": 0.1,
     "beta1": 0.9,
     "beta2": 0.99,
