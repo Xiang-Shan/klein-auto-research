@@ -56,6 +56,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "doctrine_in_own_floors",
         "splines_in_own_floors",
         "splines_lift",
         "tree_in_own_floors"
@@ -258,6 +259,13 @@
       "note": "abs_in_declared_floors for E0004",
       "precision": 4,
       "value": 0.039
+    },
+    "doctrine_in_own_floors": {
+      "art": "verdicts",
+      "claim": "C10",
+      "note": "abs_in_own_pair_floors for E0004",
+      "precision": 4,
+      "value": 0.3229
     },
     "keep_lift": {
       "art": "verdicts",
