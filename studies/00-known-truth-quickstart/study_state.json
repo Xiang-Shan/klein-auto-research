@@ -68,9 +68,31 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "gap_in_floors 10.4555 > 1 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "gap_in_floors 10.4555 > 1 \u2192 supported",
+          "recorded_at": "2026-09-03T05:28:30.208493Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:28:30.208493Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a2505303497ddbacd/studies/00-known-truth-quickstart/data/prepared/prepared.csv",
     "sha256": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453"
@@ -98,5 +120,5 @@
       "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
     }
   },
-  "updated_at": "2026-09-03T05:27:26.058639Z"
+  "updated_at": "2026-09-03T05:28:30.209659Z"
 }

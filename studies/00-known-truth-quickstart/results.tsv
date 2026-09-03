@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	primary	0.806201	keep	9be94e607ef2dd881073a200493d588619536697	E0001 anchor: the raw-feature logistic identity anchor — how far is a single hyperplane from the known ceiling?; first valid result on this track

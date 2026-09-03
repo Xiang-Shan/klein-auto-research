@@ -1,0 +1,103 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 575,
+      "committed": true,
+      "sha256": "ba4c26d1c475daa3beedb43aaaeef369523dbf5d93ca35c11cf0b162eec7fede"
+    },
+    "models/best_primary_E0001_0.806201_f54e47905e2b.joblib": {
+      "availability": "local",
+      "bytes": 1889,
+      "committed": false,
+      "sha256": "a0eaa7c3bf86b5942a884a6c2410773f560551fe61dc930c9b25bed07f291eb0"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 290,
+      "committed": true,
+      "sha256": "93b373d5711d43de83b6d4cfa4733dd2beda8ce8976085e243e3dc27c2c49452"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 601,
+      "committed": true,
+      "sha256": "94f7351c739ee1483465af8f38b509eacb6a6cd7090580d801402741d811cea7"
+    }
+  },
+  "base_commit": "cd900b5b585da4840e718ac9148b73344c70666b",
+  "candidate_commit": "9be94e607ef2dd881073a200493d588619536697",
+  "code_patch_hash": "23dcb5ba989ab6c01439696f0695895b1fff075577b04a1f9506eee6ec669fc8",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "first valid result on this track",
+  "description": "E0001 anchor: the raw-feature logistic identity anchor \u2014 how far is a single hyperplane from the known ceiling?; first valid result on this track",
+  "disposition": "keep",
+  "ended_at": "2026-09-03T05:28:30.208194Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "26a99afdb3c6ccd330e2755fd7f885b05c6713cc9c5d6efd1c0c08d571964453",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "20e5ea3a0d642ffb7053d546967e64dc674f69fe62f2eed4f06ed841756f736d",
+    "split_partition": "f151f39a9b684013c01cefc8b68f72bf27de309f69f6a15c89029b95a1544122"
+  },
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "bayes_auc": 0.884116,
+    "gap_in_floors": 10.4555,
+    "gap_to_ideal": 0.077916,
+    "primary_metric": 0.806201,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 12000.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.38,
+    "val_brier": 0.13201,
+    "val_f1_at_best": 0.5882,
+    "val_lift_top10": 3.2676,
+    "val_logloss": 0.430974,
+    "val_pr_auc": 0.656348,
+    "val_rows": 4000.0,
+    "wall_seconds": 0.046441
+  },
+  "phase": "adaptive-1",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P1": {
+      "explanation": "gap_in_floors 10.4555 > 1 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P1"
+  ],
+  "primary_metric": 0.806201,
+  "schema_version": 3,
+  "started_at": "2026-09-03T05:28:29.330346Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-09-03T05:28:30.209219Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.8777140411548316
+}

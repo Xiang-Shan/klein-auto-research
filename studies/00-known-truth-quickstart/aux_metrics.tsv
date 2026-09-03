@@ -1,1 +1,16 @@
 experiment	metric	value
+E0001	val_auc	0.8062007637260208
+E0001	val_pr_auc	0.6563484477254352
+E0001	val_logloss	0.4309735905240429
+E0001	val_brier	0.13200960633730482
+E0001	val_lift_top10	3.267634854771784
+E0001	val_best_threshold	0.38
+E0001	val_f1_at_best	0.5881720430107527
+E0001	wall_seconds	0.04644131660461426
+E0001	min_proba_std	0.21659512805133624
+E0001	proba_range	0.9823696270434258
+E0001	proba_unique_values	4000
+E0001	model_path	models/best_primary_E0001_0.806201_f54e47905e2b.joblib
+E0001	bayes_auc	0.884116
+E0001	gap_to_ideal	0.077916
+E0001	gap_in_floors	10.4555
