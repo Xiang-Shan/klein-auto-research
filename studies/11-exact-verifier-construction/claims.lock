@@ -59,7 +59,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "control_objective"
+        "control_objective",
+        "reported_e0008"
       ],
       "strength": "exploratory"
     },
@@ -216,6 +217,13 @@
       "note": "greedy completions E0004 bought with the largest budget at n = 11",
       "precision": 0,
       "value": 19014
+    },
+    "reported_e0008": {
+      "art": "crash",
+      "claim": "C3",
+      "note": "E0008 manifest.metric.reported \u2014 what the searcher said about itself",
+      "precision": 1,
+      "value": 21.0
     },
     "small_200k": {
       "art": "results",
