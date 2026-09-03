@@ -472,3 +472,13 @@ This is the war story the study was told about (`references/war-stories.md`:
 "a study's only sealed access was spent by a crash before any data was read"),
 happening in the study that was warned. The rehearsal cost nothing and the seal
 survived.
+
+**A second, smaller trap the rehearsal exposed.** A passing dry-run WRITES the
+sealed cell's artifact — with development data in it, under the sealed cell's
+filename (`tables/sealed_table2_magnitudes.tsv`, 19 rehearsal rows). It is
+untracked and the sealed run would overwrite it, but leaving it in the tree
+risks a rehearsal by-product being hashed as evidence if anything about the
+ordering changed. It was deleted before the real run, so the bytes the notary
+hashes are the sealed run's own. Recorded because a reader building a sealed
+cell of their own will hit it: *a rehearsal that spends nothing can still leave
+something behind.*
