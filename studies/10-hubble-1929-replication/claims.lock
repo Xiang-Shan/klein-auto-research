@@ -229,6 +229,7 @@
       "evidence": [],
       "numbers": [
         "max_mag_deviation",
+        "n_outside_p9",
         "p9_tolerance"
       ],
       "strength": "exploratory"
@@ -375,6 +376,13 @@
       "note": "the modern Hubble constant, to the round figure this study compares against",
       "precision": 0,
       "value": 70
+    },
+    "n_outside_p9": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "objects outside P9's tolerance (E0003)",
+      "precision": 0,
+      "value": 3
     },
     "n_table1": {
       "art": "anchors",
