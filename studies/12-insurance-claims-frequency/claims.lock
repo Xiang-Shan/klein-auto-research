@@ -139,6 +139,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "dev_incumbent",
         "sealed_auc"
       ],
       "strength": "exploratory"
@@ -222,6 +223,13 @@
       "note": "E0004 reference_brier / val_brier",
       "precision": 3,
       "value": 4.055
+    },
+    "dev_incumbent": {
+      "art": "results",
+      "claim": "C7",
+      "note": "E0003 val_auc, the development incumbent",
+      "precision": 6,
+      "value": 0.664051
     },
     "dev_twin_share": {
       "art": "duplicates",
