@@ -21,8 +21,8 @@ related: [13-charlm-fixed-budget]
 > any of them ran — warmup, weight tying, dropout, width — and **not one of them
 > cleared the measured floor**; two of them cost multiple floors. The only improvement
 > came from the one lever that carried no prediction at all: when the learning rate is
-> spent. The sealed final tenth then came back materially harder than development, so
-> the study confirms a level and not a gap, and says so.
+> spent. The sealed final tenth then came back 3.140679 measured floors harder than
+> development, so the study confirms a level and not a gap, and says so.
 
 ## ① Research-question verdicts
 
@@ -51,9 +51,9 @@ on the checker's printed block. There was no post-hoc selection: P2–P5 were as
 E0002–E0005 in the order the contract lists them, one lever per run, and no prediction
 was reassigned, re-scoped or re-run. No family-wise correction is applied and none is
 claimed — each rule is a single pre-registered threshold in units of the measured
-floor. Read the family accordingly: the two largest effects (P3 at 11.3693 floors, P4
-at 4.7255 floors) are far outside any plausible multiplicity correction, while P5 at
-0.4742 floors sits inside the floor and would not survive one.
+floor. Read the family accordingly: the two largest effects (P3 at -11.3693 floors, P4
+at -4.7255 floors) are far outside any plausible multiplicity correction, while P5 at
+-0.4742 floors sits inside the floor and would not survive one.
 
 | P# | Statement | Rule | Observed | Verdict (ledger) | Evidence | Decision |
 |---|---|---|---|---|---|---|
@@ -103,7 +103,7 @@ for the first few hundred steps and separate only once the decay bites, ending a
 1.563815 (anchor) and 1.518369 (cosine) nats.
 
 **4. Warmup's verdict flipped when its partner was present.** E0002 put warmup on a
-CONSTANT learning rate and it cost 1.0431 floors. E0007 put the same warmup on the
+CONSTANT learning rate and it landed -1.0431 floors from the anchor. E0007 put the same warmup on the
 cosine schedule and it landed 0.103528 floors from the incumbent — inside the floor,
 neither cost nor benefit. The registered P2 stands exactly as adjudicated, but the
 honest advice is "decay, and warmup is then optional", not "warmup is harmful". This is
@@ -192,7 +192,7 @@ means only that a pre-registered, measured bar was cleared.
 - `xiong2020` (ICML 2020) predicted the P2 result and for the right reason: a Pre-LN
   stack does not need warmup for stability. This study adds the part the paper does not
   address — at a fixed STEP budget, warmup on a constant learning rate is not merely
-  unnecessary but costly (−1.0431 floors), because the steps spent below the target
+  unnecessary but costly (-1.0431 floors), because the steps spent below the target
   rate are never given back; paired with decay it is free again (0.103528 floors from
   the incumbent).
 - `press2017` (EACL 2017) is the clearest miss. Its result is real at word-level
