@@ -13,6 +13,8 @@ import json
 import urllib.request
 from pathlib import Path
 
+import pytest
+
 from kleinlib import cli_doctor, doctor
 
 # --------------------------------------------------------------------------
@@ -195,6 +197,9 @@ def test_probe_data_hub_set_without_loader_module_is_still_ok(monkeypatch, tmp_p
 
 
 def test_probe_device_respects_klein_device_override(monkeypatch) -> None:
+    # Without torch the probe reports "torch not installed" and never reads the
+    # override; the core CI job installs only the encoders extra.
+    pytest.importorskip("torch")
     monkeypatch.setenv("KLEIN_DEVICE", "cpu")
     check = doctor._probe_device()
     assert check["ok"] is True
