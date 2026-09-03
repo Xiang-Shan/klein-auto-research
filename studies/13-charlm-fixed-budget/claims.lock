@@ -48,7 +48,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "e0002_floors"
+        "e0002_floors",
+        "e0003_floors"
       ],
       "strength": "exploratory"
     },
@@ -176,6 +177,13 @@
       "note": "warmup on a constant learning rate, against the anchor's five-seed mean",
       "precision": 4,
       "value": -1.0431
+    },
+    "e0003_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "weight tying, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": -11.3693
     },
     "e0006_val_loss": {
       "art": "frontier",
