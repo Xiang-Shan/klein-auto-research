@@ -32,6 +32,10 @@
       "path": "tables/two_parameter_fits.tsv",
       "sha256": "cfb6bd97156190415de5b396e6d7f5369c5819e81453e6b3df1b064fba8bf6a8"
     },
+    "floor_sidecar": {
+      "path": "sweeps/coverage_floor.sidecar.tsv",
+      "sha256": "a20c005975fb7b996a1c0333b27f2e8ce08991322027c323de0318ece72e6676"
+    },
     "groups": {
       "path": "tables/nine_group_inputs.tsv",
       "sha256": "6cf66ea4f4386d6f969220cfc0586dff7b62041ca0f749db9894ed05c3dbabc3"
