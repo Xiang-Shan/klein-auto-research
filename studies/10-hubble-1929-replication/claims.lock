@@ -215,7 +215,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "anchor_max_deviation"
+      ],
       "strength": "exploratory"
     },
     "C7": {
@@ -250,6 +252,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "anchor_max_deviation": {
+      "art": "anchors",
+      "claim": "C6",
+      "note": "largest absolute deviation across the four identity anchors (E0001)",
+      "precision": 6,
+      "value": 0.0
+    },
     "ci_high": {
       "art": "boot",
       "claim": "C3",
