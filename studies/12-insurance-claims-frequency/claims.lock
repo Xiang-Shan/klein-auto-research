@@ -43,7 +43,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "anchor_residual_glm"
+      ],
       "strength": "exploratory"
     },
     "C10": {
@@ -141,6 +143,14 @@
   "klein_version": "2.0.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "anchor_residual_glm": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0001 anchor_gap, absolute",
+      "precision": 6,
+      "value": 0.011322
+    }
+  },
   "study_id": "12-insurance-claims-frequency"
 }
