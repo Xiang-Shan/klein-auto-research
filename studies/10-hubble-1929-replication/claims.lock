@@ -8,6 +8,10 @@
       "path": "aux_metrics.tsv",
       "sha256": "092fbfe0ba2e6d4e5520996efc87631cba0819c738534a2e3ea128222f90c493"
     },
+    "boot": {
+      "path": "tables/bootstrap_k.tsv",
+      "sha256": "6d2d767236bed00518910255408192fcdf86f313f3b008a33dea2e8cd07fe60b"
+    },
     "contract": {
       "path": "study.yaml",
       "sha256": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627"
