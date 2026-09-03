@@ -3,9 +3,14 @@
     "consult": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T07:06:43.452972Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T07:11:46.287520Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "a9d70a033e7c7499162feac858b74e653ff0550a87ae52ca9f63073a830b49b3",
     "research_plan.md": "3361267962f8090795bb42dcc865d47784a471eaa98c7729a187783d6999ef7e",
     "study.yaml": "85b788b9f465ceaecdb2b65f774f27a46a37a028552632c6a76586c142be540b"
   },
@@ -24,8 +29,11 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    "data": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d",
+    "split": {
+      "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
+      "policy": "723f4bb38b448013ce9544a51ced16900f233f96872deb6a9172831e66379055"
+    }
   },
   "gates": {
     "consult": {
@@ -40,9 +48,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T07:11:46.287520Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "a9d70a033e7c7499162feac858b74e653ff0550a87ae52ca9f63073a830b49b3"
+      },
+      "note": "delegated ack; modality none: the verifier card replaces the leakage checklist, controls frozen in the hashed instance file",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -54,11 +66,11 @@
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
-    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7fd1bb40fc17104b/studies/11-exact-verifier-construction/data/prepared/prepared.csv",
-    "sha256": null
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7fd1bb40fc17104b/studies/11-exact-verifier-construction/data/prepared/instances.json",
+    "sha256": "cc5e77bf1ba09e49f99418ba55070dd9f683816f8ab18e839625964ac4b1797d"
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:06:43.453809Z"
+  "updated_at": "2026-09-03T07:11:47.182678Z"
 }
