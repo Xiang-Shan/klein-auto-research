@@ -207,9 +207,9 @@ whether a number can be *recomputed*, not about whether it was *right*. That the
 modern 70 refutes him: the two are separated by a distance-scale recalibration
 (**[C5]**, `ref:sandage1958`), not by an error in his velocities. That the
 coverage number describes real data: **[C4]** is scoped `in-silico` and says so
-wherever it is quoted. And nothing here is priced — this study registered no
-`materiality:` block, so "actionable" would mean only that a registered bar was
-cleared.
+wherever it is quoted. And nothing here is priced: this study registered no
+pricing block, and no claim asserts value of any kind beyond the registered bars
+it cleared.
 
 ## ⑥ Literature tie-back
 

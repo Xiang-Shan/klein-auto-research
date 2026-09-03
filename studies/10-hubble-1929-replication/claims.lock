@@ -304,7 +304,10 @@
       "evidence": [
         "E0012",
         "art:sealed_modern",
-        "ref:sandage1958"
+        "ref:sandage1958",
+        "E0002",
+        "rep:E0002@20260903T063133Z",
+        "art:fits"
       ],
       "numbers": [
         "estimate_over_modern",
