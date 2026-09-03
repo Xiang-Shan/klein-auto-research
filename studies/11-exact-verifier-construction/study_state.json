@@ -96,7 +96,7 @@
       "note": "run-anyway: the door is closed by a theorem, not by a losing phase. The best known value at n = 11 is 22 and 22 is also the pigeonhole upper bound, so h = 0 and a keep would have to beat a theorem. This study is not looking for an improvement; it is looking for an object that ATTAINS the known maximum, and for a record of who certified it. Every run it files is therefore a discard by construction, and matched_external: true is the outcome that matters."
     }
   },
-  "last_experiment": 6,
+  "last_experiment": 7,
   "overrides": [],
   "phase_acknowledgements": {},
   "predictions": {
@@ -119,6 +119,26 @@
       "recorded_at": "2026-09-03T07:44:35.255028Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P2": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "primary_metric 54 < 62 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "primary_metric 54 < 62 \u2192 supported",
+          "recorded_at": "2026-09-03T07:46:06.909426Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T07:46:06.909426Z",
+      "source": "run",
+      "verdict": "supported"
     },
     "P3": {
       "evidence": [
@@ -148,5 +168,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:45:51.175748Z"
+  "updated_at": "2026-09-03T07:46:06.911703Z"
 }
