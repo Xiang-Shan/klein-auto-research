@@ -166,7 +166,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] convergent evidence absent \u2014 C3 is confirmed on run \u2014 a confirmed claim cites at least two of: a development run (E####), a sealed final test, a replication (rep:), a re-verification (verify:)",
+      "message": "2 confirmed claim(s) cite two or more evidence kinds",
       "name": "convergent evidence",
       "ok": true
     },
@@ -182,10 +182,10 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "ac1d1bf335feb13d5e6165dc49e8e9e5b56eec0d",
+  "git_head": "47391c3fe78bfe14c30cce31c89189cc1e39a083",
   "inputs": {
     "aux_metrics.tsv": "2f2487c39a506a06912067ab5ff1dab003d88b8c605eee74ba614c525cf1d8e0",
-    "claims.lock": "df300abce9e1ebecc5bcf0787ac10b3fef1376b9e81262ba65f062d13aaf3d04",
+    "claims.lock": "5a86e347f2b4141400d629875eab51ec89f2842ac1a80352e536db5c58987e23",
     "events.jsonl": "f58f5a34304566500613485b774f5ce505e2a23a48556d09b2b7d525ec591513",
     "findings.md": "c3905f202a74e81d4134c14b8a8caf03e8dde48e2ebb1dd6606fa572145408d6",
     "playbook.md": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3",
@@ -194,7 +194,7 @@
     "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3",
     "study_state.json": "d8dceb6d3669246a5e5497bce8e03612cc4a25efbc6418e5a3dcc25c53773a03"
   },
-  "klein_commit": "ac1d1bf335feb13d5e6165dc49e8e9e5b56eec0d",
+  "klein_commit": "47391c3fe78bfe14c30cce31c89189cc1e39a083",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "a18e2256c80b30a203cb2856bddb6dddbfdeddb12a9b23c67f51b3d84454c900",
@@ -209,16 +209,14 @@
     "E0010": "ba1f70d1dbbf2b429cc34524db8118b38c048bcc1a7ef841939de6f52ef5bd2e"
   },
   "schema": 3,
-  "single_source_claims": [
-    "C3"
-  ],
+  "single_source_claims": [],
   "study": "11-exact-verifier-construction",
   "summary": {
     "checks": 36,
     "failed": 0,
-    "warned": 4
+    "warned": 3
   },
-  "timestamp": "2026-09-03T08:06:13.030653Z",
+  "timestamp": "2026-09-03T08:06:31.518267Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
