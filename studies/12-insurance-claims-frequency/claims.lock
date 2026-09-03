@@ -164,6 +164,7 @@
       "numbers": [
         "marginal_std",
         "paired_std_far",
+        "paired_std_near",
         "paired_std_ratio"
       ],
       "strength": "exploratory"
@@ -285,6 +286,12 @@
       "claim": "C9",
       "precision": 6,
       "value": 0.013942
+    },
+    "paired_std_near": {
+      "art": "floors",
+      "claim": "C9",
+      "precision": 6,
+      "value": 0.001276
     },
     "paired_std_ratio": {
       "art": "derived",
