@@ -346,3 +346,43 @@ Three things to carry into synthesis:
 
 **Phase adaptive-3 acknowledged** with `klein gate record phase --phase
 adaptive-3 --acknowledged-by lead-agent` (ack delegated by the lead).
+
+
+### Phase adaptive-4 slate
+
+Playbook re-read. The estimate track has produced an interval — [316.6, 603.7]
+— that the study is about to lean on: P4's sealed comparison against the modern
+H₀ reads its lower bound, and findings will quote its width against Hubble's
+±50. Before any of that, the interval itself has to be audited. That is what
+this phase is for, and it is the reason the study carries a `simulate` track at
+all: **an interval nobody has checked is a decoration.**
+
+| # | Candidate (one cell, one transaction) | Nov | Test | Info | Σ |
+|---|---|---|---|---|---|
+| 1 | **Coverage of the percentile bootstrap** under the declared DGP at Table 1's own 24 design points, seed block B — the interval E0006 actually reports. | 3 | 3 | 3 | 9 |
+| 2 | **Coverage of the analytic (normal-theory) interval** on the same replicates — the comparison that says whether any under-coverage is the bootstrap's fault or the sample size's. | 3 | 3 | 3 | 9 |
+| 3 | Coverage as a function of σ, sweeping the scatter up and down. | 2 | 2 | 2 | 6 |
+| 4 | Coverage under a heavy-tailed error law instead of Gaussian. | 3 | 2 | 2 | 7 |
+| 5 | Recovery of the DGP's K at large n, as a sanity check on the estimator. | 1 | 3 | 1 | 5 |
+
+**Chosen: #1 and #2**, in that order. #1 is the cell the study needs; #2 costs
+one more transaction and turns a bare number into a diagnosis — if both intervals
+under-cover by the same amount the culprit is n = 24, and if only the bootstrap
+does, the culprit is the method (`ref:diciccio1996`). #3 and #4 are good
+questions about a DIFFERENT DGP than the one the DATA gate declared and hashed;
+changing the declared truth mid-study to explore is how a simulation lane starts
+answering questions nobody registered, so they go to findings §⑦ as next steps.
+#5 scores 1 on information: the estimator is a closed-form OLS slope and its
+consistency is not in doubt.
+
+**The sealed access is NOT spent here.** For kind `simulate`, "sealed" means a
+fresh seed block never used in development (`inquiry-model.md`), so both cells
+run on block B and **P6 is adjudicated in the confirmation phase on block C**.
+This phase produces no verdict on P6, by design.
+
+**Disclosure, repeated from the Phase-0 decision log.** `sweep:coverage_floor`
+already measured coverage on five floor blocks (mean 0.9268), so P6's verdict is
+foreseeable. That is the unavoidable cost of measuring the resolution of a
+quantity a prediction reads, it was disclosed when it happened, and findings §②
+carries it. The refutation branch — downgrade every interval in the findings to
+descriptive — stays live until block C is read.
