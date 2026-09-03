@@ -97,7 +97,8 @@
       "evidence": [],
       "numbers": [
         "e0001_val_loss",
-        "max_verifier_gap"
+        "max_verifier_gap",
+        "replication_difference"
       ],
       "strength": "exploratory"
     },
@@ -328,6 +329,13 @@
       "note": "standard deviation of the ten paired seed differences",
       "precision": 8,
       "value": 0.00747623
+    },
+    "replication_difference": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "full re-execution of E0001 at the same seed, same backend",
+      "precision": 6,
+      "value": 0.000962
     },
     "steps_budget": {
       "art": "frontier",
