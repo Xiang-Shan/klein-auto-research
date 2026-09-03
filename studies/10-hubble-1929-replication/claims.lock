@@ -237,16 +237,23 @@
       "strength": "confirmed"
     },
     "C4": {
-      "claim": "RQ4 | simulate | **supported** | confirmed | known-dgp-teaching | E0013, E0009, E0010, rep:E0009@20260903T065111Z, art:covc | Under the declared DGP the percentile interval covers the truth 0.925000 of the time on the sealed block, against a nominal 0.95 and a registered bar of 0.90 |",
-      "class": null,
+      "claim": "Under the declared DGP the percentile interval covers the truth 0.925000 of the time on the sealed block, against a nominal 0.95 and a registered bar of 0.90",
+      "class": "known-dgp-teaching",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0013",
+        "E0009",
+        "E0010",
+        "rep:E0009@20260903T065111Z",
+        "art:covc"
+      ],
       "numbers": [
         "coverage_sealed",
         "nominal_level",
         "p6_bar"
       ],
-      "strength": "exploratory"
+      "scope": "in-silico",
+      "strength": "confirmed"
     },
     "C5": {
       "claim": "RQ5 | estimate | **supported** | confirmed | empirical-description | E0012, art:sealed_modern | One common distance factor of 6.056247 carries both two-parameter fits to within 4.990073 of the modern 70 \u2014 the 1929-to-today gap behaves as a pure scale error |",
