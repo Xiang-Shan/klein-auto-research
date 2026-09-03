@@ -1,0 +1,44 @@
+<h2>Next steps</h2>
+
+<ol>
+  <li><strong>Give the replication path something it can copy.</strong> Either declare
+      the truth as part of the prepared artifact, or recompute the ceiling from the
+      generator's committed coefficients instead of reading a cache. Then re-run the
+      replication and watch the record come back reproduced. Cheapest fix, highest
+      value.</li>
+  <li><strong>Measure a paired floor.</strong> Every delta here is paired &mdash; each
+      run refits its reference on the same rows &mdash; but it is divided by a
+      <em>marginal</em> floor, because that is the bar a frontier keep must clear. A
+      paired-bootstrap floor would be the sharper denominator, and the two side by side
+      would show what the conservative choice costs in resolution.</li>
+  <li><strong>Vary the sample size and watch the headroom close.</strong> Both terms of
+      the ratio move with the number of rows: more rows shrink the floor and let the
+      boosted tree get closer. The same four rungs at several table sizes would turn a
+      single reading of the detection limit into a curve.</li>
+  <li><strong>Try a middle rung.</strong> The permission to say anything about capacity
+      here comes from one extreme point. A shrunk, early-stopped boosted tree between
+      the two measured settings would say whether the loss is a cliff or a slope.</li>
+</ol>
+
+<h3>References</h3>
+
+<p>All four were checked against the publisher or arXiv page before any run, and none
+of them carries a confirmed claim on its own.</p>
+
+<ul>
+  <li>Hanley &amp; McNeil, <cite>The meaning and use of the area under a receiver
+      operating characteristic (ROC) curve</cite>, Radiology 143(1), 29-36 (1982),
+      doi:10.1148/radiology.143.1.7063747 &mdash; the identity that makes the ceiling
+      computable at all: AUC depends on a score only through the order it induces.</li>
+  <li>Friedman, <cite>Greedy function approximation: a gradient boosting
+      machine</cite>, The Annals of Statistics 29(5), 1189-1232 (2001),
+      doi:10.1214/aos/1013203451 &mdash; the stagewise additive fit that recovered the
+      interaction and the quadratic without being shown either.</li>
+  <li>Ke et al., <cite>LightGBM: a highly efficient gradient boosting decision
+      tree</cite>, Advances in Neural Information Processing Systems 30, 3146-3154
+      (2017) &mdash; the histogram-binned GBDT this study actually runs.</li>
+  <li>Grinsztajn, Oyallon &amp; Varoquaux, <cite>Why do tree-based models still
+      outperform deep learning on tabular data?</cite>, NeurIPS 2022 Datasets and
+      Benchmarks Track, arXiv:2207.08815 &mdash; the doctrine anchor for a medium-sized
+      table, and the reason the ladder's top rung is a boosted tree.</li>
+</ul>
