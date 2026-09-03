@@ -51,7 +51,8 @@
         "e0002_floors",
         "e0003_floors",
         "e0004_floors",
-        "e0005_floors"
+        "e0005_floors",
+        "e0006_floors"
       ],
       "strength": "exploratory"
     },
@@ -200,6 +201,13 @@
       "note": "width 128 to 256, against the anchor's five-seed mean",
       "precision": 4,
       "value": -0.4742
+    },
+    "e0006_floors": {
+      "art": "frontier",
+      "claim": "C1",
+      "note": "cosine decay, against the anchor's five-seed mean",
+      "precision": 4,
+      "value": 3.3326
     },
     "e0006_val_loss": {
       "art": "frontier",
