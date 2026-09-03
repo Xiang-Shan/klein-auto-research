@@ -1,0 +1,158 @@
+schema_version: 3
+study_id: "12-insurance-claims-frequency"
+goal: "Does the v1 auto-claims quickstart's three-rung model ladder — a raw-feature GLM anchor, a spline + isotonic GLM, and a histogram gradient-boosted tree — reproduce under Klein's schema-3 contract on the same 58,592-policy portfolio, does the insurance doctrine of class_weight=None plus isotonic calibration buy calibration at a rank cost inside the measured floor, and how many of the v1 ledger's keeps survive a keep bar that is measured rather than assumed?"
+domain: "insurance"
+target: "claim_status"
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "predict"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "insurance"            # generic | ml-research | math | insurance
+audience: "An actuary or pricing analyst who needs calibrated claim probabilities they can file and defend, and who wants to see what survives when a study is ported from a looser contract to a notarized one."
+
+task_type: "classification"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "glm+gbdt"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "train.py"]
+  mutable: ["train.py"]
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  primary:
+    mode: frontier          # frontier (climbs an incumbent) | registered (measures a cell)
+    metric:
+      name: "val_auc"
+      goal: "higher"     # higher | lower
+      minimum_delta: 0
+      exactness: stochastic       # exact for an integer/closed-form objective
+      # noise_floor: / fit_noise: / bound: — measured at Phase 0 and pasted in by a
+      # consult RE-RECORD with a reason (research_plan.md "Phase 0"). The bar comes
+      # from `paired-bootstrap` / `paired-comparison`, because every keep on this
+      # track is a COMPARISON of two candidates predicting the SAME development
+      # rows; the k=5 seed sweep is recorded as `fit_noise` and can never be the
+      # bar. `bound.ideal` is 1.0, the ceiling of an ROC-AUC, and it can only be
+      # declared once a floor with an estimand exists (kleinlib/contract.py).
+    guardrails: {}
+    # No guardrail is declared. The v1 study declared none, every rung here runs in
+    # seconds under a 300 s cap, and `kleinlib.eval.evaluate`'s own collapsed-
+    # probability guard already refuses a degenerate scorer. A guardrail nobody
+    # prints is how a healthy run gets dispositioned `discard` (war story 6).
+
+data:
+  source: "bundled:insurance-claims"      # csv: | parquet: | synthetic: | bundled: | hub: | sklearn: | openml: | url:
+  modality: "tabular"       # tabular | timeseries | image | sequence | graph | text | simulation | none
+  prepared_path: "data/prepared/insurance_claims_prepared.csv"
+  split:
+    # Chosen by index arithmetic BEFORE the gate (scouting_ledger.md S4), not by
+    # taste: at seed 42 / 0.10 / 0.10 the train partition is EXACTLY the v1
+    # study's training partition (46,873 rows, identical index set) and
+    # development ∪ test is exactly its validation partition (11,719 rows), split
+    # 5,859 / 5,860. The ported models are therefore the v1 models — same rows,
+    # same recipes — and the only thing the port changes about a rung's number is
+    # which rows it is graded on. Schema 3 mandates a sealed third partition, so
+    # no lawful split can reproduce the v1 EVALUATION set; this one reproduces the
+    # half of it a study is allowed to look at.
+    kind: stratified           # stratified | random | group | time | none (scalar)
+    seed: 42
+    development_size: 0.10
+    test_size: 0.10
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 300
+phases:
+  - id: adaptive-1
+    description: "the port ladder: the three v1 rungs re-run under the contract, then the calibration-doctrine A/B"
+    budget_seconds: 3600
+    max_experiments: 4
+  - id: confirmation
+    description: "one sealed final-test evaluation on the half of the v1 validation set no development run ever saw"
+    budget_seconds: 900
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "Do the v1 quickstart's three model rungs reproduce under the schema-3 contract — does each land within two standard deviations of the sampling distribution of the transfer (0.0225) of the value the v1 ledger recorded, when it is refitted on the identical training rows and graded on half of v1's validation set?"
+    prior: "yes, all three: the training rows are identical and the recipes are the same, so the only difference is which rows are scored, whose standard deviation is 0.011226 (source: scouted — scouting_ledger.md S1, S4, S5)"
+  - id: RQ2
+    question: "The v1 study's own advice #5 was to spend two words of a ledger description on the non-default kwargs. This port is the first test of it: one rung is recoverable verbatim from a committed file and two survive only as prose that names its kwargs. Does prose-with-kwargs reproduce as tightly as code?"
+    prior: "the verbatim rung (HGBT) lands closest to its anchor and the two prose rungs land inside the same band but with visibly larger residuals; the advice works but does not make prose equal to a commit (source: scouted — scouting_ledger.md S3)"
+  - id: RQ3
+    question: "How large is the paired-comparison noise floor on this portfolio, and how many of the six keeps in the v1 ledger would clear a keep bar of that size?"
+    prior: "uninformed: no floor of any kind has ever been measured on this data, by v1 or by the ancestor campaign. Stated honestly rather than hedged: a few thousandths of AUC is expected, which would leave the v1 sweep's +0.001425 below the bar and the two large rung-to-rung gaps above it (source: uninformed)"
+  - id: RQ4
+    question: "Does the insurance profile's calibration-first doctrine reproduce here — does class_weight=None plus isotonic calibration improve the Brier score while the AUC it pays stays inside one measured floor?"
+    prior: "yes: v1 measured Brier 0.240153 -> 0.059279 for an AUC cost of -0.002603, and the mechanism (balanced reweighting inflates the positive class, isotonic puts it back) is a property of the estimator, not of the partition (source: scouted — scouting_ledger.md S1)"
+
+# Registered BEFORE the evidence exists; the consult gate hashes this file, so a
+# prediction added later is visible as a gate re-record with a reason. Each
+# carries an arithmetic rule on a printed key, or `manual: true` when no run can
+# decide it. Operators: lt le gt ge ne abs_lt abs_le (value), eq (+ tol),
+# within (target + tol), between (value: [low, high]); combine with all_of /
+# any_of / not, at most three deep.
+#
+# Two families, and both numerals in them were fixed before the evidence existed:
+#   * the ANCHOR family (P1, P2, P4) carries a v1 LEDGER value as its target and
+#     the tolerance 0.0225 = 2 x 0.011226, the closed-form standard deviation of
+#     the transfer, derived in scouting_ledger.md S5 from row counts alone;
+#   * the FLOOR family (P3, P5, P6, P7) is written in integer counts of the
+#     MEASURED floor, which does not exist yet and cannot be anticipated here.
+# `delta_in_floors` is the run's paired lift over the reference rung refitted on
+# the SAME rows inside the same run; `sealed_shift_in_floors` is the sealed
+# score's distance from the development incumbent; both are printed by train.py.
+predictions:
+  - id: P1
+    track: primary
+    statement: "the v1 split-identity anchor (logistic regression + one-hot(min_frequency=20) + class_weight=balanced), refitted on the identical training rows, scores on the development half of the v1 validation set within 0.0225 of the 0.625462 the v1 ledger recorded on the whole of it"
+    rule: {key: primary_metric, op: "within", target: 0.625462, tol: 0.0225}
+    inconclusive_if: "the run crashes before the evaluator prints, or the printed split_fingerprint does not match the one the DATA gate froze"
+  - id: P2
+    track: primary
+    statement: "the v1 spline + isotonic GLM rung (quantile knots, include_bias=False, CalibratedClassifierCV cv=5 — the three non-default kwargs v1 named as load-bearing) reproduces within 0.0225 of the 0.651707 the v1 ledger recorded"
+    rule: {key: primary_metric, op: "within", target: 0.651707, tol: 0.0225}
+    inconclusive_if: "the run crashes before the evaluator prints"
+  - id: P3
+    track: primary
+    statement: "feature engineering plus calibration is worth more than measurement noise: the spline + isotonic rung beats the raw-feature GLM anchor, refitted on the same rows in the same run, by at least one measured floor"
+    rule: {key: delta_in_floors, op: ">=", value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, so train.py prints no delta_in_floors line, or the run declares no reference rung"
+  - id: P4
+    track: primary
+    statement: "the v1 HGBT rung — the only one recoverable verbatim from a committed file — reproduces within 0.0225 of the 0.662897 the v1 ledger recorded"
+    rule: {key: primary_metric, op: "within", target: 0.662897, tol: 0.0225}
+    inconclusive_if: "the run crashes before the evaluator prints"
+  - id: P5
+    track: primary
+    statement: "the price of a filable GLM is larger than measurement noise: the boosted tree beats the spline + isotonic GLM rung, refitted on the same rows in the same run, by at least one measured floor"
+    rule: {key: delta_in_floors, op: ">=", value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, so train.py prints no delta_in_floors line, or the run declares no reference rung"
+  - id: P6
+    track: primary
+    statement: "the insurance doctrine holds on this portfolio: replacing class_weight=balanced with class_weight=None plus isotonic calibration lowers the Brier score against the same rung refitted on the same rows, and the AUC it pays for that is smaller than one measured floor"
+    rule:
+      all_of:
+        - {key: brier_delta_vs_reference, op: "<", value: 0}
+        - {key: delta_in_floors, op: abs_lt, value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the run declares no reference rung, so one of the two keys is not printed"
+  - id: P7
+    track: primary
+    statement: "the selected candidate, evaluated once on the sealed half of the v1 validation set, lands within two measured floors of the development incumbent's score"
+    rule: {key: sealed_shift_in_floors, op: abs_le, value: 2}
+    inconclusive_if: "the sealed access is never spent, or the sealed run crashes before the evaluator prints"
+  - id: P8
+    track: primary
+    statement: "the v1 ledger's sixth row — a learning-rate sweep that was recorded as a keep on a lift of +0.001425 — is smaller than the paired-comparison floor this study measures, i.e. under a measured keep bar that transaction would not have been a keep"
+    manual: true
+    inconclusive_if: "the Phase 0 paired-bootstrap sidecar is missing or has fewer than three usable replicates, so no floor can be quoted"
+
+confirmation:
+  require: [sealed]            # sealed | replicate | verify (default: by kind)
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html
