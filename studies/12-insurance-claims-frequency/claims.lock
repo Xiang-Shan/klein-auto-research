@@ -108,7 +108,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "brier_ratio_doctrine"
+      ],
       "strength": "exploratory"
     },
     "C6": {
@@ -184,6 +186,12 @@
       "claim": "C3",
       "precision": 4,
       "value": 0.9671
+    },
+    "brier_ratio_doctrine": {
+      "art": "derived",
+      "claim": "C5",
+      "precision": 3,
+      "value": 4.055
     },
     "keep_lift": {
       "art": "verdicts",
