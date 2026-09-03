@@ -105,6 +105,16 @@ restores `analyze.py` afterwards — the candidate commit IS the record of what 
   digests go on the data card, as the brief intended. Made before any evidence
   exists; the CONSULT gate is re-recorded with this reason.
 
+- **2026-09-03 — Decision (contract re-record #2): phase ids follow the shipped
+  convention `adaptive-N` / `confirmation`.** The descriptive ids drafted at CONSULT
+  (`p0-anchor`, `p1-reproduction`, …) made `klein preflight` fail
+  `[FAIL] phase ladder: state current_phase 'adaptive-1' is not in the contract's
+  phases` — `klein new` writes `current_phase` from the SCAFFOLD's first phase, and
+  the guard against retroactively rewriting a phase ladder then fires. The guard is
+  correct and studies 03 and 05–09 all use `adaptive-N`; the rename was the
+  deviation, so the contract now matches the convention and the descriptions carry
+  the meaning. Made before any evidence exists; the CONSULT gate is re-recorded.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
