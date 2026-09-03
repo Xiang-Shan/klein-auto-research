@@ -21,10 +21,15 @@ three separate questions of it: does the number come back out of the table
 interval machinery work at n = 24 (simulate). The reproduction track reproduced
 **one of five** declared targets. Two of the four failures are not failures of
 arithmetic but of *availability*: the paper's headline number came from a model
-whose inputs the paper never printed. Meanwhile the estimate track found that the
-same 24 objects support an interval nearly six times wider than Hubble's quoted
-one, and that simply swapping which variable is called the response moves the
-constant by 60 %. The phrase "we replicated Hubble" does not appear here, and
+whose inputs the paper never printed. Meanwhile the estimate track measured what
+those 24 objects actually support: a 95 % interval for K of width 287.056180
+km/s/Mpc. Set beside the ±50 Hubble quoted that looks damning, until his figure
+is read as the *probable error* his era meant by it — converted to a common
+convention it is very nearly this study's own interval, which is why §③.1
+records his uncertainty statement as reproducing even though his constant does
+not. The sharper finding is elsewhere: simply swapping which variable is called
+the response moves the constant by a factor of 1.603771. The phrase "we
+replicated Hubble" does not appear here, and
 `references/replication-protocol.md` is why: findings report target by target.
 
 ## ① Research-question verdicts
@@ -86,12 +91,34 @@ block, and the refutation branch stayed live until block C was read — but the
 honest summary is that measuring a floor for a predicted quantity partly spends
 the prediction. **[C15]** below is the lesson.
 
+**Multiplicity posture** (added in answer to referee note N4, which observed that a
+reader had to infer it). Every prediction above was registered before any evidence
+existed and every one is reported, so there is no selected family to guard against:
+nothing was chosen after seeing a result, and no verdict rests on a p-value — the
+word "significant" appears nowhere in this document. The reproduction comparisons
+(P0–P3, P8, P9) are deterministic arithmetic on printed table values against
+tolerances fixed in the contract; they have no null distribution, so no multiplicity
+correction is even defined for them. The stochastic quantities — the intervals of
+E0006–E0008 and the coverages of E0009, E0010 and E0013 — are each a single
+pre-registered estimate. `n_comparisons` is therefore 1 for every family in this
+study, which is why `study.yaml` declares no `metrology:` block and why
+`kleinlib.metrology.family_maxt` is not used: there is no family being screened. The
+one place selection could have entered is P6, whose Phase-0 floor partly spent it;
+that is disclosed above and carried as **[C15]**.
+
 ## ③ Surprises and why
 
 **1. Hubble's ±50 reproduces almost exactly — from a fit he did not run.** The
 analytic probable error of the free-intercept slope is 50.747428 km/s/Mpc
 (E0002), against the ±50 the paper quotes for a four-parameter solution this
-study could not reproduce at all. **[C10]** *(mechanism-interpretation,
+study could not reproduce at all. This is the passage the opening paragraph
+defers to, and the two say one thing: **his constant does not reproduce and his
+uncertainty does.** A reader who compares this study's 95 % interval width of
+287.056180 against a bare "±50" is comparing a full modern interval with a
+nineteenth-century half-width at a different confidence level, and will conclude
+that 1929 was overconfident. It was not: on a like-for-like conversion the two
+uncertainties are practically the same size, and what separates the eras is the
+distance ladder (**[C5]**), not the error bar. **[C10]** *(mechanism-interpretation,
 exploratory, evidence E0002, art:aux)* — the most likely explanation is that the
 probable error is dominated by the residual scatter about the line, 232.910670
 km/s, which is a property of the data rather than of the model form; adding the
@@ -145,8 +172,8 @@ actually measured, and `study.yaml:sealed_lock` names both the allowed and the
 forbidden lists so a reader can check that it did.
 
 **[C14]** *(research-discipline, exploratory, evidence E0011, E0012)* **Read the
-sealed rehearsal's NUMBERS, not just its exit code.** This study's two seals were
-saved twice by `klein run-one --final-test --dry-run`, in two different ways. The
+sealed rehearsal's NUMBERS, not just its exit code.** This study's seals were
+saved by `klein run-one --final-test --dry-run`, in two different ways. The
 first rehearsal *failed loudly*: the sealed cell's own guard fired because the
 library dropped Table 2's forbidden columns by the block it served rather than the
 block requested, so the rehearsal handed the cell a different shape than the real
@@ -214,8 +241,11 @@ it cleared.
 ## ⑥ Literature tie-back
 
 Every reference in `references.yaml` was checked against its publisher or arXiv
-landing page on 2026-09-03; all of them are `verified: true`, which matters
-because five stand behind `confirmed` claims.
+landing page on 2026-09-03; all of them are `verified: true`. Two of them stand
+behind `confirmed` claims — `ref:hubble1929` (C2) and `ref:sandage1958` (C5) —
+and the rest sit behind `exploratory` claims (C11, C16, C18) or appear in this
+section's prose only. An unverified reference behind a confirmed claim is what
+the claims law warns about; there are none.
 
 - **`ref:hubble1929` — the object of study.** The article text settled two things
   no amount of arithmetic could: that it prints no per-object coordinates, and
@@ -230,10 +260,11 @@ because five stand behind `confirmed` claims.
   against the analytic interval's 0.938000 on the same block and the same DGP
   (E0009, E0010). Both fall short of nominal, so *some* of the shortfall is n; the
   gap between them is the method's own contribution.
-- **`ref:sandage1958` — the frame for [C5].** The constant fell by about a factor
-  of seven when the distance ladder was corrected, not when anyone re-measured a
-  velocity; this study's single-factor rescale of 6.056247 is the same story told
-  with Hubble's own rows.
+- **`ref:sandage1958` — the frame for [C5].** The constant fell steeply when the
+  distance ladder was corrected, not when anyone re-measured a velocity; this
+  study's single-factor rescale of 6.056247 is the same story told with Hubble's
+  own rows. (Sandage's own recalibration factor is not quoted here: no cell of
+  this study measured it, so it has no pinned home.)
 - **`ref:planck2018` and `ref:riess2022` — why a round 70 is honest here.** They
   bracket it, and their mutual disagreement is an order of magnitude smaller than
   the gap this study measures. A cosmology paper could not use a round figure; a

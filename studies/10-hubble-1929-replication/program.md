@@ -4,6 +4,30 @@ This is the living lab notebook. `study.yaml` is the machine contract;
 `study_state.json`, `events.jsonl`, and `runs/E####/manifest.json` are generated audit
 state and must not be hand-edited.
 
+## Roster
+
+Who ran which stage, on what, in which context. Added 2026-09-03 in answer to the
+referee's **N1**: without it nothing on the record named the model or session that
+ran the loop, so Gate 3's independence rung was capped at "fresh session" and the
+gate record had to read `independent-of-experimenter: no`. `study_state.json` names
+every actor only as `lead-agent`, which is the delegated ACK, not the operator.
+
+| Role | Who / model | Tool · context | Notes |
+|---|---|---|---|
+| lead | Claude Fable 5.1 | the orchestrating session | commissioned the study, delegated every gate ack, relays the referee |
+| experimenter (CONSULT → SYNTHESIZE) | a Claude Code general-purpose subagent on `claude-opus-5` | fresh git worktree `agent-a8f2d47a81f401ad0`, its own context | drove scaffolding, all three gates, all 13 cells, both sweeps, the figures, `findings.md` and `claims.lock` |
+| DATA-gate auditor | **the same agent** — no separate auditor | same context | the clean-room audit was SELF-PERFORMED, and only after the profile was finished, reading `study.yaml`, `prepare.py`, `lib/hubble.py`, the prepared artifact and the profile, never `program.md`. `data-gate-protocol.md` §5 permits this and prefers a separate context; the weaker option was taken and is disclosed here rather than implied away. Rows 3–4 were mechanized by `python -m kleinlib.leakage` in both modes, which is what makes the weaker option tolerable |
+| referee (Gate 3) | `klein-referee` on `claude-opus-5` | fresh context, started after SYNTHESIZE, no memory of the loop | rung reached: **fresh session**; `independent-of-experimenter: no` — same model family as the experimenter, so the "model" rung was never available |
+
+**What this roster does and does not buy.** It lets the next referee claim the rung
+the study actually reached instead of the rung the record could prove. It does not
+raise the rung: experimenter and referee were both Opus-family agents, so
+`independent-of-experimenter` stays `no` and the ladder stops at "fresh session".
+Reaching the "model" rung would have meant running the loop on a different model
+(the repo's own convention is sonnet experiments, opus referees) or a different
+tool. That is a design choice for the next exhibit, not something this study can
+retrofit.
+
 ## Goal and track contract
 
 - Goal: does Edwin Hubble's 1929 velocity–distance constant reproduce from the two
@@ -595,6 +619,14 @@ figure was touched; the discarded commits contained only successive drafts of a
 lock that had never verified, never been refereed and never been read by any
 downstream artifact.
 
+**The discarded work is preserved and reachable by a stranger** (referee note N3):
+the discarded tip is tagged **`discarded/10-claims-lock-draft`**, an annotated tag
+at `4dc9011` pointing back to this section. A tag survives a clone; the reflog this
+disclosure originally relied on does not, and expires under `git gc`. Anyone can now
+read exactly what was thrown away with
+`git show discarded/10-claims-lock-draft:studies/10-hubble-1929-replication/claims.lock`
+and diff it against the lock that shipped.
+
 I am not claiming this was permitted. The standing rule is that nothing
 notarized is rewritten, and the CLI notarized those drafts. The alternative was
 to ship an exhibit whose lock cannot verify, which seemed worse than a disclosed
@@ -607,3 +639,103 @@ anything is committed — the one moment the error is still recoverable. That is
 strictly more checking, not less: check 5 already rejects such a number, and the
 refusal only makes the same law arrive on time. Committed separately with the
 subject `engine:` and a regression test.
+
+
+## Referee round 1 — answers
+
+`referee_report.md` returned **Verdict: FAIL** on check 7 (numbers traceable) with
+five notes. The gate was NOT recorded. What follows answers each in order; the FAIL
+is answered first because it is the only one that touched a study artifact.
+
+- **2026-09-03 — Referee note F1 (the FAIL): cleared by rewording, not by reweighting.**
+  `findings.md`'s opening paragraph said the study's interval was "nearly six times
+  wider than Hubble's quoted one". No pinned artifact held that ratio, and the pinned
+  ones contradict it: `ci_width` 287.056180 against his ±50 gives 2.8706 width-over-
+  width; the only arithmetic reaching "six" divides this study's FULL width by his
+  HALF-width, which compares nothing. Worse, the sentence contradicted the study's own
+  §③.1, which reports that his ±50 *reproduces* (C10, `probable_error` 50.747428):
+  converted to a common convention his stated uncertainty is practically this
+  study's own. The document asserted both, and the false half sat in the most-read
+  paragraph.
+  **Fixed the preferred way** — the summary now rests only on values that already had
+  homes (`ci_width` 287.056180, `hubble_pe_24` 50, `inverse_forward_ratio` 1.603771,
+  `ci_level` 95, `n_table1` 24) and defers explicitly to §③.1, which gained a
+  paragraph saying the reconciliation out loud: **his constant does not reproduce and
+  his uncertainty does.** No ratio was pinned, no claim sentence was touched — C3's
+  `claim` field is frozen by the append-only law and was not edited — and no artifact
+  hash moved, because `findings.md` is not a pinned artifact.
+  **The general lesson, which is the referee's real point:** a numeral spelled as a
+  word is invisible to `klein verify --numbers`. The scan reported 117/117 traced
+  while a false ratio sat in line 25, because "six" is not a numeral to a tokenizer.
+  I swept the whole document for spelled multiples and fixed two more escapees:
+  "saved twice" in C14 (dropped — the following sentences enumerate the two
+  rehearsals anyway) and "about a factor of seven" in §⑥'s `ref:sandage1958` entry
+  (dropped, with a parenthesis saying why: no cell of this study measured Sandage's
+  recalibration factor, so it has no home). One spelled ratio remains by design:
+  C7's "half the paper's own printed precision", which is the *definition* of the
+  registered tolerance 0.06 against a printed precision of 0.1, is frozen in the
+  lock's C7 sentence, and asserts no measured quantity.
+  A further escapee the sweep caught: the summary's "moves the constant by 60 %",
+  which traced only by accident — the scan matched the unrelated `hubble_pe_9group`
+  = 60. It now quotes the pinned factor 1.603771 instead.
+
+- **2026-09-03 — Referee note N1: `## Roster` added, and it does not raise the rung.**
+  See the table at the top of this file. Nothing on the record had named the model or
+  session that ran the loop, so Gate 3 was capped at "fresh session". The roster now
+  names lead, experimenter, DATA-gate auditor and referee with model and context —
+  including the honest entry that the clean-room leakage audit was **self-performed**
+  rather than run by a separate agent, which `data-gate-protocol.md` §5 permits but
+  does not prefer. The cap itself stands: experimenter and referee are both
+  Opus-family, so `independent-of-experimenter` remains `no` and the "model" rung was
+  never available to this study.
+
+- **2026-09-03 — Referee note N2: the reference count was wrong; corrected from the
+  lock.** `findings.md` §⑥ said five references stand behind `confirmed` claims.
+  `claims.lock` shows **two**: `ref:hubble1929` (C2) and `ref:sandage1958` (C5). The
+  other five sit behind `exploratory` claims (C11, C16, C18) or appear in §⑥ prose
+  only. Corrected, and the sentence now names the two rather than counting them, so
+  it cannot drift again.
+
+- **2026-09-03 — Referee note N3: the discarded lock drafts now survive a clone.**
+  The reset was judged a NOTE, not a FAIL, but the referee is right that "auditable
+  from the reflog" is not auditable by a stranger: a reflog is local and expires under
+  `git gc`. The discarded tip is now tagged **`discarded/10-claims-lock-draft`**
+  (annotated, at `4dc9011`, message pointing back to this file's SYNTHESIZE
+  disclosure). The disclosure paragraph below names the tag.
+  **On promoting the lesson to `knowledge/research-discipline.md`: not done here, and
+  deliberately.** The lesson the referee proposes — *a self-committing authoring verb
+  needs its validation at write time, because the append-only law leaves no lawful
+  repair afterwards* — is true, is exactly what the engine fix `a1f30b2` now enforces,
+  and is worth promoting. But `knowledge/` requires a typed citation to a claim, and
+  **this study carries no claim that supports it.** The referee suggested
+  `#C13`, which is about derived columns, not about authoring verbs; C12, C14, C15,
+  C16 and C17 are about floors, rehearsals, foreseeability, regressions and locks.
+  Manufacturing a claim after the referee asked for one would be writing a claim to
+  fit a citation. The lesson is about the ENGINE rather than about this study's
+  science, its evidence is the engine commit and its regression test rather than any
+  `E####`, and `knowledge/` is not this study's file to edit on that basis — so the
+  promotion is left to the lead, with this paragraph as the handoff.
+
+- **2026-09-03 — Referee note N4: multiplicity posture stated.** Neither `study.yaml`
+  nor `findings.md` had said why no family-wise guard applies. A paragraph now closes
+  §②: all ten predictions were registered before any evidence and all ten are
+  reported, so there is no selected family; no verdict rests on a p-value; the
+  reproduction comparisons are deterministic arithmetic against contract tolerances
+  and have no null distribution; every stochastic quantity is a single pre-registered
+  estimate, so `n_comparisons` is 1 for every family and no `metrology:` block is
+  declared. The one place selection could have entered is P6, whose Phase-0 floor
+  partly spent it — already disclosed and carried as **[C15]**.
+
+- **2026-09-03 — Referee note N5: `research_plan.md:60` is self-contradicting; recorded,
+  NOT edited.** The sentence reads "It is not blindness, and the word 'blind' does not
+  appear in this study" — in a sentence that contains the word, and while five other
+  study files carry qualified meta-mentions of it. The intent is right and the referee
+  agrees: the word is never used to *describe the seal*. **The correction is recorded
+  here rather than applied there**, because `research_plan.md` is hashed by the CONSULT
+  gate and editing it now would invalidate the recorded artifact hash and force a
+  fourth consult re-record after evidence exists — a far worse trade than a prose
+  infelicity in a plan document. **The sentence should be read as:** "It is not
+  blindness, and the word 'blind' is never used in this study to describe the seal; it
+  appears only where the study explains why the profile bans it." `findings.md` and
+  `claims.lock` — the two documents the vocabulary check governs — contain the word
+  nowhere at all, which the referee confirmed independently.
