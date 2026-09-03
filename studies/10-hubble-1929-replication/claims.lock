@@ -143,7 +143,8 @@
         "coverage_dev",
         "floor_max",
         "floor_min",
-        "floor_minimum_delta"
+        "floor_minimum_delta",
+        "phase_zero"
       ],
       "strength": "exploratory"
     },
@@ -692,6 +693,13 @@
       "note": "standard error of that paired difference (E0007)",
       "precision": 6,
       "value": 115.484712
+    },
+    "phase_zero": {
+      "art": "contract",
+      "claim": "C12",
+      "note": "the numeral in the name 'Phase 0' \u2014 the floor-measurement phase; it names a phase, not a measurement",
+      "precision": 0,
+      "value": 0
     },
     "probable_error": {
       "art": "aux",
