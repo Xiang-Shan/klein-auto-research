@@ -1,0 +1,100 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 6043,
+      "committed": true,
+      "sha256": "87b5e13f94c2c0c68261fec3c8016eb59ca6914fb979b17ab844e30dcc4bc747"
+    },
+    "runs/E0011/run.log": {
+      "availability": "recorded",
+      "bytes": 850,
+      "committed": true,
+      "sha256": "7c13625ea8cd077203a65124524469a094cb88d86d9b21adae4e63145c52b14f"
+    },
+    "tables/sealed_table2_magnitudes.tsv": {
+      "availability": "recorded",
+      "bytes": 1007,
+      "committed": true,
+      "role": "declared",
+      "sha256": "4b0132c7ff3e7db588f5e527b468a755bbfeb8a0116c358f531e644521959080"
+    }
+  },
+  "base_commit": "03cbf475cc1b0e46a5dae61f3efcee699ca19ac8",
+  "candidate_commit": "34107cee958b9efff35114552ba750e68a957334",
+  "code_patch_hash": "aaf427740c1b488f65633666338339962251161e94faca872c6c06de14f741bc",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed confirmation on Table 2: the implied mean absolute magnitude under this study's own K (E0002 free-intercept) against Hubble's printed -15.3 +/- 0.3, using only v_kms and m_t; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-03T06:24:29.639817Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0011",
+  "fingerprints": {
+    "data": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "b3d8796e91bc0906f9892e562643339fbd110508804ac4e01b0ce4116e8e9610"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "abs_deviation": 0.22499812864863244,
+    "k_lane": 454.158441,
+    "max_abs_mag": -13.729412982922824,
+    "mean_abs_mag": -15.524998128648633,
+    "min_abs_mag": -17.89848730464547,
+    "n_block_rows": 22.0,
+    "n_excluded_nonpositive_v": 1.0,
+    "n_used": 21.0,
+    "primary_metric": 0.0,
+    "printed_table2_mean": -15.3,
+    "rows": 21.0,
+    "runner_exit_code": 0.0,
+    "sd_abs_mag": 1.1797343687314816,
+    "target_mean_abs_mag": -15.3,
+    "tolerance": 0.3,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.018011
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 3,
+  "predictions": {
+    "P8": {
+      "explanation": "mean_abs_mag -15.5249981286 within 0.3 of -15.3 (|\u0394| = 0.224998128649) \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P8"
+  ],
+  "primary_metric": 0.0,
+  "schema_version": 3,
+  "started_at": "2026-09-03T06:24:28.984510Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "ready_at": "2026-09-03T06:24:29.640860Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.6552115420345217
+}
