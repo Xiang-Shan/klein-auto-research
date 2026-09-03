@@ -461,28 +461,35 @@ def preflight_checks(
             checks.append(
                 _headroom_check(headroom_track, headroom_spec, manifests, state)
             )
-    train = study_dir / "train.py"
-    if not train.is_file():
-        checks.append(Check("train.py", False, "missing"))
-    else:
+    # The per-experiment surface is DECLARED (`entrypoint.mutable`), and since
+    # schema 3 it is named by kind: train.py (predict), analyze.py (estimate,
+    # test), simulate.py (simulate), search.py (optimize).  Checking the literal
+    # "train.py" is a v1 leftover that fails every non-`predict` study at its own
+    # preflight; `mutable_surface` already returns ("train.py",) for schema 2 and
+    # for any contract it cannot read, so the predict path is unchanged.
+    for name in mutable_surface(contract):
+        entry = study_dir / name
+        if not entry.is_file():
+            checks.append(Check(name, False, "missing"))
+            continue
+        source = entry.read_text(encoding="utf-8")
         try:
-            compile(train.read_text(encoding="utf-8"), str(train), "exec")
+            compile(source, str(entry), "exec")
         except SyntaxError as exc:
-            checks.append(Check("train.py", False, f"syntax error: {exc}"))
-        else:
-            source = train.read_text(encoding="utf-8")
-            if "NotImplementedError" in source:
-                checks.append(
-                    Check(
-                        "train.py",
-                        True,
-                        "[WARN] syntax valid but scaffold stubs remain "
-                        "(NotImplementedError) — fill load_split/build_model "
-                        "before the loop; run-one would record the stub as a crash",
-                    )
+            checks.append(Check(name, False, f"syntax error: {exc}"))
+            continue
+        if "NotImplementedError" in source:
+            checks.append(
+                Check(
+                    name,
+                    True,
+                    "[WARN] syntax valid but scaffold stubs remain "
+                    "(NotImplementedError) — fill the entrypoint's stubs "
+                    "before the loop; run-one would record the stub as a crash",
                 )
-            else:
-                checks.append(Check("train.py", True, "syntax valid"))
+            )
+        else:
+            checks.append(Check(name, True, "syntax valid"))
 
     # Guardrail visibility (the study-05 F1 lesson): `klein run-one` reads
     # guardrails off the PRINTED metric block, so a declared key the run

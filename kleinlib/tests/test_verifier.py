@@ -481,3 +481,38 @@ def test_without_an_external_incumbent_the_first_result_is_still_a_keep(
     assert manifest["disposition"] == "keep"
     assert "first valid result on this track" in manifest["decision_reason"]
     assert "matched_external" not in manifest
+
+
+def test_preflight_checks_the_declared_entrypoint_not_the_literal_train_py(
+    optimize_study,
+) -> None:
+    """An `optimize` study's surface is `search.py`; preflight must check THAT.
+
+    The check hard-coded `train.py` — a v1 leftover — so every study whose kind
+    names a different entrypoint failed its own preflight with "train.py:
+    missing" and could never start its loop.
+    """
+    _, study = optimize_study
+    assert (study / "search.py").is_file()
+    assert not (study / "train.py").exists()
+    names = {check.name for check in preflight_checks(study, require_clean=False)}
+    assert "search.py" in names
+    assert "train.py" not in names
+
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert check.ok and check.message == "syntax valid"
+
+    # A surface that still carries its scaffold stubs is warned about, by name.
+    (study / "search.py").write_text(
+        'def search():\n    raise NotImplementedError("fill me in")\n', encoding="utf-8"
+    )
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert check.ok and "scaffold stubs remain" in check.message
+
+    (study / "search.py").write_text("def broken(:\n", encoding="utf-8")
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert not check.ok and "syntax error" in check.message
+
+    (study / "search.py").unlink()
+    check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
+    assert not check.ok and check.message == "missing"
