@@ -208,17 +208,25 @@
       "strength": "confirmed"
     },
     "C3": {
-      "claim": "RQ3 | estimate | **supported** | confirmed | empirical-description | E0006, E0012, rep:E0006@20260903T064440Z, art:boot | The 24 objects support K = 454.158441 with a 95 % percentile-bootstrap interval of [316.648582, 603.704762], width 287.056180 \u2014 and that interval contains 465 |",
-      "class": null,
+      "claim": "The 24 objects support K = 454.158441 with a 95 % percentile-bootstrap interval of [316.648582, 603.704762], width 287.056180 - and that interval contains 465",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0006",
+        "E0012",
+        "rep:E0006@20260903T064440Z",
+        "art:boot"
+      ],
       "numbers": [
         "ci_high",
         "ci_level",
         "ci_low",
-        "ci_width"
+        "ci_width",
+        "hubble_k_24",
+        "k_free",
+        "n_table1"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C4": {
       "claim": "RQ4 | simulate | **supported** | confirmed | known-dgp-teaching | E0013, E0009, E0010, rep:E0009@20260903T065111Z, art:covc | Under the declared DGP the percentile interval covers the truth 0.925000 of the time on the sealed block, against a nominal 0.95 and a registered bar of 0.90 |",
