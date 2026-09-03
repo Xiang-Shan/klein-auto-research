@@ -48,6 +48,7 @@
         "large_20k",
         "large_2M",
         "large_sealed",
+        "passes_large",
         "passes_small"
       ],
       "strength": "exploratory"
@@ -192,6 +193,13 @@
       "note": "E0010, the sealed cell of n_large",
       "precision": 0,
       "value": 55
+    },
+    "passes_large": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "greedy completions E0007 bought with the SAME budget at n = 31",
+      "precision": 0,
+      "value": 2190
     },
     "passes_small": {
       "art": "aux",
