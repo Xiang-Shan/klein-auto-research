@@ -80,6 +80,7 @@
       "errata": [],
       "evidence": [],
       "numbers": [
+        "gap_465_nearest",
         "hubble_k_24",
         "k_free",
         "k_origin"
@@ -230,6 +231,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "gap_465_nearest": {
+      "art": "fits",
+      "claim": "C1",
+      "note": "the nearer fit's distance from 465 (E0002)",
+      "precision": 6,
+      "value": 10.841559
+    },
     "hubble_k_24": {
       "art": "fits",
       "claim": "C1",
