@@ -72,7 +72,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "off_by_one_loss"
+      ],
       "strength": "exploratory"
     },
     "C12": {
@@ -340,6 +342,13 @@
       "note": "the keep bar: max(2*std, range/2) of the ten paired seed differences",
       "precision": 7,
       "value": 0.0149525
+    },
+    "off_by_one_loss": {
+      "art": "summary",
+      "claim": "C11",
+      "note": "what the copy-the-input control would score if the harness aligned targets with inputs",
+      "precision": 6,
+      "value": 0.693147
     },
     "paired_floor_range": {
       "art": "contract",
