@@ -143,6 +143,7 @@
       "numbers": [
         "anchor_n_params",
         "e0003_anchor_z",
+        "tying_params_percent",
         "tying_params_removed"
       ],
       "strength": "exploratory"
@@ -387,6 +388,13 @@
       "note": "the matched-compute guardrail, read by the checker out of every checkpoint",
       "precision": 0,
       "value": 2000
+    },
+    "tying_params_percent": {
+      "art": "summary",
+      "claim": "C6",
+      "note": "the same, as a percentage of the anchor's parameters",
+      "precision": 6,
+      "value": 1.009317
     },
     "tying_params_removed": {
       "art": "summary",
