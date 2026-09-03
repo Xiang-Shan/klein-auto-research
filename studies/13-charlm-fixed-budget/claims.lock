@@ -420,6 +420,13 @@
       "precision": 6,
       "value": 4.174387
     },
+    "unigram_reference": {
+      "art": "refs_losses",
+      "claim": "contract",
+      "note": "add-one character frequencies fitted on the train partition",
+      "precision": 6,
+      "value": 3.307264
+    },
     "verifier_tolerance": {
       "art": "contract",
       "claim": "contract",
