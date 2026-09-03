@@ -75,6 +75,16 @@
     }
   },
   "headroom": {
+    "n_large": {
+      "acknowledged_at": "2026-09-03T07:36:25.822075Z",
+      "acknowledged_by": "lead-agent",
+      "h": 0.0,
+      "ideal": 62.0,
+      "incumbent": 62.0,
+      "infeasible": true,
+      "minimum_delta": 1.0,
+      "note": "run-anyway: the same closed door at n = 31. The best known value is 62 and 62 is also the pigeonhole upper bound, so h = 0. The track exists to measure where the SAME search's reach ends, not to improve on anything: its expected outcome is registered in advance as P2, that it does not reach 62 under the budget, and a search that does not reach a value is a statement about the search and never about the problem."
+    },
     "n_small": {
       "acknowledged_at": "2026-09-03T07:36:14.239022Z",
       "acknowledged_by": "lead-agent",
@@ -96,5 +106,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "11-exact-verifier-construction",
-  "updated_at": "2026-09-03T07:36:14.239499Z"
+  "updated_at": "2026-09-03T07:36:25.822401Z"
 }
