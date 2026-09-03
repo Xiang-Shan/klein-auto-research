@@ -11,11 +11,16 @@
     "method": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T08:18:49.643931Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T12:49:33.594813Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923",
     "method_card.md": "5afdd080a2fda15fed8ace7d5902a6f0d7364b3b4c92db46bda7d234c90153f5",
+    "referee_report.md": "98931ace51ab6a9f39338a96110ef85860e9cb4dfffb6413cf4fe844faccd726",
     "research_plan.md": "e252b06c81629365b39ab708d34cfeafa41afe0bfe00f788d1c09ddfb45590c4",
     "scouting_ledger.md": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9",
     "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0"
@@ -69,6 +74,18 @@
       },
       "note": "triad complete: theory (notation table + five load-bearing equations), papers (10 references, each verified against its publisher/arXiv page 2026-09-03, refs_verified true), practice (from-scratch PAVA and paired bootstrap, plus the four rungs lib/rungs.py realizes)",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-03T12:49:33.594813Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "98931ace51ab6a9f39338a96110ef85860e9cb4dfffb6413cf4fe844faccd726"
+      },
+      "independent_of_experimenter": false,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "last_experiment": 5,
@@ -356,5 +373,5 @@
       "sidecar_sha256": "bfe6f35de606430b13249b5673978eab26cc387c2dfcb1743b2178ac63dc0761"
     }
   },
-  "updated_at": "2026-09-03T11:16:26.272353Z"
+  "updated_at": "2026-09-03T12:49:33.595442Z"
 }
