@@ -1,1 +1,10 @@
 experiment	metric	value
+E0001	artifact	tables/identity_anchors.tsv
+E0001	wall_seconds	0.021898984909057617
+E0001	rows	4
+E0001	sha256	8f927d354d4f2995f011e4e26dc50ebc51db4880ecefc7358a83693448edef93
+E0001	sum_r	21.872999999999998
+E0001	sum_v	8955.0
+E0001	n_table1	24.0
+E0001	n_table2	22.0
+E0001	max_abs_deviation	3.552713678800501e-15

@@ -77,9 +77,31 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
+  "predictions": {
+    "P0": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "all_of[sum_r 21.873 within 0.001 of 21.873 (|\u0394| = 3.5527136788e-15) \u2192 supported; sum_v 8955 within 1 of 8955 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "all_of[sum_r 21.873 within 0.001 of 21.873 (|\u0394| = 3.5527136788e-15) \u2192 supported; sum_v 8955 within 1 of 8955 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+          "recorded_at": "2026-09-03T05:56:41.020871Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-03T05:56:41.020871Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
   "prepared_data": {
     "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0/studies/10-hubble-1929-replication/data/prepared/prepared.csv",
     "sha256": "18e580682b9ff1af499db907a4647b580609c7366392123e0f15ff4a9b92c13d"
@@ -87,5 +109,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "10-hubble-1929-replication",
-  "updated_at": "2026-09-03T05:54:02.464374Z"
+  "updated_at": "2026-09-03T05:56:41.021770Z"
 }
