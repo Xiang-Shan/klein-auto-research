@@ -1,0 +1,21 @@
+quantity	value	from
+v1_ledger_spread	0.038860	scouting_ledger S1: row 6 minus row 1
+v1_anchor_to_hgbt_spread	0.037435	scouting_ledger S1: row 3 minus row 1
+bar_over_v1_spread	0.9671	minimum_delta / v1_ledger_spread
+v1_sweep_lift	0.001425	scouting_ledger S1: row 6 minus row 3
+v1_sweep_lift_in_declared_floors	0.0379	P8's arithmetic
+v1_sweep_lift_in_strict_floors	0.0330	P8's arithmetic
+brier_ratio_doctrine	4.055	E0004 reference_brier / val_brier
+brier_ratio_splines	4.079	E0002 reference_brier / val_brier
+brier_ratio_tree_vs_splines	3.789	E0003 val_brier / reference_brier
+anchor_residual_margin	0.000458	|E0002 anchor_gap| - |E0003 anchor_gap|
+lift10_dev_minus_sealed	0.5101	E0003 val_lift_top10 - E0005 val_lift_top10
+paired_std_ratio_max_over_min	10.92	widest pair std / narrowest pair std
+anchor_residual_glm_abs	0.011322	|E0001 anchor_gap|
+anchor_residual_splines_abs	0.001612	|E0002 anchor_gap|
+doctrine_auc_cost_abs	0.001465	|E0004 delta_vs_reference|
+doctrine_in_floors_abs	0.039000	|E0004 delta_in_floors|
+max_twin_gap_abs	0.001415	|E0002 twin_free_gap|
+sealed_shift_in_floors_abs	0.168000	|E0005 sealed_shift_in_floors|
+doctrine_in_own_floors_abs	0.3229	|E0004 delta_vs_reference| / pair_anchor_doctrine bar
+portfolio_claim_rate	0.063968	data_card.md: 3,748 of 58,592 policies

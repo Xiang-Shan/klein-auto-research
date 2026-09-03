@@ -1,0 +1,8 @@
+sweep	pair	role	k	mean	std	range	bar
+paired_bootstrap	glm_ohe_balanced|hgbt_balanced	the declared bar	20	0.045704	0.017302	0.075161	0.037581
+paired_bootstrap_b1000	glm_ohe_balanced|hgbt_balanced	precision check	1000	0.049029	0.013942	0.086458	0.043229
+pair_anchor_splines	glm_ohe_balanced|glm_splines_isotonic	pair-specific	1000	0.035339	0.009894	0.065816	0.032908
+pair_splines_hgbt	glm_splines_isotonic|hgbt_balanced	pair-specific	1000	0.013690	0.008690	0.060367	0.030184
+pair_anchor_doctrine	glm_ohe_balanced|glm_ohe_none_isotonic	pair-specific	1000	-0.001509	0.001276	0.009073	0.004536
+split_lottery	glm_ohe_balanced (marginal)	reported, never a rule	10	0.606522	0.017964	0.055312	0.035928
+fit_noise	glm_ohe_balanced (fit seeds)	provenance, never a bar	5	0.614142	0.000003	0.000006	0.000005
