@@ -102,6 +102,19 @@ from .manifest import (
     render_results,
     validate_manifest,
 )
+from .predictions import (
+    counts as prediction_counts,
+)
+from .predictions import (
+    findings_problems as _findings_prediction_problems,
+)
+from .predictions import (
+    ledger as prediction_ledger,
+)
+from .predictions import (
+    open_predictions,
+    record_run_adjudications,
+)
 from .primitives import (
     StudyLock,
     atomic_write_json,
@@ -1044,14 +1057,22 @@ def run_one(
                     decision_reason=reason,
                 )
                 # --- predictions ledger hook (WP-E6) -------------------------
-                # The ids are already validated against the register, and the
-                # printed block is in `metrics`.  What is still missing is the
-                # adjudication itself: evaluate each id's rule here, write
-                # `manifest["predictions"] = {P#: {verdict, explanation}}`,
-                # update `state["predictions"]`, and append one
-                # `prediction_adjudicated` event INSIDE this transaction.
-                # Until then the request is recorded but not decided, and
-                # `klein status` counts these ids as still open.
+                # The ids were validated against the register before the lock;
+                # the printed block is in `metrics`.  Adjudication happens HERE,
+                # inside the transaction: the verdicts land on the manifest, in
+                # `state["predictions"]` (saved with this run's state write and
+                # committed with its evidence), and as one
+                # `prediction_adjudicated` event each.  A prediction is never
+                # decided by prose, and never outside a receipt.
+                if requested_predictions:
+                    manifest["predictions"] = record_run_adjudications(
+                        study_dir,
+                        state,
+                        requested_predictions,
+                        contract=contract,
+                        printed=metrics,
+                        experiment=run_id,
+                    )
                 # -------------------------------------------------------------
             except WorkflowError as exc:
                 manifest["decision_reason"] = str(exc)
@@ -1225,7 +1246,13 @@ def recover(study_dir: Path) -> list[str]:
     return recovered
 
 
-def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
+def finalize(
+    study_dir: Path,
+    *,
+    allow_exploratory: bool = False,
+    allow_open_predictions: bool = False,
+    open_predictions_reason: str = "",
+) -> str:
     contract = load_contract(study_dir)
     tracks = normalize_tracks(contract)
     with StudyLock(study_dir):
@@ -1289,6 +1316,37 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
         text = findings.read_text(encoding="utf-8")
         if not re.search(rf"(?i)\b{label}\b", text):
             raise WorkflowError(f"findings.md must explicitly label the study `{label}`")
+        # --- the predictions ledger closes with the study (schema 3) --------
+        # A belief written down before the evidence is only worth writing down
+        # if the study says, at the end, what became of it.  Two refusals: an
+        # OPEN prediction (decided nowhere) and an UNREPORTED one (decided in
+        # the ledger, absent from findings §②).
+        closure: dict[str, Any] = {}
+        if schema_version(contract) >= 3:
+            still_open = open_predictions(contract, state)
+            if still_open and not allow_open_predictions:
+                raise WorkflowError(
+                    "cannot finalize with open predictions: "
+                    + ", ".join(still_open)
+                    + " — adjudicate each (`klein run-one --tests P#`, or "
+                    "`klein predict adjudicate P# --verdict … --evidence …`), or "
+                    "record why they stay open with --allow-open-predictions "
+                    '--reason "<why>"'
+                )
+            if still_open:
+                if not open_predictions_reason.strip():
+                    raise WorkflowError(
+                        "--allow-open-predictions requires --reason: an unadjudicated "
+                        "belief is a finding, and the receipt must say which one"
+                    )
+                closure["open_predictions"] = {
+                    "ids": still_open,
+                    "reason": open_predictions_reason,
+                }
+            problems = _findings_prediction_problems(study_dir, contract, text)
+            if problems:
+                raise WorkflowError("; ".join(problems))
+        # --------------------------------------------------------------------
         if STRONG_CLAIM_RE.search(text) and not UNCERTAINTY_EVIDENCE_RE.search(text):
             # Loud warning, not a hard stop: prose like "the real dataset" is a
             # false positive; the enforceable epistemics live in the label check
@@ -1307,6 +1365,7 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
             "successful_confirmation": successful_confirmation,
             # keyed only when non-empty: a schema-2 receipt keeps its exact shape
             **({"confirmation_gaps": confirmation_gaps} if confirmation_gaps else {}),
+            **closure,
         }
         save_state(study_dir, state)
         append_event(
@@ -1316,6 +1375,7 @@ def finalize(study_dir: Path, *, allow_exploratory: bool = False) -> str:
             final_holdout_counts=counts,
             successful_confirmation=successful_confirmation,
             **({"confirmation_gaps": confirmation_gaps} if confirmation_gaps else {}),
+            **closure,
         )
         _commit_state_writes(study_dir, f"klein: finalized {label}")
         return label
@@ -1364,6 +1424,14 @@ def status_summary(study_dir: Path) -> str:
             for track in normalize_tracks(contract)
         )
     )
+    if version >= 3:
+        # The four numbers the referee's rubric and findings §② are checked
+        # against.  `open` is the absence of a record, not a stored verdict.
+        tally = prediction_counts(prediction_ledger(contract, state))
+        lines.append(
+            f"predictions: {tally['supported']} supported, {tally['refuted']} refuted, "
+            f"{tally['inconclusive']} inconclusive, {tally['open']} open"
+        )
     pending = [m["experiment"] for m in manifests if m.get("transaction", {}).get("status") != "complete"]
     lines.append(f"pending transactions: {', '.join(pending) if pending else 'none'}")
     return "\n".join(lines) + "\n"

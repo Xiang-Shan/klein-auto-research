@@ -52,7 +52,7 @@ def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
         parser.parse_args(["--help"])
     top = capsys.readouterr().out
     for verb in ("new", "gate", "preflight", "run-one", "recover", "status",
-                 "finalize", "noise-floor", "verify", "headroom"):
+                 "finalize", "noise-floor", "verify", "headroom", "predict"):
         assert verb in top
 
     for argv, attr, expected in (
@@ -299,6 +299,50 @@ def test_cli_stop_ack_is_registered_with_help(capsys) -> None:
         cli.main(["stop", "--help"])
     assert exit_info.value.code == 0
     assert "consecutive discards" in capsys.readouterr().out
+
+
+PREDICT_VERBS = ("list", "adjudicate")
+
+
+def test_cli_predict_verbs_are_registered_with_help(capsys) -> None:
+    """`klein predict list|adjudicate` exists with the spelling the docs promise."""
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    predict = actions[0].choices["predict"]
+    sub = [a for a in predict._subparsers._group_actions if a.dest == "predict_action"][0]
+    assert set(sub.choices) == set(PREDICT_VERBS)
+
+    listing = sub.choices["list"].format_help()
+    for flag in ("--study", "--open", "--json"):
+        assert flag in listing, flag
+    adjudicate = sub.choices["adjudicate"].format_help()
+    for flag in ("--verdict", "--evidence", "--note", "--acknowledged-by", "--force", "--reason"):
+        assert flag in adjudicate, flag
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main(["predict", "--help"])
+    assert exit_info.value.code == 0
+    assert "belief" in capsys.readouterr().out.lower()
+
+
+def test_cli_predict_dispatches_through_the_generic_handler(tmp_path: Path) -> None:
+    parser = cli.build_parser()
+    assert callable(parser.parse_args(["predict", "list", "--study", str(tmp_path)]).handler)
+    args = parser.parse_args(
+        ["predict", "adjudicate", "P7", "--verdict", "refuted",
+         "--evidence", "sweeps/x.tsv", "--acknowledged-by", "me"]
+    )
+    assert callable(args.handler)
+    assert (args.prediction, args.verdict, args.evidence) == ("P7", "refuted", ["sweeps/x.tsv"])
+
+
+def test_cli_finalize_carries_the_open_predictions_override() -> None:
+    parser = cli.build_parser()
+    args = parser.parse_args(
+        ["finalize", "--allow-open-predictions", "--reason", "the wave has not returned"]
+    )
+    assert args.allow_open_predictions is True
+    assert args.reason == "the wave has not returned"
 
 
 def _required(verb: str) -> list[str]:

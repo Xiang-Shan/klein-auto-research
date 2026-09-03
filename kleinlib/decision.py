@@ -20,11 +20,17 @@ from .errors import WorkflowError
 
 __all__ = [
     "COMBINATOR_KEYS",
+    "INCONCLUSIVE",
     "MAX_RULE_DEPTH",
     "METRIC_LINE_RE",
     "OPERATOR_ALIASES",
+    "REFUTED",
     "RULE_OPERATORS",
+    "SUPPORTED",
+    "VALID_VERDICTS",
+    "adjudicate",
     "choose_disposition",
+    "evaluate_rule",
     "parse_metric_log",
     "parse_printed_lines",
     "parse_printed_strings",
@@ -185,6 +191,191 @@ def validate_rule(rule: Any, *, where: str = "rule", depth: int = 1) -> list[str
             validate_rule(item, where=f"{where}.{name}[{index}]", depth=depth + 1)
         )
     return problems
+
+
+# ---------------------------------------------------------------------------
+# Evaluating a rule — the predictions ledger's arithmetic
+#
+# Three-valued on purpose.  ``inconclusive`` is not a polite ``refuted``: it
+# says the run did not carry the number the belief was about, and a study that
+# closes on it has a finding ("not adjudicated because ...") rather than a
+# result.  Same closed operator set as :func:`validate_rule`, same absence of
+# ``eval``/``exec``/``compile``.
+# ---------------------------------------------------------------------------
+
+SUPPORTED = "supported"
+REFUTED = "refuted"
+INCONCLUSIVE = "inconclusive"
+
+#: Every verdict a prediction can hold in the ledger.  ``open`` is the absence
+#: of a record, never a stored value.
+VALID_VERDICTS: frozenset[str] = frozenset({SUPPORTED, REFUTED, INCONCLUSIVE})
+
+
+def _num(value: float) -> str:
+    """A number as a reader would write it: no trailing float noise."""
+    return format(float(value), ".12g")
+
+
+def _verdict(held: bool) -> str:
+    return SUPPORTED if held else REFUTED
+
+
+#: ``op -> (predicate, symbol)``.  The dispatch table IS the operator set: an
+#: op that is not a key here cannot be evaluated, however the contract spells it.
+_COMPARISONS: dict[str, tuple[Any, str]] = {
+    "lt": (lambda x, v: x < v, "<"),
+    "le": (lambda x, v: x <= v, "<="),
+    "gt": (lambda x, v: x > v, ">"),
+    "ge": (lambda x, v: x >= v, ">="),
+    "ne": (lambda x, v: x != v, "!="),
+}
+
+
+def _leaf_verdict(rule: Mapping[str, Any], printed: Mapping[str, float]) -> tuple[str, str]:
+    key = str(rule.get("key"))
+    raw_op = str(rule.get("op", rule.get("operator", ""))).strip()
+    op = OPERATOR_ALIASES.get(raw_op, raw_op)
+    if key not in printed:
+        return (
+            INCONCLUSIVE,
+            f"{key} was not printed by this run → inconclusive (a missing number "
+            "is not a refutation)",
+        )
+    try:
+        observed = float(printed[key])
+    except (TypeError, ValueError):
+        return (INCONCLUSIVE, f"{key} was printed as {printed[key]!r}, not a number → inconclusive")
+    if op in _COMPARISONS:
+        predicate, symbol = _COMPARISONS[op]
+        target = float(rule["value"])
+        verdict = _verdict(predicate(observed, target))
+        return verdict, f"{key} {_num(observed)} {symbol} {_num(target)} → {verdict}"
+    if op == "eq":
+        target, tol = float(rule["value"]), float(rule["tol"])
+        delta = abs(observed - target)
+        verdict = _verdict(delta <= tol)
+        return (
+            verdict,
+            f"{key} {_num(observed)} == {_num(target)} ± {_num(tol)} "
+            f"(|Δ| = {_num(delta)}) → {verdict}",
+        )
+    if op in {"abs_lt", "abs_le"}:
+        target = float(rule["value"])
+        magnitude = abs(observed)
+        symbol = "<" if op == "abs_lt" else "<="
+        verdict = _verdict(magnitude < target if op == "abs_lt" else magnitude <= target)
+        return (
+            verdict,
+            f"|{key}| {_num(magnitude)} {symbol} {_num(target)} "
+            f"(from {_num(observed)}) → {verdict}",
+        )
+    if op == "within":
+        value = rule.get("value")
+        merged: Mapping[str, Any] = {**rule, **value} if isinstance(value, Mapping) else rule
+        target, tol = float(merged["target"]), float(merged["tol"])
+        delta = abs(observed - target)
+        verdict = _verdict(delta <= tol)
+        return (
+            verdict,
+            f"{key} {_num(observed)} within {_num(tol)} of {_num(target)} "
+            f"(|Δ| = {_num(delta)}) → {verdict}",
+        )
+    if op == "between":
+        low, high = rule.get("low"), rule.get("high")
+        if low is None and high is None:
+            low, high = rule["value"]
+        low, high = float(low), float(high)
+        verdict = _verdict(low <= observed <= high)
+        return verdict, f"{key} {_num(observed)} in [{_num(low)}, {_num(high)}] → {verdict}"
+    return (INCONCLUSIVE, f"unknown op {raw_op!r} → inconclusive")
+
+
+def evaluate_rule(
+    rule: Any, printed: Mapping[str, float], *, depth: int = 1
+) -> tuple[str, str]:
+    """Decide one declarative rule against a run's printed block.
+
+    Returns ``(verdict, explanation)`` where the verdict is ``supported``,
+    ``refuted`` or ``inconclusive`` and the explanation is ARITHMETIC ON THE
+    RECORD — ``"ci_low 336.4 > 70 → supported"`` — so a reader can re-check the
+    decision without re-running anything.
+
+    Three-valued logic through the combinators: ``all_of`` is refuted by any
+    refuted child and inconclusive if any child is; ``any_of`` is supported by
+    any supported child and inconclusive only when no child was decided in its
+    favour; ``not`` swaps supported and refuted and leaves inconclusive alone.
+    """
+    if not isinstance(rule, Mapping):
+        return (INCONCLUSIVE, f"rule is not a mapping ({type(rule).__name__}) → inconclusive")
+    if depth > MAX_RULE_DEPTH:
+        return (
+            INCONCLUSIVE,
+            f"rule nesting exceeds depth {MAX_RULE_DEPTH} → inconclusive",
+        )
+    present = sorted(COMBINATOR_KEYS & set(rule))
+    if not present:
+        try:
+            return _leaf_verdict(rule, printed)
+        except (KeyError, TypeError, ValueError) as exc:
+            # A malformed rule reaches here only if it skipped validation; it is
+            # still not a refutation of anything.
+            return (INCONCLUSIVE, f"rule could not be evaluated ({exc}) → inconclusive")
+    name = present[0]
+    child = rule[name]
+    if name == "not":
+        verdict, explanation = evaluate_rule(child, printed, depth=depth + 1)
+        flipped = {SUPPORTED: REFUTED, REFUTED: SUPPORTED}.get(verdict, verdict)
+        return flipped, f"not({explanation}) → {flipped}"
+    if not isinstance(child, Sequence) or isinstance(child, str) or not child:
+        return (INCONCLUSIVE, f"{name} holds no rules → inconclusive")
+    results = [evaluate_rule(item, printed, depth=depth + 1) for item in child]
+    verdicts = [verdict for verdict, _ in results]
+    if name == "all_of":
+        combined = (
+            REFUTED
+            if REFUTED in verdicts
+            else INCONCLUSIVE
+            if INCONCLUSIVE in verdicts
+            else SUPPORTED
+        )
+    else:  # any_of
+        combined = (
+            SUPPORTED
+            if SUPPORTED in verdicts
+            else INCONCLUSIVE
+            if INCONCLUSIVE in verdicts
+            else REFUTED
+        )
+    joined = "; ".join(explanation for _, explanation in results)
+    return combined, f"{name}[{joined}] → {combined}"
+
+
+def adjudicate(
+    prediction: Mapping[str, Any], printed: Mapping[str, float]
+) -> tuple[str, str]:
+    """Decide one registered prediction: ``inconclusive_if`` first, then the rule.
+
+    ``inconclusive_if`` is the pre-registered admission that some runs cannot
+    decide the question at all (too few effective samples, a degenerate fit).
+    It is checked BEFORE the rule so that a run inside that condition never
+    produces a verdict the contract already said it could not produce.  As a
+    RULE it fires when it evaluates ``supported``; as a SENTENCE it documents a
+    human condition the machine cannot see, and the rule decides.
+    """
+    condition = prediction.get("inconclusive_if")
+    if isinstance(condition, Mapping):
+        verdict, explanation = evaluate_rule(condition, printed)
+        if verdict == SUPPORTED:
+            return (INCONCLUSIVE, f"inconclusive_if fired: {explanation}")
+    rule = prediction.get("rule")
+    if rule is None:
+        return (
+            INCONCLUSIVE,
+            "prediction carries no rule (manual): adjudicate it with "
+            "`klein predict adjudicate` and pin its evidence",
+        )
+    return evaluate_rule(rule, printed)
 
 
 def parse_metric_log(path: Path) -> tuple[float, str | None, str | None, dict[str, float]]:
