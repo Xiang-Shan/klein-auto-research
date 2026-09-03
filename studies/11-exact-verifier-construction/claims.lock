@@ -1,0 +1,85 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | n_small | supported | exploratory | empirical-description | E0002, E0003, E0004, E0009 | on the 11 \u00d7 11 grid the verifier scored 20 points at 20000 addability tests, 21 at 200000 and 21 at 2000000 from the development seed block; from the sealed seed block, at the same largest budget, it scored 22 \u2014 the proven maximum 2n, `matched_external: true`. The objective is exact: `minimum_delta` is 1 and every value is an integer recomputed from the artifact's bytes |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ1 | n_large | supported | exploratory | empirical-description | E0005, E0006, E0007, E0010 | on the 31 \u00d7 31 grid the same search scored 50, 53 and 54 across the same budget ladder, and 55 from the sealed seed block: it did not reach 62 at either seed. The largest budget bought 19014 greedy completions at n = 11 and 2190 at n = 31, because one completion costs about n\u00b2 addability tests |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ2 | n_small | supported | confirmed | procedural-verdict | E0001, E0002, E0003, E0004, E0005, E0006, E0007, E0008 | the declared verifier rejected 12 of 12 planted invalid objects and accepted the known-valid object at exactly 11, its value known in advance; on all seven honest runs the verifier-computed `claim_excess` was 0; and the one run made to report a single extra point was refused \u2014 `reported 21.0` against `verified 20.0`, disposition `crash`, reason `verifier_disagreement`, ledger row `NA` |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ1 | n_small | supported | confirmed | procedural-verdict | E0004, E0009 | the development lane and the sealed lane disagree about whether this search reaches 22, and they differ only in the seed: `search_seed` 20260903 plateaued at 21 from evaluation 152572 onward, `search_seed` 20260917 reached 22 at evaluation 1612132. Two seeds, one success \u2014 a difference, not a rate |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "(mechanism-interpretation, exploratory)* A single run of a randomized",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "Write the checker as the dumbest correct thing you can, and let the searcher be",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "Freeze the controls before the checker meets them (evidence: E0001). The twelve",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "Give the guard a test it can fail (evidence: E0008). One of the ten runs in this",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "When the best known value equals a proven bound, do the headroom arithmetic",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "7d55da17c43a33db33b2d832e723f7578fca15f2",
+  "klein_commit": "7d55da17c43a33db33b2d832e723f7578fca15f2",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "11-exact-verifier-construction"
+}
