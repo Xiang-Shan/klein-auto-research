@@ -165,10 +165,14 @@
       "strength": "exploratory"
     },
     "C14": {
-      "claim": "(research-discipline, exploratory, evidence E0011, E0012)* **Read the",
-      "class": null,
+      "claim": "Read the sealed rehearsal's numbers, not just its exit code: one dry-run failed loudly on a column-shape defect, and a second PASSED with exit 0 while carrying an inverted distance rescale that would have recorded P7 refuted at 2680.495911 and spent the estimate track's only access on a prediction never actually tested",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0011",
+        "E0012",
+        "art:dryrun_rescale"
+      ],
       "numbers": [
         "bad_rescale_gap",
         "exit_ok"
