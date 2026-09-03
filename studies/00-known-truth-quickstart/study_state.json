@@ -78,5 +78,16 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "00-known-truth-quickstart",
-  "updated_at": "2026-09-03T05:27:25.781242Z"
+  "sweeps": {
+    "split_lottery": {
+      "registered_at": "2026-09-03T05:27:25.915123Z",
+      "rows_crash": 0,
+      "rows_ok": 10,
+      "script": "sweeps/noise_floor.py",
+      "script_sha256": "fdd97f974be077646290551759efb9218e00e537ffcb022341b5aad55ace70c8",
+      "sidecar": "sweeps/split_lottery.sidecar.tsv",
+      "sidecar_sha256": "1a7559fc275316b937552ba1ab7ebab53d0fd8106ca9e519fec88f2f28ea49aa"
+    }
+  },
+  "updated_at": "2026-09-03T05:27:25.915303Z"
 }
