@@ -163,6 +163,7 @@
       "evidence": [],
       "numbers": [
         "e0008_sealed_gap",
+        "max_jaccard_dev",
         "max_jaccard_sealed",
         "sealed_gap_nats"
       ],
@@ -370,6 +371,13 @@
       "note": "E0001 minus E0006",
       "precision": 6,
       "value": 0.052855
+    },
+    "max_jaccard_dev": {
+      "art": "neardup",
+      "claim": "C7",
+      "note": "the same for development against train",
+      "precision": 6,
+      "value": 0.023131
     },
     "max_jaccard_sealed": {
       "art": "neardup",
