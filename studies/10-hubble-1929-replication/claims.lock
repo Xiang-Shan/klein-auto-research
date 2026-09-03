@@ -150,10 +150,14 @@
       "strength": "exploratory"
     },
     "C13": {
-      "claim": "(research-discipline, exploratory, evidence E0011, art:sealed_mags,",
-      "class": null,
+      "claim": "Before using a column as evidence, ask what it was computed from: Table 2's distance column is the velocity divided by Hubble's adopted constant, so comparing this study's K against it would have returned the ratio of the two constants; the sealed statistic over the 22 rows uses only the columns Table 2 measured",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0011",
+        "art:sealed_mags",
+        "art:contract"
+      ],
       "numbers": [
         "n_sealed_rows",
         "table_two"
