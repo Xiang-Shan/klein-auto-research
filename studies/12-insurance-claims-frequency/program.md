@@ -329,3 +329,47 @@ commit.
   With no incumbent yet the audit is armed but not binding; at an anchor near 0.61 it
   sits above 10, so the frontier is not arithmetically closed. `h >= 1` is read as "not
   excluded", never as "plausible".
+
+## Phase slates
+
+At every phase start, run the slate ritual (references/phase-ritual.md):
+propose 4-6 falsifiable candidates, score novelty / testability / expected
+information 1-3, record the table and the chosen candidate here, and mirror
+the ranked survivors into playbook.md "Next-best candidates".
+
+### Phase adaptive-1 slate
+
+Scored after the Phase 0 floor landed at `minimum_delta` 0.0375805, so testability is
+judged against a bar that exists — and it is a large bar: it is 96 % of the entire
+spread of the v1 ledger (0.625462 to 0.664322). Any candidate whose predicted move is
+under ~0.038 cannot be decided as a KEEP by one run, and every candidate below is
+scored honestly on that basis rather than pretending otherwise. Note the asymmetry
+that keeps three of them worth running anyway: a run that cannot produce a keep can
+still adjudicate a registered prediction (the anchors are `within` rules on
+`primary_metric`, which the floor does not touch) and still measure a gap.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Σ |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `glm_ohe_balanced`: the v1 split-identity anchor, refitted on the identical training rows; decides P1 and gives the frontier an incumbent | 1 | 3 | 3 | 7 |
+| 2 | `glm_splines_isotonic` against that anchor: the v1 spline+isotonic chain, recovered from prose that named its three non-default kwargs; decides P2 and P3 | 3 | 2 | 3 | 8 |
+| 3 | `hgbt_balanced` against the calibrated GLM: the only rung recoverable verbatim from a committed file; decides P4 and P5 | 3 | 2 | 3 | 8 |
+| 4 | `glm_ohe_none_isotonic` against the anchor: the doctrine A/B, one lever, calibration measured on Brier; decides P6 | 3 | 3 | 3 | 9 |
+| 5 | Drop the six redundant categoricals the data card's WARN #4 names (`region_code`↔`region_density`, `model`↔`engine_type`/`segment` are 1:1) and refit the anchor | 2 | 1 | 1 | 4 |
+| 6 | Re-run the v1 sweep's winner (`learning_rate` 0.06) against `hgbt_balanced` | 1 | 1 | 2 | 4 |
+
+Chosen, in the order the research plan registered before the gate: 1 (a frontier needs
+an incumbent before anything can be compared to it), then 2, 3, 4. Candidate 4 scores
+the maximum because its outcome is decidable EITHER WAY at this floor: P6 predicts the
+AUC cost is under one floor, and at a floor of 0.0376 that clause is nearly certain to
+hold, while the Brier clause is a large effect the floor does not govern — so the run
+adjudicates a two-clause rule rather than fishing for a keep. Candidates 2 and 3 score
+2 on testability, honestly: their expected moves (+0.026 and +0.011 in the v1 ledger)
+are BELOW the measured floor, so neither can be a keep, but each decides two registered
+predictions and measures a gap the study exists to report.
+
+#5 scores 1 on testability (the predicted move from dropping redundant columns is a
+few thousandths, an order of magnitude under the floor) and 1 on information (a GLM's
+coefficient stability is not a question this study registered). #6 scores 1 on
+testability for the same reason — the v1 sweep's own lift was +0.001425, which P8 exists
+to compare against the floor arithmetically, with no run needed. Both go to the playbook
+queue rather than the ledger.
