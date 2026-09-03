@@ -192,7 +192,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "coverage_sealed"
+        "coverage_sealed",
+        "nominal_level"
       ],
       "strength": "exploratory"
     },
@@ -334,6 +335,13 @@
       "note": "OLS through the origin, 24 objects (E0002)",
       "precision": 6,
       "value": 423.937323
+    },
+    "nominal_level": {
+      "art": "covc",
+      "claim": "C4",
+      "note": "the interval's nominal coverage (study.yaml:simulation.ci_level)",
+      "precision": 2,
+      "value": 0.95
     },
     "p1_tolerance": {
       "art": "contract",
