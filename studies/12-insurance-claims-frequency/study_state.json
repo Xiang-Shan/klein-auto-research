@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-09-03T08:18:38.452188Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-09-03T08:18:49.643931Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "bc55d3559d6bd58693158484fff1a2adf32f1fff9efcd8ce7fbb6e1b80863923",
+    "method_card.md": "5afdd080a2fda15fed8ace7d5902a6f0d7364b3b4c92db46bda7d234c90153f5",
     "research_plan.md": "e252b06c81629365b39ab708d34cfeafa41afe0bfe00f788d1c09ddfb45590c4",
     "scouting_ledger.md": "5fb8688f1ba84e3edc7f6636c189d904876c29066e9440f13b02074cd47ff8e9",
     "study.yaml": "49a59d02fe9a0157a6b195a4347b6fa86fce82ddeded81f2fca0c6193a86bba4"
@@ -30,7 +35,8 @@
       "development": "7e3d3ff85e624821037ef0c360f9e67451c1fd06976db440f86682ca9a892ac3",
       "final_test": "06d18ee16624e7e0d12f0ece4f08cc37321bc61802ff155e08d07e23b2cb0631",
       "policy": "075709274b5713409cda9fe9ec143410ccb2c6b9d64f5ecf1a67d3d3fbee55e7"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -56,9 +62,13 @@
       "status": "overridden"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-03T08:18:49.643931Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "5afdd080a2fda15fed8ace7d5902a6f0d7364b3b4c92db46bda7d234c90153f5"
+      },
+      "note": "triad complete: theory (notation table + five load-bearing equations), papers (10 references, each verified against its publisher/arXiv page 2026-09-03, refs_verified true), practice (from-scratch PAVA and paired bootstrap, plus the four rungs lib/rungs.py realizes)",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -78,5 +88,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "12-insurance-claims-frequency",
-  "updated_at": "2026-09-03T08:18:39.504991Z"
+  "updated_at": "2026-09-03T08:18:49.644939Z"
 }
