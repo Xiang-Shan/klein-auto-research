@@ -125,10 +125,15 @@
       "strength": "exploratory"
     },
     "C12": {
-      "claim": "block.  *(research-discipline, exploratory, evidence sweep:coverage_floor,",
-      "class": null,
+      "claim": "The Phase-0 floor was optimistic about its own quantity: five blocks put coverage between 0.925000 and 0.932000 and gave a minimum_delta of 0.0060663, and the development block then measured 0.911000 against the analytic interval's 0.938000 - a k = 5 spread of a Monte-Carlo proportion can come in below that proportion's own binomial standard error",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "sweep:coverage_floor",
+        "E0009",
+        "E0010",
+        "art:floor_sidecar"
+      ],
       "numbers": [
         "coverage_analytic",
         "coverage_dev",
