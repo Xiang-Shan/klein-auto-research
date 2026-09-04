@@ -154,6 +154,7 @@
       "evidence": [],
       "numbers": [
         "hgbt_sealed_auc",
+        "hgbt_sealed_delta",
         "modern_sealed_ref"
       ],
       "strength": "exploratory"
@@ -280,6 +281,13 @@
       "note": "E0011 primary_metric, the selected challenger on the sealed rows",
       "precision": 6,
       "value": 0.987179
+    },
+    "hgbt_sealed_delta": {
+      "art": "aux",
+      "claim": "C6",
+      "note": "E0011 delta_vs_reference - the study's only non-tied challenger-vs-Fisher comparison",
+      "precision": 6,
+      "value": -0.012821
     },
     "modern_floor": {
       "art": "contract",
