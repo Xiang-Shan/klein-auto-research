@@ -142,7 +142,8 @@
       "numbers": [
         "sepal_dev_auc",
         "sepal_dev_delta",
-        "sepal_dev_floors"
+        "sepal_dev_floors",
+        "sepal_sealed_floors"
       ],
       "strength": "exploratory"
     },
@@ -325,6 +326,13 @@
       "note": "E0008 delta_in_floors",
       "precision": 3,
       "value": -0.661
+    },
+    "sepal_sealed_floors": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0012 sepal_delta_in_floors on the sealed rows",
+      "precision": 4,
+      "value": -0.8547
     }
   },
   "study_id": "15-iris-90years-relaunch"
