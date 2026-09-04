@@ -1,1 +1,15 @@
 experiment	metric	value
+E0001	ci_low	0.9999999999999999
+E0001	ci_high	1.0
+E0001	n	25
+E0001	wall_seconds	0.8038091659545898
+E0001	raw_rows	100
+E0001	raw_versicolor	50
+E0001	raw_virginica	50
+E0001	raw_features	4
+E0001	partition_sum_matches	1
+E0001	val_accuracy	0.96
+E0001	val_errors	1
+E0001	val_rows	25
+E0001	ci_width	0.0
+E0001	n_boot	2000

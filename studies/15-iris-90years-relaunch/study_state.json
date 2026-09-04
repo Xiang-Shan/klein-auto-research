@@ -80,9 +80,91 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
+  "predictions": {
+    "P0": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "all_of[raw_rows 100 == 100 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_versicolor 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_virginica 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_features 4 == 4 \u00b1 0 (|\u0394| = 0) \u2192 supported; partition_sum_matches 1 == 1 \u00b1 0 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "all_of[raw_rows 100 == 100 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_versicolor 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_virginica 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_features 4 == 4 \u00b1 0 (|\u0394| = 0) \u2192 supported; partition_sum_matches 1 == 1 \u00b1 0 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+          "recorded_at": "2026-09-04T16:06:24.674546Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.674546Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 1 >= 0.9 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 1 >= 0.9 \u2192 supported",
+          "recorded_at": "2026-09-04T16:06:24.674804Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.674804Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "val_errors 1 <= 3 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "val_errors 1 <= 3 \u2192 supported",
+          "recorded_at": "2026-09-04T16:06:24.674944Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.674944Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P3": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "ci_width 0 > 0.05 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "ci_width 0 > 0.05 \u2192 refuted",
+          "recorded_at": "2026-09-04T16:06:24.675064Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.675064Z",
+      "source": "run",
+      "verdict": "refuted"
+    }
+  },
   "prepared_data": {
     "path": "/private/tmp/claude-501/-Users-xiang-Claude-Auto-research-klein-auto-research/640c17a0-3232-46b0-bc3d-02d6e4d0a34a/scratchpad/study15-wt/studies/15-iris-90years-relaunch/data/prepared/iris_hardpair.csv",
     "sha256": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69"
@@ -90,5 +172,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "15-iris-90years-relaunch",
-  "updated_at": "2026-09-04T15:51:01.187321Z"
+  "updated_at": "2026-09-04T16:06:24.675859Z"
 }

@@ -1,0 +1,108 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 338,
+      "committed": true,
+      "sha256": "ec5022960eddf7e2d2ee7f0f55ef04a9988dbafa66095b7be8cdb471596023f4"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 609,
+      "committed": true,
+      "sha256": "773f2ef0aa7a1e3e73f46aa9c6834da2b41f46ee8a103016b9ee67c446fe0b6e"
+    }
+  },
+  "base_commit": "7205cf6daee2432b3702d416549d964bca5ad970",
+  "candidate_commit": "bc1beecf8ac0500ad4be4c545f1d66855495d333",
+  "code_patch_hash": "786e14f6ba3c3bbc307084490bbe0166b413e5136016c7e49840ac665790c00c",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "E0001 anchor: Fisher 1936 LDA, four features, fit on 49 training rows; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-04T16:06:24.674222Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+    "split_partition": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "ci_high": 1.0,
+    "ci_low": 1.0,
+    "ci_width": 0.0,
+    "n": 25.0,
+    "n_boot": 2000.0,
+    "partition_sum_matches": 1.0,
+    "primary_metric": 1.0,
+    "raw_features": 4.0,
+    "raw_rows": 100.0,
+    "raw_versicolor": 50.0,
+    "raw_virginica": 50.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.8,
+    "val_accuracy": 0.96,
+    "val_errors": 1.0,
+    "val_rows": 25.0,
+    "wall_seconds": 0.803809
+  },
+  "phase": "anchor-and-floor",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 3,
+  "predictions": {
+    "P0": {
+      "explanation": "all_of[raw_rows 100 == 100 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_versicolor 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_virginica 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_features 4 == 4 \u00b1 0 (|\u0394| = 0) \u2192 supported; partition_sum_matches 1 == 1 \u00b1 0 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+      "verdict": "supported"
+    },
+    "P1": {
+      "explanation": "primary_metric 1 >= 0.9 \u2192 supported",
+      "verdict": "supported"
+    },
+    "P2": {
+      "explanation": "val_errors 1 <= 3 \u2192 supported",
+      "verdict": "supported"
+    },
+    "P3": {
+      "explanation": "ci_width 0 > 0.05 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P0",
+    "P1",
+    "P2",
+    "P3"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-04T16:06:23.086561Z",
+  "timed_out": false,
+  "track": "fisher",
+  "transaction": {
+    "ready_at": "2026-09-04T16:06:24.675482Z",
+    "status": "pending"
+  },
+  "wall_seconds": 1.5875532920472324
+}
