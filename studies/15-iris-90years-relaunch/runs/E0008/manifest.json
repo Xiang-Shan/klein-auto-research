@@ -85,8 +85,10 @@
   "timed_out": false,
   "track": "ablation",
   "transaction": {
-    "ready_at": "2026-09-04T17:25:04.143438Z",
-    "status": "pending"
+    "committed_at": "2026-09-04T17:25:04.216496Z",
+    "evidence_commit": "6532bd2907c27854b046d76b4d07ae006521386a",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 0.7790374169126153
 }
