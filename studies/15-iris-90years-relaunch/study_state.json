@@ -11,11 +11,16 @@
     "method": {
       "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
       "timestamp": "2026-09-04T15:51:01.186234Z"
+    },
+    "referee": {
+      "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "timestamp": "2026-09-04T18:43:53.736136Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166",
     "method_card.md": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c",
+    "referee_report.md": "ae265f85e9911a135cc6dc7057a8e9a3bfd8173dd7aeda29b0e334df8f13d1b5",
     "research_plan.md": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147",
     "scouting_ledger.md": "f222f0e6574c96a6d4e168fb9826bc35c55e407c215e2de9c7bc976d224de9ee",
     "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
@@ -78,6 +83,18 @@
       },
       "note": "",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-04T18:43:53.736136Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "referee_report.md": "ae265f85e9911a135cc6dc7057a8e9a3bfd8173dd7aeda29b0e334df8f13d1b5"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: Claude Opus 5 / claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "last_experiment": 12,
@@ -600,5 +617,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:53:57.798964Z"
+  "updated_at": "2026-09-04T18:43:53.736473Z"
 }
