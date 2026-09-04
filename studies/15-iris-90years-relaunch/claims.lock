@@ -155,7 +155,8 @@
       "numbers": [
         "hgbt_sealed_auc",
         "hgbt_sealed_delta",
-        "modern_sealed_ref"
+        "modern_sealed_ref",
+        "sealed_hgbt_acc"
       ],
       "strength": "exploratory"
     },
@@ -337,6 +338,13 @@
       "note": "E0012 delta_in_floors, petal-only against all-four on the sealed rows",
       "precision": 4,
       "value": -0.0456
+    },
+    "sealed_hgbt_acc": {
+      "art": "aux",
+      "claim": "C6",
+      "note": "E0011 val_accuracy, 3 of 25 sealed flowers misclassified",
+      "precision": 2,
+      "value": 0.88
     },
     "sealed_lda_acc": {
       "art": "aux",
