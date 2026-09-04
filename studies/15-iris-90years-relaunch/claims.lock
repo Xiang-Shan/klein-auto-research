@@ -78,11 +78,18 @@
       "strength": "exploratory"
     },
     "C11": {
-      "claim": "Before registering a bounded metric as a study's primary, check whether it",
-      "class": null,
+      "claim": "Before registering a bounded metric as a study's primary, check whether it can reach its bound on the data at hand: here val_auc hit its declared ideal of 1.0 on the anchor run and again on the sealed block, and everything downstream - the noise floor, the headroom audit, the frontier arithmetic and every floor-normalized rule - degenerated at once.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "sweep:floor_modern",
+        "sweep:floor_fisher"
+      ],
+      "numbers": [
+        "modern_ideal"
+      ],
       "strength": "exploratory"
     },
     "C12": {
