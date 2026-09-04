@@ -115,7 +115,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "dev_lda_auc"
+        "dev_lda_auc",
+        "sealed_lda_auc"
       ],
       "strength": "exploratory"
     },
@@ -208,6 +209,13 @@
       "claim": "contract",
       "note": "tracks.modern.metric.bound.ideal - a perfect ROC-AUC",
       "precision": 1,
+      "value": 1.0
+    },
+    "sealed_lda_auc": {
+      "art": "results",
+      "claim": "C3",
+      "note": "Fisher's LDA on the 25 sealed rows, val_auc (E0010)",
+      "precision": 6,
       "value": 1.0
     }
   },
