@@ -131,15 +131,25 @@
       "strength": "confirmed"
     },
     "C3": {
-      "claim": "RQ3 | fisher, modern | refuted \u2014 right conclusion, wrong mechanism | confirmed | empirical-description | E0001, E0010, `sweep:floor_fisher`, `sweep:floor_modern`, `sweep:fit_noise_svm_rbf`, `sweep:fit_noise_hgbt`, `rep:E0001@20260904T174249Z` | The prior expected a paired floor of `0.02`\u2013`0.10` val_auc against an incumbent distance-to-perfection under `0.05`. Measured: Fisher's LDA scores val_auc `1.000000` on the development block (E0001) **and** `1.000000` on the sealed block (E0010), so the distance to the declared ideal `1.0` is `0`; the paired-bootstrap floor over 1000 replicates on `(lda_all4, hgbt)` has std `0` and range `0`; the marginal split-lottery floor over 5 redraws has std `0` and range `0`. `minimum_delta` is `0` on both tracks and `kleinlib.decision.track_headroom` returns no number at all. \"Which classifier wins\" is unanswerable on this data with this metric \u2014 as the prior concluded, but because the metric saturated, not because the ruler was coarse. |",
-      "class": null,
+      "claim": "Fisher's 1936 discriminant reaches val_auc 1.000000 on the development block and 1.000000 again on the sealed block, its declared ideal is 1.0, and every floor recipe measured before the parade on the fisher and modern tracks returned a spread of exactly 0 - so minimum_delta is 0 on both tracks and no headroom number is computable.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "sweep:floor_fisher",
+        "sweep:floor_modern",
+        "sweep:fit_noise_svm_rbf",
+        "sweep:fit_noise_hgbt",
+        "rep:E0001@20260904T174249Z"
+      ],
       "numbers": [
         "dev_lda_auc",
+        "modern_floor",
+        "modern_ideal",
         "sealed_lda_auc"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C4": {
       "claim": "RQ2 (petal half) | ablation | supported | confirmed | empirical-description | E0007, E0009, E0012, `sweep:floor_ablation`, `rep:E0007@20260904T174632Z` | Petal length and petal width alone carry essentially all the separation. Development: `lda_petal` `1.000000` against `lda_all4` `1.000000` in the same cell, `delta_vs_reference` `0.0`, `delta_in_floors` `0.0` (E0007); the same comparison with `hgbt` instead of LDA gives `delta_in_floors` `0.0` (E0009), so it is a property of the flowers, not of the model family. Sealed: `0.987179` against `1.0`, `delta_vs_reference` `-0.012821`, `delta_in_floors` `-0.0456` \u2014 inside the measured floor `0.28125` by more than an order of magnitude. |",
