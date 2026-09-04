@@ -21,7 +21,7 @@
     "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
   },
   "created_at": "2026-09-04T14:40:49.017369Z",
-  "current_phase": "anchor-and-floor",
+  "current_phase": "parade",
   "final_holdout_access": {
     "ablation": {
       "accessed_at": null,
@@ -82,7 +82,14 @@
   },
   "last_experiment": 1,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "anchor-and-floor": {
+      "acknowledged_at": "2026-09-04T17:06:23.905633Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "note": "AUC pegs (floor=0) on fisher/modern; user directed: run the parade anyway, expect P4/P5-P8/P10/P11 inconclusive",
+      "playbook_sha256": "ee3032e4e0707d437d8cf457dc27e8e10d7b221c10879b1cfe325af6798814cc"
+    }
+  },
   "predictions": {
     "P0": {
       "evidence": [
@@ -219,5 +226,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T16:16:42.260289Z"
+  "updated_at": "2026-09-04T17:06:23.906154Z"
 }
