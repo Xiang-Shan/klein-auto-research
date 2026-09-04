@@ -152,7 +152,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "hgbt_sealed_auc"
+      ],
       "strength": "exploratory"
     },
     "C7": {
@@ -270,6 +272,13 @@
       "note": "E0006 val_auc as stored, printing as 1.000000",
       "precision": 16,
       "value": 0.9999999999999999
+    },
+    "hgbt_sealed_auc": {
+      "art": "results",
+      "claim": "C6",
+      "note": "E0011 primary_metric, the selected challenger on the sealed rows",
+      "precision": 6,
+      "value": 0.987179
     },
     "modern_floor": {
       "art": "contract",
