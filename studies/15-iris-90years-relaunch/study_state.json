@@ -44,6 +44,26 @@
       "experiment": "E0011"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "ablation": 1,
+      "fisher": 1,
+      "modern": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: Claude Opus 5 / claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "ablation": "E0012",
+      "fisher": "E0010",
+      "modern": "E0011"
+    },
+    "timestamp": "2026-09-04T19:21:18.451460Z"
+  },
   "fingerprints": {
     "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
     "split": {
@@ -596,7 +616,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "15-iris-90years-relaunch",
   "sweeps": {
     "fit_noise_hgbt": {
@@ -645,5 +665,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T19:21:10.569276Z"
+  "updated_at": "2026-09-04T19:21:18.451463Z"
 }
