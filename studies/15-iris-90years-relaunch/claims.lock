@@ -256,12 +256,20 @@
       "strength": "exploratory"
     },
     "C9": {
-      "claim": "The disposition arithmetic turned four ties into four \"keeps\".*",
-      "class": null,
+      "claim": "The disposition arithmetic turned ties into keeps: with minimum_delta measured at 0 the frontier rule degenerates to a non-strict comparison of the printed block against itself, so the histogram gradient-boosted tree's raw val_auc of 0.9999999999999999 - a floating-point hair below the reference, printing as 1.000000 with delta_vs_reference -0.0 - was filed as a frontier improvement alongside two exact ties.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0005",
+        "E0006",
+        "art:results"
+      ],
       "numbers": [
-        "hgbt_dev_auc_raw"
+        "dev_lda_auc",
+        "hgbt_dev_auc_raw",
+        "modern_floor"
       ],
       "strength": "exploratory"
     }
