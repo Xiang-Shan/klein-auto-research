@@ -125,7 +125,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "petal_dev_delta_floors"
+      ],
       "strength": "exploratory"
     },
     "C5": {
@@ -238,6 +240,13 @@
       "note": "tracks.modern.metric.bound.ideal - a perfect ROC-AUC",
       "precision": 1,
       "value": 1.0
+    },
+    "petal_dev_delta_floors": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0007 and E0009 delta_in_floors, petal-only against all-four",
+      "precision": 1,
+      "value": 0
     },
     "sealed_lda_acc": {
       "art": "aux",
