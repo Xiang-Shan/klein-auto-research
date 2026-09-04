@@ -3,9 +3,14 @@
     "consult": {
       "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
       "timestamp": "2026-09-04T15:02:38.717705Z"
+    },
+    "data": {
+      "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "timestamp": "2026-09-04T15:22:12.366173Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166",
     "research_plan.md": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147",
     "scouting_ledger.md": "f222f0e6574c96a6d4e168fb9826bc35c55e407c215e2de9c7bc976d224de9ee",
     "study.yaml": "d1cdcd2d7586088cbbaa89afaff9aaba508f9c94f4e097c7cd9827e822c8b324"
@@ -30,8 +35,12 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205"
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "split": {
+      "development": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed",
+      "final_test": "49a84dcd63b6defb5c929fc2fe591d9652f41e858f918cfb7ddb47513d1524f1",
+      "policy": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205"
+    }
   },
   "gates": {
     "consult": {
@@ -47,9 +56,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-04T15:22:12.366173Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "data_card.md": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166"
+      },
+      "note": "duplicate-row split-contamination BLOCKER found and fixed in prepare.py (dedup, no study.yaml edit); 12/12 mechanized checks pass",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -61,11 +74,11 @@
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
-    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/15-iris-90years-relaunch/data/prepared/iris_hardpair.csv",
-    "sha256": null
+    "path": "/private/tmp/claude-501/-Users-xiang-Claude-Auto-research-klein-auto-research/640c17a0-3232-46b0-bc3d-02d6e4d0a34a/scratchpad/study15-wt/studies/15-iris-90years-relaunch/data/prepared/iris_hardpair.csv",
+    "sha256": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69"
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "15-iris-90years-relaunch",
-  "updated_at": "2026-09-04T15:02:38.718750Z"
+  "updated_at": "2026-09-04T15:22:12.914138Z"
 }
