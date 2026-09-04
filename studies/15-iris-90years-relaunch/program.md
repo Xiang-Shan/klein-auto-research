@@ -252,6 +252,97 @@ recorded below, survivors mirrored into `playbook.md`.
   P4 branch ("if h < 1, ack; if h >= 1, proceed") cannot fire either way until this is
   resolved. **This is the first item Phase `parade` must address, on the record,
   before spending E0002.**
+- 2026-09-04 — Phase `parade` opened. The orchestrator relayed an explicit user
+  decision on the item flagged above: **run the parade anyway**, `minimum_delta=0`
+  and all. P4-P8/P10-P11 are expected to read INCONCLUSIVE by their own stated
+  `inconclusive_if` clauses (each already names "minimum_delta is still 0" as the
+  condition, written before Phase 0 could measure the floor at exactly zero rather
+  than leave it unmeasured — the same condition, reached a different way). This was
+  NOT re-litigated, `study.yaml` was NOT edited, and no metric was swapped — the
+  ladder runs exactly as `research_plan.md` fixed it.
+- 2026-09-04 — EXPERIMENT, Phase `parade`, E0002 (`modern`, `keep`, commit
+  `c9925f599d13`). Seeds the `modern` frontier: `lda_all4`, identical recipe to
+  E0001, refit on the SAME 49/25 split (`split_fingerprint` unchanged,
+  `41553e71e4ed…`). Printed block: `primary_metric(val_auc)=1.000000
+  reference_metric=1.0 delta_vs_reference=0.0 val_accuracy=0.96 val_errors=1`.
+  **Consistency check passes**: matches E0001's 1.000000 to the printed precision —
+  the two tracks are reading the same rows. `gap_in_floors` not printed
+  (`minimum_delta=0`), so **P4 reads INCONCLUSIVE** exactly as anticipated — not
+  refuted, not supported. Disposition `keep` fires from `choose_disposition`'s
+  "first valid result on this track" branch (no prior `modern` incumbent), not from
+  any comparison arithmetic.
+- 2026-09-04 — EXPERIMENT, Phase `parade`, E0003 (`modern`, `keep`, commit
+  `604b43ee54bc`). `logreg_l2` (`StandardScaler` → L2 logistic regression) vs
+  `lda_all4` refit paired in the same run. Printed block:
+  `primary_metric(val_auc)=1.000000 reference_metric=1.0 delta_vs_reference=0.0
+  val_accuracy=0.96 val_errors=1`. `delta_in_floors` not printed (`minimum_delta=0`)
+  → **P5 reads INCONCLUSIVE**. Disposition `keep` fires because
+  `choose_disposition`'s frontier rule reads the PRINTED (rounded-to-6-decimals)
+  block: `primary_metric 1.000000 >= old 1.000000 + minimum_delta 0` is TRUE on a
+  tie — logreg_l2 did not beat Fisher's LDA, it matched it exactly, and a
+  zero-floor contract cannot distinguish a tie from an improvement. Flagged here for
+  the P9 count below.
+- 2026-09-04 — EXPERIMENT, Phase `parade`, E0004 (`modern`, `discard`, commit
+  `96bf2a812383`). `knn5` (`StandardScaler` → 5-NN) vs `lda_all4` paired. Printed
+  block: `primary_metric(val_auc)=0.990385 reference_metric=1.0
+  delta_vs_reference=-0.009615 val_accuracy=0.96 val_errors=1`. The ONLY genuine
+  loss in the parade — 5-NN's coarse score resolution on 25 rows (P6's own stated
+  reason) costs a real, if `delta_in_floors`-unmeasurable, 0.0096 AUC. `delta_in_
+  floors` not printed → **P6 reads INCONCLUSIVE**, not supported, even though the
+  raw number is exactly the direction P6 predicted — the prediction's rule needs the
+  floor-normalized key, which a zero floor cannot produce. Disposition `discard`:
+  `0.990385 < 1.000000 + 0`.
+- 2026-09-04 — EXPERIMENT, Phase `parade`, E0005 (`modern`, `keep`, commit
+  `88f2d2260cc2`). `svm_rbf` (`StandardScaler` → RBF SVC, `probability=True`) vs
+  `lda_all4` paired. Printed block: `primary_metric(val_auc)=1.000000
+  reference_metric=1.0 delta_vs_reference=0.0 val_accuracy=0.96 val_errors=1` —
+  exactly the Phase-0 `fit_noise` sweep's own finding reproduced (`svm_rbf` reaches
+  AUC 1.0 bit-identically on every seed tried there too). `delta_in_floors` not
+  printed → **P7 reads INCONCLUSIVE**. `keep` on the same tie mechanism as E0003.
+- 2026-09-04 — EXPERIMENT, Phase `parade`, E0006 (`modern`, `keep`, commit
+  `ea61ca951af8`). `hgbt` (`HistGradientBoostingClassifier`, raw features) vs
+  `lda_all4` paired. Printed block: `primary_metric(val_auc)=1.000000
+  reference_metric=1.0 delta_vs_reference=-0.0 val_accuracy=1.0 val_errors=0` — the
+  raw AUC is `0.9999999999999999` (the Phase-0 `fit_noise` sweep's own float
+  artifact, reproduced here), which rounds to the printed `1.000000` and reads as a
+  tie against the printed reference. `delta_in_floors` not printed → **P8 reads
+  INCONCLUSIVE — refuted in neither direction**: hgbt did NOT land a floor below
+  lda_all4 as P8 predicted (there is no floor to land below), but it also did not
+  land above it in any resolvable sense — `val_errors=0` (beating E0001/E0002's
+  single miss at the 0.5 threshold) is the one number in this run that is not tied.
+  `keep` fires on the same rounded-tie mechanism as E0003/E0005.
+- 2026-09-04 — Decision: **the parade's own `keep` count is a printing artifact, not
+  a substantive result — flagged before P9 is adjudicated.** Four of five `modern`
+  cells (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt) disposition
+  `keep`; only E0004 (knn5) discards. But `choose_disposition`'s frontier arithmetic
+  with `minimum_delta=0` is `primary_metric >= old + 0`, evaluated on the PRINTED,
+  6-decimal-rounded block — so `keep` here means only "printed AUC >= 1.000000",
+  which every recipe except knn5 satisfied by tying (not beating) Fisher's own LDA
+  refit in the same cell. Zero of the four challengers exceeded 1.000000 outside of
+  print-rounding; `delta_vs_reference` is `0.0` or `-0.0` on every keep. This is the
+  same phenomenon Phase 0 already measured (`sweep:floor_modern`: `AUC(hgbt) -
+  AUC(lda_all4) = 0` on all 1000 paired-bootstrap resamples) now showing up as a
+  disposition label rather than a floor. Findings must report BOTH numbers: 4
+  printed keeps, 0 challengers that resolvably beat the incumbent.
+- 2026-09-04 — Decision: **P9 REFUTED** (`klein predict adjudicate`, evidence
+  `E0002,E0003,E0004,E0005,E0006,results.tsv`, pinned sha256 `6dc8c35730c5…`).
+  P9's literal arithmetic (`count(modern rows with status=='keep') == 0`) is false:
+  the count is 4, not 0, for the printing-artifact reason in the Decision
+  immediately above — not because ninety years of research produced four
+  substantive wins. The `modern` track's incumbent after the parade is E0006
+  (`hgbt`, `val_accuracy=1.0`, `val_errors=0`), the last `keep` filed, per
+  `choose_disposition`'s incumbent-selection rule (most recent `keep` on the
+  track) — this is now what a `confirmation`-phase sealed run would need to
+  restore into `train.py` before spending the `modern` track's one sealed access.
+  RQ1's prior ("zero of the four families earns a keep") is therefore REFUTED on
+  the letter of "keep" and SUPPORTED on the substance the prior actually meant
+  ("no post-1936 method separates the species measurably better") — findings §③
+  must carry this distinction explicitly, since it is exactly the kind of surprise
+  a contract's own arithmetic can manufacture when a measured floor lands on zero.
+- 2026-09-04 — Stop-rule check: `max_consecutive_discards: 4` on `modern`
+  (`study.yaml:stop`). Only ONE discard occurred in the whole parade (E0004),
+  never four consecutive — the rule never fired, so no `klein stop ack` was run.
+  `klein preflight` after E0006 shows no pending stop block.
 
 ## Phase slates
 
@@ -278,3 +369,26 @@ number). No candidate is deferred; nothing survives to "next-best" this phase �
 next slate is Phase `parade`'s, and its first item is now forced by this phase's own
 finding (see the Decisions log: `modern`'s measured floor is 0, disarming the headroom
 law — Phase `parade` must open by addressing that, not by running E0002 blind to it).
+
+### Phase parade slate
+
+The user has explicitly decided (relayed by the orchestrator): run the parade anyway,
+with `minimum_delta=0` on `modern` and the resulting structural INCONCLUSIVE on
+P4-P8/P10-P11 accepted as the honest, pre-registered outcome — not re-litigated here.
+Given that decision, `research_plan.md`'s Phase `parade` plan (steps 5-6) already fixes
+the whole slate before any measurement, exactly like Phase 0's: five cells, one recipe
+each, same pairing construction, same order, adjudicating P4-P9 in sequence.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Σ |
+| --- | --- | --- | --- | --- | --- |
+| 1 | E0002 (`modern`, cell): seed the frontier with `lda_all4` itself; `primary_metric` must equal E0001's 1.0 to floating point (P4) | 2 | 3 | 3 | 8 |
+| 2 | E0003 (`modern`, cell): `logreg_l2` vs `lda_all4` refit paired in the same run (P5) | 3 | 3 | 2 | 8 |
+| 3 | E0004 (`modern`, cell): `knn5` vs `lda_all4` paired (P6) — expected worse: 25 rows give only 6 distinct KNN scores | 3 | 3 | 2 | 8 |
+| 4 | E0005 (`modern`, cell): `svm_rbf` vs `lda_all4` paired (P7) | 3 | 3 | 2 | 8 |
+| 5 | E0006 (`modern`, cell): `hgbt` vs `lda_all4` paired (P8) — the sharpest bet, expected a full floor below, though the floor itself is 0 | 3 | 3 | 3 | 9 |
+| 6 | P9 (manual): count keeps on `modern` after all four challengers have run | — | — | — | — |
+
+Chosen: all five cells, in this exact order, plus the manual P9 count — the plan was
+fixed in `research_plan.md` before any measurement; nothing here is chosen after
+seeing an answer. No candidate is deferred to "next-best": the next slate belongs to
+Phase `ablation-map`.
