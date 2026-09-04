@@ -8,13 +8,73 @@ import time
 import kleinlib
 from kleinlib.contract import load_contract
 from kleinlib.data import load_partition
-from lib.iris import fit_and_score, frontier_extra
+from lib.iris import anchor_extra, bootstrap_auc_ci, fit_and_score, frontier_extra, partition_sizes_and_total, raw_identity_counts
 
 from sklearn.metrics import roc_auc_score
 
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
 TRACK = os.environ.get("KLEIN_TRACK") or ("modern" if SMOKE else None)
+
+# ---------------------------------------------------------------------------
+# Phase `confirmation`, `fisher` sealed cell (research_plan.md step 11). ONE
+# falsifiable idea for this candidate transaction: spend the `fisher` track's
+# single sealed access to measure the incumbent's LEVEL on the 25 sealed test
+# rows, with a bootstrap interval -- otherwise byte-identical to E0001
+# (`run_fisher_anchor_cell`, which already parametrizes everything on
+# `evaluation_kind`; `klein run-one --final-test` sets
+# `KLEIN_EVALUATION_KIND=final_test`, so `load_partition` fits on train+dev
+# (74 rows) and evaluates on the sealed 25, with no other code change).
+# ---------------------------------------------------------------------------
+FISHER_RECIPE = "lda_all4"
+
+
+def run_fisher_anchor_cell(evaluation_kind: str, t0: float) -> float:
+    """`fisher` track cell: identity anchor (P0) + Fisher's 1936 LDA level
+    with a bootstrap interval (P1, P2, P3 at E0001; the sealed re-run here
+    is not itself scored against those predictions -- they were already
+    adjudicated on development data).
+    """
+    raw_counts = raw_identity_counts()
+    train_rows, dev_rows, test_rows, prepared_total = partition_sizes_and_total(".")
+    partition_sum_matches = (train_rows + dev_rows + test_rows) == prepared_total
+
+    X_fit, X_eval, y_fit, y_eval = load_partition(evaluation_kind, study_dir=".")
+
+    model, p_eval, fit_seconds = fit_and_score(FISHER_RECIPE, X_fit, y_fit, X_eval)
+    y_pred = (p_eval >= 0.5).astype(int)
+    y_eval_arr = y_eval.to_numpy()
+    val_accuracy = float((y_pred == y_eval_arr).mean())
+    val_errors = int((y_pred != y_eval_arr).sum())
+
+    ci_low, ci_high, n_boot = bootstrap_auc_ci(y_eval_arr, p_eval, n_boot=2000)
+
+    val_auc = float(roc_auc_score(y_eval_arr, p_eval))
+
+    extra = anchor_extra(
+        raw_counts=raw_counts,
+        partition_sum_matches=partition_sum_matches,
+        val_accuracy=val_accuracy,
+        val_errors=val_errors,
+        val_rows=len(X_eval),
+        ci_low=ci_low,
+        ci_high=ci_high,
+        n_boot=n_boot,
+    )
+
+    return kleinlib.eval.evaluate_estimate(
+        val_auc,
+        ci_low,
+        ci_high,
+        len(X_eval),
+        exp_id=EXPERIMENT_ID,
+        metric_name="val_auc",
+        metric_goal="higher",
+        extra=extra,
+        study_dir=".",
+        t0=t0,
+    )
+
 
 # ---------------------------------------------------------------------------
 # E0002-E0006, `modern` track (research_plan.md Phase `parade`, steps 5-6).
@@ -110,13 +170,16 @@ def main() -> None:
             "evidence. Missing: " + ", ".join(missing)
         )
 
+    if TRACK == "fisher":
+        run_fisher_anchor_cell(evaluation_kind, t0)
+        return
     if TRACK == "modern":
         run_modern_frontier_cell(evaluation_kind, t0)
         return
     raise NotImplementedError(
-        f"KLEIN_TRACK={TRACK!r}: only the `modern` frontier cell (Phase `parade`) "
-        "exists in train.py right now -- the `fisher` anchor cell (E0001) and the "
-        "`ablation` cells are separate candidate transactions in their own phases "
+        f"KLEIN_TRACK={TRACK!r}: only the `fisher` sealed cell (Phase `confirmation`) "
+        "and the `modern` frontier cell (Phase `parade`) exist in train.py right now "
+        "-- the `ablation` cell is a separate candidate transaction "
         "(research_plan.md's experiment ladder)."
     )
 
