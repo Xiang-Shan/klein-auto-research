@@ -12,9 +12,10 @@ changes.
 | --- | --- | --- |
 | consultant | Claude Opus 5 · Claude Code `klein-consultant` subagent · session 016HefKjsAszSh9M5FJ8Zw4g | 2026-09-04 |
 | experimenter | Claude Sonnet 5 · Claude Code · session 016HefKjsAszSh9M5FJ8Zw4g | 2026-09-04 |
-| data-gate auditor | (fill at Gate 1) | |
+| data-gate auditor | Claude Sonnet 5 · Claude Code · session 016HefKjsAszSh9M5FJ8Zw4g (the Gate 1 record's own `acknowledged_by`: "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)") | 2026-09-04 |
 | referee | (fill at Gate 3 — MUST be a different model AND a fresh session from the experimenter row) | |
-| lead | (the human who owns this study) | 2026-09-04 |
+| synthesist | Claude Opus 5 · Claude Code `klein-synthesist` subagent · session 016HefKjsAszSh9M5FJ8Zw4g | 2026-09-04 |
+| lead | Xiang Shan (human; Klein author) — acked every gate and phase boundary in chat | 2026-09-04 |
 
 This is the living lab notebook. `study.yaml` is the machine contract;
 `study_state.json`, `events.jsonl`, and `runs/E####/manifest.json` are generated audit
@@ -569,6 +570,20 @@ recorded below, survivors mirrored into `playbook.md`.
   the task brief and hands back to the orchestrator; it does not record
   the `confirmation` phase gate itself, and SYNTHESIZE (findings.md,
   claims.lock) is a separate stage for a separate session.
+- 2026-09-04 — SYNTHESIZE. Wrote `findings.md` (seven sections) and authored
+  `claims.lock` from it. No experiment was run and no ledger was edited at this
+  stage; `results.tsv`, `study.yaml` and everything under `runs/` were read-only
+  inputs. Roster rows `data-gate auditor`, `lead` and `synthesist` filled from the
+  gate records and this session (the referee row stays blank for Gate 3, which MUST
+  be a different model and a fresh session). One arithmetic correction to the record,
+  surfaced for the referee rather than silently carried into findings: the E0011
+  entry above says the sealed `hgbt` loses "2 extra errors" to `lda_all4` — comparing
+  the sealed `hgbt`'s `val_errors=3` against the DEVELOPMENT LDA's `val_errors=1`
+  (E0001/E0002). Fisher's LDA on the SAME 25 sealed rows under the same 74-row fit
+  is E0010, `val_errors=2`, so the like-for-like sealed comparison is +1 error
+  (3 vs 2), and that is the number `findings.md` §① [C6] carries. E0011's own in-run
+  LDA reference printed only its AUC (1.0, matching E0010 exactly), which is why the
+  error comparison has to be read across the two sealed cells.
 
 ## Phase slates
 
