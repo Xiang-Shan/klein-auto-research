@@ -454,6 +454,28 @@
     "path": "/private/tmp/claude-501/-Users-xiang-Claude-Auto-research-klein-auto-research/640c17a0-3232-46b0-bc3d-02d6e4d0a34a/scratchpad/study15-wt/studies/15-iris-90years-relaunch/data/prepared/iris_hardpair.csv",
     "sha256": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69"
   },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": false
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0001@20260904T174103Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-04T17:41:03.895337Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "fisher"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "15-iris-90years-relaunch",
@@ -504,5 +526,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:40:04.253575Z"
+  "updated_at": "2026-09-04T17:42:07.244615Z"
 }
