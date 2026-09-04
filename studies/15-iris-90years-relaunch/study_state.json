@@ -29,9 +29,9 @@
       "experiment": null
     },
     "fisher": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-04T17:37:47.295361Z",
+      "count": 1,
+      "experiment": "E0010"
     },
     "modern": {
       "accessed_at": null,
@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 9,
+  "last_experiment": 10,
   "overrides": [],
   "phase_acknowledgements": {
     "ablation-map": {
@@ -444,5 +444,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:29:37.960565Z"
+  "updated_at": "2026-09-04T17:37:48.841882Z"
 }

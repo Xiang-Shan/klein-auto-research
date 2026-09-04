@@ -146,3 +146,17 @@ DRYRUN	val_errors	1
 DRYRUN	val_rows	25
 DRYRUN	ci_width	0.0
 DRYRUN	n_boot	2000
+E0010	ci_low	0.9999999999999999
+E0010	ci_high	1.0
+E0010	n	25
+E0010	wall_seconds	0.7872509956359863
+E0010	raw_rows	100
+E0010	raw_versicolor	50
+E0010	raw_virginica	50
+E0010	raw_features	4
+E0010	partition_sum_matches	1
+E0010	val_accuracy	0.92
+E0010	val_errors	2
+E0010	val_rows	25
+E0010	ci_width	0.0
+E0010	n_boot	2000

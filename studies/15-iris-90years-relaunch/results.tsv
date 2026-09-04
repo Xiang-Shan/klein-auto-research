@@ -8,3 +8,4 @@ E0006	modern	1	keep	ea61ca951af8abafbff76ff55b71feef07e1fd44	E0006: histogram gr
 E0007	ablation	1	measured	fd61d7f4b27a0ec7114ee81def1fb2ca244401bb	E0007 ablation: petal-only LDA vs all-four LDA (RQ2); registered cell measured
 E0008	ablation	0.814103	measured	99ab3489183ddcbe85ab8212a2756efd38cfcaa7	E0008 ablation: sepal-only LDA vs all-four LDA (RQ2 sanity check); registered cell measured
 E0009	ablation	1	measured	f4cef753c3817962a77593953b0c2db5f103961a	E0009 ablation: petal-only hgbt vs all-four hgbt (RQ2 repeated with the parade's best-scoring modern family); registered cell measured
+E0010	fisher	1	measured	4280d73cd7833f49db78a8dc953aa07310cbfd98	sealed: Fisher 1936 LDA level on the 25 sealed test rows; registered cell measured

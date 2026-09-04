@@ -1,0 +1,85 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 4853,
+      "committed": true,
+      "sha256": "b4f3e01520d7ccc47db465b349bf5db5d91912a9a900ee2655512a6b9eb8ab4d"
+    },
+    "runs/E0010/run.log": {
+      "availability": "recorded",
+      "bytes": 609,
+      "committed": true,
+      "sha256": "5e12c99210a6c2094257a0f608a327eec4f540a2af97f095dfa3c555a57ca05b"
+    }
+  },
+  "base_commit": "3eed93f01a729685b995e8d8afa4d4dacd6adb2b",
+  "candidate_commit": "4280d73cd7833f49db78a8dc953aa07310cbfd98",
+  "code_patch_hash": "11fb76664d26f1412d3340ec1ae708fc708a810be427e81afcfb7f792680bb29",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed: Fisher 1936 LDA level on the 25 sealed test rows; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-04T17:37:48.840488Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0010",
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+    "split_partition": "49a84dcd63b6defb5c929fc2fe591d9652f41e858f918cfb7ddb47513d1524f1"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "ci_high": 1.0,
+    "ci_low": 1.0,
+    "ci_width": 0.0,
+    "n": 25.0,
+    "n_boot": 2000.0,
+    "partition_sum_matches": 1.0,
+    "primary_metric": 1.0,
+    "raw_features": 4.0,
+    "raw_rows": 100.0,
+    "raw_versicolor": 50.0,
+    "raw_virginica": 50.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.8,
+    "val_accuracy": 0.92,
+    "val_errors": 2.0,
+    "val_rows": 25.0,
+    "wall_seconds": 0.787251
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 4,
+  "predictions_requested": [],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-04T17:37:47.295693Z",
+  "timed_out": false,
+  "track": "fisher",
+  "transaction": {
+    "ready_at": "2026-09-04T17:37:48.841355Z",
+    "status": "pending"
+  },
+  "wall_seconds": 1.5446320408955216
+}

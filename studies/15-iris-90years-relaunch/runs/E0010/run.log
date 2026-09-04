@@ -1,0 +1,27 @@
+split_fingerprint: 49a84dcd63b6defb5c929fc2fe591d9652f41e858f918cfb7ddb47513d1524f1
+---
+primary_metric:    1.000000
+metric_name:       val_auc
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.8
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            1.000000
+ci_high:           1.000000
+n:                 25
+wall_seconds:      0.787251
+raw_rows: 100
+raw_versicolor: 50
+raw_virginica: 50
+raw_features: 4
+partition_sum_matches: 1
+val_accuracy: 0.92
+val_errors: 2
+val_rows: 25
+ci_width: 0.0
+n_boot: 2000
+runner_status: ok
+runner_exit_code: 0
