@@ -12,6 +12,10 @@
       "path": "data_card.md",
       "sha256": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166"
     },
+    "floor_modern": {
+      "path": "sweeps/floor_modern.sidecar.tsv",
+      "sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
+    },
     "method_card": {
       "path": "method_card.md",
       "sha256": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c"
