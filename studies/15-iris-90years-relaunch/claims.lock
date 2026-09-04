@@ -250,6 +250,13 @@
       "precision": 6,
       "value": -0.190092
     },
+    "floor_ablation_range": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "sweep:floor_ablation range; the range-over-two term binds",
+      "precision": 4,
+      "value": 0.5625
+    },
     "floor_ablation_std": {
       "art": "contract",
       "claim": "floor",
