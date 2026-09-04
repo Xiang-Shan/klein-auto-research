@@ -13,7 +13,7 @@ changes.
 | consultant | Claude Opus 5 · Claude Code `klein-consultant` subagent · session 016HefKjsAszSh9M5FJ8Zw4g | 2026-09-04 |
 | experimenter | Claude Sonnet 5 · Claude Code · session 016HefKjsAszSh9M5FJ8Zw4g | 2026-09-04 |
 | data-gate auditor | Claude Sonnet 5 · Claude Code · session 016HefKjsAszSh9M5FJ8Zw4g (the Gate 1 record's own `acknowledged_by`: "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)") | 2026-09-04 |
-| referee | (fill at Gate 3 — MUST be a different model AND a fresh session from the experimenter row) | |
+| referee | Claude Opus 5 · Claude Code `klein-referee` subagent · fresh context, session 016HefKjsAszSh9M5FJ8Zw4g — model half of "different model AND a fresh session" holds (Opus 5 vs the experimenter's Sonnet 5); the session half is a fresh CONTEXT rather than a distinct session id, and the synthesist row above shares this row's model tier (see `referee_report.md`'s Independence section and note 5) | 2026-09-04 |
 | synthesist | Claude Opus 5 · Claude Code `klein-synthesist` subagent · session 016HefKjsAszSh9M5FJ8Zw4g | 2026-09-04 |
 | lead | Xiang Shan (human; Klein author) — acked every gate and phase boundary in chat | 2026-09-04 |
 
@@ -584,6 +584,45 @@ recorded below, survivors mirrored into `playbook.md`.
   (3 vs 2), and that is the number `findings.md` §① [C6] carries. E0011's own in-run
   LDA reference printed only its AUC (1.0, matching E0010 exactly), which is why the
   error comparison has to be read across the two sealed cells.
+- 2026-09-04 — REFEREE (Gate 3). Verdict **PASS-WITH-NOTES** (`referee_report.md`,
+  Claude Opus 5, fresh context, independent-of-experimenter: yes — model rung reached
+  against the Sonnet-5 experimenter). `klein verify --numbers --evidence-use`: 38
+  checks, 0 failed, evidence use 1.00. `klein claims verify`: 7 checks, 0 failed. Five
+  notes answered here, each cleared in the artifact it names:
+  - **Referee note 1** (numeral misattributed): findings §① cited the timed-out
+    E0001 replication's "successful retry" `wall_seconds` as `0.787251` — that value
+    is E0010's, not the retry's. Corrected in `findings.md` to the retry's own
+    replication record (`rep:E0001@20260904T174249Z`, `wall_seconds=3.598061`).
+  - **Referee note 2** (comparison families unstated): `findings.md` §② now states
+    the three families explicitly (modern parade: 4 challengers + 1 seeding cell;
+    ablation: 5 comparisons; fisher: 4 anchor predictions) and records that a
+    Bonferroni correction over the ablation family moves no confirmed verdict — the
+    operative guard is complete pre-registration of a fixed, fully-reported family,
+    not a multiplicity correction.
+  - **Referee note 3** (E0011 prints two `split_fingerprint:` lines): on the
+    record here rather than only "in passing" as the referee found it — the sealed
+    `modern` cell fits an in-run development LDA reference to compute `sealed_extra`,
+    so its log prints the development fingerprint first and the sealed one second;
+    the manifest correctly records the sealed (`final_test`) fingerprint, and nothing
+    about E0011's evidence is wrong. A future cell that fits a paired reference on a
+    different partition than the one it is judged on should print only the judged
+    partition's fingerprint, to keep this check order-independent.
+  - **Referee note 4** (two findings-only-reader gaps): (a) `findings.md` §③'s
+    fourth surprise (the calibration reversal) is now explicitly labelled
+    exploratory/mechanism-interpretation, matching C8-C10's evidentiary standard,
+    though it carries no claim id (it was never a registered prediction, so none of
+    claims.lock's pinned numerals depend on giving it one). (b) `findings.md` §①
+    [C4] now discloses inline why E0009 used `hgbt` rather than an unambiguous
+    "best" family: the parade's four `modern` keeps printed an identical tie, so
+    `hgbt` was chosen as the track's incumbent and its most LDA-dissimilar family —
+    the hardest available test of the claim, not a cherry-pick.
+  - **Referee note 5** (Roster bookkeeping): the `## Roster` referee row above is
+    filled with the qualification the referee asked for — model rung holds (Opus 5
+    vs Sonnet 5), session rung is fresh-context rather than a distinct session id,
+    and the synthesist row shares this row's model tier.
+  Check 9 (figures) is vacuous today (`figures/`, `report/` empty) and transfers
+  intact to TUTORIAL as a live obligation. No FAIL condition was found; the gate is
+  clear to record.
 
 ## Phase slates
 
