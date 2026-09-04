@@ -31,7 +31,7 @@ TRACK = os.environ.get("KLEIN_TRACK") or ("modern" if SMOKE else None)
 #   E0005  svm_rbf     -- P7
 #   E0006  hgbt        -- P8
 # ---------------------------------------------------------------------------
-MODERN_RECIPE = "lda_all4"  # E0002: seed the `modern` frontier with Fisher's own LDA
+MODERN_RECIPE = "logreg_l2"  # E0003: L2-regularized logistic regression vs Fisher's LDA (P5)
 
 
 def run_modern_frontier_cell(evaluation_kind: str, t0: float) -> float:
