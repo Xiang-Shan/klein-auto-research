@@ -16,6 +16,10 @@
       "path": "sweeps/floor_ablation.sidecar.tsv",
       "sha256": "1f663540591a9ae8cab64470caf6202ef95190caedf9b69fbfe3c335a37793cb"
     },
+    "floor_fisher": {
+      "path": "sweeps/floor_fisher.sidecar.tsv",
+      "sha256": "bb540b96466572b190d4ee9ce5d4192297b979437c6f0607b886091e429af994"
+    },
     "floor_modern": {
       "path": "sweeps/floor_modern.sidecar.tsv",
       "sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
