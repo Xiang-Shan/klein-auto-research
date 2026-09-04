@@ -16,6 +16,10 @@
       "path": "method_card.md",
       "sha256": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c"
     },
+    "plan": {
+      "path": "research_plan.md",
+      "sha256": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147"
+    },
     "results": {
       "path": "results.tsv",
       "sha256": "675c877e0006713c5a62839d5d2456591df166af918eba29def66c887baae406"
