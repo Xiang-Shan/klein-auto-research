@@ -152,18 +152,25 @@
       "strength": "confirmed"
     },
     "C4": {
-      "claim": "RQ2 (petal half) | ablation | supported | confirmed | empirical-description | E0007, E0009, E0012, `sweep:floor_ablation`, `rep:E0007@20260904T174632Z` | Petal length and petal width alone carry essentially all the separation. Development: `lda_petal` `1.000000` against `lda_all4` `1.000000` in the same cell, `delta_vs_reference` `0.0`, `delta_in_floors` `0.0` (E0007); the same comparison with `hgbt` instead of LDA gives `delta_in_floors` `0.0` (E0009), so it is a property of the flowers, not of the model family. Sealed: `0.987179` against `1.0`, `delta_vs_reference` `-0.012821`, `delta_in_floors` `-0.0456` \u2014 inside the measured floor `0.28125` by more than an order of magnitude. |",
-      "class": null,
+      "claim": "Petal length and petal width alone carry essentially all of the separation: petal-only LDA ties all-four LDA exactly on the development block at delta_in_floors 0, the same comparison repeated with the histogram gradient-boosted tree also gives delta_in_floors 0, and on the sealed block petal-only scores val_auc 0.987179 against the all-four reference 1.0 - delta_vs_reference -0.012821, delta_in_floors -0.0456 against a measured floor of 0.28125.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0007",
+        "E0009",
+        "E0012",
+        "sweep:floor_ablation",
+        "rep:E0007@20260904T174632Z"
+      ],
       "numbers": [
+        "ablation_floor",
         "ablation_sealed_ref",
         "petal_dev_delta_floors",
         "petal_sealed_auc",
         "petal_sealed_delta",
         "petal_sealed_floors"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C5": {
       "claim": "RQ2 (sepal half) | ablation | supported in substance, refuted on the registered rule | confirmed | empirical-description | E0008, E0012, `sweep:floor_ablation`, `rep:E0008@20260904T174817Z` | Sepal length and sepal width alone carry a real, large, correctly-directed amount less \u2014 and still fail the pre-registered \"at least one measured floor below\" bar, twice. Development: `lda_sepal` `0.814103` against `lda_all4` `1.000000`, `delta_vs_reference` `-0.185897`, `delta_in_floors` `-0.661` (E0008). Sealed: `sepal_delta_in_floors` `-0.8547` (E0012). The track's floor was measured at `0.28125` from the paired-bootstrap spread of this very contrast (mean `-0.190092`, std `0.0952175`, range `0.5625`), which is why a genuinely large effect lands under one floor. \"Refuted\" here means the bar was not cleared, never that no difference was found. |",
