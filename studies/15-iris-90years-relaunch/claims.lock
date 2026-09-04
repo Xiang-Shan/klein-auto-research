@@ -47,7 +47,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "dev_knn_auc"
+      ],
       "strength": "exploratory"
     },
     "C10": {
@@ -172,6 +174,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "dev_knn_auc": {
+      "art": "results",
+      "claim": "C1",
+      "note": "five-nearest-neighbours, development val_auc (E0004)",
+      "precision": 6,
+      "value": 0.990385
+    },
     "dev_lda_auc": {
       "art": "results",
       "claim": "C3",
