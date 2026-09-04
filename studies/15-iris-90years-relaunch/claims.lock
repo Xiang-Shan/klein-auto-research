@@ -62,11 +62,19 @@
       "strength": "exploratory"
     },
     "C10": {
-      "claim": "A large, real, correctly-directed effect failed a registered rule \u2014 twice \u2014",
-      "class": null,
+      "claim": "A large, real, correctly-directed effect failed a registered rule twice because the bar was measured from the effect's own spread: the range-based term of Klein's floor recipe, over 1000 resamples of the all-four-versus-sepal-only contrast, sets the ablation floor at 0.28125 - larger than the -0.185897 val_auc shortfall it then had to certify.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0008",
+        "E0012",
+        "sweep:floor_ablation"
+      ],
+      "numbers": [
+        "ablation_floor",
+        "floor_ablation_range",
+        "sepal_dev_delta"
+      ],
       "strength": "exploratory"
     },
     "C11": {
