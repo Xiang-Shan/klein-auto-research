@@ -140,10 +140,12 @@
       "strength": "exploratory"
     },
     "C15": {
-      "claim": "Run the duplicate-row straddle audit before you trust any small-table split.*",
-      "class": null,
+      "claim": "Run the duplicate-row straddle audit before trusting any small-table split: this study's data gate mechanically found one exact-duplicate row pair - two virginica flowers identical on all four measurements - whose two copies land on opposite sides of the train/development boundary under the declared stratified split, and dropping the second copy before the table is written cost one row and no contract change.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "art:data_card"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
