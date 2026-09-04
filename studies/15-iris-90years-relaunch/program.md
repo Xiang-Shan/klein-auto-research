@@ -343,6 +343,79 @@ recorded below, survivors mirrored into `playbook.md`.
   (`study.yaml:stop`). Only ONE discard occurred in the whole parade (E0004),
   never four consecutive — the rule never fired, so no `klein stop ack` was run.
   `klein preflight` after E0006 shows no pending stop block.
+- 2026-09-04 — EXPERIMENT, Phase `ablation-map`, E0007 (`ablation`, `measured`,
+  commit `fd61d7f4b27a`). `lda_petal` (LDA on `petal_length_cm`,
+  `petal_width_cm` only) vs `lda_all4` refit paired in the same run, on the
+  SAME 25 development rows as E0001-E0006 (`split_fingerprint` unchanged,
+  `41553e71e4ed…`). Printed block: `primary_metric(val_auc)=1.000000
+  reference_metric=1.0 delta_vs_reference=0.0 delta_in_floors=0.0`. Unlike
+  the whole `modern` parade, THIS track's floor is real
+  (`minimum_delta=0.28125`, measured `sweep:floor_ablation`), so
+  `delta_in_floors` prints and the registered rule resolves by ordinary
+  arithmetic, not INCONCLUSIVE. **P12 SUPPORTED**
+  (`|delta_in_floors|=0 < 1`) — petal-only lands exactly on the all-four
+  score on these 25 rows, the tightest possible support.
+- 2026-09-04 — EXPERIMENT, Phase `ablation-map`, E0008 (`ablation`,
+  `measured`, commit `99ab3489183d`). `lda_sepal` (LDA on
+  `sepal_length_cm`, `sepal_width_cm` only) vs `lda_all4` refit paired,
+  same rows, same fingerprint. Printed block:
+  `primary_metric(val_auc)=0.814103 reference_metric=1.0
+  delta_vs_reference=-0.185897 delta_in_floors=-0.661`. **P13 REFUTED**
+  (`delta_in_floors -0.661 <= -1` is false) — see the dated Decision
+  immediately below for what this does and does not mean.
+- 2026-09-04 — Decision: **P13 refuted, and the surprise is instructive
+  rather than a reversal of RQ2's direction.** Sepal-only genuinely loses
+  18.6 AUC points to all-four (`delta_vs_reference=-0.185897`) — a real,
+  large, unambiguous gap, exactly the direction RQ2's prior called
+  ("sepal-only carries meaningfully less"). But P13's registered rule asks
+  for at least ONE FULL measured floor below, and this track's floor
+  (`minimum_delta=0.28125`) is itself large — nearly a third of the entire
+  0-to-1 AUC scale, because `floor_ablation`'s paired-bootstrap on
+  `(lda_all4, lda_sepal)` at Phase 0 already saw this same effect's own
+  resampling spread (range 0.5625) and set the bar from that spread. So the
+  literal 18.6-point gap is real and resolvable in the ordinary sense
+  (`delta_in_floors=-0.661` is not "no difference"), but it does not clear
+  the specific "at least 1.0 floor" bar P13 pre-registered. RQ2's prior text
+  itself flagged this precise risk ("uninformed... the direction is
+  textbook background... disclosed so findings section 6 can discount it").
+  Findings must report BOTH numbers: the registered verdict (REFUTED, not
+  supported) and the raw AUC gap (-0.185897, -0.661 floors) so a reader does
+  not mistake "refuted" for "no difference found" — this is the ablation
+  track's own version of the same lesson the `modern` parade already
+  taught: a registered floor-normalized rule and a raw effect size can tell
+  different stories, and both belong in the writeup.
+- 2026-09-04 — EXPERIMENT, Phase `ablation-map`, E0009 (`ablation`,
+  `measured`, commit `f4cef753c381`). Repeats E0007's petal-vs-all4
+  comparison with `hgbt` (the parade's incumbent, `HistGradientBoosting
+  Classifier`) in place of `lda`, composed directly from
+  `lib.iris.build_estimator("hgbt")` + `FEATURE_SETS["petal"]`/`["all4"]`
+  rather than a new `RECIPES` entry (`lib/iris.py` stays unedited — the
+  composition happens in `train.py`, per research_plan.md's "stable library
+  versus mutable surface"). `hgbt` was chosen as "the best-scoring modern
+  family" because the parade's own Decision log (above) records that all
+  four `modern` keeps print an IDENTICAL tied `val_auc=1.000000` against the
+  same `lda_all4` reference — a printing artifact of `minimum_delta=0`, not
+  a resolvable ranking — so there is no substantive winner to break the tie
+  by. Given that, `hgbt` is used because it is (a) the track's current
+  incumbent per `klein status` (the last `keep` filed — what a reader would
+  call "the modern answer" today) and (b) the most dissimilar-from-LDA
+  family in the parade (the same pair Phase 0's own `floor_modern` sweep
+  chose for its conservative-floor reasoning), making it the hardest
+  available test of "the petal verdict survives a non-LDA family" rather
+  than a cherry-pick toward confirming P14. Printed block:
+  `primary_metric(val_auc)=1.000000 reference_metric=1.0
+  delta_vs_reference=0.0 delta_in_floors=0.0`. **P14 SUPPORTED**
+  (`|delta_in_floors|=0 < 1`) — the petal verdict reproduces exactly with
+  `hgbt`, the same tight support as E0007 gave for LDA.
+- 2026-09-04 — Phase `ablation-map` cells complete (E0007-E0009). Summary:
+  P12 supported, P13 refuted (see Decision above), P14 supported. All three
+  cells resolved by ordinary registered-track arithmetic — the first phase
+  in this study where every adjudicated prediction printed a decisive,
+  non-INCONCLUSIVE verdict, because `ablation`'s floor is real
+  (`minimum_delta=0.28125`) where `modern`'s and `fisher`'s are both 0.
+  Phase `confirmation` (three sealed cells, P10/P11/P15) is next; per the
+  task brief this experimenter session stops here and hands back to the
+  orchestrator for phase-boundary review before touching any sealed data.
 
 ## Phase slates
 
@@ -392,3 +465,22 @@ Chosen: all five cells, in this exact order, plus the manual P9 count — the pl
 fixed in `research_plan.md` before any measurement; nothing here is chosen after
 seeing an answer. No candidate is deferred to "next-best": the next slate belongs to
 Phase `ablation-map`.
+
+### Phase ablation-map slate
+
+`research_plan.md`'s Phase `ablation-map` plan (steps 8-10) fixes the first two
+cells' recipe and pairing before any measurement, exactly like Phase 0 and Phase
+`parade`; only E0009's family choice needed a judgment call, made and justified
+inline (see E0009's Decision entry above) because the parade left no substantive
+ranking to read the "best" family off of.
+
+| # | Candidate (one hypothesis, one transaction) | Nov | Test | Info | Σ |
+| --- | --- | --- | --- | --- | --- |
+| 1 | E0007 (`ablation`, cell): `lda_petal` vs `lda_all4` refit paired, same 25 dev rows (P12) — first fully-decidable frontier comparison since E0001, real floor 0.28125 | 3 | 3 | 3 | 9 |
+| 2 | E0008 (`ablation`, cell): `lda_sepal` vs `lda_all4` paired (P13) — the sanity check that makes P12 informative | 2 | 3 | 3 | 8 |
+| 3 | E0009 (`ablation`, cell): repeat E0007's comparison with `hgbt` in place of `lda` (P14) — family choice: `hgbt`, the parade's current incumbent and its most LDA-dissimilar family, since the parade's four keeps tied and left no substantive ranking | 3 | 3 | 2 | 8 |
+
+Chosen: all three cells, in this exact order — no candidate deferred. Phase
+`confirmation` (three sealed cells, `--final-test --dry-run` first, adjudicating
+P10/P11/P15) is next; this experimenter session stops at the phase boundary per the
+task brief and hands back for orchestrator/user review before any sealed access.
