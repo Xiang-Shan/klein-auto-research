@@ -170,7 +170,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "hgbt_dev_auc_raw"
+      ],
       "strength": "exploratory"
     }
   },
@@ -215,6 +217,13 @@
       "note": "Fisher's 1936 LDA, development block of 25 rows, val_auc (E0001/E0002)",
       "precision": 6,
       "value": 1.0
+    },
+    "hgbt_dev_auc_raw": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "E0006 val_auc as stored, printing as 1.000000",
+      "precision": 16,
+      "value": 0.9999999999999999
     },
     "modern_floor": {
       "art": "contract",
