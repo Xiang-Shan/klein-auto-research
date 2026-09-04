@@ -1,4 +1,34 @@
-"""The only per-candidate mutable surface in a Klein v2 study."""
+"""The only per-candidate mutable surface in this study.
+
+E0001, `fisher` track -- the identity-anchor-and-level cell
+(`research_plan.md` Phase `anchor-and-floor`, step 1). `lib/iris.py` is
+STABLE library code (the loader, the five recipes, the three feature sets,
+the bootstrap helpers, the `extra={...}` assembly); this file composes those
+primitives into ONE cell and prints its block.
+
+What this cell does, in order
+------------------------------
+1. Asserts the identity anchor (P0) on the RAW loader -- `sklearn.datasets
+   .load_iris` restricted to the hard pair, never the prepared table, so a
+   lawful DATA-gate row drop cannot manufacture a false refutation -- and on
+   a fresh count of the prepared table against the contract split's own
+   partition sizes.
+2. Fits Fisher's 1936 LDA (`lda_all4`) on the training rows the contract
+   hands back, scores the development rows, and reports accuracy/errors at
+   the 0.5 threshold (P1, P2) the way Fisher himself would have read them.
+3. Bootstraps a 95% interval for that ROC-AUC (P3), 2000 replicates.
+
+`kleinlib.eval.evaluate_estimate` is the registered-mode "estimate" cell
+shape (`fisher` is `mode: registered, kind: estimate` -- a track that
+MEASURES a level, not one that climbs): it prints `primary_metric` (the
+point AUC estimate), `ci_low`/`ci_high`/`n`, and everything else named in
+`extra={...}`.
+
+Later phases (`parade`, `ablation-map`, `confirmation`) will branch this
+file on `KLEIN_TRACK` to add the `modern` and `ablation` cells -- each such
+edit is its own candidate transaction, one falsifiable idea at a time. Only
+the `fisher` anchor cell exists today.
+"""
 
 from __future__ import annotations
 
@@ -6,27 +36,66 @@ import os
 import time
 
 import kleinlib
+from kleinlib.data import load_partition
+from lib.iris import anchor_extra, bootstrap_auc_ci, fit_and_score, partition_sizes_and_total, raw_identity_counts
 
-RANDOM_SEED = 42
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
-TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
+TRACK = os.environ.get("KLEIN_TRACK") or ("fisher" if SMOKE else None)
+
+RECIPE = "lda_all4"
 
 
-def load_split(evaluation_kind: str):
-    """Select development or the sealed final-test partition explicitly.
-
-    The workflow sets KLEIN_EVALUATION_KIND. Implement this function so
-    ``development`` returns train/development and ``final_test`` returns the frozen
-    chosen training data/final test. Never choose the partition from experiment code.
+def run_fisher_anchor_cell(evaluation_kind: str, t0: float) -> float:
+    """E0001: identity anchor (P0) + Fisher's 1936 LDA level with a bootstrap
+    interval (P1, P2, P3). The only cell this track has today.
     """
-    if evaluation_kind not in {"development", "final_test"}:
-        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
-    raise NotImplementedError("implement the fixed three-way split declared in study.yaml")
+    # ---- P0: the identity anchor, independent of the prepared table -------
+    raw_counts = raw_identity_counts()
+    train_rows, dev_rows, test_rows, prepared_total = partition_sizes_and_total(".")
+    partition_sum_matches = (train_rows + dev_rows + test_rows) == prepared_total
 
+    # ---- the partition this run actually scores ----------------------------
+    # `load_partition` prints `split_fingerprint:`, which the notary compares
+    # against the value the DATA gate froze -- the ONLY partition authority
+    # this file uses (war story 8).
+    X_fit, X_eval, y_fit, y_eval = load_partition(evaluation_kind, study_dir=".")
 
-def build_model():
-    raise NotImplementedError("build this candidate")
+    model, p_eval, fit_seconds = fit_and_score(RECIPE, X_fit, y_fit, X_eval)
+    y_pred = (p_eval >= 0.5).astype(int)
+    y_eval_arr = y_eval.to_numpy()
+    val_accuracy = float((y_pred == y_eval_arr).mean())
+    val_errors = int((y_pred != y_eval_arr).sum())
+
+    ci_low, ci_high, n_boot = bootstrap_auc_ci(y_eval_arr, p_eval, n_boot=2000)
+
+    from sklearn.metrics import roc_auc_score
+
+    val_auc = float(roc_auc_score(y_eval_arr, p_eval))
+
+    extra = anchor_extra(
+        raw_counts=raw_counts,
+        partition_sum_matches=partition_sum_matches,
+        val_accuracy=val_accuracy,
+        val_errors=val_errors,
+        val_rows=len(X_eval),
+        ci_low=ci_low,
+        ci_high=ci_high,
+        n_boot=n_boot,
+    )
+
+    return kleinlib.eval.evaluate_estimate(
+        val_auc,
+        ci_low,
+        ci_high,
+        len(X_eval),
+        exp_id=EXPERIMENT_ID,
+        metric_name="val_auc",
+        metric_goal="higher",
+        extra=extra,
+        study_dir=".",
+        t0=t0,
+    )
 
 
 def main() -> None:
@@ -50,23 +119,14 @@ def main() -> None:
             "the canonical block, writes no sidecars or snapshots, and is not "
             "evidence. Missing: " + ", ".join(missing)
         )
-    X_tr, X_dev, y_tr, y_dev = load_split(evaluation_kind)
-    model = build_model()
-    fit_start = time.time()
-    model.fit(X_tr, y_tr)
-    fit_seconds = time.time() - fit_start
-    kleinlib.eval.evaluate(
-        model,
-        X_dev,
-        y_dev,
-        exp_id=EXPERIMENT_ID,
-        study_dir=".",
-        t0=t0,
-        fit_seconds=fit_seconds,
-        train_n=len(X_tr),
-        val_n=len(X_dev),
-        metric_name="val_auc",
-        metric_goal="higher",
+
+    if TRACK == "fisher":
+        run_fisher_anchor_cell(evaluation_kind, t0)
+        return
+    raise NotImplementedError(
+        f"KLEIN_TRACK={TRACK!r}: only the `fisher` anchor cell (E0001) exists in "
+        "train.py so far — the `modern`/`ablation` cells are added in later phases, "
+        "one candidate transaction at a time (research_plan.md's experiment ladder)."
     )
 
 
