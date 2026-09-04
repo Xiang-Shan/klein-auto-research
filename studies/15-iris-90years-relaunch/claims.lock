@@ -202,6 +202,13 @@
       "note": "tracks.modern.metric.minimum_delta and tracks.fisher.metric.minimum_delta, both MEASURED at Phase 0",
       "precision": 0,
       "value": 0
+    },
+    "modern_ideal": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "tracks.modern.metric.bound.ideal - a perfect ROC-AUC",
+      "precision": 1,
+      "value": 1.0
     }
   },
   "study_id": "15-iris-90years-relaunch"
