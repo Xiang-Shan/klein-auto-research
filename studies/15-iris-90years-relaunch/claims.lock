@@ -110,12 +110,25 @@
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ1 | modern | refuted on the letter of \"zero keeps\" | confirmed | procedural-verdict | E0002, E0003, E0004, E0005, E0006, E0011, `art:results` | The parade's five development cells on the `modern` track filed 4 keeps and 1 discard (the track's sixth row, E0011, is the sealed run, which the notary records as a discard by the sealed-evidence convention, not because it lost a comparison), so the prior's literal wording (\"zero of the four families earns a keep\") is false by direct count \u2014 and zero of the four challengers beat the incumbent by any amount the contract can resolve. `choose_disposition`'s frontier rule at `minimum_delta` `0` is `primary_metric >= incumbent + 0` evaluated on the printed six-decimal block, so a tie satisfies it. Read the parade as **4 printed keeps, 0 resolvable wins**. |",
-      "class": null,
+      "claim": "In the parade, the five development cells on the modern track filed 4 keeps and 1 discard, refuting the registered prediction's literal count of zero keeps; but every keep is a tie at the printed val_auc 1.000000 against Fisher's own discriminant refit in the same cell, because with a measured minimum_delta of 0 the frontier rule is satisfied by a tie - so the parade produced 4 keeps and no challenger that resolvably exceeded the incumbent.",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0011",
+        "rep:E0006@20260904T174449Z",
+        "art:results",
+        "P9"
+      ],
+      "numbers": [
+        "dev_lda_auc",
+        "modern_floor"
+      ],
+      "strength": "confirmed"
     },
     "C3": {
       "claim": "RQ3 | fisher, modern | refuted \u2014 right conclusion, wrong mechanism | confirmed | empirical-description | E0001, E0010, `sweep:floor_fisher`, `sweep:floor_modern`, `sweep:fit_noise_svm_rbf`, `sweep:fit_noise_hgbt`, `rep:E0001@20260904T174249Z` | The prior expected a paired floor of `0.02`\u2013`0.10` val_auc against an incumbent distance-to-perfection under `0.05`. Measured: Fisher's LDA scores val_auc `1.000000` on the development block (E0001) **and** `1.000000` on the sealed block (E0010), so the distance to the declared ideal `1.0` is `0`; the paired-bootstrap floor over 1000 replicates on `(lda_all4, hgbt)` has std `0` and range `0`; the marginal split-lottery floor over 5 redraws has std `0` and range `0`. `minimum_delta` is `0` on both tracks and `kleinlib.decision.track_headroom` returns no number at all. \"Which classifier wins\" is unanswerable on this data with this metric \u2014 as the prior concluded, but because the metric saturated, not because the ruler was coarse. |",
