@@ -173,6 +173,15 @@
   "status": "active",
   "study_id": "15-iris-90years-relaunch",
   "sweeps": {
+    "fit_noise_hgbt": {
+      "registered_at": "2026-09-04T16:12:07.844852Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/fit_noise.py",
+      "script_sha256": "c100565fda03bffd7081d7e25a1c0b2ad9e695a2e050cd180da0908f3c832617",
+      "sidecar": "sweeps/fit_noise_hgbt.sidecar.tsv",
+      "sidecar_sha256": "473b4886217ed135c86f5e6de6f44813ac84fe8089c9385f6433351674e86219"
+    },
     "fit_noise_svm_rbf": {
       "registered_at": "2026-09-04T16:12:07.690366Z",
       "rows_crash": 0,
@@ -183,5 +192,5 @@
       "sidecar_sha256": "b6ed51256e29fa9cc0e9e243e38cbc5055ae31d71e9cc46995157e562533df66"
     }
   },
-  "updated_at": "2026-09-04T16:12:07.690843Z"
+  "updated_at": "2026-09-04T16:12:07.845309Z"
 }
