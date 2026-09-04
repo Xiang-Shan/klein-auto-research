@@ -1,0 +1,171 @@
+{
+  "baseline": 1.0,
+  "block_differences": {
+    "delta_in_floors": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "delta_vs_reference": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "primary_metric": {
+      "difference": null,
+      "original": 1.0,
+      "replicate": null
+    },
+    "reference_metric": {
+      "difference": null,
+      "original": 1.0,
+      "replicate": null
+    },
+    "runner_exit_code": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "total_seconds": {
+      "difference": null,
+      "original": 0.2,
+      "replicate": null
+    },
+    "train_rows": {
+      "difference": null,
+      "original": 49.0,
+      "replicate": null
+    },
+    "training_seconds": {
+      "difference": null,
+      "original": 0.1,
+      "replicate": null
+    },
+    "val_best_threshold": {
+      "difference": null,
+      "original": 0.02,
+      "replicate": null
+    },
+    "val_brier": {
+      "difference": null,
+      "original": 0.000399,
+      "replicate": null
+    },
+    "val_f1_at_best": {
+      "difference": null,
+      "original": 1.0,
+      "replicate": null
+    },
+    "val_lift_top10": {
+      "difference": null,
+      "original": 2.0833,
+      "replicate": null
+    },
+    "val_logloss": {
+      "difference": null,
+      "original": 0.011551,
+      "replicate": null
+    },
+    "val_pr_auc": {
+      "difference": null,
+      "original": 1.0,
+      "replicate": null
+    },
+    "val_rows": {
+      "difference": null,
+      "original": 25.0,
+      "replicate": null
+    },
+    "wall_seconds": {
+      "difference": null,
+      "original": 0.221475,
+      "replicate": null
+    }
+  },
+  "candidate_commit": "f4cef753c3817962a77593953b0c2db5f103961a",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+  "difference": null,
+  "ended_at": "2026-09-04T19:19:31.677568Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0009@20260904T191828Z",
+  "exit_code": 124,
+  "experiment": "E0009",
+  "failure_reason": "timeout after 60s",
+  "log": "runs/E0009/replications/20260904T191828Z.log",
+  "max_run_seconds": 60.0,
+  "metric_name": "val_auc",
+  "mismatched_keys": [
+    "delta_in_floors",
+    "delta_vs_reference",
+    "primary_metric",
+    "reference_metric",
+    "train_rows",
+    "val_best_threshold",
+    "val_brier",
+    "val_f1_at_best",
+    "val_lift_top10",
+    "val_logloss",
+    "val_pr_auc",
+    "val_rows"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "delta_in_floors": 0.0,
+    "delta_vs_reference": 0.0,
+    "primary_metric": 1.0,
+    "reference_metric": 1.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.2,
+    "train_rows": 49.0,
+    "training_seconds": 0.1,
+    "val_best_threshold": 0.02,
+    "val_brier": 0.000399,
+    "val_f1_at_best": 1.0,
+    "val_lift_top10": 2.0833,
+    "val_logloss": 0.011551,
+    "val_pr_auc": 1.0,
+    "val_rows": 25.0,
+    "wall_seconds": 0.221475
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 1.0,
+  "record": "runs/E0009/replications/20260904T191828Z.json",
+  "replicate_block": {},
+  "replicate_primary_metric": null,
+  "reproduced": false,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [],
+  "setup_seconds": 2.6757002910599113,
+  "stamp": "20260904T191828Z",
+  "started_at": "2026-09-04T19:18:31.653377Z",
+  "timed_out": true,
+  "timestamp": "2026-09-04T19:18:28.775367Z",
+  "tolerance": 0.28125,
+  "tolerance_source": "minimum_delta",
+  "track": "ablation",
+  "wall_seconds": 60.0239242920652,
+  "worktree_prepared": true
+}
