@@ -101,8 +101,10 @@
   "timed_out": false,
   "track": "fisher",
   "transaction": {
-    "ready_at": "2026-09-04T16:06:24.675482Z",
-    "status": "pending"
+    "committed_at": "2026-09-04T16:06:24.761520Z",
+    "evidence_commit": "aef5cc0451780a3715f67ef6cc078205adf25258",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 1.5875532920472324
 }
