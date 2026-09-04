@@ -181,25 +181,26 @@
       "ok": true
     },
     {
-      "message": "all 78 scanned numerals trace to 25 pinned source(s)",
+      "message": "all 83 scanned numerals trace to 25 pinned source(s)",
       "name": "findings numbers",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "e28364f2fdc778cb09481d2eab619013a515b1d5",
+  "git_head": "3636057437b9b1a3a5a12af022b88d80ebef72ed",
   "inputs": {
     "aux_metrics.tsv": "27edc17dd92b1e1009ec129d3d12955abb14b374b62643ada6873d82cc0c077b",
     "claims.lock": "05cfdd5ca7d050e52e61d6f975f779e53060035869d23dfa6eaef118429a2114",
     "events.jsonl": "e48ec57040769a015d11801f1f6990d06b2bb761e136f6fc5293c409e178b4e8",
-    "findings.md": "d759bf40c72b5be846e59a3d025eafea31f8150efa9039fa047216855a3967d6",
+    "findings.md": "0474aee5060ec8ea68dee88bb81d5cd11b50b5bc4069b65c3055796acd021f74",
     "playbook.md": "7698539594e761620ba7d851f639f2dd09030f3eb7c7e34fee038eef47f5af48",
-    "program.md": "b92dcee9f3178a94b0935fded7e982937fec5cc6497dec679112a5a81acea8c1",
+    "program.md": "22e044de0e3f91f1bc44893db5cb84f4ad204f10a033932f6b7af8eef85d14df",
+    "referee_report.md": "ae265f85e9911a135cc6dc7057a8e9a3bfd8173dd7aeda29b0e334df8f13d1b5",
     "results.tsv": "675c877e0006713c5a62839d5d2456591df166af918eba29def66c887baae406",
     "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2",
     "study_state.json": "5334061098db9576f8139479b55cca2044d27c033873265155a3a586651dc6a1"
   },
-  "klein_commit": "e28364f2fdc778cb09481d2eab619013a515b1d5",
+  "klein_commit": "3636057437b9b1a3a5a12af022b88d80ebef72ed",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "6d7a22c437f934eaba3f22fa7aef47a7ad2d4d9958470bb3b42dbdcf2fd95c7b",
@@ -223,7 +224,7 @@
     "failed": 0,
     "warned": 2
   },
-  "timestamp": "2026-09-04T18:22:47.944329Z",
+  "timestamp": "2026-09-04T18:43:38.018981Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
