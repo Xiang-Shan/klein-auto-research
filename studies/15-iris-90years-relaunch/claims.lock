@@ -250,6 +250,13 @@
       "precision": 6,
       "value": -0.190092
     },
+    "floor_ablation_std": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "sweep:floor_ablation std",
+      "precision": 7,
+      "value": 0.0952175
+    },
     "hgbt_dev_auc_raw": {
       "art": "aux",
       "claim": "C9",
