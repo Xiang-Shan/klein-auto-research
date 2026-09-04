@@ -160,7 +160,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "ci_width_zero"
+      ],
       "strength": "exploratory"
     },
     "C9": {
@@ -179,6 +181,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "ci_width_zero": {
+      "art": "aux",
+      "claim": "C8",
+      "note": "E0001 ci_width - 2000-replicate percentile bootstrap on a perfectly rank-separated sample",
+      "precision": 1,
+      "value": 0
+    },
     "dev_knn_auc": {
       "art": "results",
       "claim": "C1",
