@@ -1,0 +1,133 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | modern | supported in substance | exploratory | empirical-description | E0002, E0003, E0004, E0005, E0006, `sweep:floor_modern` | On the 25 development flowers, no post-1936 challenger exceeded Fisher's LDA refit in the same cell. `logreg_l2` (E0003), `svm_rbf` (E0005) and `hgbt` (E0006) each printed val_auc `1.000000` against the same printed reference `1.000000` \u2014 `delta_vs_reference` `0.0`, `0.0` and `-0.0`; `knn5` (E0004) printed `0.990385`, `delta_vs_reference` `-0.009615`. Development-only, therefore exploratory; and no delta here is certifiable against a bar, because the track's measured floor is `0`. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "A large, real, correctly-directed effect failed a registered rule \u2014 twice \u2014",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "Before registering a bounded metric as a study's primary, check whether it",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "A `minimum_delta` of exactly `0` is a contract state that needs its own",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "Write registered rules on keys that always print, and keep a raw-effect-size",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "Report the registered verdict and the raw effect size side by side, always.*",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "Run the duplicate-row straddle audit before you trust any small-table split.*",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ1 | modern | refuted on the letter of \"zero keeps\" | confirmed | procedural-verdict | E0002, E0003, E0004, E0005, E0006, E0011, `art:results` | The parade's five development cells on the `modern` track filed 4 keeps and 1 discard (the track's sixth row, E0011, is the sealed run, which the notary records as a discard by the sealed-evidence convention, not because it lost a comparison), so the prior's literal wording (\"zero of the four families earns a keep\") is false by direct count \u2014 and zero of the four challengers beat the incumbent by any amount the contract can resolve. `choose_disposition`'s frontier rule at `minimum_delta` `0` is `primary_metric >= incumbent + 0` evaluated on the printed six-decimal block, so a tie satisfies it. Read the parade as **4 printed keeps, 0 resolvable wins**. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ3 | fisher, modern | refuted \u2014 right conclusion, wrong mechanism | confirmed | empirical-description | E0001, E0010, `sweep:floor_fisher`, `sweep:floor_modern`, `sweep:fit_noise_svm_rbf`, `sweep:fit_noise_hgbt`, `rep:E0001@20260904T174249Z` | The prior expected a paired floor of `0.02`\u2013`0.10` val_auc against an incumbent distance-to-perfection under `0.05`. Measured: Fisher's LDA scores val_auc `1.000000` on the development block (E0001) **and** `1.000000` on the sealed block (E0010), so the distance to the declared ideal `1.0` is `0`; the paired-bootstrap floor over 1000 replicates on `(lda_all4, hgbt)` has std `0` and range `0`; the marginal split-lottery floor over 5 redraws has std `0` and range `0`. `minimum_delta` is `0` on both tracks and `kleinlib.decision.track_headroom` returns no number at all. \"Which classifier wins\" is unanswerable on this data with this metric \u2014 as the prior concluded, but because the metric saturated, not because the ruler was coarse. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ2 (petal half) | ablation | supported | confirmed | empirical-description | E0007, E0009, E0012, `sweep:floor_ablation`, `rep:E0007@20260904T174632Z` | Petal length and petal width alone carry essentially all the separation. Development: `lda_petal` `1.000000` against `lda_all4` `1.000000` in the same cell, `delta_vs_reference` `0.0`, `delta_in_floors` `0.0` (E0007); the same comparison with `hgbt` instead of LDA gives `delta_in_floors` `0.0` (E0009), so it is a property of the flowers, not of the model family. Sealed: `0.987179` against `1.0`, `delta_vs_reference` `-0.012821`, `delta_in_floors` `-0.0456` \u2014 inside the measured floor `0.28125` by more than an order of magnitude. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "RQ2 (sepal half) | ablation | supported in substance, refuted on the registered rule | confirmed | empirical-description | E0008, E0012, `sweep:floor_ablation`, `rep:E0008@20260904T174817Z` | Sepal length and sepal width alone carry a real, large, correctly-directed amount less \u2014 and still fail the pre-registered \"at least one measured floor below\" bar, twice. Development: `lda_sepal` `0.814103` against `lda_all4` `1.000000`, `delta_vs_reference` `-0.185897`, `delta_in_floors` `-0.661` (E0008). Sealed: `sepal_delta_in_floors` `-0.8547` (E0012). The track's floor was measured at `0.28125` from the paired-bootstrap spread of this very contrast (mean `-0.190092`, std `0.0952175`, range `0.5625`), which is why a genuinely large effect lands under one floor. \"Refuted\" here means the bar was not cleared, never that no difference was found. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "RQ1 (sealed) | modern | measured | confirmed | empirical-description | E0010, E0011 | The `modern` track's one sealed access: the selected challenger `hgbt`, refit on the 74 train+development rows, scores val_auc `0.987179` on the 25 sealed flowers against Fisher's LDA refit on the same rows in the same run at `1.0` \u2014 `delta_vs_reference` `-0.012821`, exactly `2 / 156` of the block's ordered pairs. It misclassifies 3 of 25 sealed flowers (accuracy `0.88`) where the same LDA on the same sealed rows misclassifies 2 of 25 (accuracy `0.92`, E0010). This is the only non-tied, correctly-signed challenger-versus-Fisher comparison the study produced, and the contract cannot certify it: P11's rule needs `delta_in_floors`, which a zero floor never prints. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "RQ4 | fisher, ablation | supported in substance, refuted on the metric it named | confirmed | empirical-description | E0001, E0010, E0008, E0012 | The two 25-flower blocks agree on ranking and disagree on counts. Fisher's LDA: development val_auc `1.000000` with 1 of 25 misclassified (accuracy `0.96`); sealed val_auc `1.000000` with 2 of 25 misclassified (accuracy `0.92`). The sealed-minus-development distance in the metric the prior named is exactly `0` val_auc, not the predicted one-to-two floors \u2014 but the threshold-`0.5` error count doubled, and the sepal-only shortfall widened from `-0.661` to `-0.8547` floors between the two blocks. No single block should be read as this species pair's true separability. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "The metric pegged at its own ideal, and every measuring instrument inherited",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "The disposition arithmetic turned four ties into four \"keeps\".*",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "753eeac11d470ea873fdc2895380fa9c70e87bb7",
+  "klein_commit": "753eeac11d470ea873fdc2895380fa9c70e87bb7",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "15-iris-90years-relaunch"
+}
