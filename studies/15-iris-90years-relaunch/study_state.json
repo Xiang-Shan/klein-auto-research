@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 7,
+  "last_experiment": 8,
   "overrides": [],
   "phase_acknowledgements": {
     "anchor-and-floor": {
@@ -156,6 +156,26 @@
       "recorded_at": "2026-09-04T17:23:46.904797Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P13": {
+      "evidence": [
+        "E0008"
+      ],
+      "explanation": "delta_in_floors -0.661 <= -1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0008"
+          ],
+          "explanation": "delta_in_floors -0.661 <= -1 \u2192 refuted",
+          "recorded_at": "2026-09-04T17:25:04.142682Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:25:04.142682Z",
+      "source": "run",
+      "verdict": "refuted"
     },
     "P2": {
       "evidence": [
@@ -398,5 +418,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:23:46.906187Z"
+  "updated_at": "2026-09-04T17:25:04.143881Z"
 }

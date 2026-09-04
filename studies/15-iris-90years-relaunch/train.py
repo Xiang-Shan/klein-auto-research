@@ -5,19 +5,10 @@ from __future__ import annotations
 import os
 import time
 
-import numpy as np
-
 import kleinlib
 from kleinlib.contract import load_contract
 from kleinlib.data import load_partition
-from lib.iris import (
-    FEATURE_SETS,
-    MODEL_SEED,
-    ablation_extra,
-    build_estimator,
-    fit_and_score,
-    frontier_extra,
-)
+from lib.iris import fit_and_score, frontier_extra
 
 from sklearn.metrics import roc_auc_score
 
@@ -97,107 +88,6 @@ def run_modern_frontier_cell(evaluation_kind: str, t0: float) -> float:
     )
 
 
-# ---------------------------------------------------------------------------
-# E0007-E0009, `ablation` track (research_plan.md Phase `ablation-map`,
-# steps 8-10). Registered mode: every run here is a CELL (disposition
-# `measured`, never keep/discard) and the mutable surface is ALWAYS restored
-# afterwards -- the candidate commit is the record (references/registered-
-# mode.md). Same paired-comparison shape as `run_modern_frontier_cell` above
-# (candidate + reference refit on the SAME development rows in the SAME
-# run), just composing `lib.iris.build_estimator`/`FEATURE_SETS` directly
-# instead of going through the fixed `RECIPES` table, so ANY estimator can
-# be paired with ANY feature set without touching the stable library.
-#
-# ONE falsifiable idea per candidate: which estimator, paired with which
-# feature set, against the SAME estimator refit on all four columns.
-#
-#   E0007  lda,  petal vs all4 (lda)   -- P12 (measured: supported, delta_in_floors=0)
-#   E0008  lda,  sepal vs all4 (lda)   -- P13
-#   E0009  hgbt, petal vs all4 (hgbt)  -- P14 (the parade's best-scoring
-#          `modern` family; see program.md's dated Decision on why hgbt is
-#          the honest choice among the parade's four printed-tie keeps)
-# ---------------------------------------------------------------------------
-ABLATION_ESTIMATOR = "lda"      # E0008: lda
-ABLATION_FEATURE_SET = "sepal"  # E0008: sepal-only vs all4 (P13)
-
-
-def _fit_feature_set(
-    estimator_name: str,
-    feature_set: str,
-    X_fit,
-    y_fit,
-    X_eval,
-    *,
-    random_state: int | None = None,
-):
-    """Fit `estimator_name` (`lib.iris.build_estimator`) on `feature_set`'s
-    columns; mirrors `lib.iris.fit_and_score` exactly but takes the feature
-    set directly instead of going through the `RECIPES` table, so an
-    ablation cell can pair ANY estimator with ANY of the three feature sets
-    without a new stable-library entry (research_plan.md's "COMPOSES those
-    primitives in train.py").
-    """
-    cols = FEATURE_SETS[feature_set]
-    model = build_estimator(estimator_name, random_state=random_state)
-    t0 = time.time()
-    model.fit(X_fit[cols], y_fit)
-    fit_seconds = time.time() - t0
-    p_eval = np.asarray(model.predict_proba(X_eval[cols]))[:, 1]
-    return model, p_eval, fit_seconds
-
-
-def run_ablation_cell(evaluation_kind: str, t0: float) -> float:
-    """`ablation` track cell: fit `ABLATION_ESTIMATOR` on
-    `ABLATION_FEATURE_SET`'s columns, refit the SAME estimator on all four
-    columns as the reference on the SAME development rows in the SAME run,
-    and print both scores plus `delta_vs_reference`/`delta_in_floors`. This
-    track's floor is real and measured (`minimum_delta=0.28125`, unlike
-    `modern`'s 0), so `delta_in_floors` prints and P12/P13/P14 resolve by
-    ordinary arithmetic, not INCONCLUSIVE.
-    """
-    X_fit, X_eval, y_fit, y_eval = load_partition(evaluation_kind, study_dir=".")
-    y_eval_arr = y_eval.to_numpy()
-    minimum_delta = float(
-        load_contract(".")["tracks"]["ablation"]["metric"].get("minimum_delta") or 0.0
-    )
-
-    model, p_eval, fit_seconds = _fit_feature_set(
-        ABLATION_ESTIMATOR,
-        ABLATION_FEATURE_SET,
-        X_fit,
-        y_fit,
-        X_eval,
-        random_state=MODEL_SEED,
-    )
-    candidate_auc = float(roc_auc_score(y_eval_arr, p_eval))
-
-    _, p_reference, _ = _fit_feature_set(
-        ABLATION_ESTIMATOR, "all4", X_fit, y_fit, X_eval, random_state=MODEL_SEED
-    )
-    reference_auc = float(roc_auc_score(y_eval_arr, p_reference))
-
-    extra = ablation_extra(
-        reference_metric=reference_auc,
-        candidate_metric=candidate_auc,
-        minimum_delta=minimum_delta,
-    )
-
-    return kleinlib.eval.evaluate(
-        model,
-        X_eval[FEATURE_SETS[ABLATION_FEATURE_SET]],
-        y_eval,
-        exp_id=EXPERIMENT_ID,
-        study_dir=".",
-        t0=t0,
-        fit_seconds=fit_seconds,
-        train_n=len(X_fit),
-        val_n=len(X_eval),
-        metric_name="val_auc",
-        metric_goal="higher",
-        extra=extra,
-    )
-
-
 def main() -> None:
     t0 = time.time()
     evaluation_kind = os.environ.get("KLEIN_EVALUATION_KIND")
@@ -223,14 +113,11 @@ def main() -> None:
     if TRACK == "modern":
         run_modern_frontier_cell(evaluation_kind, t0)
         return
-    if TRACK == "ablation":
-        run_ablation_cell(evaluation_kind, t0)
-        return
     raise NotImplementedError(
         f"KLEIN_TRACK={TRACK!r}: only the `modern` frontier cell (Phase `parade`) "
-        "and the `ablation` cell (Phase `ablation-map`) exist in train.py right "
-        "now -- the `fisher` anchor cell (E0001) was a separate candidate "
-        "transaction in its own phase (research_plan.md's experiment ladder)."
+        "exists in train.py right now -- the `fisher` anchor cell (E0001) and the "
+        "`ablation` cells are separate candidate transactions in their own phases "
+        "(research_plan.md's experiment ladder)."
     )
 
 

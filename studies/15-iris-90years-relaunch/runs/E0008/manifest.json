@@ -1,0 +1,92 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3773,
+      "committed": true,
+      "sha256": "4a62389ce937cc2334a3ca8b4b337d26f4066ef882c2e5465ae8fd55405dc113"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 606,
+      "committed": true,
+      "sha256": "a8565ba1821e48cbf2cf54c35706979eb4884343004accee7155119bc88d83b2"
+    }
+  },
+  "base_commit": "65ee3b7f9db73b10cd576d1a9694e1c3016e7ddf",
+  "candidate_commit": "99ab3489183ddcbe85ab8212a2756efd38cfcaa7",
+  "code_patch_hash": "ddc211f137db99cc6a7bc91d27afc8b79349677c86df970866c5ae447db2805e",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "E0008 ablation: sepal-only LDA vs all-four LDA (RQ2 sanity check); registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-04T17:25:04.142213Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+    "split_partition": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "delta_in_floors": -0.661,
+    "delta_vs_reference": -0.185897,
+    "primary_metric": 0.814103,
+    "reference_metric": 1.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 49.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.3,
+    "val_brier": 0.185383,
+    "val_f1_at_best": 0.8462,
+    "val_lift_top10": 2.0833,
+    "val_logloss": 0.538096,
+    "val_pr_auc": 0.766375,
+    "val_rows": 25.0,
+    "wall_seconds": 0.029712
+  },
+  "phase": "ablation-map",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P13": {
+      "explanation": "delta_in_floors -0.661 <= -1 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P13"
+  ],
+  "primary_metric": 0.814103,
+  "schema_version": 3,
+  "started_at": "2026-09-04T17:25:03.363082Z",
+  "timed_out": false,
+  "track": "ablation",
+  "transaction": {
+    "ready_at": "2026-09-04T17:25:04.143438Z",
+    "status": "pending"
+  },
+  "wall_seconds": 0.7790374169126153
+}

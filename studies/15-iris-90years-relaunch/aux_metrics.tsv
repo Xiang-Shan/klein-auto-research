@@ -104,3 +104,17 @@ E0007	model_path	models/best_ablation_E0007_1_ef19503896ca.joblib
 E0007	reference_metric	1.0
 E0007	delta_vs_reference	0.0
 E0007	delta_in_floors	0.0
+E0008	val_auc	0.8141025641025641
+E0008	val_pr_auc	0.7663752913752914
+E0008	val_logloss	0.5380963574851028
+E0008	val_brier	0.18538321693668164
+E0008	val_lift_top10	2.0833333333333335
+E0008	val_best_threshold	0.3
+E0008	val_f1_at_best	0.8461538461538461
+E0008	wall_seconds	0.02971196174621582
+E0008	min_proba_std	0.20676415565152548
+E0008	proba_range	0.8076488632168566
+E0008	proba_unique_values	25
+E0008	reference_metric	1.0
+E0008	delta_vs_reference	-0.185897
+E0008	delta_in_floors	-0.661
