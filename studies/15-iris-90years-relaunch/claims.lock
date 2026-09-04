@@ -1,5 +1,10 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "results": {
+      "path": "results.tsv",
+      "sha256": "675c877e0006713c5a62839d5d2456591df166af918eba29def66c887baae406"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "RQ1 | modern | supported in substance | exploratory | empirical-description | E0002, E0003, E0004, E0005, E0006, `sweep:floor_modern` | On the 25 development flowers, no post-1936 challenger exceeded Fisher's LDA refit in the same cell. `logreg_l2` (E0003), `svm_rbf` (E0005) and `hgbt` (E0006) each printed val_auc `1.000000` against the same printed reference `1.000000` \u2014 `delta_vs_reference` `0.0`, `0.0` and `-0.0`; `knn5` (E0004) printed `0.990385`, `delta_vs_reference` `-0.009615`. Development-only, therefore exploratory; and no delta here is certifiable against a bar, because the track's measured floor is `0`. |",
