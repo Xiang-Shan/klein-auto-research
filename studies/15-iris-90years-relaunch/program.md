@@ -124,6 +124,31 @@ recorded below, survivors mirrored into `playbook.md`.
   transfers. Left `minimum_delta` at 0.0 and fixed instead the recipe, estimand, pair
   and replicate count of each floor, so the bar cannot be chosen after seeing the
   answer. Kept `scouting_ledger.md` rather than deleting it - see S1 there.
+- 2026-09-04 — METHOD (Gate 2). Wrote `method_card.md` (five parts, `method_depth:
+  full`) and `references.yaml` (18 entries, 18 verified, 0 UNVERIFIED); triad asserted
+  theory / papers / practice all true. Taught LDA from scratch — the between/within
+  scatter ratio, the pooled-covariance closed form, and why it is the plug-in Bayes rule
+  under equal-covariance Gaussians (Welch 1939) — and RAN the from-scratch numpy version
+  against `LinearDiscriminantAnalysis(solver="svd")` on this study's 49 TRAINING rows
+  (`method_check_lda.py`): cosine similarity of the two discriminant directions
+  1.000000000000000, max absolute coefficient difference 7.105e-15, max score difference
+  1.776e-14. The development block was not scored and the sealed block was not read — no
+  evidence was spent at this gate. Transcribed Fisher's own hard-pair result from the
+  1936 original and settled a folklore question: he reported NO misclassification count
+  for versicolor vs virginica anywhere in the paper. His §VI compound gives a mean
+  separation of 15.31 units against within-species standard deviations of 4.342 and
+  4.222 — "less than four times the standard deviation of each species" — and his verdict
+  was that "a certain diagnosis of these two species could not be based solely on these
+  four measurements of a single flower taken on a plant growing wild". That is
+  DESCRIPTIVE context for findings only; it is explicitly NOT P2's bar, which stays the
+  consultant's own independent estimate. `study.yaml` was NOT edited: in schema 3
+  `predictions:` IS the protocol's `predictions_to_falsify`, the ledger P0-P15 is already
+  registered and hashed into the consult gate record, and the card's own additional
+  priors are recorded as M1-M6 on the card (descriptive, adjudicated in findings section
+  ③, never substitutable for a registered prediction). No verifier declared — this is
+  `kind: predict` and nothing is checkpoint-scored. Written without opening any file
+  under `studies/07-iris-90years/`, `studies/08-iris-rematch/` or
+  `studies/09-iris-first-lesson/`.
 
 ## Phase slates
 

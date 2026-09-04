@@ -1,0 +1,248 @@
+# The citations a `ref:<key>` evidence id resolves to. Written at the METHOD gate
+# (2026-09-04) by the klein-method-scholar subagent; every row was checked against a
+# publisher, archive, proceedings or repository page on that date — venue, year and
+# locator — never quoted from memory. `verified: false` would mean UNVERIFIED and
+# would have to be marked as such on method_card.md; no row here is in that state.
+references:
+
+  # ------------------------------------------------------------------ the object
+  fisher1936:
+    title: "The use of multiple measurements in taxonomic problems"
+    authors: "Fisher, R. A."
+    year: 1936
+    venue: "Annals of Eugenics 7(2), 179-188"
+    doi: "10.1111/j.1469-1809.1936.tb02137.x"
+    url: "https://repository.rothamsted.ac.uk/id/eprint/33079/"
+    verified: true
+    verified_by: "klein-method-scholar (Claude Opus 5): full text fetched and read from the Annals of Human Genetics archive scan; text layer extracted and pp. 182-183 and 186-187 re-OCRed at 300 dpi to recover table digits. Venue, volume, issue, pages and DOI independently confirmed at the Rothamsted Research repository record (eprint 33079)."
+    verified_at: "2026-09-04"
+    why: >-
+      THE incumbent of this study. Two things are transcribed from it on
+      method_card.md section 5.1, both descriptive and neither a scored
+      prediction. (1) Fisher's famous worked discriminant is the EASY pair
+      (setosa vs versicolor): lambda = (-0.0311511, -0.1839075, +0.2221044,
+      +0.3147370), normalised X = x1 + 5.9037 x2 - 7.1299 x3 - 10.1036 x4, mean
+      difference 33.816 cm, within-species sd 3.3804 cm, ratio 5.0018, and his
+      conclusion that "the probability of misclassification, using the compound
+      movement only is less than three per million". (2) For the HARD pair
+      (versicolor vs virginica) he reports NO misclassification count anywhere in
+      the paper. It appears only in section VI (allopolyploidy), whose compound
+      -- coefficients x100: sepal length -3.308998, sepal breadth -2.759132,
+      petal length +8.866048, petal breadth +9.392551 -- is a three-species test
+      statistic, not a two-class discriminant. Table IX: virginica mean 38.24827
+      (sum of squares 923.7958, mean square 18.8530, sd 4.342), versicolor
+      22.93888 (873.5119, 17.8268, 4.222), setosa -10.75042 (292.8958, 5.9775,
+      2.444). His verdict, verbatim: the virginica/versicolor difference of
+      "15.31 units, is less than four times the standard deviation of each
+      species", and "there is some overlap of the distributions ... so that a
+      certain diagnosis of these two species could not be based solely on these
+      four measurements of a single flower taken on a plant growing wild"
+      (pp. 187-188).
+
+  anderson1935:
+    title: "The irises of the Gaspe Peninsula"
+    authors: "Anderson, E."
+    year: 1935
+    venue: "Bulletin of the American Iris Society 59, 2-5"
+    url: "https://cir.nii.ac.jp/crid/1571980075933833856"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: CiNii Research bibliographic record; volume and pages corroborated by the R `datasets::iris` documentation, which cites this article as the origin of the measurements Fisher analysed)"
+    verified_at: "2026-09-04"
+    why: "Where the 150 flowers actually came from. Fisher's own paper credits the measurements to Dr E. Anderson: 'found growing together in the same colony and measured by Dr E. Anderson, to whom I am indebted for the use of the data'. Cited so the study never says 'Fisher's data' without saying whose measurements they are, and because Fisher himself notes that the virginica sample -- unlike the other two -- was NOT taken from the same natural colony."
+
+  # -------------------------------------------------- why LDA is the optimal rule
+  welch1939:
+    title: "Note on discriminant functions"
+    authors: "Welch, B. L."
+    year: 1939
+    venue: "Biometrika 31(1/2), 218-220"
+    doi: "10.2307/2334985"
+    url: "https://www.jstor.org/stable/2334985"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: JSTOR record via Crossref; volume, issue, pages and year confirmed, and corroborated by the Biometrika 1930s table-of-contents bibliography at ftp.math.utah.edu)"
+    verified_at: "2026-09-04"
+    why: "The decision-theoretic statement method_card.md equation E4 rests on: under two Gaussian classes with a COMMON covariance, the Bayes-optimal boundary is a hyperplane whose normal is Sigma^-1 (mu1 - mu0). That is exactly Fisher's direction, so LDA is the plug-in Bayes rule rather than a heuristic -- which is why this study expects no challenger to have anything left to find."
+
+  # ------------------------------------------------------- challenger: logreg_l2
+  berkson1944:
+    title: "Application of the logistic function to bio-assay"
+    authors: "Berkson, J."
+    year: 1944
+    venue: "Journal of the American Statistical Association 39(227), 357-365"
+    doi: "10.1080/01621459.1944.10500699"
+    url: "https://www.jstor.org/stable/2280041"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: Taylor & Francis article page for JASA vol 39 no 227; JSTOR stable/2280041 corroborates volume, issue, pages and year)"
+    verified_at: "2026-09-04"
+    why: "The paper that introduced the logistic model to applied statistics and coined 'logit'. Primary reference for the `logreg_l2` recipe: the same flat boundary as LDA, chosen by maximising the likelihood of the observed labels rather than by maximising a between/within scatter ratio."
+
+  cox1958:
+    title: "The regression analysis of binary sequences"
+    authors: "Cox, D. R."
+    year: 1958
+    venue: "Journal of the Royal Statistical Society Series B (Methodological) 20(2), 215-232"
+    doi: "10.1111/j.2517-6161.1958.tb00292.x"
+    url: "https://academic.oup.com/jrsssb/article/20/2/215/7027376"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: Oxford Academic JRSS-B article page and Wiley Online Library record; both agree on volume 20, issue 2, pages 215-232, 1958)"
+    verified_at: "2026-09-04"
+    why: "The regression formulation of the logistic model as it is used today. Paired with Berkson 1944 as the primary reference for `logreg_l2` in research_plan.md's recipe table."
+
+  # ------------------------------------------------------------ challenger: knn5
+  fixhodges1951:
+    title: "Discriminatory analysis - nonparametric discrimination: consistency properties"
+    authors: "Fix, E.; Hodges, J. L. Jr."
+    year: 1951
+    venue: "USAF School of Aviation Medicine, Randolph Field TX, Project 21-49-004, Report No. 4; reprinted in International Statistical Review 57(3), 238-247 (1989)"
+    doi: "10.2307/1403797"
+    url: "https://www.jstor.org/stable/1403797"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: JSTOR record for the 1989 International Statistical Review reprint, volume 57 issue 3 pages 238-247; the 1951 report's project number 21-49-004 and report number 4 confirmed from the HathiTrust catalog record 100923824)"
+    verified_at: "2026-09-04"
+    why: "Where the nearest-neighbour rule was defined. Primary reference for `knn5`. The locator is the 1989 reprint because the 1951 technical report has no DOI."
+
+  coverhart1967:
+    title: "Nearest neighbor pattern classification"
+    authors: "Cover, T. M.; Hart, P. E."
+    year: 1967
+    venue: "IEEE Transactions on Information Theory 13(1), 21-27"
+    doi: "10.1109/TIT.1967.1053964"
+    url: "https://dl.acm.org/doi/10.1109/TIT.1967.1053964"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: dblp record journals/tit/CoverH67 and ACM Digital Library record; volume 13, issue 1, pages 21-27, 1967)"
+    verified_at: "2026-09-04"
+    why: "The asymptotic result that makes kNN respectable -- the 1-NN error rate is bounded above by twice the Bayes rate -- and the k-NN family's convergence to Bayes as k grows. It is an ASYMPTOTIC guarantee, which is exactly why method_card.md section 4 expects it to buy nothing at 49 fitting rows."
+
+  # --------------------------------------------------------- challenger: svm_rbf
+  boser1992:
+    title: "A training algorithm for optimal margin classifiers"
+    authors: "Boser, B. E.; Guyon, I. M.; Vapnik, V. N."
+    year: 1992
+    venue: "Proceedings of the 5th Annual Workshop on Computational Learning Theory (COLT '92), 144-152"
+    doi: "10.1145/130385.130401"
+    url: "https://dl.acm.org/doi/10.1145/130385.130401"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: ACM Digital Library proceedings record, COLT '92, Pittsburgh, July 1992, pages 144-152)"
+    verified_at: "2026-09-04"
+    why: "The kernel trick applied to maximum-margin classification -- the mechanism by which `svm_rbf` is allowed to bend a boundary. Primary reference alongside Cortes & Vapnik 1995."
+
+  cortesvapnik1995:
+    title: "Support-vector networks"
+    authors: "Cortes, C.; Vapnik, V."
+    year: 1995
+    venue: "Machine Learning 20(3), 273-297"
+    doi: "10.1007/BF00994018"
+    url: "https://link.springer.com/article/10.1007/BF00994018"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: Springer Nature article page; volume 20, pages 273-297, 1995)"
+    verified_at: "2026-09-04"
+    why: "The soft-margin support-vector machine as it is implemented in `sklearn.svm.SVC`. Primary reference for the `svm_rbf` recipe."
+
+  # ------------------------------------------------------------ challenger: hgbt
+  friedman2001:
+    title: "Greedy function approximation: a gradient boosting machine"
+    authors: "Friedman, J. H."
+    year: 2001
+    venue: "The Annals of Statistics 29(5), 1189-1232"
+    doi: "10.1214/aos/1013203451"
+    url: "https://projecteuclid.org/journals/annals-of-statistics/volume-29/issue-5/Greedy-function-approximation-A-gradient-boosting-machine/10.1214/aos/1013203451.full"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: Project Euclid article page; Annals of Statistics volume 29 issue 5, pages 1189-1232, October 2001)"
+    verified_at: "2026-09-04"
+    why: "Gradient boosting as stagewise steepest descent in function space, and TreeBoost -- the algorithm `HistGradientBoostingClassifier` descends from. Primary reference for the `hgbt` recipe."
+
+  ke2017:
+    title: "LightGBM: a highly efficient gradient boosting decision tree"
+    authors: "Ke, G.; Meng, Q.; Finley, T.; Wang, T.; Chen, W.; Ma, W.; Ye, Q.; Liu, T.-Y."
+    year: 2017
+    venue: "Advances in Neural Information Processing Systems 30 (NeurIPS 2017), 3146-3154"
+    url: "https://proceedings.neurips.cc/paper_files/paper/2017/file/6449f44a102fde848669bdd9eb6b76fa-Paper.pdf"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: official NeurIPS 2017 proceedings PDF and reviews page; author list, venue and pagination confirmed)"
+    verified_at: "2026-09-04"
+    why: "The histogram-binned, leaf-wise gradient boosting design that scikit-learn's HistGradientBoosting* estimators are explicitly modelled on. Cited so that `hgbt` is attributed to the algorithm it actually implements, not only to Friedman's original."
+
+  # ----------------------------------------------------------- the metric and floor
+  hanley1982:
+    title: "The meaning and use of the area under a receiver operating characteristic (ROC) curve"
+    authors: "Hanley, J. A.; McNeil, B. J."
+    year: 1982
+    venue: "Radiology 143(1), 29-36"
+    doi: "10.1148/radiology.143.1.7063747"
+    url: "https://pubmed.ncbi.nlm.nih.gov/7063747/"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: PubMed record 7063747 and the RSNA article PDF at pubs.rsna.org; volume 143, issue 1, pages 29-36, 1982)"
+    verified_at: "2026-09-04"
+    why: "Two things this study's metric choice rests on: ROC-AUC equals P(a random positive outranks a random negative) and is the Mann-Whitney statistic over the n1*n0 cross-pairs -- which is what fixes this study's development resolution at 1/(12*13) = 0.0064 -- and the closed-form variance of that estimate, which is the first-principles basis for P3's expectation of a bootstrap interval wider than 0.05 AUC."
+
+  efron1979:
+    title: "Bootstrap methods: another look at the jackknife"
+    authors: "Efron, B."
+    year: 1979
+    venue: "The Annals of Statistics 7(1), 1-26"
+    doi: "10.1214/aos/1176344552"
+    url: "https://projecteuclid.org/journals/annals-of-statistics/volume-7/issue-1/Bootstrap-Methods-Another-Look-at-the-Jackknife/10.1214/aos/1176344552.full"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: Project Euclid article page; Annals of Statistics volume 7 issue 1, pages 1-26, January 1979)"
+    verified_at: "2026-09-04"
+    why: "The resampling argument behind kleinlib.metrology.paired_bootstrap and behind this study's two Phase-0 paired floors: the spread of a statistic over resamples of the evaluation rows estimates its sampling spread. Applied here to the DIFFERENCE of two rungs under common random numbers, which is a much smaller quantity than either rung's own spread."
+
+  # --------------------------------------------------------------- the regime doctrine
+  grinsztajn2022:
+    title: "Why do tree-based models still outperform deep learning on typical tabular data?"
+    authors: "Grinsztajn, L.; Oyallon, E.; Varoquaux, G."
+    year: 2022
+    venue: "NeurIPS 2022 Datasets and Benchmarks Track"
+    arxiv: "2207.08815"
+    url: "https://arxiv.org/abs/2207.08815"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: arXiv id 2207.08815 confirmed; NeurIPS Datasets and Benchmarks track publication corroborated by the ACM DL proceedings record 10.5555/3600270.3600307)"
+    verified_at: "2026-09-04"
+    why: "The standard doctrine anchor for tabular method choice. Cited HONESTLY on method_card.md section 4: its regime is ~10k rows with mixed feature types, irregular target functions and uninformative features -- none of which describes 99 rows of four smooth numeric measurements -- and its own explanation of WHY trees win predicts they should do worse here, not better."
+
+  fernandezdelgado2014:
+    title: "Do we need hundreds of classifiers to solve real world classification problems?"
+    authors: "Fernandez-Delgado, M.; Cernadas, E.; Barro, S.; Amorim, D."
+    year: 2014
+    venue: "Journal of Machine Learning Research 15(90), 3133-3181"
+    url: "https://jmlr.org/papers/v15/delgado14a.html"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: JMLR volume 15 article page delgado14a; 179 classifiers over 121 datasets, pages 3133-3181, 2014)"
+    verified_at: "2026-09-04"
+    why: "The empirical context for a five-classifier parade: 179 classifiers over 121 datasets, with leaders separated by margins that are frequently smaller than dataset-to-dataset variation. It is the published form of this study's own expected finding -- that a classifier ranking on ONE small dataset is mostly a statement about that dataset."
+
+  hollmann2025:
+    title: "Accurate predictions on small data with a tabular foundation model"
+    authors: "Hollmann, N.; Muller, S.; Purucker, L.; Krishnakumar, A.; Korfer, M.; Hoo, S. B.; Schirrmeister, R. T.; Hutter, F."
+    year: 2025
+    venue: "Nature 637(8045), 319-326"
+    doi: "10.1038/s41586-024-08328-6"
+    url: "https://www.nature.com/articles/s41586-024-08328-6"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: Nature article record; volume 637, issue 8045, pages 319-326, January 2025)"
+    verified_at: "2026-09-04"
+    why: "The live 2025-era frontier for tabular datasets under ~10,000 rows -- i.e. exactly this study's regime. Cited on method_card.md section 4 as the honest qualifier on 'ninety years of research': TabPFN is deliberately NOT in this study's parade, because the five recipes were fixed at CONSULT and adding a sixth after the gate would be a contract change."
+
+  # ------------------------------------------------------------------- provenance
+  bezdek1999:
+    title: "Will the real iris data please stand up?"
+    authors: "Bezdek, J. C.; Keller, J. M.; Krishnapuram, R.; Kuncheva, L. I.; Pal, N. R."
+    year: 1999
+    venue: "IEEE Transactions on Fuzzy Systems 7(3), 368-369"
+    doi: "10.1109/91.771092"
+    url: "https://lucykuncheva.co.uk/papers/jbjkrklknptfs99.pdf"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: IEEE/ACM DL record for IEEE Trans. Fuzzy Systems volume 7 issue 3, pages 368-369, June 1999; corroborated by the author's own hosted copy of the correspondence)"
+    verified_at: "2026-09-04"
+    why: "The published record that at least two distinct replicates of the iris table exist and that the UCI copy contains transcription errors. This study's DATA gate independently re-derived the sklearn-vs-UCI diff and found exactly 3 cell differences across 2 rows, BOTH setosa -- zero differences anywhere in the 100 versicolor/virginica rows modelled here (data_card.md NOTE 5). Cited so the tutorial can say which iris table this study used and why it matters."
+
+  pedregosa2011:
+    title: "Scikit-learn: machine learning in Python"
+    authors: "Pedregosa, F.; Varoquaux, G.; Gramfort, A.; Michel, V.; Thirion, B.; Grisel, O.; Blondel, M.; Prettenhofer, P.; Weiss, R.; Dubourg, V.; Vanderplas, J.; Passos, A.; Cournapeau, D.; Brucher, M.; Perrot, M.; Duchesnay, E."
+    year: 2011
+    venue: "Journal of Machine Learning Research 12, 2825-2830"
+    url: "https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf"
+    verified: true
+    verified_by: "klein-method-scholar (WebSearch: JMLR volume 12 article PDF and dblp record journals/jmlr/PedregosaVGMTGBPWDVPCBPD11)"
+    verified_at: "2026-09-04"
+    why: "The implementation every recipe in this study runs through (version 1.9.0 on this machine, recorded in data_card.md). Cited because method_card.md section 3.1 makes a specific claim ABOUT it -- that LinearDiscriminantAnalysis(solver='svd') computes equation E3 and nothing else -- and backs the claim with a from-scratch agreement of 7.105e-15."
