@@ -1,0 +1,143 @@
+<h2>The method taught</h2>
+
+<h3>The shadow-casting angle</h3>
+
+<p>Picture the flowers as points floating in a four-dimensional room, one axis per
+measurement, coloured by species. The two colours form overlapping clouds. Now shine a
+light through the room and read the <em>shadow</em> the points cast on a wall &mdash; a
+one-dimensional line. Most directions give a useless shadow where the colours smear
+together, but some direction gives the cleanest separation, and that direction is the
+whole of linear discriminant analysis. Once you have it, classification is trivial:
+project a flower onto that line and see which side of a threshold it lands on.</p>
+
+<p>&ldquo;Cleanest&rdquo; is not simply the direction where the two cloud centres land
+furthest apart &mdash; a direction can spread the centres and spread each cloud equally,
+gaining nothing. What you want is the gap between the centres <em>relative to how fat the
+clouds are along that same direction</em>. Three equivalent ways to say the same thing:
+LDA is a two-sample <span data-math="t"></span>-statistic maximised over every possible
+linear combination of the measurements; LDA is PCA that has been told the labels, finding
+the direction of largest between-species spread per unit of within-species spread rather
+than largest total spread; LDA is &ldquo;whiten, then point at the difference&rdquo;
+&mdash; rescale the room so the within-species scatter becomes a sphere, and in that
+reshaped room the best direction is simply the line joining the two cloud centres.</p>
+
+<h3>The math core</h3>
+
+<p>Let <span data-math="\mathbf{x}_i \in \mathbb{R}^p"></span> be a flower's
+<span data-math="p=4"></span> measurements and <span data-math="y_i \in \{0,1\}"></span>
+its species. With class means <span data-math="\boldsymbol{\mu}_0,\boldsymbol{\mu}_1"></span>
+and mean difference <span data-math="\mathbf{d} = \boldsymbol{\mu}_1-\boldsymbol{\mu}_0"></span>,
+the within-class scatter <span data-math="\mathbf{S}_W"></span> and between-class scatter
+<span data-math="\mathbf{S}_B = \mathbf{d}\mathbf{d}^\top"></span> give Fisher's
+criterion &mdash; the squared gap between projected means divided by the pooled variance
+of the projection:</p>
+
+<div data-math-display="J(\mathbf{w}) \;=\; \frac{\mathbf{w}^\top \mathbf{S}_B \mathbf{w}}{\mathbf{w}^\top \mathbf{S}_W \mathbf{w}} \;=\; \frac{\left(\mathbf{w}^\top \mathbf{d}\right)^2}{\mathbf{w}^\top \mathbf{S}_W \mathbf{w}}"></div>
+
+<p><span data-math="J"></span> fixes a <em>direction</em>, never a scale: any two
+implementations must agree by angle, not by raw coefficient magnitude. Because
+<span data-math="\mathbf{S}_B"></span> has rank one, the maximiser of
+<span data-math="J"></span> collapses to one line &mdash; no iteration, no learning rate,
+one matrix solve:</p>
+
+<div data-math-display="\mathbf{w} \;\propto\; \mathbf{S}_W^{-1}\,\mathbf{d} \;=\; \hat{\boldsymbol{\Sigma}}^{-1}\,(\boldsymbol{\mu}_1-\boldsymbol{\mu}_0)"></div>
+
+<p>This is the whole fitting procedure &mdash; which is why <code>lda_all4</code> carries
+no <code>random_state</code> at all in this study's recipe table, and why its fit noise is
+exactly zero by construction. It is also not merely <em>a</em> reasonable rule; under two
+Gaussian classes sharing one covariance <span data-math="\boldsymbol{\Sigma}"></span>, the
+log posterior odds is exactly linear in <span data-math="\mathbf{x}"></span> with this same
+<span data-math="\mathbf{w}"></span>:</p>
+
+<div data-math-display="\log\frac{P(y=1\mid \mathbf{x})}{P(y=0\mid \mathbf{x})} = \left[\boldsymbol{\Sigma}^{-1}(\boldsymbol{\mu}_1-\boldsymbol{\mu}_0)\right]^\top\mathbf{x} \;-\;\tfrac12\!\left(\boldsymbol{\mu}_1^\top\boldsymbol{\Sigma}^{-1}\boldsymbol{\mu}_1-\boldsymbol{\mu}_0^\top\boldsymbol{\Sigma}^{-1}\boldsymbol{\mu}_0\right)+\log\frac{\pi_1}{\pi_0}"></div>
+
+<p>so LDA is the <em>plug-in Bayes rule</em> &mdash; the mathematically best possible
+classifier in that world, with population moments replaced by sample estimates. Iris
+versicolor and virginica are close to that world: four smooth, roughly bell-shaped
+measurements, two species whose scatter is similar in shape. If the assumption holds even
+approximately, a more flexible learner has nothing left to find; it can only add
+variance. That is the method card's central bet, and section&nbsp;4 shows what happened
+when it was tested.</p>
+
+<h3>The ruler, not just the model: what ROC-AUC can and cannot resolve</h3>
+
+<p>ROC-AUC is the probability that a randomly chosen virginica scores above a randomly
+chosen versicolor &mdash; the Mann&ndash;Whitney statistic over every
+positive&ndash;negative pair. The development block holds 13 versicolor and 12 virginica,
+so the statistic is a count over 156 ordered pairs and can only move in steps of
+<span data-math="1/156"></span>:</p>
+
+<div data-math-display="\hat{A} \in \left\{0,\ \tfrac{1}{156},\ \tfrac{2}{156},\ \dots,\ 1\right\}, \qquad \text{step} = 0.0064"></div>
+
+<p>That is the instrument's <em>resolution</em> &mdash; the smallest non-zero difference
+it can express. It is not the same thing as its <em>noise floor</em>: resample the same 25
+rows, or redraw which 25 they are, and the statistic wanders by a different, usually much
+larger amount. This study's own convention is a <em>paired</em> bootstrap: draw one shared
+resample index and apply it to both the candidate and the reference score in lock-step
+(common random numbers by construction), so the errors that are common to both cancel and
+only the genuine difference remains. The resulting bar is
+<span data-math="\max(2\sigma_\Delta,\ \mathrm{range}/2)"></span> over the replicates &mdash;
+a floor that is measured, at Phase&nbsp;0, before a single challenger runs. Confusing the
+0.0064 resolution with this measured floor is exactly the mistake this study's own doctrine
+refuses to make.</p>
+
+<h3>Practice: fourteen lines of numpy, checked against scikit-learn</h3>
+
+<p>The whole fitting procedure, with no framework:</p>
+
+<pre><code class="language-python">mus    = np.stack([X[y == c].mean(axis=0) for c in classes])   # class means
+priors = np.array([(y == c).mean() for c in classes])          # empirical priors
+
+S_W = np.zeros((p, p))                                   # within-class scatter
+for k, c in enumerate(classes):
+    Z = X[y == c] - mus[k]
+    S_W += Z.T @ Z
+Sigma = S_W / (n - K)                                    # pooled covariance, unbiased
+
+d = mus[1] - mus[0]
+w = np.linalg.solve(Sigma, d)                            # Sigma^-1 (mu1 - mu0)
+b = -0.5 * (mus[1] @ np.linalg.solve(Sigma, mus[1])
+            - mus[0] @ np.linalg.solve(Sigma, mus[0])) + np.log(priors[1] / priors[0])
+
+score = X @ w + b                                        # &gt; 0  -&gt;  predict virginica
+</code></pre>
+
+<p>Run at the METHOD gate against <code>LinearDiscriminantAnalysis(solver="svd")</code> on
+this study's own 49 training rows, before any evidence was spent: cosine similarity of the
+two discriminant directions <code>1.000000000000000</code>, maximum absolute coefficient
+difference <code>7.105e-15</code>, maximum decision-score difference over the 49 rows
+<code>1.776e-14</code>. Two implementation details cost that agreement if skipped:
+<code>np.linalg.solve</code> rather than an explicit matrix inverse, and the
+<span data-math="\log(\pi_1/\pi_0)"></span> prior term in the intercept, which on
+this study's 25-versus-24 training split is <span data-math="\log(24/25) = -0.0408"></span>
+&mdash; small enough to hide, large enough to move a borderline flower's predicted label
+even though it never touches the fitted <em>direction</em>.</p>
+
+<h3>The four post-1936 challengers, in one sentence each</h3>
+
+<table>
+<thead><tr><th>Recipe</th><th>First published</th><th>Intuition</th></tr></thead>
+<tbody>
+<tr><td><code>logreg_l2</code></td><td>Berkson 1944 / Cox 1958</td><td>The same flat
+boundary, chosen by a different question &mdash; not &ldquo;which direction separates the
+clouds&rdquo; but &ldquo;which boundary makes the observed labels most likely&rdquo;
+&mdash; with an L2 penalty shrinking the coefficients toward zero.</td></tr>
+<tr><td><code>knn5</code></td><td>Fix &amp; Hodges 1951 / Cover &amp; Hart 1967</td><td>No
+model at all: classify a flower by a majority vote of its five nearest training flowers.
+Infinitely flexible in principle; with 49 training flowers, a coarse instrument in
+practice.</td></tr>
+<tr><td><code>svm_rbf</code></td><td>Boser&ndash;Guyon&ndash;Vapnik 1992 / Cortes &amp;
+Vapnik 1995</td><td>Lay the widest possible road between the two classes, after bending
+space with a Gaussian kernel so the road may curve.</td></tr>
+<tr><td><code>hgbt</code></td><td>Friedman 2001 / Ke et al. 2017</td><td>A committee of
+short, axis-aligned staircases, each fitted to what the committee so far still gets
+wrong.</td></tr>
+</tbody>
+</table>
+
+<p>Two of these (<code>logreg_l2</code>, and <code>svm_rbf</code> with a narrow enough
+kernel) can reproduce something close to Fisher's straight boundary. Two of them
+(<code>knn5</code>, <code>hgbt</code>) cannot draw a smooth oblique line at all &mdash; if
+the true boundary really is close to a plane, that is a handicap, not a feature: variance
+spent buying flexibility the boundary does not need. Section&nbsp;4 measures which of
+these two pictures the data actually supports.</p>

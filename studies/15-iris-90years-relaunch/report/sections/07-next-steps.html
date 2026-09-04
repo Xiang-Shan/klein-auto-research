@@ -1,0 +1,119 @@
+<h2>Next steps + references</h2>
+
+<h3>What to try next, in priority order</h3>
+
+<ol>
+  <li><strong>Re-run the identical parade with a primary metric that cannot peg.</strong>
+      This is the direct repair of the pegging finding. Log-loss or Brier score on the same
+      49/25/25 partition is unbounded below only by perfection, and both were already
+      observed to vary widely across these same five recipes while ROC-AUC sat frozen at
+      <code>1.000000</code>: development log-loss ranges from <code>0.012827</code> to
+      <code>0.172887</code>, Brier from <code>0.000945</code> to
+      <code>0.056</code>. A paired-bootstrap floor on <code>(lda_all4, hgbt)</code> under
+      log-loss would almost certainly be non-degenerate, restoring
+      <code>delta_in_floors</code> and every prediction rule built on it. Register both a
+      floors rule and a raw-delta twin, so a future degenerate floor cannot silence a
+      prediction outright.</li>
+  <li><strong>Measure how much of the pegging is the 25-row block and how much is the
+      species pair.</strong> A registered <code>estimate</code> track with a split-lottery
+      over many more redraws than this study's five, inside the non-sealed rows, reporting
+      the <em>distribution</em> of <code>lda_all4</code>'s development AUC and of its
+      threshold-<code>0.5</code> error count &mdash; the error count is the one statistic
+      this study already showed moving (one flower on development, two on the sealed
+      block) where the AUC did not.</li>
+  <li><strong>Retest the ablation with a floor recipe that is not measured on the contrast
+      under test.</strong> This study's ablation floor was set by the same paired
+      comparison it then had to adjudicate, making the one-floor bar unreachable for a
+      genuinely large effect. Measure the floor instead on a <em>null</em> contrast &mdash;
+      the same feature set against itself across bootstrap draws &mdash; so the bar
+      reflects noise rather than the effect's own tail, then re-adjudicate the sepal
+      clauses against it.</li>
+  <li><strong>Add the one recipe this contract deliberately excluded.</strong> A tabular
+      foundation model pre-trained for exactly this row-count regime is the honest 2025-era
+      frontier answer and was named in the method card specifically as outside this
+      study's parade, because adding a sixth recipe after the gate would be a contract
+      change. A fresh study can register it at consult. Under a non-pegging metric, it is
+      the one candidate with a plausible route to a resolvable win &mdash; and if it too
+      ties Fisher's 1936 discriminant on a metric with headroom, that is a far stronger
+      statement than this study could make.</li>
+</ol>
+
+<h3>Verified references</h3>
+
+<p>Every row below was checked against a publisher, archive or proceedings page on the date
+recorded in <code>references.yaml</code> &mdash; eighteen entries, eighteen verified, none
+UNVERIFIED, matching the method card's <code>refs_verified: true</code>.</p>
+
+<ul>
+  <li>Fisher, R. A. (1936). The use of multiple measurements in taxonomic problems.
+      <em>Annals of Eugenics</em> 7(2), 179&ndash;188. doi:10.1111/j.1469-1809.1936.tb02137.x
+      &mdash; the incumbent this whole study is measured against, read from the original
+      archive scan rather than from memory.</li>
+  <li>Anderson, E. (1935). The irises of the Gasp&eacute; Peninsula. <em>Bulletin of the
+      American Iris Society</em> 59, 2&ndash;5 &mdash; where the 150 flowers actually came
+      from.</li>
+  <li>Welch, B. L. (1939). Note on discriminant functions. <em>Biometrika</em> 31(1/2),
+      218&ndash;220. doi:10.2307/2334985 &mdash; the decision-theoretic statement behind
+      LDA's plug-in Bayes optimality under equal covariances.</li>
+  <li>Berkson, J. (1944). Application of the logistic function to bio-assay. <em>Journal of
+      the American Statistical Association</em> 39(227), 357&ndash;365.
+      doi:10.1080/01621459.1944.10500699 &mdash; primary reference for
+      <code>logreg_l2</code>.</li>
+  <li>Cox, D. R. (1958). The regression analysis of binary sequences. <em>Journal of the
+      Royal Statistical Society Series B</em> 20(2), 215&ndash;232.
+      doi:10.1111/j.2517-6161.1958.tb00292.x &mdash; the regression formulation of the
+      logistic model as it is used today.</li>
+  <li>Fix, E. &amp; Hodges, J. L. (1951). Discriminatory analysis &mdash; nonparametric
+      discrimination: consistency properties. USAF School of Aviation Medicine, Project
+      21-49-004, Report No. 4; reprinted <em>International Statistical Review</em> 57(3),
+      238&ndash;247 (1989). doi:10.2307/1403797 &mdash; where the nearest-neighbour rule
+      was defined.</li>
+  <li>Cover, T. M. &amp; Hart, P. E. (1967). Nearest neighbor pattern classification.
+      <em>IEEE Transactions on Information Theory</em> 13(1), 21&ndash;27.
+      doi:10.1109/TIT.1967.1053964 &mdash; the asymptotic bound that makes kNN respectable,
+      and why it buys nothing at 49 fitting rows.</li>
+  <li>Boser, B. E., Guyon, I. M. &amp; Vapnik, V. N. (1992). A training algorithm for
+      optimal margin classifiers. <em>Proc. COLT&nbsp;'92</em>, 144&ndash;152.
+      doi:10.1145/130385.130401 &mdash; the kernel trick applied to maximum-margin
+      classification.</li>
+  <li>Cortes, C. &amp; Vapnik, V. (1995). Support-vector networks. <em>Machine
+      Learning</em> 20(3), 273&ndash;297. doi:10.1007/BF00994018 &mdash; the soft-margin
+      SVM as implemented in <code>sklearn.svm.SVC</code>.</li>
+  <li>Friedman, J. H. (2001). Greedy function approximation: a gradient boosting machine.
+      <em>Annals of Statistics</em> 29(5), 1189&ndash;1232. doi:10.1214/aos/1013203451
+      &mdash; gradient boosting as stagewise steepest descent, primary reference for
+      <code>hgbt</code>.</li>
+  <li>Ke, G. et al. (2017). LightGBM: a highly efficient gradient boosting decision tree.
+      <em>NeurIPS 2017</em>, 3146&ndash;3154 &mdash; the histogram-binned design
+      <code>HistGradientBoostingClassifier</code> is modelled on.</li>
+  <li>Hanley, J. A. &amp; McNeil, B. J. (1982). The meaning and use of the area under a ROC
+      curve. <em>Radiology</em> 143(1), 29&ndash;36. doi:10.1148/radiology.143.1.7063747
+      &mdash; ROC-AUC as the Mann&ndash;Whitney statistic, and the source of this study's
+      156-ordered-pair resolution.</li>
+  <li>Efron, B. (1979). Bootstrap methods: another look at the jackknife. <em>Annals of
+      Statistics</em> 7(1), 1&ndash;26. doi:10.1214/aos/1176344552 &mdash; the resampling
+      argument behind every floor this study measured, and behind its own known blind spot
+      on a perfectly rank-separated sample.</li>
+  <li>Grinsztajn, L., Oyallon, E. &amp; Varoquaux, G. (2022). Why do tree-based models still
+      outperform deep learning on typical tabular data? <em>NeurIPS Datasets &amp;
+      Benchmarks</em>. arXiv:2207.08815 &mdash; read honestly here: its own explanation of
+      why trees win predicts they should do worse on this table, not better.</li>
+  <li>Fern&aacute;ndez-Delgado, M., Cernadas, E., Barro, S. &amp; Amorim, D. (2014). Do we
+      need hundreds of classifiers to solve real world classification problems?
+      <em>JMLR</em> 15(90), 3133&ndash;3181 &mdash; 179 classifiers, 121 datasets, leader
+      margins frequently smaller than dataset-to-dataset variation; this study is one more
+      row of that table.</li>
+  <li>Hollmann, N. et al. (2025). Accurate predictions on small data with a tabular
+      foundation model. <em>Nature</em> 637(8045), 319&ndash;326.
+      doi:10.1038/s41586-024-08328-6 &mdash; the honest 2025-era frontier for this table
+      size, deliberately outside this study's fixed parade.</li>
+  <li>Bezdek, J. C., Keller, J. M., Krishnapuram, R., Kuncheva, L. I. &amp; Pal, N. R.
+      (1999). Will the real iris data please stand up? <em>IEEE Transactions on Fuzzy
+      Systems</em> 7(3), 368&ndash;369. doi:10.1109/91.771092 &mdash; the documented
+      UCI-versus-original discrepancy this study's own data gate independently re-derived
+      and confined to two setosa rows.</li>
+  <li>Pedregosa, F. et al. (2011). Scikit-learn: machine learning in Python. <em>JMLR</em>
+      12, 2825&ndash;2830 &mdash; the implementation every recipe in this study runs
+      through, and the one whose LDA solver this study's own from-scratch numpy
+      implementation was checked against.</li>
+</ul>

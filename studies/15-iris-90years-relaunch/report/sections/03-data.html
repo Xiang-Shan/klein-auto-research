@@ -1,0 +1,80 @@
+<h2>The data story</h2>
+
+<p>The source is <code>sklearn.datasets.load_iris</code>, restricted to the two species
+that overlap &mdash; setosa is trivially separable and is out of scope by design. The raw
+loader hands back exactly 100 flowers, 50 of each species, 4 measurement columns; that
+identity is asserted on the RAW load, not the prepared table, so a lawful data-gate row
+drop can never manufacture a false refutation of it (prediction P0). Every column is a
+genuine <code>float64</code> centimetre measurement &mdash; sepal length, sepal width,
+petal length, petal width, ranges <code>4.9&ndash;7.9</code>, <code>2.0&ndash;3.8</code>,
+<code>3.0&ndash;6.9</code>, <code>1.0&ndash;2.5</code> &mdash; and the target is a genuine
+integer 0/1, not a disguised string boolean. That is a rare, cleanly-typed result, and it
+was still checked in full by printing every column's sorted value set rather than trusted
+because the table &ldquo;looked clean&rdquo;: the mandatory value-pattern check exists
+precisely because <code>dtype == "object"</code> has silently hidden a categorical column
+before in this framework's own history.</p>
+
+<h3>The blocker an independent audit found and fixed</h3>
+
+<p>The mechanized four-row leakage audit (<code>python -m kleinlib.leakage</code>) failed
+its duplicate-row check on the unmodified 100-row table:</p>
+
+<pre><code class="language-console">[FAIL] duplicate-rows: 1 duplicated row-content hash(es) straddle partitions (train/development=1, train/test=0, development/test=0)</code></pre>
+
+<p>The hard pair contains one exact-duplicate row: two virginica flowers, identical on
+all four measurements at <code>(5.8, 2.7, 5.1, 1.9)</code>. Under the declared stratified
+split, seed <code>20260904</code>, the two copies land on opposite sides of the
+train/development boundary &mdash; one in training, one in development. That is exactly
+the leakage mechanism the data-gate protocol names: a memorization-capable challenger
+(<code>knn5</code> most directly) can score the development copy correctly for free off a
+byte-identical training twin, in precisely the paired comparisons this study's predictions
+are decided on.</p>
+
+<p>The fix was made entirely inside <code>prepare.py</code>, with no edit to
+<code>study.yaml</code>: drop the duplicate's second copy, deterministically, before the
+table is written. A true duplicate carries zero information beyond its twin, so the fix
+costs nothing. <code>prepare.py</code> was re-run, the table re-profiled, the split
+re-drawn, and the audit re-run clean:</p>
+
+<pre><code class="language-console">[OK]   split-reproduces: kind=stratified reproduces deterministically from study.yaml (train=49 development=25 test=25 rows)
+[OK]   duplicate-rows: no duplicate row content straddles partitions
+[OK]   group-overlap: N/A — split kind is not 'group'
+12/12 checks passed: clean</code></pre>
+
+<p>The realized table is <strong>99 rows</strong>, not the round 100 several contract
+documents describe in prose &mdash; a direct, deterministic consequence of dropping one
+duplicate. The split realizes <strong>49 training / 25 development / 25 sealed</strong>
+flowers (development and test both land exactly on the intended 25, preserving the
+exchangeability the study's paired floors depend on), per-class counts train
+{versicolor 25, virginica 24}, development {versicolor 13, virginica 12}, test
+{versicolor 12, virginica 13}. Class balance shifted from an exact 50/50 to 50 versicolor
+/ 49 virginica &mdash; a positive rate of <code>49.49%</code> &mdash; because the dropped
+duplicate was virginica; negligible at this scale, and no registered prediction's
+arithmetic depends on the literal row count.</p>
+
+<h3>Two questions this study needed answered before trusting a single number</h3>
+
+<p><strong>Does this copy of the table differ from Fisher's own?</strong> The UCI mirror
+of iris is documented to contain transcription errors relative to the original. An
+independent fetch and cell-by-cell diff against <code>sklearn</code>'s bundled copy found
+exactly three cell differences across two rows &mdash; both <em>setosa</em>. Zero
+differences anywhere in the 100 versicolor/virginica rows this study actually models: the
+hard pair is byte-identical between the two sources.</p>
+
+<p><strong>Does the negative control fire correctly?</strong> A constant predictor and a
+label-shuffled predictor both score at chance on all three tracks
+(<code>constant-chance</code> <code>val_auc=0.5000</code>; <code>shuffled-chance</code>
+between <code>0.4391</code> and <code>0.5192</code>), inside the tool's default margin. A
+pipeline that could not score chance at chance could not be trusted with a perfect score
+either.</p>
+
+<h3>Go / no-go</h3>
+
+<p><strong>GO.</strong> One blocker was found, by a mechanized and unconditional check,
+and fixed with a one-row, zero-information deletion that touched no line of
+<code>study.yaml</code>. Every remaining item is a WARN or NOTE: the small-<em>n</em>
+design is already the subject of this study's own bootstrap and headroom machinery; the
+realized 49-row training partition is a documented, arithmetically inert deviation from
+the contract's round-number prose; the UCI discrepancy touches nothing in the rows this
+study models. This card's ruling was reached without opening a single file from the
+earlier study that examined the same species pair.</p>

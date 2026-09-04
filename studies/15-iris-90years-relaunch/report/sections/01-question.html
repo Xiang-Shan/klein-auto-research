@@ -1,0 +1,79 @@
+<h2>The question</h2>
+
+<p>In 1936, R. A. Fisher published a linear discriminant fitted on a hundred iris
+flowers and showed that a single straight-line combination of four measurements could
+separate two overlapping species. Ninety years of classification research followed
+&mdash; logistic regression, nearest-neighbour rules, kernel machines, gradient-boosted
+trees &mdash; each capable, in principle, of finding curvature a straight line cannot.
+This study puts the question as a decision an ordinary practitioner could act on:</p>
+
+<blockquote>
+  <p><strong>On the exact species pair Fisher studied, does any post-1936 classifier
+  separate <em>versicolor</em> from <em>virginica</em> measurably better than his own
+  1936 discriminant, on flowers neither method has seen? And is the separating signal
+  really in all four measurements, or do the two petal measurements alone carry
+  essentially all of it?</strong></p>
+</blockquote>
+
+<p>This is a deliberate, independent redo. An earlier study in this repository looked at
+the same pair of species; this one is typed, gated and run without opening a single file
+from it, so that whatever it finds is arrived at on its own evidence, not copied or
+avoided (<code>scouting_ledger.md</code>; <code>research_plan.md</code>'s &ldquo;Out of
+scope, deliberately&rdquo;). Comparing the two studies is left to the reader.</p>
+
+<h3>The contract, registered before any evidence existed</h3>
+
+<p>A <code>predict</code> study, modality <code>tabular</code>, profile
+<code>generic</code>, over the four measurement columns of 99 iris flowers
+(<code>sklearn:load_iris</code>, restricted to versicolor and virginica). Three tracks,
+not one, because the headline question is a <em>comparison</em> and a track gets exactly
+one sealed access: a single-track study could confirm the incumbent's <em>level</em> but
+never the <em>gap</em>.</p>
+
+<ul>
+  <li><strong><code>fisher</code></strong> (registered, <code>estimate</code>)
+      measures the incumbent's own level, with a bootstrap interval.</li>
+  <li><strong><code>modern</code></strong> (frontier, <code>predict</code>) holds Fisher's
+      discriminant as the incumbent; the four post-1936 challengers &mdash; L2 logistic
+      regression, 5-nearest-neighbours, an RBF-kernel support-vector machine, a histogram
+      gradient-boosted tree &mdash; climb it one at a time.</li>
+  <li><strong><code>ablation</code></strong> (registered, <code>test</code>) maps which
+      measurements carry the signal: petal-only against sepal-only against all four.</li>
+</ul>
+
+<p>Every track shares one primary metric, ROC-AUC (<code>val_auc</code>, higher is
+better) &mdash; chosen before any byte was read because it is threshold-free and resolves
+finer than accuracy on a 25-flower block. Sixteen predictions, P0 through P15, were
+registered with arithmetic rules before the first row was fitted, and every headline
+number in the sections that follow is a copy of a value pinned in
+<code>claims.lock</code>, <code>results.tsv</code> or <code>aux_metrics.tsv</code>.</p>
+
+<h3>Three things to take away, and none of them is &ldquo;LDA still wins&rdquo;</h3>
+
+<ul>
+  <li><strong>The primary metric saturated.</strong> Fisher's own discriminant scores a
+      perfect ROC-AUC of <code>1.000000</code> on the development block and again on the
+      sealed block. Every noise-floor recipe Phase&nbsp;0 ran on the <code>fisher</code>
+      and <code>modern</code> tracks came back with a spread of exactly zero, so the
+      measured keep bar on both tracks is <code>0</code> &mdash; not left unmeasured,
+      <em>measured</em> to be zero.</li>
+  <li><strong>A zero floor turns a tie into a keep.</strong> With the bar at zero, the
+      frontier rule <code>primary_metric &gt;= incumbent + minimum_delta</code> is
+      satisfied by an exact tie. Four of the five <code>modern</code>-track development
+      cells filed as <code>keep</code>; zero of the four challengers resolvably beat
+      Fisher's discriminant by any amount the contract could certify. In the one sealed
+      comparison the study did make, the selected challenger lost.</li>
+  <li><strong>The ablation asked a different question, and it is answerable.</strong> The
+      two petal measurements alone reproduce the all-four score exactly, on both the
+      development and the sealed partition. The two sepal measurements alone lose a real,
+      large amount of separation &mdash; and still miss a pre-registered bar built from
+      that same effect's own spread. Both halves of that surprise are load-bearing for
+      what this tutorial teaches in section&nbsp;4.</li>
+</ul>
+
+<p>The rest of this page teaches the method (section&nbsp;2), the data and the one
+leakage bug an independent audit found and fixed before any model ran (section&nbsp;3),
+the four-phase experiment ladder that produced the saturation above (section&nbsp;4), the
+verdicts and surprises this study is willing to stand behind (section&nbsp;5), an
+annotated walkthrough of the code that produced every number on this page
+(section&nbsp;6), and what a next study should do differently (section&nbsp;7).</p>
