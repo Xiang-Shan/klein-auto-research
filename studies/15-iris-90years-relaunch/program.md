@@ -164,17 +164,19 @@ recorded below, survivors mirrored into `playbook.md`.
   three more times below), not a leakage bug — the DATA-gate duplicate-row fix already
   removed the one mechanism that could have manufactured it, and a fresh `predict_proba`
   dump was inspected row-by-row before trusting the number.
-  **P3 REFUTED** (`ci_width 0 > 0.05` is false: `ci_width=0.0` exactly). **Decision:**
-  because the development sample is perfectly rank-separated, the percentile bootstrap
-  cannot exhibit any resampling variability — every one of the 2000 resamples is drawn
-  WITH REPLACEMENT from the same 25 already-cleanly-separated rows, so every resample is
-  itself perfectly separated too (a mathematical certainty once the parent sample has a
-  clean gap between the two classes' score ranges, not a coding artifact). RQ3's prior
-  (a floor of 0.02-0.10 AUC) is refuted in the opposite direction from what was expected:
-  not "the floor is too coarse to see," but "this specific 25-row block has no gap
-  between classes for the bootstrap to resample across." Findings must report this
-  precisely — the percentile bootstrap's own known blind spot on a perfectly-separated
-  sample, not evidence that 25 flowers "pin down" the true population separation.
+  **P3 REFUTED** (`ci_width 0 > 0.05` is false: `ci_width=0.0` exactly) — see the dated
+  Decision line immediately below for what changed and why.
+- 2026-09-04 — Decision: P3 refuted. Because the development sample is perfectly
+  rank-separated (E0001, above), the percentile bootstrap cannot exhibit any resampling
+  variability — every one of the 2000 resamples is drawn WITH REPLACEMENT from the same
+  25 already-cleanly-separated rows, so every resample is itself perfectly separated too
+  (a mathematical certainty once the parent sample has a clean gap between the two
+  classes' score ranges, not a coding artifact). RQ3's prior (a floor of 0.02-0.10 AUC)
+  is refuted in the opposite direction from what was expected: not "the floor is too
+  coarse to see," but "this specific 25-row block has no gap for the bootstrap to
+  resample across." Findings must report this precisely — the percentile bootstrap's
+  own known blind spot on a perfectly-separated sample, not evidence that 25 flowers
+  "pin down" the true population separation.
 - 2026-09-04 — EXPERIMENT, Phase `anchor-and-floor`, the four registered Phase-0 sweeps
   (`kleinlib.sweep.SweepRunner`, each registered with `klein sweep register`; scripts
   and sidecars committed under `sweeps/`). All four measured `noise_floor:`/`fit_noise:`
