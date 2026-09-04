@@ -173,17 +173,27 @@
       "strength": "confirmed"
     },
     "C5": {
-      "claim": "RQ2 (sepal half) | ablation | supported in substance, refuted on the registered rule | confirmed | empirical-description | E0008, E0012, `sweep:floor_ablation`, `rep:E0008@20260904T174817Z` | Sepal length and sepal width alone carry a real, large, correctly-directed amount less \u2014 and still fail the pre-registered \"at least one measured floor below\" bar, twice. Development: `lda_sepal` `0.814103` against `lda_all4` `1.000000`, `delta_vs_reference` `-0.185897`, `delta_in_floors` `-0.661` (E0008). Sealed: `sepal_delta_in_floors` `-0.8547` (E0012). The track's floor was measured at `0.28125` from the paired-bootstrap spread of this very contrast (mean `-0.190092`, std `0.0952175`, range `0.5625`), which is why a genuinely large effect lands under one floor. \"Refuted\" here means the bar was not cleared, never that no difference was found. |",
-      "class": null,
+      "claim": "Sepal length and sepal width alone carry a real, large and correctly-directed amount less and still fail the pre-registered one-floor bar on both partitions: sepal-only LDA scores val_auc 0.814103 against all-four LDA's 1.000000 on the development block, a delta_vs_reference of -0.185897 and delta_in_floors of -0.661, and sepal_delta_in_floors of -0.8547 on the sealed block - because the ablation track's floor was measured at 0.28125 from this contrast's own paired-bootstrap spread, mean -0.190092, std 0.0952175, range 0.5625.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0008",
+        "E0012",
+        "sweep:floor_ablation",
+        "rep:E0008@20260904T174817Z"
+      ],
       "numbers": [
+        "ablation_floor",
+        "dev_lda_auc",
+        "floor_ablation_mean",
+        "floor_ablation_range",
+        "floor_ablation_std",
         "sepal_dev_auc",
         "sepal_dev_delta",
         "sepal_dev_floors",
         "sepal_sealed_floors"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C6": {
       "claim": "RQ1 (sealed) | modern | measured | confirmed | empirical-description | E0010, E0011 | The `modern` track's one sealed access: the selected challenger `hgbt`, refit on the 74 train+development rows, scores val_auc `0.987179` on the 25 sealed flowers against Fisher's LDA refit on the same rows in the same run at `1.0` \u2014 `delta_vs_reference` `-0.012821`, exactly `2 / 156` of the block's ordered pairs. It misclassifies 3 of 25 sealed flowers (accuracy `0.88`) where the same LDA on the same sealed rows misclassifies 2 of 25 (accuracy `0.92`, E0010). This is the only non-tied, correctly-signed challenger-versus-Fisher comparison the study produced, and the contract cannot certify it: P11's rule needs `delta_in_floors`, which a zero floor never prints. |",
