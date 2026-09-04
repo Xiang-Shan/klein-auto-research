@@ -235,12 +235,23 @@
       "strength": "confirmed"
     },
     "C8": {
-      "claim": "The metric pegged at its own ideal, and every measuring instrument inherited",
-      "class": null,
+      "claim": "The primary metric pegged at its own bound and every resampling instrument inherited the saturation: the development block is perfectly rank-separated, so the percentile bootstrap returns ci_width 0, the paired bootstrap returns a delta of exactly 0 on all 1000 resamples and the split lottery returns 0 spread; a bounded metric on a separable small sample makes the measurement problem degenerate, and the sealed block reproduces the peg at val_auc 1.000000.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "sweep:floor_fisher",
+        "sweep:floor_modern",
+        "sweep:fit_noise_svm_rbf",
+        "sweep:fit_noise_hgbt",
+        "ref:efron1979",
+        "ref:hanley1982"
+      ],
       "numbers": [
-        "ci_width_zero"
+        "ci_width_zero",
+        "modern_floor",
+        "sealed_lda_auc"
       ],
       "strength": "exploratory"
     },
