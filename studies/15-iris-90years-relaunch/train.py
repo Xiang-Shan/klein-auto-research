@@ -5,10 +5,12 @@ from __future__ import annotations
 import os
 import time
 
+import numpy as np
+
 import kleinlib
 from kleinlib.contract import load_contract
 from kleinlib.data import load_partition
-from lib.iris import fit_and_score, frontier_extra
+from lib.iris import FEATURE_SETS, MODEL_SEED, ablation_extra, build_estimator, fit_and_score, frontier_extra
 
 from sklearn.metrics import roc_auc_score
 
@@ -88,6 +90,93 @@ def run_modern_frontier_cell(evaluation_kind: str, t0: float) -> float:
     )
 
 
+# ---------------------------------------------------------------------------
+# Phase `confirmation`, `ablation` sealed cell (research_plan.md step 11).
+# ONE falsifiable idea for this candidate transaction: spend the `ablation`
+# track's single sealed access to score ALL THREE feature sets
+# (`all4`/`petal`/`sepal`), LDA family -- the same family P12/P13 (E0007,
+# E0008) were adjudicated on -- on the SAME 25 sealed rows, printing both
+# `delta_in_floors` (petal vs all4) and `sepal_delta_in_floors` (sepal vs
+# all4) for P15. Mirrors E0007-E0009's `_fit_feature_set` composition
+# (`lib.iris.build_estimator` + `FEATURE_SETS` directly, not the `RECIPES`
+# table) so `lib/iris.py` stays unedited.
+# ---------------------------------------------------------------------------
+ABLATION_ESTIMATOR = "lda"
+
+
+def _fit_feature_set(
+    estimator_name: str,
+    feature_set: str,
+    X_fit,
+    y_fit,
+    X_eval,
+    *,
+    random_state: int | None = None,
+):
+    """Fit `estimator_name` on `feature_set`'s columns; mirrors
+    `lib.iris.fit_and_score` exactly but takes the feature set directly
+    instead of going through the `RECIPES` table.
+    """
+    cols = FEATURE_SETS[feature_set]
+    model = build_estimator(estimator_name, random_state=random_state)
+    t0 = time.time()
+    model.fit(X_fit[cols], y_fit)
+    fit_seconds = time.time() - t0
+    p_eval = np.asarray(model.predict_proba(X_eval[cols]))[:, 1]
+    return model, p_eval, fit_seconds
+
+
+def run_ablation_sealed_cell(evaluation_kind: str, t0: float) -> float:
+    """`ablation` track sealed cell: fit `lda` on all4/petal/sepal on the
+    SAME sealed rows in the SAME run, and print `reference_metric`
+    (all4), `delta_vs_reference`/`delta_in_floors` (petal vs all4, P12's
+    comparison) and `sepal_delta_in_floors` (sepal vs all4, P13's
+    comparison) -- the two halves P15 checks together.
+    """
+    X_fit, X_eval, y_fit, y_eval = load_partition(evaluation_kind, study_dir=".")
+    y_eval_arr = y_eval.to_numpy()
+    minimum_delta = float(
+        load_contract(".")["tracks"]["ablation"]["metric"].get("minimum_delta") or 0.0
+    )
+
+    model_petal, p_petal, fit_seconds = _fit_feature_set(
+        ABLATION_ESTIMATOR, "petal", X_fit, y_fit, X_eval, random_state=MODEL_SEED
+    )
+    petal_auc = float(roc_auc_score(y_eval_arr, p_petal))
+
+    _, p_all4, _ = _fit_feature_set(
+        ABLATION_ESTIMATOR, "all4", X_fit, y_fit, X_eval, random_state=MODEL_SEED
+    )
+    reference_auc = float(roc_auc_score(y_eval_arr, p_all4))
+
+    _, p_sepal, _ = _fit_feature_set(
+        ABLATION_ESTIMATOR, "sepal", X_fit, y_fit, X_eval, random_state=MODEL_SEED
+    )
+    sepal_auc = float(roc_auc_score(y_eval_arr, p_sepal))
+
+    extra = ablation_extra(
+        reference_metric=reference_auc,
+        candidate_metric=petal_auc,
+        minimum_delta=minimum_delta,
+        sepal_metric=sepal_auc,
+    )
+
+    return kleinlib.eval.evaluate(
+        model_petal,
+        X_eval[FEATURE_SETS["petal"]],
+        y_eval,
+        exp_id=EXPERIMENT_ID,
+        study_dir=".",
+        t0=t0,
+        fit_seconds=fit_seconds,
+        train_n=len(X_fit),
+        val_n=len(X_eval),
+        metric_name="val_auc",
+        metric_goal="higher",
+        extra=extra,
+    )
+
+
 def main() -> None:
     t0 = time.time()
     evaluation_kind = os.environ.get("KLEIN_EVALUATION_KIND")
@@ -113,11 +202,14 @@ def main() -> None:
     if TRACK == "modern":
         run_modern_frontier_cell(evaluation_kind, t0)
         return
+    if TRACK == "ablation":
+        run_ablation_sealed_cell(evaluation_kind, t0)
+        return
     raise NotImplementedError(
-        f"KLEIN_TRACK={TRACK!r}: only the `modern` frontier cell (Phase `parade`) "
-        "exists in train.py right now -- the `fisher` anchor cell (E0001) and the "
-        "`ablation` cells are separate candidate transactions in their own phases "
-        "(research_plan.md's experiment ladder)."
+        f"KLEIN_TRACK={TRACK!r}: only the `modern` frontier cell (Phase `parade`) and "
+        "the `ablation` sealed cell (Phase `confirmation`) exist in train.py right now "
+        "-- the `fisher` anchor cell (E0001) was a separate candidate transaction in "
+        "its own phase (research_plan.md's experiment ladder)."
     )
 
 
