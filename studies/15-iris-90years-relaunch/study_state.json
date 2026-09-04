@@ -34,9 +34,9 @@
       "experiment": "E0010"
     },
     "modern": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-04T17:38:50.491444Z",
+      "count": 1,
+      "experiment": "E0011"
     }
   },
   "fingerprints": {
@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 10,
+  "last_experiment": 11,
   "overrides": [],
   "phase_acknowledgements": {
     "ablation-map": {
@@ -142,6 +142,46 @@
       "recorded_at": "2026-09-04T16:06:24.674804Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P10": {
+      "evidence": [
+        "E0011"
+      ],
+      "explanation": "sealed_shift_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0011"
+          ],
+          "explanation": "sealed_shift_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:38:51.540146Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:38:51.540146Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P11": {
+      "evidence": [
+        "E0011"
+      ],
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0011"
+          ],
+          "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:38:51.540480Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:38:51.540480Z",
+      "source": "run",
+      "verdict": "inconclusive"
     },
     "P12": {
       "evidence": [
@@ -444,5 +484,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:37:48.841882Z"
+  "updated_at": "2026-09-04T17:38:51.541560Z"
 }

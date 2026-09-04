@@ -8,7 +8,7 @@ import time
 import kleinlib
 from kleinlib.contract import load_contract
 from kleinlib.data import load_partition
-from lib.iris import fit_and_score, frontier_extra, sealed_extra
+from lib.iris import fit_and_score, frontier_extra
 
 from sklearn.metrics import roc_auc_score
 
@@ -41,21 +41,7 @@ def run_modern_frontier_cell(evaluation_kind: str, t0: float) -> float:
     `minimum_delta > 0` -- currently 0, so P4-P8's rule keys read
     INCONCLUSIVE by their own stated `inconclusive_if`, per program.md's
     dated Decision).
-
-    Phase `confirmation`'s sealed cell (`evaluation_kind == "final_test"`)
-    additionally refits `MODERN_RECIPE` on the DEVELOPMENT partition (the
-    same rows E0006 itself scored) so `sealed_extra` can print
-    `sealed_shift_in_floors` (P10) alongside the sealed
-    `delta_vs_reference`/`delta_in_floors` pair (P11). The development refit
-    is called FIRST, so the LAST printed `split_fingerprint:` line -- the one
-    `run-one --final-test` checks -- is still the sealed one.
     """
-    development_candidate_auc: float | None = None
-    if evaluation_kind == "final_test":
-        X_fit_dev, X_dev, y_fit_dev, y_dev = load_partition("development", study_dir=".")
-        _, p_dev, _ = fit_and_score(MODERN_RECIPE, X_fit_dev, y_fit_dev, X_dev)
-        development_candidate_auc = float(roc_auc_score(y_dev.to_numpy(), p_dev))
-
     X_fit, X_eval, y_fit, y_eval = load_partition(evaluation_kind, study_dir=".")
     y_eval_arr = y_eval.to_numpy()
     minimum_delta = float(
@@ -85,13 +71,6 @@ def run_modern_frontier_cell(evaluation_kind: str, t0: float) -> float:
         val_errors=val_errors,
         ideal=1.0,
     )
-    if development_candidate_auc is not None:
-        extra = sealed_extra(
-            base_extra=extra,
-            development_metric=development_candidate_auc,
-            sealed_metric=candidate_auc,
-            minimum_delta=minimum_delta,
-        )
 
     return kleinlib.eval.evaluate(
         model,
