@@ -109,11 +109,19 @@
       "strength": "exploratory"
     },
     "C13": {
-      "claim": "Write registered rules on keys that always print, and keep a raw-effect-size",
-      "class": null,
+      "claim": "Write registered rules on keys that always print, and give every floor-normalized rule a raw-delta twin: 7 of 16 predictions in this study read inconclusive only because their rules name keys a zero floor never prints, while the raw keys printed on every run and told the story cleanly - five-nearest-neighbours at -0.009615 and the sealed gradient-boosted tree at -0.012821.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0006",
+        "E0011",
+        "art:state"
+      ],
+      "numbers": [
+        "dev_knn_delta",
+        "hgbt_sealed_delta"
+      ],
       "strength": "exploratory"
     },
     "C14": {
