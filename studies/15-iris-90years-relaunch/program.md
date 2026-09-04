@@ -416,6 +416,159 @@ recorded below, survivors mirrored into `playbook.md`.
   Phase `confirmation` (three sealed cells, P10/P11/P15) is next; per the
   task brief this experimenter session stops here and hands back to the
   orchestrator for phase-boundary review before touching any sealed data.
+- 2026-09-04 — Phase `confirmation` opened (orchestrator-acknowledged
+  boundary already recorded in `study_state.json` before this session
+  started). Three sealed accesses, one per track, each rehearsed with
+  `klein run-one --final-test --dry-run` first — all three rehearsals
+  printed `sealed_dryrun: 1` on development data and spent nothing
+  (events `sealed_dryrun` x3).
+- 2026-09-04 — EXPERIMENT, Phase `confirmation`, E0010 (`fisher`,
+  `measured`, `evaluation_kind=final_test`, commit `4280d73cd783`). The
+  `fisher` track's one sealed access: `lda_all4` refit on train+development
+  (74 rows) and scored on the 25 sealed test rows — code byte-identical to
+  E0001's `run_fisher_anchor_cell`, only the partition changes
+  (`split_fingerprint` `49a84dcd63b6…`, matching the DATA gate's registered
+  `final_test` fingerprint exactly). Printed block: `raw_rows=100
+  raw_versicolor=50 raw_virginica=50 raw_features=4
+  partition_sum_matches=1 val_accuracy=0.92 val_errors=2
+  primary_metric(val_auc)=1.000000 ci_low=1.000000 ci_high=1.000000
+  n_boot=2000`. The sealed level is still a perfect ROC-AUC (1.0,
+  `ci_width=0.0` — the same bootstrap blind-spot as E0001, this time on a
+  *different* 25-row block, so it is not the same lucky draw), but
+  `val_errors` rose from 1 (development) to 2 (sealed) at the 0.5
+  threshold — RQ4's question ("does the sealed block over/understate what
+  development shows") gets its first real number: the RANK separation
+  (AUC) transfers exactly; the raw 0.5-threshold error count does not.
+  This run does not itself adjudicate P0-P3 (already decided on
+  development at E0001); it is confirmation evidence for the `fisher`
+  track's level, excluded from the adaptive frontier by construction (no
+  frontier exists on a registered track).
+- 2026-09-04 — EXPERIMENT, Phase `confirmation`, E0011 (`modern`, notary
+  disposition `discard` — "sealed (recorded as discard — confirmation
+  evidence, excluded from the adaptive frontier)", `evaluation_kind=
+  final_test`, commit `d894643030ba`). The `modern` track's one sealed
+  access: `MODERN_RECIPE="hgbt"` restored to E0006's exact committed
+  config (it already was — E0006 was the track's last `keep`, and a
+  frontier track's mutable surface is left untouched after a `keep`, so no
+  edit was needed to "restore" it), refit on train+development (74 rows),
+  scored against `lda_all4` refit paired on the SAME 74/25 split, plus a
+  THIRD fit of `hgbt` on the plain 49/25 development split (called first,
+  so the printed development `split_fingerprint` is superseded by the
+  sealed one the notary checks) to feed `sealed_extra`. Printed block:
+  `primary_metric(val_auc)=0.987179 reference_metric=1.0
+  delta_vs_reference=-0.012821 val_accuracy=0.88 val_errors=3`.
+  `delta_in_floors`/`sealed_shift_in_floors` NOT printed
+  (`minimum_delta=0` still, per `lib.iris.frontier_extra`/`sealed_extra`'s
+  own zero-guards) → **P10 and P11 both read INCONCLUSIVE**
+  (`klein predict adjudicate`'s automatic explanation: "delta_in_floors
+  was not printed by this run → inconclusive" /
+  "sealed_shift_in_floors was not printed by this run → inconclusive"),
+  exactly as anticipated in the task brief and in H1/H5 above — a missing
+  key is not a refutation. **This is nonetheless the single most
+  informative raw number the whole `modern` track produced**: every
+  development-side comparison in the parade printed a TIE
+  (`delta_vs_reference` 0.0/-0.0 on 4 of 5 cells — H3 above), but on the
+  sealed 25 rows `hgbt` loses 1.28 AUC points and 2 extra errors to
+  `lda_all4` refit on the SAME rows in the SAME run — a real, resolvable,
+  paired loss that the zero-floor contract still cannot certify against a
+  registered bar (P11's rule needs `delta_in_floors`, which needs
+  `minimum_delta > 0`), but that findings must report as a raw number
+  alongside the INCONCLUSIVE verdict, per H3's own standing instruction.
+  Disposition is `discard` by the notary's sealed-run convention (final
+  test runs are excluded from the adaptive frontier by construction, never
+  scored as a frontier `keep` regardless of the number), not because
+  `hgbt` "lost" a frontier comparison that no longer exists once the seal
+  is spent.
+- 2026-09-04 — EXPERIMENT, Phase `confirmation`, E0012 (`ablation`,
+  `measured`, `evaluation_kind=final_test`, commit `b769819697043`). The
+  `ablation` track's one sealed access: `lda` on all three feature sets
+  (`all4`/`petal`/`sepal`), each refit on train+development (74 rows) and
+  scored on the SAME 25 sealed rows in the SAME run — the same LDA family
+  P12/P13 (E0007/E0008) were adjudicated on, composed the same way
+  (`lib.iris.build_estimator` + `FEATURE_SETS` directly, mirroring
+  E0007-E0009's `_fit_feature_set` helper; `lib/iris.py` stays unedited).
+  Printed block: `reference_metric=1.0` (all4) `primary_metric(val_auc,
+  petal)=0.987179 delta_vs_reference=-0.012821 delta_in_floors=-0.0456
+  sepal_delta_in_floors=-0.8547`. **P15 REFUTED**
+  (`klein predict adjudicate`'s explanation: `all_of[|delta_in_floors|
+  0.0456 < 1 → supported; sepal_delta_in_floors -0.8547 <= -1 →
+  refuted] → refuted`) — see the dated Decision immediately below.
+- 2026-09-04 — Decision: **P15 refuted, and it is E0008's own H6 wrinkle
+  reproducing on data nobody had looked at before this run.** The petal
+  half holds comfortably (`delta_in_floors=-0.0456`, well inside the ±1
+  floor P12 already established on development) — petal-only carries
+  essentially all the signal on the sealed rows too, the tightest form of
+  confirmation this study can produce for RQ2's first half. The sepal half
+  is where P15's `all_of` fails: `sepal_delta_in_floors=-0.8547` is a
+  real, large, correctly-directed loss — `sepal_delta_in_floors ×
+  minimum_delta` recovers the raw sealed gap, `≈ -0.2404` AUC (not printed
+  as its own key; `ablation_extra` prints only the floor-normalized
+  `sepal_delta_in_floors` on the sealed cell, by design), close to but not
+  identical to E0008's own development-side raw gap (`-0.185897`) — a
+  different, larger sepal-only shortfall on the sealed 25 rows than on the
+  development 25 rows, consistent with RQ4's finding at E0010 that the two
+  25-row blocks are not interchangeable in every particular even though
+  their rankings agree. It does not clear the pre-registered "at least one
+  full floor below" bar, for the identical reason E0008 gave: this
+  track's own measured floor (`minimum_delta=0.28125`) is large relative
+  to the 0-to-1 AUC scale, so a large true effect and "at least one floor"
+  are not the same claim. RQ2's prior is REFUTED on the letter of P15
+  (both halves were required to clear their bars; only one did) and
+  SUPPORTED on the substance both P12 and now the sealed petal comparison
+  independently show: petal-only ties all-four, sepal-only loses a real,
+  large, correctly-directed amount that a large registered floor keeps
+  from certifying as "at least one floor" — exactly what H6 predicted
+  before this run ("Given E0008's H6 wrinkle, do not be surprised if the
+  sealed `sepal_delta_in_floors` also lands short of `<=-1` even with a
+  large, real, correctly-directed gap" — playbook.md, written before
+  E0012 ran). Findings must report BOTH numbers again: the registered
+  verdict (REFUTED) and the raw sealed AUC gap (-0.185897, -0.8547
+  floors), and must name H6 as the reason a real, large, rightly-directed
+  effect and a registered floor-normalized pass are different claims.
+- 2026-09-04 — `klein replicate` for the development run behind each
+  confirmed claim (`confirmation.require: [sealed, replicate]`). **A sealed
+  (`final_test`) run cannot itself be replicated —
+  `kleinlib.replicate._refuse_unreplicable` refuses it with no override
+  ("replicating it would be a second look at the sealed partition");
+  confirmed directly by attempting `klein replicate E0010`, which errored
+  exactly that way — so `replicate` evidence is filed against the
+  DEVELOPMENT run each sealed cell's config and comparison rest on, per the
+  CLI's own guidance ("Replicate the development run the claim actually
+  rests on")**: `E0001` (`fisher`'s only development run; the sealed E0010
+  reruns byte-identical code on a different partition), `E0006` (`modern`'s
+  selected `hgbt` config — E0011 restored this exact config), and both
+  `E0007`/`E0008` (`ablation`'s LDA-family petal/sepal cells — E0012 reruns
+  the identical LDA-family comparison on the sealed rows). All FOUR
+  reproduced exactly (`difference=0`) against their own tolerance
+  (`exact` for `fisher`'s CI-based estimate, `minimum_delta=0.28125` for
+  `ablation`'s two cells, `exact`/`0` for `modern`'s zero-floor tie).
+  `E0001`'s first attempt (`rep:E0001@20260904T174103Z`) timed out at the
+  default 60s budget with NO output at all from the child process — cold
+  first-invocation overhead of `uv run --locked` inside a brand-new
+  detached worktree (the retried run's own measured `wall_seconds` was
+  3.6s, nowhere near 60s), not evidence of non-reproduction. Retried once
+  with `--timeout-seconds 240` (`rep:E0001@20260904T174249Z`) and it
+  reproduced exactly; both records are kept on file per protocol ("every
+  attempt leaves a record"), none deleted. Evidence ids: `rep:E0001@
+  20260904T174103Z` (NOT reproduced, timeout), `rep:E0001@20260904T174249Z`
+  (reproduced), `rep:E0006@20260904T174449Z` (reproduced), `rep:E0007@
+  20260904T174632Z` (reproduced), `rep:E0008@20260904T174817Z`
+  (reproduced).
+- 2026-09-04 — Phase `confirmation` cells complete (E0010-E0012, all three
+  sealed accesses spent, `klein status` shows `final holdout:
+  ablation=1/1, fisher=1/1, modern=1/1`). Summary: P10 inconclusive
+  (`sealed_shift_in_floors` unprintable, `minimum_delta` still 0), P11
+  inconclusive (`delta_in_floors` unprintable, same reason) — both exactly
+  as anticipated by H1/H5 and the task brief before this phase ran; the
+  raw sealed number (`hgbt` loses 1.28 AUC points to `lda_all4` on the
+  sealed rows, a real paired gap with no registered bar to certify it) is
+  the phase's own version of H3's lesson and must be reported as such.
+  P15 refuted (see the dated Decision above; H6 reproduces on sealed
+  data). Every prediction in the study (P0-P15) is now adjudicated — none
+  open. This experimenter session stops here at the phase boundary per
+  the task brief and hands back to the orchestrator; it does not record
+  the `confirmation` phase gate itself, and SYNTHESIZE (findings.md,
+  claims.lock) is a separate stage for a separate session.
 
 ## Phase slates
 
