@@ -47,10 +47,28 @@ tracks:
       # MEASURED at Phase 0 and pasted in by a consult re-record; never guessed.
       # This track measures a LEVEL, not a comparison, so the honest floor is
       # the MARGINAL one: k=5 split-lottery redrawing train/development WITHIN
-      # THE 75 NON-SEALED ROWS ONLY (the sealed 25 are never touched by the
-      # lottery), refitting lda_all4 and rescoring. Recipe, estimand, k and the
+      # THE NON-SEALED ROWS ONLY (74 rows after data_card.md's dedup fix, not
+      # the pre-fix 75; the sealed 25 are never touched by the lottery),
+      # refitting lda_all4 and rescoring. Recipe, estimand, k and the
       # sealed-safety rule are all declared HERE, before the measurement.
-      minimum_delta: 0.0
+      #
+      # MEASURED (sweep:floor_fisher, k=5 stratified redraws inside the 74
+      # non-sealed rows, seeds [201..205]): lda_all4 reaches development AUC
+      # 1.0 on EVERY redraw — std=0, range=0 — so the honest floor is
+      # literally zero: this partition's own separability survives every
+      # marginal resplit tried. minimum_delta stays 0 as a result; see
+      # program.md's dated Decision for what that means downstream.
+      minimum_delta: 0
+      noise_floor:
+        k: 5
+        std: 0
+        range: 0
+        mean: 1
+        values: [1, 1, 1, 1, 1]
+        source: "sweeps/floor_fisher.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
+        estimand: "marginal-resplit"
       exactness: stochastic
     guardrails:
       wall_seconds: {max: 30}
@@ -75,7 +93,45 @@ tracks:
       # conservative for every other comparison. Pair and replicate count are
       # declared HERE, before the measurement, so neither can be chosen after
       # seeing which answer it produces.
-      minimum_delta: 0.0
+      #
+      # MEASURED (sweep:floor_modern, 1000 paired-bootstrap replicates,
+      # common random numbers, pair (lda_all4, hgbt) on the 25 development
+      # rows): the delta AUC(hgbt) - AUC(lda_all4) is EXACTLY 0 on every
+      # single replicate (std=0, range=0) — hgbt matches lda_all4's perfect
+      # development separation (see E0001) on essentially every resample.
+      # minimum_delta is therefore measured to be literally 0, which
+      # DISARMS the headroom law for this track (kleinlib.decision
+      # .track_headroom returns h=None whenever minimum_delta <= 0) and
+      # leaves gap_in_floors/delta_in_floors unprintable — P4-P8 read as
+      # inconclusive by their own stated inconclusive_if wording, not
+      # refuted. See program.md's dated Decision for the full account and
+      # the open question this hands to Phase `parade`.
+      minimum_delta: 0
+      noise_floor:
+        k: 1000
+        std: 0
+        range: 0
+        mean: 0
+        source: "sweeps/floor_modern.sidecar.tsv"
+        measured_after: "E0001"
+        method: "paired-bootstrap"
+        estimand: "paired-comparison"
+      # fit_noise is PROVENANCE about the fit, never the keep bar
+      # (consult-protocol.md Phase 0). MEASURED (sweep:fit_noise_svm_rbf AND
+      # sweep:fit_noise_hgbt, k=5 each, seeds [1..5]): BOTH seeded recipes
+      # reach development AUC 1.0 on every seed — std=0, range=0 for both,
+      # so the two sub-sweeps are reported as ONE identical block here; the
+      # other is on record as sweep:fit_noise_hgbt (program.md).
+      fit_noise:
+        k: 5
+        std: 0
+        range: 0
+        mean: 1
+        values: [1, 1, 1, 1, 1]
+        source: "sweeps/fit_noise_svm_rbf.sidecar.tsv"
+        measured_after: "E0001"
+        method: "seed-sweep"
+        estimand: "fit-noise"
       exactness: stochastic
       bound:
         ideal: 1.0              # a perfect ROC-AUC; arms the headroom audit
@@ -95,7 +151,24 @@ tracks:
       # another on the SAME rows — so also the PAIRED floor: paired-bootstrap,
       # 1000 replicates, on the pair (lda_all4, lda_sepal), this track's most
       # dissimilar pair. Declared here, before the measurement.
-      minimum_delta: 0.0
+      #
+      # MEASURED (sweep:floor_ablation, 1000 paired-bootstrap replicates,
+      # common random numbers, pair (lda_all4, lda_sepal) on the 25
+      # development rows): delta AUC(lda_sepal) - AUC(lda_all4) has real
+      # spread (mean -0.190092, std 0.0952175, range 0.5625) — unlike the
+      # `modern`/`fisher` floors, sepal-only genuinely underperforms and the
+      # comparison is resolvable. suggested minimum_delta = max(2*std,
+      # range/2) = max(0.190435, 0.28125) = 0.28125.
+      minimum_delta: 0.28125
+      noise_floor:
+        k: 1000
+        std: 0.0952175
+        range: 0.5625
+        mean: -0.190092
+        source: "sweeps/floor_ablation.sidecar.tsv"
+        measured_after: "E0001"
+        method: "paired-bootstrap"
+        estimand: "paired-comparison"
       exactness: stochastic
     guardrails:
       wall_seconds: {max: 30}

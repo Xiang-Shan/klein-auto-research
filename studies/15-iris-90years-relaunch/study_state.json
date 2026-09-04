@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
-      "timestamp": "2026-09-04T15:02:38.717705Z"
+      "timestamp": "2026-09-04T16:16:42.259515Z"
     },
     "data": {
       "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
@@ -18,7 +18,7 @@
     "method_card.md": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c",
     "research_plan.md": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147",
     "scouting_ledger.md": "f222f0e6574c96a6d4e168fb9826bc35c55e407c215e2de9c7bc976d224de9ee",
-    "study.yaml": "d1cdcd2d7586088cbbaa89afaff9aaba508f9c94f4e097c7cd9827e822c8b324"
+    "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
   },
   "created_at": "2026-09-04T14:40:49.017369Z",
   "current_phase": "anchor-and-floor",
@@ -50,15 +50,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-09-04T15:02:38.717705Z",
+      "acknowledged_at": "2026-09-04T16:16:42.259515Z",
       "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
       "artifacts": {
-        "program.md": "e31b0ead1a3134908a4aba28ea374e22869ba288057057b7902a8e08ec88df1f",
+        "program.md": "78791000f64c680828f51d3e2d6859c92a00be558ea0de52ccdf63083f8221b3",
         "research_plan.md": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147",
         "scouting_ledger.md": "f222f0e6574c96a6d4e168fb9826bc35c55e407c215e2de9c7bc976d224de9ee",
-        "study.yaml": "d1cdcd2d7586088cbbaa89afaff9aaba508f9c94f4e097c7cd9827e822c8b324"
+        "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
       },
-      "note": "",
+      "note": "minimum_delta set from the measured noise floor (fit_noise/floor_modern/floor_ablation/floor_fisher, Phase 0)",
       "status": "recorded"
     },
     "data": {
@@ -219,5 +219,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T16:12:08.296730Z"
+  "updated_at": "2026-09-04T16:16:42.260289Z"
 }
