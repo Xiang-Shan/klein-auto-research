@@ -126,7 +126,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "petal_dev_delta_floors"
+        "petal_dev_delta_floors",
+        "petal_sealed_auc"
       ],
       "strength": "exploratory"
     },
@@ -247,6 +248,13 @@
       "note": "E0007 and E0009 delta_in_floors, petal-only against all-four",
       "precision": 1,
       "value": 0
+    },
+    "petal_sealed_auc": {
+      "art": "results",
+      "claim": "C4",
+      "note": "E0012 primary_metric, petal-only LDA on the sealed rows",
+      "precision": 6,
+      "value": 0.987179
     },
     "sealed_lda_acc": {
       "art": "aux",
