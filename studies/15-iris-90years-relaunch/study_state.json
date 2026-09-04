@@ -7,10 +7,15 @@
     "data": {
       "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
       "timestamp": "2026-09-04T15:22:12.366173Z"
+    },
+    "method": {
+      "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "timestamp": "2026-09-04T15:51:01.186234Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166",
+    "method_card.md": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c",
     "research_plan.md": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147",
     "scouting_ledger.md": "f222f0e6574c96a6d4e168fb9826bc35c55e407c215e2de9c7bc976d224de9ee",
     "study.yaml": "d1cdcd2d7586088cbbaa89afaff9aaba508f9c94f4e097c7cd9827e822c8b324"
@@ -40,7 +45,8 @@
       "development": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed",
       "final_test": "49a84dcd63b6defb5c929fc2fe591d9652f41e858f918cfb7ddb47513d1524f1",
       "policy": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -65,9 +71,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-09-04T15:51:01.186234Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "method_card.md": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c"
+      },
+      "note": "",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -80,5 +90,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "15-iris-90years-relaunch",
-  "updated_at": "2026-09-04T15:22:12.914138Z"
+  "updated_at": "2026-09-04T15:51:01.187321Z"
 }
