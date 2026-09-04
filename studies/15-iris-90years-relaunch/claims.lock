@@ -195,6 +195,13 @@
       "note": "Fisher's 1936 LDA, development block of 25 rows, val_auc (E0001/E0002)",
       "precision": 6,
       "value": 1.0
+    },
+    "modern_floor": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "tracks.modern.metric.minimum_delta and tracks.fisher.metric.minimum_delta, both MEASURED at Phase 0",
+      "precision": 0,
+      "value": 0
     }
   },
   "study_id": "15-iris-90years-relaunch"
