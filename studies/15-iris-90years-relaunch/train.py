@@ -6,27 +6,86 @@ import os
 import time
 
 import kleinlib
+from kleinlib.contract import load_contract
+from kleinlib.data import load_partition
+from lib.iris import fit_and_score, frontier_extra
 
-RANDOM_SEED = 42
+from sklearn.metrics import roc_auc_score
+
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
-TRACK = os.environ.get("KLEIN_TRACK") or ("primary" if SMOKE else None)
+TRACK = os.environ.get("KLEIN_TRACK") or ("modern" if SMOKE else None)
+
+# ---------------------------------------------------------------------------
+# E0002-E0006, `modern` track (research_plan.md Phase `parade`, steps 5-6).
+#
+# ONE falsifiable idea per candidate: which post-1936 recipe is fit and
+# scored against Fisher's own `lda_all4`, refit on the SAME development rows
+# inside the SAME run (paired by construction). This is the whole
+# per-experiment diff for this phase -- everything else in `run_modern_
+# frontier_cell` below is fixed machinery, unchanged run to run.
+#
+#   E0002  lda_all4    -- seeds the frontier; reference IS the candidate (P4)
+#   E0003  logreg_l2   -- P5
+#   E0004  knn5        -- P6
+#   E0005  svm_rbf     -- P7
+#   E0006  hgbt        -- P8
+# ---------------------------------------------------------------------------
+MODERN_RECIPE = "lda_all4"  # E0002: seed the `modern` frontier with Fisher's own LDA
 
 
-def load_split(evaluation_kind: str):
-    """Select development or the sealed final-test partition explicitly.
-
-    The workflow sets KLEIN_EVALUATION_KIND. Implement this function so
-    ``development`` returns train/development and ``final_test`` returns the frozen
-    chosen training data/final test. Never choose the partition from experiment code.
+def run_modern_frontier_cell(evaluation_kind: str, t0: float) -> float:
+    """`modern` track cell: fit `MODERN_RECIPE`, refit `lda_all4` as the
+    reference on the SAME rows in the SAME run, and print both scores plus
+    `delta_vs_reference`/`delta_in_floors` (the latter only once
+    `minimum_delta > 0` -- currently 0, so P4-P8's rule keys read
+    INCONCLUSIVE by their own stated `inconclusive_if`, per program.md's
+    dated Decision).
     """
-    if evaluation_kind not in {"development", "final_test"}:
-        raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")
-    raise NotImplementedError("implement the fixed three-way split declared in study.yaml")
+    X_fit, X_eval, y_fit, y_eval = load_partition(evaluation_kind, study_dir=".")
+    y_eval_arr = y_eval.to_numpy()
+    minimum_delta = float(
+        load_contract(".")["tracks"]["modern"]["metric"].get("minimum_delta") or 0.0
+    )
 
+    model, p_eval, fit_seconds = fit_and_score(MODERN_RECIPE, X_fit, y_fit, X_eval)
+    candidate_auc = float(roc_auc_score(y_eval_arr, p_eval))
 
-def build_model():
-    raise NotImplementedError("build this candidate")
+    if MODERN_RECIPE == "lda_all4":
+        # E0002 seeds the frontier with Fisher's own recipe -- the reference
+        # IS the candidate, so no second fit is needed.
+        reference_auc = candidate_auc
+    else:
+        _, p_reference, _ = fit_and_score("lda_all4", X_fit, y_fit, X_eval)
+        reference_auc = float(roc_auc_score(y_eval_arr, p_reference))
+
+    y_pred = (p_eval >= 0.5).astype(int)
+    val_accuracy = float((y_pred == y_eval_arr).mean())
+    val_errors = int((y_pred != y_eval_arr).sum())
+
+    extra = frontier_extra(
+        reference_metric=reference_auc,
+        candidate_metric=candidate_auc,
+        minimum_delta=minimum_delta,
+        val_accuracy=val_accuracy,
+        val_errors=val_errors,
+        ideal=1.0,
+    )
+
+    return kleinlib.eval.evaluate(
+        model,
+        X_eval,
+        y_eval,
+        exp_id=EXPERIMENT_ID,
+        study_dir=".",
+        t0=t0,
+        fit_seconds=fit_seconds,
+        train_n=len(X_fit),
+        val_n=len(X_eval),
+        metric_name="val_auc",
+        metric_goal="higher",
+        extra=extra,
+    )
 
 
 def main() -> None:
@@ -50,23 +109,15 @@ def main() -> None:
             "the canonical block, writes no sidecars or snapshots, and is not "
             "evidence. Missing: " + ", ".join(missing)
         )
-    X_tr, X_dev, y_tr, y_dev = load_split(evaluation_kind)
-    model = build_model()
-    fit_start = time.time()
-    model.fit(X_tr, y_tr)
-    fit_seconds = time.time() - fit_start
-    kleinlib.eval.evaluate(
-        model,
-        X_dev,
-        y_dev,
-        exp_id=EXPERIMENT_ID,
-        study_dir=".",
-        t0=t0,
-        fit_seconds=fit_seconds,
-        train_n=len(X_tr),
-        val_n=len(X_dev),
-        metric_name="val_auc",
-        metric_goal="higher",
+
+    if TRACK == "modern":
+        run_modern_frontier_cell(evaluation_kind, t0)
+        return
+    raise NotImplementedError(
+        f"KLEIN_TRACK={TRACK!r}: only the `modern` frontier cell (Phase `parade`) "
+        "exists in train.py right now -- the `fisher` anchor cell (E0001) and the "
+        "`ablation` cells are separate candidate transactions in their own phases "
+        "(research_plan.md's experiment ladder)."
     )
 
 
