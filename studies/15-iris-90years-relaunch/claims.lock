@@ -150,7 +150,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "dev_lda_acc"
+        "dev_lda_acc",
+        "sealed_lda_acc"
       ],
       "strength": "exploratory"
     },
@@ -219,6 +220,13 @@
       "note": "tracks.modern.metric.bound.ideal - a perfect ROC-AUC",
       "precision": 1,
       "value": 1.0
+    },
+    "sealed_lda_acc": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0010 val_accuracy, 2 of 25 sealed flowers misclassified",
+      "precision": 2,
+      "value": 0.92
     },
     "sealed_lda_auc": {
       "art": "results",
