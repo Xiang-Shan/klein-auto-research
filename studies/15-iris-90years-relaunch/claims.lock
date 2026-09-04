@@ -48,7 +48,8 @@
       "errata": [],
       "evidence": [],
       "numbers": [
-        "dev_knn_auc"
+        "dev_knn_auc",
+        "dev_knn_delta"
       ],
       "strength": "exploratory"
     },
@@ -180,6 +181,13 @@
       "note": "five-nearest-neighbours, development val_auc (E0004)",
       "precision": 6,
       "value": 0.990385
+    },
+    "dev_knn_delta": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0004 delta_vs_reference against lda_all4 refit in the same cell",
+      "precision": 6,
+      "value": -0.009615
     },
     "dev_lda_auc": {
       "art": "results",
