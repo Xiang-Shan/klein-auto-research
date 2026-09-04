@@ -95,6 +95,12 @@
       "note": "AUC pegs (floor=0) on fisher/modern; user directed: run the parade anyway, expect P4/P5-P8/P10/P11 inconclusive",
       "playbook_sha256": "ee3032e4e0707d437d8cf457dc27e8e10d7b221c10879b1cfe325af6798814cc"
     },
+    "confirmation": {
+      "acknowledged_at": "2026-09-04T17:53:57.798373Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "note": "all three sealed accesses spent and replicated; P10/P11 inconclusive as expected (zero floor); P15 refuted (petal half holds, sepal half real but floor-uncleared, same pattern as E0008); EXPERIMENT loop complete, 16/16 predictions adjudicated",
+      "playbook_sha256": "7698539594e761620ba7d851f639f2dd09030f3eb7c7e34fee038eef47f5af48"
+    },
     "parade": {
       "acknowledged_at": "2026-09-04T17:18:26.203896Z",
       "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
@@ -594,5 +600,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:49:54.821495Z"
+  "updated_at": "2026-09-04T17:53:57.798964Z"
 }
