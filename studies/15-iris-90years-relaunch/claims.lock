@@ -139,7 +139,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "sepal_dev_auc"
+      ],
       "strength": "exploratory"
     },
     "C6": {
@@ -300,6 +302,13 @@
       "note": "Fisher's LDA on the 25 sealed rows, val_auc (E0010)",
       "precision": 6,
       "value": 1.0
+    },
+    "sepal_dev_auc": {
+      "art": "results",
+      "claim": "C5",
+      "note": "E0008 primary_metric, sepal-only LDA on the development block",
+      "precision": 6,
+      "value": 0.814103
     }
   },
   "study_id": "15-iris-90years-relaunch"
