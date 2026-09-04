@@ -196,17 +196,22 @@
       "strength": "confirmed"
     },
     "C6": {
-      "claim": "RQ1 (sealed) | modern | measured | confirmed | empirical-description | E0010, E0011 | The `modern` track's one sealed access: the selected challenger `hgbt`, refit on the 74 train+development rows, scores val_auc `0.987179` on the 25 sealed flowers against Fisher's LDA refit on the same rows in the same run at `1.0` \u2014 `delta_vs_reference` `-0.012821`, exactly `2 / 156` of the block's ordered pairs. It misclassifies 3 of 25 sealed flowers (accuracy `0.88`) where the same LDA on the same sealed rows misclassifies 2 of 25 (accuracy `0.92`, E0010). This is the only non-tied, correctly-signed challenger-versus-Fisher comparison the study produced, and the contract cannot certify it: P11's rule needs `delta_in_floors`, which a zero floor never prints. |",
-      "class": null,
+      "claim": "In the modern track's one sealed access the selected challenger, a histogram gradient-boosted tree, scores val_auc 0.987179 on the sealed block of 25 rows against Fisher's discriminant refit on the same rows at 1.0 - a delta_vs_reference of -0.012821, exactly 2 of 156 ordered pairs - and it misclassifies 3 of 25 sealed flowers at accuracy 0.88 where the same discriminant misclassifies 2 of 25 at accuracy 0.92.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0010",
+        "E0011",
+        "rep:E0006@20260904T174449Z"
+      ],
       "numbers": [
         "hgbt_sealed_auc",
         "hgbt_sealed_delta",
         "modern_sealed_ref",
-        "sealed_hgbt_acc"
+        "sealed_hgbt_acc",
+        "sealed_lda_acc"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C7": {
       "claim": "RQ4 | fisher, ablation | supported in substance, refuted on the metric it named | confirmed | empirical-description | E0001, E0010, E0008, E0012 | The two 25-flower blocks agree on ranking and disagree on counts. Fisher's LDA: development val_auc `1.000000` with 1 of 25 misclassified (accuracy `0.96`); sealed val_auc `1.000000` with 2 of 25 misclassified (accuracy `0.92`). The sealed-minus-development distance in the metric the prior named is exactly `0` val_auc, not the predicted one-to-two floors \u2014 but the threshold-`0.5` error count doubled, and the sepal-only shortfall widened from `-0.661` to `-0.8547` floors between the two blocks. No single block should be read as this species pair's true separability. |",
