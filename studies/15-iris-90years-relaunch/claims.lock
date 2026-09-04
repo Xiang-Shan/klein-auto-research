@@ -141,7 +141,8 @@
       "evidence": [],
       "numbers": [
         "sepal_dev_auc",
-        "sepal_dev_delta"
+        "sepal_dev_delta",
+        "sepal_dev_floors"
       ],
       "strength": "exploratory"
     },
@@ -317,6 +318,13 @@
       "note": "E0008 delta_vs_reference, sepal-only against all-four",
       "precision": 6,
       "value": -0.185897
+    },
+    "sepal_dev_floors": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0008 delta_in_floors",
+      "precision": 3,
+      "value": -0.661
     }
   },
   "study_id": "15-iris-90years-relaunch"
