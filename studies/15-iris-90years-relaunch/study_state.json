@@ -21,7 +21,7 @@
     "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
   },
   "created_at": "2026-09-04T14:40:49.017369Z",
-  "current_phase": "ablation-map",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "ablation": {
       "accessed_at": null,
@@ -83,6 +83,12 @@
   "last_experiment": 9,
   "overrides": [],
   "phase_acknowledgements": {
+    "ablation-map": {
+      "acknowledged_at": "2026-09-04T17:29:37.960190Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "note": "P12/P14 supported (petal-only ties all-four, reproduces with hgbt); P13 refuted by the floor-normalized rule despite a real 18.6pt raw AUC gap (ablation floor 0.28125 is nearly a third of the AUC scale) - both numbers carried into findings",
+      "playbook_sha256": "5b709fa4bd814aeda579b88a1a4ab8d17d0e7b91b90c5fb8d142ac594bc46054"
+    },
     "anchor-and-floor": {
       "acknowledged_at": "2026-09-04T17:06:23.905633Z",
       "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
@@ -438,5 +444,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:26:02.139487Z"
+  "updated_at": "2026-09-04T17:29:37.960565Z"
 }
