@@ -93,11 +93,19 @@
       "strength": "exploratory"
     },
     "C12": {
-      "claim": "A `minimum_delta` of exactly `0` is a contract state that needs its own",
-      "class": null,
+      "claim": "A minimum_delta measured at exactly 0 is a contract state that needs explicit handling rather than a silent pass-through: it makes the frontier rule non-strict, so a tie is filed as a keep, and it silences every floor-normalized key - require a strict inequality, or declare the metric's own printing resolution as the floor, or re-measure on a metric that is not saturated.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0005",
+        "E0006",
+        "art:results"
+      ],
+      "numbers": [
+        "modern_floor"
+      ],
       "strength": "exploratory"
     },
     "C13": {
