@@ -214,15 +214,25 @@
       "strength": "confirmed"
     },
     "C7": {
-      "claim": "RQ4 | fisher, ablation | supported in substance, refuted on the metric it named | confirmed | empirical-description | E0001, E0010, E0008, E0012 | The two 25-flower blocks agree on ranking and disagree on counts. Fisher's LDA: development val_auc `1.000000` with 1 of 25 misclassified (accuracy `0.96`); sealed val_auc `1.000000` with 2 of 25 misclassified (accuracy `0.92`). The sealed-minus-development distance in the metric the prior named is exactly `0` val_auc, not the predicted one-to-two floors \u2014 but the threshold-`0.5` error count doubled, and the sepal-only shortfall widened from `-0.661` to `-0.8547` floors between the two blocks. No single block should be read as this species pair's true separability. |",
-      "class": null,
+      "claim": "The two blocks of 25 rows agree on ranking and disagree on counts: Fisher's discriminant scores val_auc 1.000000 on both, at accuracy 0.96 with 1 of 25 misclassified on the development block against accuracy 0.92 with 2 of 25 on the sealed block, while the sepal-only shortfall widened from -0.661 to -0.8547 measured floors between them.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "E0008",
+        "E0012",
+        "rep:E0001@20260904T174249Z",
+        "rep:E0008@20260904T174817Z"
+      ],
       "numbers": [
         "dev_lda_acc",
-        "sealed_lda_acc"
+        "dev_lda_auc",
+        "sealed_lda_acc",
+        "sepal_dev_floors",
+        "sepal_sealed_floors"
       ],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C8": {
       "claim": "The metric pegged at its own ideal, and every measuring instrument inherited",
