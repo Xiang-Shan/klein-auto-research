@@ -121,11 +121,6 @@
       "ok": true
     },
     {
-      "message": "[WARN] findings.md uses words the 'generic' profile bans: line 329: because `ref:efron1979`'s percentile bootstrap has a known blind spot on a perfectly \u2014 see the profile's \u00a77 (the referee checks the same list)",
-      "name": "profile vocabulary",
-      "ok": true
-    },
-    {
       "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
       "name": "referee gate",
       "ok": true
@@ -141,29 +136,70 @@
       "ok": true
     },
     {
+      "message": "lock schema 2: fields and classes valid",
+      "name": "claims shape",
+      "ok": true
+    },
+    {
+      "message": "10 pinned artifacts hash as recorded",
+      "name": "claims artifacts",
+      "ok": true
+    },
+    {
+      "message": "every claim id resolves in findings.md",
+      "name": "claims presence",
+      "ok": true
+    },
+    {
+      "message": "every cited evidence id resolves",
+      "name": "claims evidence",
+      "ok": true
+    },
+    {
+      "message": "every pinned value is found in its artifact and every claim numeral has an alias",
+      "name": "claims numbers",
+      "ok": true
+    },
+    {
+      "message": "no claim or number removed or mutated across git history",
+      "name": "claims append-only",
+      "ok": true
+    },
+    {
+      "message": "git_head is an ancestor of HEAD",
+      "name": "claims ancestry",
+      "ok": true
+    },
+    {
       "message": "evidence_use_rate 1.00 \u2014 all 13 non-keep run(s) and registered sweep(s) are cited",
       "name": "evidence use",
       "ok": true
     },
     {
-      "message": "all 73 scanned numerals trace to 21 pinned source(s)",
+      "message": "6 confirmed claim(s) cite two or more evidence kinds",
+      "name": "convergent evidence",
+      "ok": true
+    },
+    {
+      "message": "all 73 scanned numerals trace to 25 pinned source(s)",
       "name": "findings numbers",
       "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "9c16616eb2c2cc34d71f4146eecccf5f791276b0",
+  "git_head": "9913e382548c480ca1b9177b83fd564d86259c0e",
   "inputs": {
     "aux_metrics.tsv": "27edc17dd92b1e1009ec129d3d12955abb14b374b62643ada6873d82cc0c077b",
+    "claims.lock": "05cfdd5ca7d050e52e61d6f975f779e53060035869d23dfa6eaef118429a2114",
     "events.jsonl": "e48ec57040769a015d11801f1f6990d06b2bb761e136f6fc5293c409e178b4e8",
-    "findings.md": "8a881580952b6cf6450736f8e20dcbcc60d7e5339a7705ca6044c747f9f26c8a",
+    "findings.md": "a271ee76f4cb886126aa38aa7875925f8a4f061e14d14fb935abad2225a383ec",
     "playbook.md": "7698539594e761620ba7d851f639f2dd09030f3eb7c7e34fee038eef47f5af48",
-    "program.md": "599b846f18768c1e3ac4c96214c71d889e3938411af67ad60bc7a1ca3dd47ddf",
+    "program.md": "b92dcee9f3178a94b0935fded7e982937fec5cc6497dec679112a5a81acea8c1",
     "results.tsv": "675c877e0006713c5a62839d5d2456591df166af918eba29def66c887baae406",
     "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2",
     "study_state.json": "5334061098db9576f8139479b55cca2044d27c033873265155a3a586651dc6a1"
   },
-  "klein_commit": "9c16616eb2c2cc34d71f4146eecccf5f791276b0",
+  "klein_commit": "9913e382548c480ca1b9177b83fd564d86259c0e",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "6d7a22c437f934eaba3f22fa7aef47a7ad2d4d9958470bb3b42dbdcf2fd95c7b",
@@ -183,11 +219,11 @@
   "single_source_claims": [],
   "study": "15-iris-90years-relaunch",
   "summary": {
-    "checks": 30,
+    "checks": 37,
     "failed": 0,
-    "warned": 3
+    "warned": 2
   },
-  "timestamp": "2026-09-04T18:06:45.974540Z",
+  "timestamp": "2026-09-04T18:18:19.364142Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
