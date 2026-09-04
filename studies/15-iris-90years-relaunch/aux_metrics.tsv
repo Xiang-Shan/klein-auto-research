@@ -132,3 +132,17 @@ E0009	proba_unique_values	6
 E0009	reference_metric	1.0
 E0009	delta_vs_reference	0.0
 E0009	delta_in_floors	0.0
+DRYRUN	ci_low	0.9999999999999999
+DRYRUN	ci_high	1.0
+DRYRUN	n	25
+DRYRUN	wall_seconds	0.7809689044952393
+DRYRUN	raw_rows	100
+DRYRUN	raw_versicolor	50
+DRYRUN	raw_virginica	50
+DRYRUN	raw_features	4
+DRYRUN	partition_sum_matches	1
+DRYRUN	val_accuracy	0.96
+DRYRUN	val_errors	1
+DRYRUN	val_rows	25
+DRYRUN	ci_width	0.0
+DRYRUN	n_boot	2000
