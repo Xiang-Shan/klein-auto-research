@@ -128,7 +128,8 @@
       "numbers": [
         "ablation_sealed_ref",
         "petal_dev_delta_floors",
-        "petal_sealed_auc"
+        "petal_sealed_auc",
+        "petal_sealed_delta"
       ],
       "strength": "exploratory"
     },
@@ -263,6 +264,13 @@
       "note": "E0012 primary_metric, petal-only LDA on the sealed rows",
       "precision": 6,
       "value": 0.987179
+    },
+    "petal_sealed_delta": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0012 delta_vs_reference, petal-only against all-four on the sealed rows",
+      "precision": 6,
+      "value": -0.012821
     },
     "sealed_lda_acc": {
       "art": "aux",
