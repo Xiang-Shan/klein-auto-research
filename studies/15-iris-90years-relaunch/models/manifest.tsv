@@ -1,0 +1,2 @@
+experiment	track	path	metric	primary_name	metric_goal	sha256	available	created_utc
+E0002	modern	models/best_modern_E0002_1_c87259d993cc.joblib	1	val_auc	higher	444ce9c1c043e18c03682627f044a868daed799891330fb2d02165f824b30b3d	true	2026-09-04T17:12:01.484246+00:00

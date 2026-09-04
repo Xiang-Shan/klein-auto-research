@@ -1,2 +1,3 @@
 experiment	track	primary_metric	status	commit	description
 E0001	fisher	1	measured	bc1beecf8ac0500ad4be4c545f1d66855495d333	E0001 anchor: Fisher 1936 LDA, four features, fit on 49 training rows; registered cell measured
+E0002	modern	1	keep	c9925f599d1328c359677c48c1dde590e8e3b228	E0002 seeds modern frontier: Fisher 1936 LDA (same recipe as E0001); first valid result on this track

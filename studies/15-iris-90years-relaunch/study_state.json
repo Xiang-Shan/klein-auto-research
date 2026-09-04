@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 1,
+  "last_experiment": 2,
   "overrides": [],
   "phase_acknowledgements": {
     "anchor-and-floor": {
@@ -170,6 +170,26 @@
       "recorded_at": "2026-09-04T16:06:24.675064Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "gap_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "gap_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:12:01.571371Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:12:01.571371Z",
+      "source": "run",
+      "verdict": "inconclusive"
     }
   },
   "prepared_data": {
@@ -226,5 +246,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:06:23.906154Z"
+  "updated_at": "2026-09-04T17:12:01.572615Z"
 }
