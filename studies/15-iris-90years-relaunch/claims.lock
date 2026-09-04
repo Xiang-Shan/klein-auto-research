@@ -243,6 +243,13 @@
       "precision": 6,
       "value": 1.0
     },
+    "floor_ablation_mean": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "sweep:floor_ablation paired-bootstrap mean over 1000 resamples",
+      "precision": 6,
+      "value": -0.190092
+    },
     "hgbt_dev_auc_raw": {
       "art": "aux",
       "claim": "C9",
