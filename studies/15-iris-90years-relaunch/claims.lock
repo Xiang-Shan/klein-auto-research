@@ -111,7 +111,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "dev_lda_auc"
+      ],
       "strength": "exploratory"
     },
     "C4": {
@@ -169,6 +171,14 @@
   "klein_version": "2.0.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "dev_lda_auc": {
+      "art": "results",
+      "claim": "C3",
+      "note": "Fisher's 1936 LDA, development block of 25 rows, val_auc (E0001/E0002)",
+      "precision": 6,
+      "value": 1.0
+    }
+  },
   "study_id": "15-iris-90years-relaunch"
 }
