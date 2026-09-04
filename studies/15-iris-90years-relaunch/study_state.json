@@ -200,6 +200,15 @@
       "sidecar": "sweeps/floor_ablation.sidecar.tsv",
       "sidecar_sha256": "1f663540591a9ae8cab64470caf6202ef95190caedf9b69fbfe3c335a37793cb"
     },
+    "floor_fisher": {
+      "registered_at": "2026-09-04T16:12:08.296237Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/floor_fisher.py",
+      "script_sha256": "d41a19b2c40ee3929d9ab6c6cbfd54a7b47b4015bf64980e6ecd163df09c09d8",
+      "sidecar": "sweeps/floor_fisher.sidecar.tsv",
+      "sidecar_sha256": "bb540b96466572b190d4ee9ce5d4192297b979437c6f0607b886091e429af994"
+    },
     "floor_modern": {
       "registered_at": "2026-09-04T16:12:07.995209Z",
       "rows_crash": 0,
@@ -210,5 +219,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T16:12:08.146634Z"
+  "updated_at": "2026-09-04T16:12:08.296730Z"
 }
