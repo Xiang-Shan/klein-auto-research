@@ -191,6 +191,15 @@
       "sidecar": "sweeps/fit_noise_svm_rbf.sidecar.tsv",
       "sidecar_sha256": "b6ed51256e29fa9cc0e9e243e38cbc5055ae31d71e9cc46995157e562533df66"
     },
+    "floor_ablation": {
+      "registered_at": "2026-09-04T16:12:08.146172Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/floor_ablation.py",
+      "script_sha256": "e7df96b1ee0a6f2dfd2561813a2135abe4cb461c7788b580bb7563f2643520de",
+      "sidecar": "sweeps/floor_ablation.sidecar.tsv",
+      "sidecar_sha256": "1f663540591a9ae8cab64470caf6202ef95190caedf9b69fbfe3c335a37793cb"
+    },
     "floor_modern": {
       "registered_at": "2026-09-04T16:12:07.995209Z",
       "rows_crash": 0,
@@ -201,5 +210,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T16:12:07.995673Z"
+  "updated_at": "2026-09-04T16:12:08.146634Z"
 }
