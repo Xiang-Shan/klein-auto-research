@@ -1,0 +1,193 @@
+{
+  "checks": [
+    {
+      "message": "schema_version 3 contract valid",
+      "name": "study contract",
+      "ok": true
+    },
+    {
+      "message": "track 'fisher': minimum_delta 0 >= max(2*std, range/2) = 0, estimand 'marginal-resplit'",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "track 'modern': minimum_delta 0 >= max(2*std, range/2) = 0, estimand 'paired-comparison'",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "track 'ablation': minimum_delta 0.28125 >= max(2*std, range/2) = 0.28125, estimand 'paired-comparison'",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "study_state.json loaded",
+      "name": "study state",
+      "ok": true
+    },
+    {
+      "message": "/private/tmp/claude-501/-Users-xiang-Claude-Auto-research-klein-auto-research/640c17a0-3232-46b0-bc3d-02d6e4d0a34a/scratchpad/study15-wt",
+      "name": "git repository",
+      "ok": true
+    },
+    {
+      "message": "current='confirmation'; ladder consistent",
+      "name": "phase ladder",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate consult",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate data",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate method",
+      "ok": true
+    },
+    {
+      "message": "match",
+      "name": "gate artifact hashes",
+      "ok": true
+    },
+    {
+      "message": "valid",
+      "name": "event chain",
+      "ok": true
+    },
+    {
+      "message": "current=9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69; recorded=9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+      "name": "prepared-data fingerprint",
+      "ok": true
+    },
+    {
+      "message": "current=61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205; recorded=61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+      "name": "split fingerprint",
+      "ok": true
+    },
+    {
+      "message": "lib/iris.py, method_check_lda.py, train.py; registered development=41553e71e4ed, final_test=49a84dcd63b6",
+      "name": "contract-driven split",
+      "ok": true
+    },
+    {
+      "message": "no track declares a verifier",
+      "name": "verifier",
+      "ok": true
+    },
+    {
+      "message": "derived view matches manifests",
+      "name": "ledger integrity",
+      "ok": true
+    },
+    {
+      "message": "none pending",
+      "name": "transactions",
+      "ok": true
+    },
+    {
+      "message": "track 'fisher': metric 'val_auc' has a known ideal (1) but no metric.bound declared \u2014 headroom not audited (HINT: declare metric.bound.ideal to arm the detection-limit check)",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "track 'modern': bound declared; no incumbent yet (or no measured minimum_delta) \u2014 audited at first keep",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "track 'ablation': metric 'val_auc' has a known ideal (1) but no metric.bound declared \u2014 headroom not audited (HINT: declare metric.bound.ideal to arm the detection-limit check)",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "[WARN] syntax valid but scaffold stubs remain (NotImplementedError) \u2014 fill them in before the loop; run-one would record the stub as a crash",
+      "name": "train.py",
+      "ok": true
+    },
+    {
+      "message": "every declared guardrail metric is printed by the evaluator or named in the study's Python sources",
+      "name": "guardrail visibility",
+      "ok": true
+    },
+    {
+      "message": "5 registered sweep(s) hash unchanged: sweep:fit_noise_hgbt, sweep:fit_noise_svm_rbf, sweep:floor_ablation, sweep:floor_fisher, sweep:floor_modern",
+      "name": "registered sweeps",
+      "ok": true
+    },
+    {
+      "message": "[WARN] findings.md uses words the 'generic' profile bans: line 329: because `ref:efron1979`'s percentile bootstrap has a known blind spot on a perfectly \u2014 see the profile's \u00a77 (the referee checks the same list)",
+      "name": "profile vocabulary",
+      "ok": true
+    },
+    {
+      "message": "[WARN] not yet refereed \u2014 Gate 3 (`references/referee-protocol.md`) runs between SYNTHESIZE and finalize: a fresh context on a different model or tool writes referee_report.md, then `klein gate record referee`",
+      "name": "referee gate",
+      "ok": true
+    },
+    {
+      "message": "16 registered prediction(s), all adjudicated",
+      "name": "predictions closure",
+      "ok": true
+    },
+    {
+      "message": "every refuted prediction (P3, P9, P13, P15) has a dated `Decision:` line in program.md",
+      "name": "belief revision",
+      "ok": true
+    },
+    {
+      "message": "evidence_use_rate 1.00 \u2014 all 13 non-keep run(s) and registered sweep(s) are cited",
+      "name": "evidence use",
+      "ok": true
+    },
+    {
+      "message": "all 73 scanned numerals trace to 21 pinned source(s)",
+      "name": "findings numbers",
+      "ok": true
+    }
+  ],
+  "evidence_use_rate": 1.0,
+  "git_head": "9c16616eb2c2cc34d71f4146eecccf5f791276b0",
+  "inputs": {
+    "aux_metrics.tsv": "27edc17dd92b1e1009ec129d3d12955abb14b374b62643ada6873d82cc0c077b",
+    "events.jsonl": "e48ec57040769a015d11801f1f6990d06b2bb761e136f6fc5293c409e178b4e8",
+    "findings.md": "8a881580952b6cf6450736f8e20dcbcc60d7e5339a7705ca6044c747f9f26c8a",
+    "playbook.md": "7698539594e761620ba7d851f639f2dd09030f3eb7c7e34fee038eef47f5af48",
+    "program.md": "599b846f18768c1e3ac4c96214c71d889e3938411af67ad60bc7a1ca3dd47ddf",
+    "results.tsv": "675c877e0006713c5a62839d5d2456591df166af918eba29def66c887baae406",
+    "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2",
+    "study_state.json": "5334061098db9576f8139479b55cca2044d27c033873265155a3a586651dc6a1"
+  },
+  "klein_commit": "9c16616eb2c2cc34d71f4146eecccf5f791276b0",
+  "klein_version": "2.0.0",
+  "manifests": {
+    "E0001": "6d7a22c437f934eaba3f22fa7aef47a7ad2d4d9958470bb3b42dbdcf2fd95c7b",
+    "E0002": "473489bbc92e4e678faf49cf38de97e333c1ef5f77b4f301c7b4dacaa64130ed",
+    "E0003": "9ea266d3985a0ab706ebab39772467383dd2b568dbc58810c8c4f1cf5e0528f1",
+    "E0004": "0f5c1552168f4d3158cee7de51065172fd4a95e072575fbdce55f51f661a65ff",
+    "E0005": "055c08a2161829d1c59181e7dc734d9fe19b401f91f6f20c14dc8f348d1157ee",
+    "E0006": "4c84ffda09860e6b2d5d0e428980b6f100e4447cc9ee8c302f50e7b828eae58d",
+    "E0007": "d09d83fe946bea366de61cf5303c9bd3fc3b43650866e9e29e96cce3ddf203fb",
+    "E0008": "eb86c3c57994c51d032aca43299c9d71def1465ed6e15dab76cc8c7963207664",
+    "E0009": "4e80a2fff3471e79a32ec7b6ef46437cfdf2796c6bbe238cfc73f5c6fc98494d",
+    "E0010": "4a3bac5e3aee521b6f4cd2b218f9ea8cc99c70d071fa23c0c1ca4df9368b258f",
+    "E0011": "9a90bf5ee7b685b19e47a2071cfac8493b501a7ad778f2b05d2c832fffa11b8e",
+    "E0012": "8aaa04ffcf62cb223856d6bcab872d3e83ee2cabc6c08486f1679ccb2642179b"
+  },
+  "schema": 3,
+  "single_source_claims": [],
+  "study": "15-iris-90years-relaunch",
+  "summary": {
+    "checks": 30,
+    "failed": 0,
+    "warned": 3
+  },
+  "timestamp": "2026-09-04T18:06:45.974540Z",
+  "uncited_evidence": [],
+  "undecided_refutations": []
+}
