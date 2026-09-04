@@ -522,6 +522,26 @@
         }
       ],
       "track": "ablation"
+    },
+    "E0008": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0008@20260904T174817Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-04T17:48:17.511230Z",
+          "tolerance": 0.28125
+        }
+      ],
+      "track": "ablation"
     }
   },
   "schema_version": 3,
@@ -574,5 +594,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:48:08.557964Z"
+  "updated_at": "2026-09-04T17:49:54.821495Z"
 }
