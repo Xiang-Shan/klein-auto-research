@@ -1,2 +1,3 @@
 experiment	track	path	metric	primary_name	metric_goal	sha256	available	created_utc
 E0002	modern	models/best_modern_E0002_1_c87259d993cc.joblib	1	val_auc	higher	444ce9c1c043e18c03682627f044a868daed799891330fb2d02165f824b30b3d	true	2026-09-04T17:12:01.484246+00:00
+E0007	ablation	models/best_ablation_E0007_1_ef19503896ca.joblib	1	val_auc	higher	017496a06517e724b3f2b9579104ec0c6035966cc85b628d7bb21d34714d618e	true	2026-09-04T17:23:46.798700+00:00
