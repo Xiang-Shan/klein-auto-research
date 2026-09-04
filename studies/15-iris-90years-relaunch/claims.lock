@@ -125,11 +125,18 @@
       "strength": "exploratory"
     },
     "C14": {
-      "claim": "Report the registered verdict and the raw effect size side by side, always.*",
-      "class": null,
+      "claim": "Report the registered verdict and the raw effect size side by side: a reader who saw only the verdict words would miss a -0.185897 val_auc sepal shortfall on the development block, a larger one on the sealed block, and the study's single clearest challenger loss at -0.012821 val_auc.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0008",
+        "E0011",
+        "E0012"
+      ],
+      "numbers": [
+        "hgbt_sealed_delta",
+        "sepal_dev_delta"
+      ],
       "strength": "exploratory"
     },
     "C15": {
