@@ -11,6 +11,10 @@
     "results": {
       "path": "results.tsv",
       "sha256": "675c877e0006713c5a62839d5d2456591df166af918eba29def66c887baae406"
+    },
+    "state": {
+      "path": "study_state.json",
+      "sha256": "5334061098db9576f8139479b55cca2044d27c033873265155a3a586651dc6a1"
     }
   },
   "claims": {
