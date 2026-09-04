@@ -24,9 +24,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "ablation": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-09-04T17:40:03.474562Z",
+      "count": 1,
+      "experiment": "E0012"
     },
     "fisher": {
       "accessed_at": "2026-09-04T17:37:47.295361Z",
@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 11,
+  "last_experiment": 12,
   "overrides": [],
   "phase_acknowledgements": {
     "ablation-map": {
@@ -242,6 +242,26 @@
       "recorded_at": "2026-09-04T17:26:02.138226Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P15": {
+      "evidence": [
+        "E0012"
+      ],
+      "explanation": "all_of[|delta_in_floors| 0.0456 < 1 (from -0.0456) \u2192 supported; sepal_delta_in_floors -0.8547 <= -1 \u2192 refuted] \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0012"
+          ],
+          "explanation": "all_of[|delta_in_floors| 0.0456 < 1 (from -0.0456) \u2192 supported; sepal_delta_in_floors -0.8547 <= -1 \u2192 refuted] \u2192 refuted",
+          "recorded_at": "2026-09-04T17:40:04.252319Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:40:04.252319Z",
+      "source": "run",
+      "verdict": "refuted"
     },
     "P2": {
       "evidence": [
@@ -484,5 +504,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:38:51.541560Z"
+  "updated_at": "2026-09-04T17:40:04.253575Z"
 }

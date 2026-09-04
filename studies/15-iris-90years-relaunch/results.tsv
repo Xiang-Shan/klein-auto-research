@@ -10,3 +10,4 @@ E0008	ablation	0.814103	measured	99ab3489183ddcbe85ab8212a2756efd38cfcaa7	E0008 
 E0009	ablation	1	measured	f4cef753c3817962a77593953b0c2db5f103961a	E0009 ablation: petal-only hgbt vs all-four hgbt (RQ2 repeated with the parade's best-scoring modern family); registered cell measured
 E0010	fisher	1	measured	4280d73cd7833f49db78a8dc953aa07310cbfd98	sealed: Fisher 1936 LDA level on the 25 sealed test rows; registered cell measured
 E0011	modern	0.987179	discard	d894643030ba18e019d6c6907bf296993f6aa6f6	sealed: hgbt (selected) vs lda_all4, paired, same sealed rows; sealed final-test evidence; excluded from the adaptive frontier
+E0012	ablation	0.987179	measured	b769819697043f8d12eeecf05278c972fa2168b6	sealed: petal-only + sepal-only vs all-four LDA, same sealed rows; registered cell measured
