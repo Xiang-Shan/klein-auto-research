@@ -189,6 +189,13 @@
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
   "numbers": {
+    "ablation_floor": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "tracks.ablation.metric.minimum_delta, MEASURED (sweep:floor_ablation)",
+      "precision": 5,
+      "value": 0.28125
+    },
     "ablation_sealed_ref": {
       "art": "aux",
       "claim": "C4",
