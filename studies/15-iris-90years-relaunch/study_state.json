@@ -482,6 +482,26 @@
         }
       ],
       "track": "fisher"
+    },
+    "E0006": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0006@20260904T174449Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-04T17:44:49.949602Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "modern"
     }
   },
   "schema_version": 3,
@@ -534,5 +554,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:44:30.441092Z"
+  "updated_at": "2026-09-04T17:46:24.753016Z"
 }
