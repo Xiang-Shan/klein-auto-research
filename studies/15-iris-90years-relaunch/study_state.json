@@ -270,6 +270,52 @@
       "recorded_at": "2026-09-04T17:14:13.919636Z",
       "source": "run",
       "verdict": "inconclusive"
+    },
+    "P9": {
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "results.tsv": {
+          "bytes": 1186,
+          "sha256": "6dc8c35730c584d22aa66e88c4e0337ce48a3bbe2b33b387faceb1e8d5775abc"
+        }
+      },
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "results.tsv"
+      ],
+      "explanation": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+      "history": [
+        {
+          "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+          "artifacts": {
+            "results.tsv": {
+              "bytes": 1186,
+              "sha256": "6dc8c35730c584d22aa66e88c4e0337ce48a3bbe2b33b387faceb1e8d5775abc"
+            }
+          },
+          "evidence": [
+            "E0002",
+            "E0003",
+            "E0004",
+            "E0005",
+            "E0006",
+            "results.tsv"
+          ],
+          "explanation": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+          "note": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+          "recorded_at": "2026-09-04T17:14:55.654586Z",
+          "source": "manual",
+          "verdict": "refuted"
+        }
+      ],
+      "note": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+      "recorded_at": "2026-09-04T17:14:55.654586Z",
+      "source": "manual",
+      "verdict": "refuted"
     }
   },
   "prepared_data": {
@@ -326,5 +372,5 @@
       "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
     }
   },
-  "updated_at": "2026-09-04T17:14:13.920813Z"
+  "updated_at": "2026-09-04T17:14:55.655107Z"
 }
