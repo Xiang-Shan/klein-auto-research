@@ -1,0 +1,55 @@
+{
+  "acknowledgements": {},
+  "artifact_hashes": {},
+  "created_at": "2026-09-04T14:40:49.017369Z",
+  "current_phase": "anchor-and-floor",
+  "final_holdout_access": {
+    "ablation": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "fisher": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "modern": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/Users/xiang/Claude/Auto_research/klein-auto-research/studies/15-iris-90years-relaunch/data/prepared/iris_hardpair.csv",
+    "sha256": null
+  },
+  "schema_version": 3,
+  "status": "active",
+  "study_id": "15-iris-90years-relaunch",
+  "updated_at": "2026-09-04T14:40:49.017576Z"
+}
