@@ -118,3 +118,17 @@ E0008	proba_unique_values	25
 E0008	reference_metric	1.0
 E0008	delta_vs_reference	-0.185897
 E0008	delta_in_floors	-0.661
+E0009	val_auc	1.0
+E0009	val_pr_auc	1.0
+E0009	val_logloss	0.011550709701006866
+E0009	val_brier	0.00039940115672097113
+E0009	val_lift_top10	2.0833333333333335
+E0009	val_best_threshold	0.02
+E0009	val_f1_at_best	1.0
+E0009	wall_seconds	0.22147512435913086
+E0009	min_proba_std	0.48832720577739097
+E0009	proba_range	0.9942505318525025
+E0009	proba_unique_values	6
+E0009	reference_metric	1.0
+E0009	delta_vs_reference	0.0
+E0009	delta_in_floors	0.0
