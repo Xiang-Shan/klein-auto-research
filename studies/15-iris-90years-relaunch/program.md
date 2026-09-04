@@ -149,6 +149,107 @@ recorded below, survivors mirrored into `playbook.md`.
   `kind: predict` and nothing is checkpoint-scored. Written without opening any file
   under `studies/07-iris-90years/`, `studies/08-iris-rematch/` or
   `studies/09-iris-first-lesson/`.
+- 2026-09-04 — EXPERIMENT, Phase `anchor-and-floor`, E0001 (`fisher`, `measured`,
+  commit `bc1beecf8ac0`). The identity anchor + Fisher's 1936 LDA level, on the 49
+  training / 25 development rows `data_card.md` froze (`split_fingerprint`
+  `41553e71e4ed…`, matches the DATA gate exactly). Printed block: `raw_rows=100
+  raw_versicolor=50 raw_virginica=50 raw_features=4 partition_sum_matches=1
+  val_accuracy=0.96 val_errors=1 primary_metric(val_auc)=1.000000 ci_low=1.000000
+  ci_high=1.000000 n_boot=2000`. **P0 supported, P1 supported (AUC 1.0 >= 0.90), P2
+  supported (1 error <= 3).** Verified by hand (not just trusted): all 13 development
+  versicolor rows score `predict_proba(virginica) < 0.02`, all 12 virginica rows score
+  `> 0.45` — one virginica at 0.4507 is the lone threshold-0.5 miss (hence
+  `val_errors=1`) but it still ranks above every versicolor score, so ROC-AUC is exactly
+  1.0. This is a genuine property of this particular 49/25 split (confirmed independently
+  three more times below), not a leakage bug — the DATA-gate duplicate-row fix already
+  removed the one mechanism that could have manufactured it, and a fresh `predict_proba`
+  dump was inspected row-by-row before trusting the number.
+  **P3 REFUTED** (`ci_width 0 > 0.05` is false: `ci_width=0.0` exactly). **Decision:**
+  because the development sample is perfectly rank-separated, the percentile bootstrap
+  cannot exhibit any resampling variability — every one of the 2000 resamples is drawn
+  WITH REPLACEMENT from the same 25 already-cleanly-separated rows, so every resample is
+  itself perfectly separated too (a mathematical certainty once the parent sample has a
+  clean gap between the two classes' score ranges, not a coding artifact). RQ3's prior
+  (a floor of 0.02-0.10 AUC) is refuted in the opposite direction from what was expected:
+  not "the floor is too coarse to see," but "this specific 25-row block has no gap
+  between classes for the bootstrap to resample across." Findings must report this
+  precisely — the percentile bootstrap's own known blind spot on a perfectly-separated
+  sample, not evidence that 25 flowers "pin down" the true population separation.
+- 2026-09-04 — EXPERIMENT, Phase `anchor-and-floor`, the four registered Phase-0 sweeps
+  (`kleinlib.sweep.SweepRunner`, each registered with `klein sweep register`; scripts
+  and sidecars committed under `sweeps/`). All four measured `noise_floor:`/`fit_noise:`
+  blocks pasted into `study.yaml` verbatim from `klein noise-floor`'s printed block; the
+  consult gate was re-recorded immediately after (see the gate-record line below) and
+  `klein preflight`'s three `noise floor:` lines all read `[OK]`.
+  - `sweep:fit_noise_svm_rbf` and `sweep:fit_noise_hgbt` (seed-sweep, k=5 each, seeds
+    `[1,2,3,4,5]`, `svm_rbf`/`hgbt` refit on the SAME 49/25 development split, varying
+    only the model's own `random_state`): **both recipes score AUC 1.0 on every seed**
+    (`svm_rbf` bit-identically 1.0; `hgbt` `0.9999999999999999` on all five, a
+    floating-point artifact of the same perfect ranking) — `std=0, range=0` for both.
+    The two sub-sweeps are IDENTICAL to measurement precision, so only one
+    (`fit_noise_svm_rbf`) is pasted as `tracks.modern.metric.fit_noise:`; the other stays
+    on record as `sweep:fit_noise_hgbt`. Provenance only, never a bar, per protocol.
+  - `sweep:floor_modern` (paired-bootstrap, 1000 replicates, common random numbers, pair
+    `(lda_all4, hgbt)` on the 25 development rows, `study.yaml`'s pre-declared pair):
+    **delta AUC(hgbt) − AUC(lda_all4) is exactly 0 on every one of 1000 resamples**
+    (`std=0, range=0`, mean `≈0`, a handful of `-0.0` floating-point signs) — `hgbt`
+    matches `lda_all4`'s perfect development separation on essentially every resample,
+    consistent with the `fit_noise` result above. `suggested_minimum_delta =
+    max(2×0, 0/2) = 0`. Pasted as `tracks.modern.metric.minimum_delta: 0` +
+    `noise_floor:` (measured, not a placeholder).
+  - `sweep:floor_ablation` (paired-bootstrap, 1000 replicates, pair `(lda_all4,
+    lda_sepal)`, same 25 rows): **real, resolvable spread** — mean `−0.190092`, std
+    `0.0952175`, range `0.5625`. `suggested_minimum_delta = max(2×0.0952175, 0.5625/2) =
+    max(0.190435, 0.28125) = 0.28125`. Pasted as `tracks.ablation.metric.minimum_delta:
+    0.28125` + `noise_floor:`.
+  - `sweep:floor_fisher` (split-lottery, k=5, seeds `[201,202,203,204,205]`, marginal
+    resplit strictly inside the 74 non-sealed rows only — `train=49 + development=25`,
+    confirmed printed by the script itself; the 25 sealed rows were never read):
+    **`lda_all4`'s own development AUC is 1.0 on every one of the 5 redraws** — `std=0,
+    range=0`. `suggested_minimum_delta = 0`. Pasted as `tracks.fisher.metric
+    .minimum_delta: 0` + `noise_floor:`.
+  **Decision — the degenerate floor on `modern`, flagged for the orchestrator before
+  Phase `parade`.** The measured `minimum_delta` for BOTH `fisher` (0) and `modern` (0)
+  is literally zero — this specific 74-row non-sealed pool, and this specific 25-row
+  development block, are separable enough by `lda_all4` (and, per `fit_noise`, by
+  `hgbt`/`svm_rbf` too) that no resampling instrument tried at Phase 0 exhibits ANY
+  spread. `kleinlib.decision.track_headroom` returns `h=None` (not a number, not
+  infinite) whenever `minimum_delta <= 0` — so **the headroom law is now permanently
+  disarmed for the `modern` track**, regardless of what E0002 measures as the incumbent:
+  P4's rule (`gap_in_floors < 1`) can never be adjudicated because
+  `gap_in_floors`/`delta_in_floors` are only printed by `lib.iris.frontier_extra` when
+  `minimum_delta > 0` (a defensive guard that also prevents a `0/0` division — no crash
+  risk, confirmed by inspecting `frontier_extra`'s guard and `track_headroom`'s own
+  `minimum_delta <= 0 → None` short-circuit). Concretely: **P4, P5, P6, P7, P8, P10 and
+  P11 will all read INCONCLUSIVE for as long as `tracks.modern.metric.minimum_delta`
+  stays 0** — each one's own `inconclusive_if` clause already names exactly this
+  condition ("minimum_delta is still 0, so train.py prints no gap_in_floors line"),
+  written before Phase 0 without anticipating that a MEASURED floor, not just an
+  unmeasured placeholder, could land on that same value. This was NOT patched
+  unilaterally here: the pair `(lda_all4, hgbt)` and the paired-bootstrap recipe were
+  fixed in `study.yaml` before any measurement specifically so neither could be chosen
+  after seeing an answer, and `lib/iris.py`'s zero-guard already matches every other
+  Klein study's own convention for reading `minimum_delta` (`study 00`'s train.py uses
+  the identical `... or 0.0` idiom). The `ablation` track is UNAFFECTED (floor
+  0.28125, real spread, P12-P15 fully decidable). **Handed to the orchestrator as an
+  explicit phase-boundary decision point**, not resolved here.
+- 2026-09-04 — CONSULT re-recorded (`klein gate record consult`) after pasting all four
+  measured floors, per the pre-scripted Phase-0 plan. `--note "minimum_delta set from
+  the measured noise floor (fit_noise/floor_modern/floor_ablation/floor_fisher, Phase
+  0)"`. `klein preflight` afterward: all three `noise floor:` lines `[OK]`, working
+  tree clean, gate artifact hashes match.
+- 2026-09-04 — Headroom audit attempted (`klein preflight`) after the consult
+  re-record. **Not yet computable**: `modern` track reads "no incumbent yet (or no
+  measured minimum_delta) — audited at first keep" — `kleinlib.decision._incumbent`
+  only counts a `keep` on the SAME track, and zero `modern`-track runs exist yet
+  (E0001 ran on `fisher`, a registered track whose disposition is `measured`, never
+  `keep`, so it does not seed `modern`'s incumbent). `klein headroom ack` was
+  therefore NOT run — there is nothing armed to acknowledge. Per the finding above,
+  once E0002 DOES seed the `modern` incumbent, `h` will still read `None`
+  (not a number) because `minimum_delta` is measured at exactly 0 — the pre-scripted
+  P4 branch ("if h < 1, ack; if h >= 1, proceed") cannot fire either way until this is
+  resolved. **This is the first item Phase `parade` must address, on the record,
+  before spending E0002.**
 
 ## Phase slates
 
@@ -161,3 +262,17 @@ the ranked survivors into playbook.md "Next-best candidates".
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | E0001 (`fisher`, cell): identity anchor (P0) + `lda_all4` dev-AUC level with a 2000-rep bootstrap CI (P1-P3) | 3 | 3 | 3 | 9 |
+| 2 | `sweep:floor_fisher` — split-lottery k=5, marginal-resplit inside the 74 non-sealed rows, sets `tracks.fisher.metric.minimum_delta` | 3 | 3 | 3 | 9 |
+| 3 | `sweep:floor_modern` — paired-bootstrap 1000 reps, pair `(lda_all4, hgbt)`, sets `tracks.modern.metric.minimum_delta` | 3 | 3 | 3 | 9 |
+| 4 | `sweep:floor_ablation` — paired-bootstrap 1000 reps, pair `(lda_all4, lda_sepal)`, sets `tracks.ablation.metric.minimum_delta` | 3 | 3 | 3 | 9 |
+| 5 | `sweep:fit_noise_{svm_rbf,hgbt}` — seed-sweep k=5 each, provenance only, never a bar | 2 | 3 | 2 | 7 |
+
+Chosen: all five, in this exact order — `research_plan.md`'s Phase 0 plan already fixed
+the sequence, the recipe, the estimand, the pair and the replicate count of every floor
+BEFORE any measurement (the whole point of the ritual here is executing that
+pre-committed plan on the record, not choosing among alternatives after seeing a
+number). No candidate is deferred; nothing survives to "next-best" this phase — the
+next slate is Phase `parade`'s, and its first item is now forced by this phase's own
+finding (see the Decisions log: `modern`'s measured floor is 0, disarming the headroom
+law — Phase `parade` must open by addressing that, not by running E0002 blind to it).
