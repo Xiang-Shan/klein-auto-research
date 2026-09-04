@@ -4,3 +4,4 @@ E0002	modern	1	keep	c9925f599d1328c359677c48c1dde590e8e3b228	E0002 seeds modern 
 E0003	modern	1	keep	604b43ee54bc935f48ad5ec2141f8e9f10382d6d	E0003: L2-regularized logistic regression vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0
 E0004	modern	0.990385	discard	96bf2a812383092c57a65c33ef66f33ba24221f2	E0004: 5-nearest-neighbours vs Fisher's LDA refit on the same 25 development rows; did not improve track frontier 1 by minimum_delta=0
 E0005	modern	1	keep	88f2d2260cc28c7344af2d0cae5fa96524add599	E0005: RBF-kernel SVM vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0
+E0006	modern	1	keep	ea61ca951af8abafbff76ff55b71feef07e1fd44	E0006: histogram gradient-boosted tree vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0
