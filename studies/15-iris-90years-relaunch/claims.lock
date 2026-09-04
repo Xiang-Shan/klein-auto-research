@@ -149,7 +149,9 @@
       "class": null,
       "errata": [],
       "evidence": [],
-      "numbers": [],
+      "numbers": [
+        "dev_lda_acc"
+      ],
       "strength": "exploratory"
     },
     "C8": {
@@ -189,6 +191,13 @@
       "note": "E0004 delta_vs_reference against lda_all4 refit in the same cell",
       "precision": 6,
       "value": -0.009615
+    },
+    "dev_lda_acc": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0001 val_accuracy, 1 of 25 development flowers misclassified",
+      "precision": 2,
+      "value": 0.96
     },
     "dev_lda_auc": {
       "art": "results",
