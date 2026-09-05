@@ -18,7 +18,9 @@ Eight check families, each PASS / WARN / FAIL:
     The extension's own hash chain, and the core anchors it claims.
 ``generation orphans``
     Objects with no event and events with no object.  A voided orphan is a WARN
-    that names the ``recovered`` event that voided it.
+    that names the ``recovered`` event that voided it.  An object whose bytes no
+    longer hash to its own file name is a FAIL: the store is content-addressed,
+    so the only way that happens is a rewrite in place.
 ``generation admission``
     One line per in-scope run with its classification.  Anything but
     ``admitted`` is a FAIL.
@@ -74,6 +76,7 @@ from .envelope import GENERATION_SCHEMA
 from .ledger import (
     chain_problems,
     commit_generation,
+    mislabelled_object_shas,
     missing_object_shas,
     orphan_object_shas,
     read_events,
@@ -288,6 +291,22 @@ def _anchor_checks(
 
 def _orphan_checks(study_dir: Path, events: Sequence[Mapping[str, Any]]) -> list[Check]:
     checks: list[Check] = []
+    # ---- content addressing (WP-03) --------------------------------------
+    mislabelled = mislabelled_object_shas(study_dir)
+    checks.append(
+        _fail(
+            "generation orphans",
+            "object file(s) whose content does not hash to their name: "
+            + ", ".join(sha[:12] for sha in mislabelled)
+            + " — a stored object was rewritten in place; the store is content-addressed "
+            "and write-once",
+        )
+        if mislabelled
+        else _pass(
+            "generation orphans",
+            "every stored object hashes to its own file name (the store is content-addressed)",
+        )
+    )
     orphans = orphan_object_shas(study_dir, events)
     missing = missing_object_shas(study_dir, events)
     voided = voided_object_shas(events)
