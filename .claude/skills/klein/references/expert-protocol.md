@@ -63,7 +63,10 @@ study.
 | `baseline.review` | `source-reconstructed` or `independent` — what the driver INTENDS; the outcome is decided by the recorded reviews, never by this word |
 
 `expert amend` records a new version with `parent_ids` pointing at the previous
-lock. **Targets are frozen at version 1** — key set, value, tolerance and `rel`.
+lock. Only **version 1** has to precede CONSULT — it is the commitment; every
+amendment follows the gate by construction and is therefore *labelled* `late`
+(a WARN naming the version), never failed. **Targets are frozen at version 1** —
+key set, value, tolerance and `rel`.
 An amendment that moves any of them is refused, and one hand-edited into the
 ledger FAILs `expert card`:
 
@@ -168,7 +171,7 @@ established at all — the same cap the referee protocol applies.
 
 | Check | FAILs when |
 |---|---|
-| `expert card` | not locked; locked late (or `--allow-late`); the lock does not precede the consult gate by sequence AND git ancestry; `domain_card.md`'s sha256 differs from the newest lock; an amendment changed a target |
+| `expert card` | not locked; **version 1** locked late (or with `--allow-late`); version 1 does not precede the consult gate by sequence AND git ancestry; `domain_card.md`'s sha256 differs from the newest lock; an amendment changed a target. (A later amendment being after the gate is a WARN, not a FAIL) |
 | `expert references` | a `sources[].record_id` has no record; a recorded reference's bytes changed; a record contradicts its own verification basis; a `references.yaml` row says `verified: true` with no resolvable `record_id` |
 | `expert obligation` | a bind's arithmetic does not recompute from the manifest and the lock; a bind on a run whose admission was not `baseline`/`repair`; an **admitted** `run`/`sealed`/hypothesis receipt recorded before the first `reproduced` bind |
 | `expert repairs` | a repair's changed files do not match their bytes at the next bound run's candidate commit |

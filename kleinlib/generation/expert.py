@@ -542,12 +542,19 @@ def _card_checks(ctx: FamilyContext, locks: list[tuple[Mapping[str, Any], dict[s
             )
         ]
     problems: list[str] = []
-    for _event, obj in locks:
+    warnings: list[str] = []
+    # Only VERSION 1 must precede CONSULT — it is the commitment.  Every
+    # amendment follows the gate by construction, so failing it would make
+    # `expert amend` a verb that guarantees failure; a late amendment is
+    # LABELLED (R-ADM-8: scope only grows, late additions are labelled).
+    if locks[0][1].get("late"):
+        problems.append(
+            "lock version 1 was recorded with --allow-late, after the consult gate: "
+            "the commitment cannot precede what it constrains"
+        )
+    for _event, obj in locks[1:]:
         if obj.get("late"):
-            problems.append(
-                f"lock version {obj.get('version')} was recorded with --allow-late, "
-                "after the consult gate: the commitment cannot precede what it constrains"
-            )
+            warnings.append(f"version {obj.get('version')}")
     problems.extend(_lock_order_problems(ctx, locks[0]))
 
     _event, newest = locks[-1]
@@ -570,15 +577,27 @@ def _card_checks(ctx: FamilyContext, locks: list[tuple[Mapping[str, Any], dict[s
                 f"lock version {obj.get('version')} changed baseline.targets — targets are "
                 "frozen at version 1; a target change requires a successor study"
             )
+    checks: list[Check] = []
     if problems:
-        return [_fail(name, "; ".join(problems))]
-    return [
-        _pass(
-            name,
-            f"{CARD_NAME} locked at version {newest.get('version')} before the consult "
-            f"gate; {len(lock_targets(newest))} target(s) frozen",
+        checks.append(_fail(name, "; ".join(problems)))
+    else:
+        checks.append(
+            _pass(
+                name,
+                f"{CARD_NAME} locked at version {newest.get('version')} (v1 before the "
+                f"consult gate); {len(lock_targets(newest))} target(s) frozen",
+            )
         )
-    ]
+    if warnings:
+        checks.append(
+            _warn(
+                name,
+                "amended after the consult gate: "
+                + ", ".join(warnings)
+                + " — lawful, and labelled: the targets are still version 1's",
+            )
+        )
+    return checks
 
 
 def _lock_order_problems(

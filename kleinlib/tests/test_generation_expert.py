@@ -224,6 +224,9 @@ def test_v09_invalid_control_an_amend_may_not_move_a_target(expert_study) -> Non
     assert [obj["version"] for _event, obj in locks] == [1, 2]
     assert locks[1][0]["parent_ids"] == [locks[0][0]["id"]]
     assert locks[1][1]["late"] is True  # every amend follows the consult gate
+    # …and being late is LABELLED, not failed: only version 1 must precede CONSULT
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _expert_statuses(study)["expert card"] == ["PASS", "WARN"]
 
 
 def test_a_repair_may_not_touch_the_checker(expert_study) -> None:
