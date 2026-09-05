@@ -6,6 +6,39 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [Unreleased]
+
+### Added
+
+- **Opt-in process-verifiable generation layer — the spine** (`klein generation
+  init | check | verify | label | status | recover`). A schema-3 study may now record
+  what it committed to BEFORE the evidence existed: an immutable opt-in manifest
+  anchored ahead of the CONSULT gate, one admission receipt per action binding the
+  intended action and the exact bytes of `entrypoint.mutable`, and a separate audit
+  (`generation/verify_receipt.json`) that classifies every run in scope as
+  `admitted | unadmitted | refused-but-run | mismatched | replayed`. Order is
+  established by three local witnesses — the extension hash chain, a core-chain
+  anchor, and git ancestry — never by a clock. A refusal is written and committed
+  like an admission, so ignoring one is detectable. The dual-pass
+  `generation-verified` label requires the core `klein verify` receipt AND the
+  generation receipt to pass at the same HEAD, and `findings.md` to quote it.
+  Protocol: `.claude/skills/klein/references/generation-protocol.md`; template:
+  `.claude/skills/klein/assets/generation-manifest-template.yaml`.
+- The capability vocabulary (`expertise, slates, premortem, parity, contribution,
+  surprise, escalation, knowledge, benchmark, design`) and its dependency table are
+  encoded; **this release supports none of them** — opting in buys the admission
+  discipline and the chronology witnesses, and nothing that scores research.
+
+### Unchanged
+
+- **The core notary, its receipts, and schema-2 verification.** `run-one` gains no
+  call site, option, default or import; `verify_receipt.json` is byte-for-byte what it
+  was and never mentions the word "generation"; a lawful core run without an
+  admission keeps its disposition, its confirmation and its `finalize` label — it
+  simply cannot earn the generation label. `kleinlib.generation` is imported by no
+  core module and not at `kleinlib.cli` import time. Schema-2 studies are refused by
+  `klein generation init` outright.
+
 ## [2.0.0] — 2026-09-03
 
 **Process-verifiable research for AI for Science.** Klein 1.x ran a disciplined

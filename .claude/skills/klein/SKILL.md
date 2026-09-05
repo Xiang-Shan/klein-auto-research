@@ -28,7 +28,7 @@ unlock a run.
 
 `/klein <stage>` routes the lifecycle stages below. The STAGES are protocol routes;
 the `klein` CLI verbs (`new gate preflight run-one recover status finalize
-noise-floor verify headroom stop predict claims replicate sweep doctor`) are the
+noise-floor verify headroom stop predict claims replicate sweep doctor generation`) are the
 machine actions each stage uses — the two are mapped here, not identical. Run stages
 in lifecycle order for a new study; `status` any time. The reference PROTOCOLS are
 the source of truth — the worker agents in `.claude/agents/` are optional
@@ -44,11 +44,17 @@ accelerators; a solo session follows the protocols directly.
 | `synthesize` | Mine trajectory + predictions ledger → 7-section findings + claims.lock | `references/synthesis-protocol.md`, `references/claims-protocol.md` | `klein predict list`, `klein claims init|pin|number|add|verify` | klein-synthesist |
 | `referee` | Gate 3: fresh context, different model; verifiers + ten-check rubric → referee_report.md | `references/referee-protocol.md` | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after | klein-referee |
 | `tutorial` | Build self-contained teaching HTML, numbers from the lock | `references/tutorial-spec.md`, `references/profiles/<profile>.md` | — (`.claude/skills/klein/scripts/build_tutorial.py`) | klein-tutor |
-| `status` | Summarize results, predictions, evidence use | `.claude/skills/klein/scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation (writes the receipt) | — |
+| `status` | Summarize results, predictions, evidence use | `.claude/skills/klein/scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation-protocol.md`) | — |
 
 War stories behind the guards: `references/war-stories.md`. Schema authority:
 `kleinlib/schema.py` — never restate columns anywhere. The five objects and three axes
 every study is typed on: `references/inquiry-model.md`.
+
+**Opt-in generation layer (schema 3).** A study may additionally record what it
+committed to BEFORE the evidence: `klein generation init` before Gate 0, then one
+`klein generation check` before every `run-one`, verified separately by `klein
+generation verify` — `references/generation-protocol.md`. A study that does not opt in
+is untouched by it, and no core verb, receipt or disposition changes either way.
 
 ## Setup
 
@@ -301,6 +307,11 @@ model in the loop. Know the edges:
   pinned table; SYNTHESIZE weighs tradeoffs without manufacturing a global frontier.
 - **Single machine, one experiment at a time** (blocking foreground). No parallel
   dispatch, no scheduler: a cluster run is a blocking submit-and-wait entrypoint.
+- **The generation layer records and scores; it never generates.** The opt-in
+  layer (`references/generation-protocol.md`) hashes admission receipts, checks their
+  order against local witnesses, and computes arithmetic on rows the driver wrote. It
+  never proposes, ranks, selects, schedules or retries — and local ordering is not
+  independently established chronology.
 - **No learned meta-controller.** The agent reasons conversationally; `playbook.md`
   is the within-study memory and `knowledge/` the cross-study memory — priors promote
   through claim-cited findings, not learned weights.

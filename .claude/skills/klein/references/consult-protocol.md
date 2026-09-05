@@ -197,6 +197,12 @@ assert evaluate_rule(
 
 ## Confirm — and STOP for ack
 
+**Generation-enabled studies first.** If this study opts into the generation layer
+(`references/generation-protocol.md`), `klein generation init` must already be
+anchored before the gate is recorded — a consult record that precedes the opt-in fails
+`klein generation verify` permanently, because a commitment registered after seeing
+what it was supposed to constrain constrains nothing.
+
 Present a concise summary: goal; kind / modality / profile with one line of reasoning
 each; the track contracts (mode, metric, floor recipe, bound, verifier); the data
 source and pin; the split; the phase ladder with budgets; the research questions with

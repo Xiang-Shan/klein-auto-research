@@ -14,8 +14,8 @@ your client does not resolve imports, read `AGENTS.md` directly before working h
   status`).
 - The machine actions are the packaged **`klein` CLI** verbs:
   `new | gate | preflight | run-one | recover | status | finalize | noise-floor |
-  verify | headroom | stop | predict | claims | replicate | sweep | doctor` — the
-  SKILL.md stage table maps each stage to its verbs.
+  verify | headroom | stop | predict | claims | replicate | sweep | doctor |
+  generation` — the SKILL.md stage table maps each stage to its verbs.
 - The worker roles from AGENTS.md ship pre-wired as subagents in `.claude/agents/`:
 
 | Agent | Model | Stage |
