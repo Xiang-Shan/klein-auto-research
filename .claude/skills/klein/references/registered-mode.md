@@ -124,6 +124,19 @@ those verdicts are what resolve the row's outcome afterwards. A cell run without
 hypothesis on an enabled study is refused unless it is a typed obligation (`calibration`,
 `baseline`, `repair`, `sealed`).
 
+<!-- WP-04: the parity cell -->
+A study that declares the **`parity`** capability registers one more cell, and it is a
+special one: the **AI-vs-expert comparison**, the comparison track's SOLE sealed
+evaluation, scoring both frozen pipelines together and pinning
+`tables/parity_units.tsv` (`references/expert-parity-protocol.md`). It **precedes every
+other sealed access in the study** — `klein generation check --action sealed` is refused
+on ANY track until `klein generation parity bind` has frozen both pipelines and every
+measured floor, and a `final_test` run recorded before that anchor FAILs the `parity`
+family afterwards. The cell is ordinary in every other way: `--action sealed` admission,
+`run-one --final-test --tests P…`, `measured` disposition, `artifact:` lines that make
+the table evidence.
+<!-- end WP-04 -->
+
 ## What registered mode is not
 
 - Not a sweep escape hatch: a search still runs through `sweep-rules.md`, and a

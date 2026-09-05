@@ -73,6 +73,21 @@ hypothesis slate (`klein generation slate lock`, 4–6 authored rows → `<study
 admits runs by `--hypothesis`, and scores the driver's own forecasts at phase end
 (`klein generation slate score` → `generation/tables/slate_calibration_<phase>.tsv`).
 <!-- end WP-02 -->
+<!-- WP-04: parity + contribution -->
+Declaring **`parity`** adds the AI-vs-expert comparison: `klein generation parity lock`
+freezes `parity.yaml` before Gate 0 (both pipelines, the sampling unit and block, and
+each metric's direction, measured-floor reference, noninferiority margin and written
+rationale, tied to the registered `P#` whose rule IS that margin); `parity bind` pins
+the scorer's hash, both frozen snapshots and the floors, and no `--action sealed`
+admission is granted on ANY track until it exists; one sealed registered cell measures;
+`klein generation parity assess` recomputes `d/L/U` from the cell's pinned per-unit
+table and decides `exceeds | parity | refuted | inconclusive` — an undefined metric can
+never pass, and A4 §7's by-δ check is reported as `agreement_within_floor`, never as
+parity. **`contribution`** appends `ai_value.jsonl` through `klein generation
+contribution record` (coverage includes rejections; an accepted row with no human
+acceptor stays agent-accepted; causal AI value needs the cited matched ablation)
+— `references/expert-parity-protocol.md`.
+<!-- end WP-04 -->
 
 ## Setup
 

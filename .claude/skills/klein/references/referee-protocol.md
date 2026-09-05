@@ -55,6 +55,29 @@ the experimenter.
 | 9 | **Figures.** `figures/make_figures.py` re-renders pixel-identically on the platform family that rendered the committed figures (byte-identically on that very machine; another platform's PNG encoder writes the same pixels in different bytes, which `klein verify` decodes and accepts; on another CPU family a computed curve can move a pixel in its last bits, which verify reports as a `[WARN]` naming both platforms — re-render on the rendering platform before signing); the four-point figure critique of `tutorial-spec.md` passes. | a figure whose pixels do not re-render on their own platform, or a truncated axis that inflates a within-noise delta |
 | 10 | **Vocabulary and scope.** The profile's banned words are absent or qualified; the floor's estimand is named; simulation claims carry their in-silico scope; measurement resolution is never called materiality. | any banned word unqualified, a missing estimand, an unscoped simulation claim, or resolution sold as materiality |
 
+## Generation addenda
+
+For a study whose `generation/manifest.yaml` declares capabilities
+(`references/generation-protocol.md`). These do not add rubric checks; they say what to
+read and what not to re-derive. **Never re-derive a machine verdict** — read
+`generation/verify_receipt.json` and `generation/label.json`, and report what they say.
+
+<!-- WP-04: parity + contribution -->
+- **Parity.** Read `parity.yaml`, the pinned `tables/parity_units.tsv` and the recorded
+  decision; confirm findings state the outcome with its scope (population, sampling
+  unit, budget rule) and never as a bare "matched the expert", that
+  `agreement_within_floor` is reported under that name and never as parity, and that
+  each margin's `margin_rationale` justifies the margin by a decision rather than by the
+  measured floor. The one thing the machine cannot see is an **under-tuned expert**: a
+  control weakened in a way that still passes its own fixture is a referee obligation
+  (`references/expert-parity-protocol.md`).
+- **Contribution.** Read `ai_value.jsonl`: confirm rejections are present, that no
+  agent-accepted row is written up as human-accepted, and that any causal AI-value
+  language cites the matched ablation the lock names.
+<!-- end WP-04 -->
+
+The `Verdict:` line gains `generation: verified | failed | n/a`.
+
 ## The verdict
 
 - **PASS** — all ten checks pass.
