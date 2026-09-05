@@ -297,6 +297,41 @@ version.
   `assets/score_submissions_template.py`.
 <!-- end WP-05 -->
 
+<!-- fix-3 -->
+- **The generation layer's discovery, escalation, knowledge and custody records were
+  tightened where a driver's own testimony was doing work only evidence should do.**
+  A discovery cell added after another cell already produced evidence is labelled
+  `post_observation` whether or not anybody ran `surprise record` — the label follows
+  the run and the pinned table, not the diligence of the person writing it down — and
+  `klein generation verify` re-derives, for EVERY registration version, that its core
+  anchor and its commit precede the runs of the cells that version introduced. The
+  escalation plan's order is re-derived the same way from the anchor and git ancestry
+  instead of read off the lock's own `late` flag. A `confirmed` claim can no longer
+  rest on a screening table by quoting a number that lives there (only citing the
+  table as evidence was checked before), and the derived per-segment summary counts as
+  a screening table too. The repo-level knowledge store now proves its TIP: every
+  earlier state of `knowledge/events.jsonl` in git, and every `store_head` a receipt
+  pinned, must still be a prefix of the file on disk — a deleted last line leaves the
+  hash chain perfectly intact and was previously invisible. A query receipt that
+  cannot be replayed FAILs when the store is in this repository (it only WARNs for a
+  checkout that has no store), a promotion whose commit does not resolve is re-checked
+  against the source lock on disk rather than excused, and `scripts/seed_knowledge_objects.py`
+  records the HEAD it read each lock at. A custody attestation now only makes a
+  benchmark `custodied` when its `subject` is that benchmark's own hidden evidence;
+  attestations about anything else stay on the record and are reported separately.
+  Registered adapters and inputs must carry a `sha256`, segment names that would print
+  as one key are refused, `n_perm` is capped at 100 000, and admission receipts pin the
+  protocol file of every declared capability instead of the spine's alone.
+- **Discovery cells can declare clustered units.** `group_policy: {column: <name>}`
+  makes the segment statistic the mean of the GROUP means, the dispersion a dispersion
+  over groups, and the sign-flip family rule act on groups — because eight measurements
+  at two sites are two observations, and flipping them as eight manufactures
+  violations. The pinned table carries the group column under its declared name, the
+  record and every `<study>#Sn` receipt carry `unit_of_inference: group | unit`, and a
+  cell that declared a clustering column whose table does not carry it FAILs. Cells
+  with no `group_policy` are unchanged, to the last digit.
+<!-- end fix-3 -->
+
 ### Unchanged
 
 - **The core notary, its receipts, and schema-2 verification.** `run-one` gains no
