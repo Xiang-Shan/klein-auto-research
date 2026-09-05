@@ -1371,6 +1371,7 @@ def _run_slate_lock(args: argparse.Namespace) -> int:
         state=_state(study, contract),
         previous=previous["object"] if previous else None,
         allocated=allocated,
+        known_ids=gs.all_hypothesis_ids(study, events),
     )
     if problems:
         print(f"slate {'amend' if amending else 'lock'} refused:")
@@ -1505,7 +1506,9 @@ def _run_slate_score(args: argparse.Namespace) -> int:
             f"{_number(entry['worst_case_brier'])}]"
         )
     for row in score["cohort"]:
-        print(f"  {row['id']}: {row['status']} y={_number(row['y'])} — {row['reason']}")
+        bound = int(row.get("n_bound_runs") or 0)
+        note = "" if bound <= 1 else f"  [{bound} admitted runs; the first one scores]"
+        print(f"  {row['id']}: {row['status']} y={_number(row['y'])} — {row['reason']}{note}")
     print(f"table: {gs.table_path(study, phase).relative_to(study).as_posix()}")
     return 0
 
