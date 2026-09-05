@@ -2,7 +2,7 @@
 
 ``MODULES`` is the dependency-ordered list of module names under
 ``kleinlib.generation``; each exports one module-level
-``CAPABILITY: Capability``.  A later work package appends its module name here
+``CAPABILITY: Capability``.  A later capability appends its module name here
 and ships the module — and touches nothing else in the spine.
 
 Two registries have to agree and neither may derive the other:
@@ -16,14 +16,26 @@ forgetting the other fails the suite immediately.
 
 The spine shipped neither: with both lists empty, opting in buys the admission
 discipline and nothing that scores research.  Each capability package since then
-appends its name to each list — WP-01 added ``expert`` / ``expertise``, WP-02
-added ``slate`` / ``slates``, WP-09 added ``design`` / ``design``, WP-03 added
-``premortem`` / ``premortem``, WP-04 added ``parity`` and ``contribution``
-under their own names, WP-07 added ``escalate`` / ``escalation``, WP-08 added
-``knowledge`` / ``knowledge``, WP-06 added ``surprise`` / ``surprise``, and
-WP-05 added ``benchmark`` / ``benchmark`` — and edits no other line of this
-package.  :mod:`kleinlib.generation.custody` is deliberately NOT here: an
-attestation is not a capability, and any generation-enabled study may record one.
+appends its name to each list — and edits no other line of this package.  The
+modules and the capability names they register, in dependency order:
+
+===================  ====================================
+module               capability name
+===================  ====================================
+``expert``           ``expertise``
+``slate``            ``slates``
+``design``           ``design``
+``premortem``        ``premortem``
+``parity``           ``parity``
+``contribution``     ``contribution``
+``escalate``         ``escalation``
+``knowledge``        ``knowledge``
+``surprise``         ``surprise``
+``benchmark``        ``benchmark``
+===================  ====================================
+
+:mod:`kleinlib.generation.custody` is deliberately NOT here: an attestation is
+not a capability, and any generation-enabled study may record one.
 """
 
 from __future__ import annotations
@@ -37,24 +49,24 @@ __all__ = ["MODULES", "load"]
 
 #: Module names under ``kleinlib.generation``, in dependency order.
 MODULES: tuple[str, ...] = (
-    # --- WP-01: expertise ---
+    # --- expertise acquisition + reference records ---
     "expert",
-    # --- WP-02: hypothesis slates + calibration ---
+    # --- hypothesis slates + calibration ---
     "slate",
-    # --- WP-09: evidence design ---
+    # --- evidence design ---
     "design",
-    # --- WP-03: slate-time pre-mortem ---
+    # --- slate-time pre-mortem ---
     "premortem",
-    # --- WP-04: expert parity + contribution ledger ---
+    # --- expert parity + contribution ledger ---
     "parity",
     "contribution",
-    # --- WP-07: escalation ladder + successor studies ---
+    # --- escalation ladder + successor studies ---
     "escalate",
-    # --- WP-08: cross-study knowledge ---
+    # --- cross-study knowledge ---
     "knowledge",
-    # --- WP-06: surprise mining (depends on design) ---
+    # --- surprise mining (depends on design) ---
     "surprise",
-    # --- WP-05: planted-truth benchmark (custody.py registers nothing) ---
+    # --- planted-truth benchmark (custody.py registers nothing) ---
     "benchmark",
 )
 

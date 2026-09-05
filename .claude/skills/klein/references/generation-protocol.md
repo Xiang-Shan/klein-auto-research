@@ -341,8 +341,8 @@ prose route: a run the extension classified anything but `admitted` binds nothin
 On an enabled study, `--action run` (and `--action cell`) **without** a hypothesis is
 refused: "an enabled study runs hypotheses; use `--hypothesis`, or `--action
 calibration|baseline|repair`". The Phase-0 floor recipe, the expert baseline, a repair
-and the sealed final test are the typed obligations that legitimately carry no `H`
-(R-ADM-7) — they are ordinary `run-one` transactions with their own checkpoint, and no
+and the sealed final test are the typed obligations that legitimately carry no
+`H` — they are ordinary `run-one` transactions with their own checkpoint, and no
 off-notary path exists for any of them.
 
 ### The success event, exactly

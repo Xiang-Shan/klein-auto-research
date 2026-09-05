@@ -41,7 +41,7 @@ not that the refutation is unfindable; it is that the refutation ranks poorly
 against the query that found the claim.  So every hit carries the ids of the
 contests and resolutions attached to it, whatever they would have scored.
 
-**A failed transfer is not a contest** (RF-09).  A prediction that did not hold
+**A failed transfer is not a contest.**  A prediction that did not hold
 in a new regime is a prediction verdict, recorded in the citing study's ledger.
 A contest requires a CLAIM from the citing study's verified lock that
 contradicts the target's scope; ``contest`` refuses evidence made of prediction
@@ -138,7 +138,7 @@ CLAIM_REF_RE = re.compile(r"^(?P<study>[A-Za-z0-9._-]+)#(?P<claim>C\d+)$")
 CLAIM_ID_RE = re.compile(r"^C\d+$")
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 
-#: The scope fields A3 §5 names.  Lists and scalars both allowed; the retriever
+#: The scope fields an object carries.  Lists and scalars both allowed; the retriever
 #: reads their text, the reader reads their meaning.
 SCOPE_FIELDS: tuple[str, ...] = (
     "population",
@@ -768,7 +768,7 @@ def _claim_from_lock(blob: bytes, claim_id: str) -> dict[str, Any] | None:
 def contest_evidence_problems(
     study_dir: Path, evidence_ids: Sequence[str]
 ) -> list[str]:
-    """Why this evidence cannot carry a contest (RF-09's rule, mechanized).
+    """Why this evidence cannot carry a contest.
 
     Every id must resolve in the citing study's own verified lock, and at least
     one must be a CLAIM: a prediction that did not transfer is a prediction
@@ -819,7 +819,7 @@ def contest_evidence_problems(
         problems.append(
             "a contest needs at least one CLAIM from this study's verified lock that "
             "contradicts the target's scope; a prediction that failed to transfer is a "
-            "prediction verdict, not a contest (RF-09)"
+            "prediction verdict, not a contest"
         )
     return problems
 

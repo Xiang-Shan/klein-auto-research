@@ -7,9 +7,8 @@ scoring cell.
 **It is study LIBRARY code, never the mutable surface.**  `klein generation
 benchmark commit` pins its sha256 — at METHOD, before any arm submits — and
 `generation verify` re-reads it at the scoring cell's candidate commit.  A scorer
-edited after the submissions arrived is a scorer tuned to the answers (R-INV-3,
-"the checker is never the searcher"; R-BEN-2, the matching rule is fixed at
-METHOD).
+edited after the submissions arrived is a scorer tuned to the answers: the
+checker is never the searcher, and the matching rule is fixed at METHOD.
 
 What it must produce, and why each piece is load-bearing
 --------------------------------------------------------

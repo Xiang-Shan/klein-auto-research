@@ -6,8 +6,8 @@ whole family at once.  It is the arithmetic the parity decision rule reads, and
 it is pure numpy so a study's scorer and ``klein generation parity assess``
 compute the identical numbers from the identical table.
 
-**The recipe** (plan §A.4, brief §5).  Resample BLOCKS with replacement — one
-draw shared by every metric, so the metrics are never resampled out of step
+**The recipe.**  Resample BLOCKS with replacement — one draw shared by every
+metric, so the metrics are never resampled out of step
 (common random numbers, exactly as :func:`kleinlib.metrology.paired_bootstrap`
 enforces for a pair of candidates).  Studentize each metric's bootstrap
 deviation by its own bootstrap standard deviation, take the ``1 - alpha``
@@ -28,8 +28,8 @@ units, under this block declaration".
 bootstrap spread, or any non-finite unit value gets ``(nan, nan)`` and drops out
 of the max — it can then never satisfy ``L >= -epsilon``, which is precisely the
 preregistered "an undefined metric cannot pass" rule.  Inventing a bound for it
-would be the arbitrary denominator adjustment A4 §7 refuses.  "Zero spread" is
-read at :data:`ZERO_SPREAD_REL`, not at exact zero: resampling blocks of unequal
+would be an arbitrary denominator adjustment.  "Zero spread" is read at
+:data:`ZERO_SPREAD_REL`, not at exact zero: resampling blocks of unequal
 size re-associates the same per-block sums in a different order, so a metric that
 is genuinely constant comes back with a bootstrap sd around ``1e-17`` rather than
 ``0.0``, and studentizing by that residue would manufacture an interval of width
@@ -145,8 +145,9 @@ def simultaneous_bounds(
     n_blocks = len(groups)
 
     # A metric is LIVE only if it can carry a bound at all.  Non-finite units
-    # (A4 §7's zero-loss bottom decile) and a single block both mean "this
-    # metric is undefined here", and an undefined metric never enters the max.
+    # (a top-to-bottom ratio on a zero-loss bottom decile, say) and a single
+    # block both mean "this metric is undefined here", and an undefined metric
+    # never enters the max.
     live = {
         key: arr
         for key, arr in arrays.items()

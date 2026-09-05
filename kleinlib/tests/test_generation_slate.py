@@ -1,4 +1,4 @@
-"""Hypothesis slates and forecast calibration (WP-02).
+"""Hypothesis slates and forecast calibration.
 
 Three layers, tested separately on purpose:
 
@@ -6,12 +6,12 @@ Three layers, tested separately on purpose:
    lists — Brier, the Murphy decomposition and its exact identity, coverage, and
    the best/worst bounds the censored rows allow.
 2. **The bookkeeping** (``kleinlib.generation.slate``) on a real fixture study —
-   V-11's four-row slate (supported / refuted / crash / never-run) scored to
-   coverage 0.75 and `conditional`, then completed to 1.0 and `complete`; V-12's
+   a four-row slate (supported / refuted / crash / never-run) scored to
+   coverage 0.75 and `conditional`, then completed to 1.0 and `complete`; the
    size, duplicate and id rules; the admission rule that binds a run to the
    hypothesis it was admitted for.
 3. **The boundary** — a source scan asserting that nothing in either module
-   produces, ranks or selects a candidate (R-SLA-6). The 1–3 axis scores are
+   produces, ranks or selects a candidate. The 1–3 axis scores are
    authored in the file and copied; they are never compared.
 
 The fixtures reuse ``test_generation_spine``'s scaffolding, so a slate study is
@@ -39,7 +39,7 @@ STUDY = "03-demo"
 PHASE = "adaptive-1"
 GENERATION_PKG = Path(__file__).resolve().parents[1] / "generation"
 
-#: Four ruled predictions on the fixture's one track — one per V-11 slate row.
+#: Four ruled predictions on the fixture's one track — one per slate row.
 PREDICTIONS = [
     {
         "id": "P1",
@@ -292,12 +292,12 @@ def test_numbers_agree_reports_the_first_disagreement_it_meets() -> None:
 
 
 # --------------------------------------------------------------------------
-# 2. V-11 — the A3 §2 smallest exercise
+# 2. The smallest exercise
 # --------------------------------------------------------------------------
 
 
 def _run_the_first_three(study: Path) -> None:
-    """Row 1 supported, row 2 refuted, row 3 crashed — the V-11 trajectory."""
+    """Row 1 supported, row 2 refuted, row 3 crashed — the fixture's trajectory."""
     _bump(study, "h1")
     assert _check(study, f"{STUDY}#H1", "P1") == 0
     assert run_one(study, command=metric_command(0.7), tests="P1", echo=False)["predictions"] == {
@@ -317,7 +317,7 @@ def _run_the_first_three(study: Path) -> None:
 
 
 def test_v11_four_rows_score_over_three_at_coverage_three_quarters(slate_study) -> None:
-    """V-11: supported / refuted / crash / never-run → Brier over 3, `conditional`."""
+    """Supported / refuted / crash / never-run → Brier over 3, `conditional`."""
     _repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
     locked = _slate_object(study)
@@ -398,7 +398,7 @@ def test_v11_completing_the_deferred_row_rescores_to_complete(slate_study) -> No
 
 
 def test_v11_invalid_control_editing_a_locked_forecast_fails_verification(slate_study) -> None:
-    """R-SLA-4: the prior is immutable, and the file's sha is what says so."""
+    """The prior is immutable, and the file's sha is what says so."""
     repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
     assert _gen("verify", "--study", str(study)) == 0
@@ -418,7 +418,7 @@ def test_v11_invalid_control_editing_a_locked_forecast_fails_verification(slate_
 
 
 def test_v11_a_tampered_score_object_fails_the_recomputation(slate_study) -> None:
-    """R-SLA-5: verify recomputes every number from the receipts and manifests."""
+    """Verify recomputes every number from the receipts and manifests."""
     _repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
     _run_the_first_three(study)
@@ -451,7 +451,7 @@ def test_v11_a_tampered_calibration_table_fails_its_hash(slate_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# 3. V-12 — slate size, duplicates, ids
+# 3. Slate size, duplicates, ids
 # --------------------------------------------------------------------------
 
 
@@ -476,7 +476,7 @@ def test_v12_two_rows_with_one_statement_are_one_hypothesis_with_two_ids(slate_s
 
 
 def test_v12_an_amendment_withdraws_a_row_without_shrinking_the_cohort(slate_study) -> None:
-    """RF-05: the denominator is frozen at lock; withdrawal is censoring."""
+    """The denominator is frozen at lock; withdrawal is censoring."""
     _repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
     locked = _slate_object(study)
@@ -522,7 +522,7 @@ def test_v12_a_carried_id_may_not_change_what_it_names(slate_study) -> None:
 
 
 def test_v12_a_revised_forecast_is_scored_in_its_own_panel(slate_study) -> None:
-    """R-SLA-4: the primary panels keep `p_first`; the revision panel gets `p_latest`."""
+    """The primary panels keep `p_first`; the revision panel gets `p_latest`."""
     _repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
     rows = [dict(row) for row in _slate_object(study)["rows"]]
@@ -542,7 +542,7 @@ def test_v12_a_revised_forecast_is_scored_in_its_own_panel(slate_study) -> None:
 
 
 def test_v12_a_revision_stays_a_revision_across_a_later_amendment(slate_study) -> None:
-    """B-8: `revision_of` is carried forward, so the row cannot drift back.
+    """`revision_of` is carried forward, so the row cannot drift back.
 
     The revisions panel selects on `revision_of`, and the primary panels score
     `p_first`.  Clearing the marker on the next amendment that happens not to
@@ -576,7 +576,7 @@ def test_v12_a_revision_stays_a_revision_across_a_later_amendment(slate_study) -
 
 
 def test_v12_a_first_lock_can_never_be_late_and_an_amendment_may_be(slate_study) -> None:
-    """B-12: `late` on version 1 was an unreachable FAIL, and this is why.
+    """`late` on version 1 was an unreachable FAIL, and this is why.
 
     `is_late` asks whether a receipt already named an id THIS phase allocated —
     and before a phase's first lock there are no ids to name, so version 1 is
@@ -601,7 +601,7 @@ def test_v12_a_first_lock_can_never_be_late_and_an_amendment_may_be(slate_study)
 
 
 def test_v12_a_parent_id_must_name_a_hypothesis_this_study_locked(slate_study, capsys) -> None:
-    """B-13: lineage that ends nowhere still looks like provenance."""
+    """Lineage that ends nowhere still looks like provenance."""
     _repo, study = slate_study
     invented = [dict(V11_ROWS[0], parent_ids=[f"{STUDY}#H99"]), *V11_ROWS[1:]]
     assert _lock(study, invented) == 2
@@ -717,7 +717,7 @@ def test_the_receipt_pins_the_lock_it_was_taken_under(slate_study) -> None:
 
 
 def test_a_hypothesis_scores_on_its_first_resolution(slate_study) -> None:
-    """B-7: `y` comes from the FIRST admitted run, and the retry is counted.
+    """`y` comes from the FIRST admitted run, and the retry is counted.
 
     A forecast is about what happens when the idea is tried.  Reading the LAST
     admitted run would let a row that resolved `y = 0` be run again — knowing the
@@ -759,7 +759,7 @@ def test_a_hypothesis_scores_on_its_first_resolution(slate_study) -> None:
 
 
 def test_one_admitted_run_per_row_counts_one_and_warns_about_nothing(slate_study) -> None:
-    """The valid control for B-7: the ordinary trajectory is unchanged."""
+    """The valid control: the ordinary trajectory is unchanged."""
     _repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
     _run_the_first_three(study)
@@ -907,7 +907,7 @@ def test_locking_twice_is_refused_and_amending_nothing_is_too(slate_study) -> No
 
 
 # --------------------------------------------------------------------------
-# 7. write ownership and R-SLA-6
+# 7. write ownership, and the boundary the module keeps
 # --------------------------------------------------------------------------
 
 
@@ -948,7 +948,7 @@ def _module_source(name: str) -> tuple[str, ast.Module]:
 
 @pytest.mark.parametrize("module", ["slate", "calibration"])
 def test_r_sla_6_nothing_here_proposes_ranks_or_selects(module: str) -> None:
-    """R-SLA-6: the mechanism records and computes; the judgment stays authored."""
+    """The mechanism records and computes; the judgment stays authored."""
     _text, tree = _module_source(module)
     offenders = [
         node.name
@@ -996,7 +996,7 @@ def test_the_slate_modules_reach_no_network_and_call_no_runner() -> None:
 
 
 def test_core_verify_still_never_mentions_the_word_generation(slate_study) -> None:
-    """R-INV-8, re-checked with a capability declared."""
+    """Core/extension isolation, re-checked with a capability declared."""
     _repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
     assert cli.main(["verify", "--study", str(study)]) == 0

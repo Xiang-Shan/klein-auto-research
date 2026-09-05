@@ -79,7 +79,7 @@ class Capability:
     ``receipt_inputs``
         Returns the ``inputs`` this capability pins into an admission receipt —
         ``{"slate": "<object sha>"}`` and the like.  The receipt's ``inputs``
-        key set is fixed by the spine (WP-00 §3.3); a capability may only FILL
+        key set is fixed by the spine's receipt envelope; a capability may only FILL
         one of those slots, never add a key, and returning ``{}`` leaves them
         all null.  Like the rules, it runs only when the manifest declares this
         capability.

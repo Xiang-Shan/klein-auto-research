@@ -12,7 +12,7 @@ Four commitments, all made before the evidence exists:
 its template, its statistic, its adapter and inputs with their hashes, its
 partition, its unit and group policy, and the COMPLETE segment inventory.  A
 segment invented afterwards is a new cell, labelled ``post_observation``; it
-cannot acquire preregistration by citing an earlier run (R-INV-5).
+cannot acquire preregistration by citing an earlier run.
 
 **The table is complete, and it is per-unit.**  Every eligible segment appears —
 the null ones, the boring ones, the ones that embarrass the hypothesis — and
@@ -21,8 +21,8 @@ capability offers first is a sign-flip max-t and a sign flip acts on units
 (:mod:`kleinlib.generation.templates` says why at length).  An omitted eligible
 segment is a FAIL, not a rounding of the story.
 
-**The multiplicity rule is declared, and a floor is not one.**  RF-13: a
-measured effect floor answers "is this bigger than noise on one comparison",
+**The multiplicity rule is declared, and a floor is not one.**  A measured
+effect floor answers "is this bigger than noise on one comparison",
 never "is this bigger than noise on the largest of four hundred".  Each cell
 declares ``family_maxt`` (:func:`kleinlib.metrology.family_maxt`, applied to
 both signs of every segment so the guard is two-sided), ``bonferroni``, or a
@@ -31,11 +31,11 @@ both signs of every segment so the guard is two-sided), ``bonferroni``, or a
 **A receipt records an observation, never an explanation.**  ``<study>#Sn``
 carries the cell, the run, the segment, the deviation, the adjusted score and
 the pinned table's hash.  Its ``explanation`` starts ``unresolved`` and STAYS
-unresolved until a human writes one: A2's anomaly ledger, whose whole value is
+unresolved until a human writes one — an anomaly ledger whose whole value is
 that the unexplained entries are still in it.  And an S receipt can never carry
 a ``confirmed`` claim — discovery is exploratory by construction, and
 confirmation belongs to a separately registered ``test`` study on evidence
-independent of the selection (R-INV-6).
+independent of the selection.
 
 Registered, not wired in: this module exports one
 :class:`~kleinlib.generation.registry.Capability` and the spine finds it through
@@ -130,13 +130,13 @@ RECEIPT_TYPE = "surprise_receipt"
 
 #: Cell ids are plain and local (``cell_residuals_by_habitat``).  The
 #: ``<study>#Sn`` ids the receipts carry are allocated by ``record`` and are
-#: always fully qualified — RF-02: a bare ``S3`` is a scouting-ledger entry, and
+#: always fully qualified: a bare ``S3`` is a scouting-ledger entry, and
 #: the two must never be readable as the same token.
 CELL_ID_RE = re.compile(r"^cell_[a-z0-9][a-z0-9_]*$")
 
 SURPRISE_ID_RE = re.compile(r"^(?P<study>[^#\s]+)#S(?P<number>\d+)$")
 
-#: A bare ``S3`` in findings §③ — the ambiguity RF-02 names, warned about but
+#: A bare ``S3`` in findings §③ — the scouting ambiguity, warned about but
 #: never failed: the scouting ledger legitimately uses bare ``S#`` ids, and
 #: ``kleinlib.claims.SENTENCE_EXEMPT_RE`` exempts them from the numbers scan.
 BARE_S_RE = re.compile(r"(?<![#\w])S\d+\b")
@@ -345,7 +345,7 @@ MAX_N_PERM = 100_000
 
 
 def _multiplicity_problems(rule: Any, label: str) -> list[str]:
-    """RF-13, in one function: a floor is not a multiple-testing correction."""
+    """In one function: a floor is not a multiple-testing correction."""
     if not isinstance(rule, Mapping):
         return [
             f"{label}: multiplicity_rule is required — a screening family without a "
@@ -1643,7 +1643,7 @@ def _one_record_problems(
 def _pinned_at_commit_problems(
     ctx: FamilyContext, run: str, manifest: Mapping[str, Any], cell: Mapping[str, Any]
 ) -> list[str]:
-    """R-INV-3: the adapter and inputs AT THE RUN'S CANDIDATE COMMIT, not now.
+    """The adapter and inputs AT THE RUN'S CANDIDATE COMMIT, not now.
 
     "Unchanged today" is not the question — a file edited before the run and
     restored afterwards would pass that. What has to hold is that the bytes the
@@ -1763,7 +1763,7 @@ def _receipts_checks(
 
 
 def _claims_checks(ctx: FamilyContext, study: str) -> list[Check]:
-    """R-INV-6: a discovery receipt can never carry a ``confirmed`` claim.
+    """A discovery receipt can never carry a ``confirmed`` claim.
 
     A claim reaches a table by two roads and both are walked here: the claim's
     own ``evidence`` may cite ``art:<alias>``, and a number the claim quotes may
@@ -1840,7 +1840,7 @@ def _claims_checks(ctx: FamilyContext, study: str) -> list[Check]:
 
 
 def _findings_checks(ctx: FamilyContext) -> list[Check]:
-    """RF-02: a bare ``S3`` in §③ reads as a scouting entry.  WARN, never FAIL."""
+    """A bare ``S3`` in §③ reads as a scouting entry.  WARN, never FAIL."""
     path = ctx.study_dir / "findings.md"
     if not path.is_file():
         return []

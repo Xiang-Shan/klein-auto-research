@@ -36,12 +36,12 @@ Four moves, in this order and no other:
    ``precision_<arm>``, ``null_fp_<arm>``, ``cost_<arm>`` and (optionally)
    ``predictive_<arm>``, and pins ``tables/benchmark_scores.tsv`` — one row per
    arm × submitted structure with its match result.  ONE sealed cell covers all
-   arms (R-BEN-4).
+   arms.
 
 **What the machine matches, and what it does not.**  A submitted structure
 matches a planted truth when its variable SET is the same, its relationship
 string is the same, and its direction sign is the same — the three mechanical
-conditions the locked ``matching_rule`` names.  The fourth condition A5 requires,
+conditions the locked ``matching_rule`` names.  The fourth condition,
 *context*, is written into the lock as a preregistered sentence and adjudicated
 by the custodian per row: the pinned table carries a ``context_ok`` column, and a
 row whose ``context_ok`` is 0 is not a match however well its variables line up.
@@ -49,8 +49,8 @@ Verification re-applies the three mechanical conditions and TAKES ``context_ok``
 from the table — the oracle's judgement is labelled as such, never laundered into
 arithmetic.
 
-Each planted truth counts ONCE (A5 §3, "unique planted truths correctly
-recovered"): the best-ranked structure that matches it claims it, a later
+Each planted truth counts ONCE — unique planted truths correctly recovered:
+the best-ranked structure that matches it claims it, a later
 structure matching the same truth is a duplicate rather than a second recovery,
 and a structure matching nothing is a false positive against which the declared
 penalty is charged.
@@ -58,7 +58,7 @@ penalty is charged.
 **What recovery establishes.**  In-silico performance on this generator, at this
 sample size, under this matching rule.  Not real-world discovery: a
 ``known-dgp-teaching`` claim carries ``scope: in-silico``, and a ``confirmed``
-claim resting on the scoring table is refused outright (R-INV-6).
+claim resting on the scoring table is refused outright.
 
 **What a hash never establishes.**  Secrecy.  Byte integrity says the private
 bundle did not change; it says nothing about who read it.  Isolation is accounts,
@@ -499,7 +499,7 @@ def _matching_rule_problems(value: Any) -> list[str]:
     if not isinstance(value, Mapping):
         return [
             "matching_rule must declare variables, relationship, direction and context "
-            "— fixed at METHOD, before any submission (R-BEN-2)"
+            "— fixed at METHOD, before any submission"
         ]
     problems: list[str] = []
     for key, allowed in MATCH_COMPARISONS.items():
@@ -532,7 +532,7 @@ def _seed_block_problems(payload: Mapping[str, Any]) -> list[str]:
             "seed_blocks.development and seed_blocks.sealed share "
             + ", ".join(overlap)
             + " — a block scored as sealed evidence after it was handed out as development "
-            "data is not sealed evidence (R-BEN-4)"
+            "data is not sealed evidence"
         )
     return problems
 
@@ -680,7 +680,7 @@ def read_truth(path: Path) -> list[dict[str, Any]]:
     Shape: ``{"structures": [{"id", "variables": [...], "relationship",
     "direction", "context", "seed_block"}, …]}``.  A null-only benchmark
     declares ``structures: []`` — recall is then undefined and the false-positive
-    rate is the whole result (A5 §3).
+    rate is the whole result.
     """
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
@@ -1009,7 +1009,7 @@ def _rule_sealed_scoring_needs_a_reveal(ctx: Context) -> list[str]:
     return [
         f"track {ctx.track!r} is the benchmark's scoring track and no `klein generation "
         "benchmark reveal` has recomputed the commitment: every arm submits, then the "
-        "private bundle is revealed, and only then is the scoring cell sealed (R-BEN-1)"
+        "private bundle is revealed, and only then is the scoring cell sealed"
     ]
 
 
@@ -1151,7 +1151,7 @@ def _commitment_checks(
     for reveal_event, _reveal in failed:
         problems.append(
             f"{reveal_event.get('id')}: a reveal did not recompute to the commitment — the "
-            "bundle disclosed is not the bundle committed to (R-BEN-1)"
+            "bundle disclosed is not the bundle committed to"
         )
     if len(revealed) > 1:
         problems.append(f"{len(revealed)} reveals recorded; the bundle is disclosed once")
@@ -1238,7 +1238,7 @@ def _submission_checks(
         if reveal_sequence is not None and _sequence(event) > reveal_sequence:
             problems.append(
                 f"{label}: submitted AFTER the reveal — a submission that saw the answer "
-                "is not a submission (R-BEN-2)"
+                "is not a submission"
             )
         if arm in seen:
             problems.append(f"{label}: arm already submitted by {seen[arm]}")
@@ -1311,7 +1311,7 @@ def _scorer_checks(
     sealed: Sequence[str],
     manifests: Mapping[str, Mapping[str, Any]],
 ) -> list[Check]:
-    """R-INV-3: the checker is never the searcher, and never changes after it.
+    """The checker is never the searcher, and never changes after it.
 
     The pin is read at the SCORING cell's candidate commit, because that is the
     scorer the sealed evidence actually ran through; before that cell exists the
@@ -1354,7 +1354,7 @@ def _scorer_checks(
                 SCORER_CHECK,
                 f"{rel} at {candidate[:12]} is not the scorer the commitment pinned "
                 f"({str(pinned)[:12]}…) — the matching code is frozen at METHOD, before "
-                "any submission (R-BEN-2)",
+                "any submission",
             )
         ]
     return [
@@ -1389,7 +1389,7 @@ def _scoring_checks(
     if len(sealed) > 1:
         problems.append(
             f"track {payload.get('scoring_track')!r} has {len(sealed)} sealed runs "
-            f"({', '.join(sealed)}); ONE sealed scoring cell covers all arms (R-BEN-4)"
+            f"({', '.join(sealed)}); ONE sealed scoring cell covers all arms"
         )
     run = sealed[0]
     manifest = manifests[run]
@@ -1590,7 +1590,7 @@ def _custody_checks(
     payload: Mapping[str, Any],
     attested: Sequence[tuple[Mapping[str, Any], dict[str, Any]]],
 ) -> list[Check]:
-    """R-BEN-3: attested by a named holder, or reported ``unverified``.
+    """Attested by a named holder, or reported ``unverified``.
 
     Never a FAIL.  A study that did not attest has not broken its record; it has
     declined to claim something the mechanism could not check anyway, and the
@@ -1689,7 +1689,7 @@ def _split_attestations(
 
 
 def _ceiling_checks(ctx: FamilyContext) -> list[Check]:
-    """R-INV-6: in-silico recovery is never a confirmed claim.
+    """In-silico recovery is never a confirmed claim.
 
     Recovering a structure a generator planted says the pipeline can find that
     structure in that simulator.  Confirmation needs evidence independent of the
@@ -1739,7 +1739,7 @@ def _ceiling_checks(ctx: FamilyContext) -> list[Check]:
                 + ", ".join(sorted(set(offenders)))
                 + f" rest on {SCORES_TABLE}: recovering a planted structure establishes "
                 "in-silico performance on this generator, never a confirmed finding — "
-                "confirmation needs a separately registered `test` study (R-INV-6)",
+                "confirmation needs a separately registered `test` study",
             )
         ]
     return [

@@ -1,10 +1,11 @@
-"""The generation spine (WP-00): admission before action, verified afterwards.
+"""The generation spine: admission before action, verified afterwards.
 
-Test names carry their validation-plan id (V-01 … V-23).  Each material
-behaviour gets one valid control and one invalid control, exactly as the
-existing loop tests do; the fixtures reuse ``scaffold_study`` + ``record_gate``
-+ ``test_workflow_v3``'s ``metric_command`` so a generation study is an ordinary
-schema-3 study with one extra step BEFORE the consult gate.
+Test names carry a stable ``v<nn>`` index so each behaviour keeps one name as the
+suite grows.  Each material behaviour gets one valid control and one invalid
+control, exactly as the existing loop tests do; the fixtures reuse
+``scaffold_study`` + ``record_gate`` + ``test_workflow_v3``'s ``metric_command``
+so a generation study is an ordinary schema-3 study with one extra step BEFORE
+the consult gate.
 
 The isolation guards at the bottom are the ones that keep the whole package
 optional: core imports nothing from ``kleinlib.generation``, ``kleinlib.cli``
@@ -110,12 +111,12 @@ def _statuses(receipt: dict, name: str) -> list[str]:
 
 
 # --------------------------------------------------------------------------
-# V-01 — the valid control
+# The valid control
 # --------------------------------------------------------------------------
 
 
 def test_v01_valid_control_two_admitted_runs_and_a_deterministic_receipt(enabled_study) -> None:
-    """V-01: check → run → check → run → verify PASS, both runs admitted."""
+    """Check → run → check → run → verify PASS, both runs admitted."""
     repo, study = enabled_study
     _bump(study, "one")
     assert _gen("check", "--study", str(study), "--action", "calibration", "--track", "primary") == 0
@@ -159,12 +160,12 @@ def test_v01_a_generation_commit_touches_only_generation_paths(enabled_study) ->
 
 
 # --------------------------------------------------------------------------
-# V-02 — the invalid control: a late opt-in
+# The invalid control: a late opt-in
 # --------------------------------------------------------------------------
 
 
 def test_v02_late_opt_in_is_refused_and_forced_late_fails_forever(tmp_path: Path) -> None:
-    """V-02: registration after CONSULT cannot establish the scope freeze."""
+    """Registration after CONSULT cannot establish the scope freeze."""
     repo, study = _scaffold(tmp_path)
     _gates(repo, study)
     assert _gen("init", "--study", str(study)) != 0
@@ -182,7 +183,7 @@ def test_v02_late_opt_in_is_refused_and_forced_late_fails_forever(tmp_path: Path
 
 
 def test_v02_an_edited_manifest_fails_the_immutability_check(enabled_study) -> None:
-    """Invalid control for R-ADM-1's other half: the opt-in is immutable."""
+    """Invalid control for the opt-in's other half: the manifest is immutable."""
     repo, study = enabled_study
     path = study / "generation" / "manifest.yaml"
     path.write_text(path.read_text(encoding="utf-8") + "custody: tampered\n", encoding="utf-8")
@@ -192,19 +193,19 @@ def test_v02_an_edited_manifest_fails_the_immutability_check(enabled_study) -> N
 
 
 # --------------------------------------------------------------------------
-# V-03 / V-04 — isolation from the core, and admission omission
+# Isolation from the core, and admission omission
 # --------------------------------------------------------------------------
 
 
 def test_v03a_schema_2_studies_are_refused(ready_study) -> None:
-    """V-03(a): nothing schema-2 is ever read for generation checks."""
+    """Nothing schema-2 is ever read for generation checks."""
     _repo, study = ready_study
     assert _gen("init", "--study", str(study)) == 1
     assert not (study / "generation").exists()
 
 
 def test_v03b_core_verify_never_mentions_generation(ready_study_v3) -> None:
-    """V-03(b): installing the package changes no core check name or status."""
+    """Installing the package changes no core check name or status."""
     _repo, study = ready_study_v3
     assert cli.main(["verify", "--study", str(study)]) == 0
     receipt = json.loads((study / "verify_receipt.json").read_text(encoding="utf-8"))
@@ -219,10 +220,10 @@ def _core_check_names(study: Path) -> list[str]:
 def test_v03b_the_core_receipt_shape_is_pinned_with_and_without_a_manifest(
     ready_study_v3,
 ) -> None:
-    """V-03(b), the other half: a DECLARED capability changes no core check.
+    """The other half: a DECLARED capability changes no core check.
 
-    A snapshot, not a property: the whole point of R-INV-8 is that the core
-    receipt a stranger reads is the same list of checks whether or not the study
+    A snapshot, not a property: the whole point of the separation is that the
+    core receipt a stranger reads is the same list of checks whether or not the study
     opted in, so the list is written down here and a core check added or renamed
     by the generation layer breaks this test on purpose.
     """
@@ -243,7 +244,7 @@ def test_v03b_the_core_receipt_shape_is_pinned_with_and_without_a_manifest(
 
 
 # --------------------------------------------------------------------------
-# D-2 — a study that never opted in is never touched
+# A study that never opted in is never touched
 # --------------------------------------------------------------------------
 
 
@@ -276,7 +277,7 @@ def test_a_non_opted_study_is_left_byte_identical_by_every_verb(
 
 
 # --------------------------------------------------------------------------
-# A-1 / D-1 — a generation commit never sweeps core state
+# A generation commit never sweeps core state
 # --------------------------------------------------------------------------
 
 
@@ -307,7 +308,7 @@ def test_a_dirty_core_state_is_never_swept_into_a_generation_commit(enabled_stud
 
 
 def test_the_expert_verbs_file_only_their_own_artifact_and_the_ledger(tmp_path: Path) -> None:
-    """A-10: write ownership for a capability verb, read off the commit itself."""
+    """Write ownership for a capability verb, read off the commit itself."""
     repo, study = _scaffold(tmp_path)
     assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
     names = git(repo, "show", "--name-only", "--format=", "HEAD").split()
@@ -315,7 +316,7 @@ def test_the_expert_verbs_file_only_their_own_artifact_and_the_ledger(tmp_path: 
 
 
 # --------------------------------------------------------------------------
-# D-4 — the object store is write-once, and a rewrite is the operator's to undo
+# The object store is write-once, and a rewrite is the operator's to undo
 # --------------------------------------------------------------------------
 
 
@@ -370,7 +371,7 @@ def test_write_object_refuses_to_complete_a_rewrite(enabled_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# D-7 / D-8 — the checkpoint vocabulary, and an unreadable state
+# The checkpoint vocabulary, and an unreadable state
 # --------------------------------------------------------------------------
 
 
@@ -393,7 +394,7 @@ def test_the_check_action_choices_are_the_admission_checkpoints() -> None:
 
 
 def test_an_unreadable_state_is_a_refusal_reason_not_an_empty_state(enabled_study) -> None:
-    """D-8: `final_holdout_access` lives in study_state.json — `{}` would admit a seal."""
+    """`final_holdout_access` lives in study_state.json — `{}` would admit a seal."""
     repo, study = enabled_study
     _bump(study, "one")
     # valid control: a readable state admits the sealed check
@@ -416,7 +417,7 @@ def _last_spine_object(study: Path) -> dict:
 def test_v03c_and_v04_an_unadmitted_run_is_lawful_to_the_core_and_fails_here(
     enabled_study,
 ) -> None:
-    """V-03(c)/V-04: core PASSes and keeps its disposition; the extension FAILs."""
+    """The core PASSes and keeps its disposition; the extension FAILs."""
     _repo, study = enabled_study
     _bump(study, "unadmitted")
     manifest = run_one(study, command=metric_command(0.7), echo=False)
@@ -436,12 +437,12 @@ def test_v03c_and_v04_an_unadmitted_run_is_lawful_to_the_core_and_fails_here(
 
 
 # --------------------------------------------------------------------------
-# V-05 — a receipt written after the action it claims to admit
+# A receipt written after the action it claims to admit
 # --------------------------------------------------------------------------
 
 
 def test_v05_a_late_admission_does_not_admit_the_run_it_follows(enabled_study) -> None:
-    """V-05: the anchor and the ancestry both put the receipt after the run."""
+    """The anchor and the ancestry both put the receipt after the run."""
     _repo, study = enabled_study
     _bump(study, "one")
     run_one(study, command=metric_command(0.7), echo=False)
@@ -451,12 +452,12 @@ def test_v05_a_late_admission_does_not_admit_the_run_it_follows(enabled_study) -
 
 
 # --------------------------------------------------------------------------
-# V-06 — replay
+# Replay
 # --------------------------------------------------------------------------
 
 
 def test_v06_one_receipt_cannot_admit_two_runs(enabled_study) -> None:
-    """V-06: `--allow-rerun` twins share one receipt; the second is `replayed`."""
+    """`--allow-rerun` twins share one receipt; the second is `replayed`."""
     _repo, study = enabled_study
     _bump(study, "one")
     assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
@@ -470,12 +471,12 @@ def test_v06_one_receipt_cannot_admit_two_runs(enabled_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# V-07 — the receipt bound a surface that is not the one that ran
+# The receipt bound a surface that is not the one that ran
 # --------------------------------------------------------------------------
 
 
 def test_v07_editing_the_surface_after_the_check_is_a_mismatch(enabled_study) -> None:
-    """V-07: a check binds the surface AS ON DISK; editing after it invalidates it."""
+    """A check binds the surface AS ON DISK; editing after it invalidates it."""
     _repo, study = enabled_study
     _bump(study, "one")
     assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
@@ -507,12 +508,12 @@ def test_v07_a_second_check_supersedes_the_first_and_the_run_is_admitted(enabled
 
 
 # --------------------------------------------------------------------------
-# V-08 — a refusal is evidence
+# A refusal is evidence
 # --------------------------------------------------------------------------
 
 
 def test_v08_running_after_a_refusal_is_recorded_as_refused_but_run(enabled_study) -> None:
-    """V-08: the refusal is written first, so ignoring it is detectable."""
+    """The refusal is written first, so ignoring it is detectable."""
     _repo, study = enabled_study
     _bump(study, "one")
     assert (
@@ -547,12 +548,12 @@ def test_v08_an_undeclared_track_is_refused(enabled_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# V-22 — interrupted writes
+# Interrupted writes
 # --------------------------------------------------------------------------
 
 
 def test_v22_an_orphan_object_blocks_check_until_recover_voids_it(enabled_study) -> None:
-    """V-22(a): a verb that died after writing its object, before its event."""
+    """A verb that died after writing its object, before its event."""
     repo, study = enabled_study
     sha = ledger.write_object(study, {"kind": "admission", "interrupted": True})
     path = study / "generation" / "objects" / f"{sha}.json"
@@ -569,7 +570,7 @@ def test_v22_an_orphan_object_blocks_check_until_recover_voids_it(enabled_study)
     assert git(repo, "status", "--porcelain") == ""
 
 
-# ---- content addressing (WP-03) ------------------------------------------
+# ---- content addressing ---------------------------------------------------
 def test_an_object_rewritten_in_place_fails_the_content_address_check(enabled_study) -> None:
     """The store is content-addressed: a file that stopped hashing to its name lies."""
     _repo, study = enabled_study
@@ -596,7 +597,7 @@ def test_an_object_rewritten_in_place_fails_the_content_address_check(enabled_st
 
 
 def test_v22_an_uncommitted_ledger_blocks_check_until_recover_files_it(enabled_study) -> None:
-    """V-22(b): a verb that died after its event, before its commit."""
+    """A verb that died after its event, before its commit."""
     repo, study = enabled_study
     from kleinlib.generation.admission import core_anchor
 
@@ -615,12 +616,12 @@ def test_v22_an_uncommitted_ledger_blocks_check_until_recover_files_it(enabled_s
 
 
 # --------------------------------------------------------------------------
-# V-23 — the dual-pass label
+# The dual-pass label
 # --------------------------------------------------------------------------
 
 
 def test_v23_the_label_needs_both_audits_and_then_the_findings_line(enabled_study) -> None:
-    """V-23: refused without a core pass; issued with both; quoted in findings."""
+    """Refused without a core pass; issued with both; quoted in findings."""
     repo, study = enabled_study
     _bump(study, "one")
     assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
@@ -781,7 +782,7 @@ def test_capability_names_are_typed_before_they_are_available(
 
 
 def test_c12_a_receipt_pins_the_declared_capabilities_protocols(tmp_path: Path) -> None:
-    """C-12: pinning only the spine's protocol left nine documents unhashed.
+    """Pinning only the spine's protocol left nine documents unhashed.
 
     A receipt says which RULES it was taken under.  A surprise study's rules are
     mostly in `surprise-protocol.md`, and hashing only `generation-protocol.md`
@@ -903,7 +904,7 @@ def _core_modules() -> list[Path]:
 
 
 def test_no_core_module_imports_the_generation_package() -> None:
-    """R-INV-8: legacy execution never depends on the extension."""
+    """Legacy execution never depends on the extension."""
     offenders = [
         path.relative_to(REPO_ROOT).as_posix()
         for path in _core_modules()
@@ -914,7 +915,7 @@ def test_no_core_module_imports_the_generation_package() -> None:
 
 
 def test_the_generation_package_reaches_no_network_and_no_model_api() -> None:
-    """R-INV-2: no model API call anywhere in kleinlib."""
+    """No model API call anywhere in kleinlib."""
     banned = ("requests", "httpx", "urllib.request", "anthropic", "openai", "socket")
     offenders: list[str] = []
     files = [*sorted(GENERATION_PKG.rglob("*.py")), REPO_ROOT / "kleinlib" / "cli_generation.py"]

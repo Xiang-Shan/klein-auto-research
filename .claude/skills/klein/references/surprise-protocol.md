@@ -80,7 +80,7 @@ forced `post_observation: true`. Evidence, not the record of it: the label may
 not depend on whether the driver got round to `surprise record`. That is lawful
 — adaptive slices are how discovery works — and it is labelled, because the one
 thing an adaptive slice may never do is acquire preregistration by arriving in
-the same file as cells that were registered first (R-INV-5). `verify` re-derives
+the same file as cells that were registered first. `verify` re-derives
 the order for EVERY version from the two witnesses the writer does not control:
 the version's core anchor must precede the runs of the cells it introduced, and
 its object's commit must be an ancestor of theirs.
@@ -141,7 +141,7 @@ answer, and still in the family and in the table saying so. It is never reported
 as `null`, because "we looked and found nothing" and "we looked and could not
 see" are different facts.
 
-**Then the declared family rule.** RF-13: *a measured effect floor is not a
+**Then the declared family rule.** *A measured effect floor is not a
 multiplicity correction.* A floor answers "is this bigger than noise on ONE
 comparison"; a screen asks "is this bigger than noise on the largest of many",
 and the second question needs its own answer, declared before the cell runs.
@@ -170,7 +170,7 @@ the two rules, and writes:
   with its units, the adjusted score, the pinned table's hash, the family size,
   its label (`preregistered` or `post-observation`) and its exposure.
 
-**Ids are always fully qualified.** RF-02: the scouting ledger uses bare `S#`
+**Ids are always fully qualified.** The scouting ledger uses bare `S#`
 ids, and `kleinlib.claims`' sentence scan exempts a bare `S3` as one. Writing
 `03-demo#S3` is what keeps a surprise receipt and a scouting note from reading as
 the same token; a bare `S#` in findings §③ earns a WARN.
@@ -187,7 +187,7 @@ The `surprise` family FAILs on: a late first registration (a cell admitted befor
 its registration anchor); a registration recorded before the METHOD gate;
 `discovery_cells.yaml` edited in place; an adapter now inside the mutable
 surface; an adapter or input whose hash differs today **or at the run's candidate
-commit** (R-INV-3 — "unchanged now" would pass a file edited before the run and
+commit** ("unchanged now" would pass a file edited before the run and
 restored after); a cell run as a sealed final test; a recorded run with no
 admitted cell admission, or an admitted cell run that was never recorded; a
 recomputation that disagrees with the record in any number; an eligible segment
@@ -208,7 +208,7 @@ post-observation counts, and the cells whose inference was at the group level.
 
 ## The exploratory ceiling, and the study that lifts it
 
-**A screen selects what to look at. It cannot also confirm it** (R-INV-6). The
+**A screen selects what to look at. It cannot also confirm it.** The
 selection and the evidence are the same rows, and no correction repairs that: the
 `discover` kind cannot close a `confirmed` claim
 (`references/inquiry-model.md`), and this family enforces the same rule from the

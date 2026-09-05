@@ -26,7 +26,7 @@ after the data has been looked at is a description, not a commitment.
 5. **Decision** — the typed continuation, and the predecessor/successor studies
    it links.
 
-**The load-bearing rule is R-DES-2: a validity condition is executable or it is
+**The load-bearing rule: a validity condition is executable, or it is
 decoration.**  ``validity_conditions[].rule_ref`` must name a prediction that
 carries an ``inconclusive_if`` RULE, or whose ``rule`` is a combinator
 (``all_of`` / ``any_of`` / ``not``).  A plain leaf comparison encodes "did the
@@ -34,9 +34,9 @@ number clear the bar", never "was this run in a position to answer at all"; a
 prose ``inconclusive_if`` is a sidecar, and the whole point of the requirement
 is that the condition reaches the arithmetic ``run-one`` actually runs.
 
-**The second rule is R-BEN-3's neighbour: import chronology is not acquisition
-chronology.**  An ``evidence.acquisition[]`` entry with ``kind: import`` records
-when bytes arrived here, and needs nothing more.  One with ``kind:
+**The second rule: import chronology is not acquisition chronology.**  An
+``evidence.acquisition[]`` entry with ``kind: import`` records when bytes
+arrived here, and needs nothing more.  One with ``kind:
 acquisition`` claims when the measurement was TAKEN — a claim about the world
 that Klein cannot check — so it must name a custody chain and an attestor, or it
 is refused.
@@ -260,7 +260,7 @@ def _evidence_problems(block: Any) -> list[str]:
 
 
 def acquisition_problems(doc: Mapping[str, Any]) -> list[str]:
-    """R-DES-1's custody half: an acquisition claim costs a chain and an attestor.
+    """The custody half: an acquisition claim costs a chain and an attestor.
 
     ``import`` says bytes arrived; ``acquisition`` says a measurement was taken.
     The second is a statement about the world that no hash can check, so it is
@@ -355,7 +355,7 @@ def document_problems(doc: Mapping[str, Any], *, study: str) -> list[str]:
 
 
 # --------------------------------------------------------------------------
-# R-DES-2 — a validity condition is executable, or it is decoration
+# A validity condition is executable, or it is decoration
 # --------------------------------------------------------------------------
 
 
@@ -371,8 +371,8 @@ def encodes_a_condition(prediction: Mapping[str, Any]) -> bool:
     A plain leaf comparison cannot: it asks "did the number clear the bar", and
     a bar cleared by a run that had no business answering is the failure mode
     the whole requirement exists to prevent.  A prose ``inconclusive_if`` cannot
-    either — it documents a human condition the machine never sees, which is the
-    sidecar B §3 rules out.
+    either — it documents a human condition the machine never sees, and a
+    sidecar the arithmetic never reads is exactly what this rules out.
     """
     if isinstance(prediction.get("inconclusive_if"), Mapping):
         return True
@@ -381,7 +381,7 @@ def encodes_a_condition(prediction: Mapping[str, Any]) -> bool:
 
 
 def rule_ref_problems(contract: Mapping[str, Any], doc: Mapping[str, Any]) -> list[str]:
-    """R-DES-2: every ``rule_ref`` resolves, and resolves to something executable."""
+    """Every ``rule_ref`` resolves, and resolves to something executable."""
     block = doc.get("prediction")
     conditions = block.get("validity_conditions") if isinstance(block, Mapping) else None
     if not _listing(conditions):
@@ -461,8 +461,8 @@ def locks(
 def _rule_cell_needs_a_locked_design(ctx: Any) -> list[str]:
     """A registered cell measures something; the design says what.
 
-    WP-06's discovery cells will add their own rules on top of this one.  The
-    ordering matters more than the wording: a cell admitted before the design is
+    Surprise mining's discovery cells add their own rules on top of this one.
+    The ordering matters more than the wording: a cell admitted before the design is
     locked is a measurement whose meaning was settled afterwards.
     """
     if ctx.action != "cell" and not ctx.cell:
@@ -642,7 +642,7 @@ def _validity_conditions(doc: Mapping[str, Any] | None) -> list[Mapping[str, Any
 
 
 def _condition_checks(ctx: FamilyContext, doc: Mapping[str, Any] | None) -> list[Check]:
-    """R-DES-2, re-read against the contract AS IT IS NOW.
+    """The executable-condition rule, re-read against the contract AS IT IS NOW.
 
     The design's copy is frozen; ``study.yaml`` is not.  A prediction whose
     ``inconclusive_if`` was dropped after the lock leaves a validity condition
@@ -691,7 +691,7 @@ def verify_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
     }
 
 
-# ---- receipt inputs (filled by WP-06, which depends on this capability) ----
+# ---- receipt inputs (surprise mining depends on this capability) ----------
 def _receipt_inputs(ctx: Any) -> dict[str, str | None]:
     """The lock this admission was taken under — pinned into the receipt.
 

@@ -38,7 +38,7 @@ never omitted.
 the stall was declared before it was hit, that a rung was accounted for before
 the next one was climbed, and that a pivot did not quietly rewrite the contract
 it left behind (the old ``study.yaml`` hash is pinned and re-read from the
-commit that filed the receipt — R-ESC-3).  It does NOT establish that the rung
+commit that filed the receipt).  It does NOT establish that the rung
 label fits the work: whether a fourth round of tuning really is "data leverage"
 is reviewable judgement, which is why every receipt must name the concrete
 changed resource or assumption for a referee to read.  It does not evaluate a
@@ -138,7 +138,7 @@ RECORD_TYPE = "escalation_recorded"
 CLOSE_TYPE = "escalation_closed"
 PIVOT_TYPE = "pivot_recorded"
 
-#: The ladder, in the one order A3 §4 fixes.  Cheap and local first, expensive
+#: The ladder, in the one order this layer fixes.  Cheap and local first, expensive
 #: and external last; a rung is CONSIDERED in order, never required to be taken.
 RUNGS: tuple[str, ...] = (
     "metric_diagnosis",
@@ -847,7 +847,7 @@ def rung_problems(
     *,
     accounted: Sequence[str],
 ) -> list[str]:
-    """R-ESC-2: a rung is reached only over rungs that were taken or excused.
+    """A rung is reached only over rungs that were taken or excused.
 
     ``accounted`` is what earlier decisions IN THIS EPISODE already settled —
     the rungs they took, plus the rungs they skipped with a reason.  A rung
@@ -1043,7 +1043,7 @@ def resolve_predecessor(study_dir: Path, predecessor: str) -> Path | None:
 
 
 def _rule_a_tripped_trigger_needs_a_decision(ctx: Any) -> list[str]:
-    """R-ESC-1: once a declared trigger trips, the next candidate costs a receipt.
+    """Once a declared trigger trips, the next candidate costs a receipt.
 
     Only ``run`` and ``--hypothesis`` admissions are refused: a metric
     diagnosis, a baseline reproduction, a repair or the sealed confirmation are
@@ -1215,7 +1215,7 @@ def _trigger_checks(
     manifests: Sequence[Mapping[str, Any]],
     started: Mapping[str, Mapping[str, Any]],
 ) -> list[Check]:
-    """R-ESC-1 after the fact: counts recompute, and no candidate slipped past."""
+    """The trigger after the fact: counts recompute, and no candidate slipped past."""
     if plan is None:
         return []
     problems: list[str] = []
@@ -1312,7 +1312,7 @@ def _receipt_checks(
     rows: Sequence[Decision],
     started: Mapping[str, Mapping[str, Any]],
 ) -> list[Check]:
-    """R-ESC-2: episodes, the rung ladder, and decisions that outlived their window."""
+    """Episodes, the rung ladder, and decisions that outlived their window."""
     if plan is None or not rows:
         return []
     problems: list[str] = []
@@ -1365,7 +1365,7 @@ def _receipt_checks(
 
 
 def _cost_checks(plan: Mapping[str, Any] | None, rows: Sequence[Decision]) -> list[Check]:
-    """R-ESC-2's other half: closed means costed, and a budget is not exceeded quietly."""
+    """The ladder's other half: closed means costed, and a budget is not exceeded quietly."""
     if plan is None or not rows:
         return []
     problems: list[str] = []
@@ -1437,7 +1437,7 @@ def _pivot_checks(
     rows: Sequence[Decision],
     pivot_rows: list[tuple[Mapping[str, Any], dict[str, Any]]],
 ) -> list[Check]:
-    """R-ESC-3: the contract a pivot left behind is the one it recorded."""
+    """The contract a pivot left behind is the one it recorded."""
     if not pivot_rows:
         return []
     problems: list[str] = []

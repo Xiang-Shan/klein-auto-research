@@ -215,7 +215,7 @@ which is which.
   imported; more structures than the cap; an arm that neither submitted nor has a
   recorded missing trial. Recorded missing trials are a WARN naming them.
 - **`benchmark scorer`** — the scorer at the scoring cell's candidate commit is
-  not the file the commitment pinned (R-INV-3: the checker is never the searcher).
+  not the file the commitment pinned — the checker is never the searcher.
 - **`benchmark scoring`** — more than one sealed cell on the scoring track; a
   cell that consumed no `sealed` admission; a cell that ran before the reveal; no
   `artifact: tables/benchmark_scores.tsv` pin; a table whose bytes are not the
@@ -223,7 +223,7 @@ which is which.
   same submissions and the same revealed truth**; a printed `recall_/precision_/
   null_fp_/cost_` key that is missing or that differs from the table's own number.
 - **`benchmark ceiling`** — a `confirmed` claim in `claims.lock` citing the
-  scoring table (R-INV-6).
+  scoring table: in-silico recovery is never confirmation.
 - **`benchmark custody`** — never a FAIL. An attestation ABOUT THIS BENCHMARK is
   a PASS that says `TESTIMONY`; its absence is a WARN and the outcome
   `unverified`. An attestation counts only when its `subject` is null (the

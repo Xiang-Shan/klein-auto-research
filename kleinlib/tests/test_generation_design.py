@@ -1,15 +1,14 @@
-"""The ``design`` capability (WP-09): say what the evidence is FOR, first.
+"""The ``design`` capability: say what the evidence is FOR, first.
 
-Test names carry their requirement id (R-DES-1, R-DES-2).  The spine's fixtures
-are reused verbatim — a generation-enabled study with one extra capability
-declared — so what these tests exercise is the REGISTRATION path plus the two
-requirements the artifact exists for:
+The spine's fixtures are reused verbatim — a generation-enabled study with one
+extra capability declared — so what these tests exercise is the REGISTRATION
+path plus the two rules the artifact exists for:
 
-R-DES-1  ``evidence_design.yaml`` is validated and locked BEFORE the DATA gate,
-         and an acquisition claim costs a custody chain and an attestor.
-R-DES-2  every validity condition names a registered prediction whose rule can
-         actually fire it — an ``inconclusive_if`` rule or a combinator, never a
-         plain leaf comparison and never prose.
+1. ``evidence_design.yaml`` is validated and locked BEFORE the DATA gate, and an
+   acquisition claim costs a custody chain and an attestor.
+2. every validity condition names a registered prediction whose rule can
+   actually fire it — an ``inconclusive_if`` rule or a combinator, never a plain
+   leaf comparison and never prose.
 """
 
 from __future__ import annotations
@@ -170,12 +169,12 @@ def _details(study: Path, name: str) -> str:
 
 
 # --------------------------------------------------------------------------
-# R-DES-1 — the valid control, and the anchor order
+# The valid control, and the anchor order
 # --------------------------------------------------------------------------
 
 
 def test_r_des_1_valid_control_a_design_locked_before_the_data_gate(locked_study) -> None:
-    """R-DES-1: lock before the DATA gate → every design check PASSes, outcome `locked`."""
+    """Lock before the DATA gate → every design check PASSes, outcome `locked`."""
     _repo, study = locked_study
 
     assert _gen("verify", "--study", str(study)) == 0
@@ -208,7 +207,7 @@ def test_r_des_1_the_lock_commit_touches_only_the_design_and_the_ledger(declared
 
 
 def test_r_des_1_a_lock_after_the_data_gate_is_refused(declared_study) -> None:
-    """R-DES-1 invalid control: once DATA is recorded the design describes, not commits."""
+    """Invalid control: once DATA is recorded the design describes, not commits."""
     repo, study = declared_study
     _write_design(repo, study)
     _remaining_gates(repo, study)
@@ -278,7 +277,7 @@ def test_a_study_that_did_not_declare_design_cannot_lock(tmp_path: Path) -> None
 
 
 # --------------------------------------------------------------------------
-# R-DES-1 — acquisition custody (import chronology ≠ acquisition chronology)
+# Acquisition custody (import chronology ≠ acquisition chronology)
 # --------------------------------------------------------------------------
 
 
@@ -363,7 +362,7 @@ def test_an_unknown_acquisition_kind_is_refused(declared_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# R-DES-2 — a validity condition is executable, or it is decoration
+# A validity condition is executable, or it is decoration
 # --------------------------------------------------------------------------
 
 
@@ -376,7 +375,7 @@ def _with_ref(ref: str) -> dict[str, Any]:
 
 
 def test_r_des_2_a_rule_ref_to_a_plain_leaf_rule_is_refused(declared_study) -> None:
-    """R-DES-2 invalid control: a leaf comparison encodes no validity condition."""
+    """Invalid control: a leaf comparison encodes no validity condition."""
     repo, study = declared_study
     _write_design(repo, study, _with_ref("P2"))
     assert _gen("design", "lock", "--study", str(study)) == 2
@@ -390,7 +389,7 @@ def test_r_des_2_a_rule_ref_to_an_unregistered_prediction_is_refused(declared_st
 
 
 def test_r_des_2_a_combinator_rule_satisfies_the_condition(declared_study) -> None:
-    """R-DES-2 valid control (second shape): an all_of rule carries its own conjuncts."""
+    """Valid control (second shape): an all_of rule carries its own conjuncts."""
     repo, study = declared_study
     _write_design(repo, study, _with_ref("P3"))
     assert _gen("design", "lock", "--study", str(study)) == 0
@@ -451,7 +450,7 @@ def test_a_cell_admission_is_granted_once_the_design_is_locked(locked_study) -> 
 
 
 def test_an_ordinary_run_admission_is_unaffected_by_the_design(declared_study) -> None:
-    """The rule is scoped to cells: WP-09 blocks nothing else."""
+    """The rule is scoped to cells: the design blocks nothing else."""
     repo, study = declared_study
     _remaining_gates(repo, study)
     assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0

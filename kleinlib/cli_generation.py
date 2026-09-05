@@ -120,7 +120,7 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
         help="declare a capability to be checked (repeatable); none ships in this version",
     )
     init.add_argument("--predecessor", help="study id this study succeeds (inherited exposure)")
-    # WP-07: a successor cites the pivot receipt that created it.
+    # A successor cites the pivot receipt that created it.
     init.add_argument(
         "--successor-receipt",
         metavar="SHA",
@@ -181,32 +181,32 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     _testimony(recover)
     recover.set_defaults(handler=_run_recover)
 
-    # --- WP-01: expertise -----------------------------------------------------
+    # --- expertise acquisition + reference records ----------------------------
     _register_expertise(actions)
 
-    # --- WP-02: hypothesis slates + calibration -------------------------------
+    # --- hypothesis slates + calibration --------------------------------------
     _register_slate(actions)
 
-    # --- WP-09: evidence design -----------------------------------------------
+    # --- evidence design ------------------------------------------------------
     _register_design(actions)
 
-    # --- WP-03: the slate-time pre-mortem -------------------------------------
+    # --- the slate-time pre-mortem --------------------------------------------
     _register_premortem(actions)
 
-    # --- WP-04: expert parity + contribution ledger ---------------------------
+    # --- expert parity + contribution ledger ----------------------------------
     _register_parity(actions)
     _register_contribution(actions)
 
-    # --- WP-07: escalation ladder + successor studies -------------------------
+    # --- escalation ladder + successor studies --------------------------------
     _register_escalate(actions)
 
-    # --- WP-08: cross-study knowledge -----------------------------------------
+    # --- cross-study knowledge ------------------------------------------------
     _register_knowledge(actions)
 
-    # --- WP-06: surprise mining -----------------------------------------------
+    # --- surprise mining ------------------------------------------------------
     _register_surprise(actions)
 
-    # --- WP-05: planted-truth benchmark + custody receipts --------------------
+    # --- planted-truth benchmark + custody receipts ---------------------------
     _register_benchmark(actions)
     _register_custody(actions)
 
@@ -443,7 +443,7 @@ def _run_init(args: argparse.Namespace) -> int:
     predecessor = (
         {
             "study_id": args.predecessor,
-            # WP-07: the pivot receipt this study succeeds through, when there is one.
+            # The pivot receipt this study succeeds through, when there is one.
             "successor_receipt": getattr(args, "successor_receipt", None),
             "inherited_exposure": [],
         }
@@ -752,7 +752,7 @@ def _run_recover(args: argparse.Namespace) -> int:
 
 
 # ==========================================================================
-# WP-01 — `klein generation expert …` and `klein generation reference …`
+# Expertise acquisition — `klein generation expert …` and `… reference …`
 #
 # The `expertise` capability's verbs.  Everything below is additive: the spine's
 # argparse, handlers and helpers above are untouched, and `register` gains the
@@ -1405,7 +1405,7 @@ def _run_reference_record(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------
-# WP-02: hypothesis slates + calibration
+# Hypothesis slates + calibration
 # --------------------------------------------------------------------------
 
 
@@ -1642,7 +1642,7 @@ def _run_slate_show(args: argparse.Namespace) -> int:
 
 
 # ==========================================================================
-# ---- design verbs (WP-09)
+# ---- evidence-design verbs
 #
 # The `design` capability's verb.  Everything below is additive: the spine's
 # argparse, handlers and helpers above are untouched, and `register` gains the
@@ -1794,9 +1794,9 @@ def _run_design_lock(args: argparse.Namespace) -> int:
     return 0
 
 
-# ---- premortem verbs (WP-03) ---------------------------------------------
+# ---- premortem verbs -----------------------------------------------------
 # --------------------------------------------------------------------------
-# WP-03: the slate-time pre-mortem
+# The slate-time pre-mortem
 # --------------------------------------------------------------------------
 
 
@@ -2070,7 +2070,7 @@ def _run_premortem_respond(args: argparse.Namespace) -> int:
         print(f"  {row['issue']}  {row['disposition']}{tail}  — {row['rationale']}")
     return 0
 # --------------------------------------------------------------------------
-# ---- parity + contribution verbs (WP-04)
+# ---- parity + contribution verbs
 # --------------------------------------------------------------------------
 
 
@@ -2592,7 +2592,7 @@ def _run_parity_assess(args: argparse.Namespace) -> int:
         print(f"  {reason}")
     print(
         f"agreement_within_floor: {body['agreement_within_floor']} "
-        "(A4 §7's by-delta rule, reported under its own name — never as parity)"
+        "(the by-delta agreement rule, reported under its own name — never as parity)"
     )
     return 0 if body["verdict"] in ("parity", "exceeds") else 2
 
@@ -2759,7 +2759,7 @@ def _run_contribution_show(args: argparse.Namespace) -> int:
 
 
 # ==========================================================================
-# ---- escalation verbs (WP-07)
+# ---- escalation verbs
 #
 # The `escalation` capability's verbs.  Everything below is additive: the
 # spine's argparse, handlers and helpers above are untouched, and `register`
@@ -3394,7 +3394,7 @@ def _run_escalate_show(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------
-# ---- knowledge verbs (WP-08)
+# ---- cross-study knowledge verbs
 # --------------------------------------------------------------------------
 
 
@@ -3539,7 +3539,7 @@ def _knowledge_setup(args: argparse.Namespace) -> tuple[Path, dict[str, Any], Pa
 
 
 def _parse_scope(pairs: list[str]) -> tuple[dict[str, Any], list[str]]:
-    """``--scope key=value`` pairs into A3 §5's five scope fields."""
+    """``--scope key=value`` pairs into the store's five scope fields."""
     from .generation.knowledge import SCOPE_FIELDS
 
     scope: dict[str, Any] = {}
@@ -3974,7 +3974,7 @@ def _run_knowledge_show(args: argparse.Namespace) -> int:
 
 
 # ==========================================================================
-# ---- surprise verbs (WP-06)
+# ---- surprise-mining verbs
 #
 # The `surprise` capability's verbs.  Everything below is additive: the spine's
 # argparse, handlers and helpers above are untouched, and `register` gains the
@@ -4461,7 +4461,7 @@ def _run_surprise_show(args: argparse.Namespace) -> int:
 
 
 # --------------------------------------------------------------------------
-# ---- benchmark + custody verbs (WP-05)
+# ---- benchmark + custody verbs
 # --------------------------------------------------------------------------
 
 
@@ -4661,7 +4661,7 @@ def _run_benchmark_commit(args: argparse.Namespace) -> int:
     if not gate_events(read_core_events(study), "method"):
         return _refuse(
             "the METHOD gate is not recorded: the matching rule and the scorer are frozen "
-            "at METHOD, before any arm sees the data (R-BEN-2), so committing first would "
+            "at METHOD, before any arm sees the data, so committing first would "
             "pin a checker the gate never hashed"
         )
 
@@ -4788,7 +4788,7 @@ def _run_benchmark_submit(args: argparse.Namespace) -> int:
     if gb.reveals(study, events):
         return _refuse(
             f"the bundle is already revealed — importing {arm!r} now would import an answer "
-            "written after the truth was disclosed (R-BEN-2)"
+            "written after the truth was disclosed"
         )
     payload = locked[-1][1].get("payload") or {}
     if arm not in gb.arm_ids(payload):

@@ -44,7 +44,7 @@ pipelines:
     selection_rule: "the domain card's baseline, unchanged; power and transforms as locked"
 
 # The matched resources.  An expert beaten under a budget it never had was not
-# beaten (A3 §6 "matched resources").
+# beaten; the resources on both sides are matched.
 budget_rule: "one machine-hour and the same inception-time feature set for both sides"
 
 metrics:
@@ -89,7 +89,7 @@ metrics:
       The ratio is a communication metric for the underwriting committee; a
       0.05 move does not change how the plan is presented.  A zero-loss bottom
       decile leaves it UNDEFINED — preregistered as cannot_pass, never rescued
-      by an arbitrary denominator adjustment (A4 §7).
+      by an arbitrary denominator adjustment.
     undefined_handling: cannot_pass
 
 uncertainty:
@@ -112,7 +112,7 @@ margins_set_by:
   name: <reviewer name>
   session_receipt: null           # a path to a file evidencing the review, or null
 
-# How the scoring was done (R-PAR-6).  Testimony: recorded, never verified.
+# How the scoring was done.  Testimony: recorded, never verified.
 scoring:
   masked: true
   scorer_name: <who scored>

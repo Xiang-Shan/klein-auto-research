@@ -1,7 +1,6 @@
-"""The ``knowledge`` capability (WP-08): promote, contest, resolve, consult.
+"""The ``knowledge`` capability: promote, contest, resolve, consult.
 
-Test names carry their validation-plan id (V-20) and the requirement they pin
-(R-KNO-1…4).  The A3 §5 smallest exercise runs end to end in ONE temporary
+The smallest exercise runs end to end in ONE temporary
 repository with three studies, because the whole point of a cross-study store is
 that it is not inside a study:
 
@@ -239,12 +238,12 @@ def _query_object(study: Path) -> tuple[Path, dict[str, Any]]:
 
 
 # --------------------------------------------------------------------------
-# V-20 — the valid control: the A3 §5 smallest exercise
+# The valid control: the smallest exercise
 # --------------------------------------------------------------------------
 
 
 def test_v20_a_promotes_b_contests_c_consults_and_a_still_verifies(store) -> None:
-    """V-20 / R-KNO-1,2,3: the smallest exercise, end to end in one repo."""
+    """The smallest exercise, end to end in one repo."""
     repo, alpha, beta = store["repo"], store["alpha"], store["beta"]
     assert _contest(store) == 0
 
@@ -298,7 +297,7 @@ def test_v20_a_promotes_b_contests_c_consults_and_a_still_verifies(store) -> Non
 
 
 def test_the_empty_store_answers_with_an_explicit_no_match_receipt(store) -> None:
-    """Plan §A.5 bootstrap: an empty store is consulted, and says so on the record."""
+    """The bootstrap case: an empty store is consulted, and says so on the record."""
     _path, receipt = _query_object(store["alpha"])
     assert receipt["no_match"] is True
     assert receipt["hits"] == []
@@ -307,7 +306,7 @@ def test_the_empty_store_answers_with_an_explicit_no_match_receipt(store) -> Non
 
 
 def test_a_promotion_copies_class_strength_and_roots_verbatim(store) -> None:
-    """R-KNO-1: promotion creates availability, not stronger evidence."""
+    """Promotion creates availability, not stronger evidence."""
     snapshot = gk.snapshot_on_disk(store["repo"])
     obj = snapshot.objects["K1"]
     assert obj["class"] == "empirical-description"
@@ -334,12 +333,12 @@ def test_a_knowledge_commit_files_the_store_and_nothing_else(store) -> None:
 
 
 # --------------------------------------------------------------------------
-# V-20 — invalid controls
+# Invalid controls
 # --------------------------------------------------------------------------
 
 
 def test_v20_a_receipt_with_the_contest_removed_by_hand_fails_replay(store) -> None:
-    """V-20 / R-KNO-2: suppressing the closure is exactly what replay detects."""
+    """Suppressing the closure is exactly what replay detects."""
     repo, beta = store["repo"], store["beta"]
     assert _contest(store) == 0
 
@@ -374,7 +373,7 @@ def test_v20_a_receipt_with_the_contest_removed_by_hand_fails_replay(store) -> N
 
 
 def test_v20_a_failed_transfer_is_a_prediction_verdict_not_a_contest(store) -> None:
-    """V-20 / RF-09: a contest needs a CLAIM that contradicts, not a refuted P#."""
+    """A contest needs a CLAIM that contradicts, not a refuted P#."""
     beta = store["beta"]
     rc = _gen(
         "knowledge",
@@ -412,7 +411,7 @@ def test_a_contest_citing_a_claim_of_another_study_is_refused(store) -> None:
 
 
 def test_a_promotion_off_a_lock_that_does_not_verify_is_refused(tmp_path: Path) -> None:
-    """R-KNO-1: `klein claims verify` must PASS on the source study NOW."""
+    """`klein claims verify` must PASS on the source study NOW."""
     repo = _repo(tmp_path)
     study = _scaffold(repo, "03-alpha")
     _enable(study)
@@ -448,7 +447,7 @@ def test_a_promotion_of_a_claim_that_is_not_in_the_lock_is_refused(store) -> Non
 
 
 def test_v20_a_strengthened_copy_fails_verification(store) -> None:
-    """V-20 / R-KNO-1: a promotion never strengthens, and an edit says so."""
+    """A promotion never strengthens, and an edit says so."""
     repo, alpha = store["repo"], store["alpha"]
     assert _gen("verify", "--study", str(alpha)) == 0
 
@@ -465,7 +464,7 @@ def test_v20_a_strengthened_copy_fails_verification(store) -> None:
 
 
 def test_v20_a_deleted_transaction_fails_the_store_check(store) -> None:
-    """R-KNO-3: transactions are append-only; a deleted object is detected."""
+    """Transactions are append-only; a deleted object is detected."""
     repo, alpha = store["repo"], store["alpha"]
     snapshot = gk.snapshot_on_disk(repo)
     (gk.objects_dir(repo) / f"{snapshot.shas['K1']}.json").unlink()
@@ -490,12 +489,12 @@ def test_an_edited_store_event_breaks_the_chain(store) -> None:
 
 
 # --------------------------------------------------------------------------
-# the consultation obligation (R-KNO-2) and its bootstrap
+# the consultation obligation and its bootstrap
 # --------------------------------------------------------------------------
 
 
 def test_a_declaring_study_with_no_query_receipt_fails(tmp_path: Path) -> None:
-    """R-KNO-2: a missing consultation on a knowledge-enabled study is a FAIL."""
+    """A missing consultation on a knowledge-enabled study is a FAIL."""
     repo = _repo(tmp_path)
     study = _scaffold(repo, "03-alpha")
     _enable(study)
@@ -508,7 +507,7 @@ def test_a_declaring_study_with_no_query_receipt_fails(tmp_path: Path) -> None:
 
 
 def test_a_consultation_after_the_consult_ack_fails(tmp_path: Path) -> None:
-    """R-KNO-2: a store read after the ack is a bibliography, not a consultation."""
+    """A store read after the ack is a bibliography, not a consultation."""
     repo = _repo(tmp_path)
     study = _scaffold(repo, "03-alpha")
     _enable(study)
@@ -520,7 +519,7 @@ def test_a_consultation_after_the_consult_ack_fails(tmp_path: Path) -> None:
 
 
 def test_an_undecided_hit_fails_until_decide_closes_it(store) -> None:
-    """R-KNO-2: CONSULT records a use/reject reason for every hit it saw."""
+    """CONSULT records a use/reject reason for every hit it saw."""
     repo = store["repo"]
     gamma = _scaffold(repo, "05-gamma")
     _enable(gamma)
@@ -565,12 +564,12 @@ def test_a_decision_without_a_reason_is_refused(store) -> None:
 
 
 # --------------------------------------------------------------------------
-# dedupe, resolution, retrieval determinism (R-KNO-3, R-KNO-4)
+# dedupe, resolution, retrieval determinism
 # --------------------------------------------------------------------------
 
 
 def test_the_store_dedupes_by_evidence_roots(store) -> None:
-    """R-KNO-4: repeating a lesson is not a second piece of evidence."""
+    """Repeating a lesson is not a second piece of evidence."""
     alpha = store["alpha"]
     add_claim(
         alpha,
@@ -593,7 +592,7 @@ def test_the_store_dedupes_by_evidence_roots(store) -> None:
 
 
 def test_resolve_appends_and_deletes_nothing(store) -> None:
-    """R-KNO-3: `withdrawn` keeps the object with the resolution attached."""
+    """`withdrawn` keeps the object with the resolution attached."""
     repo, beta = store["repo"], store["beta"]
     assert _contest(store) == 0
     assert (
@@ -631,7 +630,7 @@ def test_retrieval_is_deterministic_and_complete(store) -> None:
 
 
 def test_a_limit_is_recorded_in_the_receipt(store) -> None:
-    """R-KNO-2: truncation is visible, never convenient."""
+    """Truncation is visible, never convenient."""
     repo = store["repo"]
     gamma = _scaffold(repo, "05-gamma")
     _enable(gamma)
@@ -660,7 +659,7 @@ def test_a_limit_is_recorded_in_the_receipt(store) -> None:
 
 
 def test_a_method_promotion_pins_its_reference_records(tmp_path: Path) -> None:
-    """A3 §5: method objects pin their card and their reference-store entries."""
+    """Method objects pin their card and their reference-store entries."""
     repo = _repo(tmp_path)
     study = _scaffold(repo, "03-alpha")
     _enable(study, "expertise", "knowledge")
@@ -732,7 +731,7 @@ def test_the_knowledge_verbs_refuse_a_study_that_did_not_declare_it(tmp_path: Pa
 
 
 def test_the_capability_is_registered_and_declarable() -> None:
-    """R-KNO-1: the spine reaches this package by REGISTRATION, not by a branch."""
+    """The spine reaches this package by REGISTRATION, not by a branch."""
     from kleinlib.generation.capabilities import load
     from kleinlib.generation.manifest import KNOWN_CAPABILITIES, SUPPORTED_CAPABILITIES
 
@@ -764,7 +763,7 @@ def test_the_store_is_repo_level_and_never_rewrites_the_markdown(store) -> None:
 def test_c3_an_event_removed_from_the_tip_is_caught_by_the_stores_own_history(
     store,
 ) -> None:
-    """C-3: the hash chain cannot see a deleted LAST line — every event still verifies.
+    """The hash chain cannot see a deleted LAST line — every event still verifies.
 
     Valid control: the store after a contest verifies.  Invalid control: the
     same store with that contest's line dropped.  Nothing inside the file
@@ -785,7 +784,7 @@ def test_c3_an_event_removed_from_the_tip_is_caught_by_the_stores_own_history(
 
 
 def test_c5_a_promotion_whose_commit_does_not_resolve_is_checked_on_disk(store) -> None:
-    """C-5: `commit: null` used to buy a WARN and skip the strengthening check."""
+    """`commit: null` used to buy a WARN and skip the strengthening check."""
     repo, alpha = store["repo"], store["alpha"]
     snapshot = gk.snapshot_on_disk(repo)
     obj = dict(snapshot.objects["K1"])
@@ -829,7 +828,7 @@ def test_c5_a_promotion_whose_commit_does_not_resolve_is_checked_on_disk(store) 
 
 
 def test_c7_an_unreplayable_receipt_fails_when_the_store_is_in_this_repo(store) -> None:
-    """C-7: WARN is for a reader in the wrong clone, not for a receipt that lies."""
+    """WARN is for a reader in the wrong clone, not for a receipt that lies."""
     repo, alpha = store["repo"], store["alpha"]
     assert gk.store_is_local(repo)
 
@@ -843,7 +842,7 @@ def test_c7_an_unreplayable_receipt_fails_when_the_store_is_in_this_repo(store) 
 
 
 def test_c7_a_checkout_without_the_store_only_warns(store, tmp_path: Path) -> None:
-    """C-7: the same symptom in a clone that has no knowledge/ tree stays a WARN."""
+    """The same symptom in a clone that has no knowledge/ tree stays a WARN."""
     repo, alpha = store["repo"], store["alpha"]
     path, obj = _query_object(alpha)
     obj["retriever_version"] = "lex-99"

@@ -1,24 +1,21 @@
-"""The ``escalation`` capability (WP-07): getting unstuck, on the record.
+"""The ``escalation`` capability: getting unstuck, on the record.
 
-Test names carry their requirement id (R-ESC-1…3) and, where the plan names one,
-its validation row (V-21).  The spine's fixtures are reused verbatim — a
-generation-enabled study with one extra capability declared — so what these
-exercise is the REGISTRATION path plus the three requirements the ladder exists
-for:
+The spine's fixtures are reused verbatim — a generation-enabled study with one
+extra capability declared — so what these exercise is the REGISTRATION path plus
+the three rules the ladder exists for:
 
-R-ESC-1  ``escalation_plan.yaml`` is frozen at CONSULT, its triggers are
-         reconstructed from the manifests, and once one trips no ``run`` or
-         ``--hypothesis`` admission is granted until a decision is recorded
-         after it.  Editing the threshold afterwards cannot discharge the stall.
-R-ESC-2  A decision records rung, evidence, action, the concrete changed
-         resource, rationale, status, estimated and actual costs (unit vectors,
-         ``unknown`` allowed) and a next condition; a skipped rung costs a
-         reason; ``stop`` is a rung; a budget is not passed without a prior
-         extension.
-R-ESC-3  ``pivot`` creates a successor carrying both contract hashes and the
-         exposure it inherits, and the predecessor's contract is unchanged.
+1. ``escalation_plan.yaml`` is frozen at CONSULT, its triggers are reconstructed
+   from the manifests, and once one trips no ``run`` or ``--hypothesis``
+   admission is granted until a decision is recorded after it.  Editing the
+   threshold afterwards cannot discharge the stall.
+2. A decision records rung, evidence, action, the concrete changed resource,
+   rationale, status, estimated and actual costs (unit vectors, ``unknown``
+   allowed) and a next condition; a skipped rung costs a reason; ``stop`` is a
+   rung; a budget is not passed without a prior extension.
+3. ``pivot`` creates a successor carrying both contract hashes and the exposure
+   it inherits, and the predecessor's contract is unchanged.
 
-The last two tests are A3 §4's smallest exercise: five rungs accounted for in
+The last two tests are the smallest exercise: five rungs accounted for in
 one episode, a human-advised successor, and the successor's own manifest
 pointing back at the receipt that created it.
 """
@@ -178,12 +175,12 @@ def _forge(study: Path, event_type: str, obj: dict[str, Any], **summary: Any) ->
 
 
 # --------------------------------------------------------------------------
-# R-ESC-1 — the plan, its anchor, and the refusal it buys
+# The plan, its anchor, and the refusal it buys
 # --------------------------------------------------------------------------
 
 
 def test_r_esc_1_valid_control_a_plan_locked_before_consult(tmp_path: Path) -> None:
-    """R-ESC-1: lock before the consult gate, run under it → every check PASSes."""
+    """Lock before the consult gate, run under it → every check PASSes."""
     _repo, study = _enable(tmp_path)
     _admitted_run(study, "one", 0.7)
     _admitted_run(study, "two", 0.9)
@@ -218,7 +215,7 @@ def test_r_esc_1_a_plan_locked_after_consult_fails_forever(tmp_path: Path) -> No
 def test_c4_a_lock_that_reports_itself_early_is_still_ordered_by_the_witnesses(
     tmp_path: Path,
 ) -> None:
-    """C-4: `late: false` is testimony; the anchor and git ancestry are not.
+    """`late: false` is testimony; the anchor and git ancestry are not.
 
     A hand-written ledger can say anything about itself.  This one files a
     perfectly formed lock object with `late: false` AFTER the consult gate — the
@@ -280,7 +277,7 @@ def test_r_esc_1_the_plan_is_validated_before_it_is_locked(tmp_path: Path) -> No
 
 
 def test_v21_three_discards_refuse_the_next_candidate(tmp_path: Path, capsys) -> None:
-    """V-21: `max: 3` → three discards → no run admission until a decision exists."""
+    """`max: 3` → three discards → no run admission until a decision exists."""
     _repo, study = _enable(tmp_path)
     _stall(study)
 
@@ -322,7 +319,7 @@ def test_v21_three_discards_refuse_the_next_candidate(tmp_path: Path, capsys) ->
 def test_v21_editing_the_threshold_after_the_lock_cannot_discharge_the_stall(
     tmp_path: Path, capsys
 ) -> None:
-    """V-21's invalid control: the file moved, the lock did not, the stall stands."""
+    """The invalid control: the file moved, the lock did not, the stall stands."""
     repo, study = _enable(tmp_path)
     _stall(study)
 
@@ -407,7 +404,7 @@ def test_a_run_admission_before_the_plan_is_locked_is_refused(tmp_path: Path, ca
 
 
 # --------------------------------------------------------------------------
-# R-ESC-2 — the rungs and the costs
+# The rungs and the costs
 # --------------------------------------------------------------------------
 
 
@@ -425,7 +422,7 @@ def _record(study: Path, rung: str, *extra: str, trigger: str = "T1") -> int:
 
 
 def test_r_esc_2_a_rung_reached_over_silent_ones_is_refused(tmp_path: Path, capsys) -> None:
-    """R-ESC-2: skipping is allowed; skipping SILENTLY is the gaming this stops."""
+    """Skipping is allowed; skipping SILENTLY is the gaming this stops."""
     _repo, study = _enable(tmp_path)
     _stall(study)
 
@@ -584,7 +581,7 @@ def test_r_esc_2_a_decision_that_outlives_its_window_is_not_prospective(tmp_path
 
 
 # --------------------------------------------------------------------------
-# R-ESC-3 and A3 §4's smallest exercise
+# The successor, and the smallest exercise
 # --------------------------------------------------------------------------
 
 
@@ -611,7 +608,7 @@ def _climb(study: Path) -> None:
 def test_the_smallest_exercise_five_rungs_then_a_human_advised_successor(
     tmp_path: Path,
 ) -> None:
-    """A3 §4: the stall trips, all five rungs are accounted, a successor is linked."""
+    """The stall trips, all five rungs are accounted, a successor is linked."""
     repo, study = _enable(tmp_path)
     _stall(study)
     _climb(study)
@@ -656,7 +653,7 @@ def test_the_smallest_exercise_five_rungs_then_a_human_advised_successor(
 
 
 def test_r_esc_3_a_pivot_that_misreports_the_old_contract_fails(tmp_path: Path) -> None:
-    """R-ESC-3's invalid control: the predecessor's contract is re-read, not trusted."""
+    """The invalid control: the predecessor's contract is re-read, not trusted."""
     _repo, study = _enable(tmp_path)
     _stall(study)
     assert _record(study, "metric_diagnosis") == 0
@@ -728,7 +725,7 @@ def _successor(tmp_path: Path, repo: Path, receipt: str | None) -> Path:
 
 
 def test_the_successor_manifest_points_back_at_the_receipt(tmp_path: Path) -> None:
-    """A3 §4: the link is checked from BOTH ends — and restores no blindness."""
+    """The link is checked from BOTH ends — and restores no blindness."""
     repo, study = _enable(tmp_path)
     _stall(study)
     assert _record(study, "metric_diagnosis", "--successor", "04-successor") == 0

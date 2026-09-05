@@ -280,7 +280,7 @@ def missing_object_shas(study_dir: Path, events: Sequence[Mapping[str, Any]]) ->
     return sorted(referenced_object_shas(events) - stored)
 
 
-# ---- content addressing (WP-03) ------------------------------------------
+# ---- content addressing ---------------------------------------------------
 def mislabelled_object_shas(study_dir: Path) -> dict[str, str]:
     """``{file name: why it is not the object it claims to be}``.
 

@@ -50,7 +50,7 @@ cells:
     units: <the deviation's unit>       # a bare number is not a quantity
     floor_ref: minimum_delta            # or sweep:<registered name>
     minimum_n: 2                        # below it a segment is `inconclusive`, never `null`
-    multiplicity_rule:                  # REQUIRED — a measured effect floor is not one (RF-13)
+    multiplicity_rule:                  # REQUIRED — a measured effect floor is not one
       method: family_maxt               # family_maxt | bonferroni | declared
       n_perm: 1024                      # family_maxt: 2**units <= n_perm enumerates exactly;
                                         # capped at 100000 — every verify re-runs this family

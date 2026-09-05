@@ -1,8 +1,8 @@
 """The three discovery-cell table producers — library code, never the surface.
 
 A discovery cell asks one question of a table: *does any segment deviate from
-what we said to expect?*  Three shapes cover the field-general cases A3 §3
-names, and all three reduce to the same contract — **one row per unit, carrying
+what we said to expect?*  Three shapes cover the field-general cases, and all
+three reduce to the same contract — **one row per unit, carrying
 the quantity whose mean is the segment's statistic**:
 
 ``residual_by_segment``

@@ -298,7 +298,7 @@ def _anchor_checks(
 
 def _orphan_checks(study_dir: Path, events: Sequence[Mapping[str, Any]]) -> list[Check]:
     checks: list[Check] = []
-    # ---- content addressing (WP-03) --------------------------------------
+    # ---- content addressing ----------------------------------------------
     mislabelled = mislabelled_object_shas(study_dir)
     checks.append(
         _fail(

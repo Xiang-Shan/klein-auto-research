@@ -6,7 +6,7 @@ the two TODOs, and call it from the entrypoint of the sealed comparison cell.
 **It is study LIBRARY code, never the mutable surface.**  `klein generation
 parity bind` pins its sha256 and `generation verify` re-reads it at the sealed
 cell's candidate commit: a scorer edited between the bind and the comparison is a
-checker tuned to the answer (R-INV-3, "the checker is never the searcher").
+checker tuned to the answer — the checker is never the searcher.
 
 What it must produce, and why each piece is load-bearing
 --------------------------------------------------------
@@ -25,9 +25,9 @@ What it must produce, and why each piece is load-bearing
    p-value as the primary metric and would say something this cell is not
    claiming; the comparison's summary scalar is a difference, not a test.
 
-3. `defined_<key>` for EVERY metric.  An undefined metric (A4 §7's
-   top-to-bottom ratio on a zero-loss bottom decile) prints `NA` for its numbers
-   — a non-finite line aborts the notary's parser — and declares
+3. `defined_<key>` for EVERY metric.  An undefined metric (a top-to-bottom ratio
+   on a zero-loss bottom decile) prints `NA` for its numbers — a non-finite line
+   aborts the notary's parser — and declares
    `defined_<key>: 0`.  Silence about a metric is not the same as saying it could
    not be computed, and `parity cell` FAILs on the difference.
 

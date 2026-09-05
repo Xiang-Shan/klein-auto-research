@@ -1,12 +1,11 @@
-"""The ``expertise`` capability (WP-01): reproduce the baseline, or admit nothing.
+"""The ``expertise`` capability: reproduce the baseline, or admit nothing.
 
-Test names carry their validation-plan id (V-09, V-10, V-18).  The spine's
-fixtures are reused verbatim — a generation-enabled study with one extra
+The spine's fixtures are reused verbatim — a generation-enabled study with one extra
 capability declared — so what these tests exercise is the REGISTRATION path: an
 admission rule, a verify family, a receipt outcome and a label column that no
 line of ``admission.py``, ``verify.py`` or ``label.py`` knows about.
 
-The A3 §1 smallest exercise runs end to end here: a baseline that prints the
+The smallest exercise runs end to end here: a baseline that prints the
 wrong number, a bind that says so, a challenger admission refused while the
 obligation is open, a versioned repair, a repair run, a bind that reproduces,
 and only then an admitted challenger.  Passing it establishes reproduction of
@@ -141,14 +140,14 @@ def _expert_statuses(study: Path) -> dict[str, list[str]]:
 
 
 # --------------------------------------------------------------------------
-# V-09 — the A3 §1 smallest exercise
+# The smallest exercise
 # --------------------------------------------------------------------------
 
 
 def test_v09_mismatch_then_repair_then_reproduction_opens_the_challenger_gate(
     expert_study,
 ) -> None:
-    """V-09: the baseline misses, the obligation blocks, a repair discharges it."""
+    """The baseline misses, the obligation blocks, a repair discharges it."""
     _repo, study = expert_study
 
     _bump(study, "one")
@@ -162,7 +161,7 @@ def test_v09_mismatch_then_repair_then_reproduction_opens_the_challenger_gate(
     assert bound["targets"][0]["observed"] == 0.7
     assert bound["targets"][0]["within"] is False
 
-    # V-10 (valid half): a challenger cannot be admitted while it is open
+    # the valid half: a challenger cannot be admitted while it is open
     _bump(study, "two")
     assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 2
     assert any(
@@ -208,7 +207,7 @@ def test_v09_mismatch_then_repair_then_reproduction_opens_the_challenger_gate(
 
 
 def test_v09_invalid_control_an_amend_may_not_move_a_target(expert_study) -> None:
-    """V-09 invalid control: lowering the bar you failed to clear is a new study."""
+    """Invalid control: lowering the bar you failed to clear is a new study."""
     _repo, study = expert_study
     front = _front()
     front["baseline"]["targets"][0]["tol"] = 0.5
@@ -273,12 +272,12 @@ def test_a_repair_before_a_bind_is_refused(expert_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# V-10 — a challenger admitted before the reproduction
+# A challenger admitted before the reproduction
 # --------------------------------------------------------------------------
 
 
 def test_v10_a_forged_challenger_receipt_fails_the_expert_family(expert_study) -> None:
-    """V-10 invalid control: bypassing `check` writes the evidence against you."""
+    """Invalid control: bypassing `check` writes the evidence against you."""
     repo, study = expert_study
     from kleinlib.generation.admission import core_anchor
     from kleinlib.generation.envelope import GENERATION_SCHEMA
@@ -343,12 +342,12 @@ def test_a_bind_on_a_non_baseline_admission_is_refused(reproduced_study) -> None
 
 
 # --------------------------------------------------------------------------
-# V-18 — reference records
+# Reference records
 # --------------------------------------------------------------------------
 
 
 def test_v18_a_card_source_without_a_record_cannot_be_locked(tmp_path: Path) -> None:
-    """V-18: a source is a record id, not a footnote."""
+    """A source is a record id, not a footnote."""
     repo, study = _scaffold(tmp_path)
     assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
     _write_card(study)
@@ -361,7 +360,7 @@ def test_v18_a_card_source_without_a_record_cannot_be_locked(tmp_path: Path) -> 
 
 
 def test_v18_read_at_source_without_retention_is_refused(tmp_path: Path) -> None:
-    """V-18 invalid control: a basis its own fields cannot support."""
+    """Invalid control: a basis its own fields cannot support."""
     repo, study = _scaffold(tmp_path)
     assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
     blob = tmp_path / "collins2010.pdf"
@@ -382,7 +381,7 @@ def test_v18_read_at_source_without_retention_is_refused(tmp_path: Path) -> None
 
 
 def test_v18_a_bare_verified_true_is_insufficient_for_an_enabled_study(expert_study) -> None:
-    """R-EXP-2: `references.yaml` mirrors the record or it fails."""
+    """`references.yaml` mirrors the record or it fails."""
     repo, study = expert_study
     (study / "references.yaml").write_text(
         "references:\n"
@@ -557,7 +556,7 @@ def test_the_roster_parser_reads_the_experimenter_cell(reproduced_study) -> None
 
 
 def test_same_actor_is_symmetric(reproduced_study) -> None:
-    """A-5: the answer may not depend on which side is the compound cell."""
+    """The answer may not depend on which side is the compound cell."""
     assert ge.same_actor("opus · codex · s-42", "codex")
     assert ge.same_actor("codex", "opus · codex · s-42")
     assert ge.same_actor("Codex", "opus · codex · s-42")  # normalized, not exact
@@ -566,7 +565,7 @@ def test_same_actor_is_symmetric(reproduced_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# R-INV-3 — the recipe is frozen with the targets
+# The recipe is frozen with the targets
 # --------------------------------------------------------------------------
 
 
@@ -648,7 +647,7 @@ def test_r_inv_3_the_mutable_surface_is_exempt_from_the_freeze(tmp_path: Path) -
 
 
 # --------------------------------------------------------------------------
-# A-2 / D-3 — a repair changes what it says it changes, and nothing core
+# A repair changes what it says it changes, and nothing core
 # --------------------------------------------------------------------------
 
 
@@ -662,7 +661,7 @@ def _failed_baseline(expert_study) -> tuple[Path, Path]:
 
 
 def test_a_repair_may_not_hide_a_change_it_did_not_name(expert_study) -> None:
-    """A-2: `changed_files` is a claim about the whole diff, not a subset of it."""
+    """`changed_files` is a claim about the whole diff, not a subset of it."""
     repo, study = _failed_baseline(expert_study)
     (study / "lib").mkdir(exist_ok=True)
     (study / "lib" / "prep.py").write_text("SCALE = 2.0\n", encoding="utf-8")
@@ -696,7 +695,7 @@ def test_a_repair_may_not_hide_a_change_it_did_not_name(expert_study) -> None:
      "generation/events.jsonl", "findings.md", "results.tsv"],
 )
 def test_a_repair_may_not_name_core_state_or_evidence(expert_study, name: str) -> None:
-    """D-3: naming a path also EXEMPTS it from the clean-tree check."""
+    """Naming a path also EXEMPTS it from the clean-tree check."""
     repo, study = _failed_baseline(expert_study)
     head = git(repo, "rev-parse", "HEAD")
     assert (
@@ -707,7 +706,7 @@ def test_a_repair_may_not_name_core_state_or_evidence(expert_study, name: str) -
 
 
 def test_a_repair_admission_without_a_repair_object_is_refused(expert_study) -> None:
-    """A-10: the invalid control for `_rule_repair_needs_a_repair_object`."""
+    """The invalid control for `_rule_repair_needs_a_repair_object`."""
     _repo, study = _failed_baseline(expert_study)
     _bump(study, "repaired but unrecorded")
     assert _gen("check", "--study", str(study), "--action", "repair", "--track", "primary") == 2
@@ -727,12 +726,12 @@ def test_a_repair_admission_without_a_repair_object_is_refused(expert_study) -> 
 
 
 # --------------------------------------------------------------------------
-# A-3 / A-10 — every record the study rests on is opened
+# Every record the study rests on is opened
 # --------------------------------------------------------------------------
 
 
 def test_a_citation_may_not_claim_a_stronger_basis_than_its_record(expert_study) -> None:
-    """A-3: `verification_level` is checked against the record it names."""
+    """`verification_level` is checked against the record it names."""
     repo, study = expert_study
     _cite(study, "read-at-source")  # the record was recorded as `bibliography`
     commit_all(repo, "cite the record, generously")
@@ -746,7 +745,7 @@ def test_a_citation_may_not_claim_a_stronger_basis_than_its_record(expert_study)
 
 
 def test_a_record_reachable_only_from_references_yaml_is_still_opened(expert_study) -> None:
-    """A-10 + A-3: a hand-written record used to pass by never being looked at."""
+    """A hand-written record used to pass by never being looked at."""
     repo, study = expert_study
     forged = study.parents[1] / "knowledge" / "references" / "forged.json"
     forged.parent.mkdir(parents=True, exist_ok=True)
@@ -775,7 +774,7 @@ def test_a_record_reachable_only_from_references_yaml_is_still_opened(expert_stu
 
 
 def test_a_recorded_reference_whose_file_vanished_fails_the_family(expert_study) -> None:
-    """A-10: the `record_id names a record that has no record` branch, at verify."""
+    """The `record_id names a record that has no record` branch, at verify."""
     repo, study = expert_study
     (study.parents[1] / "knowledge" / "references" / "collins2010.json").unlink()
     commit_all(repo, "delete the record the card rests on")
@@ -809,7 +808,7 @@ def _reference_detail(study: Path) -> str:
 
 
 def test_an_expert_verb_files_only_its_card_and_the_ledger(tmp_path: Path) -> None:
-    """A-10: write ownership, read off the commit the verb actually filed."""
+    """Write ownership, read off the commit the verb actually filed."""
     repo, study = _scaffold(tmp_path)
     assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
     assert _reference(study) == 0
@@ -831,7 +830,7 @@ def test_an_expert_verb_files_only_its_card_and_the_ledger(tmp_path: Path) -> No
 
 
 def test_the_new_modules_are_covered_by_the_spine_guards() -> None:
-    """The WP-00 guards rglob the package; assert the new files are in reach."""
+    """The spine's guards rglob the package; assert the new files are in reach."""
     package = REPO_ROOT / "kleinlib" / "generation"
     names = {path.name for path in package.rglob("*.py")}
     assert {"expert.py", "references.py"} <= names

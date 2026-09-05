@@ -99,8 +99,8 @@ evidence:
   # BYTES arrived here and needs nothing more. `kind: acquisition` claims when
   # the MEASUREMENT was taken — a statement about the world no hash can check —
   # and is refused without `custody` and `attested_by`. Import chronology does
-  # not prove acquisition chronology (A4 §8). An empty list asserts that no
-  # evidence came from outside this study.
+  # not prove acquisition chronology. An empty list asserts that no evidence
+  # came from outside this study.
   acquisition: []
   # acquisition:
   #   - source: "<the vendor extract / the lab run / the colleague's table>"

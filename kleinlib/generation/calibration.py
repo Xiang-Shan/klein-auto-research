@@ -7,7 +7,7 @@ bookkeeping so it can be hand-checked against a textbook on three numbers
 
 **This module scores forecasts; it never produces, ranks or selects them.**  It
 has no notion of a candidate, and every ``p`` it sees was typed by the driver
-into ``slates/<phase>.yaml`` before the evidence existed (R-SLA-6).
+into ``slates/<phase>.yaml`` before the evidence existed.
 
 Three facts about the numbers, because each one is easy to over-read:
 
@@ -183,7 +183,7 @@ def bounds(
 def coverage(resolved: int, cohort: int) -> float | None:
     """``resolved / cohort`` — and the denominator is the FROZEN cohort.
 
-    Withdrawing a row does not shrink it (RF-05): a slate that quietly drops the
+    Withdrawing a row does not shrink it: a slate that quietly drops the
     hypotheses it did not like reports lower coverage, never a better Brier.
     """
     if cohort <= 0:

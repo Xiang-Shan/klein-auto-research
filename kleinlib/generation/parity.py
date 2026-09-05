@@ -14,17 +14,17 @@ Four moves, in this order and no other:
    every metric with its direction, estimand, units, a ``floor_ref`` saying
    where its measured floor ``δ`` will come from, a noninferiority margin ``ε``
    and a WRITTEN RATIONALE for that margin.  A margin without a rationale is
-   refused: resolution is not a licence to widen a margin (R-INV-4).  The
+   refused: resolution is not a licence to widen a margin.  The
    margins are set by someone who is not the roster's experimenter, and each
    metric names the registered prediction that will adjudicate it — whose rule
    must be exactly ``{key: L_<key>, op: ">=", value: -margin}``, so the notary
    decides the same inequality this module does.
 2. **Bind** after METHOD: pin the scorer's hash, both pipelines' frozen
    snapshots, and every metric's MEASURED floor.  The bind must precede EVERY
-   sealed access on EVERY track (deferral D-2): a study that spends a frontier
-   seal before freezing the comparison cannot earn the parity outcome, and the
-   registered admission rule below refuses ``--action sealed`` until the bind
-   exists.
+   sealed access on EVERY track — the core still accounts each track's seal
+   separately, so a study that spends a frontier seal before freezing the
+   comparison cannot earn the parity outcome, and the registered admission rule
+   below refuses ``--action sealed`` until the bind exists.
 3. **Measure** in ONE sealed cell — an ordinary ``klein run-one --final-test
    --tests P…`` on the registered comparison track, whose entrypoint calls the
    study's ``lib/parity_score.py``.  The cell prints the whole metric table and
@@ -41,7 +41,7 @@ Four moves, in this order and no other:
    bootstrap's numbers at a relative tolerance (see :mod:`.stats` on why bit
    equality would be the wrong test).
 
-**The decision rule** (plan §A.4; A3 §6; B §3).  With ``D_j = sign_j × (AI_j −
+**The decision rule.**  With ``D_j = sign_j × (AI_j −
 expert_j)`` and simultaneous bounds ``[L_j, U_j]``:
 
 * **exceeds** — every ``L_j ≥ 0`` and some ``L_j ≥ δ_j``;
@@ -50,15 +50,15 @@ expert_j)`` and simultaneous bounds ``[L_j, U_j]``:
 * **inconclusive** — otherwise.
 
 They are mutually exclusive by construction: ``U_j < −ε_j`` contradicts
-``L_j ≥ −ε_j`` on that same ``j``.  An UNDEFINED metric — A4 §7's top-to-bottom
+``L_j ≥ −ε_j`` on that same ``j``.  An UNDEFINED metric — a top-to-bottom
 ratio on a zero-loss bottom decile — can never pass: the verdict is ``refuted``
 when some other metric refutes and ``inconclusive`` otherwise, and it is never
 quietly dropped from the conjunction.
 
-**The by-δ rule is not parity.**  A4 §7's agreement check — every ``|d_j| ≤
+**The by-δ rule is not parity.**  The agreement check — every ``|d_j| ≤
 δ_j`` — is computed and reported under its own name,
 ``agreement_within_floor``.  It is a statement about resolution, and selling it
-as parity is exactly the "non-significance as equivalence" move the plan's N-4
+as parity is exactly the "non-significance as equivalence" move this layer
 rejects.
 
 **What passing establishes.**  That on this population, at this sampling unit,
@@ -158,7 +158,7 @@ LOCK_TYPES: tuple[str, ...] = (LOCK_TYPE, AMEND_TYPE)
 DIRECTIONS: tuple[str, ...] = ("higher", "lower")
 
 #: The four outcomes, in the order the rule tries them.  They are mutually
-#: exclusive; the order is the literal reading of A3 §6, not a precedence.
+#: exclusive, so the order is a reading order, not a precedence.
 VERDICTS: tuple[str, ...] = ("exceeds", "parity", "refuted", "inconclusive")
 
 #: The only undefined-metric policy this version knows.  It is preregistered in
@@ -166,7 +166,7 @@ VERDICTS: tuple[str, ...] = ("exceeds", "parity", "refuted", "inconclusive")
 UNDEFINED_HANDLING: tuple[str, ...] = ("cannot_pass",)
 
 #: The only aggregation this version knows.  A conjunction is what makes three
-#: metrics describe ONE model on ONE population (A4 §7).
+#: metrics describe ONE model on ONE population.
 AGGREGATIONS: tuple[str, ...] = ("conjunction",)
 
 UNCERTAINTY_METHOD = "block_bootstrap_maxt"
@@ -319,10 +319,10 @@ def validation_problems(
     problems.extend(_margins_set_by_problems(payload.get("margins_set_by"), experimenter))
     scoring = payload.get("scoring")
     if not isinstance(scoring, Mapping):
-        problems.append("scoring must record masked and scorer_name (testimony, R-PAR-6)")
+        problems.append("scoring must record masked and scorer_name (testimony)")
     else:
         if not isinstance(scoring.get("masked"), bool):
-            problems.append("scoring.masked must be true or false (testimony, R-PAR-6)")
+            problems.append("scoring.masked must be true or false (testimony)")
         problems.extend(_text_problem(scoring.get("scorer_name"), "scoring.scorer_name"))
 
     problems.extend(_prediction_problems(payload, contract))
@@ -342,8 +342,8 @@ def validation_problems(
 def scorer_problems(payload: Mapping[str, Any], contract: Mapping[str, Any]) -> list[str]:
     """Where the scorer may live — checked at the lock and again at every verify.
 
-    R-INV-3, the same sentence the loop contract makes of the verifier: **the
-    checker is never the searcher.**  A scorer inside ``entrypoint.mutable`` is
+    The same sentence the loop contract makes of the verifier: **the checker is
+    never the searcher.**  A scorer inside ``entrypoint.mutable`` is
     edited once per experiment, so the file that decides the comparison would be
     the file the search was tuning — and the bind's hash would pin whichever
     version happened to be on disk that afternoon.  ``surprise.py`` refuses an
@@ -359,7 +359,7 @@ def scorer_problems(payload: Mapping[str, Any], contract: Mapping[str, Any]) -> 
         return [
             f"scorer.path {raw!r} is part of entrypoint.mutable — the scorer is study library "
             "code, frozen at METHOD and hashed at the bind; a checker inside the surface the "
-            "experiments edit is a checker tuned to the answer (R-INV-3)"
+            "experiments edit is a checker tuned to the answer"
         ]
     return []
 
@@ -402,7 +402,7 @@ def _metrics_problems(payload: Mapping[str, Any]) -> list[str]:
         if not str(raw.get("margin_rationale") or "").strip():
             problems.append(
                 f"{label}: margin_rationale is required — a margin justified only by the "
-                "measured floor is resolution sold as acceptability (R-INV-4)"
+                "measured floor is resolution sold as acceptability"
             )
         if raw.get("undefined_handling") not in UNDEFINED_HANDLING:
             problems.append(
@@ -918,7 +918,7 @@ def _artifact_sha(manifest: Mapping[str, Any], rel: str) -> str | None:
 
 
 def _rule_sealed_access_needs_a_bind(ctx: Context) -> list[str]:
-    """Deferral D-2, enforced where the extension CAN enforce it.
+    """Seal custody, enforced where the extension CAN enforce it.
 
     The core still grants every track its own single look; what the extension
     can refuse is the ADMISSION.  A study that spends a frontier seal before the
@@ -932,7 +932,7 @@ def _rule_sealed_access_needs_a_bind(ctx: Context) -> list[str]:
     return [
         "parity is declared and no `klein generation parity bind` exists: both pipelines' "
         "snapshots and every metric's measured floor are frozen BEFORE any sealed access on "
-        "ANY track (deferral D-2), so this look would put the comparison out of reach"
+        "ANY track, so this look would put the comparison out of reach"
     ]
 
 
@@ -1126,7 +1126,7 @@ def _masking_warnings(ctx: FamilyContext, payload: Mapping[str, Any]) -> list[Ch
     """Did the actor under comparison also do the scoring?
 
     A WARN, never a FAIL: ``scoring.masked`` and ``scoring.scorer_name`` are
-    testimony (R-PAR-6, §A.6), and this is a string comparison between two
+    testimony, and this is a string comparison between two
     self-reported names, not an authenticated fact.  What it can do is put the
     coincidence on the record, so a reader is not left to notice it — the margins
     already refuse the same coincidence outright, because a bar is set once and a
@@ -1162,7 +1162,7 @@ def _bind_checks(
                     "sealed run(s) "
                     + ", ".join(sorted(str(m.get("experiment")) for m in sealed))
                     + " were taken with no `parity bind`: the pipelines and floors were never "
-                    "frozen, so the comparison cannot be earned (deferral D-2)",
+                    "frozen, so the comparison cannot be earned",
                 )
             ]
         return [
@@ -1231,7 +1231,7 @@ def _pinned_file_problems(
 ) -> list[str]:
     """The scorer and both snapshots ARE what the bind pinned, at the sealed commit.
 
-    R-INV-3: the checker is never the searcher.  A scorer edited between the
+    The checker is never the searcher.  A scorer edited between the
     bind and the comparison would be a scorer tuned to the answer, and the
     candidate commit of the sealed cell is exactly where that shows up.
     """
@@ -1585,8 +1585,8 @@ def _expertise_outcome(ctx: FamilyContext) -> str:
     """The expertise family's own outcome, computed by the expertise family.
 
     Calling it rather than re-deriving it keeps one implementation of "was the
-    baseline reproduced, and by whom" — R-EXP-4 wants that word to propagate
-    into the parity scope, and a second copy of the rule would drift from it.
+    baseline reproduced, and by whom" — that word has to propagate into the
+    parity scope, and a second copy of the rule would drift from it.
     """
     from . import expert
 

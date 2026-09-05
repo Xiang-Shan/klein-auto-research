@@ -1,7 +1,6 @@
-"""The planted-truth benchmark and custody receipts (WP-05).
+"""The planted-truth benchmark and custody receipts.
 
-Test names carry their validation-plan id (V-17).  Four layers, kept apart on
-purpose:
+Four layers, kept apart on purpose:
 
 1. **The arithmetic** — the commitment, the bundle digest, the mechanical
    matching rule and the recovery scoring, on hand-written rows.  No study, no
@@ -9,12 +8,12 @@ purpose:
 2. **The submission contract** — what ``submission_problems`` refuses, and that
    the packaged JSON Schema still says the same thing (the module claims they
    are kept in step; this is what keeps them).
-3. **The custodian fixture** — the A3 §8 smallest exercise end to end: one
+3. **The custodian fixture** — the smallest exercise end to end: one
    planted interaction and one null counterpart across disjoint seed blocks, two
    arms with explicit submissions frozen before the reveal, one sealed scoring
    cell over both, and a verification that recomputes every match from the same
    bytes.
-4. **The refusals** — the four V-17 rows: a submission after the reveal, a
+4. **The refusals** — the four of them: a submission after the reveal, a
    revealed bundle that is not the committed one, overlapping seed blocks, and a
    benchmark nobody attested custody of.
 
@@ -65,7 +64,7 @@ CAP = 3
 PENALTY = 1.0
 SALT = b"a-salt-that-never-enters-the-repository\n"
 
-#: The A3 §8 smallest exercise: ONE planted interaction, and ONE null
+#: The smallest exercise: ONE planted interaction, and ONE null
 #: counterpart — a structure over variables nothing was planted on, so an arm
 #: that lists it earns a false positive rather than a second recovery.
 TRUTH_STRUCTURES: list[dict[str, Any]] = [
@@ -151,7 +150,7 @@ def test_the_adjudicated_context_can_veto_an_otherwise_perfect_match() -> None:
 
 
 def test_a_null_only_benchmark_leaves_recall_undefined_and_counts_false_positives() -> None:
-    """A5 §3: with nothing planted, the false-positive rate IS the result."""
+    """With nothing planted, the false-positive rate IS the result."""
     scored = gb.score_arms({"alpha": [_structure()]}, [], {("alpha", 1): True}, penalty=2.0)
     metrics = scored["arms"]["alpha"]
     assert metrics["recall"] is None
@@ -605,7 +604,7 @@ def scored(custodian, tmp_path: Path) -> tuple[Path, Path]:
 
 
 def test_v17_the_smallest_exercise_scores_two_arms_from_one_sealed_cell(scored) -> None:
-    """V-17 / A3 §8: one planted interaction, one null, two arms, one sealed cell."""
+    """One planted interaction, one null, two arms, one sealed cell."""
     _repo, study = scored
     assert _gen("verify", "--study", str(study)) == 0
 
@@ -677,14 +676,14 @@ def test_a_second_commitment_and_a_second_reveal_are_both_refused(scored, tmp_pa
 
 
 # --------------------------------------------------------------------------
-# 4. the refusals — V-17's four rows
+# 4. the refusals — all four of them
 # --------------------------------------------------------------------------
 
 
 def test_v17_a_submission_after_the_reveal_is_refused_and_fails_the_audit(
     scored, tmp_path
 ) -> None:
-    """V-17 row 1: late submission. The CLI refuses; a forced one FAILs the audit."""
+    """Late submission. The CLI refuses; a forced one FAILs the audit."""
     repo, study = scored
     assert _submit(tmp_path, study, "beta", _structure(rank=3)) == 2
 
@@ -725,7 +724,7 @@ def test_v17_a_submission_after_the_reveal_is_refused_and_fails_the_audit(
 def test_v17_a_bundle_that_is_not_the_committed_one_is_refused_and_recorded(
     custodian, tmp_path
 ) -> None:
-    """V-17 row 2: revealed bundle != commitment. Refused, recorded, and permanent."""
+    """Revealed bundle != commitment. Refused, recorded, and permanent."""
     repo, study = custodian
     assert _commit_benchmark(tmp_path, study) == 0
     for arm, rows in SUBMISSIONS.items():
@@ -753,7 +752,7 @@ def test_v17_a_bundle_that_is_not_the_committed_one_is_refused_and_recorded(
 
 
 def test_v17_overlapping_seed_blocks_are_refused_at_the_commitment(custodian, tmp_path) -> None:
-    """V-17 row 3: a block handed out as development data is never sealed evidence."""
+    """A block handed out as development data is never sealed evidence."""
     _repo, study = custodian
     _write_benchmark(
         study,
@@ -770,7 +769,7 @@ def test_v17_overlapping_seed_blocks_are_refused_at_the_commitment(custodian, tm
 def test_v17_without_a_custody_attestation_the_outcome_is_unverified(
     custodian, tmp_path
 ) -> None:
-    """V-17 row 4: nobody said, so nobody is believed — and nothing FAILs for it."""
+    """Nobody said, so nobody is believed — and nothing FAILs for it."""
     repo, study = custodian
     assert _commit_benchmark(tmp_path, study) == 0
     for arm, rows in SUBMISSIONS.items():
@@ -795,7 +794,7 @@ def test_v17_without_a_custody_attestation_the_outcome_is_unverified(
 def test_c6_an_attestation_about_something_else_does_not_custody_this_benchmark(
     custodian, tmp_path
 ) -> None:
-    """C-6: `custody attest` is capability-agnostic, so counting ANY of them is wrong.
+    """`custody attest` is capability-agnostic, so counting ANY of them is wrong.
 
     A study may attest the custody of a sample chain, an interview transcript, a
     later time block.  Before the fix, any one of those turned this benchmark's
@@ -824,7 +823,7 @@ def test_c6_an_attestation_about_something_else_does_not_custody_this_benchmark(
 def test_c6_the_default_subject_is_this_studys_own_hidden_evidence(
     custodian, tmp_path
 ) -> None:
-    """C-6: an attestation with no --subject still means this study's own bundle."""
+    """An attestation with no --subject still means this study's own bundle."""
     repo, study = custodian
     assert _commit_benchmark(tmp_path, study) == 0
     for arm, rows in SUBMISSIONS.items():
@@ -875,7 +874,7 @@ def test_a_missing_arm_is_a_recorded_trial_and_never_an_absence(custodian, tmp_p
 
 
 def test_a_scorer_that_changed_before_the_sealed_cell_fails(custodian, tmp_path) -> None:
-    """R-INV-3 / R-BEN-2: the matching code is frozen before any submission."""
+    """The matching code is frozen before any submission."""
     repo, study = custodian
     assert _commit_benchmark(tmp_path, study) == 0
     for arm, rows in SUBMISSIONS.items():
@@ -921,7 +920,7 @@ def test_a_table_that_does_not_recompute_fails_even_though_it_is_the_pinned_one(
 
 
 def test_the_track_gets_exactly_one_sealed_look_and_the_core_enforces_it(scored) -> None:
-    """R-BEN-4's "one sealed cell" is guarded twice: by the core, and by the family."""
+    """"One sealed cell" is guarded twice: by the core, and by the family."""
     _repo, study = scored
     from kleinlib.errors import WorkflowError
 
@@ -937,7 +936,7 @@ def test_the_track_gets_exactly_one_sealed_look_and_the_core_enforces_it(scored)
 
 
 def test_a_confirmed_claim_on_the_in_silico_table_is_refused(scored) -> None:
-    """R-INV-6: recovery is in-silico performance, never a confirmed finding."""
+    """Recovery is in-silico performance, never a confirmed finding."""
     repo, study = scored
     lock = {
         "lock_schema": 2,

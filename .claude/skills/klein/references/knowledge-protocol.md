@@ -91,7 +91,7 @@ reference records (`references/reference-protocol.md`): the roots are the
 `ref:<key>` rows of `references.yaml` that name a resolvable `record_id`, and a
 method promotion with none is refused rather than filed unpinned.
 
-**Scope is the author's judgement and the mechanism cannot check it.** A3 §5
+**Scope is the author's judgement and the mechanism cannot check it.** The store
 scopes an object by population, material, measurement regime, intervention,
 assumptions and exclusions. Nothing here verifies that those tags are honest, and
 `--scope` accepts what the driver writes. What it does do is make the scope

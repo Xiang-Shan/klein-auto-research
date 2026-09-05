@@ -132,7 +132,7 @@ the study.
 A study that opted into the generation layer carries a second family of ids. They are
 **sidecar ids, resolved by `klein generation verify`** — the claims law does not know
 them, and they reach a claim only through the `art:` alias of the table that carries
-them (deferral D-4). They are always written fully qualified.
+them. They are always written fully qualified.
 
 | Form | Resolves to |
 |---|---|

@@ -1,23 +1,23 @@
-"""The ``surprise`` capability (WP-06): register the search space, keep the nulls.
+"""The ``surprise`` capability: register the search space, keep the nulls.
 
-Test names carry their requirement id.  The spine's and WP-09's fixtures are
-reused verbatim — a generation-enabled study that declared ``design`` and
-``surprise`` — so what these exercise is the REGISTRATION path plus the four
-requirements the capability exists for:
+The spine's and the evidence design's fixtures are reused verbatim — a
+generation-enabled study that declared ``design`` and ``surprise`` — so what
+these exercise is the REGISTRATION path plus the four rules the capability
+exists for:
 
-R-SUR-1  ``discovery_cells.yaml`` is registered before its evidence; adapters
-         live outside the mutable surface and are hashed.
-R-SUR-2  the table carries every eligible segment, ``minimum_n`` makes a sparse
-         slice inconclusive, and the multiplicity rule is declared — a measured
-         effect floor is not one (RF-13).
-R-SUR-3  ``<study>#Sn`` receipts come from the pinned table, may stay
-         ``unresolved``, and are ALWAYS fully qualified (RF-02: a bare ``S3``
-         is a scouting-ledger entry).
-R-SUR-4  verify recomputes the summaries and verdicts, and a ``confirmed`` claim
-         resting on a discovery table FAILs (R-INV-6).
+1. ``discovery_cells.yaml`` is registered before its evidence; adapters live
+   outside the mutable surface and are hashed.
+2. the table carries every eligible segment, ``minimum_n`` makes a sparse slice
+   inconclusive, and the multiplicity rule is declared — a measured effect floor
+   is not one.
+3. ``<study>#Sn`` receipts come from the pinned table, may stay ``unresolved``,
+   and are ALWAYS fully qualified (a bare ``S3`` is a scouting-ledger entry).
+4. verify recomputes the summaries and verdicts, and a ``confirmed`` claim
+   resting on a discovery table FAILs.
 
-The fixture is A3 §3's smallest exercise: two habitats plus a positive control
-segment, a null control and a sparse slice, measured by all three templates.
+The fixture is the smallest exercise that shows all four: two habitats plus a
+positive control segment, a null control and a sparse slice, measured by all
+three templates.
 """
 
 from __future__ import annotations
@@ -154,7 +154,7 @@ for KEY, VALUE in sorted(SUMMARY.items()):
 '''
 
 #: Two habitats (`wet`, `dry`) that behave, one positive control (`burned`) and
-#: one slice too sparse to answer — A3 §3's smallest exercise.
+#: one slice too sparse to answer — the smallest exercise that shows all three.
 WET = [0.01, -0.01, 0.02, -0.02, 0.01, -0.01, 0.0, 0.0]
 DRY = [0.02, -0.02, 0.01, -0.01, 0.0, 0.0, 0.01, -0.01]
 BURNED = [2.0, 2.1, 1.9, 2.05, 1.95, 2.0, 2.1, 1.9]
@@ -474,7 +474,7 @@ def test_printed_summary_keys_are_legal_printed_keys() -> None:
 
 
 # --------------------------------------------------------------------------
-# R-SUR-2 — the arithmetic: controls, sparse slices, and the declared family
+# The arithmetic: controls, sparse slices, and the declared family
 # --------------------------------------------------------------------------
 
 
@@ -579,7 +579,7 @@ def test_r_sur_2_a_declared_rule_compares_against_the_registered_threshold() -> 
 
 
 def test_the_family_is_recomputed_bit_for_bit_from_the_same_table() -> None:
-    """R-SUR-4's precondition: the record is a pure function of the pinned bytes."""
+    """Recomputation's precondition: the record is a pure function of the pinned bytes."""
     units = _units(wet=WET, dry=DRY, burned=BURNED, sparse=SPARSE)
     cell = _cell(
         CELL_A,
@@ -595,7 +595,7 @@ def test_the_family_is_recomputed_bit_for_bit_from_the_same_table() -> None:
 
 
 # --------------------------------------------------------------------------
-# R-SUR-1 — registration refusals
+# Registration refusals
 # --------------------------------------------------------------------------
 
 
@@ -605,7 +605,7 @@ def _refused_registry(study: Path, payload: dict[str, Any]) -> int:
 
 
 def test_r_sur_2_a_cell_without_a_multiplicity_rule_is_refused(tmp_path: Path) -> None:
-    """RF-13: a screening family without a declared correction is not registrable."""
+    """A screening family without a declared correction is not registrable."""
     _repo, study = _unregistered(tmp_path)
     payload = _registry()
     del payload["cells"][0]["multiplicity_rule"]
@@ -687,7 +687,7 @@ def _unregistered(
 
 
 # --------------------------------------------------------------------------
-# R-SUR-1/3/4 — the valid control, end to end
+# The valid control, end to end
 # --------------------------------------------------------------------------
 
 
@@ -739,7 +739,7 @@ def test_r_sur_1_valid_control_three_templates_two_habitats_and_a_clean_receipt(
 
 
 def test_r_sur_3_receipts_are_fully_qualified_pinned_and_unresolved(registered_study) -> None:
-    """RF-02 and A2: an S id is never bare, and an unexplained anomaly stays unexplained."""
+    """An S id is never bare, and an unexplained anomaly stays unexplained."""
     _repo, study = registered_study
     run = _run_cell(study, CELL_A, "residual_by_segment")
     assert _gen("surprise", "record", "--study", str(study), "--run", run) == 0
@@ -829,7 +829,7 @@ def test_an_admission_whose_tests_omit_the_expectation_is_refused(registered_stu
 
 
 def test_an_admission_after_the_adapter_changed_is_refused(registered_study) -> None:
-    """R-INV-3: the adapter is frozen at registration, and the hash is the freeze."""
+    """The adapter is frozen at registration, and the hash is the freeze."""
     repo, study = registered_study
     (study / "lib" / "habitat.py").write_text(ADAPTER + "\n# a late edit\n", encoding="utf-8")
     commit_all(repo, "edit the adapter after registration")
@@ -868,7 +868,7 @@ def test_the_receipt_pins_the_cells_registration_and_the_locked_design(registere
 
 
 # --------------------------------------------------------------------------
-# R-SUR-2/4 — the failure modes verify exists to catch
+# The failure modes verify exists to catch
 # --------------------------------------------------------------------------
 
 
@@ -922,7 +922,7 @@ def test_an_edited_table_fails_verification(registered_study) -> None:
 
 
 def test_r_sur_4_a_confirmed_claim_citing_the_cell_table_fails(registered_study) -> None:
-    """R-INV-6: a screen selects what to look at; it cannot also confirm it."""
+    """A screen selects what to look at; it cannot also confirm it."""
     repo, study = registered_study
     run = _run_cell(study, CELL_A, "residual_by_segment")
     assert _gen("surprise", "record", "--study", str(study), "--run", run) == 0
@@ -1047,7 +1047,7 @@ def test_surprise_without_design_is_refused_at_init(tmp_path: Path) -> None:
 
 
 def test_the_module_proposes_nothing() -> None:
-    """R-SLA-6's neighbour: the capability records and computes; it never selects."""
+    """The capability records and computes; it never selects."""
     source = (Path(__file__).resolve().parents[1] / "generation" / "surprise.py").read_text("utf-8")
     for word in ("random.", "rank(", "propose", "suggest", "recommend"):
         assert word not in source, word
@@ -1124,7 +1124,7 @@ def _family_context(study: Path) -> Any:
 def test_c1_a_cell_added_after_an_unrecorded_run_is_still_post_observation(
     registered_study,
 ) -> None:
-    """C-1: the label follows the EVIDENCE, not whether anybody recorded it.
+    """The label follows the EVIDENCE, not whether anybody recorded it.
 
     Reading `surprise_recorded` events asked the driver whether they had written
     the record down; a driver who ran a cell, read its table and then added a
@@ -1157,7 +1157,7 @@ def test_c1_a_cell_added_after_an_unrecorded_run_is_still_post_observation(
 def test_c1_a_registration_anchored_after_its_own_cell_ran_is_out_of_order(
     registered_study,
 ) -> None:
-    """C-1: every version is ordered against the runs of the cells IT introduced.
+    """Every version is ordered against the runs of the cells IT introduced.
 
     Valid control: the real fixture, where v1 precedes E0001.  Invalid control:
     the same ledger with that version's core anchor moved past the run — what a
@@ -1180,7 +1180,7 @@ def test_c1_a_registration_anchored_after_its_own_cell_ran_is_out_of_order(
 def test_c2_a_confirmed_claim_whose_number_lives_in_the_cell_table_fails(
     registered_study,
 ) -> None:
-    """C-2: the numbers ledger is the other road from a claim to a screening table."""
+    """The numbers ledger is the other road from a claim to a screening table."""
     repo, study = registered_study
     run = _run_cell(study, CELL_A, "residual_by_segment")
     assert _gen("surprise", "record", "--study", str(study), "--run", run) == 0
@@ -1219,7 +1219,7 @@ def test_c2_a_confirmed_claim_whose_number_lives_in_the_cell_table_fails(
 
 
 def test_c2_the_derived_summary_table_is_a_discovery_table_too(registered_study) -> None:
-    """C-2: findings quote the per-segment summary, so it carries the same ceiling."""
+    """Findings quote the per-segment summary, so it carries the same ceiling."""
     repo, study = registered_study
     run = _run_cell(study, CELL_A, "residual_by_segment")
     assert _gen("surprise", "record", "--study", str(study), "--run", run) == 0
@@ -1249,7 +1249,7 @@ def test_c2_the_derived_summary_table_is_a_discovery_table_too(registered_study)
 
 
 def test_c8_a_registered_input_without_a_hash_is_not_frozen(registered_study) -> None:
-    """C-8: an unpinned adapter or input silently skipped its own freeze check."""
+    """An unpinned adapter or input silently skipped its own freeze check."""
     _repo, study = registered_study
     document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
     assert (
@@ -1281,7 +1281,7 @@ def test_c8_a_registered_input_without_a_hash_is_not_frozen(registered_study) ->
 def test_c9_two_receipts_for_one_segment_do_not_cover_two_violations(
     registered_study,
 ) -> None:
-    """C-9: the multiset, not the count and a membership test."""
+    """The multiset, not the count and a membership test."""
     from kleinlib.generation.surprise import _receipts_checks
 
     _repo, study = registered_study
@@ -1321,7 +1321,7 @@ def test_c9_two_receipts_for_one_segment_do_not_cover_two_violations(
 
 
 def test_c10_segments_that_print_as_one_key_are_refused(registered_study) -> None:
-    """C-10: a printed block that cannot name a segment cannot decide it."""
+    """A printed block that cannot name a segment cannot decide it."""
     _repo, study = registered_study
     document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
     document["cells"][0]["segments"]["values"] = ["wet", "38.5 C", "38-5-C", "sparse"]
@@ -1339,7 +1339,7 @@ def test_c10_segments_that_print_as_one_key_are_refused(registered_study) -> Non
 
 
 def test_c11_an_unbounded_permutation_family_is_refused(registered_study) -> None:
-    """C-11: an audit nobody will wait for is not an audit."""
+    """An audit nobody will wait for is not an audit."""
     _repo, study = registered_study
     document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
     document["cells"][0]["multiplicity_rule"]["n_perm"] = gs.MAX_N_PERM + 1
@@ -1359,7 +1359,7 @@ def test_c11_an_unbounded_permutation_family_is_refused(registered_study) -> Non
 
 
 # --------------------------------------------------------------------------
-# R-SUR-2 / C-13: the unit of inference is the cell's, and it is on the record
+# The unit of inference is the cell's, and it is on the record
 # --------------------------------------------------------------------------
 
 CELL_G = "cell_grouped_residual"
@@ -1379,7 +1379,7 @@ def _grouped_cell() -> dict[str, Any]:
 def test_c13_clustered_units_flip_as_groups_and_the_verdict_changes(
     registered_study,
 ) -> None:
-    """C-13: the same eight burned measurements are two observations, not eight.
+    """The same eight burned measurements are two observations, not eight.
 
     Unit level: the sign vector has eight slots, the observed configuration is
     2 of 256, and `burned` clears the family guard.  Group level: the same data
@@ -1420,7 +1420,7 @@ def test_c13_clustered_units_flip_as_groups_and_the_verdict_changes(
 
 
 def test_c13_a_group_column_absent_from_the_table_fails(registered_study) -> None:
-    """C-13: a cell that registered a clustered family owes a clustered table."""
+    """A cell that registered a clustered family owes a clustered table."""
     _repo, study = registered_study
     document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
     document["cells"].append(_grouped_cell())
@@ -1434,7 +1434,7 @@ def test_c13_a_group_column_absent_from_the_table_fails(registered_study) -> Non
 
 
 def test_c13_a_prose_group_policy_is_refused(registered_study) -> None:
-    """C-13: `null` or a column — prose cannot decide what the sign flip acts on."""
+    """`null` or a column — prose cannot decide what the sign flip acts on."""
     _repo, study = registered_study
     document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
     document["cells"][0]["group_policy"] = "the units cluster by site"

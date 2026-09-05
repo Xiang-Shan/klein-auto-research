@@ -93,8 +93,8 @@ the scorer's hash, both frozen snapshots and the floors, and no `--action sealed
 admission is granted on ANY track until it exists; one sealed registered cell measures;
 `klein generation parity assess` recomputes `d/L/U` from the cell's pinned per-unit
 table and decides `exceeds | parity | refuted | inconclusive` — an undefined metric can
-never pass, and A4 §7's by-δ check is reported as `agreement_within_floor`, never as
-parity. **`contribution`** appends `ai_value.jsonl` through `klein generation
+never pass, and the by-δ agreement check is reported as `agreement_within_floor`,
+never as parity. **`contribution`** appends `ai_value.jsonl` through `klein generation
 contribution record` (coverage includes rejections; an accepted row with no human
 acceptor stays agent-accepted; causal AI value needs the cited matched ablation)
 — `references/expert-parity-protocol.md`.

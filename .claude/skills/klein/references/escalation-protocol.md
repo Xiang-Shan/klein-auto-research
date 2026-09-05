@@ -147,9 +147,9 @@ Every decision records: the trigger with its evidence ids and reconstructed
 count, the rung, the skipped rungs with reasons, the considered action, **the
 concrete changed resource or assumption**, the rationale, the estimated cost, the
 condition that would close it, and — at the human rung — the advice, its
-acceptance and its cost. The changed-resource field is the one A3 §4 names as the
-answer to the relabelling failure: an agent that retunes the same method a fourth
-time and calls it "data leverage" has to write down what data it leveraged.
+acceptance and its cost. The changed-resource field is the recorded answer to
+the relabelling failure: an agent that retunes the same method a fourth time and
+calls it "data leverage" has to write down what data it leveraged.
 
 ## 4. Costs are unit-bearing, and unknowns are recorded
 

@@ -88,24 +88,24 @@ KNOWN_CAPABILITIES: tuple[str, ...] = (
 #: and its module to :data:`kleinlib.generation.capabilities.MODULES`, and nothing
 #: else.
 SUPPORTED_CAPABILITIES: tuple[str, ...] = (
-    # --- WP-01: expertise ---
+    # --- expertise acquisition + reference records ---
     "expertise",
-    # --- WP-02: hypothesis slates + calibration ---
+    # --- hypothesis slates + calibration ---
     "slates",
-    # --- WP-09: evidence design ---
+    # --- evidence design ---
     "design",
-    # --- WP-03: slate-time pre-mortem ---
+    # --- slate-time pre-mortem ---
     "premortem",
-    # --- WP-04: expert parity + contribution ledger ---
+    # --- expert parity + contribution ledger ---
     "parity",
     "contribution",
-    # --- WP-07: escalation ladder + successor studies ---
+    # --- escalation ladder + successor studies ---
     "escalation",
-    # --- WP-08: cross-study knowledge ---
+    # --- cross-study knowledge ---
     "knowledge",
-    # --- WP-06: surprise mining (requires design) ---
+    # --- surprise mining (requires design) ---
     "surprise",
-    # --- WP-05: planted-truth benchmark (the CUSTODIAN's declaration) ---
+    # --- planted-truth benchmark (the CUSTODIAN's declaration) ---
     "benchmark",
 )
 

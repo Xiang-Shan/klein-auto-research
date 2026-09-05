@@ -1,11 +1,11 @@
-"""The slate-time pre-mortem (WP-03) — V-13 and the A3 §7 smallest exercise.
+"""The slate-time pre-mortem — the smallest exercise and its controls.
 
 The exercise is the whole point and it is the first test: a four-row slate with a
 planted denominator omission, a review that names it, an acceptance that produces
 a NEW slate version, and a second — deliberately ignored — blocking mechanical
 issue that must prevent admission until it is answered too.
 
-Everything else here is a control on one clause of V-13: a review recorded after
+Everything else here is a control on one clause of it: a review recorded after
 the phase's first hypothesis admission FAILs; a reviewer who is the roster's
 referee FAILs; an `accept` naming something that is not a slate version is
 refused; a review edited after it was answered FAILs; and independence stays
@@ -96,7 +96,7 @@ def _issue(
     }
 
 
-#: The A3 §7 planted defect, and the second blocker the driver is tempted to skip.
+#: The planted defect, and the second blocker the driver is tempted to skip.
 ISSUES = [
     _issue("I1", f"{STUDY}#H2", text="the denominator omitted in row H2 counts only successes"),
     _issue("I2", "slate", text="no row states the partition its measurement runs on"),
@@ -190,14 +190,14 @@ def _set_roster(repo: Path, study: Path, role: str, who: str) -> None:
 
 
 # --------------------------------------------------------------------------
-# V-13 — the A3 §7 smallest exercise
+# The smallest exercise
 # --------------------------------------------------------------------------
 
 
 def test_v13_the_planted_denominator_is_accepted_and_reaches_the_first_measurement(
     premortem_study,
 ) -> None:
-    """A3 §7: the review names the defect, the fix is hashed, the run is admitted."""
+    """The review names the defect, the fix is hashed, the run is admitted."""
     _repo, study = premortem_study
     assert _lock(study, V11_ROWS) == 0
     draft = _slate_sha(study)
@@ -267,7 +267,7 @@ def test_v13_the_planted_denominator_is_accepted_and_reaches_the_first_measureme
 
 
 def test_v13_the_admission_receipt_pins_the_review_it_rests_on(premortem_study) -> None:
-    """WP-00b's `receipt_inputs` hook: `inputs.premortem` is the record's object sha."""
+    """The spine's `receipt_inputs` hook: `inputs.premortem` is the record's object sha."""
     _repo, study = premortem_study
     assert _lock(study, V11_ROWS) == 0
     draft = _slate_sha(study)
@@ -325,12 +325,12 @@ def test_v13_a_minor_scientific_objection_may_be_rejected_with_a_rationale(
 
 
 # --------------------------------------------------------------------------
-# V-13 — the invalid controls
+# The invalid controls
 # --------------------------------------------------------------------------
 
 
 def test_v13_a_review_recorded_after_a_hypothesis_run_fails_forever(premortem_study) -> None:
-    """V-13: a pre-mortem written after the evidence started arriving criticised nothing."""
+    """A pre-mortem written after the evidence started arriving criticised nothing."""
     _repo, study = premortem_study
     assert _lock(study, V11_ROWS) == 0
     draft = _slate_sha(study)
@@ -352,7 +352,7 @@ def test_v13_a_review_recorded_after_a_hypothesis_run_fails_forever(premortem_st
 
 
 def test_v13_the_reviewer_may_not_be_the_closing_referee(premortem_study) -> None:
-    """RF-12 / R-PRE-3: the proposal critic is not the closing referee."""
+    """The proposal critic is not the closing referee."""
     repo, study = premortem_study
     _set_roster(repo, study, "referee", REVIEWER)
     assert _lock(study, V11_ROWS) == 0
@@ -525,7 +525,7 @@ def test_a_session_receipt_lifts_the_outcome_to_receipted(premortem_study) -> No
     repo, study = premortem_study
     (study / "review-session.md").write_text("the reviewer's transcript\n", encoding="utf-8")
     commit_all(repo, "the reviewer's session receipt")
-    # A-4's valid control: with a referee ON the roster, "reviewer ≠ referee" is a
+    # The valid control: with a referee ON the roster, "reviewer ≠ referee" is a
     # comparison that means something, and the family has nothing left to warn about
     _set_roster(repo, study, "referee", "opus · a closing session")
     assert _lock(study, V11_ROWS) == 0
@@ -605,12 +605,12 @@ def test_a_premortem_commit_files_the_review_and_the_ledger_and_nothing_else(
 
 
 # --------------------------------------------------------------------------
-# A-4 / A-6 / A-7 — the roster, the record's own file, and the empty outcome
+# The roster, the record's own file, and the empty outcome
 # --------------------------------------------------------------------------
 
 
 def test_a_missing_referee_row_is_warned_once_per_phase(premortem_study) -> None:
-    """A-4: "reviewer ≠ referee" against an ABSENT roster row proves nothing."""
+    """"Reviewer ≠ referee" against an ABSENT roster row proves nothing."""
     repo, study = premortem_study
     assert _lock(study, V11_ROWS) == 0
     _write_review(study, slate_sha=_slate_sha(study), issues=[_issue("I1", "slate", severity="minor")])
@@ -635,7 +635,7 @@ def test_a_missing_referee_row_is_warned_once_per_phase(premortem_study) -> None
 
 
 def test_a_record_that_is_not_the_file_it_hashed_fails(premortem_study) -> None:
-    """A-6: the record copies the reviewer, the inputs and the issues from a FILE.
+    """The record copies the reviewer, the inputs and the issues from a FILE.
 
     Nothing re-read `file_sha256` after `record` wrote it, so a record whose
     object said one thing while the document it hashed said another was
@@ -668,7 +668,7 @@ def test_a_record_that_is_not_the_file_it_hashed_fails(premortem_study) -> None:
 
 
 def test_a_declared_but_unexercised_premortem_is_incomplete_not_n_a(premortem_study) -> None:
-    """A-7: `n/a` means "not declared" and comes only from the label's defaults."""
+    """`n/a` means "not declared" and comes only from the label's defaults."""
     _repo, study = premortem_study
     assert _gen("verify", "--study", str(study)) == 0
     assert _receipt(study)["capabilities"]["premortem"] == {
@@ -697,7 +697,7 @@ BANNED_FUNCTION_PREFIXES = (
 
 
 def test_the_premortem_module_never_proposes_ranks_or_selects() -> None:
-    """R-PRE-3: the pre-mortem records issues and responses; it scores nothing."""
+    """The pre-mortem records issues and responses; it scores nothing."""
     text = (GENERATION_PKG / "premortem.py").read_text(encoding="utf-8")
     tree = ast.parse(text)
     offenders = [

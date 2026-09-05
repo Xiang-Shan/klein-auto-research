@@ -1,7 +1,6 @@
-"""Expert parity and the contribution ledger (WP-04).
+"""Expert parity and the contribution ledger.
 
-Test names carry their validation-plan id (V-14, V-15, V-16).  Four layers, kept
-apart on purpose:
+Four layers, kept apart on purpose:
 
 1. **The arithmetic** (:mod:`kleinlib.generation.stats`) on synthetic per-unit
    tables — determinism, the block structure, and the three ways a metric ends
@@ -52,7 +51,7 @@ SCORER = "lib/parity_score.py"
 AI_SNAPSHOT = "pipelines/ai.py"
 EXPERT_SNAPSHOT = "pipelines/expert.py"
 
-#: The three metrics of the A3 §6 smallest exercise: a ranking gain, a
+#: The three metrics of the smallest exercise: a ranking gain, a
 #: calibration loss, and a ratio that a zero-loss bottom decile leaves undefined.
 KEYS: tuple[str, ...] = ("gini", "calib", "ratio")
 
@@ -255,7 +254,7 @@ def test_a_comparison_over_no_metrics_is_inconclusive_and_says_why() -> None:
 
 
 def test_agreement_within_floor_is_reported_under_its_own_name_and_is_not_parity() -> None:
-    """A4 §7's by-delta rule can hold while the conjunction is inconclusive."""
+    """The by-delta agreement rule can hold while the conjunction is inconclusive."""
     decision = gp.decide({"gini": _row(d=0.004, low=-0.05, high=0.06)})
     assert decision["agreement_within_floor"] is True
     assert decision["verdict"] == "inconclusive"
@@ -520,7 +519,7 @@ def _units(*, calib_spread: float = 0.0, undefined: bool = True) -> dict[str, An
     """One per-unit table plus the printed block a real scorer would emit.
 
     ``gini`` is a clear AI gain, ``calib`` a clear AI LOSS (direction ``lower``),
-    and ``ratio`` is undefined on one unit — A4 §7's zero-loss bottom decile.
+    and ``ratio`` is undefined on one unit — a zero-loss bottom decile.
     """
     gain = _spread(0.0)
     loss = _spread(0.0) + calib_spread * np.array([1.0, -1.0, 1.0, -1.0, 1.0, -1.0, 1.0, -1.0])
@@ -635,12 +634,12 @@ def _detail(study: Path, name: str) -> str:
 
 
 # --------------------------------------------------------------------------
-# V-14 — the A3 §6 smallest exercise
+# The smallest exercise
 # --------------------------------------------------------------------------
 
 
 def test_v14_a_ranking_gain_with_a_calibration_loss_fails_the_conjunction(bound_study) -> None:
-    """V-14: gini up, calib down beyond -epsilon, ratio undefined → not parity."""
+    """Gini up, calib down beyond -epsilon, ratio undefined → not parity."""
     repo, study = bound_study
     manifest = _seal(repo, study)
     assert manifest["evaluation_kind"] == "final_test"
@@ -697,7 +696,7 @@ def _assessment(study: Path) -> dict[str, Any]:
 
 
 # --------------------------------------------------------------------------
-# V-15 — custody of sealed access
+# Custody of sealed access
 # --------------------------------------------------------------------------
 
 
@@ -714,7 +713,7 @@ def test_v15_a_sealed_admission_is_refused_until_the_pipelines_are_bound(parity_
 
 
 def test_v15_a_frontier_seal_before_the_bind_fails_the_parity_family(parity_study) -> None:
-    """The core still grants the look (D-2); the extension records that it was spent."""
+    """The core still grants the look; the extension records that it was spent."""
     repo, study = parity_study
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "acknowledge the adaptive phase")
@@ -746,7 +745,7 @@ def test_v15_a_frontier_seal_before_the_bind_fails_the_parity_family(parity_stud
 
 
 def test_v15_a_scorer_edited_at_the_sealed_candidate_fails(bound_study) -> None:
-    """R-INV-3: the checker is never the searcher, and the seal is where it shows."""
+    """The checker is never the searcher, and the seal is where it shows."""
     repo, study = bound_study
     (study / SCORER).write_text("# the scorer, retuned\nSCORER = 2\n", encoding="utf-8")
     commit_all(repo, "retune the scorer after the bind")
@@ -757,7 +756,7 @@ def test_v15_a_scorer_edited_at_the_sealed_candidate_fails(bound_study) -> None:
 
 
 def test_the_comparison_admission_needs_every_parity_prediction(bound_study) -> None:
-    """B-5, the admission half: the notary must be asked the questions that were locked."""
+    """The admission half: the notary must be asked the questions that were locked."""
     repo, study = bound_study
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "acknowledge the adaptive phase")
@@ -787,7 +786,7 @@ def test_the_comparison_admission_needs_every_parity_prediction(bound_study) -> 
 
 
 def test_a_comparison_cell_that_never_asked_the_notary_fails(bound_study) -> None:
-    """B-5, the record half: admitted for three predictions, run asking for two."""
+    """The record half: admitted for three predictions, run asking for two."""
     repo, study = bound_study
     manifest = _seal(repo, study, tests=(PRED["gini"], PRED["calib"]))
     assert manifest["experiment"] == "E0003"
@@ -863,7 +862,7 @@ def _append_assessment(study: Path, body: dict[str, Any]) -> str:
 
 
 def test_a_sealed_run_on_another_track_cannot_be_assessed(bound_study, capsys) -> None:
-    """B-1, the CLI half: `--run` names the LOCKED comparison track's cell or nothing."""
+    """The CLI half: `--run` names the LOCKED comparison track's cell or nothing."""
     repo, study = bound_study
     assert _seal(repo, study)["experiment"] == "E0003"
     assert _gen("parity", "assess", "--study", str(study), "--run", "E0003") == 2
@@ -881,7 +880,7 @@ def test_a_sealed_run_on_another_track_cannot_be_assessed(bound_study, capsys) -
 
 
 def test_the_outcome_is_the_comparison_cells_never_the_last_assessment(bound_study) -> None:
-    """B-1, the record half: a foreign assessment FAILs and does not become the outcome.
+    """The record half: a foreign assessment FAILs and does not become the outcome.
 
     The refuted comparison is the study's result.  Assessing some other track's
     sealed run afterwards — by hand, around the CLI — used to overwrite the
@@ -910,7 +909,7 @@ def test_the_outcome_is_the_comparison_cells_never_the_last_assessment(bound_stu
 
 
 def test_an_assessment_recomputes_within_tolerance_but_not_beyond_it(bound_study) -> None:
-    """B-2: the bounds are a bootstrap, so a bit-exact float compare is the wrong test.
+    """The bounds are a bootstrap, so a bit-exact float compare is the wrong test.
 
     numpy's Generator promises no bit stream across versions; an upgrade must
     not read as tampering. A relative 1e-15 nudge is accepted, a 1e-6 one is
@@ -1077,12 +1076,12 @@ def _scorer_joins_the_surface(contract: dict[str, Any]) -> None:
 
 
 def test_a_scorer_that_joins_the_mutable_surface_later_fails_the_lock(parity_study) -> None:
-    """B-4, the record half: the check is re-run against study.yaml at every verify.
+    """The record half: the check is re-run against study.yaml at every verify.
 
     The lock refuses a `scorer.path` inside `entrypoint.mutable`, but the surface
     is declared in study.yaml and study.yaml can be edited afterwards. A scorer
     that becomes part of the per-experiment diff has stopped being a frozen
-    checker, whichever end of the study made it so (R-INV-3).
+    checker, whichever end of the study made it so.
     """
     repo, study = parity_study
     assert _gen("verify", "--study", str(study)) == 0
@@ -1098,7 +1097,7 @@ def test_a_scorer_that_joins_the_mutable_surface_later_fails_the_lock(parity_stu
 def test_the_scorer_being_the_experimenters_own_is_a_warning_not_a_refusal(
     tmp_path: Path,
 ) -> None:
-    """B-11: `scoring` is testimony, so the coincidence is recorded, not refused."""
+    """`scoring` is testimony, so the coincidence is recorded, not refused."""
     repo, study = _enable(tmp_path, "expertise", "parity")
     assert _reference(study) == 0
     _write_card(study)
@@ -1117,7 +1116,7 @@ def test_the_scorer_being_the_experimenters_own_is_a_warning_not_a_refusal(
 
 
 def test_floor_run_may_only_restate_the_run_the_lock_froze(parity_study, capsys) -> None:
-    """B-3, the CLI half: `--floor-run` is a convenience, never an override."""
+    """The CLI half: `--floor-run` is a convenience, never an override."""
     repo, study = parity_study
     _bump(study, "a second floor recipe")
     assert (
@@ -1161,7 +1160,7 @@ def test_floor_run_may_only_restate_the_run_the_lock_froze(parity_study, capsys)
 
 
 def test_a_bound_floor_from_somewhere_else_fails_the_bind(bound_study) -> None:
-    """B-3, the record half: the lock says WHERE delta comes from, forever."""
+    """The record half: the lock says WHERE delta comes from, forever."""
     repo, study = bound_study
     assert _gen("verify", "--study", str(study)) == 0
 
@@ -1206,7 +1205,7 @@ def _events(study: Path) -> list[dict[str, Any]]:
 
 
 # --------------------------------------------------------------------------
-# V-16 — the contribution ledger
+# The contribution ledger
 # --------------------------------------------------------------------------
 
 SLATE_PHASE = "adaptive-1"
@@ -1392,7 +1391,7 @@ def test_ablation_cited_needs_a_parity_lock_that_names_a_matched_arm(tmp_path: P
 
 @pytest.mark.parametrize("module", ["parity", "contribution", "stats"])
 def test_nothing_here_proposes_ranks_or_selects(module: str) -> None:
-    """R-SLA-6's guard, applied to WP-04's modules (plan N-1, N-2).
+    """The no-generation guard, applied to the parity modules.
 
     Prose may say "proposal" — the ledger records them.  What the modules may
     not do is DEFINE one: no function that proposes, ranks, selects or chooses.

@@ -1,4 +1,4 @@
-"""Capability registration hooks (WP-00b): a capability plugs in, never patches in.
+"""Capability registration hooks: a capability plugs in, never patches in.
 
 The spine ships zero capabilities, so the only way to test the hooks is to
 register a fake one — which is exactly the point: if a fake capability written

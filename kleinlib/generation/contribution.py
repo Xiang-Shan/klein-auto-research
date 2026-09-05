@@ -13,7 +13,7 @@ an agent contributed:
 **Coverage includes rejections.**  A ledger that records only the accepted
 proposals is a highlight reel.  The family checks every slate row and every
 hypothesis admission against the ledger's subjects, and a subject with no line
-is an integrity FAIL — the denominator is the work, not the wins (R-PAR-5).
+is an integrity FAIL — the denominator is the work, not the wins.
 
 **Agent acceptance never becomes human acceptance.**  A row with
 ``decision: accepted`` and ``human_acceptor: null`` is counted as
@@ -24,8 +24,8 @@ error, and it is never quietly promoted.
 ``descriptive`` unless ``parity.yaml`` cites a matched ablation study, in which
 case it is ``ablation-cited`` — and even then the outcome names the citation
 rather than asserting the effect.  "Causal AI value requires a matched
-frozen-2.0 ablation; the ledger establishes recorded attribution and outcomes"
-(A3 §6).  Recorded activity is also not all activity: work in scratch copies,
+frozen-2.0 ablation; the ledger establishes recorded attribution and outcomes."
+Recorded activity is also not all activity: work in scratch copies,
 other checkouts and chat transcripts is invisible here, and partial transcripts
 earn partial attribution.
 

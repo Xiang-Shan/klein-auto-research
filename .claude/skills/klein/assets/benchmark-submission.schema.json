@@ -58,7 +58,7 @@
           },
           "support": {
             "type": "string",
-            "description": "Optional: a study-relative path, run id or command in the PARTICIPANT's study that reproduces the executable analysis supporting this structure (A5 §3). The custodian does not execute it; it is what an adjudicator reads when the context condition is contested."
+            "description": "Optional: a study-relative path, run id or command in the PARTICIPANT's study that reproduces the executable analysis supporting this structure. The custodian does not execute it; it is what an adjudicator reads when the context condition is contested."
           }
         }
       }

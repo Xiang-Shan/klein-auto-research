@@ -23,8 +23,8 @@ seeded object is exactly as strong as the claim it names — and objects are
 deduplicated by EVIDENCE ROOTS, so one lesson repeated across three documents
 seeds one object, not three.
 
-**Scope tags are a human curation step and are deliberately left empty.**  A3 §5
-scopes an object by population, measurement regime, intervention, assumptions and
+**Scope tags are a human curation step and are deliberately left empty.**  The
+store scopes an object by population, measurement regime, intervention, assumptions and
 exclusions; nothing in a markdown citation says any of those, and inventing them
 is precisely the failure the store exists to prevent.  Fill them by hand
 afterwards (a corrected object is a NEW promotion, not an edit).

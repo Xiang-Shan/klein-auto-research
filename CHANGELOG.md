@@ -149,11 +149,12 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   whose rule must be exactly `L_<key> >= -margin`, so the notary decides the same
   inequality the assessment does. `parity bind` pins the scorer's hash, both frozen
   snapshots and every measured floor, and a registered admission rule refuses
-  `--action sealed` on **any** track until it exists (deferral D-2). One sealed
+  `--action sealed` on **any** track until it exists — the core still grants each
+  track its own single look, so parity must bind before any is spent. One sealed
   registered cell measures; `parity assess` recomputes `d/L/U` from the cell's own pinned
   `tables/parity_units.tsv` and applies the rule — **exceeds / at least parity / refuted
   / inconclusive**, mutually exclusive by construction, with an undefined metric never
-  passing and A4 §7's by-δ check reported as `agreement_within_floor`, never as parity.
+  passing and the by-δ agreement check reported as `agreement_within_floor`, never parity.
   Verification recomputes the same numbers from the same bytes and fails on a scorer or
   snapshot that differs at the sealed candidate commit, on a second sealed run of the
   comparison track, and on a locked metric the cell never printed or declared undefined.
@@ -281,9 +282,9 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   recovered once — a later structure matching it is a duplicate, one matching nothing
   is a false positive the declared penalty is charged against. The family also FAILs a
   scorer that is not the pinned one at the scoring cell's candidate commit, a second
-  sealed scoring cell, and a `confirmed` claim resting on the in-silico table
-  (R-INV-6). **A hash is not secrecy**: `custody attest` records a NAMED holder's
-  statement about accounts, containers or machines, stored with `testimony: true` and
+  sealed scoring cell, and a `confirmed` claim resting on the in-silico table —
+  in-silico recovery is never confirmation. **A hash is not secrecy**: `custody
+  attest` records a NAMED holder's statement about accounts, containers or machines, stored with `testimony: true` and
   reported as testimony; without one the outcome reads `unverified`, which fails
   nothing. A benchmark known to have leaked is retired and its results are retained.
   Protocol: `references/planted-truth-protocol.md`; templates:
@@ -359,7 +360,7 @@ fixes come first, then the capabilities' in the order the spine loads them.
 
 Then the capabilities, dependencies first:
 
-- **The expert baseline's recipe is frozen with its targets** (R-INV-3). `expert lock`
+- **The expert baseline's recipe is frozen with its targets.** `expert lock`
   records the sha256 of `baseline.implementation` and `baseline.fixture`; a
   `reproduced` bind whose recipe drifted since the lock now FAILs unless a repair
   declared the change. Files inside the mutable surface are recorded but exempt.
@@ -394,7 +395,7 @@ Then the capabilities, dependencies first:
     `--floor-run` must restate the run the lock froze, and a bound floor whose
     `source` differs from the locked reference FAILs `parity bind`.
   - A `scorer.path` inside `entrypoint.mutable` is refused by `parity lock` and FAILs
-    at every verify — the checker is never the searcher (R-INV-3). A
+    at every verify — the checker is never the searcher. A
     `scoring.scorer_name` equal to the roster experimenter is a WARN (testimony).
 - **Parity arithmetic is honest about what it could not measure.** A comparison over
   no metrics is `inconclusive` rather than a vacuous `parity`; a constant metric on

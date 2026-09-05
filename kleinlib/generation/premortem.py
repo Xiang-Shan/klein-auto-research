@@ -405,7 +405,7 @@ def _input_problems(value: Any, *, study_dir: Path, phase: str) -> list[str]:
 def _issue_problems(value: Any, *, live: set[str]) -> list[str]:
     """``id``, ``target``, ``severity``, ``kind`` and ``text`` are checked.
 
-    Any FURTHER key the reviewer wrote — A3 §7's ``failure_story``,
+    Any FURTHER key the reviewer wrote — ``failure_story``,
     ``challenged_assumption``, ``source_or_counterexample``,
     ``discriminating_check`` — is copied into the record verbatim and never
     interpreted.  The schema is a floor on what a critique must say, not a
@@ -641,8 +641,8 @@ def evidence_marks(
     Two signs, and they are different failures.  An **admitted** hypothesis
     receipt says the phase started lawfully.  A **refused** one that a run went
     ahead on anyway says it started in defiance of this very gate — and that
-    second case is the one V-13 fixtures: with the gate working, a phase's first
-    review cannot be late unless somebody ran past its refusal.
+    second case is the one the tests set up: with the gate working, a phase's
+    first review cannot be late unless somebody ran past its refusal.
 
     A refusal on its own is deliberately NOT a sign.  While a review is open this
     capability refuses every hypothesis check, and reading its own refusals as
@@ -980,8 +980,9 @@ def _order_problems(
     Order is read off the extension chain, whose ``sequence`` totally orders every
     generation event, and reported with the core anchor the record carries.  Only
     version 1 FAILs: a later review of a later draft follows the phase's earlier
-    work by construction, and is LABELLED rather than failed (R-ADM-8) — exactly
-    the treatment ``expert amend`` and ``slate amend`` get.
+    work by construction, and is LABELLED rather than failed — scope only grows
+    and late additions are labelled, exactly the treatment ``expert amend`` and
+    ``slate amend`` get.
     """
     if not marks:
         return [], []

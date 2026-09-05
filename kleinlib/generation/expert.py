@@ -599,7 +599,7 @@ def _card_checks(ctx: FamilyContext, locks: list[tuple[Mapping[str, Any], dict[s
     # Only VERSION 1 must precede CONSULT — it is the commitment.  Every
     # amendment follows the gate by construction, so failing it would make
     # `expert amend` a verb that guarantees failure; a late amendment is
-    # LABELLED (R-ADM-8: scope only grows, late additions are labelled).
+    # LABELLED (scope only grows, late additions are labelled).
     if locks[0][1].get("late"):
         problems.append(
             "lock version 1 was recorded with --allow-late, after the consult gate: "
@@ -782,7 +782,7 @@ def _cited_record_ids(study_dir: Path) -> set[str]:
 
 
 def _references_yaml_problems(study_dir: Path, repo: Path) -> list[str]:
-    """R-EXP-2: on an enabled study a bare ``verified: true`` is not enough."""
+    """On an enabled study a bare ``verified: true`` is not enough."""
     if not (study_dir / REFERENCES_NAME).is_file():
         return []
     try:
@@ -938,7 +938,7 @@ def _baseline_freeze_problems(
     manifest: Mapping[str, Any],
     repairs: Sequence[tuple[Mapping[str, Any], Mapping[str, Any]]],
 ) -> list[str]:
-    """R-INV-3: the recipe the run executed is the recipe the lock froze.
+    """The recipe the run executed is the recipe the lock froze.
 
     Targets are worthless if the implementation or the fixture can drift under
     them: a baseline that "reproduces" against a quietly rewritten fixture
@@ -1276,7 +1276,7 @@ def lock_object(
         "card_path": CARD_NAME,
         "card_sha256": card_sha256,
         "frontmatter": _plain(frontmatter),
-        # R-INV-3: the recipe's own bytes, frozen with the targets. Recorded for
+        # The recipe's own bytes, frozen with the targets. Recorded for
         # every file so the record is complete; only the ones OUTSIDE the mutable
         # surface are frozen at verify (the surface is what E0001 runs).
         "baseline_hashes": dict(baseline_hashes or {}),

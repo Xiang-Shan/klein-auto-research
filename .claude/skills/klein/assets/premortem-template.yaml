@@ -66,7 +66,7 @@ issues:
       attempted, and state the denominator in the row.
 
   # Free-form keys the reviewer adds are copied into the record verbatim and
-  # never interpreted — A3 §7's fuller shape fits here unchanged:
+  # never interpreted — a fuller review shape fits here unchanged:
   # failure_story / challenged_assumption / source_or_counterexample /
   # discriminating_check.
 

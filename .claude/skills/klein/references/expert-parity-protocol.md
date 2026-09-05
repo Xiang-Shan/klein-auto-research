@@ -71,7 +71,7 @@ records the lock anyway and `parity lock` FAILs for the life of the study.
 | `aggregation` | `conjunction` — the only value in this version |
 | `scorer.path` | a study-relative path (conventionally `lib/parity_score.py`). It need not exist yet; `bind` pins its hash |
 | `margins_set_by` | `{name, session_receipt}`. `name` may **not** be the `experimenter` row of `program.md`'s roster — the actor being compared cannot set the bar it is measured against. String comparison, never authentication |
-| `scoring` | `{masked: true|false, scorer_name}` — testimony about how the scoring was done (R-PAR-6), recorded and never verified |
+| `scoring` | `{masked: true|false, scorer_name}` — testimony about how the scoring was done, recorded and never verified |
 | `predictions` | one registered `P#` per metric key — see §2 |
 | `ablation_study` | a matched frozen-2.0 study id, or `null`. Required as a key: a study with no ablation says so |
 
@@ -84,7 +84,7 @@ Per metric:
 | `units`, `estimand` | what the number is, and of what population. Gini, KS and a top-to-bottom ratio have different denominators and different floors; say which |
 | `floor_ref` | `run:E####` — a Phase-0 `--action calibration` run that PRINTED `floor_<key>` — or `sweep:<name>`. See §3 for why `sweep:` is refused at bind today |
 | `margin` | `ε_j ≥ 0`, the noninferiority margin |
-| `margin_rationale` | required prose. **A margin justified only by the measured floor is resolution sold as acceptability** (R-INV-4, `knowledge/research-discipline.md` lesson 1). Say what decision tolerates this much give-back |
+| `margin_rationale` | required prose. **A margin justified only by the measured floor is resolution sold as acceptability** (`knowledge/research-discipline.md` lesson 1). Say what decision tolerates this much give-back |
 | `undefined_handling` | `cannot_pass` — the only value in this version |
 
 `parity amend` records a new version with `parent_ids`. Only **version 1** has to
@@ -136,7 +136,7 @@ there is nothing numeric to read. The refusal says so rather than inventing a
 calibration RUN that prints the key.
 
 A margin is justified **separately** from the floor. Noise does not authorize a
-generous equivalence margin (B §3); resolution is not materiality.
+generous equivalence margin; resolution is not materiality.
 
 ## 4. Bind before any sealed access, on any track
 
@@ -151,16 +151,16 @@ metric. It pins the scorer's sha256, both pipelines' file hashes, and the floors
 into a `parity_bound` object — and that object's anchor is the line every sealed
 run must fall after.
 
-**The rule (deferral D-2).** The core still grants each track its own single
-look; what the extension can refuse is the ADMISSION, and it does:
+**The rule.** The core still grants each track its own single look; what the
+extension can refuse is the ADMISSION, and it does:
 `klein generation check --action sealed` on **any** track is refused while
 `parity` is declared and no bind exists. A study that spends a frontier seal
 before the pipelines and floors are frozen cannot earn the parity outcome, and
 `parity bind` FAILs afterwards naming the run and the two sequence numbers.
 
-**The scorer is never in the mutable surface** (R-INV-3). It is study library
-code, hashed at the bind and re-read at the sealed cell's candidate commit; a
-scorer retuned between the two is a checker tuned to the answer, and it FAILs.
+**The scorer is never in the mutable surface.** It is study library code, hashed
+at the bind and re-read at the sealed cell's candidate commit; a scorer retuned
+between the two is a checker tuned to the answer, and it FAILs.
 A `scorer.path` that names a file of `entrypoint.mutable` is refused outright by
 `parity lock` and FAILs `parity lock` at every verify — a checker the experiments
 edit was never frozen at all.
@@ -223,7 +223,7 @@ With `D_j = sign_j × (AI_j − expert_j)` and simultaneous bounds `[L_j, U_j]`:
 | **inconclusive** | otherwise |
 
 They are mutually exclusive by construction: `U_j < −ε_j` contradicts
-`L_j ≥ −ε_j` on that same `j`. An **undefined** metric — A4 §7's top-to-bottom
+`L_j ≥ −ε_j` on that same `j`. An **undefined** metric — a top-to-bottom
 ratio on a zero-loss bottom decile — can never pass: the verdict is `refuted`
 when some other metric refutes and `inconclusive` otherwise, and the undefined
 metric is named in the record rather than dropped from the conjunction. A
@@ -236,11 +236,11 @@ population**; three independently selected winners establish nothing jointly. A
 ranking gain bought with a calibration loss beyond its margin is not parity, and
 the whole capability exists so that sentence is arithmetic rather than taste.
 
-**`agreement_within_floor` is not parity.** A4 §7's alternative — every
+**`agreement_within_floor` is not parity.** The alternative rule — every
 `|d_j| ≤ δ_j` — is computed and reported under that name, in the assessment
 object and in the capability outcome. It is a statement about **resolution**:
 "the two pipelines differ by less than this measurement can see". Selling it as
-parity is the non-significance-as-equivalence move the plan rejects (N-4). An
+parity is the non-significance-as-equivalence move this layer rejects. An
 undefined metric never agrees either.
 
 ## 7. Assessment and verification
@@ -307,7 +307,7 @@ Three rules carry the weight:
 - **Coverage includes rejections.** Every slate row and every hypothesis an
   admission named — admitted or refused — needs at least one line. A ledger of
   only the accepted proposals is a highlight reel, and the denominator is the
-  work, not the wins (R-PAR-5).
+  work, not the wins.
 - **Agent acceptance never becomes human acceptance.** `decision: accepted` with
   `human_acceptor: null` is counted and reported as agent-accepted. It stays in
   the record and is never promoted.
@@ -328,9 +328,9 @@ copies, other checkouts and chat sessions is invisible to this ledger.
 - `agreement_within_floor` is reported under its own name or not at all.
 - The per-unit table is pinned; cite it as `art:parity_units` and let
   `claims.lock` give the numbers their homes (`references/claims-protocol.md`).
-  Generation ids stay in prose and sidecars (deferral D-4).
+  Generation ids stay in prose and sidecars.
 - A parity outcome on a non-winning object is a **capability** outcome and an
-  `exploratory` core claim; core `finalize` labels stay keep-linked (D-3).
+  `exploratory` core claim; core `finalize` labels stay keep-linked.
 
 ## What this establishes, and what it does not
 

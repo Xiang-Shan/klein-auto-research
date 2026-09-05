@@ -6,7 +6,7 @@ capability does not run that ritual, propose a candidate, or rank one: it
 **records** the rows the driver authored, gives each a permanent
 ``<study>#Hn`` id, binds a run to the hypothesis it was admitted for, and at
 phase end **computes** the Brier score of the forecasts the driver typed.
-Arithmetic on authored rows — R-SLA-6, and the module is grep-guarded for it in
+Arithmetic on authored rows, and the module is grep-guarded for exactly that in
 ``kleinlib/tests/test_generation_slate.py``.
 
 Three properties are worth stating outright, because each closes a way of making
@@ -20,7 +20,7 @@ life of the study.  A forecast may be revised — but only through
 ``revision_of`` and scores it in its OWN panel; the primary panels always use the
 FIRST forecast.
 
-**The denominator is frozen at lock (RF-05).**  Coverage is
+**The denominator is frozen at lock.**  Coverage is
 ``resolved / cohort`` where the cohort is every id ever locked for the phase.
 Withdrawing a row does not shrink it — a withdrawn row stays in the cohort,
 censored, with the reason on the record.  Perpetual deferral and quiet
@@ -30,7 +30,7 @@ never as a better Brier.
 **A scouted row is not a forecast.**  A row whose outcome the scouting ledger
 already observed (``provenance: scouted``) is computed into a panel labelled
 ``scouted_descriptive`` and is never summarised as calibration
-(``consult-protocol.md`` "Prior provenance", A5 §2).  ``unscouted`` and
+(``consult-protocol.md`` "Prior provenance").  ``unscouted`` and
 ``derived`` are the panels that count.
 
 The arithmetic itself lives in :mod:`kleinlib.generation.calibration`; this
@@ -90,7 +90,7 @@ __all__ = [
 ]
 
 #: A slate is 4–6 rows.  Three is not a comparison; seven is a wish list that no
-#: phase budget can adjudicate (``phase-ritual.md`` §1, R-SLA-1).
+#: phase budget can adjudicate (``phase-ritual.md`` §1).
 MIN_ROWS = 4
 MAX_ROWS = 6
 
@@ -135,12 +135,12 @@ ROW_KEY_ORDER: tuple[str, ...] = (
 
 #: Fields that are FROZEN once an id is allocated.  Changing any of them under an
 #: existing id is recycling the id onto a different hypothesis, which is the one
-#: thing an amendment may never do (R-SLA-1, R-ADM-8).
+#: thing an amendment may never do: ids never recycle, and scope only grows.
 FROZEN_ROW_KEYS: tuple[str, ...] = ("kind", "track", "statement", "success_P", "provenance")
 
 #: The checkpoints that are development work on an enabled study and therefore
 #: need a hypothesis.  ``sealed``, ``baseline``, ``repair`` and ``calibration``
-#: are the typed obligations that legitimately carry no ``H`` (R-ADM-7).
+#: are the typed obligations that legitimately carry no ``H``.
 HYPOTHESIS_ACTIONS: tuple[str, ...] = ("run", "cell")
 
 _NO_HYPOTHESIS = (
@@ -443,8 +443,8 @@ def _parent_problems(
 ) -> list[str]:
     """``parent_ids`` names hypotheses that exist — lineage, not decoration.
 
-    A3 §2 has a row's parents carry the lineage a later reader follows back to
-    the idea it came from, and a typo'd or invented id makes that trail end
+    A row's parents carry the lineage a later reader follows back to the idea it
+    came from, and a typo'd or invented id makes that trail end
     nowhere while still looking like provenance.  The ids must already have been
     allocated somewhere in THIS study (any phase); a hypothesis cannot descend
     from one that does not exist yet.
@@ -743,7 +743,7 @@ def hypothesis_bindings(
 def _outcome_for_run(
     manifest: Mapping[str, Any], success: Sequence[str], run: str
 ) -> tuple[str, int | None, str]:
-    """``(status, y, reason)`` for one bound run — the exact rule of plan §A.4."""
+    """``(status, y, reason)`` for one bound run — the success rule, exactly."""
     if str(manifest.get("disposition")) == "crash":
         return ("resolved", 0, f"{run} crashed")
     verdicts = manifest.get("predictions")
@@ -950,8 +950,8 @@ def _rule_hypothesis_is_a_live_slate_row(ctx: Context) -> list[str]:
     """The whole hypothesis-admission rule, in the order a driver hits it.
 
     A development run on an enabled study names the hypothesis it is testing; a
-    calibration, baseline, repair or sealed action legitimately does not
-    (R-ADM-7).  The named row must be live on the phase's newest locked slate,
+    calibration, baseline, repair or sealed action legitimately does not.
+    The named row must be live on the phase's newest locked slate,
     on the track being run, and the notary must be asked to adjudicate every
     ``success_P`` — otherwise the row's ``y`` could never resolve and the
     forecast would be scored against nothing.

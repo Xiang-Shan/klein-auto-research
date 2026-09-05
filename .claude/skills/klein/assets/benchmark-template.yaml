@@ -18,7 +18,7 @@
 type: benchmark
 study: NN-slug                      # the CUSTODIAN study's id
 
-# The registered track whose single sealed cell scores every arm (R-BEN-4).
+# The registered track whose single sealed cell scores every arm.
 # It must exist in study.yaml with `mode: registered`.
 scoring_track: scoring
 
@@ -72,12 +72,12 @@ arms:
 # from assets/benchmark-submission.schema.json and hashed there.
 submission_schema: benchmark-submission.schema.json
 
-# At most this many structures per arm (A5 §3 suggests six). The cap is what
-# makes precision mean something.
+# At most this many structures per arm (six is a workable default). The cap is
+# what makes precision mean something.
 hypothesis_cap: 6
 
-# Fixed at METHOD, before any submission (R-BEN-2). The three mechanical
-# conditions this version implements are the only values accepted; `context` is a
+# Fixed at METHOD, before any submission. The three mechanical conditions this
+# version implements are the only values accepted; `context` is a
 # preregistered SENTENCE the custodian adjudicates per row and records in the
 # pinned table's `context_ok` column. Verification re-applies the three and takes
 # `context_ok` from the table — the oracle's judgement stays labelled.
@@ -100,7 +100,7 @@ recovery_predictions:
   arm-b: [P3, P4]
 
 # Disjoint by construction: a block handed out as development data is never
-# scored as sealed evidence (R-BEN-4).
+# scored as sealed evidence.
 seed_blocks:
   development: [dev-1, dev-2]
   sealed: [sealed-1, sealed-2]
