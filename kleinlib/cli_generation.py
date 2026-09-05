@@ -326,15 +326,26 @@ def _opted_in(study: Path) -> bool:
     return (directory / "manifest.yaml").is_file() or (directory / "events.jsonl").is_file()
 
 
-def _require_clean(study: Path, contract: dict[str, Any]) -> None:
+def _require_clean(study: Path, contract: dict[str, Any], *extra: str) -> None:
+    """A clean tree except the mutable surface, and ``extra`` on top of it.
+
+    ``extra`` is what THIS verb is about to file and therefore cannot already be
+    committed: the authored artifact a lock hashes (``domain_card.md``,
+    ``slates/<phase>.yaml``, the contribution ledger), or a repair's changed
+    files.  Everything else in the tree must still be committed — the operator's
+    other edits stay the operator's problem, exactly as at ``run-one``.
+    """
     from .contract import mutable_surface
     from .generation.chronology import repo_for
     from .transaction import assert_run_worktree
 
     repo = repo_for(study)
     if repo is None:
-        raise WorkflowError("a generation verb needs a git repository: git ancestry is one of the three chronology witnesses")
-    assert_run_worktree(repo, study, surface=mutable_surface(contract))
+        raise WorkflowError(
+            "a generation verb needs a git repository: git ancestry is one of the "
+            "three chronology witnesses"
+        )
+    assert_run_worktree(repo, study, surface=(*mutable_surface(contract), *extra))
 
 
 def _require_healthy_ledger(study: Path) -> None:
@@ -879,28 +890,6 @@ def _refuse(message: str) -> int:
     return 2
 
 
-def _require_clean_with(study: Path, contract: dict[str, Any], *extra: str) -> None:
-    """``_require_clean``, plus the human artifacts THIS verb is about to file.
-
-    ``domain_card.md`` is written by the driver and filed by ``expert lock``; a
-    repair's changed files are written by the driver and (when they are not the
-    mutable surface) filed by ``expert repair``.  Everything else in the tree
-    must still be committed — the operator's other edits stay the operator's
-    problem, exactly as at ``run-one``.
-    """
-    from .contract import mutable_surface
-    from .generation.chronology import repo_for
-    from .transaction import assert_run_worktree
-
-    repo = repo_for(study)
-    if repo is None:
-        raise WorkflowError(
-            "a generation verb needs a git repository: git ancestry is one of the "
-            "three chronology witnesses"
-        )
-    assert_run_worktree(repo, study, surface=(*mutable_surface(contract), *extra))
-
-
 def _expert_setup(
     args: argparse.Namespace, *, extra: tuple[str, ...] = ()
 ) -> tuple[Path, dict[str, Any], dict[str, Any], Path, list[dict[str, Any]]]:
@@ -920,9 +909,9 @@ def _expert_setup(
             "immutable, so an existing study needs a successor rather than an edit"
         )
     _require_healthy_ledger(study)
-    _require_clean_with(study, contract, *extra)
+    _require_clean(study, contract, *extra)
     repo = repo_for(study)
-    assert repo is not None  # _require_clean_with already refused a non-repo
+    assert repo is not None  # _require_clean already refused a non-repo
     return study, contract, manifest, repo, read_events(study)
 
 
@@ -1434,26 +1423,6 @@ def _require_capability(study: Path, name: str) -> dict[str, Any]:
     return manifest
 
 
-def _require_clean_but(study: Path, contract: dict[str, Any], *extra: str) -> None:
-    """A clean tree except the mutable surface AND the artifact being locked.
-
-    The authored slate is uncommitted BY CONSTRUCTION — it is what the verb is
-    about to hash and file — exactly as the candidate edit is uncommitted when
-    ``check`` runs.  Everything else must already be filed.
-    """
-    from .contract import mutable_surface
-    from .generation.chronology import repo_for
-    from .transaction import assert_run_worktree
-
-    repo = repo_for(study)
-    if repo is None:
-        raise WorkflowError(
-            "a generation verb needs a git repository: git ancestry is one of the "
-            "three chronology witnesses"
-        )
-    assert_run_worktree(repo, study, surface=[*mutable_surface(contract), *extra])
-
-
 def _run_slate_lock(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation import slate as gs
@@ -1467,7 +1436,7 @@ def _run_slate_lock(args: argparse.Namespace) -> int:
         study, contract = _load(args)
         _require_capability(study, "slates")
         _require_healthy_ledger(study)
-        _require_clean_but(study, contract, f"slates/{phase}.yaml")
+        _require_clean(study, contract, f"slates/{phase}.yaml")
         payload = gs.read_slate_file(study, phase)
     except WorkflowError as exc:
         return _error(str(exc))
@@ -1730,9 +1699,9 @@ def _design_setup(
             "immutable, so an existing study needs a successor rather than an edit"
         )
     _require_healthy_ledger(study)
-    _require_clean_with(study, contract, *extra)
+    _require_clean(study, contract, *extra)
     repo = repo_for(study)
-    assert repo is not None  # _require_clean_with already refused a non-repo
+    assert repo is not None  # _require_clean already refused a non-repo
     return study, contract, manifest, repo, read_events(study)
 
 
@@ -1894,9 +1863,9 @@ def _premortem_setup(
     study, contract = _load(args)
     _require_capability(study, gp.CAPABILITY_NAME)
     _require_healthy_ledger(study)
-    _require_clean_but(study, contract, f"premortem/{args.phase}.yaml")
+    _require_clean(study, contract, f"premortem/{args.phase}.yaml")
     repo = repo_for(study)
-    assert repo is not None  # _require_clean_but already refused a non-repo
+    assert repo is not None  # _require_clean already refused a non-repo
     payload = gp.read_premortem_file(study, args.phase)
     return study, contract, gm.study_id(study, contract), repo, read_events(study), payload
 
@@ -2247,9 +2216,9 @@ def _parity_setup(
     study, contract = _load(args)
     _require_capability(study, "parity")
     _require_healthy_ledger(study)
-    _require_clean_but(study, contract, *extra)
+    _require_clean(study, contract, *extra)
     repo = repo_for(study)
-    assert repo is not None  # _require_clean_but already refused a non-repo
+    assert repo is not None  # _require_clean already refused a non-repo
     return study, contract, repo, read_events(study)
 
 
@@ -2677,7 +2646,7 @@ def _run_contribution_record(args: argparse.Namespace) -> int:
         study, contract = _load(args)
         _require_capability(study, "contribution")
         _require_healthy_ledger(study)
-        _require_clean_but(study, contract, gc.LEDGER_NAME)
+        _require_clean(study, contract, gc.LEDGER_NAME)
         lines = gc.read_lines(study)
     except WorkflowError as exc:
         return _error(str(exc))
@@ -2983,9 +2952,9 @@ def _escalate_setup(
             "immutable, so an existing study needs a successor rather than an edit"
         )
     _require_healthy_ledger(study)
-    _require_clean_with(study, contract, *extra)
+    _require_clean(study, contract, *extra)
     repo = repo_for(study)
-    assert repo is not None  # _require_clean_with already refused a non-repo
+    assert repo is not None  # _require_clean already refused a non-repo
     return study, contract, manifest, repo, read_events(study)
 
 
@@ -4075,9 +4044,9 @@ def _surprise_setup(
     study, contract = _load(args)
     _require_capability(study, CAPABILITY_NAME)
     _require_healthy_ledger(study)
-    _require_clean_but(study, contract, *extra)
+    _require_clean(study, contract, *extra)
     repo = repo_for(study)
-    assert repo is not None  # _require_clean_but already refused a non-repo
+    assert repo is not None  # _require_clean already refused a non-repo
     return study, contract, repo, read_events(study)
 
 
@@ -4646,9 +4615,9 @@ def _benchmark_setup(
     study, contract = _load(args)
     _require_capability(study, "benchmark")
     _require_healthy_ledger(study)
-    _require_clean_but(study, contract, *extra)
+    _require_clean(study, contract, *extra)
     repo = repo_for(study)
-    assert repo is not None  # _require_clean_but already refused a non-repo
+    assert repo is not None  # _require_clean already refused a non-repo
     return study, contract, repo, read_events(study)
 
 
