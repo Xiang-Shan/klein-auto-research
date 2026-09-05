@@ -81,6 +81,12 @@ Klein scaffolds a canonical layout — do NOT rename these to match an existing 
 <!-- WP-03: premortem -->
 | `premortem/<phase>.yaml` | the red team's issues on the phase's DRAFT slate, and the driver's disposition of each (opt-in, `premortem` capability — `assets/premortem-template.yaml`) | the reviewer's half written by hand before the final lock and filed by `klein generation premortem record`; the driver's `responses` filed by `respond`, immutable after |
 <!-- end WP-03 -->
+<!-- WP-04: parity + contribution -->
+| `parity.yaml` | the AI-vs-expert comparison's criteria: pipelines, sampling unit, blocks, metrics with floors and justified margins (opt-in, `parity` capability — `assets/parity-template.yaml`) | written by hand at CONSULT, then frozen by `klein generation parity lock` before Gate 0; a change is `parity amend` |
+| `lib/parity_score.py` | the study-local scorer of the sealed comparison cell (`assets/parity_score_template.py`) | written by hand at METHOD; NEVER in the mutable surface; hashed by `klein generation parity bind` |
+| `tables/parity_units.tsv` | one row per sampling unit, both pipelines' contribution per metric — the pinned evidence the verdict recomputes from | written by the sealed comparison cell; pinned with an `artifact:` line |
+| `ai_value.jsonl` | the append-only contribution ledger: proposals, decisions, rejections, errors (opt-in, `contribution` capability) | appended by `klein generation contribution record`; never edited |
+<!-- end WP-04 -->
 
 The `generation/`-, `slates/`- and `premortem/`-prefixed rows are OPT-IN and schema-3 only:
 `klein new` scaffolds none of them, and a study without `generation/manifest.yaml` is
@@ -90,6 +96,12 @@ they are meant to be READ; `knowledge/references/` is the one that lives outside
 study entirely, because a reference is a fact about the literature rather than about
 one study; `slates/` and `generation/tables/` appear only once a study declares the
 `slates` capability, and `premortem/` only once it declares `premortem` as well.
+<!-- WP-04 -->
+`parity.yaml`, `lib/parity_score.py`, `tables/parity_units.tsv` and `ai_value.jsonl`
+appear the same way, once a study declares `parity` or `contribution` — the first two
+at the study root because the criteria and the checker are meant to be READ, and
+`lib/parity_score.py` deliberately outside `entrypoint.mutable`.
+<!-- end WP-04 -->
 
 `data_card.md`, `method_card.md` and `referee_report.md` are NOT scaffolded by
 `klein new` — they are the outputs of the DATA, METHOD and REFEREE gates, authored

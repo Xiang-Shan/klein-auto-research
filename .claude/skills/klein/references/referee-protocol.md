@@ -79,6 +79,20 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   that mattered, is a NOTE — it is exactly the failure the pre-mortem cannot detect
   about itself.
 
+<!-- WP-04: parity + contribution -->
+- **Parity.** Read `parity.yaml`, the pinned `tables/parity_units.tsv` and the recorded
+  decision; confirm findings state the outcome with its scope (population, sampling
+  unit, budget rule) and never as a bare "matched the expert", that
+  `agreement_within_floor` is reported under that name and never as parity, and that
+  each margin's `margin_rationale` justifies the margin by a decision rather than by the
+  measured floor. The one thing the machine cannot see is an **under-tuned expert**: a
+  control weakened in a way that still passes its own fixture is a referee obligation
+  (`references/expert-parity-protocol.md`).
+- **Contribution.** Read `ai_value.jsonl`: confirm rejections are present, that no
+  agent-accepted row is written up as human-accepted, and that any causal AI-value
+  language cites the matched ablation the lock names.
+<!-- end WP-04 -->
+
 Add one line beneath the two machine-read lines of the report:
 
 ```

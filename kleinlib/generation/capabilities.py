@@ -16,9 +16,10 @@ forgetting the other fails the suite immediately.
 
 The spine shipped neither: with both lists empty, opting in buys the admission
 discipline and nothing that scores research.  Each capability package since then
-appends ONE name to each list — WP-01 added ``expert`` / ``expertise``, WP-02
+appends its name to each list — WP-01 added ``expert`` / ``expertise``, WP-02
 added ``slate`` / ``slates``, WP-09 added ``design`` / ``design``, WP-03 added
-``premortem`` / ``premortem`` — and edits no other line of this package.
+``premortem`` / ``premortem``, and WP-04 added ``parity`` and ``contribution``
+under their own names — and edits no other line of this package.
 """
 
 from __future__ import annotations
@@ -40,6 +41,9 @@ MODULES: tuple[str, ...] = (
     "design",
     # --- WP-03: slate-time pre-mortem ---
     "premortem",
+    # --- WP-04: expert parity + contribution ledger ---
+    "parity",
+    "contribution",
 )
 
 

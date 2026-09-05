@@ -137,6 +137,34 @@ version.
   whose bytes no longer hash to its own name. Protocol:
   `.claude/skills/klein/references/premortem-protocol.md`; template:
   `.claude/skills/klein/assets/premortem-template.yaml`.
+- **Expert parity and contribution ledger (WP-04)** — two more registered capabilities.
+  `parity` (`klein generation parity lock | amend | bind | assess | show`) turns "the AI
+  matched the expert" into a commitment made before the evidence: `parity.yaml` is locked
+  at CONSULT with both pipelines and their selection rules, the sampling unit and
+  dependence block, the matched budget rule, and every metric's direction, estimand,
+  measured-floor reference, noninferiority margin and **written margin rationale** — set
+  by someone who is not the roster's experimenter, and tied to a registered prediction
+  whose rule must be exactly `L_<key> >= -margin`, so the notary decides the same
+  inequality the assessment does. `parity bind` pins the scorer's hash, both frozen
+  snapshots and every measured floor, and a registered admission rule refuses
+  `--action sealed` on **any** track until it exists (deferral D-2). One sealed
+  registered cell measures; `parity assess` recomputes `d/L/U` from the cell's own pinned
+  `tables/parity_units.tsv` and applies the rule — **exceeds / at least parity / refuted
+  / inconclusive**, mutually exclusive by construction, with an undefined metric never
+  passing and A4 §7's by-δ check reported as `agreement_within_floor`, never as parity.
+  Verification recomputes the same numbers from the same bytes and fails on a scorer or
+  snapshot that differs at the sealed candidate commit, on a second sealed run of the
+  comparison track, and on a locked metric the cell never printed or declared undefined.
+  `kleinlib.generation.stats.simultaneous_bounds` is the arithmetic: a block-bootstrap
+  max-t on per-block sums, pure numpy, deterministic under its seed — simultaneous bounds
+  under the declared block structure, not a p-value and not FWER control beyond this
+  registered family. `contribution` (`klein generation contribution record | show`)
+  appends `ai_value.jsonl` and seals each line's hash into the chain; coverage counts
+  every slate row and every hypothesis admission, rejections included, an accepted row
+  with no human acceptor is recorded as agent-accepted and never promoted, and the
+  outcome stays `descriptive` unless the parity lock cites a matched frozen-2.0 ablation
+  study. Protocol: `references/expert-parity-protocol.md`; templates:
+  `.claude/skills/klein/assets/parity-template.yaml` and `assets/parity_score_template.py`.
 
 ### Unchanged
 
