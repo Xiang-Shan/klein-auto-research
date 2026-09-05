@@ -31,6 +31,15 @@ Eight check families, each PASS / WARN / FAIL:
     The ledger is committed.  An uncommitted event is a receipt nobody can
     resolve by ancestry.
 
+Plus one family per capability the manifest DECLARED, contributed by a
+registered :class:`~kleinlib.generation.registry.Capability` rather than by a
+branch here.  Each family also returns an outcome, recorded verbatim under
+``capabilities[<name>]``: ``integrity`` (``PASS`` / ``FAIL``) says whether the
+record is intact, ``outcome`` says what the research got — reported side by
+side, never conflated.  A study that declares nothing runs no family and the
+key stays ``{}``; a study that declares a capability this version cannot load
+FAILs ``generation manifest``.
+
 The receipt carries no timestamp: at one HEAD it is a pure function of the
 study, and :func:`write_receipt` will not rewrite a receipt that differs from
 the one on disk only in ``git_head`` — so a second ``verify`` files no commit
@@ -371,6 +380,82 @@ def _label_checks(study_dir: Path) -> list[Check]:
     return [_pass(name, f"findings.md quotes `{line}`")]
 
 
+def _capability_checks(
+    study_dir: Path,
+    contract: Mapping[str, Any],
+    repo: Path | None,
+    events: Sequence[Mapping[str, Any]],
+    core: Sequence[Mapping[str, Any]],
+    match: _admission.Match,
+    declared: Sequence[str],
+) -> tuple[list[Check], dict[str, Any]]:
+    """One family per DECLARED capability, plus its outcome for the receipt.
+
+    Nothing runs for ``capabilities: []`` — not one check, not one key — so a
+    spine study's receipt is byte-for-byte what it was before capabilities
+    existed.  A declared capability this version cannot load FAILs
+    ``generation manifest``: an unrunnable commitment is not a passed one.
+    """
+    if not declared:
+        return [], {}
+    from .capabilities import load
+
+    try:
+        available = load()
+    except WorkflowError as exc:  # pragma: no cover - a packaging defect
+        return [_fail("generation manifest", f"capability modules are unloadable: {exc}")], {}
+
+    checks: list[Check] = []
+    outcomes: dict[str, Any] = {}
+    context: Any = None
+    for name in declared:
+        capability = available.get(name)
+        if capability is None:
+            checks.append(
+                _fail(
+                    "generation manifest",
+                    f"capability {name!r} declared but not supported by this version",
+                )
+            )
+            continue
+        if capability.verify_family is None:
+            continue
+        if context is None:
+            from .registry import FamilyContext
+
+            context = FamilyContext(
+                study_dir=study_dir,
+                repo=repo,
+                contract=contract,
+                state=_state(study_dir, contract),
+                manifest=_manifest_or_empty(study_dir),
+                events=events,
+                core=core,
+                match=match,
+                receipts=_admission.load_receipts(study_dir, events),
+            )
+        family_checks, outcome = capability.verify_family(context)
+        checks.extend(family_checks)
+        outcomes[name] = dict(outcome)
+    return checks, outcomes
+
+
+def _manifest_or_empty(study_dir: Path) -> dict[str, Any]:
+    try:
+        return _manifest.load_manifest(study_dir)
+    except WorkflowError:
+        return {}
+
+
+def _state(study_dir: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
+    from ..state import load_state
+
+    try:
+        return load_state(study_dir, contract)
+    except WorkflowError:
+        return {}
+
+
 def _commit_checks(study_dir: Path, repo: Path | None) -> list[Check]:
     name = "generation commits"
     if repo is None:
@@ -438,9 +523,18 @@ def generation_checks(
     else:
         checks += _admission_checks(match, len(_admission.load_receipts(study_dir, events)))
         checks += _replay_checks(match)
+    capability_checks, outcomes = _capability_checks(
+        study_dir, contract, repo, events, core, match, scope["capabilities"]
+    )
+    checks += capability_checks
     checks += _label_checks(study_dir)
     checks += _commit_checks(study_dir, repo)
-    extras = {"scope": scope, "runs": dict(match.runs), "receipts": dict(match.receipts)}
+    extras = {
+        "scope": scope,
+        "runs": dict(match.runs),
+        "receipts": dict(match.receipts),
+        "capabilities": outcomes,
+    }
     return checks, extras
 
 
@@ -476,7 +570,9 @@ def build_receipt(
         "summary": {"checks": len(checks), "failed": len(failed), "warned": len(warned)},
         "runs": extras.get("runs", {}),
         "receipts": extras.get("receipts", {}),
-        "capabilities": {},
+        # `{}` for `capabilities: []` — the key exists at every release so the
+        # receipt's shape never changes, and stays empty until one is declared.
+        "capabilities": dict(extras.get("capabilities") or {}),
     }
 
 

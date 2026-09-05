@@ -22,8 +22,11 @@ neither grants nor revokes.
 
 Nothing in this module proposes, ranks, selects, schedules or retries anything.
 ``ADMISSION_RULES`` is a list of plain predicates over a :class:`Context`; each
-returns the reasons it objects to the intended action, and later work packages
-append their capability's rules to it.
+returns the reasons it objects to the intended action.  A later work package
+adds none of its rules here: it REGISTERS a
+:class:`~kleinlib.generation.registry.Capability`, and
+:func:`capability_reasons` runs the rules of every capability the study's
+manifest declared, after the spine's own.
 """
 
 from __future__ import annotations
@@ -55,7 +58,9 @@ __all__ = [
     "Match",
     "Receipt",
     "build_receipt",
+    "capability_reasons",
     "core_anchor",
+    "declared_capabilities",
     "load_receipts",
     "match_runs",
     "outstanding_receipt",
@@ -152,31 +157,39 @@ def _rule_track_is_declared(ctx: Context) -> list[str]:
     return []
 
 
+def declared_capabilities(manifest: Mapping[str, Any]) -> tuple[str, ...]:
+    """The capability names ``generation/manifest.yaml`` declared, in order."""
+    value = manifest.get("capabilities")
+    if not isinstance(value, Sequence) or isinstance(value, str | bytes):
+        return ()
+    return tuple(str(item) for item in value)
+
+
+def _needs_capability(ctx: Context, requested: str | None, what: str, capability: str) -> list[str]:
+    """The spine's half of a typed request: is the capability DECLARED at all?
+
+    When it is, the spine steps aside and the capability's own registered rules
+    decide (see :mod:`kleinlib.generation.registry`); when it is not, the
+    request is refused here and the fix is a manifest, not a flag.
+    """
+    if not requested or capability in declared_capabilities(ctx.manifest):
+        return []
+    return [
+        f"{what} admission requires the {capability} capability; declare it in "
+        "generation/manifest.yaml"
+    ]
+
+
 def _rule_hypothesis_needs_slates(ctx: Context) -> list[str]:
-    if ctx.hypothesis:
-        return [
-            "hypothesis admission requires the slates capability; not available in "
-            "this version"
-        ]
-    return []
+    return _needs_capability(ctx, ctx.hypothesis, "hypothesis", "slates")
 
 
 def _rule_cell_needs_surprise(ctx: Context) -> list[str]:
-    if ctx.cell:
-        return [
-            "cell admission requires the surprise capability (registered discovery "
-            "cells); not available in this version"
-        ]
-    return []
+    return _needs_capability(ctx, ctx.cell, "cell", "surprise")
 
 
 def _rule_obligation_needs_expertise(ctx: Context) -> list[str]:
-    if ctx.obligation:
-        return [
-            "obligation admission requires the expertise capability; not available in "
-            "this version"
-        ]
-    return []
+    return _needs_capability(ctx, ctx.obligation, "obligation", "expertise")
 
 
 def _rule_seal_is_unspent(ctx: Context) -> list[str]:
@@ -197,8 +210,8 @@ def _rule_seal_is_unspent(ctx: Context) -> list[str]:
     return []
 
 
-#: The spine's rules.  A later capability package APPENDS its own predicates
-#: here (inside this subpackage); nothing outside ``kleinlib.generation`` may.
+#: The spine's rules, run for every study.  A capability's own rules are NOT
+#: appended here — they are registered (see :func:`capability_reasons`).
 ADMISSION_RULES: list[Callable[[Context], list[str]]] = [
     _rule_known_checkpoint,
     _rule_track_is_declared,
@@ -207,6 +220,32 @@ ADMISSION_RULES: list[Callable[[Context], list[str]]] = [
     _rule_obligation_needs_expertise,
     _rule_seal_is_unspent,
 ]
+
+
+def capability_reasons(ctx: Context) -> list[str]:
+    """The registered rules of every capability the manifest DECLARED.
+
+    The loader is imported here rather than at module scope: ``registry`` types
+    against this module, so a top-level import would cycle.  A declared
+    capability this version cannot load is refused rather than skipped — ``init``
+    already refuses to declare an unsupported name, so reaching this branch means
+    the manifest was hand-edited or the study was carried to an older Klein.
+    """
+    declared = declared_capabilities(ctx.manifest)
+    if not declared:
+        return []
+    from .capabilities import load
+
+    available = load()
+    reasons: list[str] = []
+    for name in declared:
+        capability = available.get(name)
+        if capability is None:
+            reasons.append(f"capability {name!r} declared but not supported by this version")
+            continue
+        for rule in capability.admission_rules:
+            reasons.extend(rule(ctx))
+    return reasons
 
 
 def build_receipt(
@@ -223,6 +262,7 @@ def build_receipt(
     reasons: list[str] = []
     for rule in ADMISSION_RULES:
         reasons.extend(rule(ctx))
+    reasons.extend(capability_reasons(ctx))
     receipt: dict[str, Any] = {
         "schema": GENERATION_SCHEMA,
         "kind": "admission",

@@ -457,6 +457,34 @@ def _run_label(args: argparse.Namespace) -> int:
     return 0
 
 
+def _capability_lines(study: Path, manifest: dict[str, Any]) -> list[str]:
+    """One `integrity / outcome` line per declared capability, once audited.
+
+    Read-only and best effort: before the first `generation verify` there is no
+    receipt to read, and status says so rather than inventing a verdict.
+    """
+    import json
+
+    from .generation.verify import RECEIPT_NAME
+
+    declared = [str(name) for name in (manifest.get("capabilities") or [])]
+    if not declared:
+        return []
+    path = study / RECEIPT_NAME
+    try:
+        reported = json.loads(path.read_text(encoding="utf-8")).get("capabilities") or {}
+    except (OSError, ValueError, AttributeError):
+        return [f"  {name}: not audited yet (run `klein generation verify`)" for name in declared]
+    lines = []
+    for name in declared:
+        entry = reported.get(name)
+        if isinstance(entry, dict):
+            lines.append(f"  {name}: {entry.get('integrity', '?')} / {entry.get('outcome', 'n/a')}")
+        else:
+            lines.append(f"  {name}: not audited yet (run `klein generation verify`)")
+    return lines
+
+
 def _run_status(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation.admission import load_receipts, match_runs
@@ -478,6 +506,8 @@ def _run_status(args: argparse.Namespace) -> int:
     repo = repo_for(study)
     print(f"generation: enabled for {manifest.get('study_id')}")
     print(f"  capabilities: {', '.join(manifest.get('capabilities') or []) or 'none (admission discipline only)'}")
+    for line in _capability_lines(study, manifest):
+        print(line)
     print(f"  chain: {len(events)} events; last core anchor: "
           f"{(events[-1].get('core_anchor', {}) if events else {}).get('sequence', 0)}")
     print(f"  receipts: {len(load_receipts(study, events))}")

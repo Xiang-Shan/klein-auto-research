@@ -28,6 +28,8 @@ must stay cheap, and the CLI imports what a handler actually needs.
 - :mod:`kleinlib.generation.ledger` — ``generation/events.jsonl`` + ``objects/``
 - :mod:`kleinlib.generation.manifest` — the opt-in manifest and capability registry
 - :mod:`kleinlib.generation.chronology` — the three local chronology witnesses
+- :mod:`kleinlib.generation.registry` — the ``Capability`` a later package registers
+- :mod:`kleinlib.generation.capabilities` — the capability modules THIS version ships
 - :mod:`kleinlib.generation.admission` — admission receipts and the run↔receipt matcher
 - :mod:`kleinlib.generation.verify` — the check families and ``generation/verify_receipt.json``
 - :mod:`kleinlib.generation.label` — ``generation/label.json``

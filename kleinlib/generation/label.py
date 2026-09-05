@@ -33,10 +33,18 @@ from typing import Any
 
 from ..errors import WorkflowError
 from ..primitives import sha256_file
+from . import manifest as _manifest
 from .envelope import GENERATION_SCHEMA
-from .manifest import KNOWN_CAPABILITIES, study_id
+from .manifest import study_id
 
-__all__ = ["LABEL_NAME", "LABEL_VALUE", "build_label", "findings_line", "label_problems"]
+__all__ = [
+    "LABEL_NAME",
+    "LABEL_VALUE",
+    "build_label",
+    "capability_outcomes",
+    "findings_line",
+    "label_problems",
+]
 
 LABEL_NAME = "generation/label.json"
 LABEL_VALUE = "generation-verified"
@@ -97,7 +105,47 @@ def label_problems(study_dir: Path, repo: Path | None, head: str | None) -> list
                 f"{str(extension.get('git_head'))[:12]} and the study has changed since — "
                 "re-run `klein generation verify`"
             )
+        failing = _failed_integrity(extension)
+        if failing:
+            problems.append(
+                "capability integrity FAILed for "
+                + ", ".join(failing)
+                + f" — belt and braces: {RECEIPT_NAME}'s failed count already covers this, "
+                "and the label is refused on either witness"
+            )
     return problems
+
+
+def _failed_integrity(receipt: Mapping[str, Any]) -> list[str]:
+    """Declared capabilities whose family reported ``integrity: FAIL``."""
+    reported = receipt.get("capabilities")
+    if not isinstance(reported, Mapping):
+        return []
+    return sorted(
+        str(name)
+        for name, entry in reported.items()
+        if isinstance(entry, Mapping) and entry.get("integrity") == "FAIL"
+    )
+
+
+def capability_outcomes(study_dir: Path) -> dict[str, str]:
+    """The label's capability column: an OUTCOME per name, ``n/a`` when unscored.
+
+    Every name in the vocabulary is listed at every release so the label's key
+    set is stable, and a declared capability's entry is the outcome its verify
+    family reported — never its integrity, which the label as a whole already
+    carries.
+    """
+    from .verify import RECEIPT_NAME
+
+    outcomes: dict[str, str] = dict.fromkeys(_manifest.KNOWN_CAPABILITIES, "n/a")
+    receipt = _receipt(study_dir / RECEIPT_NAME) or {}
+    reported = receipt.get("capabilities")
+    if isinstance(reported, Mapping):
+        for name, entry in reported.items():
+            if isinstance(entry, Mapping) and isinstance(entry.get("outcome"), str):
+                outcomes[str(name)] = entry["outcome"]
+    return outcomes
 
 
 def build_label(
@@ -117,9 +165,9 @@ def build_label(
         "git_head": head,
         "core_receipt_sha256": sha256_file(core),
         "generation_receipt_sha256": sha256_file(extension),
-        # Every capability this vocabulary will ever hold, declared `n/a` until
-        # a later work package can actually score it.  Listing them all keeps
-        # the label's key set stable across releases.
-        "capabilities": dict.fromkeys(KNOWN_CAPABILITIES, "n/a"),
+        # Every capability this vocabulary will ever hold: the outcome a
+        # declared capability's family reported, `n/a` for the rest.  Listing
+        # them all keeps the label's key set stable across releases.
+        "capabilities": capability_outcomes(study_dir),
         "rung": "local-order",
     }

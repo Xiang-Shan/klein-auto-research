@@ -28,6 +28,15 @@ version.
   surprise, escalation, knowledge, benchmark, design`) and its dependency table are
   encoded; **this release supports none of them** — opting in buys the admission
   discipline and the chronology witnesses, and nothing that scores research.
+- **Capability registration hooks.** A capability now plugs into the generation spine
+  by registration (`kleinlib/generation/registry.py`: a name, admission rules, one
+  verify family; `capabilities.py`: the modules this version ships), never by editing
+  `admission.py`, `verify.py` or `label.py`. A capability the manifest does not declare
+  is not consulted; one it declares that this version cannot run FAILs
+  `generation manifest`. Families report `integrity` (is the record intact) and
+  `outcome` (what the research got) separately — the label copies the outcome, the
+  spine judges only the integrity — and a study with `capabilities: []` runs no family,
+  so its receipt is byte-for-byte the one the spine already produced.
 
 ### Unchanged
 

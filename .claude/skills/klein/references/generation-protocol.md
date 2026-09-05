@@ -203,6 +203,20 @@ this layer. Eight families:
 The receipt carries no timestamp: at one HEAD it is a pure function of the study, and a
 second `verify` that finds nothing new neither rewrites it nor files a commit.
 
+**Capability families and outcomes.** Beyond those eight, each capability the manifest
+DECLARED contributes its own family — registered, not hard-coded: a capability is a
+name, some admission rules, and one verify family, and adding one edits no spine rule.
+A declared capability this version cannot run FAILs `generation manifest`
+("declared but not supported by this version"), because an unrunnable commitment is not
+a passed one; a study that declares nothing runs no family at all and its receipt is
+byte-for-byte the one it got before capabilities existed. Every family reports two
+things separately under `capabilities[<name>]`: **`integrity`** (`PASS` / `FAIL`) — is
+the RECORD intact — and **`outcome`** (a string such as `incomplete`) — what the
+research got. The spine reads only `integrity`; it never treats an outcome as a
+judgement. The label copies each declared capability's `outcome` into its
+`capabilities` column and leaves every other name `n/a`, and `klein generation status`
+prints `<name>: <integrity> / <outcome>` once a receipt exists.
+
 ## The label
 
 ```bash
