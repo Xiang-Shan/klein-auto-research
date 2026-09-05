@@ -691,11 +691,31 @@ def verify_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
     }
 
 
+# ---- receipt inputs (filled by WP-06, which depends on this capability) ----
+def _receipt_inputs(ctx: Any) -> dict[str, str | None]:
+    """The lock this admission was taken under — pinned into the receipt.
+
+    Every admission on a design-enabled study, not only a cell's: the design is
+    what says what ANY of the study's evidence is for, so the receipt names the
+    version in force when the action was taken.  Before the lock the slot stays
+    null, which is itself the record that the action preceded the design.
+    """
+    from .ledger import read_events
+
+    rows = locks(ctx.study_dir, read_events(ctx.study_dir))
+    if not rows:
+        return {}
+    event, _obj = rows[0]
+    sha = event.get("payload_sha256")
+    return {"design": sha} if isinstance(sha, str) else {}
+
+
 #: The registration.  Everything above is reachable only through this object.
 CAPABILITY = Capability(
     name=CAPABILITY_NAME,
     admission_rules=(_rule_cell_needs_a_locked_design,),
     verify_family=verify_family,
+    receipt_inputs=_receipt_inputs,
 )
 
 
