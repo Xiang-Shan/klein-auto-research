@@ -448,16 +448,16 @@ def test_capability_names_are_typed_before_they_are_available(tmp_path: Path) ->
 
     assert set(SUPPORTED_CAPABILITIES) <= set(KNOWN_CAPABILITIES)
     assert "unknown capability" in "; ".join(capability_problems(["telepathy"]))
-    # `escalation` is in the vocabulary and ships later — a different problem
+    # `benchmark` is in the vocabulary and ships later — a different problem
     # from a typo, and it stays the example as each package lands.
-    assert "escalation" not in SUPPORTED_CAPABILITIES
-    assert "not available in this version" in "; ".join(capability_problems(["escalation"]))
+    assert "benchmark" not in SUPPORTED_CAPABILITIES
+    assert "not available in this version" in "; ".join(capability_problems(["benchmark"]))
     # the dependency table is encoded now, enforced as SUPPORTED grows
     assert "requires 'slates'" in "; ".join(capability_problems(["premortem"]))
 
     repo, study = _scaffold(tmp_path)
     assert _gen("init", "--study", str(study), "--capability", "telepathy") == 1
-    assert _gen("init", "--study", str(study), "--capability", "escalation") == 1
+    assert _gen("init", "--study", str(study), "--capability", "benchmark") == 1
     assert not (study / "generation" / "manifest.yaml").exists()
 
 
