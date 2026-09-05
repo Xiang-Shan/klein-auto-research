@@ -297,6 +297,39 @@ version.
   `assets/score_submissions_template.py`.
 <!-- end WP-05 -->
 
+<!-- fix-2 -->
+- **The parity outcome is one cell's, decided once, and the slate scores the first
+  try.** Six behaviours of the `slates` and `parity` capabilities were tightened
+  before any study could depend on them:
+  - The parity outcome is now read from the **comparison track's sole sealed cell**,
+    resolved from the lock, rather than from whatever was assessed most recently.
+    `parity assess --run` refuses a sealed run on any other track, and an assessment
+    naming one FAILs `parity assessment` without displacing the comparison's verdict.
+  - The sealed comparison cell must **ask the notary the questions the lock
+    registered**: `generation check --action sealed` on the comparison track is
+    refused unless `--tests` names every parity prediction, and `parity cell` FAILs a
+    comparison run whose manifest carries no verdict for one of them.
+  - `parity bind` may only read each metric's floor **where its `floor_ref` says**.
+    `--floor-run` must restate the run the lock froze, and a bound floor whose
+    `source` differs from the locked reference FAILs `parity bind`.
+  - A `scorer.path` inside `entrypoint.mutable` is refused by `parity lock` and FAILs
+    at every verify — the checker is never the searcher (R-INV-3). A
+    `scoring.scorer_name` equal to the roster experimenter is a WARN (testimony).
+  - A slate row's `y` now comes from its **FIRST** admitted run, not its last, so a
+    resolved row cannot be re-run into a better score. Every further admitted run is
+    counted in a new `n_bound_runs` field of the score object and column of the
+    calibration table, and the family WARNs when any row exceeds one. `revision_of`
+    is carried forward across later amendments, so a revised forecast stays in the
+    revisions panel. A row's `parent_ids` must name hypotheses this study locked.
+  - Arithmetic honesty: a comparison over no metrics is `inconclusive` rather than a
+    vacuous `parity`; a constant metric on unequal blocks is undefined rather than
+    bounded by floating-point residue; a non-numeric, non-empty cell of
+    `tables/parity_units.tsv` is an error naming its line and column instead of a
+    silent NA (and the NA count is recorded). Assessment replay now compares the
+    bootstrap numbers at a relative tolerance and records `numpy`'s version beside
+    `n_boot` and `seed`, so a numpy upgrade is diagnosed rather than read as tampering.
+<!-- end fix-2 -->
+
 ### Unchanged
 
 - **The core notary, its receipts, and schema-2 verification.** `run-one` gains no
