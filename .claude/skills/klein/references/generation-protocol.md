@@ -28,16 +28,20 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships two:
+Each capability adds one verb group beside those six. This release ships three
+here (`expertise` has its own two groups — see `references/expert-protocol.md` and
+`references/reference-protocol.md`):
 
 ```bash
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
 uv run --locked klein generation design lock                 --study studies/NN-slug [--allow-late]
+uv run --locked klein generation knowledge promote|contest|resolve|query|decide|show --study studies/NN-slug
 ```
 
 Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
-`design lock`) takes the four **testimony** flags `--actor --tool --model --session`;
-`verify`, `status` and `slate show` write no event and take none.
+`design lock`, `knowledge promote|contest|resolve|query|decide`) takes the four
+**testimony** flags `--actor --tool --model --session`; `verify`, `status`,
+`slate show` and `knowledge show` write no event and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -75,7 +79,8 @@ availability. A name outside the vocabulary is refused as *unknown*; a known nam
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
 `benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
-`slates` and `design`** (see `references/expert-protocol.md`, "Slates and calibration"
+`slates`, `design` and `knowledge`** (see `references/expert-protocol.md`,
+`references/knowledge-protocol.md`, "Slates and calibration"
 and "Evidence design" below); the rest ship later and are refused as *not available* until they do. Opting in with `capabilities: []` still buys the admission discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
 `generation_amended` events which may only ADD capabilities; each addition is reported

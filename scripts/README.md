@@ -59,6 +59,25 @@ running the full proof, and `scripts/tests/test_verify_e2e.py` exercises the
 safety discipline (branch-collision refusal, worktree/branch/tempdir teardown)
 as a subprocess through the shim.
 
+## `seed_knowledge_objects.py`
+
+The one-off that seeds the repo-level knowledge store from the typed claim
+citations already in `knowledge/**/*.md`
+(`.claude/skills/klein/references/knowledge-protocol.md`). It opens every markdown
+file read-only — **no markdown is ever written** — skips any cited study whose
+`claims.lock` does not verify right now, copies each claim's class, strength and
+evidence roots verbatim, deduplicates by evidence roots, and leaves the scope
+fields empty because inventing a scope from a citation is exactly the failure the
+store exists to prevent.
+
+```bash
+uv run --locked python scripts/seed_knowledge_objects.py            # dry run
+uv run --locked python scripts/seed_knowledge_objects.py --apply    # writes
+```
+
+Dry-run by default; `--apply` writes objects and transactions but does NOT commit
+— it prints the exact `git add -- …` for the operator to run.
+
 ## `check_generated_tutorial_network.py`
 
 Builds a fresh temporary v2 tutorial with the real assembler, opens its `file://`
