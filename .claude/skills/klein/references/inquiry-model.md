@@ -115,6 +115,23 @@ Rules that follow from the table:
 `klein claims verify` resolves every id a claim cites; an id that resolves nowhere fails
 the study.
 
+<!-- WP-06: generation records -->
+### Generation records (schema 3, opt-in)
+
+A study that opted into the generation layer carries a second family of ids. They are
+**sidecar ids, resolved by `klein generation verify`** — the claims law does not know
+them, and they reach a claim only through the `art:` alias of the table that carries
+them (deferral D-4). They are always written fully qualified.
+
+| Form | Resolves to |
+|---|---|
+| `<study>#Sn` | one surprise receipt: a violating segment of a registered discovery cell, with its pinned table (`references/surprise-protocol.md`). A **bare `S#` is a scouting-ledger entry**, not this. |
+
+An `Sn` is exploratory by construction: `klein generation verify` FAILs a `confirmed`
+claim that cites a discovery cell's table or names a receipt, and the confirmation is a
+separately registered `test` study on rows the selection never saw.
+<!-- end WP-06 -->
+
 ## Per-kind requirements at CONSULT
 
 Beyond the six-axis interview, the consultant confirms:

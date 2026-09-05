@@ -124,6 +124,18 @@ those verdicts are what resolve the row's outcome afterwards. A cell run without
 hypothesis on an enabled study is refused unless it is a typed obligation (`calibration`,
 `baseline`, `repair`, `sealed`).
 
+<!-- WP-06: surprise -->
+**A discovery cell is a registered cell.** A study that declared the `surprise`
+capability names the registered cell as well (`--cell cell_<name>`), and `--tests` must
+include the cell's registered `expectation_P`: the notary adjudicates the expectation on
+that run's printed block, and nothing else decides it. The cell's entrypoint prints its
+per-unit table as an ordinary `artifact:` line; `klein generation surprise record --run
+E####` reads those pinned bytes afterwards and applies the declared multiplicity rule
+once (`references/surprise-protocol.md`). A discovery cell may never run on the sealed
+partition — the seal is a track's single confirmation look, and a screen cannot confirm
+what it selected.
+<!-- end WP-06 -->
+
 ## What registered mode is not
 
 - Not a sweep escape hatch: a search still runs through `sweep-rules.md`, and a
