@@ -87,12 +87,15 @@ Klein scaffolds a canonical layout — do NOT rename these to match an existing 
 | `tables/parity_units.tsv` | one row per sampling unit, both pipelines' contribution per metric — the pinned evidence the verdict recomputes from | written by the sealed comparison cell; pinned with an `artifact:` line |
 | `ai_value.jsonl` | the append-only contribution ledger: proposals, decisions, rejections, errors (opt-in, `contribution` capability) | appended by `klein generation contribution record`; never edited |
 <!-- end WP-04 -->
+<!-- WP-07: escalation -->
+| `escalation_plan.yaml` | how this study will get unstuck: triggers reconstructed from the manifests, the five rungs, unit-bearing budgets, terminal actions (opt-in, `capabilities: [escalation]` — `references/escalation-protocol.md`) | authored from `assets/escalation-plan-template.yaml`, then frozen by `klein generation escalate lock` before Gate 0; locked once |
+<!-- end WP-07 -->
 
 The `generation/`-, `slates/`- and `premortem/`-prefixed rows are OPT-IN and schema-3 only:
 `klein new` scaffolds none of them, and a study without `generation/manifest.yaml` is
-untouched by every rule in `references/generation-protocol.md`. `domain_card.md` and
-`evidence_design.yaml` are the opt-in artifacts that live at the study root because
-they are meant to be READ; `knowledge/references/` is the one that lives outside the
+untouched by every rule in `references/generation-protocol.md`. `domain_card.md`,
+`evidence_design.yaml` and `escalation_plan.yaml` are the opt-in artifacts that live at
+the study root because they are meant to be READ; `knowledge/references/` is the one that lives outside the
 study entirely, because a reference is a fact about the literature rather than about
 one study; `slates/` and `generation/tables/` appear only once a study declares the
 `slates` capability, and `premortem/` only once it declares `premortem` as well.

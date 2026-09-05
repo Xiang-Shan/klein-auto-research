@@ -99,6 +99,14 @@ bookkeeping is arithmetic on authored rows and does not automate the ritual: the
 still writes no candidate, compares none, and orders none — the 1–3 scores are copied
 verbatim into the record and never fed to a comparison.
 
+<!-- WP-07: escalation -->
+On a study that also declared `escalation`, a tripped trigger comes BEFORE the next
+slate: while a declared stall stands undischarged, no `run` or `--hypothesis` admission
+is granted, so the ritual's first move is `klein generation escalate record` — one
+`<study>#Dn` receipt naming the rung and what it concretely changes — and only then the
+4–6 candidates (`references/escalation-protocol.md`).
+<!-- end WP-07 -->
+
 ## Worked example
 
 ```markdown

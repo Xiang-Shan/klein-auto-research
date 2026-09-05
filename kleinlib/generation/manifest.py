@@ -89,6 +89,8 @@ SUPPORTED_CAPABILITIES: tuple[str, ...] = (
     # --- WP-04: expert parity + contribution ledger ---
     "parity",
     "contribution",
+    # --- WP-07: escalation ladder + successor studies ---
+    "escalation",
 )
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {

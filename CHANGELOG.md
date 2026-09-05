@@ -165,6 +165,40 @@ version.
   outcome stays `descriptive` unless the parity lock cites a matched frozen-2.0 ablation
   study. Protocol: `references/expert-parity-protocol.md`; templates:
   `.claude/skills/klein/assets/parity-template.yaml` and `assets/parity_score_template.py`.
+<!-- WP-07 -->
+- **The escalation ladder and successor studies (WP-07) — getting unstuck, accounted
+  for** (`klein generation escalate lock | record | close | pivot | show`, capability
+  `escalation`). A declaring study freezes `escalation_plan.yaml` before the CONSULT
+  gate: the triggers a stall is RECONSTRUCTED from — `consecutive_discards` through the
+  `stop:` rule's own counter, `headroom_closed` through the same `kleinlib.decision`
+  helpers `run-one` enforces on, `budget_exhausted` against a phase's registered
+  `max_experiments` — the five rungs in one fixed order (metric diagnosis → method
+  family → data leverage → adjacent-field analogy → human expert, with `stop` always
+  available from anywhere), unit-bearing budgets over compute/person-time/money/samples,
+  and `stop`/`pivot` as terminal actions. **Once a trigger trips, no `run` or
+  `--hypothesis` admission is granted** until a `<study>#Dn` decision citing it is
+  recorded after the tripping run — and the discharge is scoped to that count, exactly
+  like `klein stop ack`. Each decision names the rung, the lower rungs skipped WITH
+  REASONS (a silent skip is refused), the concrete changed resource or assumption, the
+  estimated cost and the condition that would close it; `close` adds the outcome and the
+  actuals, where a unit that cannot be measured is `unknown` with cost evidence rather
+  than omitted. Verification recomputes every count from the manifests, re-derives the
+  episode from the chain, FAILs an unaccounted rung, an open decision that outlived
+  `evidence_window`, a budget passed without a prior `extend-budget` decision, and a
+  pivot whose `old_contract_sha256` is not `study.yaml` at the pivot's own commit —
+  **editing the locked threshold cannot discharge a stall**. `escalate pivot` links a
+  successor study with both contract hashes, the exposure it inherits (spent seals, the
+  development partition, scouted ids) and every `#Hn`/`#Sn` id handed over; the
+  successor cites it back with `generation init --predecessor … --successor-receipt …`,
+  and its `escalation predecessor` check reads the receipt out of the predecessor's
+  store. A successor id restores no blindness. The capability outcome is
+  `none | escalated | stopped | pivoted`, reported beside its integrity. **The verb
+  neither chooses a rung nor launches, schedules or retries work** — whether the work
+  under a rung label deserves it stays the referee's judgement, which is why the changed
+  resource is written down. Protocol:
+  `.claude/skills/klein/references/escalation-protocol.md`; template:
+  `.claude/skills/klein/assets/escalation-plan-template.yaml`.
+<!-- end WP-07 -->
 
 ### Unchanged
 

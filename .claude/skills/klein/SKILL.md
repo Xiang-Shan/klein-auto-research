@@ -108,6 +108,19 @@ contribution record` (coverage includes rejections; an accepted row with no huma
 acceptor stays agent-accepted; causal AI value needs the cited matched ablation)
 — `references/expert-parity-protocol.md`.
 <!-- end WP-04 -->
+<!-- WP-07: escalation -->
+Declaring `--capability escalation` adds the escalation ladder: `klein generation
+escalate lock` freezes `escalation_plan.yaml` before Gate 0 — the triggers a stall is
+reconstructed from (consecutive discards, closed headroom, an exhausted phase budget),
+the five rungs in one fixed order (metric diagnosis → method family → data leverage →
+adjacent-field analogy → human expert, with `stop` always available), unit-bearing
+budgets, and `stop`/`pivot` as terminal actions. Once a trigger trips, no `run` or
+`--hypothesis` admission is granted until `klein generation escalate record` files a
+`<study>#Dn` decision naming the concrete changed resource; `escalate close` adds the
+actual costs and `escalate pivot` links a successor study with both contract hashes and
+its inherited exposure. Editing the plan afterwards cannot discharge a stall
+(`references/escalation-protocol.md`).
+<!-- end WP-07 -->
 
 ## Setup
 

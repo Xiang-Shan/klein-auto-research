@@ -28,7 +28,7 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships five:
+Each capability adds one verb group beside those six. This release ships six:
 
 ```bash
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
@@ -36,13 +36,15 @@ uv run --locked klein generation design lock                 --study studies/NN-
 uv run --locked klein generation premortem record|respond    --study studies/NN-slug --phase <id>
 uv run --locked klein generation parity lock|amend|bind|assess|show --study studies/NN-slug
 uv run --locked klein generation contribution record|show    --study studies/NN-slug
+uv run --locked klein generation escalate lock|record|close|pivot|show --study studies/NN-slug
 ```
 
 Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
 `design lock`, `premortem record|respond`, `parity lock|amend|bind|assess`,
-`contribution record`) takes the four **testimony** flags
-`--actor --tool --model --session`; `verify`, `status`, `slate show`, `parity show`
-and `contribution show` write no event and take none.
+`contribution record`, `escalate lock|record|close|pivot`) takes the four
+**testimony** flags `--actor --tool --model --session`; `verify`, `status`,
+`slate show`, `parity show`, `contribution show` and `escalate show` write no event
+and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -80,11 +82,12 @@ availability. A name outside the vocabulary is refused as *unknown*; a known nam
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
 `benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
-`slates`, `design`, `premortem`, `parity` and `contribution`** (see
+`slates`, `design`, `premortem`, `parity`, `contribution` and `escalation`** (see
 `references/expert-protocol.md`, "Slates and calibration" and "Evidence design" below,
-`references/premortem-protocol.md`, and `references/expert-parity-protocol.md`); the
-rest ship later and are refused as *not available* until they do. Opting in with
-`capabilities: []` still buys the admission discipline and
+`references/premortem-protocol.md`, `references/expert-parity-protocol.md`, and
+`references/escalation-protocol.md`); the rest ship later and are refused as *not
+available* until they do. Opting in with `capabilities: []` still buys the admission
+discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
 `generation_amended` events which may only ADD capabilities; each addition is reported
 `late_added`.
