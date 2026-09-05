@@ -30,9 +30,9 @@ from .registry import Capability
 __all__ = ["MODULES", "load"]
 
 #: Module names under ``kleinlib.generation``, in dependency order.
-# --- WP-01: expertise ---
-MODULES: tuple[str, ...] = ("expert",)
-# --- end WP-01 ---
+# --- WP-01: expertise --- WP-09: design ---
+MODULES: tuple[str, ...] = ("expert", "design")
+# --- end WP-01/WP-09 ---
 
 
 def load() -> dict[str, Capability]:

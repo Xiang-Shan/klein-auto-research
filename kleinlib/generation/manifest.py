@@ -77,9 +77,9 @@ KNOWN_CAPABILITIES: tuple[str, ...] = (
 #: discipline plus the chronology witnesses, and nothing that scores research;
 #: each capability package appends its own name here and to
 #: :data:`kleinlib.generation.capabilities.MODULES`, and nothing else.
-# --- WP-01: expertise ---
-SUPPORTED_CAPABILITIES: tuple[str, ...] = ("expertise",)
-# --- end WP-01 ---
+# --- WP-01: expertise --- WP-09: design ---
+SUPPORTED_CAPABILITIES: tuple[str, ...] = ("expertise", "design")
+# --- end WP-01/WP-09 ---
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {
     "premortem": ("slates",),
