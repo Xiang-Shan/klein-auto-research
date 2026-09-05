@@ -1,0 +1,111 @@
+# escalation_plan.yaml — how this study will get unstuck, written before it is.
+#
+# A stall is the moment the record is worth least and the temptation is worth
+# most: the evidence has stopped moving, the deadline has not, and every way out
+# is deniable afterwards. This document removes the deniability by freezing four
+# things at CONSULT — the arithmetic that says a stall HAPPENED, the ladder of
+# responses, the budget they may spend, and how the study may end.
+#
+# `klein generation escalate lock` freezes it BEFORE the CONSULT gate. Locking it
+# afterwards is possible with `--allow-late` and FAILs `escalation plan`
+# permanently: a stall rule written once the study is running cannot constrain
+# it, and editing a threshold later cannot discharge a stall it already declared.
+#
+# Opt-in and schema-3 only: this file means nothing unless
+# `generation/manifest.yaml` declares `capabilities: [escalation]`.
+#
+# Protocol: .claude/skills/klein/references/escalation-protocol.md.
+# Copy this file to the study root, fill every field, then:
+#
+#   uv run --locked klein generation escalate lock --study studies/NN-slug
+
+type: escalation-plan
+study: NN-slug                       # must equal the study's own id
+
+# ---------------------------------------------------------------------------
+# 1. Triggers — the arithmetic that says the study is stuck.
+# ---------------------------------------------------------------------------
+# Every trigger is RECONSTRUCTED from the run manifests, the contract and the
+# state at verification time; none is ever asserted by a receipt. Ids are T1,
+# T2, … and are cited by every decision that answers them. Declare the ones this
+# study can actually hit — a trigger nobody can trip buys nothing.
+triggers:
+  # The stop rule's own counter, reused verbatim (`kleinlib.stop`): a discard
+  # increments, a keep or a measured cell resets, a crash is stepped over, and
+  # sealed confirmation evidence is never counted. `scope` is track (default),
+  # phase or study; on `track`, `track: null` means "whichever track is being
+  # admitted", and the decision must then pass `--track`.
+  - id: T1
+    kind: consecutive_discards
+    max: 5                           # positive integer
+    scope: track                     # track | phase | study
+    track: null                      # a declared track id, or null
+
+  # h = (incumbent − ideal) / minimum_delta < 1 on any track: no keep is
+  # arithmetically possible on that frontier any more, so more candidates are
+  # not more evidence. Recomputed with the very helpers `run-one` enforces on.
+  - id: T2
+    kind: headroom_closed
+
+  # A phase that has spent its registered `max_experiments`. Experiments, not
+  # seconds: `budget_seconds` is the core's own limit and `run-one` enforces it.
+  - id: T3
+    kind: budget_exhausted
+    phase: adaptive-1                # a declared phase id from study.yaml
+
+# ---------------------------------------------------------------------------
+# 2. Evidence window — how long a decision stays prospective.
+# ---------------------------------------------------------------------------
+# An OPEN decision with more runs after it than this is not a decision recorded
+# before its action any more; verification FAILs it as post-hoc. Close it, or
+# record the next rung.
+evidence_window:
+  runs: 5
+
+# ---------------------------------------------------------------------------
+# 3. The ladder — fixed, in this order, all five present.
+# ---------------------------------------------------------------------------
+# Cheap and local first, expensive and external last. Each rung is CONSIDERED in
+# order; taking a higher one costs a written reason for every lower one skipped.
+# `stop` is not on the list because it is always available from anywhere.
+#
+#   metric_diagnosis        direction, estimand, resolution, headroom — the
+#                           diagnosis may not LOWER a bar to rescue a result
+#   method_family           a different family, not another tuning round
+#   data_leverage           more or different evidence: another season, another
+#                           assay, another cohort
+#   adjacent_field_analogy  a cited correspondence and a falsifiable transferred
+#                           prediction — not a metaphor
+#   human_expert            a named advisor, the advice verbatim, the acceptance
+#                           decision and the cost; unavailable expertise is
+#                           recorded as unavailable
+rungs:
+  - metric_diagnosis
+  - method_family
+  - data_leverage
+  - adjacent_field_analogy
+  - human_expert
+
+# ---------------------------------------------------------------------------
+# 4. Budgets — unit-bearing, all four present.
+# ---------------------------------------------------------------------------
+# A number or the word `unknown` (no cap declared). Costs accumulate across the
+# decisions' actuals, falling back to their estimates; passing a cap without an
+# earlier decision whose `considered_action` starts with the token
+# `extend-budget` FAILs verification.
+budgets:
+  compute: 100                       # your own unit — GPU-hours, core-hours, runs
+  person_time: 8                     # hours
+  money: 0                           # your own currency
+  samples: unknown                   # new observations this study may acquire
+
+# ---------------------------------------------------------------------------
+# 5. Terminal actions — how the study is allowed to end.
+# ---------------------------------------------------------------------------
+# `stop` is mandatory: stopping is always a recorded option, never a failure to
+# decide. `pivot` links a successor study through `klein generation escalate
+# pivot`, pinning both contract hashes and everything the successor inherits —
+# a successor id restores no blindness and replenishes no spent evidence.
+terminal_actions:
+  - stop
+  - pivot

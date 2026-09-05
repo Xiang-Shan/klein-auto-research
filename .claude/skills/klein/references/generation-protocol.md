@@ -75,8 +75,9 @@ availability. A name outside the vocabulary is refused as *unknown*; a known nam
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
 `benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
-`slates` and `design`** (see `references/expert-protocol.md`, "Slates and calibration"
-and "Evidence design" below); the rest ship later and are refused as *not available* until they do. Opting in with `capabilities: []` still buys the admission discipline and
+`slates`, `design` and `escalation`** (see `references/expert-protocol.md`, "Slates and
+calibration" and "Evidence design" below, and `references/escalation-protocol.md`);
+the rest ship later and are refused as *not available* until they do. Opting in with `capabilities: []` still buys the admission discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
 `generation_amended` events which may only ADD capabilities; each addition is reported
 `late_added`.

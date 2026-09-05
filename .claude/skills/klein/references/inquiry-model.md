@@ -41,6 +41,22 @@ not moved since (`references/generation-protocol.md`, "Evidence design"). A stud
 does not opt in is untouched by all of it.
 <!-- end WP-09 -->
 
+<!-- WP-07: escalation -->
+**The Decision object is typed, and one of its types links two studies.** A decision is
+a *continuation*, a *stop*, an *escalation*, or a *pivot*. On an ordinary study all four
+are the same dated `Decision:` line in `program.md`. On a study that declared
+`--capability escalation`, an escalation and a pivot additionally earn a machine
+surface: `klein generation escalate record` files a `<study>#Dn` receipt — the trigger
+it answers with its reconstructed count and evidence runs, the rung, the rungs skipped
+with reasons, the concrete changed resource or assumption, unit-bearing estimated and
+actual costs, and the condition that would close it — and **a pivot links a predecessor
+and a successor contract**, pinning both `study.yaml` hashes and the exposure the
+successor inherits. A successor id restores no blindness
+(`references/escalation-protocol.md`). Like every generation record, `<study>#Dn` is a
+sidecar id resolved by the extension: it is cited in prose, and reaches `claims.lock`
+only through an `art:` alias.
+<!-- end WP-07 -->
+
 ## The three axes
 
 A study is typed on three orthogonal axes. CONSULT infers all three from the brief and

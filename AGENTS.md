@@ -335,7 +335,8 @@ citations are filed under `docs/reviews/`.
   init|check|verify|label|status|recover`, plus one sub-group per declared capability
   (`generation expert lock|amend|bind|repair|review` and `generation reference record`
   for `expertise`; `generation slate lock|amend|score|show` for `slates`; `generation
-  design lock` for `design`). It is schema-3 only and writes
+  design lock` for `design`; `generation escalate lock|record|close|pivot|show` for
+  `escalation`). It is schema-3 only and writes
   nothing outside `<study>/generation/` except the human artifacts a capability names —
   `domain_card.md` and `evidence_design.yaml` at the study root, and repo-level
   `knowledge/references/<id>.json`.

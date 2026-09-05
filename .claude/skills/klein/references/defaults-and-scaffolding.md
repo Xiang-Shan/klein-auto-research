@@ -78,12 +78,15 @@ Klein scaffolds a canonical layout — do NOT rename these to match an existing 
 <!-- WP-09: design -->
 | `evidence_design.yaml` | what the evidence is FOR: estimand, validity conditions, acquisition custody, warrant, continuation (opt-in, `capabilities: [design]` — `references/generation-protocol.md`, "Evidence design") | authored from `assets/evidence-design-template.yaml`, then frozen by `klein generation design lock` before Gate 1; locked once |
 <!-- end WP-09 -->
+<!-- WP-07: escalation -->
+| `escalation_plan.yaml` | how this study will get unstuck: triggers reconstructed from the manifests, the five rungs, unit-bearing budgets, terminal actions (opt-in, `capabilities: [escalation]` — `references/escalation-protocol.md`) | authored from `assets/escalation-plan-template.yaml`, then frozen by `klein generation escalate lock` before Gate 0; locked once |
+<!-- end WP-07 -->
 
 The seven `generation/`- and `slates/`-prefixed rows are OPT-IN and schema-3 only:
 `klein new` scaffolds none of them, and a study without `generation/manifest.yaml` is
-untouched by every rule in `references/generation-protocol.md`. `domain_card.md` and
-`evidence_design.yaml` are the opt-in artifacts that live at the study root because
-they are meant to be READ; `knowledge/references/` is the one that lives outside the
+untouched by every rule in `references/generation-protocol.md`. `domain_card.md`,
+`evidence_design.yaml` and `escalation_plan.yaml` are the opt-in artifacts that live at
+the study root because they are meant to be READ; `knowledge/references/` is the one that lives outside the
 study entirely, because a reference is a fact about the literature rather than about
 one study; `slates/` and `generation/tables/` appear only once a study declares the
 `slates` capability.
