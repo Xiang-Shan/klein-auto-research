@@ -14,9 +14,9 @@ The vocabulary is fixed and the availability is versioned:
     outside it is a typo and is refused as *unknown*.
 
 ``SUPPORTED_CAPABILITIES``
-    What THIS version can actually check.  Empty in the spine release: opting in
-    with no capability buys the admission discipline (receipt before action,
-    verified afterwards) and nothing else.  A known-but-unsupported name is
+    What THIS version can actually check.  It was empty in the spine release,
+    and opting in with no capability still buys exactly the admission discipline
+    (receipt before action, verified afterwards).  A known-but-unsupported name is
     refused with a different message, because "you misspelled it" and "that
     ships later" are different problems for the driver.
 
@@ -73,9 +73,13 @@ KNOWN_CAPABILITIES: tuple[str, ...] = (
     "design",
 )
 
-#: What this version can verify.  The spine ships none: it is the admission
-#: discipline plus the chronology witnesses, and nothing that scores research.
-SUPPORTED_CAPABILITIES: tuple[str, ...] = ()
+#: What this version can verify.  The spine shipped none — the admission
+#: discipline plus the chronology witnesses, and nothing that scores research;
+#: each capability package appends its own name here and to
+#: :data:`kleinlib.generation.capabilities.MODULES`, and nothing else.
+# --- WP-01: expertise ---
+SUPPORTED_CAPABILITIES: tuple[str, ...] = ("expertise",)
+# --- end WP-01 ---
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {
     "premortem": ("slates",),
@@ -137,7 +141,7 @@ def capability_problems(capabilities: Sequence[str]) -> list[str]:
         elif name not in SUPPORTED_CAPABILITIES:
             problems.append(
                 f"capability {name!r} is not available in this version of Klein "
-                "(the spine ships the admission discipline only)"
+                "(supported here: " + (", ".join(SUPPORTED_CAPABILITIES) or "none") + ")"
             )
     declared = set(seen)
     for name in seen:

@@ -14,9 +14,10 @@ computed one: ``kleinlib/tests/test_generation_registry.py`` asserts
 ``set(load()) == set(SUPPORTED_CAPABILITIES)``.  Adding a name to one list and
 forgetting the other fails the suite immediately.
 
-The spine ships neither: ``MODULES`` is empty, ``SUPPORTED_CAPABILITIES`` is
-empty, and opting in buys the admission discipline and nothing that scores
-research.
+The spine shipped neither: with both lists empty, opting in buys the admission
+discipline and nothing that scores research.  Each capability package since then
+appends ONE name to each list — WP-01 added ``expert`` / ``expertise`` — and
+edits no other line of this package.
 """
 
 from __future__ import annotations
@@ -29,7 +30,9 @@ from .registry import Capability
 __all__ = ["MODULES", "load"]
 
 #: Module names under ``kleinlib.generation``, in dependency order.
-MODULES: tuple[str, ...] = ()
+# --- WP-01: expertise ---
+MODULES: tuple[str, ...] = ("expert",)
+# --- end WP-01 ---
 
 
 def load() -> dict[str, Capability]:

@@ -556,8 +556,9 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
     actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
     generation = actions[0].choices["generation"]
     sub = [a for a in generation._subparsers._group_actions if a.dest == "generation_action"][0]
-    assert set(sub.choices) == {"init", "check", "verify", "label", "status", "recover"}
-    for verb in sub.choices:
+    # capability packages register their own sub-groups beside the spine's verbs
+    assert {"init", "check", "verify", "label", "status", "recover"} <= set(sub.choices)
+    for verb in ("init", "check", "verify", "label", "status", "recover"):
         assert "--study" in sub.choices[verb].format_help(), verb
     for flag in ("--capability", "--predecessor", "--custody-holder", "--allow-late"):
         assert flag in sub.choices["init"].format_help(), flag
