@@ -942,6 +942,7 @@ def _repair_path_problem(changed: list[str]) -> str | None:
 
 def _run_expert_lock(args: argparse.Namespace) -> int:
     """``expert lock`` and ``expert amend`` — one transaction, two entry points."""
+    from .contract import mutable_surface
     from .generation import expert as ge
     from .generation import manifest as gm
     from .generation.admission import core_anchor
@@ -1001,6 +1002,7 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
     version = len(locks) + 1
     parents = [str(locks[-1][0].get("id"))] if locks else []
     card_sha = sha256_file(card)
+    recipe = ge.baseline_hashes(study, front)
     obj = ge.lock_object(
         study=study_name,
         version=version,
@@ -1008,6 +1010,7 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
         card_sha256=card_sha,
         parent_ids=parents,
         late=late,
+        baseline_hashes=recipe,
     )
     sha = write_object(study, obj)
     event = append_event(
@@ -1036,6 +1039,10 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
     for target in targets:
         limit = "×|value|" if target["rel"] else ""
         print(f"  - {target['key']} = {target['value']:.12g} ± {target['tol']:.12g}{limit}")
+    surface = set(mutable_surface(contract))
+    for name, file_sha in sorted(recipe.items()):
+        where = "in the mutable surface, not frozen" if name in surface else "frozen"
+        print(f"  - recipe {name} {str(file_sha)[:12]}… ({where})")
     if late:
         print(
             "WARNING: late lock recorded — `klein generation verify` will FAIL "

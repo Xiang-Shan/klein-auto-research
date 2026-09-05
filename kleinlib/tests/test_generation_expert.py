@@ -554,6 +554,275 @@ def test_the_roster_parser_reads_the_experimenter_cell(reproduced_study) -> None
     assert not ge.same_actor("anyone", None)
 
 
+def test_same_actor_is_symmetric(reproduced_study) -> None:
+    """A-5: the answer may not depend on which side is the compound cell."""
+    assert ge.same_actor("opus · codex · s-42", "codex")
+    assert ge.same_actor("codex", "opus · codex · s-42")
+    assert ge.same_actor("Codex", "opus · codex · s-42")  # normalized, not exact
+    assert not ge.same_actor("opus · codex · s-42", "sonnet")
+    assert not ge.same_actor("", "codex")
+
+
+# --------------------------------------------------------------------------
+# R-INV-3 — the recipe is frozen with the targets
+# --------------------------------------------------------------------------
+
+
+def _recipe_study(tmp_path: Path) -> tuple[Path, Path]:
+    """A study whose baseline implementation lives OUTSIDE the mutable surface."""
+    repo, study = _scaffold(tmp_path)
+    assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
+    assert _reference(study) == 0
+    (study / "lib").mkdir(exist_ok=True)
+    (study / "lib" / "baseline.py").write_text("OFFSET = 0.0\n", encoding="utf-8")
+    front = _front()
+    front["baseline"]["implementation"] = "lib/baseline.py"
+    _write_card(study, front)
+    commit_all(repo, "the baseline recipe, outside the surface")
+    assert _gen("expert", "lock", "--study", str(study), "--actor", "tester") == 0
+    return repo, study
+
+
+def test_r_inv_3_the_lock_records_the_recipe_and_a_still_recipe_reproduces(
+    tmp_path: Path,
+) -> None:
+    """Valid control: the lock hashes implementation + fixture, and nothing moved."""
+    repo, study = _recipe_study(tmp_path)
+    lock = _last_object(study)
+    assert set(lock["baseline_hashes"]) == {"lib/baseline.py", "data/prepared/fixture.csv"}
+    assert all(sha for sha in lock["baseline_hashes"].values())
+    _gates(repo, study)
+
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "baseline", "--track", "primary") == 0
+    assert run_one(study, command=metric_command(0.5), echo=False)["experiment"] == "E0001"
+    assert _gen("expert", "bind", "--study", str(study), "E0001") == 0
+    assert _gen("verify", "--study", str(study)) == 0
+    assert "FAIL" not in _expert_statuses(study)["expert obligation"]
+
+
+def test_r_inv_3_a_recipe_that_drifted_under_the_targets_fails(tmp_path: Path) -> None:
+    """Invalid control: the targets are hit by a recipe the lock never saw.
+
+    The bind still says `reproduced` — the numbers ARE the frozen numbers. What
+    fails is the claim that this recipe produced them.
+    """
+    repo, study = _recipe_study(tmp_path)
+    _gates(repo, study)
+    (study / "lib" / "baseline.py").write_text("OFFSET = 1.0\n", encoding="utf-8")
+    commit_all(repo, "quietly change the recipe after the lock")
+
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "baseline", "--track", "primary") == 0
+    assert run_one(study, command=metric_command(0.5), echo=False)["experiment"] == "E0001"
+    assert _gen("expert", "bind", "--study", str(study), "E0001") == 0
+    assert _last_object(study)["verdict"] == "reproduced"
+
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = " ".join(
+        check["detail"]
+        for check in _receipt(study)["checks"]
+        if check["name"] == "expert obligation"
+    )
+    assert "baseline recipe drifted" in detail
+    assert "lib/baseline.py" in detail
+
+
+def test_r_inv_3_the_mutable_surface_is_exempt_from_the_freeze(tmp_path: Path) -> None:
+    """`train.py` IS what E0001 runs; freezing it would fail every baseline."""
+    repo, study = _scaffold(tmp_path)
+    assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
+    assert _reference(study) == 0
+    _write_card(study)  # implementation: train.py, the declared surface
+    assert _gen("expert", "lock", "--study", str(study)) == 0
+    assert "train.py" in _last_object(study)["baseline_hashes"]
+    _gates(repo, study)
+
+    _bump(study, "the surface moves, as it must")
+    assert _gen("check", "--study", str(study), "--action", "baseline", "--track", "primary") == 0
+    assert run_one(study, command=metric_command(0.5), echo=False)["experiment"] == "E0001"
+    assert _gen("expert", "bind", "--study", str(study), "E0001") == 0
+    assert _gen("verify", "--study", str(study)) == 0
+
+
+# --------------------------------------------------------------------------
+# A-2 / D-3 — a repair changes what it says it changes, and nothing core
+# --------------------------------------------------------------------------
+
+
+def _failed_baseline(expert_study) -> tuple[Path, Path]:
+    repo, study = expert_study
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "baseline", "--track", "primary") == 0
+    assert run_one(study, command=metric_command(0.7), echo=False)["experiment"] == "E0001"
+    assert _gen("expert", "bind", "--study", str(study), "E0001") == 2
+    return repo, study
+
+
+def test_a_repair_may_not_hide_a_change_it_did_not_name(expert_study) -> None:
+    """A-2: `changed_files` is a claim about the whole diff, not a subset of it."""
+    repo, study = _failed_baseline(expert_study)
+    (study / "lib").mkdir(exist_ok=True)
+    (study / "lib" / "prep.py").write_text("SCALE = 2.0\n", encoding="utf-8")
+    commit_all(repo, "a helper nobody mentioned")
+
+    _bump(study, "repaired")
+    assert (
+        _gen(
+            "expert", "repair", "--study", str(study), "--changed", "train.py",
+            "--note", "restored the offset",
+        )
+        == 0
+    )
+    assert _gen("check", "--study", str(study), "--action", "repair", "--track", "primary") == 0
+    assert run_one(study, command=metric_command(0.5), echo=False)["experiment"] == "E0002"
+    assert _gen("expert", "bind", "--study", str(study), "E0002") == 0
+
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = " ".join(
+        check["detail"]
+        for check in _receipt(study)["checks"]
+        if check["name"] == "expert repairs"
+    )
+    assert "lib/prep.py" in detail
+    assert "without being named in --changed" in detail
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["study_state.json", "events.jsonl", "study.yaml", "runs/E0001/manifest.json",
+     "generation/events.jsonl", "findings.md", "results.tsv"],
+)
+def test_a_repair_may_not_name_core_state_or_evidence(expert_study, name: str) -> None:
+    """D-3: naming a path also EXEMPTS it from the clean-tree check."""
+    repo, study = _failed_baseline(expert_study)
+    head = git(repo, "rev-parse", "HEAD")
+    assert (
+        _gen("expert", "repair", "--study", str(study), "--changed", name, "--note", "n") == 1
+    )
+    assert git(repo, "rev-parse", "HEAD") == head
+    assert git(repo, "status", "--porcelain") == ""
+
+
+def test_a_repair_admission_without_a_repair_object_is_refused(expert_study) -> None:
+    """A-10: the invalid control for `_rule_repair_needs_a_repair_object`."""
+    _repo, study = _failed_baseline(expert_study)
+    _bump(study, "repaired but unrecorded")
+    assert _gen("check", "--study", str(study), "--action", "repair", "--track", "primary") == 2
+    assert any(
+        "no `expert repair` object was recorded" in reason
+        for reason in _last_object(study)["reasons"]
+    )
+    # the valid control: record the repair first, and the same request is admitted
+    assert (
+        _gen(
+            "expert", "repair", "--study", str(study), "--changed", "train.py",
+            "--note", "restored the offset",
+        )
+        == 0
+    )
+    assert _gen("check", "--study", str(study), "--action", "repair", "--track", "primary") == 0
+
+
+# --------------------------------------------------------------------------
+# A-3 / A-10 — every record the study rests on is opened
+# --------------------------------------------------------------------------
+
+
+def test_a_citation_may_not_claim_a_stronger_basis_than_its_record(expert_study) -> None:
+    """A-3: `verification_level` is checked against the record it names."""
+    repo, study = expert_study
+    _cite(study, "read-at-source")  # the record was recorded as `bibliography`
+    commit_all(repo, "cite the record, generously")
+    assert _gen("verify", "--study", str(study)) == 2
+    assert "stronger basis than its record" in _reference_detail(study)
+
+    # the valid control: a level the record actually supports
+    _cite(study, "abstract-only")
+    commit_all(repo, "cite the record honestly")
+    assert _gen("verify", "--study", str(study)) == 0
+
+
+def test_a_record_reachable_only_from_references_yaml_is_still_opened(expert_study) -> None:
+    """A-10 + A-3: a hand-written record used to pass by never being looked at."""
+    repo, study = expert_study
+    forged = study.parents[1] / "knowledge" / "references" / "forged.json"
+    forged.parent.mkdir(parents=True, exist_ok=True)
+    forged.write_text(
+        json.dumps(
+            {
+                "schema": "klein-generation/1",
+                "kind": "reference",
+                "id": "forged",
+                "bibliographic_metadata": {"title": "A paper", "year": None, "identifier": None},
+                "locator": "https://example.invalid/x",
+                "supported_statement": "everything I say",
+                "verification_basis": "read-at-source",
+                "source_blob_sha256": None,
+                "blob_retained": False,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    _cite(study, None, record_id="forged", key="forged")
+    commit_all(repo, "a record nobody recorded")
+    assert _gen("verify", "--study", str(study)) == 2
+    assert "record forged:" in _reference_detail(study)
+    assert "read-at-source" in _reference_detail(study)
+
+
+def test_a_recorded_reference_whose_file_vanished_fails_the_family(expert_study) -> None:
+    """A-10: the `record_id names a record that has no record` branch, at verify."""
+    repo, study = expert_study
+    (study.parents[1] / "knowledge" / "references" / "collins2010.json").unlink()
+    commit_all(repo, "delete the record the card rests on")
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = _reference_detail(study)
+    assert "has no record" in detail or "the file is gone" in detail
+
+
+def _cite(study: Path, level: str | None, *, record_id: str = "collins2010",
+          key: str = "collins2010") -> None:
+    entry: dict[str, Any] = {
+        "title": "Tacit and Explicit Knowledge",
+        "year": 2010,
+        "doi": "10.7208/chicago/9780226113821.001.0001",
+        "verified": True,
+        "record_id": record_id,
+    }
+    if level is not None:
+        entry["verification_level"] = level
+    (study / "references.yaml").write_text(
+        yaml.safe_dump({"references": {key: entry}}, sort_keys=True), encoding="utf-8"
+    )
+
+
+def _reference_detail(study: Path) -> str:
+    return " ".join(
+        check["detail"]
+        for check in _receipt(study)["checks"]
+        if check["name"] == "expert references"
+    )
+
+
+def test_an_expert_verb_files_only_its_card_and_the_ledger(tmp_path: Path) -> None:
+    """A-10: write ownership, read off the commit the verb actually filed."""
+    repo, study = _scaffold(tmp_path)
+    assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
+    assert _reference(study) == 0
+    _write_card(study)
+    (study / "playbook.md").write_text("# Playbook\n\nan operator edit\n", encoding="utf-8")
+    assert _gen("expert", "lock", "--study", str(study)) == 0
+    names = git(repo, "show", "--name-only", "--format=", "HEAD").split()
+    assert names
+    assert all(
+        name.endswith("domain_card.md") or "/generation/" in f"/{name}" for name in names
+    ), names
+    # the operator's edit is still theirs, uncommitted
+    assert "playbook.md" in git(repo, "status", "--porcelain")
+
+
 # --------------------------------------------------------------------------
 # guards, extended to the new modules
 # --------------------------------------------------------------------------
