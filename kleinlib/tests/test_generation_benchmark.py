@@ -556,7 +556,8 @@ def _seal(repo: Path, study: Path, table: str, metrics: dict[str, Any]) -> dict[
     )
 
 
-def _attest(study: Path) -> int:
+def _attest(study: Path, subject: str = TRUTH) -> int:
+    """Attest custody OF THIS BENCHMARK: the subject names benchmark.yaml's truth file."""
     return _gen(
         "custody",
         "attest",
@@ -569,7 +570,7 @@ def _attest(study: Path) -> int:
         "--statement",
         "the private bundle lived only on the custodian account from commit to reveal",
         "--subject",
-        "the planted-truth private bundle",
+        subject,
     )
 
 
@@ -789,6 +790,68 @@ def test_v17_without_a_custody_attestation_the_outcome_is_unverified(
     assert "another directory of the same readable worktree is not custody" in _detail(
         study, "benchmark custody"
     )
+
+
+def test_c6_an_attestation_about_something_else_does_not_custody_this_benchmark(
+    custodian, tmp_path
+) -> None:
+    """C-6: `custody attest` is capability-agnostic, so counting ANY of them is wrong.
+
+    A study may attest the custody of a sample chain, an interview transcript, a
+    later time block.  Before the fix, any one of those turned this benchmark's
+    outcome from `unverified` to `custodied` — a word about someone else's
+    evidence spent on this one.
+    """
+    repo, study = custodian
+    assert _commit_benchmark(tmp_path, study) == 0
+    for arm, rows in SUBMISSIONS.items():
+        assert _submit(tmp_path, study, arm, *rows) == 0
+    _disclose(tmp_path, repo, study)
+    assert _reveal(tmp_path, study) == 0
+    assert _attest(study, subject="the wet-lab sample chain") == 0
+    honest = _honest_score()
+    _seal(repo, study, _table(honest["rows"]), honest["arms"])
+
+    assert _gen("verify", "--study", str(study)) == 0, "an unrelated attestation FAILs nothing"
+    outcome = _capability(study)
+    assert outcome["custody"] == gcu.UNVERIFIED
+    assert outcome["outcome"] == "unverified"
+    detail = _detail(study, "benchmark custody")
+    assert "Attestations about other subjects" in detail
+    assert "the wet-lab sample chain" in detail
+
+
+def test_c6_the_default_subject_is_this_studys_own_hidden_evidence(
+    custodian, tmp_path
+) -> None:
+    """C-6: an attestation with no --subject still means this study's own bundle."""
+    repo, study = custodian
+    assert _commit_benchmark(tmp_path, study) == 0
+    for arm, rows in SUBMISSIONS.items():
+        assert _submit(tmp_path, study, arm, *rows) == 0
+    _disclose(tmp_path, repo, study)
+    assert _reveal(tmp_path, study) == 0
+    assert (
+        _gen(
+            "custody",
+            "attest",
+            "--study",
+            str(study),
+            "--holder",
+            "the named custodian",
+            "--mechanism",
+            "separate accounts on separate machines",
+            "--statement",
+            "the bundle never left the custodian account",
+        )
+        == 0
+    )
+    honest = _honest_score()
+    _seal(repo, study, _table(honest["rows"]), honest["arms"])
+
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _capability(study)["custody"] == gcu.CUSTODIED
+    assert gb.benchmark_subjects(_benchmark_payload()) == {PUBLIC, TRUTH, "the named custodian"}
 
 
 def test_a_missing_arm_is_a_recorded_trial_and_never_an_absence(custodian, tmp_path) -> None:
