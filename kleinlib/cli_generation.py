@@ -390,7 +390,7 @@ def _run_init(args: argparse.Namespace) -> int:
     manifest = gm.build_manifest(
         study=study_name,
         capabilities=list(args.capability),
-        protocols=gm.protocol_hashes(repo),
+        protocols=gm.protocol_hashes(repo, list(args.capability)),
         predecessor=predecessor,
         custody=custody,
     )
@@ -430,7 +430,13 @@ def _run_init(args: argparse.Namespace) -> int:
 def _run_check(args: argparse.Namespace) -> int:
     from .contract import normalize_tracks
     from .generation import manifest as gm
-    from .generation.admission import Context, build_receipt, core_anchor, outstanding_receipt
+    from .generation.admission import (
+        Context,
+        build_receipt,
+        core_anchor,
+        declared_capabilities,
+        outstanding_receipt,
+    )
     from .generation.chronology import git_head, repo_for
     from .generation.ledger import append_event, commit_generation, read_events, write_object
 
@@ -467,7 +473,7 @@ def _run_check(args: argparse.Namespace) -> int:
         context,
         study=study_name,
         manifest_sha=gm.manifest_sha256(study),
-        protocol_hashes=gm.protocol_hashes(repo),
+        protocol_hashes=gm.protocol_hashes(repo, declared_capabilities(manifest)),
         core_anchor=core_anchor(study),
         # Only an ADMITTED receipt supersedes: a refusal neither grants nor revokes.
         supersedes=outstanding.sha if outstanding is not None else None,

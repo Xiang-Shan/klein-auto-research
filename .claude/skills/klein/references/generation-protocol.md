@@ -81,11 +81,22 @@ and re-hashed at every verify.
 generation_schema: 1
 study_id: NN-slug
 capabilities: []            # subset of the ten-name vocabulary; [] = admission discipline only
-protocol_hashes:
+protocol_hashes:              # the spine's protocol, plus one file per DECLARED capability
   references/generation-protocol.md: <sha256 at init>
 predecessor: null           # or {study_id, successor_receipt, inherited_exposure: []}
 custody: null               # or {holder, mechanism}
 ```
+
+`protocol_hashes` pins which RULES the study opted in under: always
+`references/generation-protocol.md`, plus the protocol file of each declared
+capability that has one (`expertise` → `expert-protocol.md`, `premortem` →
+`premortem-protocol.md`, `parity` and `contribution` → `expert-parity-protocol.md`,
+`surprise` → `surprise-protocol.md`, `escalation` → `escalation-protocol.md`,
+`knowledge` → `knowledge-protocol.md`, `benchmark` → `planted-truth-protocol.md`;
+`slates` and `design` are documented here and add none). Every admission receipt
+carries the same set. Drift stays a WARN — the rules may legitimately be improved
+mid-study — but it is now visible for the documents that decide almost everything,
+rather than for the spine's alone.
 
 `assets/generation-manifest-template.yaml` carries the same shape with comments.
 
