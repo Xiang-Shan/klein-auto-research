@@ -55,6 +55,18 @@ committed to BEFORE the evidence: `klein generation init` before Gate 0, then on
 `klein generation check` before every `run-one`, verified separately by `klein
 generation verify` — `references/generation-protocol.md`. A study that does not opt in
 is untouched by it, and no core verb, receipt or disposition changes either way.
+<!-- WP-01: expertise -->
+Declaring `--capability expertise` adds the reproduction obligation: `klein generation
+expert lock` freezes `domain_card.md` (pipeline, metrics, doctrine, pitfalls, a
+`method_shortlist` that precedes METHOD, and a baseline recipe with numeric targets)
+before Gate 0; the baseline runs as an ordinary `run-one` admitted with `--action
+baseline`; `klein generation expert bind E0001` adjudicates it, and no challenger run
+is admitted until a bind reproduces — repairs are versioned and targets never move
+(`references/expert-protocol.md`). Its citations are `klein generation reference
+record` entries under `knowledge/references/` — locator, supported statement, source
+hash and verification level — because on an enabled study a bare `verified: true` is
+insufficient (`references/reference-protocol.md`).
+<!-- end WP-01 -->
 
 ## Setup
 

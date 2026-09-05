@@ -26,8 +26,10 @@ version.
   `.claude/skills/klein/assets/generation-manifest-template.yaml`.
 - The capability vocabulary (`expertise, slates, premortem, parity, contribution,
   surprise, escalation, knowledge, benchmark, design`) and its dependency table are
-  encoded; **this release supports none of them** — opting in buys the admission
-  discipline and the chronology witnesses, and nothing that scores research.
+  encoded. Opting in with `capabilities: []` buys the admission discipline and the
+  chronology witnesses, and nothing that scores research; each capability below is
+  declared explicitly at `klein generation init`, and a known name this release cannot
+  check is refused with a different message than an unknown one.
 - **Capability registration hooks.** A capability now plugs into the generation spine
   by registration (`kleinlib/generation/registry.py`: a name, admission rules, one
   verify family; `capabilities.py`: the modules this version ships), never by editing
@@ -37,6 +39,35 @@ version.
   `outcome` (what the research got) separately — the label copies the outcome, the
   spine judges only the integrity — and a study with `capabilities: []` runs no family,
   so its receipt is byte-for-byte the one the spine already produced.
+<!-- WP-01 -->
+- **The `expertise` capability — acquire the domain, then prove you acquired it**
+  (`klein generation expert lock | amend | bind | repair | review`). A declaring study
+  freezes `domain_card.md` before the CONSULT gate — pipeline, metrics, doctrine,
+  pitfalls, incumbent, a `method_shortlist[]` that precedes METHOD, and a baseline
+  recipe with numeric targets — then executes that baseline as an ordinary `run-one`
+  transaction admitted with `--action baseline`. `expert bind E####` recomputes each
+  target from the run's printed metric block and records `reproduced | mismatch |
+  crash`; **until a bind reproduces, no `run` or `sealed` admission is granted.** A
+  failed reproduction is fixed by a versioned `expert repair` naming the changed files
+  and their hashes (never the declared verifier), verified afterwards against those
+  files at the next bound run's candidate commit. Targets are frozen at version 1: an
+  amendment that moves one is refused, because lowering a bar you did not clear is a
+  successor study, not a repair. The capability outcome is `incomplete` (label-eligible
+  — an honestly open obligation is a WARN, never a FAIL), `source-reconstructed`, or
+  `independent-review` when a recorded review carries a session-receipt hash and a
+  reviewer who is not `program.md`'s roster experimenter. Protocol:
+  `.claude/skills/klein/references/expert-protocol.md`; template:
+  `.claude/skills/klein/assets/domain-card-template.md`.
+- **Reference records** (`klein generation reference record`) — write-once, repo-level
+  `knowledge/references/<id>.json` carrying the locator, the one statement the work is
+  cited for, the hash of the bytes that were read, whether they were retained, and the
+  verification basis (`read-at-source > bibliography > abstract-only > hash-only`),
+  each basis enforcing its own consistency rule. Klein copies no bytes: the hash goes
+  into git, the source stays where it is. On an `expertise`-enabled study a
+  `references.yaml` row saying `verified: true` without a resolvable `record_id` FAILs
+  verification. Protocol:
+  `.claude/skills/klein/references/reference-protocol.md`.
+<!-- end WP-01 -->
 
 ### Unchanged
 

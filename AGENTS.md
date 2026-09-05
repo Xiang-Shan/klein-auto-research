@@ -332,8 +332,11 @@ citations are filed under `docs/reviews/`.
   immediately after a successful `uv sync --locked` to prove it is not mutating the
   environment. `klein doctor` reports what this machine can run without fetching.
 - The opt-in generation layer adds one verb group, `klein generation
-  init|check|verify|label|status|recover`; it is schema-3 only and writes nothing
-  outside `<study>/generation/`.
+  init|check|verify|label|status|recover`, plus one sub-group per declared capability
+  (`generation expert lock|amend|bind|repair|review` and `generation reference record`
+  for `expertise`). It is schema-3 only and writes nothing outside
+  `<study>/generation/` except the human artifacts a capability names — `domain_card.md`
+  at the study root and repo-level `knowledge/references/<id>.json`.
 - `uv sync --locked` to set up; extras compose and must be named together:
   `uv sync --locked --extra gbdt --extra deep` (naming only some extras removes
   the others from the environment). `KLEIN_OFFLINE=1` refuses every network data

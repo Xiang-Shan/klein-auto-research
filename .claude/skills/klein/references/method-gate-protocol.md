@@ -34,6 +34,14 @@ the profile's doctrine anchor (`references/profiles/<profile>.md` §3; for insur
 Grinsztajn: trees still win on most tabular; deep methods need scale/signal). For an
 `optimize` study the Practice leg is the from-scratch VERIFIER, written and tested
 before any search runs — the checker is never the searcher.
+<!-- WP-01 -->
+On a study whose generation manifest declares `expertise`, this section also NAMES the
+baseline implementation and the fixture the reproduction obligation will run —
+`domain_card.md`'s `baseline.implementation` and `baseline.fixture`, whose existence
+and hashes are pinned by `klein generation expert lock`
+(`references/expert-protocol.md`). The card chooses from the locked
+`method_shortlist[]`; a method outside it is a decision to record in `program.md`.
+<!-- end WP-01 -->
 Then state the **falsifiable priors** this study will test — the specific, checkable
 predictions the card commits to. Mirror them into `study.yaml:predictions_to_falsify`.
 The card is not done until it has staked a claim SYNTHESIZE can falsify.
@@ -57,6 +65,14 @@ Verify EACH reference — do not cite from memory:
 - Mark anything you could not verify as ⚠️ UNVERIFIED, explicitly. An unverified
   reference is a liability, not a citation.
 - Set `refs_verified: true` in the frontmatter only when every row is verified.
+<!-- WP-01 -->
+- **On an `expertise`-enabled study each verified row additionally carries `record_id`
+  and `verification_level`**, mirroring a write-once record under
+  `knowledge/references/<id>.json` (`klein generation reference record`;
+  `references/reference-protocol.md`). `refs_verified: true` then means every row is
+  verified AND every row has a record: a bare `verified: true` is insufficient, and a
+  row without a resolvable `record_id` FAILs `expert references`.
+<!-- end WP-01 -->
 
 ## What "from-scratch" and "falsifiable" mean here
 
