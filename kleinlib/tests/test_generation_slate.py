@@ -628,7 +628,13 @@ def test_the_receipt_pins_the_lock_it_was_taken_under(slate_study) -> None:
     )
     assert receipt["inputs"]["slate"] == slate.latest_version(study, events, PHASE)["sha"]
     assert receipt["intended_action"]["hypothesis_id"] == f"{STUDY}#H1"
-    assert set(receipt["inputs"]) == {"manifest", "slate", "premortem", "parity", "cells", "design"}
+    # The key set is the SPINE's, not this capability's: a capability may fill a
+    # slot and may never add one, so the receipt's shape is read from the
+    # constant rather than restated here (restating it would only break the day
+    # a later package legitimately declares a new slot).
+    from kleinlib.generation.admission import RECEIPT_INPUT_SLOTS
+
+    assert set(receipt["inputs"]) == {"manifest", *RECEIPT_INPUT_SLOTS}
 
 
 def test_an_unadmitted_hypothesis_run_censors_rather_than_resolving(slate_study) -> None:

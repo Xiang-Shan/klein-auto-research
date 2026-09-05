@@ -89,6 +89,8 @@ SUPPORTED_CAPABILITIES: tuple[str, ...] = (
     # --- WP-04: expert parity + contribution ledger ---
     "parity",
     "contribution",
+    # --- WP-05: planted-truth benchmark (the CUSTODIAN's declaration) ---
+    "benchmark",
 )
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {

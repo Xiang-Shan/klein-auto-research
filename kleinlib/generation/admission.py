@@ -91,7 +91,14 @@ CLASSIFICATIONS: tuple[str, ...] = (
 #: The receipt ``inputs`` slots a capability may FILL (beside ``manifest``, which
 #: is the spine's own).  The key set is the contract: a capability that resolves
 #: none of them leaves them null, and none of them may be added to.
-RECEIPT_INPUT_SLOTS: tuple[str, ...] = ("slate", "premortem", "parity", "cells", "design")
+RECEIPT_INPUT_SLOTS: tuple[str, ...] = (
+    "slate",
+    "premortem",
+    "parity",
+    "cells",
+    "design",
+    "benchmark",
+)
 
 
 # --------------------------------------------------------------------------
@@ -268,9 +275,9 @@ def capability_inputs(ctx: Context) -> dict[str, str]:
     """The ``inputs`` slots the declared capabilities pin into this receipt.
 
     A capability may only fill a slot the spine already declares (``slate``,
-    ``premortem``, ``parity``, ``cells``, ``design``) — the receipt's key set is
-    the contract, so an unknown key is dropped rather than allowed to change the
-    shape.  A capability that cannot resolve its artifact yet returns nothing and
+    ``premortem``, ``parity``, ``cells``, ``design``, ``benchmark``) — the
+    receipt's key set is the contract, so an unknown key is dropped rather than
+    allowed to change the shape.  A capability that cannot resolve its artifact yet returns nothing and
     the slot stays null.
     """
     loaded, _reasons = _declared_capabilities(ctx)
