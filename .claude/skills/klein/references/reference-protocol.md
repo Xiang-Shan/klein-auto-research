@@ -105,6 +105,13 @@ references:
 > A row that says `verified: true` with no resolvable `record_id` FAILs
 > `expert references`.
 
+`verification_level` is optional, and checked when present: it may not be
+STRONGER than the record's own `verification_basis` ("the citation claims a
+stronger basis than its record"). Every record a row names is opened and checked
+against `record_problems`, even when nothing recorded it through
+`klein generation reference record` — a hand-written record used to pass by never
+being looked at.
+
 `refs_verified: true` in the method card's frontmatter therefore means something
 stronger on an enabled study: every row is verified **and** every row has a
 record.

@@ -31,15 +31,18 @@ from typing import Any
 
 from ..errors import WorkflowError
 from ..primitives import atomic_write_text, canonical_json, sha256_bytes, utc_now
-from ..transaction import commit_state_writes
 from .envelope import build_event, event_id
 
 __all__ = [
     "COMMIT_PATHS",
+    "CORE_STATE_PATHS",
+    "CORE_STATE_PREFIXES",
     "GENERATION_DIRNAME",
     "append_event",
     "chain_problems",
+    "commit_artifacts",
     "commit_generation",
+    "core_state_dirt",
     "events_path",
     "generation_dir",
     "mislabelled_object_shas",
@@ -66,6 +69,28 @@ COMMIT_PATHS: tuple[str, ...] = (
     "generation/verify_receipt.json",
     "generation/label.json",
 )
+
+#: Core state and evidence.  A generation verb never writes these and never
+#: files them: ``run-one``, ``klein recover``, ``klein verify``, ``klein claims``
+#: and the gate records own them, and a layer that quietly swept them into its
+#: own transaction would make its receipts look like the core's.
+CORE_STATE_PATHS: frozenset[str] = frozenset(
+    {
+        "study.yaml",
+        "study_state.json",
+        "events.jsonl",
+        "claims.lock",
+        "verify_receipt.json",
+    }
+)
+
+#: The same rule for whole subtrees.
+CORE_STATE_PREFIXES: tuple[str, ...] = ("runs/",)
+
+#: The two core files whose UNCOMMITTED state stops a generation verb: an
+#: unfiled core chain has no introducing commit, so a receipt anchored to it
+#: cannot be resolved by ancestry afterwards.
+_CORE_DIRT_PATHS: tuple[str, ...] = ("study_state.json", "events.jsonl")
 
 
 def generation_dir(study_dir: Path) -> Path:
@@ -177,14 +202,29 @@ def append_event(
 def write_object(study_dir: Path, obj: Mapping[str, Any]) -> str:
     """Store one object write-once and return its sha256.
 
-    Identical bytes under an existing name are a no-op; different bytes under
-    the same name are impossible by construction, because the name IS the hash.
+    Identical bytes under an existing name are a no-op.  DIFFERENT bytes under
+    the same name are impossible by construction — the name IS the hash — so
+    meeting them means the stored file was rewritten in place, and the write is
+    refused rather than completing the tamper by overwriting it back.  Undoing
+    the rewrite is the operator's (``git checkout -- <file>``); ``klein
+    generation recover`` never rewrites an object.
     """
     text = canonical_json(obj) + "\n"
     sha = sha256_bytes(text.encode())
     path = object_path(study_dir, sha)
-    if path.is_file() and path.read_text(encoding="utf-8") == text:
-        return sha
+    if path.is_file():
+        try:
+            existing = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise WorkflowError(f"generation object {sha[:12]}… is unreadable: {exc}") from exc
+        if existing == text:
+            return sha
+        raise WorkflowError(
+            f"generation object {sha[:12]}… already exists on disk with DIFFERENT bytes — "
+            "the store is content-addressed and write-once, so that file was rewritten in "
+            "place. Restore it by hand (`git checkout -- "
+            f"{object_path(study_dir, sha).name}`); recover never rewrites objects."
+        )
     atomic_write_text(path, text)
     return sha
 
@@ -241,23 +281,33 @@ def missing_object_shas(study_dir: Path, events: Sequence[Mapping[str, Any]]) ->
 
 
 # ---- content addressing (WP-03) ------------------------------------------
-def mislabelled_object_shas(study_dir: Path) -> list[str]:
-    """Object files whose CONTENT no longer hashes to their own file name.
+def mislabelled_object_shas(study_dir: Path) -> dict[str, str]:
+    """``{file name: why it is not the object it claims to be}``.
 
     The store is content-addressed by construction — :func:`write_object` names
-    each file after the sha256 of its bytes — so this can only be true after
-    someone rewrote a stored object in place.  The event that references it still
-    carries the old name, so the tamper is otherwise invisible to a reader who
-    trusts the name; here it is one FAIL line naming the file.
+    each file after the sha256 of its bytes — so a content mismatch can only be
+    true after someone rewrote a stored object in place.  The event that
+    references it still carries the old name, so the tamper is otherwise
+    invisible to a reader who trusts the name; here it is one FAIL line naming
+    the file.
+
+    A file that cannot be READ is reported the same way rather than raised:
+    ``generation verify`` never raises on a broken study, and "the object is
+    unreadable" is exactly as disqualifying as "the object is not itself".
     """
     directory = objects_dir(study_dir)
     if not directory.is_dir():
-        return []
-    return sorted(
-        path.stem
-        for path in directory.glob("*.json")
-        if sha256_bytes(path.read_bytes()) != path.stem
-    )
+        return {}
+    problems: dict[str, str] = {}
+    for path in sorted(directory.glob("*.json")):
+        try:
+            data = path.read_bytes()
+        except OSError as exc:
+            problems[path.stem] = f"unreadable ({exc.strerror or exc})"
+            continue
+        if sha256_bytes(data) != path.stem:
+            problems[path.stem] = "content does not hash to its file name"
+    return problems
 
 
 # --------------------------------------------------------------------------
@@ -265,17 +315,87 @@ def mislabelled_object_shas(study_dir: Path) -> list[str]:
 # --------------------------------------------------------------------------
 
 
+def _is_core_state(name: str) -> bool:
+    posix = Path(name).as_posix().lstrip("./")
+    return posix in CORE_STATE_PATHS or posix.startswith(CORE_STATE_PREFIXES)
+
+
+def core_state_dirt(repo: Path, study_dir: Path) -> list[str]:
+    """Uncommitted core state, repo-relative — empty when there is none.
+
+    ``study_state.json`` and the core ``events.jsonl`` are the two files whose
+    unfiled state makes a generation receipt unresolvable afterwards: the
+    receipt anchors to a core event that no commit yet carries, so the third
+    chronology witness has nothing to read.
+    """
+    from ..transaction import git, relative
+
+    names = [relative(repo, study_dir / name) for name in _CORE_DIRT_PATHS]
+    result = git(repo, ["status", "--porcelain", "--untracked-files=all", "--", *names],
+                 check=False)
+    if result.returncode:
+        return []
+    return [line[3:].split(" -> ")[-1].strip() for line in result.stdout.splitlines() if line.strip()]
+
+
+def commit_artifacts(study_dir: Path, message: str, paths: Sequence[str]) -> str | None:
+    """File exactly ``paths`` — the ledger, and the human artifact a verb hashed.
+
+    ``git commit --only -- <paths>`` builds the commit from HEAD plus the named
+    paths alone, so nothing else staged or modified is taken: the operator's
+    in-flight edits stay the operator's, exactly as at ``run-one``.  New files
+    are staged first, because ``--only`` cannot name a path git has never seen.
+
+    Two refusals, and both are the point.  A path that is core state or core
+    evidence is refused outright — the layer writes under ``generation/`` and
+    the artifacts a capability names, never ``study_state.json``,
+    ``events.jsonl``, ``study.yaml``, ``claims.lock``, ``verify_receipt.json``
+    or ``runs/``.  And a DIRTY core state stops the commit before it happens:
+    filing around unfiled core state would leave a receipt anchored to an event
+    no commit carries.  (This is why ``scope="own"`` is not used here: it
+    prepends :data:`kleinlib.transaction.OWN_WRITE_PATHS`, which would sweep a
+    dirty ``study_state.json`` into a generation transaction.)
+
+    No-op outside a git repository — unit fixtures scaffold studies in bare
+    temp dirs — and when nothing the verb named actually changed.
+    """
+    from ..transaction import git, git_commit, relative
+
+    forbidden = sorted({name for name in paths if _is_core_state(name)})
+    if forbidden:
+        raise WorkflowError(
+            "a generation verb may not commit core state or core evidence; refused: "
+            + ", ".join(forbidden)
+            + " — that is run-one's, `klein recover`'s or `klein verify`'s to file"
+        )
+    probe = git(study_dir, ["rev-parse", "--show-toplevel"], check=False)
+    if probe.returncode:
+        return None
+    repo = Path(probe.stdout.strip()).resolve()
+    dirt = core_state_dirt(repo, study_dir)
+    if dirt:
+        raise WorkflowError(
+            "core state is dirty (" + ", ".join(sorted(dirt)) + "); that is run-one's or "
+            "`klein recover`'s to file, not a generation verb's"
+        )
+    existing = [relative(repo, study_dir / name) for name in paths if (study_dir / name).exists()]
+    if not existing:
+        return None
+    git(repo, ["add", "--", *existing])
+    if git(repo, ["diff", "--cached", "--quiet", "--", *existing], check=False).returncode == 0:
+        return None
+    return git_commit(repo, message, only=existing)
+
+
 def commit_generation(
     study_dir: Path, message: str, paths: Sequence[str] = COMMIT_PATHS
 ) -> str | None:
-    """File exactly the generation paths this verb wrote.
+    """File exactly the generation paths this verb wrote — and nothing else.
 
-    ``scope="own"`` commits ``paths`` plus
-    :data:`kleinlib.transaction.OWN_WRITE_PATHS` and nothing else, so an
-    operator's in-flight surface edit stays theirs.  Generation verbs never
-    modify ``study_state.json`` or the core ``events.jsonl``, so in practice the
-    commit carries ``generation/**`` alone — which
-    ``test_generation_spine.py`` asserts with ``git show --name-only``.
+    The narrower half of :func:`commit_artifacts`: the whitelist is
+    :data:`COMMIT_PATHS`, so the spine's own verbs cannot file a study artifact
+    even by mistake.  ``test_generation_spine.py`` asserts the resulting commit
+    with ``git show --name-only``.
     """
     unknown = [name for name in paths if name not in COMMIT_PATHS]
     if unknown:
@@ -283,4 +403,4 @@ def commit_generation(
             "a generation verb may only commit generation/** paths; refused: "
             + ", ".join(unknown)
         )
-    return commit_state_writes(study_dir, message, paths=list(paths), scope="own")
+    return commit_artifacts(study_dir, message, list(paths))

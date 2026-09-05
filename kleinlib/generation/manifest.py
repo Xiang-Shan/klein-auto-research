@@ -3,9 +3,13 @@
 A study is generation-enabled if and only if this file exists.  It is written
 once by ``klein generation init``, before the CONSULT gate is recorded, and is
 immutable afterwards: its sha256 is carried in the ``generation_opted_in``
-event, and ``klein generation verify`` re-hashes it.  Later capability
-ADDITIONS are ``generation_amended`` events (a later work package); an amendment
-may only add, and each addition is reported ``late_added``.
+event, and ``klein generation verify`` re-hashes it.
+
+**Capability additions after opt-in are not available in this release.**  There
+is no amendment verb and no manifest amendment event: a study declares its full
+capability set at ``init``, and a study that wants another one is a successor
+study.  ``scope.late_added`` therefore exists in the receipt and is always
+``[]`` — the key is part of the receipt's fixed shape, not a feature.
 
 The vocabulary is fixed and the availability is versioned:
 

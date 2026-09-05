@@ -1593,7 +1593,15 @@ def surprise_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
                 "registered yet — `klein generation surprise register` locks the search "
                 "space after METHOD and before its evidence",
             )
-        ], {"integrity": "PASS", "outcome": "n/a", "cells": 0, "violations": 0}
+        ], {
+            # `incomplete`, never `n/a`: `n/a` is the label's word for "not
+            # declared" and comes only from `label.capability_outcomes`'s
+            # defaults.  A declared-but-unexercised capability is incomplete.
+            "integrity": "PASS",
+            "outcome": "incomplete",
+            "cells": 0,
+            "violations": 0,
+        }
 
     recorded = records(ctx.study_dir, events)
     issued = receipts(ctx.study_dir, events)

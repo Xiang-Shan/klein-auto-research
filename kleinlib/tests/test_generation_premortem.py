@@ -260,8 +260,10 @@ def test_v13_the_planted_denominator_is_accepted_and_reaches_the_first_measureme
             PHASE: {"reviews": 1, "issues": 2, "answered": True, "independence": "self-attested"}
         },
     }
-    assert _statuses(receipt, "generation premortem") == ["PASS", "WARN"]
+    # two WARNs: no session receipt, and no referee row to compare the reviewer with
+    assert _statuses(receipt, "generation premortem") == ["PASS", "WARN", "WARN"]
     assert "no session receipt" in _premortem_detail(study)
+    assert "names no referee" in _premortem_detail(study)
 
 
 def test_v13_the_admission_receipt_pins_the_review_it_rests_on(premortem_study) -> None:
@@ -380,7 +382,9 @@ def test_v13_a_reviewer_who_is_the_experimenter_is_a_warning_not_a_failure(
     assert _respond(study) == 0
 
     assert _gen("verify", "--study", str(study)) == 0
-    assert _statuses(_receipt(study), "generation premortem") == ["PASS", "WARN", "WARN"]
+    # three WARNs: no session receipt, the reviewer IS the experimenter, and no
+    # referee row to compare the reviewer with
+    assert _statuses(_receipt(study), "generation premortem") == ["PASS", "WARN", "WARN", "WARN"]
     assert "matches the roster experimenter" in _premortem_detail(study)
 
 
@@ -521,6 +525,9 @@ def test_a_session_receipt_lifts_the_outcome_to_receipted(premortem_study) -> No
     repo, study = premortem_study
     (study / "review-session.md").write_text("the reviewer's transcript\n", encoding="utf-8")
     commit_all(repo, "the reviewer's session receipt")
+    # A-4's valid control: with a referee ON the roster, "reviewer ≠ referee" is a
+    # comparison that means something, and the family has nothing left to warn about
+    _set_roster(repo, study, "referee", "opus · a closing session")
     assert _lock(study, V11_ROWS) == 0
     draft = _slate_sha(study)
     issues = [_issue("I1", "slate", severity="minor")]
@@ -595,6 +602,85 @@ def test_a_premortem_commit_files_the_review_and_the_ledger_and_nothing_else(
         "/premortem/" in f"/{name}" or "/generation/" in f"/{name}" for name in names
     ), names
     assert "train.py" in git(repo, "status", "--porcelain"), "the candidate stayed the operator's"
+
+
+# --------------------------------------------------------------------------
+# A-4 / A-6 / A-7 — the roster, the record's own file, and the empty outcome
+# --------------------------------------------------------------------------
+
+
+def test_a_missing_referee_row_is_warned_once_per_phase(premortem_study) -> None:
+    """A-4: "reviewer ≠ referee" against an ABSENT roster row proves nothing."""
+    repo, study = premortem_study
+    assert _lock(study, V11_ROWS) == 0
+    _write_review(study, slate_sha=_slate_sha(study), issues=[_issue("I1", "slate", severity="minor")])
+    assert _record(study) == 0
+    assert _gen("verify", "--study", str(study)) == 0
+    warnings = [
+        check["detail"]
+        for check in _receipt(study)["checks"]
+        if check["name"] == "generation premortem" and check["status"] == "WARN"
+    ]
+    named = [line for line in warnings if "names no referee" in line]
+    assert len(named) == 1, warnings  # once per phase, not once per review
+
+    # the valid control: fill the row and the warning goes
+    _set_roster(repo, study, "referee", "opus · a closing session")
+    assert _gen("verify", "--study", str(study)) == 0
+    assert not [
+        check
+        for check in _receipt(study)["checks"]
+        if check["name"] == "generation premortem" and "names no referee" in check["detail"]
+    ]
+
+
+def test_a_record_that_is_not_the_file_it_hashed_fails(premortem_study) -> None:
+    """A-6: the record copies the reviewer, the inputs and the issues from a FILE.
+
+    Nothing re-read `file_sha256` after `record` wrote it, so a record whose
+    object said one thing while the document it hashed said another was
+    invisible: the two halves were only ever compared at write time. Here the
+    record's own commit is amended so the file drifts while the object stays
+    byte-identical — the content-addressed store sees nothing, and the family
+    must. (The valid control is every other test in this file, and explicitly
+    `test_a_missing_referee_row_is_warned_once_per_phase`.)
+    """
+    repo, study = premortem_study
+    assert _lock(study, V11_ROWS) == 0
+    _write_review(study, slate_sha=_slate_sha(study), issues=[_issue("I1", "slate", severity="minor")])
+    assert _record(study) == 0
+    stored = premortem.records(study, read_events(study), PHASE)[-1]
+
+    path = study / "premortem" / f"{PHASE}.yaml"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    document["reviewer"]["name"] = "someone else entirely"
+    document["inputs"] = ["playbook.md"]
+    path.write_text(yaml.safe_dump(document, sort_keys=False), encoding="utf-8")
+    git(repo, "add", "-A")
+    git(repo, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--amend", "--no-edit")
+    # the object is exactly what it was: only its witness moved
+    assert (
+        premortem.records(study, read_events(study), PHASE)[-1]["sha"] == stored["sha"]
+    )
+
+    assert _gen("verify", "--study", str(study)) == 2
+    assert "are not the same document" in _premortem_detail(study)
+
+
+def test_a_declared_but_unexercised_premortem_is_incomplete_not_n_a(premortem_study) -> None:
+    """A-7: `n/a` means "not declared" and comes only from the label's defaults."""
+    _repo, study = premortem_study
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _receipt(study)["capabilities"]["premortem"] == {
+        "integrity": "PASS",
+        "outcome": "incomplete",
+        "phases": {},
+    }
+    from kleinlib.generation.label import capability_outcomes
+
+    outcomes = capability_outcomes(study)
+    assert outcomes["premortem"] == "incomplete"
+    assert outcomes["parity"] == "n/a"  # undeclared: the label's own default
 
 
 BANNED_FUNCTION_PREFIXES = (

@@ -44,8 +44,14 @@ FAILs ``generation manifest``.
 
 The receipt carries no timestamp: at one HEAD it is a pure function of the
 study, and :func:`write_receipt` will not rewrite a receipt that differs from
-the one on disk only in ``git_head`` — so a second ``verify`` files no commit
-and the bytes are stable.
+the one on disk only in ``git_head`` **while that receipt is still current** —
+so a second ``verify`` at one HEAD files no commit and the bytes are stable,
+while a verify after any other commit refreshes the receipt and re-earns the
+label.
+
+The verb writes NOTHING on a study that never opted in: no ``generation/``
+directory, no FAIL receipt, no commit.  Not opting in is not a failure, and a
+verb that manufactured evidence of one would make the layer un-optional.
 """
 
 from __future__ import annotations
@@ -76,6 +82,7 @@ from .envelope import GENERATION_SCHEMA
 from .ledger import (
     chain_problems,
     commit_generation,
+    core_state_dirt,
     mislabelled_object_shas,
     missing_object_shas,
     orphan_object_shas,
@@ -296,10 +303,10 @@ def _orphan_checks(study_dir: Path, events: Sequence[Mapping[str, Any]]) -> list
     checks.append(
         _fail(
             "generation orphans",
-            "object file(s) whose content does not hash to their name: "
-            + ", ".join(sha[:12] for sha in mislabelled)
-            + " — a stored object was rewritten in place; the store is content-addressed "
-            "and write-once",
+            "object file(s) that are not the object they name: "
+            + "; ".join(f"{sha[:12]} ({why})" for sha, why in sorted(mislabelled.items()))
+            + " — a stored object was rewritten in place or cannot be read; the store is "
+            "content-addressed and write-once",
         )
         if mislabelled
         else _pass(
@@ -619,22 +626,42 @@ def receipt_is_current(repo: Path | None, receipt: Mapping[str, Any], head: str 
 def write_receipt(study_dir: Path, contract: Mapping[str, Any]) -> tuple[list[Check], Path]:
     """Audit, write ``generation/verify_receipt.json``, commit exactly that.
 
-    A payload that differs from the receipt already on disk ONLY in ``git_head``
-    is not written: the audit found nothing new, so the receipt that is there
-    stands and no commit is filed.  That is what makes two consecutive verifies
-    byte-identical instead of an endless chain of receipt commits.
+    The receipt on disk STANDS only when two things hold: the new payload
+    differs from it in nothing but ``git_head``, AND it is still current at this
+    HEAD (:func:`receipt_is_current`).  Both halves are load-bearing.  The first
+    is what makes two consecutive verifies at one HEAD byte-identical instead of
+    an endless chain of receipt commits.  The second is what lets a study whose
+    findings, playbook or protocol moved since the last audit REFRESH the
+    receipt: the audit finds the same facts, but the old receipt is stale, and a
+    stale receipt refuses the label — so skipping the rewrite there would leave
+    ``klein generation label`` refusing forever with no way to satisfy it.
     """
     checks, extras = generation_checks(study_dir, contract)
     repo = repo_for(study_dir)
-    payload = build_receipt(study_dir, contract, checks, extras, head=git_head(repo))
+    head = git_head(repo)
+    payload = build_receipt(study_dir, contract, checks, extras, head=head)
     path = study_dir / RECEIPT_NAME
     if path.is_file():
         try:
             existing = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             existing = None
-        if isinstance(existing, dict) and _same_but_head(existing, payload):
+        if (
+            isinstance(existing, dict)
+            and _same_but_head(existing, payload)
+            and receipt_is_current(repo, existing, head)
+        ):
             return checks, path
+    # The commit would refuse a dirty core state anyway; refusing HERE keeps the
+    # tree byte-identical instead of leaving an unfiled receipt behind.
+    if repo is not None:
+        dirt = core_state_dirt(repo, study_dir)
+        if dirt:
+            raise WorkflowError(
+                "core state is dirty (" + ", ".join(sorted(dirt)) + "); that is run-one's "
+                "or `klein recover`'s to file, not a generation verb's — file it, then "
+                "re-run `klein generation verify`"
+            )
     atomic_write_json(path, payload)
     failed = payload["summary"]["failed"]
     commit_generation(

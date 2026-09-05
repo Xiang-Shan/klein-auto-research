@@ -113,9 +113,10 @@ below, `references/premortem-protocol.md`, `references/expert-parity-protocol.md
 so the *not available* refusal is what a study meets when it is carried back to an
 older Klein, or to a build whose modules were trimmed. Opting in with
 `capabilities: []` still buys the admission discipline and
-the chronology witnesses, and nothing that scores research. Later additions are
-`generation_amended` events which may only ADD capabilities; each addition is reported
-`late_added`.
+the chronology witnesses, and nothing that scores research. **Capability additions
+after opt-in are not available in this release**: there is no amendment verb and no
+manifest amendment event, so declare the full set at `init`, or start a successor
+study. (`scope.late_added` is part of the receipt's fixed shape and is always `[]`.)
 
 ## The envelope
 
@@ -422,7 +423,12 @@ action was admitted before it ran. It says nothing about whether the research
 succeeded: an honestly stopped study with every capability outcome `incomplete` can
 carry it, and a spectacular result with one unadmitted run cannot. The label copies
 each declared capability's outcome and never its integrity — which the label as a whole
-already carries — and its `rung` is `local-order`.
+already carries. It is capability-scoped — every capability this study did not declare
+is listed `n/a` — and its `rung` is **always `local-order` in this release**: no input
+raises it, a `custody attest` receipt included. A custody attestation is reported where
+it was recorded (the `benchmark` capability's entry, and the receipt on the ledger),
+never as the rung — this layer cannot verify custody, and a rung is a claim about what
+was verified.
 
 ## Recovery
 
@@ -438,12 +444,18 @@ leaves exactly two states, and both are detected:
   dirty tree; `recover` files the `generation/**` paths, because until they are
   committed the receipt has no introducing commit and cannot be resolved by ancestry.
 
-`recover` never invents, retries or re-runs anything.
+`recover` never invents, retries or re-runs anything — and it never rewrites a stored
+object. The store is content-addressed and write-once: a file whose bytes no longer
+hash to its own name (or that cannot be read at all) was rewritten in place, every
+writing verb refuses until it is restored BY HAND (`git checkout -- <path>`), and
+writing an object over different bytes under the same name is refused rather than
+completed.
 
 ## Write ownership
 
 Generation verbs write ONLY under `<study>/generation/` and commit only those paths
-(`commit_state_writes(..., scope="own")`), plus the named human artifacts a capability
+(`git commit --only -- <the paths the verb wrote>` — never a commit scope that
+prepends core state to them), plus the named human artifacts a capability
 files with them — `domain_card.md`, `slates/<phase>.yaml`, `premortem/<phase>.yaml`,
 `evidence_design.yaml`, `parity.yaml`, `ai_value.jsonl`, `escalation_plan.yaml`,
 `discovery_cells.yaml`, and the benchmark's `benchmark.yaml`,
@@ -454,8 +466,21 @@ REPO-level stores that are facts about the repository rather than one study:
 `expert repair`, which commits exactly the repaired files it recorded — minus anything
 in the mutable surface, which `run-one` owns and which filing would silently move the
 restore anchor. They never write `study_state.json`, the core
-`events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`. An
-in-flight edit to the mutable surface is the operator's and stays theirs.
+`events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`, and
+naming one of those in a commit is refused rather than filed. An in-flight edit to
+the mutable surface is the operator's and stays theirs.
+
+**A dirty core state stops a generation verb.** If `study_state.json` or the core
+`events.jsonl` has uncommitted changes, every writing verb refuses ("core state is
+dirty; that is run-one's or `klein recover`'s to file, not a generation verb's"):
+a receipt anchored to a core event that no commit yet carries cannot be resolved by
+ancestry afterwards.
+
+**A study that never opted in is never touched.** `klein generation verify` on a
+study with no `generation/manifest.yaml` and no `generation/events.jsonl` exits 1
+and writes nothing — no directory, no FAIL receipt, no commit. Not opting in is not
+a failure. A manifest that was deleted or edited AFTER an opt-in still meets the
+FAIL path: losing the opt-in is a finding, not an exemption.
 
 <!-- WP-09: design -->
 ## Evidence design

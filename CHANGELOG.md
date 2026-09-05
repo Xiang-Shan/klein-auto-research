@@ -321,6 +321,57 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   orphan-protocol check that has guarded `references/` since 2.0.
 <!-- end WP-10 -->
 
+<!-- fix-1 -->
+### Fixed
+
+- **A generation receipt refreshes at a new HEAD.** `klein generation verify` used to
+  skip the rewrite whenever the new audit differed from the receipt on disk only in
+  `git_head`. After any unrelated commit — a `program.md` decision, a playbook
+  refresh, a framework doc — the receipt was therefore stale, re-verifying changed
+  nothing, and `klein generation label` refused for the life of the study. The
+  rewrite is now skipped only while the receipt is still current; two verifies at one
+  HEAD still file nothing.
+- **A generation commit carries generation paths only.** Every generation verb filed
+  its writes through a commit scope that also prepended `study_state.json` and the
+  core `events.jsonl`, so an operator's uncommitted core-state edit could be swept
+  into a generation transaction. Verbs now commit exactly the paths they wrote,
+  refuse to name core state or core evidence at all, and refuse to run while
+  `study_state.json` or the core `events.jsonl` is dirty.
+- **A study that never opted in is left untouched.** `klein generation verify` on a
+  study with no manifest and no chain exits 1 and writes nothing, instead of creating
+  `generation/` and filing a FAIL receipt against a study that had promised nothing.
+- **A run that went ahead after a refusal says so.** It is classified
+  `refused-but-run` from the newest preceding receipt, rather than `replayed` from any
+  older consumed one. Both still FAIL; only one is the truth.
+- **The object store refuses to complete a tamper.** Writing an object over different
+  bytes under the same name raises instead of overwriting, a file that is not its own
+  hash (or cannot be read) blocks every writing verb until it is restored by hand, and
+  `recover` never rewrites an object.
+- **The expert baseline's recipe is frozen with its targets** (R-INV-3). `expert lock`
+  records the sha256 of `baseline.implementation` and `baseline.fixture`; a
+  `reproduced` bind whose recipe drifted since the lock now FAILs unless a repair
+  declared the change. Files inside the mutable surface are recorded but exempt.
+- **A repair changes what it says it changes.** `verify` diffs the study subtree
+  between the failing run and the repaired one and FAILs on any unnamed change;
+  `expert repair --changed` refuses core state, run evidence and the generation
+  ledger (naming a path also exempts it from the clean-tree check).
+- **Every cited reference record is opened.** A record reachable only from a
+  `references.yaml` row used to pass by never being looked at, and a row's
+  `verification_level` may no longer claim a stronger basis than its record's
+  `verification_basis`.
+- **Pre-mortem independence is not asserted from an empty roster.** A missing
+  `referee` row now WARNs once per phase instead of passing silently, and a recorded
+  review is FAILed when the document it hashed is not the document at its own commit.
+- **A declared-but-unexercised capability reports `incomplete`, not `n/a`.** `n/a` is
+  the label's word for "not declared" and now comes only from the label's defaults.
+- Smaller: `check --action` takes argparse `choices` from a tuple asserted equal to
+  `admission.CHECKPOINTS`; an unreadable `study_state.json` is a recorded refusal
+  reason rather than an empty state that would admit a spent seal; `same_actor`
+  compares actor components symmetrically; docs no longer describe a manifest
+  amendment feature that does not ship, and state that the label's rung is always
+  `local-order` in this release.
+<!-- end fix-1 -->
+
 <!-- fix-2 -->
 - **The parity outcome is one cell's, decided once, and the slate scores the first
   try.** Six behaviours of the `slates` and `parity` capabilities were tightened

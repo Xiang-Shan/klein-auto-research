@@ -156,6 +156,19 @@ class Context:
     obligation: str | None = None
     outstanding: Receipt | None = None
     tracks: Mapping[str, Any] = field(default_factory=dict)
+    #: Why ``state`` is ``{}``, when it is empty because it could not be READ.
+    #: An unreadable ``study_state.json`` is not an empty one: the seal counter
+    #: lives there, so "no state" would silently admit a second sealed run.
+    state_problem: str | None = None
+
+
+def _rule_state_is_readable(ctx: Context) -> list[str]:
+    if not ctx.state_problem:
+        return []
+    return [
+        f"study_state.json is unreadable ({ctx.state_problem}) — the seal cannot be "
+        "checked, and an unreadable state is not an empty one"
+    ]
 
 
 def _rule_known_checkpoint(ctx: Context) -> list[str]:
@@ -227,6 +240,7 @@ def _rule_seal_is_unspent(ctx: Context) -> list[str]:
 #: The spine's rules, run for every study.  A capability's own rules are NOT
 #: appended here — they are registered (see :func:`capability_reasons`).
 ADMISSION_RULES: list[Callable[[Context], list[str]]] = [
+    _rule_state_is_readable,
     _rule_known_checkpoint,
     _rule_track_is_declared,
     _rule_hypothesis_needs_slates,
@@ -492,10 +506,17 @@ def match_runs(
             else:
                 runs[run] = "mismatched"
             continue
-        if any(r.sha in consumed for r in preceding):
-            runs[run] = "replayed"
-        elif preceding and max(preceding, key=lambda r: r.sequence).verdict == "refused":
+        # No eligible receipt: the NEWEST preceding one says what happened.
+        # Reading "any earlier receipt was consumed" first would report a run
+        # that went ahead after a refusal as a mere `replayed`, which is the
+        # milder fact — and the wrong one.
+        newest = max(preceding, key=lambda r: r.sequence) if preceding else None
+        if newest is None:
+            runs[run] = "unadmitted"
+        elif newest.verdict == "refused":
             runs[run] = "refused-but-run"
+        elif newest.sha in consumed:
+            runs[run] = "replayed"
         else:
             runs[run] = "unadmitted"
 

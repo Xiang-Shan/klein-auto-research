@@ -49,15 +49,27 @@ from typing import Any
 
 import yaml
 
+from ..contract import mutable_surface
 from ..errors import WorkflowError
 from ..manifest import load_manifests
 from ..primitives import canonical_json, sha256_bytes, sha256_file
 from ..references import REFERENCES_NAME, is_verified, load_references
 from ..transaction import git_blob, relative
-from .chronology import gate_events, introducing_commit, is_ancestor
+from .chronology import (
+    changed_paths_between,
+    gate_events,
+    introducing_commit,
+    is_ancestor,
+)
 from .envelope import GENERATION_SCHEMA
 from .ledger import read_events, read_object
-from .references import RECORD_DIR, load_record, record_path, record_problems
+from .references import (
+    RECORD_DIR,
+    VERIFICATION_BASES,
+    load_record,
+    record_path,
+    record_problems,
+)
 from .registry import Capability, FamilyContext
 from .verify import Check
 
@@ -188,6 +200,32 @@ def normalized_targets(front: Mapping[str, Any]) -> list[dict[str, Any]]:
 def lock_targets(lock: Mapping[str, Any]) -> list[dict[str, Any]]:
     front = lock.get("frontmatter")
     return normalized_targets(front) if isinstance(front, Mapping) else []
+
+
+def baseline_files(front: Mapping[str, Any]) -> list[str]:
+    """The study-relative recipe files the lock freezes: implementation, fixture.
+
+    ``config`` is deliberately absent when it is inline (a mapping is already
+    inside the frontmatter, and the frontmatter is hashed whole).
+    """
+    baseline = front.get("baseline")
+    if not isinstance(baseline, Mapping):
+        return []
+    names: list[str] = []
+    for field in ("implementation", "fixture"):
+        value = baseline.get(field)
+        if isinstance(value, str) and value.strip():
+            names.append(value)
+    return names
+
+
+def baseline_hashes(study_dir: Path, front: Mapping[str, Any]) -> dict[str, str | None]:
+    """``{path: sha256 as on disk}`` for the recipe files, ``None`` when absent."""
+    hashes: dict[str, str | None] = {}
+    for name in baseline_files(front):
+        path = study_dir / name
+        hashes[name] = sha256_file(path) if path.is_file() else None
+    return hashes
 
 
 def _target_problems(front: Mapping[str, Any]) -> list[str]:
@@ -459,22 +497,28 @@ def _norm(value: str) -> str:
     return " ".join(value.split()).casefold()
 
 
+def _components(value: str) -> set[str]:
+    """The whole cell plus each ``model · tool · session`` component, normalized."""
+    parts = {_norm(part) for part in re.split(r"[·|/,]", value)}
+    parts.add(_norm(value))
+    return {part for part in parts if part}
+
+
 def same_actor(name: str | None, roster_cell: str | None) -> bool:
     """Is this reviewer the experimenter, as far as the record can tell?
 
     String comparison, never authentication (``references/generation-protocol.md``
-    "what this does NOT establish").  The roster cell is a
-    ``model · tool · session`` triple, so a reviewer naming any ONE of those
-    components counts as the same actor — a strictly more conservative reading
-    than whole-cell inequality, and the conservative direction is the safe one.
+    "what this does NOT establish").  Both sides are split on ``· | / ,`` and the
+    component sets are INTERSECTED, so the answer does not depend on which side
+    happens to be the compound one: a reviewer recorded as
+    ``opus · codex · s-42`` against a roster cell of ``codex`` is the same actor,
+    and so is the reverse.  Overlap on any single component counts — a strictly
+    more conservative reading than whole-cell inequality, and the conservative
+    direction is the safe one here.
     """
     if not name or not roster_cell:
         return False
-    left = _norm(name)
-    if not left:
-        return False
-    parts = [_norm(part) for part in re.split(r"[·|/,]", roster_cell)]
-    return left == _norm(roster_cell) or left in [part for part in parts if part]
+    return bool(_components(name) & _components(roster_cell))
 
 
 # --------------------------------------------------------------------------
@@ -693,6 +737,11 @@ def _reference_checks(
                 "records are write-once; a correction is a NEW id"
             )
 
+    # Every record `references.yaml` POINTS at is checked too, before the loop
+    # below runs — a record reachable only from a citation row was previously
+    # never opened, so a hand-forged one passed by not being looked at.
+    seen |= _cited_record_ids(ctx.study_dir)
+
     for record_id in sorted(seen):
         try:
             record = load_record(repo, record_id)
@@ -714,6 +763,22 @@ def _reference_checks(
             "verification basis",
         )
     ]
+
+
+def _cited_record_ids(study_dir: Path) -> set[str]:
+    """Every ``record_id`` a ``references.yaml`` row names ({} when unreadable)."""
+    if not (study_dir / REFERENCES_NAME).is_file():
+        return set()
+    try:
+        entries = load_references(study_dir)
+    except WorkflowError:
+        return set()
+    return {
+        str(entry["record_id"])
+        for entry in entries.values()
+        if isinstance(entry, Mapping) and isinstance(entry.get("record_id"), str)
+        and str(entry["record_id"]).strip()
+    }
 
 
 def _references_yaml_problems(study_dir: Path, repo: Path) -> list[str]:
@@ -738,7 +803,46 @@ def _references_yaml_problems(study_dir: Path, repo: Path) -> list[str]:
             problems.append(
                 f"{REFERENCES_NAME}: {key} names record_id {record_id!r}, which has no record"
             )
+        else:
+            problems.extend(_basis_problems(repo, key, record_id, entry))
     return problems
+
+
+def _basis_problems(
+    repo: Path, key: str, record_id: str, entry: Mapping[str, Any]
+) -> list[str]:
+    """The citation may not claim a STRONGER basis than the record it rests on.
+
+    ``verification_level`` is optional on a ``references.yaml`` row; when it is
+    there it is the row's own account of how closely the work was checked, and
+    the record is the evidence for it.  ``VERIFICATION_BASES`` is ordered
+    strongest→weakest, so a smaller index on the row than on the record is
+    exactly the citation-laundering drift the record store exists to catch:
+    "I read it" written beside a record that says the title came out of another
+    paper's bibliography.
+    """
+    level = entry.get("verification_level")
+    if level is None:
+        return []
+    if not isinstance(level, str) or level not in VERIFICATION_BASES:
+        return [
+            f"{REFERENCES_NAME}: {key} declares verification_level {level!r}, which must be "
+            f"one of {', '.join(VERIFICATION_BASES)}"
+        ]
+    try:
+        record = load_record(repo, record_id)
+    except WorkflowError as exc:
+        return [str(exc)]
+    basis = (record or {}).get("verification_basis")
+    if basis not in VERIFICATION_BASES:
+        return []  # the record's own basis is already reported by record_problems
+    if VERIFICATION_BASES.index(level) < VERIFICATION_BASES.index(str(basis)):
+        return [
+            f"{REFERENCES_NAME}: {key} claims verification_level {level!r} but record "
+            f"{record_id!r} was recorded as {basis!r} — the citation claims a stronger basis "
+            "than its record"
+        ]
+    return []
 
 
 def _consumed_receipt(ctx: FamilyContext, run: str) -> Any:
@@ -752,6 +856,7 @@ def _obligation_checks(
     ctx: FamilyContext,
     locks: list[tuple[Mapping[str, Any], dict[str, Any]]],
     binds: list[tuple[Mapping[str, Any], dict[str, Any]]],
+    repairs: list[tuple[Mapping[str, Any], dict[str, Any]]] = (),
 ) -> list[Check]:
     name = "expert obligation"
     checks: list[Check] = []
@@ -761,7 +866,7 @@ def _obligation_checks(
         return [_fail(name, f"run manifests unreadable: {exc}")]
 
     for event, obj in binds:
-        problems = _bind_problems(ctx, event, obj, manifests)
+        problems = _bind_problems(ctx, event, obj, manifests, repairs)
         detail = f"{obj.get('run')}: {obj.get('verdict')}"
         checks.append(_fail(name, f"{detail} — " + "; ".join(problems)) if problems else _pass(name, detail))
 
@@ -784,6 +889,7 @@ def _bind_problems(
     event: Mapping[str, Any],
     obj: Mapping[str, Any],
     manifests: Mapping[str, Mapping[str, Any]],
+    repairs: Sequence[tuple[Mapping[str, Any], Mapping[str, Any]]] = (),
 ) -> list[str]:
     problems: list[str] = []
     run = obj.get("run")
@@ -821,6 +927,64 @@ def _bind_problems(
         problems.append(
             f"the recorded verdict {obj.get('verdict')!r} recomputes as {verdict!r}"
         )
+    problems.extend(_baseline_freeze_problems(ctx, event, lock, manifest, repairs))
+    return problems
+
+
+def _baseline_freeze_problems(
+    ctx: FamilyContext,
+    event: Mapping[str, Any],
+    lock: Mapping[str, Any],
+    manifest: Mapping[str, Any],
+    repairs: Sequence[tuple[Mapping[str, Any], Mapping[str, Any]]],
+) -> list[str]:
+    """R-INV-3: the recipe the run executed is the recipe the lock froze.
+
+    Targets are worthless if the implementation or the fixture can drift under
+    them: a baseline that "reproduces" against a quietly rewritten fixture
+    reproduces nothing.  So the bytes at the run's ``candidate_commit`` must be
+    the bytes hashed at the lock — UNLESS a repair recorded before this bind
+    declared that file in ``changed_files``, in which case the repair's own hash
+    is the one that applies (that is what a versioned repair is FOR).
+
+    Files inside the mutable surface are exempt: the surface is what the run
+    edits and ``run-one`` restores, so freezing it would fail every baseline.
+    Their hash is still recorded at the lock, for the record.
+    """
+    frozen = lock.get("baseline_hashes")
+    if not isinstance(frozen, Mapping) or not frozen:
+        return []
+    repo = ctx.repo
+    candidate = manifest.get("candidate_commit")
+    if repo is None or not isinstance(candidate, str):
+        return []
+    surface = set(mutable_surface(ctx.contract))
+    before = _sequence(event)
+    problems: list[str] = []
+    for name, recorded in sorted(frozen.items()):
+        if name in surface:
+            continue
+        expected, source = recorded, "the lock"
+        for repair_event, repair in repairs:
+            if _sequence(repair_event) >= before:
+                continue
+            for entry in repair.get("changed_files") or ():
+                if (
+                    isinstance(entry, Sequence)
+                    and not isinstance(entry, (str, bytes))
+                    and len(entry) == 2
+                    and str(entry[0]) == name
+                ):
+                    expected = entry[1]
+                    source = f"repair v{repair.get('version')}"
+        blob = git_blob(repo, candidate, relative(repo, ctx.study_dir / name))
+        actual = sha256_bytes(blob) if blob is not None else None
+        if actual != expected:
+            problems.append(
+                f"the baseline recipe drifted: {name} at {candidate[:12]} hashes "
+                f"{str(actual)[:12]}… but {source} froze {str(expected)[:12]}… — a repair "
+                "records the files it changes; nothing else may move under the targets"
+            )
     return problems
 
 
@@ -898,6 +1062,10 @@ def _repair_checks(
         if not isinstance(candidate, str):
             problems.append(f"repair {obj.get('version')}: the next bound run has no candidate commit")
             continue
+        preceding = [(e, o) for e, o in binds if _sequence(e) < after]
+        problems.extend(
+            _unnamed_change_problems(ctx, obj, manifests, preceding, candidate)
+        )
         for entry in obj.get("changed_files") or ():
             if not isinstance(entry, Sequence) or isinstance(entry, (str, bytes)) or len(entry) != 2:
                 problems.append(f"repair {obj.get('version')}: malformed changed_files entry")
@@ -922,6 +1090,78 @@ def _repair_checks(
             f"{len(repairs)} repair(s); {checked} changed file(s) match the candidate commit of "
             "the run that followed them",
         )
+    ]
+
+
+#: Study paths that legitimately move between a failing baseline and its repaired
+#: rerun WITHOUT being named in the repair: the two ledgers, the derived views,
+#: the evidence a run files, and the notebook the driver keeps as it goes.
+REPAIR_INCIDENTAL_PATHS: frozenset[str] = frozenset(
+    {
+        "study_state.json",
+        "events.jsonl",
+        "results.tsv",
+        "aux_metrics.tsv",
+        "playbook.md",
+        "results_summary.md",
+        "progress.svg",
+    }
+)
+
+#: The same, for whole subtrees.
+REPAIR_INCIDENTAL_PREFIXES: tuple[str, ...] = (
+    "generation/",
+    "runs/",
+    "figures/",
+    "models/",
+)
+
+
+def _unnamed_change_problems(
+    ctx: FamilyContext,
+    obj: Mapping[str, Any],
+    manifests: Mapping[str, Mapping[str, Any]],
+    preceding: Sequence[tuple[Mapping[str, Any], Mapping[str, Any]]],
+    candidate: str,
+) -> list[str]:
+    """A repair changes what it SAYS it changes — and the diff is the witness.
+
+    Recording ``changed_files`` establishes nothing on its own: a repair that
+    names ``train.py`` while a helper in ``lib/`` also moved has reproduced the
+    baseline by an undeclared route, and the record would read as if it had not.
+    So the STUDY subtree is diffed between the candidate commit of the run that
+    FAILED and the candidate commit of the run that then reproduced it, and any
+    changed study path outside ``changed_files``, the mutable surface and the
+    incidental set above is a FAIL naming the file.
+    """
+    repo = ctx.repo
+    if repo is None or not preceding:
+        return []
+    base_run = manifests.get(str(preceding[-1][1].get("run")))
+    base = base_run.get("candidate_commit") if isinstance(base_run, Mapping) else None
+    if not isinstance(base, str):
+        return []
+    prefix = relative(repo, ctx.study_dir)
+    prefix = "" if prefix in (".", "") else f"{prefix}/"
+    named = {
+        str(entry[0])
+        for entry in (obj.get("changed_files") or ())
+        if isinstance(entry, Sequence) and not isinstance(entry, (str, bytes)) and len(entry) == 2
+    }
+    allowed = named | set(mutable_surface(ctx.contract)) | REPAIR_INCIDENTAL_PATHS
+    unnamed = sorted(
+        name
+        for path in changed_paths_between(repo, base, candidate)
+        if path.startswith(prefix) or not prefix
+        for name in [path[len(prefix) :]]
+        if name and name not in allowed and not name.startswith(REPAIR_INCIDENTAL_PREFIXES)
+    )
+    if not unnamed:
+        return []
+    return [
+        f"repair {obj.get('version')}: {', '.join(unnamed[:5])} changed between "
+        f"{base[:12]} and {candidate[:12]} without being named in --changed — a repair "
+        "records every file it moves, or the reproduction has an undeclared route"
     ]
 
 
@@ -986,7 +1226,7 @@ def verify_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
     checks: list[Check] = []
     checks += _card_checks(ctx, locks)
     checks += _reference_checks(ctx, locks, records)
-    checks += _obligation_checks(ctx, locks, binds)
+    checks += _obligation_checks(ctx, locks, binds, repairs)
     checks += _repair_checks(ctx, repairs, binds)
     review_checks, independent = _review_checks(ctx, reviews)
     checks += review_checks
@@ -1026,6 +1266,7 @@ def lock_object(
     card_sha256: str,
     parent_ids: Sequence[str],
     late: bool,
+    baseline_hashes: Mapping[str, str | None] | None = None,
 ) -> dict[str, Any]:
     return {
         "schema": GENERATION_SCHEMA,
@@ -1035,6 +1276,10 @@ def lock_object(
         "card_path": CARD_NAME,
         "card_sha256": card_sha256,
         "frontmatter": _plain(frontmatter),
+        # R-INV-3: the recipe's own bytes, frozen with the targets. Recorded for
+        # every file so the record is complete; only the ones OUTSIDE the mutable
+        # surface are frozen at verify (the surface is what E0001 runs).
+        "baseline_hashes": dict(baseline_hashes or {}),
         "parent_ids": list(parent_ids),
         "late": bool(late),
     }

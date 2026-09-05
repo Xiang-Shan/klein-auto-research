@@ -856,7 +856,16 @@ def premortem_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
                 "`klein generation premortem record` files the red team's issues before the "
                 "final slate lock",
             )
-        ], {"integrity": "PASS", "outcome": "n/a", "phases": {}}
+        ], {
+            # `incomplete`, never `n/a`: the label's `n/a` means "this study did
+            # not declare the capability", and it comes only from
+            # `label.capability_outcomes`'s defaults.  A DECLARED capability that
+            # was never exercised is honestly incomplete — a label-eligible
+            # outcome — and saying `n/a` would read as though nothing was promised.
+            "integrity": "PASS",
+            "outcome": "incomplete",
+            "phases": {},
+        }
 
     problems: list[str] = []
     warnings: list[str] = []
@@ -914,6 +923,15 @@ def _phase_checks(
     independence = "receipted"
     issues_total = 0
 
+    if phase_records and referee is None:
+        # Once per phase, not once per review: "reviewer ≠ referee" is checked as
+        # string inequality against the roster, and an ABSENT roster row makes
+        # that check vacuous rather than satisfied.
+        warnings.append(
+            f"phase {phase}: program.md's roster names no referee, so reviewer "
+            "independence cannot be established"
+        )
+
     for index, entry in enumerate(phase_records):
         obj = entry["object"]
         label = f"phase {phase} review v{obj.get('version')}"
@@ -924,6 +942,7 @@ def _phase_checks(
         problems.extend(_reviewer_check_problems(obj, label, referee=referee))
         warnings.extend(_reviewer_warnings(obj, label, experimenter=experimenter))
         problems.extend(_bundle_problems(ctx, entry, label))
+        problems.extend(_record_file_problems(ctx, entry, label))
         if obj.get("independence") != "receipted":
             independence = "self-attested"
 
@@ -1044,6 +1063,78 @@ def _bundle_problems(ctx: FamilyContext, entry: Mapping[str, Any], label: str) -
         f"{label}: the input bundle recomputes to {digest[:12]}… but the record hashed "
         f"{str(obj.get('input_bundle_sha256'))[:12]}…{detail}"
     ]
+
+
+def _record_file_problems(ctx: FamilyContext, entry: Mapping[str, Any], label: str) -> list[str]:
+    """The record IS the file the reviewer wrote — checked at its own commit.
+
+    ``reviewer`` and ``issues`` are copied verbatim into the record object, and
+    ``file_sha256`` is the hash of ``premortem/<phase>.yaml`` at that moment.
+    Nothing re-read that hash: a record whose object says one reviewer while the
+    file it hashed says another was invisible, because the two halves were only
+    ever compared at write time.  Here the file is read back out of the commit
+    that INTRODUCED the record object — so a later, lawful edit between `record`
+    and `respond` does not retroactively break it, and a rewrite does not pass.
+    """
+    repo = ctx.repo
+    obj = entry["object"]
+    if repo is None:
+        return []
+    phase = str(obj.get("phase"))
+    commit = introducing_commit(
+        repo, relative(repo, ctx.study_dir / "generation" / "objects" / f"{entry['sha']}.json")
+    )
+    if commit is None:
+        return [f"{label}: the record object is not committed, so its file cannot be read"]
+    rel = relative(repo, premortem_path(ctx.study_dir, phase))
+    blob = git_blob(repo, commit, rel)
+    if blob is None:
+        return [f"{label}: premortem/{phase}.yaml is absent from {commit[:12]}, which filed it"]
+    actual = sha256_bytes(blob)
+    if actual != obj.get("file_sha256"):
+        return [
+            f"{label}: premortem/{phase}.yaml at {commit[:12]} hashes {actual[:12]}… but the "
+            f"record froze {str(obj.get('file_sha256'))[:12]}… — the record and the file it "
+            "claims to copy are not the same document"
+        ]
+    try:
+        document = yaml.safe_load(blob.decode("utf-8")) or {}
+    except (UnicodeDecodeError, yaml.YAMLError) as exc:
+        return [f"{label}: premortem/{phase}.yaml at {commit[:12]} is unreadable: {exc}"]
+    if not isinstance(document, Mapping):
+        return [f"{label}: premortem/{phase}.yaml at {commit[:12]} is not a mapping"]
+    problems: list[str] = []
+    filed = document.get("reviewer")
+    filed = dict(filed) if isinstance(filed, Mapping) else {}
+    recorded = obj.get("reviewer")
+    recorded = dict(recorded) if isinstance(recorded, Mapping) else {}
+    # `session_receipt` is REPLACED at record time by the path the driver passed,
+    # so it is the one key the file is not expected to match.
+    filed.pop("session_receipt", None)
+    kept = {key: value for key, value in recorded.items() if key != "session_receipt"}
+    if canonical_json(_plainish(filed)) != canonical_json(_plainish(kept)):
+        problems.append(
+            f"{label}: the record's reviewer {kept!r} is not the reviewer the file names "
+            f"({filed!r})"
+        )
+    inputs = [str(name) for name in (document.get("inputs") or [])]
+    if inputs != [str(name) for name in (obj.get("inputs") or [])]:
+        problems.append(
+            f"{label}: the record's inputs {list(obj.get('inputs') or [])} are not the inputs "
+            f"the file names ({inputs})"
+        )
+    return problems
+
+
+def _plainish(value: Any) -> Any:
+    """YAML dates and the like, coerced so ``canonical_json`` can compare them."""
+    if isinstance(value, Mapping):
+        return {str(key): _plainish(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_plainish(item) for item in value]
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    return str(value)
 
 
 def _answer_problems(

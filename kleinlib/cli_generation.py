@@ -66,6 +66,13 @@ from .errors import WorkflowError
 
 __all__ = ["register"]
 
+#: The ``--action`` vocabulary, duplicated from
+#: :data:`kleinlib.generation.admission.CHECKPOINTS` on purpose: ``register()``
+#: builds argparse without importing the package, so the choices cannot be read
+#: from it.  ``test_generation_spine.py`` asserts the two tuples stay equal, so
+#: the duplication is checked rather than trusted.
+CHECKPOINT_CHOICES: tuple[str, ...] = ("run", "sealed", "baseline", "repair", "calibration", "cell")
+
 
 def _study(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--study", default=".", help="study directory (default: .)")
@@ -131,7 +138,9 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     check.add_argument(
         "--action",
         required=True,
-        help="the checkpoint: run | sealed | baseline | repair | calibration | cell",
+        choices=CHECKPOINT_CHOICES,
+        metavar="CHECKPOINT",
+        help="the checkpoint: " + " | ".join(CHECKPOINT_CHOICES),
     )
     check.add_argument("--track", required=True, help="the track the action belongs to")
     check.add_argument(
@@ -285,6 +294,32 @@ def _state(study: Path, contract: dict[str, Any]) -> dict[str, Any]:
         return {}
 
 
+def _state_or_problem(study: Path, contract: dict[str, Any]) -> tuple[dict[str, Any], str | None]:
+    """``(state, why it could not be read)`` — an unreadable state is not empty.
+
+    ``check`` needs the difference: ``final_holdout_access`` lives in
+    ``study_state.json``, so treating an unreadable file as ``{}`` would admit a
+    second sealed run on a track that already spent its one look.
+    """
+    from .state import load_state
+
+    try:
+        return load_state(study, contract), None
+    except WorkflowError as exc:
+        return {}, str(exc)
+
+
+def _opted_in(study: Path) -> bool:
+    """Did this study ever opt in?  The manifest OR a chain is enough.
+
+    Both are checked so a deleted or hand-edited manifest still meets the FAIL
+    path rather than the "never opted in" path — losing the opt-in is a
+    finding, not an exemption.
+    """
+    directory = study / "generation"
+    return (directory / "manifest.yaml").is_file() or (directory / "events.jsonl").is_file()
+
+
 def _require_clean(study: Path, contract: dict[str, Any]) -> None:
     from .contract import mutable_surface
     from .generation.chronology import repo_for
@@ -299,6 +334,7 @@ def _require_clean(study: Path, contract: dict[str, Any]) -> None:
 def _require_healthy_ledger(study: Path) -> None:
     from .generation.ledger import (
         chain_problems,
+        mislabelled_object_shas,
         missing_object_shas,
         orphan_object_shas,
         read_events,
@@ -322,6 +358,15 @@ def _require_healthy_ledger(study: Path) -> None:
         raise WorkflowError(
             "generation events whose object is missing: "
             + ", ".join(sha[:12] for sha in missing)
+        )
+    mislabelled = mislabelled_object_shas(study)
+    if mislabelled:
+        raise WorkflowError(
+            "stored generation object(s) that are not the object they name: "
+            + "; ".join(f"{sha[:12]} ({why})" for sha, why in sorted(mislabelled.items()))
+            + " — the store is content-addressed and write-once, so restore the file by "
+            "hand (`git checkout -- <path>`); `klein generation recover` never rewrites "
+            "an object, and every writing verb refuses until the store is itself again"
         )
 
 
@@ -350,8 +395,9 @@ def _run_init(args: argparse.Namespace) -> int:
         return _error(str(exc))
     if gm.manifest_path(study).is_file():
         return _error(
-            "generation/manifest.yaml already exists — the opt-in is immutable; "
-            "capability additions are amendments, not a second init"
+            "generation/manifest.yaml already exists — the opt-in is immutable. "
+            "Capability additions after opt-in are not available in this release; "
+            "declare the full set at init, or start a successor study."
         )
     problems = gm.capability_problems(list(args.capability))
     if problems:
@@ -453,11 +499,13 @@ def _run_check(args: argparse.Namespace) -> int:
     outstanding = outstanding_receipt(
         study, contract, repo=repo, events=events, track=args.track
     )
+    state, state_problem = _state_or_problem(study, contract)
     context = Context(
         study_dir=study,
         repo=repo,
         contract=contract,
-        state=_state(study, contract),
+        state=state,
+        state_problem=state_problem,
         manifest=manifest,
         action=args.action,
         track=args.track,
@@ -516,7 +564,16 @@ def _run_verify(args: argparse.Namespace) -> int:
         study, contract = _load(args)
     except WorkflowError as exc:
         return _error(str(exc))
-    checks, path = write_receipt(study, contract)
+    if not _opted_in(study):
+        return _error(
+            "this study never opted in to the generation layer (no generation/manifest.yaml "
+            "and no generation/events.jsonl) — nothing was written. `klein generation init` "
+            "opts in, and it must be anchored BEFORE the CONSULT gate."
+        )
+    try:
+        checks, path = write_receipt(study, contract)
+    except WorkflowError as exc:
+        return _error(str(exc))
     failed = 0
     warned = 0
     for check in checks:
@@ -851,15 +908,53 @@ def _expert_setup(
     return study, contract, manifest, repo, read_events(study)
 
 
+#: What a repair may NEVER name.  A repair changes the recipe — the
+#: implementation, the fixture, a helper in ``lib/`` — never the study's
+#: contract, its state, its evidence or its conclusions.  Naming one of these
+#: would also exempt it from the clean-tree check, which is how a hand-edited
+#: ``study_state.json`` could ride into a generation commit.
+REPAIR_FORBIDDEN_PATHS: frozenset[str] = frozenset(
+    {
+        "study.yaml",
+        "study_state.json",
+        "events.jsonl",
+        "claims.lock",
+        "verify_receipt.json",
+        "findings.md",
+        "results.tsv",
+        "aux_metrics.tsv",
+    }
+)
+
+#: The same rule for whole subtrees: run evidence, and the generation ledger
+#: itself (a repair that "changed" a receipt is a rewritten receipt).
+REPAIR_FORBIDDEN_PREFIXES: tuple[str, ...] = ("runs/", "generation/")
+
+
+def _repair_path_problem(changed: list[str]) -> str | None:
+    """Why these ``--changed`` paths cannot be a repair — one message, or None."""
+    for name in changed:
+        if Path(name).is_absolute() or ".." in Path(name).parts:
+            return f"--changed {name!r} must be a study-relative path inside the study"
+        posix = Path(name).as_posix()
+        if posix in REPAIR_FORBIDDEN_PATHS or posix.startswith(REPAIR_FORBIDDEN_PREFIXES):
+            return (
+                f"--changed {name!r} is core state, core evidence or the generation ledger — "
+                "a repair changes the RECIPE, never the contract, the state, the runs, the "
+                "receipts or the conclusions"
+            )
+    return None
+
+
 def _run_expert_lock(args: argparse.Namespace) -> int:
     """``expert lock`` and ``expert amend`` — one transaction, two entry points."""
+    from .contract import mutable_surface
     from .generation import expert as ge
     from .generation import manifest as gm
     from .generation.admission import core_anchor
     from .generation.chronology import gate_events, git_head, read_core_events
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import canonical_json, sha256_file
-    from .transaction import commit_state_writes
 
     amend = bool(args.amend)
     try:
@@ -913,6 +1008,7 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
     version = len(locks) + 1
     parents = [str(locks[-1][0].get("id"))] if locks else []
     card_sha = sha256_file(card)
+    recipe = ge.baseline_hashes(study, front)
     obj = ge.lock_object(
         study=study_name,
         version=version,
@@ -920,6 +1016,7 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
         card_sha256=card_sha,
         parent_ids=parents,
         late=late,
+        baseline_hashes=recipe,
     )
     sha = write_object(study, obj)
     event = append_event(
@@ -935,11 +1032,10 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
         card_sha256=card_sha,
         **({"late": True} if late else {}),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: expert {'amend' if amend else 'lock'} v{version} ({study_name})",
         paths=[ge.CARD_NAME, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     targets = ge.lock_targets(obj)
     print(
@@ -949,6 +1045,10 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
     for target in targets:
         limit = "×|value|" if target["rel"] else ""
         print(f"  - {target['key']} = {target['value']:.12g} ± {target['tol']:.12g}{limit}")
+    surface = set(mutable_surface(contract))
+    for name, file_sha in sorted(recipe.items()):
+        where = "in the mutable surface, not frozen" if name in surface else "frozen"
+        print(f"  - recipe {name} {str(file_sha)[:12]}… ({where})")
     if late:
         print(
             "WARNING: late lock recorded — `klein generation verify` will FAIL "
@@ -1062,15 +1162,19 @@ def _run_expert_repair(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation.admission import core_anchor
     from .generation.chronology import git_head
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_file
-    from .transaction import commit_state_writes
 
     changed = [str(name) for name in (args.changed or [])]
     if not changed:
         return _error("a repair must name at least one changed file with --changed")
-    # The clean-tree exemption is taken BEFORE the paths are validated, so an
-    # in-flight repair edit does not read as a dirty tree.
+    # Shape and ownership are validated BEFORE `_expert_setup`, because that call
+    # EXEMPTS every named path from the clean-tree check: a `--changed
+    # study_state.json` validated afterwards would already have been licensed to
+    # be dirty by the check meant to catch it.
+    problem = _repair_path_problem(changed)
+    if problem:
+        return _error(problem)
     try:
         study, contract, _manifest, repo, events = _expert_setup(args, extra=tuple(changed))
     except WorkflowError as exc:
@@ -1094,8 +1198,6 @@ def _run_expert_repair(args: argparse.Namespace) -> int:
     entries: list[list[Any]] = []
     for name in changed:
         path = study / name
-        if ".." in Path(name).parts or Path(name).is_absolute():
-            return _refuse(f"--changed {name!r} must be a study-relative path inside the study")
         if name in verifiers:
             return _refuse(
                 f"--changed {name!r} is a declared verifier — the checker is never the "
@@ -1131,11 +1233,10 @@ def _run_expert_repair(args: argparse.Namespace) -> int:
     # it would silently move the restore anchor. Everything else the repair
     # touched is filed, because the next run refuses a dirty tree.
     filed = [name for name, _sha in entries if name not in surface]
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: expert repair v{version} ({study_name})",
         paths=[*filed, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(f"{event['id']} expert repair v{version}: {len(entries)} file(s) — object {sha[:12]}…")
     for name, file_sha in entries:
@@ -1340,8 +1441,7 @@ def _run_slate_lock(args: argparse.Namespace) -> int:
     from .generation import slate as gs
     from .generation.admission import core_anchor
     from .generation.chronology import git_head, repo_for
-    from .generation.ledger import append_event, read_events, write_object
-    from .transaction import commit_state_writes
+    from .generation.ledger import append_event, commit_artifacts, read_events, write_object
 
     amending = bool(getattr(args, "slate_amend", False))
     phase = args.phase
@@ -1413,12 +1513,11 @@ def _run_slate_lock(args: argparse.Namespace) -> int:
         rows=len(obj["rows"]),
         late=obj["late"],
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: slate {'amended' if amending else 'locked'} ({study_name} {phase} "
         f"v{obj['version']})",
         paths=[f"slates/{phase}.yaml", "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} slate {phase} v{obj['version']}: {len(obj['rows'])} rows, "
@@ -1437,9 +1536,8 @@ def _run_slate_score(args: argparse.Namespace) -> int:
     from .generation import slate as gs
     from .generation.admission import core_anchor, match_runs
     from .generation.chronology import core_tip, git_head, read_core_events, repo_for
-    from .generation.ledger import append_event, read_events, write_object
+    from .generation.ledger import append_event, commit_artifacts, read_events, write_object
     from .manifest import load_manifests
-    from .transaction import commit_state_writes
 
     phase = args.phase
     if args.rescore and not (args.reason or "").strip():
@@ -1494,11 +1592,10 @@ def _run_slate_score(args: argparse.Namespace) -> int:
         outcome=score["outcome"],
         **({"reason": args.reason} if args.rescore else {}),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: slate scored ({study_name} {phase}, {score['outcome']})",
         paths=["generation/tables", "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} slate {phase} scored: coverage "
@@ -1627,9 +1724,8 @@ def _run_design_lock(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation.admission import core_anchor
     from .generation.chronology import gate_events, git_head, read_core_events
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_file
-    from .transaction import commit_state_writes
 
     try:
         study, contract, _manifest, repo, events = _design_setup(args, extra=(gd.DESIGN_NAME,))
@@ -1684,11 +1780,10 @@ def _run_design_lock(args: argparse.Namespace) -> int:
         warrant=warrant,
         **({"late": True} if late else {}),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: design lock ({study_name})",
         paths=[gd.DESIGN_NAME, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} design lock: {gd.DESIGN_NAME} {design_sha[:12]}…, warrant "
@@ -1823,9 +1918,8 @@ def _run_premortem_record(args: argparse.Namespace) -> int:
     from .generation import premortem as gp
     from .generation.admission import core_anchor, match_runs
     from .generation.chronology import git_head, read_core_events
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_file
-    from .transaction import commit_state_writes
 
     phase = args.phase
     try:
@@ -1894,11 +1988,10 @@ def _run_premortem_record(args: argparse.Namespace) -> int:
         independence=obj["independence"],
         **({"late": True} if late else {}),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: premortem recorded ({study_name} {phase} v{obj['version']})",
         paths=[f"premortem/{phase}.yaml", "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} premortem {phase} v{obj['version']}: {len(obj['issues'])} issue(s) on "
@@ -1923,9 +2016,8 @@ def _run_premortem_respond(args: argparse.Namespace) -> int:
     from .generation import premortem as gp
     from .generation.admission import core_anchor
     from .generation.chronology import git_head
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_file
-    from .transaction import commit_state_writes
 
     phase = args.phase
     try:
@@ -1976,11 +2068,10 @@ def _run_premortem_respond(args: argparse.Namespace) -> int:
         record_event=obj["record_event"],
         responses=len(obj["responses"]),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: premortem answered ({study_name} {phase}, {len(obj['responses'])} responses)",
         paths=[f"premortem/{phase}.yaml", "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} premortem {phase} answered {obj['record_event']}: "
@@ -2150,9 +2241,8 @@ def _run_parity_lock(args: argparse.Namespace) -> int:
     from .generation import parity as gp
     from .generation.admission import core_anchor
     from .generation.chronology import gate_events, git_head, read_core_events
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_file
-    from .transaction import commit_state_writes
 
     amending = bool(getattr(args, "parity_amend", False))
     try:
@@ -2224,11 +2314,10 @@ def _run_parity_lock(args: argparse.Namespace) -> int:
         metrics=len(gp.metric_rows(payload)),
         **({"late": True} if late else {}),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: parity {'amend' if amending else 'lock'} v{version} ({study_name})",
         paths=[gp.PARITY_NAME, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} parity lock v{version}: {gp.PARITY_NAME} {file_sha[:12]}…, "
@@ -2557,9 +2646,8 @@ def _run_contribution_record(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation.admission import core_anchor
     from .generation.chronology import git_head, repo_for
-    from .generation.ledger import append_event, read_events, write_object
+    from .generation.ledger import append_event, commit_artifacts, read_events, write_object
     from .primitives import sha256_bytes
-    from .transaction import commit_state_writes
 
     try:
         study, contract = _load(args)
@@ -2636,11 +2724,10 @@ def _run_contribution_record(args: argparse.Namespace) -> int:
         subject=record["subject"],
         line_sha256=line_sha,
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: contribution recorded ({study_name} #{sequence} {record['kind']})",
         paths=[gc.LEDGER_NAME, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} contribution #{sequence}: {record['kind']} on {record['subject']} "
@@ -2885,9 +2972,8 @@ def _run_escalate_lock(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation.admission import core_anchor
     from .generation.chronology import gate_events, git_head, read_core_events
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_file
-    from .transaction import commit_state_writes
 
     try:
         study, contract, _manifest, repo, events = _escalate_setup(args, extra=(ge.PLAN_NAME,))
@@ -2940,11 +3026,10 @@ def _run_escalate_lock(args: argparse.Namespace) -> int:
         triggers=len(document.get("triggers") or []),
         **({"late": True} if late else {}),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: escalation plan locked ({study_name})",
         paths=[ge.PLAN_NAME, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} escalation plan: {ge.PLAN_NAME} {plan_sha[:12]}…, "
@@ -3971,9 +4056,8 @@ def _run_surprise_register(args: argparse.Namespace) -> int:
     from .generation import surprise as gs
     from .generation.admission import core_anchor, load_receipts
     from .generation.chronology import git_head
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import atomic_write_text, sha256_file
-    from .transaction import commit_state_writes
 
     try:
         study, contract, repo, events = _surprise_setup(args, extra=(gs.CELLS_NAME,))
@@ -4031,11 +4115,10 @@ def _run_surprise_register(args: argparse.Namespace) -> int:
         cells=len(obj["cells"]),
         late=obj["late"],
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: discovery cells registered ({study_name} v{obj['version']})",
         paths=[gs.CELLS_NAME, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} discovery cells v{obj['version']}: {len(obj['cells'])} cell(s), "
@@ -4112,10 +4195,9 @@ def _run_surprise_record(args: argparse.Namespace) -> int:
     from .generation import surprise as gs
     from .generation.admission import core_anchor, match_runs
     from .generation.chronology import git_head
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .manifest import load_manifests
     from .primitives import sha256_file
-    from .transaction import commit_state_writes
 
     run = str(args.run)
     try:
@@ -4193,12 +4275,11 @@ def _run_surprise_record(args: argparse.Namespace) -> int:
         parent=event["id"],
         explanations=explanations,
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: surprise recorded ({study_name} {bound} on {run}, "
         f"{record['n_violations']} violation(s))",
         paths=["generation/tables", "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} {bound} on {run}: family of {record['family_size']} segment(s), "
@@ -4506,9 +4587,8 @@ def _run_benchmark_commit(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation.admission import core_anchor
     from .generation.chronology import gate_events, git_head, read_core_events
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_bytes, sha256_file
-    from .transaction import commit_state_writes
 
     try:
         study, contract, repo, events = _benchmark_setup(
@@ -4612,11 +4692,10 @@ def _run_benchmark_commit(args: argparse.Namespace) -> int:
         commitment=commitment,
         arms=len(gb.arm_ids(payload)),
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: benchmark commit ({study_name}, {len(gb.arm_ids(payload))} arm(s))",
         paths=[gb.BENCHMARK_NAME, schema_rel, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} benchmark commit: {gb.BENCHMARK_NAME} {file_sha[:12]}…, "
@@ -4640,9 +4719,8 @@ def _run_benchmark_submit(args: argparse.Namespace) -> int:
     from .generation import manifest as gm
     from .generation.admission import core_anchor
     from .generation.chronology import git_head
-    from .generation.ledger import append_event, write_object
+    from .generation.ledger import append_event, commit_artifacts, write_object
     from .primitives import sha256_bytes
-    from .transaction import commit_state_writes
 
     arm = str(args.arm)
     destination = f"{gb.SUBMISSIONS_DIR}/{arm}.json"
@@ -4727,11 +4805,10 @@ def _run_benchmark_submit(args: argparse.Namespace) -> int:
         file_sha256=file_sha,
         structures=count,
     )
-    commit_state_writes(
+    commit_artifacts(
         study,
         f"klein: benchmark submit {arm} ({study_name}, {count} structure(s))",
         paths=[destination, "generation/events.jsonl", "generation/objects"],
-        scope="own",
     )
     print(
         f"{event['id']} benchmark submit {arm}: {destination} {file_sha[:12]}…, "

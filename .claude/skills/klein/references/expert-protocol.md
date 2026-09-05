@@ -57,7 +57,7 @@ study.
 | `pipeline_steps[]`, `metrics[]` | non-empty — what the field actually runs, and what it actually measures |
 | `method_shortlist[]` | non-empty. **It precedes METHOD**: the shortlist is what the method card will choose FROM, so writing it after the choice is writing the exam after the answer |
 | `doctrine[]`, `pitfalls[]`, `unknowns[]` | lists; may be empty. An empty `unknowns` is a claim, not an omission |
-| `baseline.implementation`, `baseline.fixture` | study-relative paths that EXIST at lock |
+| `baseline.implementation`, `baseline.fixture` | study-relative paths that EXIST at lock. Their sha256 is recorded in the lock object (`baseline_hashes`) and **frozen**: at the bound run's candidate commit the bytes must still be those, unless an earlier repair declared the file in `--changed` (then the repair's hash applies). A path inside the mutable surface is recorded but not frozen — the surface is what the run edits |
 | `baseline.config` | a study-relative path or an inline mapping |
 | `baseline.targets[]` | non-empty `{key, value, tol, rel}`; `key` is the metric key the run will PRINT, `tol >= 0`, `rel: true` reads the tolerance as a fraction of `value` |
 | `baseline.review` | `source-reconstructed` or `independent` — what the driver INTENDS; the outcome is decided by the recorded reviews, never by this word |
@@ -132,8 +132,22 @@ uv run --locked klein generation expert bind --study studies/NN-slug E0002
   `run-one` refuses a dirty tree). A changed file **inside** the surface is left
   alone: `run-one` owns the surface, and committing it here would silently move
   the restore anchor.
+- **The whole diff is checked, not just the named files.** `verify` diffs the
+  study subtree between the candidate commit of the run that FAILED and the
+  candidate commit of the run that then reproduced it, and FAILs on any changed
+  study path outside `--changed`, the mutable surface, and the incidental set
+  (`generation/**`, `runs/**`, `figures/**`, `models/**`, `study_state.json`,
+  `events.jsonl`, `results.tsv`, `aux_metrics.tsv`, `playbook.md`,
+  `results_summary.md`, `progress.svg`). A helper that moved unmentioned is an
+  undeclared route to the reproduction.
 - **The declared verifier is never repairable.** The checker is never the
   searcher, and it is never the repair either; `--changed <verifier>` is refused.
+- **`--changed` may not name core state or core evidence.** `study.yaml`,
+  `study_state.json`, `events.jsonl`, `claims.lock`, `verify_receipt.json`,
+  `findings.md`, `results.tsv`, `aux_metrics.tsv`, anything under `runs/`, and
+  the generation ledger itself are refused — naming a path also exempts it from
+  the clean-tree check, so this refusal is what stops a hand-edited state file
+  riding into a generation commit.
 - `--action repair` is admitted only when an `expert repair` object was recorded
   after the last bind. Repairing without recording it is the same failure as
   running without an admission.
@@ -172,9 +186,9 @@ established at all — the same cap the referee protocol applies.
 | Check | FAILs when |
 |---|---|
 | `expert card` | not locked; **version 1** locked late (or with `--allow-late`); version 1 does not precede the consult gate by sequence AND git ancestry; `domain_card.md`'s sha256 differs from the newest lock; an amendment changed a target. (A later amendment being after the gate is a WARN, not a FAIL) |
-| `expert references` | a `sources[].record_id` has no record; a recorded reference's bytes changed; a record contradicts its own verification basis; a `references.yaml` row says `verified: true` with no resolvable `record_id` |
-| `expert obligation` | a bind's arithmetic does not recompute from the manifest and the lock; a bind on a run whose admission was not `baseline`/`repair`; an **admitted** `run`/`sealed`/hypothesis receipt recorded before the first `reproduced` bind |
-| `expert repairs` | a repair's changed files do not match their bytes at the next bound run's candidate commit |
+| `expert references` | a `sources[].record_id` has no record; a recorded reference's bytes changed; a record contradicts its own verification basis — **including a record reached only from a `references.yaml` row**, which is opened and checked like any other; a `references.yaml` row says `verified: true` with no resolvable `record_id`; a row's `verification_level` is stronger than its record's `verification_basis` ("the citation claims a stronger basis than its record") |
+| `expert obligation` | a bind's arithmetic does not recompute from the manifest and the lock; a bind on a run whose admission was not `baseline`/`repair`; an **admitted** `run`/`sealed`/hypothesis receipt recorded before the first `reproduced` bind; the **baseline recipe drifted** — `baseline.implementation` or `baseline.fixture` at the bound run's candidate commit is not the bytes the lock hashed, and no earlier repair declared that file (files inside the mutable surface are exempt: the surface is what the run edits) |
+| `expert repairs` | a repair's changed files do not match their bytes at the next bound run's candidate commit; a study path changed between the failing run and the repaired one without being named in `--changed` |
 | `expert review` | — (WARN only: no session receipt, reviewer is the experimenter, or no roster to compare against) |
 
 The capability entry in `generation/verify_receipt.json` is
