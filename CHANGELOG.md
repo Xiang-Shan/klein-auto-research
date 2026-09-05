@@ -29,7 +29,8 @@ version.
   encoded. Opting in with `capabilities: []` buys the admission discipline and the
   chronology witnesses, and nothing that scores research; each capability below is
   declared explicitly at `klein generation init`, and a known name this release cannot
-  check is refused with a different message than an unknown one.
+  check is refused as *not available* — a different message, and a different problem,
+  from a typo.
 - **Capability registration hooks.** A capability now plugs into the generation spine
   by registration (`kleinlib/generation/registry.py`: a name, admission rules, one
   verify family; `capabilities.py`: the modules this version ships), never by editing
@@ -68,6 +69,29 @@ version.
   verification. Protocol:
   `.claude/skills/klein/references/reference-protocol.md`.
 <!-- end WP-01 -->
+
+- **Hypothesis slates and forecast calibration** (the `slates` capability;
+  `klein generation slate lock | amend | score | show`). A generation-enabled study may
+  now record each phase's 4–6 authored candidates in `slates/<phase>.yaml`, give each a
+  permanent `<study>#Hn`, admit a run with `klein generation check --hypothesis` (which
+  binds the run to the row and refuses unless `--tests` covers the row's `success_P`),
+  and at phase end compute the Brier score, Murphy decomposition, base-rate skill and
+  best/worst bounds of the forecasts it wrote — into
+  `generation/tables/slate_calibration_<phase>.tsv`, pinned as
+  `art:slate_calibration_<phase>`. A locked forecast is immutable (an edit fails
+  verification for the life of the study); a revision is an amendment scored in its own
+  panel; the cohort denominator is frozen at lock, so withdrawal and perpetual deferral
+  report as coverage below 1.0 and outcome `conditional`, never as a better Brier; a
+  `provenance: scouted` row is descriptive and never calibration. Verification recomputes
+  every number from the receipts, the manifests and the core chain. **Nothing generates,
+  scores, ranks or selects a candidate** — the 1–3 axis scores are validated and copied,
+  and the phase ritual is still not automated. Protocol:
+  `references/generation-protocol.md` "Slates and calibration"; template:
+  `.claude/skills/klein/assets/slate-template.yaml`.
+- `Capability.receipt_inputs` — a registered capability may FILL one of the admission
+  receipt's existing `inputs` slots (the `slates` capability pins the lock's object sha
+  in `inputs.slate`). The receipt's key set stays the spine's, and a study that declares
+  nothing gets the receipt it always got.
 
 ### Unchanged
 

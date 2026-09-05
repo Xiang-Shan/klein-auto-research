@@ -115,6 +115,15 @@ transaction and records the verdict (`supported | refuted | inconclusive`) in th
 manifest, in `study_state.json`, and as the event `prediction_adjudicated`. A missing
 key yields `inconclusive`, never a guess.
 
+On a **generation-enabled study** each cell also carries the `<study>#Hn` id of the
+slate row it is (`references/generation-protocol.md`): `klein generation check --action
+cell --track <id> --hypothesis <study>#Hn --tests P4` before the run, and the receipt
+binds the id, the slate's hash and the exact surface. The `--tests` set must cover the
+row's `success_P` — the same ids the slate named as its definition of success — because
+those verdicts are what resolve the row's outcome afterwards. A cell run without a
+hypothesis on an enabled study is refused unless it is a typed obligation (`calibration`,
+`baseline`, `repair`, `sealed`).
+
 ## What registered mode is not
 
 - Not a sweep escape hatch: a search still runs through `sweep-rules.md`, and a

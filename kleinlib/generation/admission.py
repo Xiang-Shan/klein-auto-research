@@ -54,10 +54,12 @@ __all__ = [
     "ADMISSION_RULES",
     "CHECKPOINTS",
     "CLASSIFICATIONS",
+    "RECEIPT_INPUT_SLOTS",
     "Context",
     "Match",
     "Receipt",
     "build_receipt",
+    "capability_inputs",
     "capability_reasons",
     "core_anchor",
     "declared_capabilities",
@@ -85,6 +87,11 @@ CLASSIFICATIONS: tuple[str, ...] = (
     "replayed",
     "mismatched",
 )
+
+#: The receipt ``inputs`` slots a capability may FILL (beside ``manifest``, which
+#: is the spine's own).  The key set is the contract: a capability that resolves
+#: none of them leaves them null, and none of them may be added to.
+RECEIPT_INPUT_SLOTS: tuple[str, ...] = ("slate", "premortem", "parity", "cells", "design")
 
 
 # --------------------------------------------------------------------------
@@ -222,6 +229,25 @@ ADMISSION_RULES: list[Callable[[Context], list[str]]] = [
 ]
 
 
+def _declared_capabilities(ctx: Context) -> tuple[list[Any], list[str]]:
+    """``(the loadable Capability objects, the reasons a declared one is not)``."""
+    declared = declared_capabilities(ctx.manifest)
+    if not declared:
+        return [], []
+    from .capabilities import load
+
+    available = load()
+    loaded: list[Any] = []
+    reasons: list[str] = []
+    for name in declared:
+        capability = available.get(name)
+        if capability is None:
+            reasons.append(f"capability {name!r} declared but not supported by this version")
+            continue
+        loaded.append(capability)
+    return loaded, reasons
+
+
 def capability_reasons(ctx: Context) -> list[str]:
     """The registered rules of every capability the manifest DECLARED.
 
@@ -231,21 +257,31 @@ def capability_reasons(ctx: Context) -> list[str]:
     already refuses to declare an unsupported name, so reaching this branch means
     the manifest was hand-edited or the study was carried to an older Klein.
     """
-    declared = declared_capabilities(ctx.manifest)
-    if not declared:
-        return []
-    from .capabilities import load
-
-    available = load()
-    reasons: list[str] = []
-    for name in declared:
-        capability = available.get(name)
-        if capability is None:
-            reasons.append(f"capability {name!r} declared but not supported by this version")
-            continue
+    loaded, reasons = _declared_capabilities(ctx)
+    for capability in loaded:
         for rule in capability.admission_rules:
             reasons.extend(rule(ctx))
     return reasons
+
+
+def capability_inputs(ctx: Context) -> dict[str, str]:
+    """The ``inputs`` slots the declared capabilities pin into this receipt.
+
+    A capability may only fill a slot the spine already declares (``slate``,
+    ``premortem``, ``parity``, ``cells``, ``design``) — the receipt's key set is
+    the contract, so an unknown key is dropped rather than allowed to change the
+    shape.  A capability that cannot resolve its artifact yet returns nothing and
+    the slot stays null.
+    """
+    loaded, _reasons = _declared_capabilities(ctx)
+    filled: dict[str, str] = {}
+    for capability in loaded:
+        if capability.receipt_inputs is None:
+            continue
+        for key, value in dict(capability.receipt_inputs(ctx)).items():
+            if isinstance(value, str):
+                filled[str(key)] = value
+    return filled
 
 
 def build_receipt(
@@ -263,6 +299,7 @@ def build_receipt(
     for rule in ADMISSION_RULES:
         reasons.extend(rule(ctx))
     reasons.extend(capability_reasons(ctx))
+    pinned = capability_inputs(ctx)
     receipt: dict[str, Any] = {
         "schema": GENERATION_SCHEMA,
         "kind": "admission",
@@ -280,11 +317,8 @@ def build_receipt(
         "surface_files": entries,
         "inputs": {
             "manifest": manifest_sha,
-            "slate": None,
-            "premortem": None,
-            "parity": None,
-            "cells": None,
-            "design": None,
+            # A declared capability may FILL one of these; none may add a key.
+            **{key: pinned.get(key) for key in RECEIPT_INPUT_SLOTS},
         },
         "protocol_hashes": dict(protocol_hashes),
         "core_anchor": dict(core_anchor),

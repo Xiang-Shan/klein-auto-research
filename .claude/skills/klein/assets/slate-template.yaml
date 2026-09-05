@@ -1,0 +1,107 @@
+# slates/<phase>.yaml — the phase's hypothesis slate (generation layer, opt-in).
+#
+# YOU write this file, by hand, at the phase start, following the phase ritual
+# (references/phase-ritual.md): 4–6 falsifiable candidates, each scored 1–3 on
+# three axes, before you touch the mutable surface.  Klein records it; it never
+# proposes, ranks or selects a row.
+#
+#   uv run --locked klein generation slate lock  --study studies/NN-slug --phase <phase>
+#   uv run --locked klein generation slate amend --study studies/NN-slug --phase <phase>
+#   uv run --locked klein generation slate score --study studies/NN-slug --phase <phase>
+#
+# `lock` REWRITES this file with the ids it assigned and hashes the result: from
+# then on the forecasts are immutable, and an edit FAILs `klein generation verify`
+# for the life of the study.  Revise through `amend`, which keeps both versions.
+# Rules and semantics: references/generation-protocol.md "Slates and calibration".
+
+type: slate
+study: NN-slug                    # this study's id
+phase: adaptive-1                 # a phase id from study.yaml
+version: 1                        # written by `lock`; do not set it yourself
+cohort_window:
+  closes: phase-end               # the only value this version knows; frozen
+base_rate_forecast: 0.35          # YOUR forecast of this phase's success rate
+                                  # (strictly inside (0,1); frozen at the first lock)
+budget_allocation:                # optional: units of budget per row
+  NN-slug#H1: 1
+
+rows:
+  # `id` is OMITTED by the author — `lock` assigns <study>#Hn, monotonic across
+  # the whole study, never recycled.  Carry an assigned id forward unchanged in
+  # an amendment; a changed statement, track, kind or success_P under an existing
+  # id is a different hypothesis and needs a different id.
+  - kind: diff                    # diff (a candidate transaction) | cell (a registered measurement)
+    track: primary                # a track declared in study.yaml
+    lever_family: encoding        # the family of lever this touches (novelty is judged against it)
+    statement: "target-encode `region` (smoothing=20): +0.004 val_auc"
+    source_ids: [playbook, "method_card §4", P2]   # where the idea came from; non-empty
+    provenance: unscouted         # unscouted | derived | scouted
+                                  #   unscouted — a fresh forecast; SCORED
+                                  #   derived   — read off an earlier H's result; SCORED separately
+                                  #   scouted   — the scouting ledger already saw the outcome;
+                                  #               computed, labelled descriptive, NEVER calibration
+    p_success: 0.6                # YOUR probability this row succeeds (strictly inside (0,1))
+    success_P: [P2]               # the registered predictions that DEFINE success here.
+                                  # Every one must carry a rule and sit on this row's track,
+                                  # and `klein generation check --hypothesis` refuses unless
+                                  # `--tests` names all of them — otherwise y never resolves.
+    expected_effect: 0.004        # the size you expect, as a number
+    units: val_auc                # in what
+    floor_ref: minimum_delta      # the floor it is judged against: `minimum_delta`
+                                  # or `sweep:<name>` registered with `klein sweep register`
+    cost_budget: "1 run, ~4 min"  # a number or a phrase
+    novelty: 3                    # 1–3, the phase ritual's axes. Recorded verbatim.
+    testability: 3                # Nothing in Klein sorts, ranks or selects on them —
+    information: 3                # the comparison is yours to make and to write down.
+    parent_ids: []                # H ids this row derives from
+
+  - kind: diff
+    track: primary
+    lever_family: transforms
+    statement: "log1p the 3 right-skewed numerics: +0.002 val_auc"
+    source_ids: [playbook]
+    provenance: unscouted
+    p_success: 0.45
+    success_P: [P3]
+    expected_effect: 0.002
+    units: val_auc
+    floor_ref: minimum_delta
+    cost_budget: "1 run"
+    novelty: 2
+    testability: 3
+    information: 3
+    parent_ids: []
+
+  - kind: diff
+    track: primary
+    lever_family: interactions
+    statement: "interaction `age×vehicle_power` in the GLM: +0.002 val_auc"
+    source_ids: ["knowledge/domains/insurance/…#C2"]
+    provenance: derived
+    p_success: 0.3
+    success_P: [P3]
+    expected_effect: 0.002
+    units: val_auc
+    floor_ref: minimum_delta
+    cost_budget: "1 run"
+    novelty: 2
+    testability: 3
+    information: 2
+    parent_ids: []
+
+  - kind: cell
+    track: estimate
+    lever_family: uncertainty
+    statement: "bootstrap CI of K (1000 resamples, seed block A), adjudicates P4"
+    source_ids: [P4, "method_card §3"]
+    provenance: unscouted
+    p_success: 0.7
+    success_P: [P4]
+    expected_effect: 0.0
+    units: "CI half-width in K units"
+    floor_ref: "sweep:k_floor"
+    cost_budget: "1 run, ~9 min"
+    novelty: 3
+    testability: 3
+    information: 3
+    parent_ids: []

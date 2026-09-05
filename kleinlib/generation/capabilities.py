@@ -16,8 +16,8 @@ forgetting the other fails the suite immediately.
 
 The spine shipped neither: with both lists empty, opting in buys the admission
 discipline and nothing that scores research.  Each capability package since then
-appends ONE name to each list — WP-01 added ``expert`` / ``expertise`` — and
-edits no other line of this package.
+appends ONE name to each list — WP-01 added ``expert`` / ``expertise``, WP-02
+added ``slate`` / ``slates`` — and edits no other line of this package.
 """
 
 from __future__ import annotations
@@ -30,9 +30,12 @@ from .registry import Capability
 __all__ = ["MODULES", "load"]
 
 #: Module names under ``kleinlib.generation``, in dependency order.
-# --- WP-01: expertise ---
-MODULES: tuple[str, ...] = ("expert",)
-# --- end WP-01 ---
+MODULES: tuple[str, ...] = (
+    # --- WP-01: expertise ---
+    "expert",
+    # --- WP-02: hypothesis slates + calibration ---
+    "slate",
+)
 
 
 def load() -> dict[str, Capability]:

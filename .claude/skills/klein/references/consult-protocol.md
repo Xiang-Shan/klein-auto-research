@@ -144,7 +144,11 @@ assert evaluate_rule(
   consult artifact — a study that scouted nothing may delete it, and the gate then
   records `scouting_ledger: absent` on the event trail so the absence is itself on
   the record. Values seen there may seed anchors and identity checks; they may
-  never be scored predictions, and priors resting on them are `(source: scouted)`.
+  never be scored predictions, and priors resting on them are `(source: scouted)`. On a
+  generation-enabled study the same rule types the slate: a hypothesis whose outcome the
+  ledger already observed carries `provenance: scouted`, is EXCLUDED from prospective
+  calibration, and is reported in a descriptive panel of its own
+  (`references/generation-protocol.md`).
 - **Fill the `experimenter` row of `program.md`'s `## Roster`** with the model, tool
   and session that will run the loop. REFEREE reads that table for the independence
   rung (`references/referee-protocol.md`); left blank, the rung is capped at "fresh
@@ -248,7 +252,11 @@ steps directly.
 
 Every research-question prior names its source in parentheses:
 `(source: knowledge/domains/insurance/gbdt-hyperparameter-guide.md#C2)`,
-`(source: method_card §4)`, `(source: scouted)`, or `(source: uninformed)`. Findings
-§⑥ then settles the scorecard — did knowledge-sourced priors outpredict uninformed
-ones? — with scouted priors excluded, which is what makes the knowledge promotion loop
-measurable rather than devotional.
+`(source: method_card §4)`, `(source: scouted)`, `(source: uninformed)`, or — on a
+generation-enabled study — `(source: <study>#Hn)` for a prior that rests on an earlier
+slate row. Findings §⑥ then settles the scorecard — did knowledge-sourced priors
+outpredict uninformed ones? — with scouted priors excluded, which is what makes the
+knowledge promotion loop measurable rather than devotional. An enabled study's scorecard
+also carries the slate calibration panels (`unscouted` and `derived` scored,
+`scouted_descriptive` reported and never summarised as calibration), pinned as
+`art:slate_calibration_<phase>`.

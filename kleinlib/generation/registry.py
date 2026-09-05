@@ -76,8 +76,16 @@ class Capability:
         ``"integrity": "PASS" | "FAIL"`` and ``"outcome": <str>``; it is written
         verbatim to ``generation/verify_receipt.json`` under
         ``capabilities[<name>]``, and the label copies its ``outcome``.
+    ``receipt_inputs``
+        Returns the ``inputs`` this capability pins into an admission receipt —
+        ``{"slate": "<object sha>"}`` and the like.  The receipt's ``inputs``
+        key set is fixed by the spine (WP-00 §3.3); a capability may only FILL
+        one of those slots, never add a key, and returning ``{}`` leaves them
+        all null.  Like the rules, it runs only when the manifest declares this
+        capability.
     """
 
     name: str
     admission_rules: tuple[Callable[[Context], list[str]], ...] = ()
     verify_family: Callable[[FamilyContext], tuple[list[Check], dict[str, Any]]] | None = None
+    receipt_inputs: Callable[[Context], Mapping[str, str | None]] | None = None
