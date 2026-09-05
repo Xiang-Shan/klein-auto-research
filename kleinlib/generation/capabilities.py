@@ -20,8 +20,10 @@ appends its name to each list — WP-01 added ``expert`` / ``expertise``, WP-02
 added ``slate`` / ``slates``, WP-09 added ``design`` / ``design``, WP-03 added
 ``premortem`` / ``premortem``, WP-04 added ``parity`` and ``contribution``
 under their own names, WP-07 added ``escalate`` / ``escalation``, WP-08 added
-``knowledge`` / ``knowledge``, and WP-06 added ``surprise`` / ``surprise`` — and
-edits no other line of this package.
+``knowledge`` / ``knowledge``, WP-06 added ``surprise`` / ``surprise``, and
+WP-05 added ``benchmark`` / ``benchmark`` — and edits no other line of this
+package.  :mod:`kleinlib.generation.custody` is deliberately NOT here: an
+attestation is not a capability, and any generation-enabled study may record one.
 """
 
 from __future__ import annotations
@@ -52,6 +54,8 @@ MODULES: tuple[str, ...] = (
     "knowledge",
     # --- WP-06: surprise mining (depends on design) ---
     "surprise",
+    # --- WP-05: planted-truth benchmark (custody.py registers nothing) ---
+    "benchmark",
 )
 
 

@@ -28,9 +28,10 @@ version.
   surprise, escalation, knowledge, benchmark, design`) and its dependency table are
   encoded. Opting in with `capabilities: []` buys the admission discipline and the
   chronology witnesses, and nothing that scores research; each capability below is
-  declared explicitly at `klein generation init`, and a known name this release cannot
-  check is refused as *not available* — a different message, and a different problem,
-  from a typo.
+  declared explicitly at `klein generation init`. This release supports all ten; a
+  name a build cannot check is still refused as *not available* — a different message,
+  and a different problem, from a typo — which is what a study meets when it is
+  carried back to an older Klein.
 - **Capability registration hooks.** A capability now plugs into the generation spine
   by registration (`kleinlib/generation/registry.py`: a name, admission rules, one
   verify family; `capabilities.py`: the modules this version ships), never by editing
@@ -261,6 +262,40 @@ version.
   `.claude/skills/klein/assets/discovery-cells-template.yaml` and
   `.claude/skills/klein/assets/discovery_cell_template.py`.
 <!-- end WP-06 -->
+<!-- WP-05 -->
+- **Planted-truth benchmark and custody receipts (WP-05)** — the `benchmark`
+  capability (`klein generation benchmark commit | submit | reveal | retire | show`),
+  plus one verb group that belongs to no capability at all,
+  `klein generation custody attest`. `commit` freezes `benchmark.yaml` after the
+  CUSTODIAN's METHOD gate and before any participant access: it hashes the public
+  bundle, computes `sha256(salt ‖ private-bundle bytes)` beside `sha256(salt)`, pins
+  the scorer and the participant-facing submission schema, and freezes the arms and
+  their budgets, the hypothesis cap, the false-positive penalty, the matching rule,
+  the per-arm recovery predictions and the **disjoint** development/sealed seed
+  blocks. The salt never enters the repository. `submit` validates each arm's ranked
+  structures against the schema and the cap and files the participant's own bytes as
+  `submissions/<arm>.json`; `reveal` recomputes the commitment once every arm has
+  submitted or carries a recorded missing trial that stays in the denominator — **a
+  mismatch is refused AND recorded** as `benchmark_reveal_failed`, and fails the audit
+  from then on. Scoring is an ordinary sealed `run-one` on a registered track: ONE
+  cell over all arms, pinning `tables/benchmark_scores.tsv`, which verification
+  recomputes row by row by re-applying the locked matching rule to the same
+  submissions and the same revealed truth. The machine decides variables (as a set),
+  relationship and sign; the fourth condition, *context*, is a preregistered sentence
+  the custodian adjudicates and records per row as `context_ok`, and verification
+  takes that column rather than pretending to derive it. Each planted truth is
+  recovered once — a later structure matching it is a duplicate, one matching nothing
+  is a false positive the declared penalty is charged against. The family also FAILs a
+  scorer that is not the pinned one at the scoring cell's candidate commit, a second
+  sealed scoring cell, and a `confirmed` claim resting on the in-silico table
+  (R-INV-6). **A hash is not secrecy**: `custody attest` records a NAMED holder's
+  statement about accounts, containers or machines, stored with `testimony: true` and
+  reported as testimony; without one the outcome reads `unverified`, which fails
+  nothing. A benchmark known to have leaked is retired and its results are retained.
+  Protocol: `references/planted-truth-protocol.md`; templates:
+  `assets/benchmark-template.yaml`, `assets/benchmark-submission.schema.json` and
+  `assets/score_submissions_template.py`.
+<!-- end WP-05 -->
 
 ### Unchanged
 

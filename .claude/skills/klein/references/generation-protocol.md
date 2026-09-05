@@ -28,9 +28,10 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships eight
+Each capability adds one verb group beside those six. This release ships nine
 here (`expertise` has its own two groups — see `references/expert-protocol.md` and
-`references/reference-protocol.md`):
+`references/reference-protocol.md`), plus one group that belongs to no capability
+at all:
 
 ```bash
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
@@ -41,15 +42,22 @@ uv run --locked klein generation contribution record|show    --study studies/NN-
 uv run --locked klein generation escalate lock|record|close|pivot|show --study studies/NN-slug
 uv run --locked klein generation knowledge promote|contest|resolve|query|decide|show --study studies/NN-slug
 uv run --locked klein generation surprise register|record|show --study studies/NN-slug [--run E####]
+uv run --locked klein generation benchmark commit|submit|reveal|retire|show --study studies/NN-slug
+uv run --locked klein generation custody attest              --study studies/NN-slug
 ```
+
+`custody attest` is **capability-agnostic**: it needs the opt-in and nothing else,
+because a hidden benchmark bundle, a custodian-held later time block and a wet-lab
+sample chain are the same receipt (`references/planted-truth-protocol.md`).
 
 Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
 `design lock`, `premortem record|respond`, `parity lock|amend|bind|assess`,
 `contribution record`, `escalate lock|record|close|pivot`,
-`knowledge promote|contest|resolve|query|decide`, `surprise register|record`) takes
-the four **testimony** flags `--actor --tool --model --session`; `verify`, `status`,
-`slate show`, `parity show`, `contribution show`, `escalate show`, `knowledge show`
-and `surprise show` write no event and take none.
+`knowledge promote|contest|resolve|query|decide`, `surprise register|record`,
+`benchmark commit|submit|reveal|retire`, `custody attest`) takes the four
+**testimony** flags `--actor --tool --model --session`; `verify`, `status`,
+`slate show`, `parity show`, `contribution show`, `escalate show`, `knowledge show`,
+`surprise show` and `benchmark show` write no event and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -86,13 +94,15 @@ contribution, surprise, escalation, knowledge, benchmark, design` — and a vers
 availability. A name outside the vocabulary is refused as *unknown*; a known name this
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
-`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
-`slates`, `design`, `premortem`, `parity`, `contribution`, `escalation`, `knowledge`
-and `surprise`** (see `references/expert-protocol.md`, "Slates and calibration" and
-"Evidence design" below, `references/premortem-protocol.md`,
-`references/expert-parity-protocol.md`, `references/escalation-protocol.md`,
-`references/knowledge-protocol.md`, and `references/surprise-protocol.md`); the rest
-ship later and are refused as *not available* until they do. Opting in with
+`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports all ten:
+`expertise`, `slates`, `design`, `premortem`, `parity`, `contribution`,
+`escalation`, `knowledge`, `surprise` and `benchmark`** (see
+`references/expert-protocol.md`, "Slates and calibration" and "Evidence design"
+below, `references/premortem-protocol.md`, `references/expert-parity-protocol.md`,
+`references/escalation-protocol.md`, `references/knowledge-protocol.md`,
+`references/surprise-protocol.md`, and `references/planted-truth-protocol.md`) —
+so the *not available* refusal is what a study meets when it is carried back to an
+older Klein, or to a build whose modules were trimmed. Opting in with
 `capabilities: []` still buys the admission discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
 `generation_amended` events which may only ADD capabilities; each addition is reported
@@ -404,8 +414,15 @@ leaves exactly two states, and both are detected:
 ## Write ownership
 
 Generation verbs write ONLY under `<study>/generation/` and commit only those paths
-(`commit_state_writes(..., scope="own")`). They never write `study_state.json`, the
-core `events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`. An
+(`commit_state_writes(..., scope="own")`), plus the named human artifacts a capability
+files with them — `domain_card.md`, `slates/<phase>.yaml`, `premortem/<phase>.yaml`,
+`evidence_design.yaml`, `parity.yaml`, `ai_value.jsonl`, `escalation_plan.yaml`,
+`discovery_cells.yaml`, and the benchmark's `benchmark.yaml`,
+`benchmark-submission.schema.json` and `submissions/<arm>.json` — and the two
+REPO-level stores that are facts about the repository rather than one study:
+`knowledge/references/<id>.json` and `knowledge/objects/<sha256>.json` with
+`knowledge/events.jsonl`. They never write `study_state.json`, the core
+`events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`. An
 in-flight edit to the mutable surface is the operator's and stays theirs.
 
 <!-- WP-09: design -->

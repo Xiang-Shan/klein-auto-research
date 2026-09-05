@@ -25,16 +25,19 @@ study_id: NN-slug
 #
 # An empty list is the spine: admission receipts before actions, the three chronology
 # witnesses, and the dual-pass label — nothing that scores research. A
-# known-but-unsupported name is refused with a different message than an unknown one,
-# on purpose; `klein generation init --capability <name>` names what this release
-# supports. Supported today: `expertise` (references/expert-protocol.md), `slates`
+# name outside the vocabulary is refused as unknown, and a name the running release
+# cannot check is refused with a different message, on purpose; `klein generation init
+# --capability <name>` names what this release supports. Supported today: all ten —
+# `expertise` (references/expert-protocol.md), `slates`
 # (references/generation-protocol.md, "Slates and calibration"), `design`
 # (references/generation-protocol.md, "Evidence design"), `premortem`
 # (references/premortem-protocol.md), `parity` and `contribution`
 # (references/expert-parity-protocol.md), `escalation`
 # (references/escalation-protocol.md), `knowledge`
-# (references/knowledge-protocol.md), and `surprise`
-# (references/surprise-protocol.md).
+# (references/knowledge-protocol.md), `surprise`
+# (references/surprise-protocol.md), and `benchmark`
+# (references/planted-truth-protocol.md — the CUSTODIAN declares it, never a
+# participant).
 capabilities: []
 
 # sha256 of each protocol file at init, so a receipt says WHICH rules it was taken
@@ -55,7 +58,10 @@ predecessor: null
 
 # Set by `--custody-holder` / `--custody-mechanism`. An ATTESTATION, never a
 # verification: the mechanism cannot check that a bundle stayed unread. Isolation
-# means accounts, containers or machines — not directories.
+# means accounts, containers or machines — not directories. The standing testimony
+# is `klein generation custody attest`, which any generation-enabled study may
+# record (references/planted-truth-protocol.md); this field is the declaration the
+# study opted in with.
 custody: null
 # custody:
 #   holder: the named custodian

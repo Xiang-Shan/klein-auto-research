@@ -464,26 +464,33 @@ def test_v23_a_stale_core_receipt_refuses_the_label(enabled_study) -> None:
 # --------------------------------------------------------------------------
 
 
-def test_capability_names_are_typed_before_they_are_available(tmp_path: Path) -> None:
-    """Unknown and not-yet-supported are different problems for the driver."""
-    from kleinlib.generation.manifest import (
-        KNOWN_CAPABILITIES,
-        SUPPORTED_CAPABILITIES,
-        capability_problems,
-    )
+def test_capability_names_are_typed_before_they_are_available(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Unknown and not-yet-supported are different problems for the driver.
 
-    assert set(SUPPORTED_CAPABILITIES) <= set(KNOWN_CAPABILITIES)
-    assert "unknown capability" in "; ".join(capability_problems(["telepathy"]))
-    # `benchmark` is in the vocabulary and ships later — a different problem
-    # from a typo, and it stays the example as each package lands.
-    assert "benchmark" not in SUPPORTED_CAPABILITIES
-    assert "not available in this version" in "; ".join(capability_problems(["benchmark"]))
-    # the dependency table is encoded now, enforced as SUPPORTED grows
-    assert "requires 'slates'" in "; ".join(capability_problems(["premortem"]))
+    The not-yet-supported half is SIMULATED rather than borrowed from a name
+    that happens not to have shipped: every capability package lands eventually,
+    and a test whose meaning depends on one of them still being absent stops
+    testing anything the day it arrives.  Dropping a real supported name from
+    both registries reproduces the situation exactly — a study carried to an
+    older Klein, or to a build that omits a module.
+    """
+    from kleinlib.generation import manifest as gm
+
+    assert set(gm.SUPPORTED_CAPABILITIES) <= set(gm.KNOWN_CAPABILITIES)
+    assert "unknown capability" in "; ".join(gm.capability_problems(["telepathy"]))
+
+    absent = gm.SUPPORTED_CAPABILITIES[-1]
+    monkeypatch.setattr(gm, "SUPPORTED_CAPABILITIES", tuple(gm.SUPPORTED_CAPABILITIES[:-1]))
+    assert absent in gm.KNOWN_CAPABILITIES and absent not in gm.SUPPORTED_CAPABILITIES
+    assert "not available in this version" in "; ".join(gm.capability_problems([absent]))
+    # the dependency table is encoded independently of availability
+    assert "requires 'slates'" in "; ".join(gm.capability_problems(["premortem"]))
 
     repo, study = _scaffold(tmp_path)
     assert _gen("init", "--study", str(study), "--capability", "telepathy") == 1
-    assert _gen("init", "--study", str(study), "--capability", "benchmark") == 1
+    assert _gen("init", "--study", str(study), "--capability", absent) == 1
     assert not (study / "generation" / "manifest.yaml").exists()
 
 
@@ -590,8 +597,9 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
     # `slate` from the slates one, `design` from the evidence-design one,
     # `premortem` from the pre-mortem one, `parity` and `contribution` from the
     # expert-parity one, `escalate` from the escalation one, `knowledge` from the
-    # cross-study one, `surprise` from the surprise-mining one), so this is a
-    # subset check, not equality.
+    # cross-study one, `surprise` from the surprise-mining one, `benchmark` and
+    # `custody` from the planted-truth one), so this is a subset check, not
+    # equality.
     spine = {"init", "check", "verify", "label", "status", "recover"}
     assert spine <= set(sub.choices)
     assert {
@@ -605,6 +613,8 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
         "escalate",
         "knowledge",
         "surprise",
+        "benchmark",
+        "custody",
     } <= set(sub.choices)
     for verb in sorted(spine):
         assert "--study" in sub.choices[verb].format_help(), verb

@@ -93,6 +93,18 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   language cites the matched ablation the lock names.
 <!-- end WP-04 -->
 
+<!-- WP-05: benchmark + custody -->
+- **Planted truth.** Read `benchmark.yaml`, the pinned `tables/benchmark_scores.tsv`
+  and the recorded reveal. Confirm the findings state recovery *in silico* with the
+  generator and the matching rule named, never as "the system discovered X"; that a
+  `benchmark: unverified` outcome is said in words rather than left in a JSON file;
+  and that recorded missing trials appear in the denominator the report quotes. The
+  two things the machine cannot see: whether the **planted families resemble a
+  scientific task at all**, and whether the `context` adjudication was applied as
+  preregistered rather than widened once it was clear which arm it would fail. Both
+  are yours (`references/planted-truth-protocol.md`).
+<!-- end WP-05 -->
+
 Add one line beneath the two machine-read lines of the report:
 
 ```

@@ -14,18 +14,20 @@ The vocabulary is fixed and the availability is versioned:
     outside it is a typo and is refused as *unknown*.
 
 ``SUPPORTED_CAPABILITIES``
-    What THIS version can actually check.  It was empty in the spine release,
-    and opting in with no capability still buys exactly the admission discipline
-    (receipt before action, verified afterwards).  A known-but-unsupported name is
-    refused with a different message, because "you misspelled it" and "that
-    ships later" are different problems for the driver.
+    What THIS version can actually check.  It was empty in the spine release and
+    now carries all ten; opting in with no capability still buys exactly the
+    admission discipline (receipt before action, verified afterwards).  The two
+    refusals stay distinct — a name outside the vocabulary is *unknown*, a name
+    inside it that the running build cannot check is *not available* — because
+    "you misspelled it" and "this build does not ship that module" are different
+    problems for the driver, and a study carried to an older Klein meets the
+    second one.
 
 ``CAPABILITY_DEPENDENCIES``
-    Encoded now, enforced as ``SUPPORTED_CAPABILITIES`` grows: a pre-mortem
-    reviews a slate, parity compares against a reproduced expert baseline, a
-    contribution ledger covers slate rows, a planted-truth benchmark is scored
-    by the parity machinery, and a surprise is mined from a registered evidence
-    design.
+    Enforced on every declaration: a pre-mortem reviews a slate, parity compares
+    against a reproduced expert baseline, a contribution ledger covers slate
+    rows, a planted-truth benchmark is scored by the parity machinery, and a
+    surprise is mined from a registered evidence design.
 """
 
 from __future__ import annotations
@@ -73,10 +75,11 @@ KNOWN_CAPABILITIES: tuple[str, ...] = (
     "design",
 )
 
-#: What this version can verify.  The spine shipped none — the admission
-#: discipline plus the chronology witnesses, and nothing that scores research;
-#: each capability package appends its own name here and its module to
-#: :data:`kleinlib.generation.capabilities.MODULES`, and nothing else.
+#: What this version can verify — all ten, as of the planted-truth package.  The
+#: spine shipped none: the admission discipline plus the chronology witnesses, and
+#: nothing that scores research.  Each capability package appends its own name here
+#: and its module to :data:`kleinlib.generation.capabilities.MODULES`, and nothing
+#: else.
 SUPPORTED_CAPABILITIES: tuple[str, ...] = (
     # --- WP-01: expertise ---
     "expertise",
@@ -95,6 +98,8 @@ SUPPORTED_CAPABILITIES: tuple[str, ...] = (
     "knowledge",
     # --- WP-06: surprise mining (requires design) ---
     "surprise",
+    # --- WP-05: planted-truth benchmark (the CUSTODIAN's declaration) ---
+    "benchmark",
 )
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {
