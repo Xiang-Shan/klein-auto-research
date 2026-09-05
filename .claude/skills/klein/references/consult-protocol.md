@@ -22,12 +22,10 @@ interrogate. The six axes, with example phrasings:
    synthetic known-truth lab, or is there a verifier that judges an object instead?"
 3. **Method familiarity.** "Is the method one you know well, or one you've only read
    about? Frontier / unfamiliar methods get a full METHOD gate (intuition → math → refs)."
-   <!-- WP-01 -->
    On a study whose generation manifest declares `expertise`, this answer is read from
    `domain_card.md`'s `method_shortlist[]` rather than invented here — the shortlist is
    locked before this gate and is what METHOD chooses FROM
    (`references/expert-protocol.md`).
-   <!-- end WP-01 -->
 4. **Metric & decision use.** "For each distinct task, what primary metric should its
    track use, higher or lower, what minimum delta matters, and which guardrails
    must hold?" Never combine unrelated tasks into one global frontier. Declare
@@ -157,7 +155,6 @@ assert evaluate_rule(
   reproduce it EXACTLY, STOP if off — this catches split/leakage bugs before they
   poison every later comparison. A `replicate` study anchors on a published sum,
   count or table dimension of the transcribed data.
-  <!-- WP-01 -->
   **On an `expertise`-enabled study the identity anchor IS the EXPERT obligation**: the
   card's `baseline.targets` are frozen at `klein generation expert lock` before this
   gate, the anchor runs as E0001 under a `--action baseline` admission after METHOD,
@@ -165,7 +162,6 @@ assert evaluate_rule(
   BLOCKS every challenger admission until a versioned `expert repair` reproduces —
   "STOP if off" stops being a discipline the driver keeps and becomes one the notary
   keeps (`references/expert-protocol.md`).
-  <!-- end WP-01 -->
 - **Then measure the noise floor — never guess `minimum_delta`.** After the anchor,
   run the floor recipe that matches the question — `seed-sweep` (fit noise; k=5
   default, k=3 if one run exceeds ~5 minutes), `split-lottery` (marginal-resplit), or
@@ -221,12 +217,9 @@ assert evaluate_rule(
 anchored before the gate is recorded — a consult record that precedes the opt-in fails
 `klein generation verify` permanently, because a commitment registered after seeing
 what it was supposed to constrain constrains nothing.
-<!-- WP-01 -->
 So must `klein generation expert lock` when the manifest declares `expertise`: the
 method shortlist and the baseline targets have to precede the gate for the same
 reason (`references/expert-protocol.md`).
-<!-- end WP-01 -->
-<!-- WP-08 -->
 And so must `klein generation knowledge query` when the manifest declares
 `knowledge`: the consultation receipt is what the summary below cites. Present the
 hits it returned with their contest closure, record a `use` or `reject` reason for
@@ -235,7 +228,6 @@ ack), and cite the explicit `no_match` receipt when the store held nothing — a
 empty store is consulted, never skipped. A store read after the ack is a
 bibliography, not a consultation, and FAILs `knowledge query`
 (`references/knowledge-protocol.md`).
-<!-- end WP-08 -->
 
 Present a concise summary: goal; kind / modality / profile with one line of reasoning
 each; the track contracts (mode, metric, floor recipe, bound, verifier); the data

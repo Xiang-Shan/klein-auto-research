@@ -133,7 +133,6 @@ skipped them; the fix cost ~2h and salvaged every later comparison.)
   (a known-valid object it must accept), and the external best-known value with its
   source. The verifier script is named and is outside the entrypoint's `mutable[]`.
 
-<!-- WP-09: design -->
 **External evidence, on a study that locked an evidence design.** Any modality section
 that describes evidence Klein did not produce — an imported extract, a vendor table, a
 wet-lab run, a colleague's file — copies the acquisition and custody fields for it from
@@ -144,9 +143,7 @@ this gate. Two reminders travel with them: import chronology does not prove acqu
 chronology, and custody is testimony rather than a verification. Narratives about how
 the evidence was generated stay OUTSIDE the clean-room leakage audit — the audit reads
 the prepared table and the split index, and a provenance story is neither.
-<!-- end WP-09 -->
 
-<!-- WP-05: planted-truth benchmarks -->
 **Planted-truth benchmarks: the DGP card belongs to the custodian.** A benchmark
 splits one simulation across two studies, so the `## DGP card` above splits with it
 (`references/planted-truth-protocol.md`). The CUSTODIAN's `simulate` study carries the
@@ -167,7 +164,6 @@ whose sealed extract is held by a vendor records exactly the same testimony, and
 that says "custodian-held later block" should name the attestation beside the holder.
 Testimony, never a verification: a hash proves the bytes did not change, never that
 nobody read them.
-<!-- end WP-05 -->
 
 ## 4. Rank the issues
 

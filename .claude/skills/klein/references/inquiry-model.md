@@ -24,7 +24,6 @@ Markdown stays the human surface; JSON and the ledger are the machine surface. N
 in the machine surface is hand-edited; nothing in the human surface is trusted without
 the machine surface behind it.
 
-<!-- WP-09: design -->
 **The evidence-design artifact supplements these five, on a study that asks for it.** A
 schema-3 study that opted into the generation layer with `--capability design` locks one
 `evidence_design.yaml` before the DATA gate, giving each object the fields it needs to
@@ -39,9 +38,7 @@ and neither does any engine rule** — the artifact adds vocabulary a stranger c
 and the generation layer's `design` family checks only that it was locked first and has
 not moved since (`references/generation-protocol.md`, "Evidence design"). A study that
 does not opt in is untouched by all of it.
-<!-- end WP-09 -->
 
-<!-- WP-07: escalation -->
 **The Decision object is typed, and one of its types links two studies.** A decision is
 a *continuation*, a *stop*, an *escalation*, or a *pivot*. On an ordinary study all four
 are the same dated `Decision:` line in `program.md`. On a study that declared
@@ -55,7 +52,6 @@ successor inherits. A successor id restores no blindness
 (`references/escalation-protocol.md`). Like every generation record, `<study>#Dn` is a
 sidecar id resolved by the extension: it is cited in prose, and reaches `claims.lock`
 only through an `art:` alias — see "Generation records" below.
-<!-- end WP-07 -->
 
 ## The three axes
 
@@ -131,7 +127,6 @@ Rules that follow from the table:
 `klein claims verify` resolves every id a claim cites; an id that resolves nowhere fails
 the study.
 
-<!-- generation records (multi-capability) -->
 ### Generation records (schema 3, opt-in)
 
 A study that opted into the generation layer carries a second family of ids. They are
@@ -153,7 +148,6 @@ separately registered `test` study on rows the selection never saw. A benchmark'
 recovery numbers are the same: they live in the pinned `tables/benchmark_scores.tsv`,
 reach a claim through its `art:` alias, and carry the benchmark outcome
 (`retired | unverified | scored | unscored`) with its `custody` reading beside them.
-<!-- end generation records -->
 
 ## Per-kind requirements at CONSULT
 

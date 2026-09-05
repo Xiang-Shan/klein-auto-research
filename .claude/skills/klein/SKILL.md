@@ -55,7 +55,6 @@ committed to BEFORE the evidence: `klein generation init` before Gate 0, then on
 `klein generation check` before every `run-one`, verified separately by `klein
 generation verify` — `references/generation-protocol.md`. A study that does not opt in
 is untouched by it, and no core verb, receipt or disposition changes either way.
-<!-- WP-01: expertise -->
 Declaring `--capability expertise` adds the reproduction obligation: `klein generation
 expert lock` freezes `domain_card.md` (pipeline, metrics, doctrine, pitfalls, a
 `method_shortlist` that precedes METHOD, and a baseline recipe with numeric targets)
@@ -66,14 +65,10 @@ is admitted until a bind reproduces — repairs are versioned and targets never 
 record` entries under `knowledge/references/` — locator, supported statement, source
 hash and verification level — because on an enabled study a bare `verified: true` is
 insufficient (`references/reference-protocol.md`).
-<!-- end WP-01 -->
-<!-- WP-02: slates -->
 A study that declares the **`slates`** capability additionally records each phase's
 hypothesis slate (`klein generation slate lock`, 4–6 authored rows → `<study>#Hn` ids),
 admits runs by `--hypothesis`, and scores the driver's own forecasts at phase end
 (`klein generation slate score` → `generation/tables/slate_calibration_<phase>.tsv`).
-<!-- end WP-02 -->
-<!-- WP-09: design -->
 Declaring `--capability design` adds the evidence-design artifact: `klein generation
 design lock` freezes `evidence_design.yaml` — estimand, population, units, measurement
 process, identification assumptions and intended generalization; uncertainty method,
@@ -83,8 +78,6 @@ typed continuation — **before Gate 1**, and every validity condition must name
 registered `P#` whose rule can fire it (an `inconclusive_if` rule or an
 `all_of`/`any_of`/`not` combinator, never a plain leaf). A `--action cell` admission is
 refused until it is locked (`references/generation-protocol.md`, "Evidence design").
-<!-- end WP-09 -->
-<!-- WP-03: premortem -->
 Declaring **`premortem`** (which requires `slates`) puts a recorded red team between
 the draft slate and the first run: `klein generation premortem record` binds the draft
 slate's hash, the reviewer, the hashed input bundle and the issues; `klein generation
@@ -92,8 +85,6 @@ premortem respond` records one disposition per issue, and a `blocking` + `mechan
 issue must be accepted with the hash of a NEW slate version before any hypothesis of
 that phase is admitted. The reviewer may not be the roster's referee — the critic is
 not the closing referee (`references/premortem-protocol.md`).
-<!-- end WP-03 -->
-<!-- WP-04: parity + contribution -->
 Declaring **`parity`** adds the AI-vs-expert comparison: `klein generation parity lock`
 freezes `parity.yaml` before Gate 0 (both pipelines, the sampling unit and block, and
 each metric's direction, measured-floor reference, noninferiority margin and written
@@ -107,8 +98,6 @@ parity. **`contribution`** appends `ai_value.jsonl` through `klein generation
 contribution record` (coverage includes rejections; an accepted row with no human
 acceptor stays agent-accepted; causal AI value needs the cited matched ablation)
 — `references/expert-parity-protocol.md`.
-<!-- end WP-04 -->
-<!-- WP-07: escalation -->
 Declaring `--capability escalation` adds the escalation ladder: `klein generation
 escalate lock` freezes `escalation_plan.yaml` before Gate 0 — the triggers a stall is
 reconstructed from (consecutive discards, closed headroom, an exhausted phase budget),
@@ -120,8 +109,6 @@ budgets, and `stop`/`pivot` as terminal actions. Once a trigger trips, no `run` 
 actual costs and `escalate pivot` links a successor study with both contract hashes and
 its inherited exposure. Editing the plan afterwards cannot discharge a stall
 (`references/escalation-protocol.md`).
-<!-- end WP-07 -->
-<!-- WP-08: knowledge -->
 Declaring `--capability knowledge` couples the study to the repo-level knowledge
 store: `klein generation knowledge query` records the consultation receipt CONSULT
 cites — pinned `store_head`, deterministic `lex-1` retrieval, COMPLETE hits, each
@@ -131,8 +118,6 @@ method card) with its class, strength and evidence roots copied verbatim;
 `contest` and `resolve` append opposing evidence and adjudications without
 deleting either side. The markdown under `knowledge/` stays the human surface and
 is never rewritten (`references/knowledge-protocol.md`).
-<!-- end WP-08 -->
-<!-- WP-06: surprise -->
 Declaring `--capability surprise` (which requires `design`) adds discovery cells:
 `klein generation surprise register` freezes `discovery_cells.yaml` after METHOD and
 before any cell evidence — template, statistic, adapter and inputs with their hashes,
@@ -144,8 +129,6 @@ E####` reads the pinned per-unit table, recomputes every segment, and issues one
 `<study>#Sn` receipt per violation while retaining the null and inconclusive ones —
 explanations stay `unresolved` until a human writes one, and no `confirmed` claim may
 rest on a discovery table (`references/surprise-protocol.md`).
-<!-- end WP-06 -->
-<!-- WP-05: benchmark + custody -->
 Declaring **`benchmark`** (which requires `parity`) makes the study the CUSTODIAN of
 a planted-truth benchmark: `klein generation benchmark commit` freezes
 `benchmark.yaml` at METHOD — arms and budgets, the hypothesis cap, the matching rule,
@@ -160,7 +143,6 @@ separate machine that declares no `benchmark` capability. **A hash is not secrec
 `klein generation custody attest` — capability-agnostic, usable by any
 generation-enabled study — records a named holder's testimony, and without one the
 outcome reads `unverified` (`references/planted-truth-protocol.md`).
-<!-- end WP-05 -->
 
 ## Setup
 

@@ -187,7 +187,6 @@ refute each other, surface the contradiction in the doc text; do not silently
 keep both. Ruled-out rows from `playbook.md` promote the same way. No graph
 engine, no registry file — the markdown convention IS the mechanism.
 
-<!-- WP-08 -->
 **On a study that declares the `knowledge` capability, markdown remains the human
 surface and gains a machine one.** Each promoted statement is additionally filed
 with `klein generation knowledge promote --claim <Cn>`, which copies the claim's
@@ -199,4 +198,3 @@ citation: `(supports <study_id>#Cn; knowledge:K7)`. A later study that measures
 the claim outside its stated scope files `knowledge contest`, not an edit — and a
 prediction that merely failed to transfer is a prediction verdict, not a contest
 (`references/knowledge-protocol.md`).
-<!-- end WP-08 -->

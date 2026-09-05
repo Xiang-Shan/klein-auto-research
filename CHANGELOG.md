@@ -50,7 +50,6 @@ version.
 
 The ten capabilities follow, in the order the spine loads them — dependencies first.
 
-<!-- WP-01 -->
 - **The `expertise` capability — acquire the domain, then prove you acquired it**
   (`klein generation expert lock | amend | bind | repair | review`). A declaring study
   freezes `domain_card.md` before the CONSULT gate — pipeline, metrics, doctrine,
@@ -78,7 +77,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   `references.yaml` row saying `verified: true` without a resolvable `record_id` FAILs
   verification. Protocol:
   `.claude/skills/klein/references/reference-protocol.md`.
-<!-- end WP-01 -->
 
 - **Hypothesis slates and forecast calibration** (the `slates` capability;
   `klein generation slate lock | amend | score | show`). A generation-enabled study may
@@ -98,7 +96,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   and the phase ritual is still not automated. Protocol:
   `references/generation-protocol.md` "Slates and calibration"; template:
   `.claude/skills/klein/assets/slate-template.yaml`.
-<!-- WP-09 -->
 - **Evidence design — what the evidence is FOR, locked before the DATA gate**
   (`klein generation design lock`, capability `design`). A declaring study freezes
   `evidence_design.yaml` into the extension chain before Gate 1: the Question's estimand,
@@ -122,7 +119,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   engine rule. Protocol: the "Evidence design" section of
   `.claude/skills/klein/references/generation-protocol.md`; template:
   `.claude/skills/klein/assets/evidence-design-template.yaml`.
-<!-- end WP-09 -->
 - **Slate-time pre-mortem** — the `premortem` capability (`klein generation
   premortem record | respond`), a recorded red team between the draft slate and the
   first run. `record` binds the sha256 of the DRAFT slate lock, the reviewer, a hashed
@@ -171,7 +167,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   outcome stays `descriptive` unless the parity lock cites a matched frozen-2.0 ablation
   study. Protocol: `references/expert-parity-protocol.md`; templates:
   `.claude/skills/klein/assets/parity-template.yaml` and `assets/parity_score_template.py`.
-<!-- WP-07 -->
 - **The escalation ladder and successor studies — getting unstuck, accounted
   for** (`klein generation escalate lock | record | close | pivot | show`, capability
   `escalation`). A declaring study freezes `escalation_plan.yaml` before the CONSULT
@@ -204,8 +199,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   resource is written down. Protocol:
   `.claude/skills/klein/references/escalation-protocol.md`; template:
   `.claude/skills/klein/assets/escalation-plan-template.yaml`.
-<!-- end WP-07 -->
-<!-- WP-08 -->
 - **Cross-study knowledge — transactions over pinned evidence** (the
   `knowledge` capability; `klein generation knowledge promote | contest | resolve |
   query | decide | show`). The markdown under `knowledge/` keeps its typed claim
@@ -233,8 +226,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   in `knowledge/**/*.md` — dry-run by default, read-only over the markdown, skipping
   any study whose lock does not verify, with scope fields left empty for human
   curation. Protocol: `.claude/skills/klein/references/knowledge-protocol.md`.
-<!-- end WP-08 -->
-<!-- WP-06: surprise -->
 - **Surprise mining — registered discovery cells, three table templates, `<study>#Sn`
   receipts** (`klein generation surprise register | record | show`, capability
   `surprise`, which requires `design`). A study screening many segments now records the
@@ -266,8 +257,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   `.claude/skills/klein/references/surprise-protocol.md`; templates:
   `.claude/skills/klein/assets/discovery-cells-template.yaml` and
   `.claude/skills/klein/assets/discovery_cell_template.py`.
-<!-- end WP-06 -->
-<!-- WP-05 -->
 - **Planted-truth benchmark and custody receipts** — the `benchmark`
   capability (`klein generation benchmark commit | submit | reveal | retire | show`),
   plus one verb group that belongs to no capability at all,
@@ -300,8 +289,6 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   Protocol: `references/planted-truth-protocol.md`; templates:
   `assets/benchmark-template.yaml`, `assets/benchmark-submission.schema.json` and
   `assets/score_submissions_template.py`.
-<!-- end WP-05 -->
-<!-- WP-10: docs -->
 - **The documentation surface says the same thing everywhere.** `AGENTS.md` and
   `CLAUDE.md` carry the layer in one paragraph and one verb list — no new lifecycle
   stage; `SKILL.md`'s stage table names the generation verbs used at each EXISTING
@@ -319,10 +306,12 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   `.yaml` / `.json` / `.py` templates protocols name, not only the `.md` and `.toml`
   ones, and fails a packaged asset no protocol points at — the mirror of the
   orphan-protocol check that has guarded `references/` since 2.0.
-<!-- end WP-10 -->
 
-<!-- fix-1 -->
 ### Fixed
+
+Everything below was found and repaired in one review pass over the layer before it
+shipped, so nothing here changes behaviour any study has ever depended on. The spine's
+fixes come first, then the capabilities' in the order the spine loads them.
 
 - **A generation receipt refreshes at a new HEAD.** `klein generation verify` used to
   skip the rewrite whenever the new audit differed from the receipt on disk only in
@@ -347,6 +336,29 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   bytes under the same name raises instead of overwriting, a file that is not its own
   hash (or cannot be read) blocks every writing verb until it is restored by hand, and
   `recover` never rewrites an object.
+- **The two ways a verb says no are told apart.** Exit 1 is an ERROR on stderr — the
+  question could not be asked: a malformed argument, an argument naming a file, run,
+  claim, trigger or decision that does not exist, or a study that cannot be read.
+  Exit 2 is a REFUSAL on stdout — a rule of the study, the ledger or an authored
+  artifact answered no, and the reasons ARE that answer. Only `check` records its
+  refusal, because a refusal is evidence; every other verb prints it and leaves the
+  ledger exactly as it found it.
+- **Two capabilities cannot fill one receipt input slot.** A slot pins one artifact,
+  so a build in which two declared capabilities both resolve `inputs.slate` now
+  refuses the admission and names both — rather than letting load order silently
+  decide which artifact the action was taken under.
+- Smaller: `check --action` takes argparse `choices` from a tuple asserted equal to
+  `admission.CHECKPOINTS`; an unreadable `study_state.json` is a recorded refusal
+  reason rather than an empty state that would admit a spent seal; `same_actor`
+  compares actor components symmetrically; a declared-but-unexercised capability
+  reports `incomplete` rather than `n/a`, which is the label's word for "not
+  declared"; admission receipts pin the protocol file of every declared capability
+  instead of the spine's alone; docs no longer describe a manifest amendment feature
+  that does not ship, and state that the label's rung is always `local-order` in this
+  release.
+
+Then the capabilities, dependencies first:
+
 - **The expert baseline's recipe is frozen with its targets** (R-INV-3). `expert lock`
   records the sha256 of `baseline.implementation` and `baseline.fixture`; a
   `reproduced` bind whose recipe drifted since the lock now FAILs unless a repair
@@ -359,25 +371,19 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   `references.yaml` row used to pass by never being looked at, and a row's
   `verification_level` may no longer claim a stronger basis than its record's
   `verification_basis`.
+- **A slate row's `y` comes from its FIRST admitted run**, not its last, so a resolved
+  row cannot be re-run into a better score. Every further admitted run is counted in a
+  new `n_bound_runs` field of the score object and column of the calibration table,
+  and the family WARNs when any row exceeds one. `revision_of` is carried forward
+  across later amendments, so a revised forecast stays in the revisions panel. A row's
+  `parent_ids` must name hypotheses this study locked.
 - **Pre-mortem independence is not asserted from an empty roster.** A missing
   `referee` row now WARNs once per phase instead of passing silently, and a recorded
   review is FAILed when the document it hashed is not the document at its own commit.
-- **A declared-but-unexercised capability reports `incomplete`, not `n/a`.** `n/a` is
-  the label's word for "not declared" and now comes only from the label's defaults.
-- Smaller: `check --action` takes argparse `choices` from a tuple asserted equal to
-  `admission.CHECKPOINTS`; an unreadable `study_state.json` is a recorded refusal
-  reason rather than an empty state that would admit a spent seal; `same_actor`
-  compares actor components symmetrically; docs no longer describe a manifest
-  amendment feature that does not ship, and state that the label's rung is always
-  `local-order` in this release.
-<!-- end fix-1 -->
-
-<!-- fix-2 -->
-- **The parity outcome is one cell's, decided once, and the slate scores the first
-  try.** Six behaviours of the `slates` and `parity` capabilities were tightened
-  before any study could depend on them:
-  - The parity outcome is now read from the **comparison track's sole sealed cell**,
-    resolved from the lock, rather than from whatever was assessed most recently.
+- **The parity outcome is one cell's, decided once.** Four ways the comparison could
+  drift from the criteria it registered are closed:
+  - The outcome is read from the **comparison track's sole sealed cell**, resolved
+    from the lock, rather than from whatever was assessed most recently.
     `parity assess --run` refuses a sealed run on any other track, and an assessment
     naming one FAILs `parity assessment` without displacing the comparison's verdict.
   - The sealed comparison cell must **ask the notary the questions the lock
@@ -390,46 +396,37 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   - A `scorer.path` inside `entrypoint.mutable` is refused by `parity lock` and FAILs
     at every verify — the checker is never the searcher (R-INV-3). A
     `scoring.scorer_name` equal to the roster experimenter is a WARN (testimony).
-  - A slate row's `y` now comes from its **FIRST** admitted run, not its last, so a
-    resolved row cannot be re-run into a better score. Every further admitted run is
-    counted in a new `n_bound_runs` field of the score object and column of the
-    calibration table, and the family WARNs when any row exceeds one. `revision_of`
-    is carried forward across later amendments, so a revised forecast stays in the
-    revisions panel. A row's `parent_ids` must name hypotheses this study locked.
-  - Arithmetic honesty: a comparison over no metrics is `inconclusive` rather than a
-    vacuous `parity`; a constant metric on unequal blocks is undefined rather than
-    bounded by floating-point residue; a non-numeric, non-empty cell of
-    `tables/parity_units.tsv` is an error naming its line and column instead of a
-    silent NA (and the NA count is recorded). Assessment replay now compares the
-    bootstrap numbers at a relative tolerance and records `numpy`'s version beside
-    `n_boot` and `seed`, so a numpy upgrade is diagnosed rather than read as tampering.
-<!-- end fix-2 -->
-
-<!-- fix-3 -->
-- **The generation layer's discovery, escalation, knowledge and custody records were
-  tightened where a driver's own testimony was doing work only evidence should do.**
-  A discovery cell added after another cell already produced evidence is labelled
-  `post_observation` whether or not anybody ran `surprise record` — the label follows
-  the run and the pinned table, not the diligence of the person writing it down — and
-  `klein generation verify` re-derives, for EVERY registration version, that its core
-  anchor and its commit precede the runs of the cells that version introduced. The
-  escalation plan's order is re-derived the same way from the anchor and git ancestry
-  instead of read off the lock's own `late` flag. A `confirmed` claim can no longer
-  rest on a screening table by quoting a number that lives there (only citing the
-  table as evidence was checked before), and the derived per-segment summary counts as
-  a screening table too. The repo-level knowledge store now proves its TIP: every
-  earlier state of `knowledge/events.jsonl` in git, and every `store_head` a receipt
-  pinned, must still be a prefix of the file on disk — a deleted last line leaves the
-  hash chain perfectly intact and was previously invisible. A query receipt that
-  cannot be replayed FAILs when the store is in this repository (it only WARNs for a
-  checkout that has no store), a promotion whose commit does not resolve is re-checked
-  against the source lock on disk rather than excused, and `scripts/seed_knowledge_objects.py`
-  records the HEAD it read each lock at. A custody attestation now only makes a
-  benchmark `custodied` when its `subject` is that benchmark's own hidden evidence;
-  attestations about anything else stay on the record and are reported separately.
-  Registered adapters and inputs must carry a `sha256`, segment names that would print
-  as one key are refused, `n_perm` is capped at 100 000, and admission receipts pin the
-  protocol file of every declared capability instead of the spine's alone.
+- **Parity arithmetic is honest about what it could not measure.** A comparison over
+  no metrics is `inconclusive` rather than a vacuous `parity`; a constant metric on
+  unequal blocks is undefined rather than bounded by floating-point residue; a
+  non-numeric, non-empty cell of `tables/parity_units.tsv` is an error naming its line
+  and column instead of a silent NA (and the NA count is recorded). Assessment replay
+  compares the bootstrap numbers at a relative tolerance and records `numpy`'s version
+  beside `n_boot` and `seed`, so a numpy upgrade is diagnosed rather than read as
+  tampering.
+- **The escalation plan's order is re-derived, not read off its own flag.** `verify`
+  establishes from the core anchor and git ancestry that the plan preceded the CONSULT
+  gate; the lock's `late` field stays a write-time refusal and is no longer the
+  witness.
+- **The knowledge store proves its TIP.** Every earlier state of
+  `knowledge/events.jsonl` in git, and every `store_head` a query receipt pinned, must
+  still be a prefix of the file on disk — a deleted last line leaves the hash chain
+  perfectly intact and was previously invisible. A query receipt that cannot be
+  replayed FAILs when the store is in this repository (it only WARNs for a checkout
+  that has no store), a promotion whose commit does not resolve is re-checked against
+  the source lock on disk rather than excused, and `scripts/seed_knowledge_objects.py`
+  records the HEAD it read each lock at.
+- **A discovery cell added after evidence arrived says so by itself.** A cell declared
+  once another cell already produced evidence is labelled `post_observation` whether
+  or not anybody ran `surprise record` — the label follows the run and the pinned
+  table, not the diligence of the person writing it down — and `klein generation
+  verify` re-derives, for EVERY registration version, that its core anchor and its
+  commit precede the runs of the cells that version introduced.
+- **A `confirmed` claim cannot rest on a screening table.** Quoting a number that
+  lives in one is now caught as well as citing the table as evidence, and the derived
+  per-segment summary counts as a screening table too. Registered adapters and inputs
+  must carry a `sha256`, segment names that would print as one key are refused, and
+  `n_perm` is capped at 100 000.
 - **Discovery cells can declare clustered units.** `group_policy: {column: <name>}`
   makes the segment statistic the mean of the GROUP means, the dispersion a dispersion
   over groups, and the sign-flip family rule act on groups — because eight measurements
@@ -438,7 +435,10 @@ The ten capabilities follow, in the order the spine loads them — dependencies 
   record and every `<study>#Sn` receipt carry `unit_of_inference: group | unit`, and a
   cell that declared a clustering column whose table does not carry it FAILs. Cells
   with no `group_policy` are unchanged, to the last digit.
-<!-- end fix-3 -->
+- **A custody attestation only custodies its own subject.** An attestation makes a
+  benchmark `custodied` only when its `subject` is that benchmark's own hidden
+  evidence; attestations about anything else stay on the record and are reported
+  separately.
 
 ### Unchanged
 

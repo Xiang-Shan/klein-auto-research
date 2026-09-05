@@ -79,7 +79,6 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   that mattered, is a NOTE — it is exactly the failure the pre-mortem cannot detect
   about itself.
 
-<!-- WP-04: parity + contribution -->
 - **Parity.** Read `parity.yaml`, the pinned `tables/parity_units.tsv` and the recorded
   decision; confirm findings state the outcome with its scope (population, sampling
   unit, budget rule) and never as a bare "matched the expert", that
@@ -91,9 +90,7 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
 - **Contribution.** Read `ai_value.jsonl`: confirm rejections are present, that no
   agent-accepted row is written up as human-accepted, and that any causal AI-value
   language cites the matched ablation the lock names.
-<!-- end WP-04 -->
 
-<!-- WP-05: benchmark + custody -->
 - **Planted truth.** Read `benchmark.yaml`, the pinned `tables/benchmark_scores.tsv`
   and the recorded reveal. Confirm the findings state recovery *in silico* with the
   generator and the matching rule named, never as "the system discovered X"; that a
@@ -103,8 +100,6 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   scientific task at all**, and whether the `context` adjudication was applied as
   preregistered rather than widened once it was clear which arm it would fail. Both
   are yours (`references/planted-truth-protocol.md`).
-<!-- end WP-05 -->
-<!-- WP-07: escalation -->
 - **Escalation.** Read `escalation_plan.yaml` and every `<study>#Dn` decision: confirm
   each names the trigger it answers, the rung taken, the lower rungs skipped WITH their
   reasons, and the concrete resource or assumption that changed — and that findings
@@ -113,23 +108,18 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   handed over) is the one place a reader can see what blindness the successor does NOT
   have. Whether work labelled "method family" deserves that rung is your judgement, not
   the machine's (`references/escalation-protocol.md`).
-<!-- end WP-07 -->
-<!-- WP-08: knowledge -->
 - **Knowledge.** Read the pre-CONSULT `knowledge query` receipt and any contests:
   confirm the study's prose reflects the hits it recorded — including a hit it rejected
   and a contest closure it saw — and that an imported claim is never written up as
   stronger than the class and strength copied from its source lock. `lex-1` retrieval
   replays, which proves what the study SAW; whether the field was searched adequately is
   yours (`references/knowledge-protocol.md`).
-<!-- end WP-08 -->
-<!-- WP-06: surprise -->
 - **Surprise.** Read `discovery_cells.yaml`, the pinned per-unit tables and every
   `<study>#Sn` receipt: confirm the COMPLETE inventory is reported — nulls and
   `inconclusive` slices included, not only the violations — that an `unresolved`
   explanation is left as `unresolved` rather than narrated, and that no `confirmed`
   claim rests on a screen. Whether a segmentation is scientifically meaningful is
   yours (`references/surprise-protocol.md`).
-<!-- end WP-06 -->
 
 Add one line beneath the two machine-read lines of the report:
 

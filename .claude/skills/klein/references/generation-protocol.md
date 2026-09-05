@@ -133,11 +133,11 @@ below, `references/premortem-protocol.md`, `references/expert-parity-protocol.md
 `references/surprise-protocol.md`, and `references/planted-truth-protocol.md`) —
 so the *not available* refusal is what a study meets when it is carried back to an
 older Klein, or to a build whose modules were trimmed. Opting in with
-`capabilities: []` still buys the admission discipline and
-the chronology witnesses, and nothing that scores research. **Capability additions
-after opt-in are not available in this release**: there is no amendment verb and no
-manifest amendment event, so declare the full set at `init`, or start a successor
-study. (`scope.late_added` is part of the receipt's fixed shape and is always `[]`.)
+`capabilities: []` still buys the admission discipline and the chronology witnesses,
+and nothing that scores research. **Capability additions after opt-in are not
+available in this release**: there is no amendment verb and no manifest amendment
+event, so declare the full set at `init`, or start a successor study.
+(`scope.late_added` is part of the receipt's fixed shape and is always `[]`.)
 
 ## The envelope
 
@@ -319,9 +319,9 @@ sha and FAILs `generation slate` for the life of the study. The lawful revision 
 `p_success` sets `revision_of` and is scored in its own panel — the primary panels
 always use the FIRST forecast. Once set, `revision_of` is carried forward by every later
 version, so a revised row stays in the revisions panel rather than sliding back into the
-primary one at the next amendment that leaves it alone. An amendment may add rows (fresh ids) and drop rows, but
-may never revive a freed id, re-point an existing one at a different hypothesis, or
-restate the frozen `base_rate_forecast` and `cohort_window`.
+primary one at the next amendment that leaves it alone. An amendment may add rows (fresh
+ids) and drop rows, but may never revive a freed id, re-point an existing one at a
+different hypothesis, or restate the frozen `base_rate_forecast` and `cohort_window`.
 
 ### Admission: a run is bound to the hypothesis it was admitted for
 
@@ -362,9 +362,9 @@ carries more than one; re-running a resolved row leaves `y` where it was.
 
 `slate score` records the core-chain tip as `closed_at_core_sequence`, writes
 `generation/tables/slate_calibration_<phase>.tsv` (one row per cohort member: id, panel,
-p_first, p_latest, status, y, reason, run, n_bound_runs) and hashes it. A phase is scored once;
-`--rescore --reason <why>` records a further score whose parent is the previous one —
-both objects survive, because a cohort that reopened is a fact about the study.
+p_first, p_latest, status, y, reason, run, n_bound_runs) and hashes it. A phase is scored
+once; `--rescore --reason <why>` records a further score whose parent is the previous
+one — both objects survive, because a cohort that reopened is a fact about the study.
 
 **The denominator is frozen at lock.** Coverage is `resolved / cohort` over every id
 ever locked for the phase. Withdrawing a row does not shrink it, and neither does never
@@ -395,8 +395,8 @@ recycled or non-monotonic id; a recorded score whose recomputation from the rece
 the manifests and the core chain differs in any number (compared at rel 1e-12); a cohort
 row missing from the score; a calibration table that is not the one the score hashed. It
 WARNs on coverage below 1.0, on a row with `n_bound_runs > 1`, and on a phase
-acknowledged without a score. Its outcome is
-`complete`, `conditional` or `unscored`, and the label copies it.
+acknowledged without a score. Its outcome is `complete`, `conditional` or `unscored`,
+and the label copies it.
 
 ### What a slate score establishes, and what it does not
 
@@ -486,10 +486,10 @@ REPO-level stores that are facts about the repository rather than one study:
 `knowledge/events.jsonl`. The one verb that files paths it is not given in advance is
 `expert repair`, which commits exactly the repaired files it recorded — minus anything
 in the mutable surface, which `run-one` owns and which filing would silently move the
-restore anchor. They never write `study_state.json`, the core
-`events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`, and
-naming one of those in a commit is refused rather than filed. An in-flight edit to
-the mutable surface is the operator's and stays theirs.
+restore anchor. They never write `study_state.json`, the core `events.jsonl`, `runs/`,
+`claims.lock`, `verify_receipt.json` or `study.yaml`, and naming one of those in a
+commit is refused rather than filed. An in-flight edit to the mutable surface is the
+operator's and stays theirs.
 
 **A dirty core state stops a generation verb.** If `study_state.json` or the core
 `events.jsonl` has uncommitted changes, every writing verb refuses ("core state is
@@ -503,7 +503,6 @@ and writes nothing — no directory, no FAIL receipt, no commit. Not opting in i
 a failure. A manifest that was deleted or edited AFTER an opt-in still meets the
 FAIL path: losing the opt-in is a finding, not an exemption.
 
-<!-- WP-09: design -->
 ## Evidence design
 
 *The `design` capability — declared with `klein generation init --capability design`.*
@@ -583,8 +582,6 @@ estimand is the right one for the question, not that the intended generalization
 achievable, and not that the custody chain was honoured. Every one of those is a matter
 for the referee and for the reader; the lock only guarantees they were stated in
 advance, in a form a stranger can compare against what the study ended up claiming.
-<!-- end WP-09 -->
-<!-- WP-06: surprise -->
 
 ## Discovery cells
 
@@ -601,4 +598,3 @@ recomputes every segment of the frozen inventory, applies the declared family ru
 and issues one `<study>#Sn` receipt per violation while retaining the null and
 inconclusive segments. The receipt pins the registration in `inputs.cells`; the
 `surprise` family recomputes the record and FAILs a `confirmed` claim that rests on it.
-<!-- end WP-06 -->

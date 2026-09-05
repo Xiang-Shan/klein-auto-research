@@ -124,7 +124,6 @@ those verdicts are what resolve the row's outcome afterwards. A cell run without
 hypothesis on an enabled study is refused unless it is a typed obligation (`calibration`,
 `baseline`, `repair`, `sealed`).
 
-<!-- WP-04: the parity cell -->
 A study that declares the **`parity`** capability registers one more cell, and it is a
 special one: the **AI-vs-expert comparison**, the comparison track's SOLE sealed
 evaluation, scoring both frozen pipelines together and pinning
@@ -135,9 +134,7 @@ measured floor, and a `final_test` run recorded before that anchor FAILs the `pa
 family afterwards. The cell is ordinary in every other way: `--action sealed` admission,
 `run-one --final-test --tests P…`, `measured` disposition, `artifact:` lines that make
 the table evidence.
-<!-- end WP-04 -->
 
-<!-- WP-06: surprise -->
 **A discovery cell is a registered cell.** A study that declared the `surprise`
 capability names the registered cell as well (`--cell cell_<name>`), and `--tests` must
 include the cell's registered `expectation_P`: the notary adjudicates the expectation on
@@ -147,7 +144,6 @@ E####` reads those pinned bytes afterwards and applies the declared multiplicity
 once (`references/surprise-protocol.md`). A discovery cell may never run on the sealed
 partition — the seal is a track's single confirmation look, and a screen cannot confirm
 what it selected.
-<!-- end WP-06 -->
 
 ## What registered mode is not
 
