@@ -52,7 +52,8 @@ def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
         parser.parse_args(["--help"])
     top = capsys.readouterr().out
     for verb in ("new", "gate", "preflight", "run-one", "recover", "status",
-                 "finalize", "noise-floor", "verify", "headroom", "predict"):
+                 "finalize", "noise-floor", "verify", "headroom", "predict",
+                 "generation"):
         assert verb in top
 
     for argv, attr, expected in (
