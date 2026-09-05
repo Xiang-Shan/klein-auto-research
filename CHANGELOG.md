@@ -68,6 +68,31 @@ version.
   verification. Protocol:
   `.claude/skills/klein/references/reference-protocol.md`.
 <!-- end WP-01 -->
+<!-- WP-09 -->
+- **Evidence design (WP-09) — what the evidence is FOR, locked before the DATA gate**
+  (`klein generation design lock`, capability `design`). A declaring study freezes
+  `evidence_design.yaml` into the extension chain before Gate 1: the Question's estimand,
+  population, units, measurement process, identification assumptions and intended
+  generalization; the Prediction's uncertainty method, validity conditions, practical
+  threshold and provenance; the Evidence's representations, dependency hierarchy,
+  permitted reuse, seal and acquisition ledger; the Claim's warrant (`prediction |
+  conditional-estimation | causal-inference | exploratory-structure | checked-witness`);
+  and the Decision's typed continuation with its predecessor and successor. **Every
+  validity condition must reach the arithmetic:** its `rule_ref` names a registered `P#`
+  carrying an `inconclusive_if` rule or an `all_of`/`any_of`/`not` combinator — a plain
+  leaf comparison and a prose `inconclusive_if` are both refused, and the cross-check is
+  re-run at every `generation verify` against `study.yaml` as it is now, so dropping an
+  `inconclusive_if` after the lock is caught. **Import chronology is not acquisition
+  chronology:** an `acquisition[]` entry with `kind: import` records when bytes arrived,
+  while `kind: acquisition` claims when the measurement was taken and is refused without
+  a `custody` chain and a named `attested_by` (testimony, never verified). A `--action
+  cell` admission is refused until the design is locked; the capability outcome is
+  `locked` or `unlocked`, and a late lock (`--allow-late`) FAILs `design lock`
+  permanently. The artifact supplements the five objects and changes no id grammar and no
+  engine rule. Protocol: the "Evidence design" section of
+  `.claude/skills/klein/references/generation-protocol.md`; template:
+  `.claude/skills/klein/assets/evidence-design-template.yaml`.
+<!-- end WP-09 -->
 
 ### Unchanged
 

@@ -67,6 +67,17 @@ record` entries under `knowledge/references/` — locator, supported statement, 
 hash and verification level — because on an enabled study a bare `verified: true` is
 insufficient (`references/reference-protocol.md`).
 <!-- end WP-01 -->
+<!-- WP-09: design -->
+Declaring `--capability design` adds the evidence-design artifact: `klein generation
+design lock` freezes `evidence_design.yaml` — estimand, population, units, measurement
+process, identification assumptions and intended generalization; uncertainty method,
+validity conditions, practical threshold and provenance; evidence representations,
+dependency hierarchy, permitted reuse, seal and acquisition custody; the warrant; the
+typed continuation — **before Gate 1**, and every validity condition must name a
+registered `P#` whose rule can fire it (an `inconclusive_if` rule or an
+`all_of`/`any_of`/`not` combinator, never a plain leaf). A `--action cell` admission is
+refused until it is locked (`references/generation-protocol.md`, "Evidence design").
+<!-- end WP-09 -->
 
 ## Setup
 

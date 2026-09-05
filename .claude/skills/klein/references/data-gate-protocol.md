@@ -133,6 +133,19 @@ skipped them; the fix cost ~2h and salvaged every later comparison.)
   (a known-valid object it must accept), and the external best-known value with its
   source. The verifier script is named and is outside the entrypoint's `mutable[]`.
 
+<!-- WP-09: design -->
+**External evidence, on a study that locked an evidence design.** Any modality section
+that describes evidence Klein did not produce — an imported extract, a vendor table, a
+wet-lab run, a colleague's file — copies the acquisition and custody fields for it from
+the study's locked `evidence_design.yaml` (`evidence.acquisition[]`: `source`, `kind`,
+`acquired_at`, and for `kind: acquisition` the `custody` chain and who `attested_by` it).
+The card restates them; it never re-decides them, because the design was locked before
+this gate. Two reminders travel with them: import chronology does not prove acquisition
+chronology, and custody is testimony rather than a verification. Narratives about how
+the evidence was generated stay OUTSIDE the clean-room leakage audit — the audit reads
+the prepared table and the split index, and a provenance story is neither.
+<!-- end WP-09 -->
+
 ## 4. Rank the issues
 
 List issues most-severe first, each with a severity and a recommended action:
