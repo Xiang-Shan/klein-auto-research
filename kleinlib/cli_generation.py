@@ -3967,7 +3967,7 @@ def _run_surprise_register(args: argparse.Namespace) -> int:
         return 2
 
     known = set(gs.registered_cells(study, events))
-    observed = bool(gs.records(study, events))
+    observed = _cell_evidence_exists(study, contract, repo, events, known)
     payload = _pinned_cells_document(study, document, known=known, observed=observed)
     atomic_write_text(gs.cells_path(study), gs.render_cells(payload))
     file_sha = sha256_file(gs.cells_path(study))
@@ -4025,6 +4025,34 @@ def _run_surprise_register(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cell_evidence_exists(
+    study: Path,
+    contract: dict[str, Any],
+    repo: Path,
+    events: list[dict[str, Any]],
+    known: set[str],
+) -> bool:
+    """Has ANY registered cell produced evidence yet?
+
+    Not "has anything been recorded": recording is a later, voluntary step, and
+    a driver who ran a cell, looked at its table and then registered a new
+    segment would have had the new cell silently preregistered. What makes a
+    cell post-observation is that its OUTPUTS exist — an admitted cell
+    admission a run has already consumed, or a pinned table on disk — so that is
+    what is asked, and the answer does not depend on the driver's diligence.
+    """
+    from .generation import surprise as gs
+    from .generation.admission import match_runs
+
+    if any((study / gs.table_relpath(name)).is_file() for name in known):
+        return True
+    try:
+        match = match_runs(study, contract, repo=repo, events=events)
+    except WorkflowError:  # pragma: no cover - a broken study still gets a registration
+        return False
+    return bool(gs.cell_runs(study, events, match))
+
+
 def _receipt_names_a_cell(study: Path, sha: str, declared: set[str]) -> bool:
     from .generation.ledger import read_object
 
@@ -4042,10 +4070,12 @@ def _pinned_cells_document(
 ) -> dict[str, Any]:
     """The authored document with every hash pinned and every new cell labelled.
 
-    A cell added once ANY cell of this study has produced a table is forced
+    A cell added once ANY cell of this study has produced EVIDENCE is forced
     ``post_observation: true`` — adaptive slices are lawful and are labelled;
     what they may never do is acquire preregistration by arriving in the same
-    file as cells that were registered first.
+    file as cells that were registered first.  ``observed`` is the study-wide
+    answer (see :func:`_cell_evidence_exists`); a cell whose own table is
+    already on disk is labelled whatever that answer was.
     """
     from .generation import surprise as gs
     from .primitives import sha256_file
@@ -4063,7 +4093,9 @@ def _pinned_cells_document(
             for ref in cell.get("input_refs") or []
             if isinstance(ref, dict) and ref.get("path")
         ]
-        if observed and str(cell["cell_id"]) not in known:
+        name = str(cell["cell_id"])
+        own_table = (study / gs.table_relpath(name)).is_file()
+        if name not in known and (observed or own_table):
             cell["post_observation"] = True
         cells.append(gs.ordered_cell(cell))
     return {
@@ -4128,9 +4160,16 @@ def _run_surprise_record(args: argparse.Namespace) -> int:
     path = study / rel
     if not path.is_file() or sha256_file(path) != pinned["sha256"]:
         return _error(f"{rel} is not the table {run} pinned ({str(pinned['sha256'])[:12]}…)")
+    group_column = gs.group_column_of(cell)
     try:
-        units = gs.read_units(study, bound)
+        units = gs.read_units(study, bound, group_column)
     except WorkflowError as exc:
+        if group_column:
+            return _refuse(
+                f"{bound} declares group_policy.column {group_column!r} and its pinned "
+                f"table does not carry it: {exc}. A clustered cell's sign flip acts on "
+                "groups, and the group of each unit has to be in the evidence"
+            )
         return _error(str(exc))
 
     record = gs.build_record(run=run, cell=cell, units=units, table_sha256=str(pinned["sha256"]))
@@ -4281,9 +4320,11 @@ def _run_surprise_show(args: argparse.Namespace) -> int:
             if args.cell and cell.get("cell_id") != args.cell:
                 continue
             method = (cell.get("multiplicity_rule") or {}).get("method")
+            group = gs.group_column_of(cell)
             print(
                 f"  {cell['cell_id']}  {cell['template']}/{cell['statistic']}  "
-                f"{cell['partition']}  min_n={cell['minimum_n']}  {method}"
+                f"{cell['partition']}  min_n={cell['minimum_n']}  {method}  "
+                + (f"per group ({group})" if group else "per unit")
             )
     for entry in gs.records(study, events):
         obj = entry["object"]
@@ -4291,7 +4332,8 @@ def _run_surprise_show(args: argparse.Namespace) -> int:
             continue
         print(
             f"{entry['event']['id']} {obj['cell_id']} on {obj['run']}: family "
-            f"{obj['family_size']}, {obj['n_violations']} violation(s), {obj['outcome']}"
+            f"{obj['family_size']}, {obj['n_violations']} violation(s), {obj['outcome']}, "
+            f"per {obj.get('unit_of_inference') or 'unit'}"
         )
     for entry in gs.receipts(study, events):
         obj = entry["object"]
@@ -4438,7 +4480,12 @@ def _register_custody(actions: argparse._SubParsersAction) -> None:
     attest.add_argument(
         "--statement", required=True, help="what was denied, to whom, and for how long"
     )
-    attest.add_argument("--subject", help="what is custodied (default: this study's own bundle)")
+    attest.add_argument(
+        "--subject",
+        help="what is custodied (default: this study's own hidden evidence). A benchmark "
+        "counts an attestation only when its subject is the default or names the "
+        "benchmark's public_bundle, truth_file or custody.holder",
+    )
     attest.add_argument(
         "--receipt", metavar="PATH", help="a study-relative document whose bytes are hashed"
     )
@@ -5009,6 +5056,8 @@ def _run_custody_attest(args: argparse.Namespace) -> int:
         paths=("generation/events.jsonl", "generation/objects"),
     )
     print(f"{event['id']} custody attested by {args.holder.strip()}: object {sha[:12]}…")
+    subject = obj["subject"] or "this study's own hidden evidence"
+    print(f"  subject:   {subject}")
     print(f"  mechanism: {args.mechanism.strip()}")
     if receipt is not None:
         print(f"  receipt: {receipt['path']} {receipt['sha256'][:12]}…")

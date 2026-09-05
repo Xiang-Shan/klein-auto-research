@@ -50,31 +50,53 @@ cells:
     adapter: lib/habitat.py
     partition: development                # never `sealed`
     unit_policy: one row per observation
-    group_policy: null                    # or how units cluster
+    group_policy: null                    # null, or {column: site} when units cluster
     segments: {column: habitat, values: [wet, dry, burned, sparse]}   # COMPLETE, frozen
     units: millimetres
     floor_ref: minimum_delta              # or sweep:<registered name>
     minimum_n: 2
     multiplicity_rule: {method: family_maxt, n_perm: 1024, seed: 0, alpha: 0.05}
-    output_columns: [segment, unit, value]
+    output_columns: [segment, unit, value]   # + the group column, when there is one
     post_observation: false
 ```
 
 `register` refuses: an adapter inside `entrypoint.mutable`; a missing adapter or
-input; an `expectation_P` that is unregistered, manual, or on another track; a
-`sealed` partition; an empty segment inventory; `minimum_n < 2`; a missing or
-unknown `multiplicity_rule`; a template and statistic that disagree; a duplicate
-or malformed `cell_id`; and any change to a cell that was already registered.
-It then **pins the hashes for you** — every adapter and every `input_ref` is
-hashed from disk, written back into the file, and frozen — and commits the
-registry with the ledger.
+input; a **registered** adapter or `input_ref` carrying no `sha256`; an
+`expectation_P` that is unregistered, manual, or on another track; a `sealed`
+partition; an empty segment inventory; two segments that render to one printed
+key; `minimum_n < 2`; a missing or unknown `multiplicity_rule`; an `n_perm`
+above 100 000 (every `verify` re-runs the family, and an audit nobody will wait
+for is not an audit); a `group_policy` that is neither `null` nor `{column:
+<name>}`; a template and statistic that disagree; a duplicate or malformed
+`cell_id`; and any change to a cell that was already registered. It then **pins
+the hashes for you** — every adapter and every `input_ref` is hashed from disk,
+written back into the file, and frozen — and commits the registry with the
+ledger.
 
 Re-registering is an amendment: cells may be ADDED, never restated and never
-withdrawn. A cell added once any cell of the study has produced a table is forced
-`post_observation: true`. That is lawful — adaptive slices are how discovery
-works — and it is labelled, because the one thing an adaptive slice may never do
-is acquire preregistration by arriving in the same file as cells that were
-registered first (R-INV-5).
+withdrawn. A cell added once any cell of the study has produced EVIDENCE — an
+admitted cell admission a run already consumed, or a pinned table on disk — is
+forced `post_observation: true`. Evidence, not the record of it: the label may
+not depend on whether the driver got round to `surprise record`. That is lawful
+— adaptive slices are how discovery works — and it is labelled, because the one
+thing an adaptive slice may never do is acquire preregistration by arriving in
+the same file as cells that were registered first (R-INV-5). `verify` re-derives
+the order for EVERY version from the two witnesses the writer does not control:
+the version's core anchor must precede the runs of the cells it introduced, and
+its object's commit must be an ancestor of theirs.
+
+## The unit of inference
+
+`group_policy: null` means the rows of the pinned table are independent, and
+everything — the segment statistic, the dispersion, the sign flip — acts on
+units. `group_policy: {column: site}` says the randomization unit is a SITE: the
+table carries a fourth column under that name, the cell is collapsed to one row
+per (segment, site) carrying that site's mean, and the family rule flips SITES.
+The distinction is not cosmetic. Eight measurements at two sites are two
+observations; a sign flip that treats them as eight understates the null spread
+and manufactures a violation. The record says which happened
+(`unit_of_inference: group | unit`), the family detail repeats it, and a cell
+that declared a clustering column whose pinned table does not carry it FAILs.
 
 ## The three templates
 
@@ -171,11 +193,17 @@ admitted cell admission, or an admitted cell run that was never recorded; a
 recomputation that disagrees with the record in any number; an eligible segment
 missing from the table, or a segment the registration never froze; a receipt that
 is not `<study>#Sn`, does not carry the run's table hash, or has no explanation
-field; and a `confirmed` claim in `claims.lock` that cites a cell table's `art:`
-alias or names an S receipt. It WARNs on a bare `S#` in findings §③.
+field; a set of receipts that is not exactly one per violating segment (the
+multiset, so two receipts for one segment never cover two violations); and a
+`confirmed` claim in `claims.lock` that reaches a discovery table by EITHER road
+— citing its `art:` alias as evidence, or quoting a number whose `art` is that
+alias — or that names an S receipt. Both the pinned per-unit table and the
+derived `generation/tables/surprise_<cell>.tsv` are discovery tables; the
+derived one is what findings quote. It WARNs on a bare `S#` in findings §③.
 
 The capability outcome is `registered` (or `n/a` before the first registration)
-with the cell, run, violation, unresolved and post-observation counts.
+with the cell, run, violation, unresolved and post-observation counts, and the
+cells whose inference was at the group level.
 
 ## The exploratory ceiling, and the study that lifts it
 
