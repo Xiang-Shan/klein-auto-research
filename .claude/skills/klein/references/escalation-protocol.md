@@ -80,6 +80,13 @@ of the study. `--allow-late` records a lock after the consult gate and FAILs the
 same check permanently, because a stall rule written once the study is running
 cannot constrain it.
 
+The flag is a write-time confession, not the evidence. `generation verify`
+re-derives the order from the two witnesses a writer does not control: the
+lock's core anchor must precede the consult gate record's sequence, and the
+commit that filed the lock object must be an ancestor of the commit that filed
+the gate record. A hand-written ledger claiming `late: false` after the gate
+fails on both.
+
 ## 2. Triggers are reconstructed, never asserted
 
 A receipt claiming "we were stuck" proves nothing. Every trigger is recomputed
@@ -197,7 +204,7 @@ a WARN: the link is recorded, not verified.
 
 | Check | FAILs on |
 |---|---|
-| `escalation plan` | no lock; a late lock; more than one lock; the file's sha256 no longer matching the lock; a locked document that no longer validates against the contract |
+| `escalation plan` | no lock; a lock whose anchor is at or after the consult gate record, or whose commit is not an ancestor of the gate's (re-derived, never read off the lock's own `late` flag); more than one lock; the file's sha256 no longer matching the lock; a locked document that no longer validates against the contract |
 | `escalation triggers` | a decision citing a trigger the plan does not declare; a `reconstructed_count` that does not recompute from the manifests as of that decision's anchor; a `run` admission granted while a trigger stood tripped with no decision between them. A live tripped trigger with no decision yet is a WARN — the refusal is `check`'s job |
 | `escalation receipts` | an episode number that does not recompute from the chain; an unaccounted rung; a decision naming no changed resource or assumption; an open decision outliving `evidence_window` |
 | `escalation costs` | an estimate or actual missing a unit; an unknown actual with no cost evidence; a budget passed with no prior `extend-budget` decision |

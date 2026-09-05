@@ -37,6 +37,7 @@ from test_workflow_v3 import commit_all, git, metric_command
 
 from kleinlib.generation import escalate as ge
 from kleinlib.generation import manifest as gm
+from kleinlib.primitives import sha256_file
 from kleinlib.workflow import record_gate, run_one
 
 STUDY = "03-demo"
@@ -210,7 +211,54 @@ def test_r_esc_1_a_plan_locked_after_consult_fails_forever(tmp_path: Path) -> No
 
     assert _gen("verify", "--study", str(study)) == 2
     assert [check["status"] for check in _checks(study, ge.PLAN_CHECK)] == ["FAIL"]
-    assert "--allow-late" in _detail(study, ge.PLAN_CHECK)
+    # the FAIL is re-derived from the anchor, not read off the lock's own flag
+    assert "at or after the consult gate record" in _detail(study, ge.PLAN_CHECK)
+
+
+def test_c4_a_lock_that_reports_itself_early_is_still_ordered_by_the_witnesses(
+    tmp_path: Path,
+) -> None:
+    """C-4: `late: false` is testimony; the anchor and git ancestry are not.
+
+    A hand-written ledger can say anything about itself.  This one files a
+    perfectly formed lock object with `late: false` AFTER the consult gate — the
+    exact shape `--allow-late` produces, minus the confession — and the family
+    still refuses it.
+    """
+    from kleinlib.generation.admission import core_anchor
+    from kleinlib.generation.chronology import git_head
+    from kleinlib.generation.ledger import append_event, commit_generation, write_object
+
+    repo, study = _enable(tmp_path, lock=False)
+    _write_plan(study, _plan())
+    document = ge.parse_plan(ge.plan_path(study))
+    obj = ge.lock_object(
+        study="03-demo",
+        document=document,
+        plan_sha256=sha256_file(ge.plan_path(study)),
+        late=False,  # the lie
+    )
+    sha = write_object(study, obj)
+    append_event(
+        study,
+        ge.LOCK_TYPE,
+        study="03-demo",
+        core_anchor=core_anchor(study),  # after the consult gate, in truth
+        git_head=git_head(repo),
+        payload_sha256=sha,
+        plan_sha256=obj["plan_sha256"],
+        triggers=len(document.get("triggers") or []),
+    )
+    commit_generation(
+        study, "klein: a hand-written escalation lock", paths=("generation/events.jsonl", "generation/objects")
+    )
+    commit_all(repo, "the plan file beside it")
+
+    assert _gen("verify", "--study", str(study)) == 2
+    assert [check["status"] for check in _checks(study, ge.PLAN_CHECK)] == ["FAIL"]
+    detail = _detail(study, ge.PLAN_CHECK)
+    assert "at or after the consult gate record" in detail
+    assert "not an ancestor of the consult gate commit" in detail
 
 
 def test_r_esc_1_the_plan_is_validated_before_it_is_locked(tmp_path: Path) -> None:
