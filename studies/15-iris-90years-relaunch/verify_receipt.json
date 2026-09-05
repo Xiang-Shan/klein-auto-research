@@ -197,7 +197,7 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "3e0418fbca36c1fabf54b97549676d42aae5f200",
+  "git_head": "86d5578d7413310c15b34465a3b7721072bc0653",
   "inputs": {
     "aux_metrics.tsv": "27edc17dd92b1e1009ec129d3d12955abb14b374b62643ada6873d82cc0c077b",
     "claims.lock": "7e92dfecbedcbd51acac7d40180663eb66b39368eb2fa94b970903bc1df1e046",
@@ -211,7 +211,7 @@
     "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2",
     "study_state.json": "f8daffb077138e7ea1241ba8770b472ab2a18b6570ea3bbb4fc5e24a0f1a4c05"
   },
-  "klein_commit": "3e0418fbca36c1fabf54b97549676d42aae5f200",
+  "klein_commit": "86d5578d7413310c15b34465a3b7721072bc0653",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "6d7a22c437f934eaba3f22fa7aef47a7ad2d4d9958470bb3b42dbdcf2fd95c7b",
@@ -235,7 +235,7 @@
     "failed": 1,
     "warned": 2
   },
-  "timestamp": "2026-09-05T04:06:10.035530Z",
+  "timestamp": "2026-09-05T04:06:25.288893Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
