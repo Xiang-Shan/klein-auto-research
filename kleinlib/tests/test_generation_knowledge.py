@@ -786,24 +786,25 @@ def test_c5_a_promotion_whose_commit_does_not_resolve_is_checked_on_disk(store) 
     """C-5: `commit: null` used to buy a WARN and skip the strengthening check."""
     repo, alpha = store["repo"], store["alpha"]
     snapshot = gk.snapshot_on_disk(repo)
-    path = gk.objects_dir(repo) / f"{snapshot.shas['K1']}.json"
-    obj = json.loads(path.read_text(encoding="utf-8"))
+    obj = dict(snapshot.objects["K1"])
     obj["commit"] = None
 
     def _rewrite(payload: dict[str, Any]) -> None:
-        # content-addressed: the file is renamed to its own new hash, and the
-        # store event that references it is repointed, so only the promotion
-        # check has anything to say
+        # content-addressed: the store keeps exactly ONE K1 file, named after its
+        # own bytes, and the transaction that references it is repointed by
+        # target — so only the promotion check has anything to say
         from kleinlib.primitives import canonical_json, sha256_bytes
 
         text = canonical_json(payload) + "\n"
         sha = sha256_bytes(text.encode())
-        path.unlink(missing_ok=True)
+        for existing in gk.objects_dir(repo).glob("*.json"):
+            if json.loads(existing.read_text(encoding="utf-8")).get("id") == "K1":
+                existing.unlink()
         (gk.objects_dir(repo) / f"{sha}.json").write_text(text, encoding="utf-8")
         events = gk.events_path(repo)
         rows = [json.loads(line) for line in events.read_text(encoding="utf-8").splitlines() if line.strip()]
         for row in rows:
-            if row.get("object_sha") == snapshot.shas["K1"]:
+            if row.get("target") == "K1":
                 row["object_sha"] = sha
         events.write_text(
             "".join(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in rows),
