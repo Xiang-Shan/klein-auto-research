@@ -134,16 +134,22 @@ hashed and committed first: ignoring one is a detectable, recorded fact.
 | hash | an `accept` whose `changed_artifact_hash` is not a slate object of the phase, or does not descend from the reviewed draft |
 | identity | the reviewer's name matches the roster's `referee` cell (or one of its `model · tool · session` components) |
 | bundle | the input bundle recomputed from the record's introducing commit differs from the hash recorded — including an input that was never committed |
+| document | `premortem/<phase>.yaml` at the commit that FILED the record is not the file the record hashed, or names a different `reviewer` or `inputs` than the record copied — the record and its document are one artifact |
 | immutability | `premortem/<phase>.yaml` is not the bytes the recorded response hashed |
 
 WARNs, which fail nothing: no session receipt (independence is `self-attested`);
-the reviewer matches the roster `experimenter`; a review recorded and not yet
-answered on a phase that has not run; a later review recorded after the phase was
-under way.
+the reviewer matches the roster `experimenter`; **`program.md`'s roster names no
+`referee`, so reviewer independence cannot be established** (once per phase — the
+"reviewer ≠ referee" FAIL is a string comparison, and an absent row makes it
+vacuous rather than satisfied); a review recorded and not yet answered on a phase
+that has not run; a later review recorded after the phase was under way.
 
 The capability entry in `generation/verify_receipt.json` is
-`{"integrity": PASS|FAIL, "outcome": receipted|self-attested|n/a, "phases": {…}}`,
-and `generation/label.json` copies the **outcome**. Integrity is not outcome: a
+`{"integrity": PASS|FAIL, "outcome": receipted|self-attested|incomplete, "phases": {…}}`
+— a DECLARED capability with no review yet is `incomplete`, never `n/a`: `n/a` is
+the label's word for "this study did not declare it", and it comes only from the
+label's own defaults. `generation/label.json` copies the **outcome**. Integrity is
+not outcome: a
 study whose every review is self-attested can still be `generation-verified`.
 
 ## What this establishes, and what it does not

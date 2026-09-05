@@ -174,8 +174,10 @@ is not `<study>#Sn`, does not carry the run's table hash, or has no explanation
 field; and a `confirmed` claim in `claims.lock` that cites a cell table's `art:`
 alias or names an S receipt. It WARNs on a bare `S#` in findings §③.
 
-The capability outcome is `registered` (or `n/a` before the first registration)
-with the cell, run, violation, unresolved and post-observation counts.
+The capability outcome is `registered` (or `incomplete` before the first
+registration — `n/a` means "this study did not declare it", and comes only from
+the label's own defaults) with the cell, run, violation, unresolved and
+post-observation counts.
 
 ## The exploratory ceiling, and the study that lifts it
 
