@@ -367,6 +367,32 @@ def test_v22_an_orphan_object_blocks_check_until_recover_voids_it(enabled_study)
     assert git(repo, "status", "--porcelain") == ""
 
 
+# ---- content addressing (WP-03) ------------------------------------------
+def test_an_object_rewritten_in_place_fails_the_content_address_check(enabled_study) -> None:
+    """The store is content-addressed: a file that stopped hashing to its name lies."""
+    _repo, study = enabled_study
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
+    assert _gen("verify", "--study", str(study)) == 0
+    assert "PASS" in _statuses(_receipt(study), "generation orphans")
+
+    sha = json.loads(
+        (study / "generation" / "events.jsonl").read_text(encoding="utf-8").splitlines()[-1]
+    )["payload_sha256"]
+    path = study / "generation" / "objects" / f"{sha}.json"
+    obj = json.loads(path.read_text(encoding="utf-8"))
+    obj["verdict"] = "admitted"  # it already was; the BYTES are what changed
+    path.write_text(json.dumps(obj, indent=2) + "\n", encoding="utf-8")
+
+    assert _gen("verify", "--study", str(study)) == 2
+    receipt = _receipt(study)
+    assert "FAIL" in _statuses(receipt, "generation orphans")
+    detail = " ".join(
+        check["detail"] for check in receipt["checks"] if check["name"] == "generation orphans"
+    )
+    assert sha[:12] in detail and "content-addressed" in detail
+
+
 def test_v22_an_uncommitted_ledger_blocks_check_until_recover_files_it(enabled_study) -> None:
     """V-22(b): a verb that died after its event, before its commit."""
     repo, study = enabled_study
@@ -561,11 +587,11 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
     sub = [a for a in generation._subparsers._group_actions if a.dest == "generation_action"][0]
     # The spine's six verbs are permanent; each capability package registers its
     # own sub-group beside them (`expert`/`reference` from the expertise package,
-    # `slate` from the slates one, `design` from the evidence-design one), so this
-    # is a subset check, not equality.
+    # `slate` from the slates one, `design` from the evidence-design one,
+    # `premortem` from the pre-mortem one), so this is a subset check, not equality.
     spine = {"init", "check", "verify", "label", "status", "recover"}
     assert spine <= set(sub.choices)
-    assert {"expert", "reference", "slate", "design"} <= set(sub.choices)
+    assert {"expert", "reference", "slate", "design", "premortem"} <= set(sub.choices)
     for verb in sorted(spine):
         assert "--study" in sub.choices[verb].format_help(), verb
     for flag in ("--capability", "--predecessor", "--custody-holder", "--allow-late"):

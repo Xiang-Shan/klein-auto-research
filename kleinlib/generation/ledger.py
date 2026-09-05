@@ -42,6 +42,7 @@ __all__ = [
     "commit_generation",
     "events_path",
     "generation_dir",
+    "mislabelled_object_shas",
     "missing_object_shas",
     "object_path",
     "objects_dir",
@@ -237,6 +238,26 @@ def missing_object_shas(study_dir: Path, events: Sequence[Mapping[str, Any]]) ->
     """Objects an event references that are not on disk."""
     stored = stored_object_shas(study_dir)
     return sorted(referenced_object_shas(events) - stored)
+
+
+# ---- content addressing (WP-03) ------------------------------------------
+def mislabelled_object_shas(study_dir: Path) -> list[str]:
+    """Object files whose CONTENT no longer hashes to their own file name.
+
+    The store is content-addressed by construction — :func:`write_object` names
+    each file after the sha256 of its bytes — so this can only be true after
+    someone rewrote a stored object in place.  The event that references it still
+    carries the old name, so the tamper is otherwise invisible to a reader who
+    trusts the name; here it is one FAIL line naming the file.
+    """
+    directory = objects_dir(study_dir)
+    if not directory.is_dir():
+        return []
+    return sorted(
+        path.stem
+        for path in directory.glob("*.json")
+        if sha256_bytes(path.read_bytes()) != path.stem
+    )
 
 
 # --------------------------------------------------------------------------

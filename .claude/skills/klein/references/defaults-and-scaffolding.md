@@ -78,15 +78,18 @@ Klein scaffolds a canonical layout — do NOT rename these to match an existing 
 <!-- WP-09: design -->
 | `evidence_design.yaml` | what the evidence is FOR: estimand, validity conditions, acquisition custody, warrant, continuation (opt-in, `capabilities: [design]` — `references/generation-protocol.md`, "Evidence design") | authored from `assets/evidence-design-template.yaml`, then frozen by `klein generation design lock` before Gate 1; locked once |
 <!-- end WP-09 -->
+<!-- WP-03: premortem -->
+| `premortem/<phase>.yaml` | the red team's issues on the phase's DRAFT slate, and the driver's disposition of each (opt-in, `premortem` capability — `assets/premortem-template.yaml`) | the reviewer's half written by hand before the final lock and filed by `klein generation premortem record`; the driver's `responses` filed by `respond`, immutable after |
+<!-- end WP-03 -->
 
-The seven `generation/`- and `slates/`-prefixed rows are OPT-IN and schema-3 only:
+The `generation/`-, `slates/`- and `premortem/`-prefixed rows are OPT-IN and schema-3 only:
 `klein new` scaffolds none of them, and a study without `generation/manifest.yaml` is
 untouched by every rule in `references/generation-protocol.md`. `domain_card.md` and
 `evidence_design.yaml` are the opt-in artifacts that live at the study root because
 they are meant to be READ; `knowledge/references/` is the one that lives outside the
 study entirely, because a reference is a fact about the literature rather than about
 one study; `slates/` and `generation/tables/` appear only once a study declares the
-`slates` capability.
+`slates` capability, and `premortem/` only once it declares `premortem` as well.
 
 `data_card.md`, `method_card.md` and `referee_report.md` are NOT scaffolded by
 `klein new` — they are the outputs of the DATA, METHOD and REFEREE gates, authored

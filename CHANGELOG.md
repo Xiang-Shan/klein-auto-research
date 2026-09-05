@@ -117,6 +117,26 @@ version.
   `.claude/skills/klein/references/generation-protocol.md`; template:
   `.claude/skills/klein/assets/evidence-design-template.yaml`.
 <!-- end WP-09 -->
+- **Slate-time pre-mortem (WP-03)** — the `premortem` capability (`klein generation
+  premortem record | respond`), a recorded red team between the draft slate and the
+  first run. `record` binds the sha256 of the DRAFT slate lock, the reviewer, a hashed
+  bundle of exactly the inputs the reviewer was handed, and the issues — each
+  `{id, target, severity, kind, text}`, with the reviewer's own further fields copied
+  verbatim; `respond` binds one disposition per issue. A `blocking` + `mechanical`
+  issue must be `accept`ed with the hash of a NEW slate version descended from the
+  reviewed draft, or `klein generation check --hypothesis` is refused naming the issue
+  ids; a `scientific` objection may be rejected with a rationale, because the reviewer
+  supplies arguments and never a veto. **Nothing scores or ranks**: there is no
+  quality score for an issue and no comparison between candidates. A review recorded
+  after the phase's hypotheses ran FAILs; the reviewer's name matching `program.md`'s
+  roster `referee` FAILs — the proposal critic is not the closing referee; independence
+  is `self-attested` until a session receipt is hashed into the record, and Klein calls
+  no model to produce the review. The input bundle is recomputed at verify time from
+  the commit that introduced the record, and an answered review is immutable. The
+  generation spine's `generation orphans` family additionally FAILs an object file
+  whose bytes no longer hash to its own name. Protocol:
+  `.claude/skills/klein/references/premortem-protocol.md`; template:
+  `.claude/skills/klein/assets/premortem-template.yaml`.
 
 ### Unchanged
 

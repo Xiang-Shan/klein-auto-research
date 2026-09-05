@@ -50,14 +50,34 @@ more fields so the forecast can be scored later against what actually happened:
 Sum the axes. Break ties by expected information, then testability — a decidable
 answer to a live question beats a bold idea the budget cannot judge.
 
-## 3. Record the slate in program.md
+## 3. Pre-mortem the draft — generation-enabled studies that declared `premortem`
+
+Before the slate is final, have someone who is not you read it and write down what
+will go wrong. The order is fixed and it is the whole mechanism:
+
+```
+slate lock (v1 — the DRAFT)  →  premortem record  →  the fixes (slate amend, v2)
+  →  premortem respond  →  the first hypothesis admission
+```
+
+You arrange the review session — a second agent, a colleague, a person — and hand
+the reviewer only the scoped question, the cards, the prior evidence and the draft
+slate. Klein calls no model. `klein generation premortem record` binds the draft's
+hash, the reviewer, the hashed input bundle and the issues; `respond` records one
+disposition per issue. A `blocking` + `mechanical` issue must be `accept`ed with the
+hash of the NEW slate version that fixed it, or no hypothesis of the phase is
+admitted. A scientific disagreement may be rejected with a rationale: the reviewer
+supplies arguments and checks, never a veto, and never a score.
+The reviewer may not be the study's referee — `references/premortem-protocol.md`.
+
+## 4. Record the slate in program.md
 
 Append the scored table, the chosen candidate, and a ONE-line rationale under the
 fixed heading `### Phase <id> slate` (the fixed heading is what makes slates
 greppable across the whole program history). The unchosen candidates are not
 discarded — they are the queue.
 
-## 4. Mirror the survivors into the playbook
+## 5. Mirror the survivors into the playbook
 
 Copy the ranked non-chosen candidates into the playbook's "Next-best candidates"
 section, replacing whatever staled there. When an experiment later lands somewhere

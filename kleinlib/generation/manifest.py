@@ -84,6 +84,8 @@ SUPPORTED_CAPABILITIES: tuple[str, ...] = (
     "slates",
     # --- WP-09: evidence design ---
     "design",
+    # --- WP-03: slate-time pre-mortem ---
+    "premortem",
 )
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {

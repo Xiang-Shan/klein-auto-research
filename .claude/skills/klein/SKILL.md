@@ -84,6 +84,15 @@ registered `P#` whose rule can fire it (an `inconclusive_if` rule or an
 `all_of`/`any_of`/`not` combinator, never a plain leaf). A `--action cell` admission is
 refused until it is locked (`references/generation-protocol.md`, "Evidence design").
 <!-- end WP-09 -->
+<!-- WP-03: premortem -->
+Declaring **`premortem`** (which requires `slates`) puts a recorded red team between
+the draft slate and the first run: `klein generation premortem record` binds the draft
+slate's hash, the reviewer, the hashed input bundle and the issues; `klein generation
+premortem respond` records one disposition per issue, and a `blocking` + `mechanical`
+issue must be accepted with the hash of a NEW slate version before any hypothesis of
+that phase is admitted. The reviewer may not be the roster's referee — the critic is
+not the closing referee (`references/premortem-protocol.md`).
+<!-- end WP-03 -->
 
 ## Setup
 

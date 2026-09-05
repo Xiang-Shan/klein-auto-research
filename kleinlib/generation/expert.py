@@ -74,6 +74,7 @@ __all__ = [
     "lock_targets",
     "normalized_targets",
     "parse_card",
+    "roster_actor",
     "roster_experimenter",
     "verifier_scripts",
 ]
@@ -421,17 +422,20 @@ def verifier_scripts(contract: Mapping[str, Any]) -> set[str]:
     return scripts
 
 
-def roster_experimenter(study_dir: Path) -> str | None:
-    """The ``experimenter`` cell of ``program.md``'s ``## Roster`` table.
+def roster_actor(study_dir: Path, role: str) -> str | None:
+    """One named row's cell of ``program.md``'s ``## Roster`` table.
 
     Testimony, exactly like the referee's independence rung: a self-reported
-    string that says what ran the loop.  A blank or missing row returns None,
-    and independence then cannot be established — the same cap the referee
-    protocol applies.
+    string that says what played a role.  A blank or missing row returns None,
+    and independence against that role then cannot be established — the same cap
+    the referee protocol applies.  ``role`` is any row label the table carries
+    (``experimenter``, ``referee``, …); the capabilities that read them differ,
+    the parsing must not.
     """
     path = study_dir / "program.md"
     if not path.is_file():
         return None
+    wanted = role.strip().lower()
     inside = False
     for line in path.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
@@ -441,9 +445,14 @@ def roster_experimenter(study_dir: Path) -> str | None:
         if not inside or not stripped.startswith("|"):
             continue
         cells = [cell.strip() for cell in stripped.strip("|").split("|")]
-        if len(cells) >= 2 and cells[0].lower() == "experimenter":
+        if len(cells) >= 2 and cells[0].lower() == wanted:
             return cells[1] or None
     return None
+
+
+def roster_experimenter(study_dir: Path) -> str | None:
+    """The ``experimenter`` cell — what the expertise rungs compare against."""
+    return roster_actor(study_dir, "experimenter")
 
 
 def _norm(value: str) -> str:
