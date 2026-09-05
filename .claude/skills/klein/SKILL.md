@@ -73,6 +73,15 @@ hypothesis slate (`klein generation slate lock`, 4–6 authored rows → `<study
 admits runs by `--hypothesis`, and scores the driver's own forecasts at phase end
 (`klein generation slate score` → `generation/tables/slate_calibration_<phase>.tsv`).
 <!-- end WP-02 -->
+<!-- WP-03: premortem -->
+Declaring **`premortem`** (which requires `slates`) puts a recorded red team between
+the draft slate and the first run: `klein generation premortem record` binds the draft
+slate's hash, the reviewer, the hashed input bundle and the issues; `klein generation
+premortem respond` records one disposition per issue, and a `blocking` + `mechanical`
+issue must be accepted with the hash of a NEW slate version before any hypothesis of
+that phase is admitted. The reviewer may not be the roster's referee — the critic is
+not the closing referee (`references/premortem-protocol.md`).
+<!-- end WP-03 -->
 
 ## Setup
 

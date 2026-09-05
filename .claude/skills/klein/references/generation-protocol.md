@@ -32,11 +32,13 @@ Each capability adds one verb group beside those six. This release ships one:
 
 ```bash
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
+uv run --locked klein generation premortem record|respond    --study studies/NN-slug --phase <id>
 ```
 
-Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`) takes
-the four **testimony** flags `--actor --tool --model --session`; `verify`, `status` and
-`slate show` write no event and take none.
+Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
+`premortem record|respond`) takes the four **testimony** flags
+`--actor --tool --model --session`; `verify`, `status` and `slate show` write no event
+and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -73,8 +75,9 @@ contribution, surprise, escalation, knowledge, benchmark, design` — and a vers
 availability. A name outside the vocabulary is refused as *unknown*; a known name this
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
-`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise` and
-`slates`** (see `references/expert-protocol.md` and "Slates and calibration" below);
+`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
+`slates` and `premortem`** (see `references/expert-protocol.md`, "Slates and
+calibration" below, and `references/premortem-protocol.md`);
 the rest ship later and are refused as *not available* until they do. Opting in with `capabilities: []` still buys the admission discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
 `generation_amended` events which may only ADD capabilities; each addition is reported
