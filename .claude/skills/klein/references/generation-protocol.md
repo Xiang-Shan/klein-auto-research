@@ -28,12 +28,12 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships nine
-here (`expertise` has its own two groups — see `references/expert-protocol.md` and
-`references/reference-protocol.md`), plus one group that belongs to no capability
-at all:
+Beside those six, each capability adds its own verb group — plus one group that
+belongs to no capability at all. Every group in this release, in dependency order:
 
 ```bash
+uv run --locked klein generation expert lock|amend|bind|repair|review --study studies/NN-slug
+uv run --locked klein generation reference record                     --study studies/NN-slug
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
 uv run --locked klein generation design lock                 --study studies/NN-slug [--allow-late]
 uv run --locked klein generation premortem record|respond    --study studies/NN-slug --phase <id>
@@ -46,13 +46,22 @@ uv run --locked klein generation benchmark commit|submit|reveal|retire|show --st
 uv run --locked klein generation custody attest              --study studies/NN-slug
 ```
 
+`expert` and `reference` are the two groups of the single `expertise` capability
+(`references/expert-protocol.md`, `references/reference-protocol.md`). Each group from
+`slate` to `benchmark` is one capability, named the same but for two: the `slate` group
+is the `slates` capability and the `escalate` group is `escalation`. A capability not
+declared at `init` is inert: its verbs exit 1 rather than write, because the opt-in is
+immutable and a study that wants one declares it at `init` or succeeds itself.
+
 `custody attest` is **capability-agnostic**: it needs the opt-in and nothing else,
 because a hidden benchmark bundle, a custodian-held later time block and a wet-lab
 sample chain are the same receipt (`references/planted-truth-protocol.md`).
 
-Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
-`design lock`, `premortem record|respond`, `parity lock|amend|bind|assess`,
-`contribution record`, `escalate lock|record|close|pivot`,
+Every WRITING verb (`init`, `check`, `label`, `recover`,
+`expert lock|amend|bind|repair|review`, `reference record`,
+`slate lock|amend|score`, `design lock`, `premortem record|respond`,
+`parity lock|amend|bind|assess`, `contribution record`,
+`escalate lock|record|close|pivot`,
 `knowledge promote|contest|resolve|query|decide`, `surprise register|record`,
 `benchmark commit|submit|reveal|retire`, `custody attest`) takes the four
 **testimony** flags `--actor --tool --model --session`; `verify`, `status`,
@@ -148,7 +157,7 @@ no off-notary path. The receipt object records:
 |---|---|
 | `checkpoint`, `track`, `intended_action` | what is about to be run, and which predictions it adjudicates |
 | `surface_digest`, `surface_files` | the exact bytes of `entrypoint.mutable`, AS ON DISK |
-| `inputs` | the manifest hash, and the hashes of the commitments in force — the locked slate, the locked design, the cells registration (pre-mortem and parity ship later) |
+| `inputs` | the manifest hash, plus six fixed slots a declared capability may FILL and none may add to: `slate`, `premortem`, `parity`, `cells`, `design`, `benchmark` — the commitments in force, null when the capability is not declared or cannot resolve its artifact yet |
 | `protocol_hashes` | which rules the receipt was taken under |
 | `core_anchor` | the core chain tip at write time |
 | `verdict`, `reasons` | `admitted` or `refused`, and why |
@@ -388,12 +397,24 @@ Generation label: generation-verified @ <git_head[:12]>
 `generation verify` checks that quotation from then on — the same discipline
 `finalize` applies to its own label.
 
+`generation/label.json` carries exactly these fields:
+
+| Field | What it says |
+|---|---|
+| `schema`, `kind` | `klein-generation/1`, `label` |
+| `study` | the study's own id |
+| `label` | always `generation-verified` — the one label this verb issues |
+| `git_head` | HEAD at issue; the findings line quotes its first 12 characters |
+| `core_receipt_sha256`, `generation_receipt_sha256` | the two receipts that passed together |
+| `capabilities` | every name of the ten-name vocabulary, mapped to the OUTCOME its family reported, `n/a` for the rest — the key set is stable across releases |
+| `rung` | `local-order` |
+
 **Integrity is not outcome.** `generation-verified` says the record is intact and every
 action was admitted before it ran. It says nothing about whether the research
 succeeded: an honestly stopped study with every capability outcome `incomplete` can
-carry it, and a spectacular result with one unadmitted run cannot. The label is
-capability-scoped — every capability this version cannot score is listed `n/a` — and
-its `rung` is `local-order`.
+carry it, and a spectacular result with one unadmitted run cannot. The label copies
+each declared capability's outcome and never its integrity — which the label as a whole
+already carries — and its `rung` is `local-order`.
 
 ## Recovery
 
@@ -421,7 +442,10 @@ files with them — `domain_card.md`, `slates/<phase>.yaml`, `premortem/<phase>.
 `benchmark-submission.schema.json` and `submissions/<arm>.json` — and the two
 REPO-level stores that are facts about the repository rather than one study:
 `knowledge/references/<id>.json` and `knowledge/objects/<sha256>.json` with
-`knowledge/events.jsonl`. They never write `study_state.json`, the core
+`knowledge/events.jsonl`. The one verb that files paths it is not given in advance is
+`expert repair`, which commits exactly the repaired files it recorded — minus anything
+in the mutable surface, which `run-one` owns and which filing would silently move the
+restore anchor. They never write `study_state.json`, the core
 `events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`. An
 in-flight edit to the mutable surface is the operator's and stays theirs.
 

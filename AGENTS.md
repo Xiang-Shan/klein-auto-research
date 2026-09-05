@@ -345,7 +345,8 @@ citations are filed under `docs/reviews/`.
   which belongs to no capability and any generation-enabled study may record. It is
   schema-3 only and writes
   nothing outside `<study>/generation/` except the human artifacts a capability names —
-  `domain_card.md`, `evidence_design.yaml`, `parity.yaml`, `escalation_plan.yaml`,
+  `domain_card.md`, `slates/<phase>.yaml`, `evidence_design.yaml`,
+  `premortem/<phase>.yaml`, `parity.yaml`, `ai_value.jsonl`, `escalation_plan.yaml`,
   `discovery_cells.yaml`, `benchmark.yaml`, the copied
   `benchmark-submission.schema.json` and `submissions/<arm>.json` at the study root,
   and repo-level `knowledge/references/<id>.json`, `knowledge/objects/<sha256>.json`

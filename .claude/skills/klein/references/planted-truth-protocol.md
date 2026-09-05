@@ -87,7 +87,7 @@ once and the terms are frozen from that moment.
 | `private_commitment` | computed by `commit` as `sha256(salt ‖ canonical bundle bytes)`, beside `sha256(salt)` |
 | `custody` | the declared holder and mechanism, and the attestation document if there is one |
 | `arms[]` | `id`, `description`, `model`, `framework` (`klein-2.1` / `klein-2.0` / `none`), `budget` — arms without matched resources were not compared |
-| `submission_schema` | the participant-facing contract, copied into the study by `commit` and hashed there |
+| `submission_schema` | the participant-facing contract — `assets/benchmark-submission.schema.json`, copied into the study by `commit` and hashed there |
 | `hypothesis_cap` | at most this many structures per arm (A5 suggests six) — the cap is what makes precision mean something |
 | `matching_rule` | `variables: exact`, `relationship: exact`, `direction: sign`, and `context:` as a preregistered SENTENCE |
 | `false_positive_penalty` | charged per submitted structure that matches no planted truth |
@@ -227,10 +227,11 @@ which is which.
 - **`benchmark custody`** — never a FAIL. An attestation is a PASS that says
   `TESTIMONY`; its absence is a WARN and the outcome `unverified`.
 
-The capability outcome is `scored`, `unscored`, `unverified` (nobody attested
-custody) or `retired`, reported beside `custody` and the per-arm numbers. The
-label copies the outcome; integrity is reported separately, as everywhere in this
-layer.
+The capability outcome is decided in one fixed precedence — `retired`, then
+`unverified` (nobody attested custody), then `scored`, then `unscored` — and is
+reported beside `custody` (`custodied` or `unverified`) and the per-arm numbers.
+The label copies the outcome; integrity is reported separately, as everywhere in
+this layer.
 
 ## 7. Custody, retirement, and the failures neither closes
 

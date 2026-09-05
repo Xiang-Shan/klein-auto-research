@@ -172,7 +172,10 @@ predecessor's `study.yaml` **as committed**, and the successor's), the successor
 id, the **inherited exposure** (each spent seal, the development partition every
 adaptive run has read, every scouted id, plus anything Klein cannot see, passed
 with `--inherited kind=ref`), and every `<study>#Hn` / `<study>#Sn` id the
-predecessor issued.
+predecessor issued. A pivot out of a screen is the usual case for the `#Sn` half:
+a surprising segment is confirmed only by a separately registered `test` study on
+rows the selection never saw, and this receipt is what says which rows those are
+(`references/surprise-protocol.md`).
 
 The successor cites the receipt back:
 

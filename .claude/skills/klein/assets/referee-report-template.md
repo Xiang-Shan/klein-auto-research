@@ -1,11 +1,15 @@
 Verdict: {{PASS | PASS-WITH-NOTES | FAIL}}
 Referee: {{ACTOR}} ({{TOOL / MODEL}}) · fresh context · independent-of-experimenter: {{yes|no}}
+Generation: n/a
 
 # Referee report — {{STUDY_ID}}
 
 > Gate 3 (REFEREE). Written in a fresh context, from `findings.md` first and
 > `program.md` last. Protocol: `.claude/skills/klein/references/referee-protocol.md`.
-> The two lines above are machine-read by `klein gate record referee`.
+> The first two lines above are machine-read by `klein gate record referee`; the
+> third is read by people. Leave `Generation:` at `n/a` unless the study has a
+> `generation/manifest.yaml`, in which case it is `verified` or `failed` — read
+> off `generation/verify_receipt.json`, never re-derived by hand.
 
 ## Independence
 

@@ -14,23 +14,29 @@ registration line.  The verbs are the protocol's
     klein generation label   --study <dir>
     klein generation status  --study <dir>
     klein generation recover --study <dir>
-    klein generation slate   lock|amend|score|show --study <dir> --phase <id>
 
 Capability packages add their own sub-groups the same way — one
 ``_register_<name>`` call at the end of :func:`register`, one delimited block of
-handlers below, and no edit to the spine's verbs
-(``references/expert-protocol.md``, ``references/reference-protocol.md``):
+handlers below, and no edit to the spine's verbs.  One line per group, in the
+order of :data:`kleinlib.generation.capabilities.MODULES`:
 
-    klein generation expert    lock | amend | bind | repair | review
-    klein generation reference record
-    klein generation premortem record | respond --study <dir> --phase <id>
+    klein generation expert       lock | amend | bind | repair | review
+    klein generation reference    record
+    klein generation slate        lock | amend | score | show --phase <id>
+    klein generation design       lock
+    klein generation premortem    record | respond --phase <id>
     klein generation parity       lock | amend | bind | assess | show
     klein generation contribution record | show
-    klein generation escalate  lock | record | close | pivot | show
-    klein generation knowledge promote | contest | resolve | query | decide | show
-    klein generation surprise  register | record | show
-    klein generation benchmark commit | submit | reveal | retire | show
-    klein generation custody   attest
+    klein generation escalate     lock | record | close | pivot | show
+    klein generation knowledge    promote | contest | resolve | query | decide | show
+    klein generation surprise     register | record | show
+    klein generation benchmark    commit | submit | reveal | retire | show
+    klein generation custody      attest
+
+``expert`` and ``reference`` are both the ``expertise`` capability
+(``references/expert-protocol.md``, ``references/reference-protocol.md``);
+``custody`` belongs to no capability at all and any generation-enabled study may
+record one.  Every group takes ``--study <dir>``.
 
 **The subpackage is imported inside the handlers, never at module scope.**
 ``register`` builds argparse and nothing else, so a defect in

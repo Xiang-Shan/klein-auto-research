@@ -131,7 +131,7 @@ Rules that follow from the table:
 `klein claims verify` resolves every id a claim cites; an id that resolves nowhere fails
 the study.
 
-<!-- WP-06: generation records -->
+<!-- generation records (multi-capability) -->
 ### Generation records (schema 3, opt-in)
 
 A study that opted into the generation layer carries a second family of ids. They are
@@ -141,16 +141,19 @@ them (deferral D-4). They are always written fully qualified.
 
 | Form | Resolves to |
 |---|---|
+| `<study>#Hn` | one row of a locked hypothesis slate: its statement, track, forecast `p_success`, provenance, axis scores and `success_P` (`references/generation-protocol.md`, "Slates and calibration"). Permanent and never recycled; an admitted run binds to it through the receipt, never through prose. |
 | `<study>#Sn` | one surprise receipt: a violating segment of a registered discovery cell, with its pinned table (`references/surprise-protocol.md`). A **bare `S#` is a scouting-ledger entry**, not this. |
 | `<study>#Dn` | one escalation decision: the trigger it answers, the rung, the rungs skipped with reasons, the changed resource, its costs, and the condition that would close it (`references/escalation-protocol.md`). A pivot additionally links a predecessor and a successor contract. |
+| `knowledge/objects/<sha256>.json` | a promoted claim or method card, addressed by its own content hash rather than a `<study>#…` id, with its `promote` / `contest` / `resolve` transactions on `knowledge/events.jsonl` (`references/knowledge-protocol.md`) |
+| `generation/objects/<sha256>.json` | any other generation record with no id grammar of its own — an admission receipt, a benchmark commitment or reveal, a custody attestation — cited by its object sha (`references/planted-truth-protocol.md`) |
 
 An `Sn` is exploratory by construction: `klein generation verify` FAILs a `confirmed`
 claim that cites a discovery cell's table or names a receipt, and the confirmation is a
-separately registered `test` study on rows the selection never saw.
-
-Promoted knowledge objects are addressed by their own content hash under
-`knowledge/objects/`, not by a `<study>#…` id (`references/knowledge-protocol.md`).
-<!-- end WP-06 -->
+separately registered `test` study on rows the selection never saw. A benchmark's
+recovery numbers are the same: they live in the pinned `tables/benchmark_scores.tsv`,
+reach a claim through its `art:` alias, and carry the benchmark outcome
+(`retired | unverified | scored | unscored`) with its `custody` reading beside them.
+<!-- end generation records -->
 
 ## Per-kind requirements at CONSULT
 

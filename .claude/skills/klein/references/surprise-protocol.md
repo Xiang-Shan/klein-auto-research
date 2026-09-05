@@ -195,6 +195,13 @@ successor inherits in its own manifest (`predecessor`). A successor id restores
 no blindness — what it buys is that the confirmation is measured on rows the
 selection never saw.
 
+On a study that also declares `escalation`, that hand-off has a machine record:
+`klein generation escalate pivot` files the lineage — both contract hashes, the
+inherited exposure, and every `<study>#Hn` / `<study>#Sn` id the predecessor issued
+— and the successor cites the receipt back at `generation init --predecessor …
+--successor-receipt …` (`references/escalation-protocol.md`). Without that
+capability the same link is prose, and the referee reads it as prose.
+
 ## What this establishes, and what it does not
 
 It establishes that these cells, these segments, these adapters and these inputs

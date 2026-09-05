@@ -41,6 +41,15 @@ version.
   `outcome` (what the research got) separately — the label copies the outcome, the
   spine judges only the integrity — and a study with `capabilities: []` runs no family,
   so its receipt is byte-for-byte the one the spine already produced.
+- `Capability.receipt_inputs` — a registered capability may FILL one of the admission
+  receipt's six existing `inputs` slots (`slate`, `premortem`, `parity`, `cells`,
+  `design`, `benchmark`) beside the spine's own `manifest` — the `slates` capability, for
+  instance, pins the lock's object sha in `inputs.slate`. The receipt's key set stays the
+  spine's — no capability may add a key — and a study that declares nothing gets the
+  receipt it always got.
+
+The ten capabilities follow, in the order the spine loads them — dependencies first.
+
 <!-- WP-01 -->
 - **The `expertise` capability — acquire the domain, then prove you acquired it**
   (`klein generation expert lock | amend | bind | repair | review`). A declaring study
@@ -89,12 +98,8 @@ version.
   and the phase ritual is still not automated. Protocol:
   `references/generation-protocol.md` "Slates and calibration"; template:
   `.claude/skills/klein/assets/slate-template.yaml`.
-- `Capability.receipt_inputs` — a registered capability may FILL one of the admission
-  receipt's existing `inputs` slots (the `slates` capability pins the lock's object sha
-  in `inputs.slate`). The receipt's key set stays the spine's, and a study that declares
-  nothing gets the receipt it always got.
 <!-- WP-09 -->
-- **Evidence design (WP-09) — what the evidence is FOR, locked before the DATA gate**
+- **Evidence design — what the evidence is FOR, locked before the DATA gate**
   (`klein generation design lock`, capability `design`). A declaring study freezes
   `evidence_design.yaml` into the extension chain before Gate 1: the Question's estimand,
   population, units, measurement process, identification assumptions and intended
@@ -118,7 +123,7 @@ version.
   `.claude/skills/klein/references/generation-protocol.md`; template:
   `.claude/skills/klein/assets/evidence-design-template.yaml`.
 <!-- end WP-09 -->
-- **Slate-time pre-mortem (WP-03)** — the `premortem` capability (`klein generation
+- **Slate-time pre-mortem** — the `premortem` capability (`klein generation
   premortem record | respond`), a recorded red team between the draft slate and the
   first run. `record` binds the sha256 of the DRAFT slate lock, the reviewer, a hashed
   bundle of exactly the inputs the reviewer was handed, and the issues — each
@@ -138,7 +143,7 @@ version.
   whose bytes no longer hash to its own name. Protocol:
   `.claude/skills/klein/references/premortem-protocol.md`; template:
   `.claude/skills/klein/assets/premortem-template.yaml`.
-- **Expert parity and contribution ledger (WP-04)** — two more registered capabilities.
+- **Expert parity and contribution ledger** — two more registered capabilities.
   `parity` (`klein generation parity lock | amend | bind | assess | show`) turns "the AI
   matched the expert" into a commitment made before the evidence: `parity.yaml` is locked
   at CONSULT with both pipelines and their selection rules, the sampling unit and
@@ -167,7 +172,7 @@ version.
   study. Protocol: `references/expert-parity-protocol.md`; templates:
   `.claude/skills/klein/assets/parity-template.yaml` and `assets/parity_score_template.py`.
 <!-- WP-07 -->
-- **The escalation ladder and successor studies (WP-07) — getting unstuck, accounted
+- **The escalation ladder and successor studies — getting unstuck, accounted
   for** (`klein generation escalate lock | record | close | pivot | show`, capability
   `escalation`). A declaring study freezes `escalation_plan.yaml` before the CONSULT
   gate: the triggers a stall is RECONSTRUCTED from — `consecutive_discards` through the
@@ -201,7 +206,7 @@ version.
   `.claude/skills/klein/assets/escalation-plan-template.yaml`.
 <!-- end WP-07 -->
 <!-- WP-08 -->
-- **Cross-study knowledge (WP-08) — transactions over pinned evidence** (the
+- **Cross-study knowledge — transactions over pinned evidence** (the
   `knowledge` capability; `klein generation knowledge promote | contest | resolve |
   query | decide | show`). The markdown under `knowledge/` keeps its typed claim
   citations and is never rewritten; beside it, a **repo-level** store of write-once
@@ -263,7 +268,7 @@ version.
   `.claude/skills/klein/assets/discovery_cell_template.py`.
 <!-- end WP-06 -->
 <!-- WP-05 -->
-- **Planted-truth benchmark and custody receipts (WP-05)** — the `benchmark`
+- **Planted-truth benchmark and custody receipts** — the `benchmark`
   capability (`klein generation benchmark commit | submit | reveal | retire | show`),
   plus one verb group that belongs to no capability at all,
   `klein generation custody attest`. `commit` freezes `benchmark.yaml` after the
@@ -296,6 +301,25 @@ version.
   `assets/benchmark-template.yaml`, `assets/benchmark-submission.schema.json` and
   `assets/score_submissions_template.py`.
 <!-- end WP-05 -->
+<!-- WP-10: docs -->
+- **The documentation surface says the same thing everywhere.** `AGENTS.md` and
+  `CLAUDE.md` carry the layer in one paragraph and one verb list — no new lifecycle
+  stage; `SKILL.md`'s stage table names the generation verbs used at each EXISTING
+  stage; `references/generation-protocol.md` lists every verb group, the six receipt
+  input slots, the dependency table, the eight verify families and the label's fields
+  as the code has them, and states once what the mechanism does not establish;
+  `references/inquiry-model.md` carries one table of the generation record ids
+  (`#Hn`, `#Sn`, `#Dn`, knowledge objects, generation objects) and the rule that they
+  reach a claim only through an `art:` alias; `references/referee-protocol.md` carries
+  one "Generation addenda" subsection — the ten core checks unchanged — with a reading
+  obligation per capability and the report's separate `Generation:` line, now in
+  `assets/referee-report-template.md`; and
+  `references/defaults-and-scaffolding.md` has a row per artifact the layer writes,
+  with the verb that writes it. `scripts/tests/test_docs_integrity.py` now checks the
+  `.yaml` / `.json` / `.py` templates protocols name, not only the `.md` and `.toml`
+  ones, and fails a packaged asset no protocol points at — the mirror of the
+  orphan-protocol check that has guarded `references/` since 2.0.
+<!-- end WP-10 -->
 
 ### Unchanged
 

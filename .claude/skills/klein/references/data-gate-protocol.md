@@ -159,6 +159,14 @@ about the generating process, because it knows nothing about it. A participant c
 that describes the truth has either leaked it or invented it, and both are BLOCKERs.
 The custodian's own card is written before the commitment and hashed with it; neither
 card's generation narrative enters the clean-room leakage audit.
+
+The receipt behind that one line — `klein generation custody attest` — is
+**capability-agnostic**: it needs the generation opt-in and nothing else. A study whose
+later time block is held by a colleague, whose wet-lab samples are held by a lab, or
+whose sealed extract is held by a vendor records exactly the same testimony, and a card
+that says "custodian-held later block" should name the attestation beside the holder.
+Testimony, never a verification: a hash proves the bytes did not change, never that
+nobody read them.
 <!-- end WP-05 -->
 
 ## 4. Rank the issues

@@ -104,6 +104,32 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   preregistered rather than widened once it was clear which arm it would fail. Both
   are yours (`references/planted-truth-protocol.md`).
 <!-- end WP-05 -->
+<!-- WP-07: escalation -->
+- **Escalation.** Read `escalation_plan.yaml` and every `<study>#Dn` decision: confirm
+  each names the trigger it answers, the rung taken, the lower rungs skipped WITH their
+  reasons, and the concrete resource or assumption that changed — and that findings
+  describe the escalation in those terms rather than as a change of mind. A pivot's
+  successor lineage (both contract hashes, the inherited exposure, the `#Hn` / `#Sn` ids
+  handed over) is the one place a reader can see what blindness the successor does NOT
+  have. Whether work labelled "method family" deserves that rung is your judgement, not
+  the machine's (`references/escalation-protocol.md`).
+<!-- end WP-07 -->
+<!-- WP-08: knowledge -->
+- **Knowledge.** Read the pre-CONSULT `knowledge query` receipt and any contests:
+  confirm the study's prose reflects the hits it recorded — including a hit it rejected
+  and a contest closure it saw — and that an imported claim is never written up as
+  stronger than the class and strength copied from its source lock. `lex-1` retrieval
+  replays, which proves what the study SAW; whether the field was searched adequately is
+  yours (`references/knowledge-protocol.md`).
+<!-- end WP-08 -->
+<!-- WP-06: surprise -->
+- **Surprise.** Read `discovery_cells.yaml`, the pinned per-unit tables and every
+  `<study>#Sn` receipt: confirm the COMPLETE inventory is reported — nulls and
+  `inconclusive` slices included, not only the violations — that an `unresolved`
+  explanation is left as `unresolved` rather than narrated, and that no `confirmed`
+  claim rests on a screen. Whether a segmentation is scientifically meaningful is
+  yours (`references/surprise-protocol.md`).
+<!-- end WP-06 -->
 
 Add one line beneath the two machine-read lines of the report:
 
