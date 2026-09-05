@@ -1,0 +1,116 @@
+# benchmark.yaml — the terms of a planted-truth benchmark, frozen before anyone looks.
+#
+# Copy to <custodian study>/benchmark.yaml, fill it in, then:
+#   uv run --locked klein generation benchmark commit --study studies/NN-slug \
+#       --private <path to the private bundle> --salt-file <path to the salt>
+#
+# This file lives in the CUSTODIAN's study — an ordinary `simulate` study that
+# declares `--capability benchmark` at `klein generation init` and holds the full
+# DGP card, the generator, the seed blocks, the structural truth and the scorer.
+# Each PARTICIPANT owns a separate `discover` study, on a separate machine, that
+# receives the public bundle only and declares no `benchmark` capability.
+#
+# `commit` refuses a file that does not validate, computes the public bundle's
+# digest and the salted private commitment, pins the scorer and the submission
+# schema, and hashes this file. Every field below is then immutable.
+# Protocol: references/planted-truth-protocol.md.
+
+type: benchmark
+study: NN-slug                      # the CUSTODIAN study's id
+
+# The registered track whose single sealed cell scores every arm (R-BEN-4).
+# It must exist in study.yaml with `mode: registered`.
+scoring_track: scoring
+
+# What participants receive. `sha256` may be left null: `commit` computes it from
+# the path and refuses a declared value that disagrees with what is on disk.
+public_bundle:
+  path: bundles/public
+  sha256: null
+
+# The structural truth, INSIDE the private bundle, as a study-relative path.
+# It does not exist until `reveal`; its bytes are covered by the commitment.
+# Shape: {"structures": [{"id", "variables": [...], "relationship", "direction",
+#                         "context", "seed_block"}, ...]}
+# A null-only benchmark declares `structures: []`: recall is then undefined and
+# the false-positive rate is the whole result.
+truth_file: bundles/private/truth.json
+
+# Computed by `commit` as sha256(salt || canonical bytes of the private bundle),
+# beside sha256(salt). The SALT ITSELF NEVER ENTERS THE REPOSITORY — it stays
+# with the custodian and is supplied again at `reveal`. Leave this null and let
+# `commit` fill the object, or declare values you computed by hand and have them
+# cross-checked.
+private_commitment: null
+
+# The custody POLICY. The custody TESTIMONY is a separate record:
+#   uv run --locked klein generation custody attest --study … \
+#       --holder … --mechanism … --statement …
+# Without one the benchmark outcome is reported `unverified`. Isolation is
+# accounts, containers or machines with denied access — another directory of the
+# same readable worktree is not custody, and a hash is not secrecy.
+custody:
+  holder: the named custodian
+  mechanism: separate accounts on separate machines; participants have no read path
+  attestation: null                 # or a study-relative path to the signed document
+
+# The arms. `framework: none` is the AI-free control. Budgets are what makes the
+# arms comparable at all, so every arm declares its own.
+arms:
+  - id: arm-a
+    description: novice team with the generation layer
+    model: <the model that drove it>
+    framework: klein-2.1
+    budget: {person_hours: 3}
+  - id: arm-b
+    description: AI-free expert control with matched information and effort
+    model: none
+    framework: none
+    budget: {person_hours: 3}
+
+# The participant-facing submission contract, copied into the study by `commit`
+# from assets/benchmark-submission.schema.json and hashed there.
+submission_schema: benchmark-submission.schema.json
+
+# At most this many structures per arm (A5 §3 suggests six). The cap is what
+# makes precision mean something.
+hypothesis_cap: 6
+
+# Fixed at METHOD, before any submission (R-BEN-2). The three mechanical
+# conditions this version implements are the only values accepted; `context` is a
+# preregistered SENTENCE the custodian adjudicates per row and records in the
+# pinned table's `context_ok` column. Verification re-applies the three and takes
+# `context_ok` from the table — the oracle's judgement stays labelled.
+matching_rule:
+  variables: exact
+  relationship: exact
+  direction: sign
+  context: >-
+    the claimed context must name the same habitat stratum the planted structure
+    was generated in; a claim that holds "everywhere" does not match a
+    stratum-specific truth
+
+# Charged per submitted structure that matches no planted truth.
+false_positive_penalty: 1.0
+
+# The registered predictions each arm's recovery adjudicates. Every id must be in
+# study.yaml's `predictions` and belong to `scoring_track`.
+recovery_predictions:
+  arm-a: [P1, P2]
+  arm-b: [P3, P4]
+
+# Disjoint by construction: a block handed out as development data is never
+# scored as sealed evidence (R-BEN-4).
+seed_blocks:
+  development: [dev-1, dev-2]
+  sealed: [sealed-1, sealed-2]
+
+# The only policy this version implements: every arm submits, then the bundle is
+# revealed, then the scoring cell is sealed.
+reveal_policy: after-all-arms
+
+# The study-local scorer, hashed by `commit` and re-read at the scoring cell's
+# candidate commit. NEVER in the mutable surface: the checker is never the
+# searcher (assets/score_submissions_template.py).
+scorer:
+  path: lib/score_submissions.py

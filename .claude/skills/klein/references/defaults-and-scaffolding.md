@@ -87,6 +87,13 @@ Klein scaffolds a canonical layout — do NOT rename these to match an existing 
 | `tables/parity_units.tsv` | one row per sampling unit, both pipelines' contribution per metric — the pinned evidence the verdict recomputes from | written by the sealed comparison cell; pinned with an `artifact:` line |
 | `ai_value.jsonl` | the append-only contribution ledger: proposals, decisions, rejections, errors (opt-in, `contribution` capability) | appended by `klein generation contribution record`; never edited |
 <!-- end WP-04 -->
+<!-- WP-05: benchmark + custody -->
+| `benchmark.yaml` | the CUSTODIAN's planted-truth terms: public bundle, salted commitment, custody, arms and budgets, cap, matching rule, penalty, disjoint seed blocks, recovery `P#`s (opt-in, `benchmark` capability — `assets/benchmark-template.yaml`) | written by hand at METHOD, then frozen by `klein generation benchmark commit` before any participant access; committed ONCE |
+| `benchmark-submission.schema.json` | the participant-facing submission contract | copied into the study by `benchmark commit` from the packaged asset and hashed there; never edited afterwards |
+| `submissions/<arm>.json` | one arm's frozen, ranked structures, byte-identical to what the participant produced | imported by `klein generation benchmark submit --arm`; never edited |
+| `lib/score_submissions.py` | the custodian's scorer of the sealed scoring cell (`assets/score_submissions_template.py`) | written by hand at METHOD; NEVER in the mutable surface; hashed by `benchmark commit` |
+| `tables/benchmark_scores.tsv` | one row per arm × submitted structure with its match result — the pinned evidence verify recomputes from | written by the sealed scoring cell; pinned with an `artifact:` line |
+<!-- end WP-05 -->
 
 The `generation/`-, `slates/`- and `premortem/`-prefixed rows are OPT-IN and schema-3 only:
 `klein new` scaffolds none of them, and a study without `generation/manifest.yaml` is
@@ -102,6 +109,13 @@ appear the same way, once a study declares `parity` or `contribution` — the fi
 at the study root because the criteria and the checker are meant to be READ, and
 `lib/parity_score.py` deliberately outside `entrypoint.mutable`.
 <!-- end WP-04 -->
+<!-- WP-05 -->
+The `benchmark`-prefixed rows and `submissions/` belong to the CUSTODIAN study alone
+(`references/planted-truth-protocol.md`); a participant's `discover` study declares no
+`benchmark` capability and scaffolds none of them. `lib/score_submissions.py` sits
+outside `entrypoint.mutable` for the same reason `lib/parity_score.py` does — the
+checker is never the searcher.
+<!-- end WP-05 -->
 
 `data_card.md`, `method_card.md` and `referee_report.md` are NOT scaffolded by
 `klein new` — they are the outputs of the DATA, METHOD and REFEREE gates, authored

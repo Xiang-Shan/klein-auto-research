@@ -146,6 +146,21 @@ the evidence was generated stay OUTSIDE the clean-room leakage audit — the aud
 the prepared table and the split index, and a provenance story is neither.
 <!-- end WP-09 -->
 
+<!-- WP-05: planted-truth benchmarks -->
+**Planted-truth benchmarks: the DGP card belongs to the custodian.** A benchmark
+splits one simulation across two studies, so the `## DGP card` above splits with it
+(`references/planted-truth-protocol.md`). The CUSTODIAN's `simulate` study carries the
+card **in full** — generating process, every parameter, the seed blocks for
+development and sealed, the sample sizes, what "recover" means numerically — and that
+is where the simulation disclosure requirement is satisfied. Each PARTICIPANT's
+`discover` study carries a card that says, in one line, **"observations only; truth
+custodied by `<holder>`"**, names the public bundle and its hash, and declares nothing
+about the generating process, because it knows nothing about it. A participant card
+that describes the truth has either leaked it or invented it, and both are BLOCKERs.
+The custodian's own card is written before the commitment and hashed with it; neither
+card's generation narrative enters the clean-room leakage audit.
+<!-- end WP-05 -->
+
 ## 4. Rank the issues
 
 List issues most-severe first, each with a severity and a recommended action:

@@ -28,7 +28,8 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships five:
+Each capability adds one verb group beside those six. This release ships six,
+plus one group that belongs to no capability at all:
 
 ```bash
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
@@ -36,13 +37,20 @@ uv run --locked klein generation design lock                 --study studies/NN-
 uv run --locked klein generation premortem record|respond    --study studies/NN-slug --phase <id>
 uv run --locked klein generation parity lock|amend|bind|assess|show --study studies/NN-slug
 uv run --locked klein generation contribution record|show    --study studies/NN-slug
+uv run --locked klein generation benchmark commit|submit|reveal|retire|show --study studies/NN-slug
+uv run --locked klein generation custody attest              --study studies/NN-slug
 ```
+
+`custody attest` is **capability-agnostic**: it needs the opt-in and nothing else,
+because a hidden benchmark bundle, a custodian-held later time block and a wet-lab
+sample chain are the same receipt (`references/planted-truth-protocol.md`).
 
 Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
 `design lock`, `premortem record|respond`, `parity lock|amend|bind|assess`,
-`contribution record`) takes the four **testimony** flags
-`--actor --tool --model --session`; `verify`, `status`, `slate show`, `parity show`
-and `contribution show` write no event and take none.
+`contribution record`, `benchmark commit|submit|reveal|retire`, `custody attest`)
+takes the four **testimony** flags `--actor --tool --model --session`; `verify`,
+`status`, `slate show`, `parity show`, `contribution show` and `benchmark show`
+write no event and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -80,9 +88,10 @@ availability. A name outside the vocabulary is refused as *unknown*; a known nam
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
 `benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
-`slates`, `design`, `premortem`, `parity` and `contribution`** (see
+`slates`, `design`, `premortem`, `parity`, `contribution` and `benchmark`** (see
 `references/expert-protocol.md`, "Slates and calibration" and "Evidence design" below,
-`references/premortem-protocol.md`, and `references/expert-parity-protocol.md`); the
+`references/premortem-protocol.md`, `references/expert-parity-protocol.md`, and
+`references/planted-truth-protocol.md`); the
 rest ship later and are refused as *not available* until they do. Opting in with
 `capabilities: []` still buys the admission discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
@@ -395,9 +404,13 @@ leaves exactly two states, and both are detected:
 ## Write ownership
 
 Generation verbs write ONLY under `<study>/generation/` and commit only those paths
-(`commit_state_writes(..., scope="own")`). They never write `study_state.json`, the
-core `events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`. An
-in-flight edit to the mutable surface is the operator's and stays theirs.
+(`commit_state_writes(..., scope="own")`), plus the named human artifacts a capability
+files with them — `domain_card.md`, `slates/<phase>.yaml`, `premortem/<phase>.yaml`,
+`evidence_design.yaml`, `parity.yaml`, `ai_value.jsonl`, and the benchmark's
+`benchmark.yaml`, `benchmark-submission.schema.json` and `submissions/<arm>.json`.
+They never write `study_state.json`, the core `events.jsonl`, `runs/`, `claims.lock`,
+`verify_receipt.json` or `study.yaml`. An in-flight edit to the mutable surface is the
+operator's and stays theirs.
 
 <!-- WP-09: design -->
 ## Evidence design

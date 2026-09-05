@@ -30,8 +30,10 @@ study_id: NN-slug
 # supports. Supported today: `expertise` (references/expert-protocol.md), `slates`
 # (references/generation-protocol.md, "Slates and calibration"), `design`
 # (references/generation-protocol.md, "Evidence design"), `premortem`
-# (references/premortem-protocol.md), and `parity` and `contribution`
-# (references/expert-parity-protocol.md).
+# (references/premortem-protocol.md), `parity` and `contribution`
+# (references/expert-parity-protocol.md), and `benchmark`
+# (references/planted-truth-protocol.md — the CUSTODIAN declares it, never a
+# participant).
 capabilities: []
 
 # sha256 of each protocol file at init, so a receipt says WHICH rules it was taken
@@ -52,7 +54,10 @@ predecessor: null
 
 # Set by `--custody-holder` / `--custody-mechanism`. An ATTESTATION, never a
 # verification: the mechanism cannot check that a bundle stayed unread. Isolation
-# means accounts, containers or machines — not directories.
+# means accounts, containers or machines — not directories. The standing testimony
+# is `klein generation custody attest`, which any generation-enabled study may
+# record (references/planted-truth-protocol.md); this field is the declaration the
+# study opted in with.
 custody: null
 # custody:
 #   holder: the named custodian

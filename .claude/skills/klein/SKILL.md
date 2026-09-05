@@ -108,6 +108,22 @@ contribution record` (coverage includes rejections; an accepted row with no huma
 acceptor stays agent-accepted; causal AI value needs the cited matched ablation)
 — `references/expert-parity-protocol.md`.
 <!-- end WP-04 -->
+<!-- WP-05: benchmark + custody -->
+Declaring **`benchmark`** (which requires `parity`) makes the study the CUSTODIAN of
+a planted-truth benchmark: `klein generation benchmark commit` freezes
+`benchmark.yaml` at METHOD — arms and budgets, the hypothesis cap, the matching rule,
+the false-positive penalty, disjoint development/sealed seed blocks, the per-arm
+recovery `P#`s — and records `sha256(salt ‖ private bundle)` before any participant
+sees the public one; `benchmark submit --arm` imports each frozen answer;
+`benchmark reveal` recomputes the commitment (a mismatch is refused AND recorded) once
+every arm has submitted or has a recorded missing trial; ONE sealed registered cell
+then scores all arms, and verification re-applies the matching rule to the pinned
+`tables/benchmark_scores.tsv`. Each participant is a separate `discover` study on a
+separate machine that declares no `benchmark` capability. **A hash is not secrecy**:
+`klein generation custody attest` — capability-agnostic, usable by any
+generation-enabled study — records a named holder's testimony, and without one the
+outcome reads `unverified` (`references/planted-truth-protocol.md`).
+<!-- end WP-05 -->
 
 ## Setup
 
@@ -367,6 +383,13 @@ model in the loop. Know the edges:
   independently established chronology. A slate's 1–3 axis scores are validated and
   copied verbatim; nothing sorts on them, and a Brier score over a four-row slate
   proves the arithmetic, not calibration in general.
+- **Custody is testimony, and in-silico recovery is not discovery.** A hash proves a
+  private bundle was not altered, never that nobody read it: isolation is accounts,
+  containers or machines, `klein generation custody attest` records a named holder's
+  claim about it, and an unattested benchmark is reported `unverified` rather than
+  accused. Recovering a planted structure establishes performance on that generator
+  — a `confirmed` claim resting on the scoring table is refused
+  (`references/planted-truth-protocol.md`).
 - **No learned meta-controller.** The agent reasons conversationally; `playbook.md`
   is the within-study memory and `knowledge/` the cross-study memory — priors promote
   through claim-cited findings, not learned weights.
