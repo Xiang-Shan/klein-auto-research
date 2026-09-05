@@ -561,10 +561,11 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
     sub = [a for a in generation._subparsers._group_actions if a.dest == "generation_action"][0]
     # The spine's six verbs are permanent; each capability package registers its
     # own sub-group beside them (`expert`/`reference` from the expertise package,
-    # `slate` from the slates one), so this is a subset check, not equality.
+    # `slate` from the slates one, `design` from the evidence-design one), so this
+    # is a subset check, not equality.
     spine = {"init", "check", "verify", "label", "status", "recover"}
     assert spine <= set(sub.choices)
-    assert {"expert", "reference", "slate"} <= set(sub.choices)
+    assert {"expert", "reference", "slate", "design"} <= set(sub.choices)
     for verb in sorted(spine):
         assert "--study" in sub.choices[verb].format_help(), verb
     for flag in ("--capability", "--predecessor", "--custody-holder", "--allow-late"):

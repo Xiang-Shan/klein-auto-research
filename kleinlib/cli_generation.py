@@ -152,6 +152,9 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     # --- WP-02: hypothesis slates + calibration -------------------------------
     _register_slate(actions)
 
+    # --- WP-09: evidence design -----------------------------------------------
+    _register_design(actions)
+
     return generation
 
 
@@ -1502,5 +1505,160 @@ def _run_slate_show(args: argparse.Namespace) -> int:
             f"{score['event']['id']} {obj['phase']} scored: coverage "
             f"{_number(obj['coverage'])} → {obj['outcome']} "
             f"(closed at core sequence {obj['closed_at_core_sequence']})"
+        )
+    return 0
+
+
+# ==========================================================================
+# ---- design verbs (WP-09)
+#
+# The `design` capability's verb.  Everything below is additive: the spine's
+# argparse, handlers and helpers above are untouched, and `register` gains the
+# single `_register_design(actions)` line.
+# ==========================================================================
+
+
+def _register_design(actions: argparse._SubParsersAction) -> None:
+    """Add the ``design`` sub-group to ``klein generation``."""
+    design = actions.add_parser(
+        "design",
+        help="the evidence design: what the evidence is FOR, locked before the DATA gate",
+        description=(
+            "Lock evidence_design.yaml before the DATA gate: the estimand and its "
+            "population, the uncertainty method and the validity conditions (each "
+            "naming a registered prediction whose rule can actually fire it), the "
+            "evidence representations and their acquisition custody, the warrant that "
+            "carries the evidence to a claim, and the typed continuation. See the "
+            "'Evidence design' section of "
+            ".claude/skills/klein/references/generation-protocol.md."
+        ),
+    )
+    design_actions = design.add_subparsers(dest="design_action", required=True)
+
+    lock = design_actions.add_parser(
+        "lock", help="freeze evidence_design.yaml (before the DATA gate is recorded)"
+    )
+    _study(lock)
+    _testimony(lock)
+    lock.add_argument(
+        "--allow-late",
+        action="store_true",
+        help="lock AFTER the data gate: recorded as late and permanently FAILs `design lock`",
+    )
+    lock.set_defaults(handler=_run_design_lock)
+
+
+def _design_setup(
+    args: argparse.Namespace, *, extra: tuple[str, ...] = ()
+) -> tuple[Path, dict[str, Any], dict[str, Any], Path, list[dict[str, Any]]]:
+    """Preconditions shared by every design verb.  Raises ``WorkflowError``."""
+    from .generation import manifest as gm
+    from .generation.admission import declared_capabilities
+    from .generation.chronology import repo_for
+    from .generation.design import CAPABILITY_NAME
+    from .generation.ledger import read_events
+
+    study, contract = _load(args)
+    manifest = gm.load_manifest(study)
+    if CAPABILITY_NAME not in declared_capabilities(manifest):
+        raise WorkflowError(
+            f"this study did not declare the {CAPABILITY_NAME!r} capability — "
+            "`klein generation init --capability design` does, and the opt-in is "
+            "immutable, so an existing study needs a successor rather than an edit"
+        )
+    _require_healthy_ledger(study)
+    _require_clean_with(study, contract, *extra)
+    repo = repo_for(study)
+    assert repo is not None  # _require_clean_with already refused a non-repo
+    return study, contract, manifest, repo, read_events(study)
+
+
+def _run_design_lock(args: argparse.Namespace) -> int:
+    """``design lock`` — one transaction: validate, hash, anchor, commit."""
+    from .generation import design as gd
+    from .generation import manifest as gm
+    from .generation.admission import core_anchor
+    from .generation.chronology import gate_events, git_head, read_core_events
+    from .generation.ledger import append_event, write_object
+    from .primitives import sha256_file
+    from .transaction import commit_state_writes
+
+    try:
+        study, contract, _manifest, repo, events = _design_setup(args, extra=(gd.DESIGN_NAME,))
+    except WorkflowError as exc:
+        return _error(str(exc))
+
+    if gd.locks(study, events):
+        return _error(
+            f"{gd.DESIGN_NAME} is already locked — the design is locked once; a change "
+            "of estimand, validity condition or warrant is a successor study"
+        )
+    path = study / gd.DESIGN_NAME
+    if not path.is_file():
+        return _error(
+            f"{gd.DESIGN_NAME} is missing — copy assets/evidence-design-template.yaml "
+            "into the study and fill its five blocks"
+        )
+    try:
+        document = gd.parse_design(path)
+    except WorkflowError as exc:
+        return _refuse(str(exc))
+
+    study_name = gm.study_id(study, contract)
+    problems = gd.design_problems(contract, document, study=study_name)
+    if problems:
+        return _refuse("; ".join(problems))
+
+    late = bool(gate_events(read_core_events(study), "data"))
+    if late and not args.allow_late:
+        return _refuse(
+            "the data gate is already recorded: the evidence design must be locked "
+            "BEFORE the DATA gate, so the estimand and the validity conditions precede "
+            "the first look at the evidence. `--allow-late` records the lock anyway; "
+            "`generation verify` then FAILs `design lock` permanently."
+        )
+
+    design_sha = sha256_file(path)
+    warrant = (document.get("claim") or {}).get("warrant")
+    obj = gd.lock_object(
+        study=study_name, document=document, design_sha256=design_sha, late=late
+    )
+    sha = write_object(study, obj)
+    event = append_event(
+        study,
+        gd.LOCK_TYPE,
+        study=study_name,
+        core_anchor=core_anchor(study),
+        git_head=git_head(repo),
+        payload_sha256=sha,
+        testimony_fields=_testimony_fields(args),
+        design_sha256=design_sha,
+        warrant=warrant,
+        **({"late": True} if late else {}),
+    )
+    commit_state_writes(
+        study,
+        f"klein: design lock ({study_name})",
+        paths=[gd.DESIGN_NAME, "generation/events.jsonl", "generation/objects"],
+        scope="own",
+    )
+    print(
+        f"{event['id']} design lock: {gd.DESIGN_NAME} {design_sha[:12]}…, warrant "
+        f"{warrant!r}, object {sha[:12]}…"
+    )
+    for item in (document.get("prediction") or {}).get("validity_conditions") or []:
+        if isinstance(item, dict):
+            print(f"  - {item.get('rule_ref')}: {item.get('condition')}")
+    for entry in (document.get("evidence") or {}).get("acquisition") or []:
+        if isinstance(entry, dict) and entry.get("kind") == "acquisition":
+            print(
+                f"  - acquired {entry.get('source')!r} at {entry.get('acquired_at')}, "
+                f"custody attested by {entry.get('attested_by')!r} "
+                "(testimony, never verified)"
+            )
+    if late:
+        print(
+            "WARNING: late lock recorded — `klein generation verify` will FAIL "
+            "`design lock` for the life of this study"
         )
     return 0

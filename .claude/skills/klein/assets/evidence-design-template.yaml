@@ -1,0 +1,135 @@
+# evidence_design.yaml — what the evidence is FOR, written before you have it.
+#
+# Klein's five objects run a study; they do not say what a number MEANS. This
+# document does, in five blocks, and `klein generation design lock` freezes it
+# BEFORE the DATA gate — before the evidence source has been profiled, because a
+# design registered after the data has been looked at is a description, not a
+# commitment. `--allow-late` records the lock anyway and FAILs `design lock`
+# permanently.
+#
+# Opt-in and schema-3 only: this file means nothing unless
+# `generation/manifest.yaml` declares `capabilities: [design]`.
+#
+# Protocol: .claude/skills/klein/references/generation-protocol.md, "Evidence design".
+# Copy this file to the study root, fill every field, then:
+#
+#   uv run --locked klein generation design lock --study studies/NN-slug
+
+type: evidence-design
+study: NN-slug                       # must equal the study's own id
+
+# ---------------------------------------------------------------------------
+# 1. Question — what quantity, about whom, measured how, and how far it travels.
+# ---------------------------------------------------------------------------
+question:
+  # The quantity itself, not the metric that estimates it. "The AUC of model X"
+  # is a metric; "the discriminative power of the pricing signal on next-year
+  # claims among renewing policyholders" is an estimand.
+  estimand: "<the quantity this study estimates, in one sentence>"
+  # Who or what the estimand is about — and, just as load-bearing, who it is NOT
+  # about.
+  population: "<the population the estimand ranges over>"
+  # The independent sampling unit. This is the unit the noise floor is measured
+  # at and the unit a partition must not straddle.
+  units: "<policy-year | patient | document | seed block | …>"
+  # How the numbers came to exist: instrument, protocol, coding, survey wave,
+  # simulator. The observation process is where most identification fails.
+  measurement_process: "<how the values were produced and recorded>"
+  # What must hold for the estimate to be an estimate OF the estimand. One
+  # assumption per line; a study that cannot name any is measuring a metric, not
+  # estimating a quantity.
+  identification_assumptions:
+    - "<assumption 1 — what must be true for this to identify the estimand>"
+    - "<assumption 2>"
+  # How far the result is meant to travel: same population, same instrument,
+  # same period? Say the boundary here, so the claim cannot quietly widen later.
+  intended_generalization: "<the scope this result is meant to hold over>"
+
+# ---------------------------------------------------------------------------
+# 2. Prediction — the uncertainty, the conditions, the bar, the provenance.
+# ---------------------------------------------------------------------------
+prediction:
+  # How uncertainty is quantified: paired bootstrap at the sampling unit, the
+  # measured noise floor, an analytic interval, an exact resolution. Name it
+  # before the numbers, because after them every choice looks principled.
+  uncertainty_method: "<bootstrap over units | measured floor | exact resolution | …>"
+  # WHEN the result does not hold — each condition reaching the arithmetic.
+  # `rule_ref` names a registered prediction (P#) in study.yaml whose rule can
+  # actually fire the condition: an `inconclusive_if` RULE, or a `rule` whose
+  # root is an all_of / any_of / not combinator. A plain leaf comparison is
+  # refused: it asks only whether the number cleared the bar, never whether the
+  # run was in a position to answer. A prose `inconclusive_if` is refused for the
+  # same reason — the machine never reads it.
+  validity_conditions:
+    - condition: "<in words: when this result does not hold>"
+      rule_ref: P1
+  # The difference that would change a decision, and whose decision. Separate
+  # from statistical detectability on purpose.
+  practical_threshold: "<the difference that would change what someone does>"
+  # Where the prediction came from: prior literature, an expert baseline, a
+  # pilot, a mechanism. "It seemed likely" is provenance too — say so.
+  provenance: "<what this prediction is based on>"
+
+# ---------------------------------------------------------------------------
+# 3. Evidence — representations, dependence, reuse, seal, and how it arrived.
+# ---------------------------------------------------------------------------
+evidence:
+  # Every form the same evidence takes: the prepared table, the split index, a
+  # sidecar TSV, a checkpoint, an imported vendor extract. Two representations
+  # of one measurement are one piece of evidence, not two.
+  representations:
+    - "<data/prepared/... — the prepared table>"
+    - "<the split index, the sidecar, the checkpoint …>"
+  # What is nested inside what: repeated measures inside subjects, seeds inside
+  # blocks, quarters inside policies. This is what makes a partition honest and
+  # a floor the right floor.
+  dependency_hierarchy: "<the nesting, coarsest unit first>"
+  # Which evidence may be looked at again, by whom, how often. Adaptive work
+  # uses development data only; say here what that means for THIS study.
+  permitted_reuse: "<what may be re-read, and what is spent on first contact>"
+  # null when nothing is sealed. Custody is an ATTESTATION: the mechanism cannot
+  # check that a bundle stayed unread, and isolation means accounts or machines,
+  # not directories.
+  seal: null
+  # seal:
+  #   holder: "<who holds the sealed evidence>"
+  #   mechanism: "<how access is denied, in one line>"
+  #
+  # How external evidence entered the study. `kind: import` records when the
+  # BYTES arrived here and needs nothing more. `kind: acquisition` claims when
+  # the MEASUREMENT was taken — a statement about the world no hash can check —
+  # and is refused without `custody` and `attested_by`. Import chronology does
+  # not prove acquisition chronology (A4 §8). An empty list asserts that no
+  # evidence came from outside this study.
+  acquisition: []
+  # acquisition:
+  #   - source: "<the vendor extract / the lab run / the colleague's table>"
+  #     kind: acquisition        # import | acquisition
+  #     acquired_at: "2026-09-05"
+  #     custody: "<who held it between the measurement and this study>"
+  #     attested_by: "<who attests that chain, by name>"
+
+# ---------------------------------------------------------------------------
+# 4. Claim — what carries the evidence to the claim, and which evidence does it.
+# ---------------------------------------------------------------------------
+claim:
+  # prediction            — a registered prediction was adjudicated
+  # conditional-estimation— an estimate under stated identification assumptions
+  # causal-inference      — an effect under a stated causal design
+  # exploratory-structure — a pattern found, not tested; never confirmed
+  # checked-witness       — an object a verifier accepted
+  warrant: prediction
+  # The evidence ids this claim rests on: run ids, `art:<alias>` aliases,
+  # `sweep:<name>` registrations, replication records, P# adjudications.
+  supporting_evidence:
+    - "<E0001 | art:alias | sweep:name | P1>"
+
+# ---------------------------------------------------------------------------
+# 5. Decision — how this study ends, and what it links to.
+# ---------------------------------------------------------------------------
+decision:
+  # continue | stop | escalate | pivot — the typed continuation this design
+  # commits to, before the result is known.
+  continuation: continue
+  predecessor: null                  # study id this one succeeds, or null
+  successor: null                    # study id this one hands off to, or null

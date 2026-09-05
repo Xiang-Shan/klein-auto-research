@@ -28,15 +28,16 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships one:
+Each capability adds one verb group beside those six. This release ships two:
 
 ```bash
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
+uv run --locked klein generation design lock                 --study studies/NN-slug [--allow-late]
 ```
 
-Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`) takes
-the four **testimony** flags `--actor --tool --model --session`; `verify`, `status` and
-`slate show` write no event and take none.
+Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
+`design lock`) takes the four **testimony** flags `--actor --tool --model --session`;
+`verify`, `status` and `slate show` write no event and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -73,9 +74,9 @@ contribution, surprise, escalation, knowledge, benchmark, design` — and a vers
 availability. A name outside the vocabulary is refused as *unknown*; a known name this
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
-`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise` and
-`slates`** (see `references/expert-protocol.md` and "Slates and calibration" below);
-the rest ship later and are refused as *not available* until they do. Opting in with `capabilities: []` still buys the admission discipline and
+`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
+`slates` and `design`** (see `references/expert-protocol.md`, "Slates and calibration"
+and "Evidence design" below); the rest ship later and are refused as *not available* until they do. Opting in with `capabilities: []` still buys the admission discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
 `generation_amended` events which may only ADD capabilities; each addition is reported
 `late_added`.
@@ -389,3 +390,85 @@ Generation verbs write ONLY under `<study>/generation/` and commit only those pa
 (`commit_state_writes(..., scope="own")`). They never write `study_state.json`, the
 core `events.jsonl`, `runs/`, `claims.lock`, `verify_receipt.json` or `study.yaml`. An
 in-flight edit to the mutable surface is the operator's and stays theirs.
+
+<!-- WP-09: design -->
+## Evidence design
+
+*The `design` capability — declared with `klein generation init --capability design`.*
+
+```bash
+uv run --locked klein generation design lock --study studies/NN-slug [--allow-late]
+```
+
+The five objects (`references/inquiry-model.md`) run a study; they do not say what a
+number MEANS. A metric that improved says nothing about which quantity was estimated,
+on which population, under which identification assumptions, how far the result was
+meant to travel, or which warrant carries it to a claim. Those commitments are cheap to
+write afterwards, in whatever shape the result happened to take — which is exactly why
+they are written first. `evidence_design.yaml` is that artifact: one document at the
+study root, five blocks, locked into the extension chain **before the DATA gate**.
+
+Before the DATA gate, not before CONSULT: the data gate is where the evidence source is
+first profiled, and a design registered once the evidence has been looked at is a
+description rather than a commitment. `design lock` refuses once a `gate_recorded data`
+event exists; `--allow-late` records the lock anyway, marks it `late`, and FAILs
+`design lock` for the life of the study. The design is locked ONCE — a change of
+estimand, validity condition or warrant is a successor study, not a second lock.
+
+| Block | Fields |
+|---|---|
+| `question` | `estimand`, `population`, `units`, `measurement_process`, `identification_assumptions[]`, `intended_generalization` |
+| `prediction` | `uncertainty_method`, `validity_conditions[]` (`{condition, rule_ref}`), `practical_threshold`, `provenance` |
+| `evidence` | `representations[]`, `dependency_hierarchy`, `permitted_reuse`, `seal` (`{holder, mechanism}` or null), `acquisition[]` |
+| `claim` | `warrant`, `supporting_evidence[]` |
+| `decision` | `continuation`, `predecessor`, `successor` |
+
+`warrant` is closed: `prediction | conditional-estimation | causal-inference |
+exploratory-structure | checked-witness` — a warrant nobody can name is a warrant nobody
+can review. `continuation` is closed too: `continue | stop | escalate | pivot`.
+Template: `assets/evidence-design-template.yaml`.
+
+**A validity condition is executable, or it is decoration.** Each
+`validity_conditions[].rule_ref` names a registered prediction (`P#`) in `study.yaml`,
+and that prediction's rule must be able to FIRE the condition: either an
+`inconclusive_if` **rule** (checked before the rule, returning `inconclusive` — the
+pre-registered admission that some runs cannot decide the question) or a `rule` whose
+root is an `all_of` / `any_of` / `not` combinator. Two shapes are refused: a plain leaf
+comparison, which asks only whether the number cleared the bar and never whether the run
+was in a position to answer; and a prose `inconclusive_if`, which documents a human
+condition the machine never reads. The condition has to reach the arithmetic `run-one`
+actually runs, or the design has recorded a hope.
+
+The cross-check is re-run at every `generation verify` against `study.yaml` **as it is
+now**. The design's copy is frozen; the contract is not, so a prediction whose
+`inconclusive_if` was dropped after the lock leaves a validity condition pointing at a
+rule that can no longer express it — caught, rather than silently tolerated.
+
+**Import chronology is not acquisition chronology.** Each `evidence.acquisition[]` entry
+carries `source`, `kind` and `acquired_at`. `kind: import` records when the BYTES
+arrived here and needs nothing more. `kind: acquisition` claims when the MEASUREMENT was
+taken — a statement about the world that no hash can check — and is refused without
+`custody` (who held it in between) and `attested_by` (who attests that chain, by name).
+Recorded, never verified: like the roster and the seal's mechanism, these are testimony.
+Record the arrival as `kind: import` when only the arrival is known.
+
+**Admission.** On a declaring study a `klein generation check --action cell` is refused
+until the design is locked: a cell measures something, and the design is what says what.
+Ordinary `run`, `sealed`, `baseline`, `repair` and `calibration` admissions are
+untouched by this capability.
+
+**The family** (`design lock`, `design document`, `design acquisition`,
+`design conditions`) FAILs when: no lock exists; the lock is `late`, or its anchor does
+not precede the data gate record by both core sequence and git ancestry; more than one
+lock exists; `evidence_design.yaml`'s sha256 differs from the locked one; a block is
+incomplete or a vocabulary word is wrong; an acquisition entry lacks its custody chain;
+or a `rule_ref` no longer resolves to something executable. The capability `outcome` is
+`locked` or `unlocked`, reported beside `integrity` and never read as a judgement.
+
+**What a locked design establishes.** That these commitments predate the data gate and
+have not changed since. **Not** that the identification assumptions hold, not that the
+estimand is the right one for the question, not that the intended generalization is
+achievable, and not that the custody chain was honoured. Every one of those is a matter
+for the referee and for the reader; the lock only guarantees they were stated in
+advance, in a form a stranger can compare against what the study ended up claiming.
+<!-- end WP-09 -->

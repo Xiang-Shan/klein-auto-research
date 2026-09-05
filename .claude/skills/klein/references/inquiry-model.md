@@ -24,6 +24,23 @@ Markdown stays the human surface; JSON and the ledger are the machine surface. N
 in the machine surface is hand-edited; nothing in the human surface is trusted without
 the machine surface behind it.
 
+<!-- WP-09: design -->
+**The evidence-design artifact supplements these five, on a study that asks for it.** A
+schema-3 study that opted into the generation layer with `--capability design` locks one
+`evidence_design.yaml` before the DATA gate, giving each object the fields it needs to
+say what a number MEANS rather than only what it was: the Question gains an estimand, a
+population, units, a measurement process, identification assumptions and an intended
+generalization; the Prediction gains an uncertainty method, validity conditions (each
+naming a `P#` whose rule can actually fire it), a practical threshold and provenance;
+Evidence gains representations, a dependency hierarchy, permitted reuse, a seal and an
+acquisition ledger; the Claim gains a named warrant; the Decision gains a typed
+continuation with its predecessor and successor. **The id grammar below does not change
+and neither does any engine rule** — the artifact adds vocabulary a stranger can review,
+and the generation layer's `design` family checks only that it was locked first and has
+not moved since (`references/generation-protocol.md`, "Evidence design"). A study that
+does not opt in is untouched by all of it.
+<!-- end WP-09 -->
+
 ## The three axes
 
 A study is typed on three orthogonal axes. CONSULT infers all three from the brief and

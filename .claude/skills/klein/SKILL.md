@@ -73,6 +73,17 @@ hypothesis slate (`klein generation slate lock`, 4–6 authored rows → `<study
 admits runs by `--hypothesis`, and scores the driver's own forecasts at phase end
 (`klein generation slate score` → `generation/tables/slate_calibration_<phase>.tsv`).
 <!-- end WP-02 -->
+<!-- WP-09: design -->
+Declaring `--capability design` adds the evidence-design artifact: `klein generation
+design lock` freezes `evidence_design.yaml` — estimand, population, units, measurement
+process, identification assumptions and intended generalization; uncertainty method,
+validity conditions, practical threshold and provenance; evidence representations,
+dependency hierarchy, permitted reuse, seal and acquisition custody; the warrant; the
+typed continuation — **before Gate 1**, and every validity condition must name a
+registered `P#` whose rule can fire it (an `inconclusive_if` rule or an
+`all_of`/`any_of`/`not` combinator, never a plain leaf). A `--action cell` admission is
+refused until it is locked (`references/generation-protocol.md`, "Evidence design").
+<!-- end WP-09 -->
 
 ## Setup
 
