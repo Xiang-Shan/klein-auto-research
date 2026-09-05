@@ -141,9 +141,9 @@
       "ok": true
     },
     {
-      "message": "artifact 'state': sha256 mismatch \u2014 pinned 4a9e794879822c38d5ca615b4185a8c483ab170f90a1ccdff6225acba7c072eb, on disk f8daffb077138e7ea1241ba8770b472ab2a18b6570ea3bbb4fc5e24a0f1a4c05",
+      "message": "10 pinned artifacts hash as recorded",
       "name": "claims artifacts",
-      "ok": false
+      "ok": true
     },
     {
       "message": "every claim id resolves in findings.md",
@@ -197,10 +197,10 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "86d5578d7413310c15b34465a3b7721072bc0653",
+  "git_head": "64eb271f1bb45256b56f129b64d8071eea672b18",
   "inputs": {
     "aux_metrics.tsv": "27edc17dd92b1e1009ec129d3d12955abb14b374b62643ada6873d82cc0c077b",
-    "claims.lock": "7e92dfecbedcbd51acac7d40180663eb66b39368eb2fa94b970903bc1df1e046",
+    "claims.lock": "b56c6b54e16235d53742eff53109b5124b3e3c432fb80e09e28e3f9d3397fb51",
     "events.jsonl": "4be4eba85f927ff3f3c3556647e6c3b40c3b52f72e62be7cc0e0f23390ce1257",
     "findings.md": "0474aee5060ec8ea68dee88bb81d5cd11b50b5bc4069b65c3055796acd021f74",
     "playbook.md": "7698539594e761620ba7d851f639f2dd09030f3eb7c7e34fee038eef47f5af48",
@@ -211,7 +211,7 @@
     "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2",
     "study_state.json": "f8daffb077138e7ea1241ba8770b472ab2a18b6570ea3bbb4fc5e24a0f1a4c05"
   },
-  "klein_commit": "86d5578d7413310c15b34465a3b7721072bc0653",
+  "klein_commit": "64eb271f1bb45256b56f129b64d8071eea672b18",
   "klein_version": "2.0.0",
   "manifests": {
     "E0001": "6d7a22c437f934eaba3f22fa7aef47a7ad2d4d9958470bb3b42dbdcf2fd95c7b",
@@ -232,10 +232,10 @@
   "study": "15-iris-90years-relaunch",
   "summary": {
     "checks": 39,
-    "failed": 1,
+    "failed": 0,
     "warned": 2
   },
-  "timestamp": "2026-09-05T04:06:25.288893Z",
+  "timestamp": "2026-09-05T04:06:45.229741Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
