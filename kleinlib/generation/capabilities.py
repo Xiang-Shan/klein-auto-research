@@ -35,6 +35,9 @@ MODULES: tuple[str, ...] = (
     "expert",
     # --- WP-02: hypothesis slates + calibration ---
     "slate",
+    # --- WP-04: expert parity + contribution ledger ---
+    "parity",
+    "contribution",
 )
 
 
