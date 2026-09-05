@@ -55,6 +55,10 @@ committed to BEFORE the evidence: `klein generation init` before Gate 0, then on
 `klein generation check` before every `run-one`, verified separately by `klein
 generation verify` — `references/generation-protocol.md`. A study that does not opt in
 is untouched by it, and no core verb, receipt or disposition changes either way.
+A study that declares the **`slates`** capability additionally records each phase's
+hypothesis slate (`klein generation slate lock`, 4–6 authored rows → `<study>#Hn` ids),
+admits runs by `--hypothesis`, and scores the driver's own forecasts at phase end
+(`klein generation slate score` → `generation/tables/slate_calibration_<phase>.tsv`).
 
 ## Setup
 
@@ -311,7 +315,9 @@ model in the loop. Know the edges:
   layer (`references/generation-protocol.md`) hashes admission receipts, checks their
   order against local witnesses, and computes arithmetic on rows the driver wrote. It
   never proposes, ranks, selects, schedules or retries — and local ordering is not
-  independently established chronology.
+  independently established chronology. A slate's 1–3 axis scores are validated and
+  copied verbatim; nothing sorts on them, and a Brier score over a four-row slate
+  proves the arithmetic, not calibration in general.
 - **No learned meta-controller.** The agent reasons conversationally; `playbook.md`
   is the within-study memory and `knowledge/` the cross-study memory — priors promote
   through claim-cited findings, not learned weights.

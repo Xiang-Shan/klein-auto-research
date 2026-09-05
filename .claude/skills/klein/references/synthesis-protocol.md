@@ -92,7 +92,15 @@ Copy `assets/findings-template.md`. Fill, in order:
   `exploratory` (development only) or `confirmed` (its track has sealed-test evidence).
 - **② Registered predictions (from the ledger).** One row per `P#`, verdict copied
   from `klein predict list`, the observed value, the evidence ids, and — for a refuted
-  row — the dated `Decision:` line in `program.md` that answered it.
+  row — the dated `Decision:` line in `program.md` that answered it. On a
+  generation-enabled study, add the phase's slate calibration beside it: pin the table
+  (`klein claims pin slate_calibration_<phase>
+  generation/tables/slate_calibration_<phase>.tsv`), cite it as
+  `art:slate_calibration_<phase>`, and summarize one line per phase — the cohort size,
+  coverage, the `unscouted` Brier against the base-rate forecast, and whether the outcome
+  is `complete` or `conditional`. Report the `scouted_descriptive` panel as descriptive,
+  never as calibration, and say what `n` it rests on: a four-row slate proves the
+  arithmetic, not that the driver is well calibrated.
 - **③ Surprises & why.** What defied the prior — AND the mechanism you believe explains
   it. A surprise with no explanation is a loose end.
 - **④ Practical advice.** "On your own data do X, avoid Y" — concrete, numbered, in the

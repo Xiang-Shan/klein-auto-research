@@ -28,9 +28,15 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Every WRITING verb (`init`, `check`, `label`, `recover`) takes the four **testimony**
-flags `--actor --tool --model --session`; `verify` and `status` write no event and take
-none.
+Each capability adds one verb group beside those six. This release ships one:
+
+```bash
+uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
+```
+
+Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`) takes
+the four **testimony** flags `--actor --tool --model --session`; `verify`, `status` and
+`slate show` write no event and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -67,10 +73,12 @@ contribution, surprise, escalation, knowledge, benchmark, design` — and a vers
 availability. A name outside the vocabulary is refused as *unknown*; a known name this
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
-`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports none of them**:
-opting in buys the admission discipline and the chronology witnesses, and nothing
-that scores research. Later additions are `generation_amended` events which may only
-ADD capabilities; each addition is reported `late_added`.
+`benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `slates`** (see
+"Slates and calibration" below); the rest ship later and are refused as *not available*
+until they do. Opting in with `capabilities: []` still buys the admission discipline and
+the chronology witnesses, and nothing that scores research. Later additions are
+`generation_amended` events which may only ADD capabilities; each addition is reported
+`late_added`.
 
 ## The envelope
 
@@ -216,6 +224,122 @@ research got. The spine reads only `integrity`; it never treats an outcome as a
 judgement. The label copies each declared capability's `outcome` into its
 `capabilities` column and leaves every other name `n/a`, and `klein generation status`
 prints `<name>: <integrity> / <outcome>` once a receipt exists.
+
+## Slates and calibration
+
+*The `slates` capability. Declare it at `init`; a study that did not is untouched by
+everything in this section.*
+
+```bash
+uv run --locked klein generation slate lock  --study studies/NN-slug --phase adaptive-1
+uv run --locked klein generation slate amend --study studies/NN-slug --phase adaptive-1
+uv run --locked klein generation slate score --study studies/NN-slug --phase adaptive-1
+uv run --locked klein generation slate show  --study studies/NN-slug [--phase <id>]
+```
+
+**You write the slate; Klein records it.** `slates/<phase>.yaml` is authored by hand at
+the phase start, exactly as `references/phase-ritual.md` has always asked: 4–6
+falsifiable candidates, each scored 1–3 on novelty / testability / expected
+information, before the mutable surface is touched. Nothing here proposes a candidate,
+compares two, or orders the rows — the axis scores are validated and copied verbatim,
+and the arithmetic below is arithmetic on rows you typed. `assets/slate-template.yaml`
+carries the full shape with comments.
+
+`slate lock` refuses 3 rows or 7, a duplicate statement, a probability that is not
+strictly inside (0, 1), an axis score outside {1, 2, 3}, an undeclared track, a
+`floor_ref` that is neither `minimum_delta` nor a **registered** `sweep:<name>`, and a
+`success_P` that study.yaml does not register, that is manual, or that belongs to
+another track. Then it assigns each row a permanent **`<study>#Hn`** — monotonic across
+the whole study, never recycled — rewrites the file with the ids in place, and hashes
+the committed bytes into the lock object.
+
+**A locked forecast is immutable.** Editing `p_success` afterwards changes the file's
+sha and FAILs `generation slate` for the life of the study. The lawful revision is
+`slate amend`: a new version with the previous lock as its parent, in which a changed
+`p_success` sets `revision_of` and is scored in its own panel — the primary panels
+always use the FIRST forecast. An amendment may add rows (fresh ids) and drop rows, but
+may never revive a freed id, re-point an existing one at a different hypothesis, or
+restate the frozen `base_rate_forecast` and `cohort_window`.
+
+### Admission: a run is bound to the hypothesis it was admitted for
+
+```bash
+uv run --locked klein generation check --study studies/NN-slug --action run \
+  --track primary --hypothesis NN-slug#H1 --tests P2
+```
+
+`--hypothesis H` is admitted only when H is a **live row of the newest locked slate for
+the study's current phase**, `--track` is the row's track, and `--tests` names every one
+of the row's `success_P` — the notary must adjudicate them inside that run, or the row's
+outcome could never resolve. The receipt pins the lock's object sha in `inputs.slate`
+and the id in `intended_action.hypothesis_id`; that receipt, once consumed by an
+`admitted` run, is what BINDS the run to the row. There is no separate bind step and no
+prose route: a run the extension classified anything but `admitted` binds nothing.
+
+On an enabled study, `--action run` (and `--action cell`) **without** a hypothesis is
+refused: "an enabled study runs hypotheses; use `--hypothesis`, or `--action
+calibration|baseline|repair`". The Phase-0 floor recipe, the expert baseline, a repair
+and the sealed final test are the typed obligations that legitimately carry no `H`
+(R-ADM-7) — they are ordinary `run-one` transactions with their own checkpoint, and no
+off-notary path exists for any of them.
+
+### The success event, exactly
+
+For row `H`, the bound run is the one its LAST admitted receipt was consumed by.
+
+| | |
+|---|---|
+| `y = 1` | that run did not crash AND every `success_P` was adjudicated `supported` on it |
+| `y = 0` | that run crashed, OR any `success_P` was adjudicated `refuted` |
+| censored | no bound run before the cohort closed; or a `success_P` came back `inconclusive` or was never adjudicated on that run |
+| withdrawn | the row was dropped by an amendment — retained in the cohort, censored, with the version that dropped it on the record |
+
+`slate score` records the core-chain tip as `closed_at_core_sequence`, writes
+`generation/tables/slate_calibration_<phase>.tsv` (one row per cohort member: id, panel,
+p_first, p_latest, status, y, reason, run) and hashes it. A phase is scored once;
+`--rescore --reason <why>` records a further score whose parent is the previous one —
+both objects survive, because a cohort that reopened is a fact about the study.
+
+**The denominator is frozen at lock.** Coverage is `resolved / cohort` over every id
+ever locked for the phase. Withdrawing a row does not shrink it, and neither does never
+running one: both report as coverage below 1.0 and an outcome of `conditional`, never as
+a better Brier. `complete` is issued at coverage 1.0 and nowhere else. Every panel also
+carries `best_case_brier` and `worst_case_brier` — the censored rows scored the most and
+the least favourably possible — so a partial cohort reports the interval its own gaps
+allow instead of a single flattering number.
+
+**Four panels, and only two of them are calibration.**
+
+| Panel | Rows | Read as |
+|---|---|---|
+| `unscouted` | `provenance: unscouted`, on `p_first` | calibration |
+| `derived` | `provenance: derived` (read off an earlier H), on `p_first` | calibration, separately |
+| `scouted_descriptive` | `provenance: scouted` — the scouting ledger already saw the outcome | **descriptive only, never calibration** |
+| `revisions` | rows with `revision_of`, on `p_latest` | how a revised forecast fared |
+
+Each panel reports `n`, `brier`, `binned_brier`, `base_rate_brier`, `skill`, the Murphy
+decomposition (`reliability`, `resolution`, `uncertainty`) over five equal-width bins,
+the bins themselves, and the two bounds. The Murphy identity `brier = reliability −
+resolution + uncertainty` closes exactly on `binned_brier`, not on the plain Brier; both
+are reported so a reader does not have to derive that.
+
+`generation slate` FAILs on: a hypothesis admitted before the lock in force, or naming an
+id that is not a live row of it; a slate file whose sha is not the newest version's; a
+recycled or non-monotonic id; a recorded score whose recomputation from the receipts,
+the manifests and the core chain differs in any number (compared at rel 1e-12); a cohort
+row missing from the score; a calibration table that is not the one the score hashed. It
+WARNs on coverage below 1.0 and on a phase acknowledged without a score. Its outcome is
+`complete`, `conditional` or `unscored`, and the label copies it.
+
+### What a slate score establishes, and what it does not
+
+A four-row slate proves the ARITHMETIC, not calibration in general: three resolved rows
+say nothing about whether the driver is well calibrated, and the receipt's `n` is printed
+beside every Brier so nobody reads it as more. Nor does the mechanism see semantic
+duplicates — two rows phrased differently for one idea pass the duplicate check — or
+judge whether a hypothesis was worth forecasting. What it does establish is that the
+forecasts existed, unchanged, before the evidence, and that the score over them is the
+one the ledger implies.
 
 ## The label
 
