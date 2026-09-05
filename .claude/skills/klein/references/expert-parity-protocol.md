@@ -122,13 +122,18 @@ changed. Measure it in Phase 0 with the paired recipe
 evaluate_table(..., extra={"floor_gini": 0.011, "floor_calib": 0.004, "floor_ratio": 0.08})
 ```
 
-Then `floor_ref: run:E0002` reads `floor_gini` out of that run's manifest, or
-`--floor-run E0002` points every metric at the same run.
+Then `floor_ref: run:E0002` reads `floor_gini` out of that run's manifest.
+`--floor-run E0002` is a convenience for the common case where every metric names
+that same run, and it may only **restate** it: a `--floor-run` naming any other
+run is refused at bind, and `parity bind` FAILs afterwards on any bound floor
+whose `source` is not the metric's locked `floor_ref`. The lock says where `δ`
+comes from; the bind may only read it there.
 
 `sweep:<name>` is accepted in the lock and **refused at bind in this version**:
 `klein sweep register` pins a sidecar and a script by hash, not a number, so
 there is nothing numeric to read. The refusal says so rather than inventing a
-`δ`. Register the floor as a calibration RUN that prints the key.
+`δ`, and `--floor-run` does not route around it. Amend the lock to reference a
+calibration RUN that prints the key.
 
 A margin is justified **separately** from the floor. Noise does not authorize a
 generous equivalence margin (B §3); resolution is not materiality.
@@ -156,6 +161,9 @@ before the pipelines and floors are frozen cannot earn the parity outcome, and
 **The scorer is never in the mutable surface** (R-INV-3). It is study library
 code, hashed at the bind and re-read at the sealed cell's candidate commit; a
 scorer retuned between the two is a checker tuned to the answer, and it FAILs.
+A `scorer.path` that names a file of `entrypoint.mutable` is refused outright by
+`parity lock` and FAILs `parity lock` at every verify — a checker the experiments
+edit was never frozen at all.
 
 ## 5. The sealed comparison cell
 
@@ -165,7 +173,7 @@ One registered cell, the comparison track's **sole** sealed evaluation:
 uv run --locked klein run-one --study studies/NN-slug --track comparison \
     --final-test --dry-run                      # mandatory rehearsal
 uv run --locked klein generation check --study studies/NN-slug \
-    --action sealed --track comparison --tests P1 P2 P3
+    --action sealed --track comparison --tests P1 P2 P3   # every parity P, or refused
 uv run --locked klein run-one --study studies/NN-slug --track comparison \
     --final-test --tests P1,P2,P3 --description "AI vs expert, joint comparison"
 ```
@@ -178,7 +186,11 @@ The entrypoint calls the study's `lib/parity_score.py`
    `unit`, `block`, then `ai_<key>` and `expert_<key>` for every locked metric.
    Those columns are the metric's **per-unit contributions**, so the metric IS
    their mean; a metric that is not a unit mean is expressed through per-unit
-   contributions by the scorer, and the estimand says so.
+   contributions by the scorer, and the estimand says so. A cell with no value
+   is left **empty** — that is the table's only NA, and the assessment records
+   how many there were. Any other unparseable cell (`N/A`, `-`, a shifted
+   column) is a hard error naming the line and the column, because a mis-scored
+   table and an undefined metric are different facts.
 3. Compute the bounds with `kleinlib.generation.stats.simultaneous_bounds`.
 4. Print, through `kleinlib.eval.evaluate_table` — the evaluator that pins an
    `artifact:` line, which is what makes the table citable evidence
@@ -192,6 +204,12 @@ notary's parser) and declares `defined_<key>: 0`. That declaration may not be
 omitted: silence about a metric is not the same as saying it could not be
 computed, and `parity cell` FAILs on a metric that is in the lock and neither
 printed nor declared undefined.
+
+`--tests` must name **every** registered parity prediction: `generation check
+--action sealed` on the comparison track is refused otherwise, and `parity cell`
+FAILs afterwards on a comparison run whose manifest carries no verdict for one of
+them. An assessment the notary was never asked to reach is a second comparison
+wearing the same name.
 
 ## 6. The decision rule
 
@@ -208,7 +226,10 @@ They are mutually exclusive by construction: `U_j < −ε_j` contradicts
 `L_j ≥ −ε_j` on that same `j`. An **undefined** metric — A4 §7's top-to-bottom
 ratio on a zero-loss bottom decile — can never pass: the verdict is `refuted`
 when some other metric refutes and `inconclusive` otherwise, and the undefined
-metric is named in the record rather than dropped from the conjunction.
+metric is named in the record rather than dropped from the conjunction. A
+conjunction over **no** metrics is `inconclusive` too, with that as its reason: a
+comparison that measured nothing must not reach the one verdict a vacuous "every
+`L_j ≥ −ε_j`" would otherwise hand it.
 
 The conjunction is the point. Three metrics must describe **one model on one
 population**; three independently selected winners establish nothing jointly. A
@@ -232,18 +253,29 @@ uv run --locked klein generation parity assess --study studies/NN-slug --run E00
 the run pinned), recomputes `ai`, `expert`, `d`, `L` and `U` per metric with the
 declared uncertainty rule, applies §6, and records a `parity_assessed` object
 carrying every number, the verdict, `agreement_within_floor`, the undefined
-metrics and the reasons. **It never reads the printed bounds** — the scorer's
-arithmetic is checked against the table, not trusted by it.
+metrics, the reasons, the count of empty (NA) cells, and the environment the
+bounds were computed in (`numpy` version, `n_boot`, `seed`). **It never reads the
+printed bounds** — the scorer's arithmetic is checked against the table, not
+trusted by it. `--run` must name a sealed run of the **locked comparison track**;
+a sealed run of any other track is refused.
+
+Verify replays the assessment and compares it: identities, counts, verdict,
+`agreement_within_floor`, `undefined_metrics` and `reasons` **exactly**, and the
+per-metric numbers at a **relative tolerance of 1e-12**. `numpy.random.Generator`
+gives no bit-stream guarantee across numpy versions, so a bit-exact float
+comparison would read an upgrade as tampering; the recorded environment is
+printed beside the recomputed one whenever the replay disagrees, so a drift is
+diagnosable rather than merely fatal.
 
 `klein generation verify` runs the `parity` and `contribution` families beside
 the spine's eight.
 
 | Check | FAILs when |
 |---|---|
-| `parity lock` | not locked; **version 1** late; `parity.yaml`'s sha256 differs from the newest lock; a metric's prediction rule no longer tests `L_<key> >= -margin`. (A late amendment is a WARN) |
-| `parity bind` | a `final_test` run exists with no bind; any `final_test` run on **any** track started before the bind's core anchor; more than one bind; a metric with no numeric floor; the scorer or a pinned snapshot differs from its recorded hash at the sealed cell's candidate commit |
-| `parity cell` | the comparison track has more than one `final_test` run; that run's admission checkpoint is not `sealed`; a locked metric was neither printed nor declared undefined |
-| `parity assessment` | the recorded assessment does not recompute from the pinned table. (A WARN when the printed bounds differ from the table's own — the assessment used the TABLE; and a WARN when the expertise obligation is still open, which scopes the outcome to an unreproduced baseline) |
+| `parity lock` | not locked; **version 1** late; `parity.yaml`'s sha256 differs from the newest lock; a metric's prediction rule no longer tests `L_<key> >= -margin`; `scorer.path` is part of `entrypoint.mutable`. (A late amendment is a WARN, and so is a `scoring.scorer_name` equal to the roster experimenter) |
+| `parity bind` | a `final_test` run exists with no bind; any `final_test` run on **any** track started before the bind's core anchor; more than one bind; a metric with no numeric floor; a bound floor whose `source` is not the metric's locked `floor_ref`; the scorer or a pinned snapshot differs from its recorded hash at the sealed cell's candidate commit |
+| `parity cell` | the comparison track has more than one `final_test` run; that run's admission checkpoint is not `sealed`; a locked metric was neither printed nor declared undefined; the run carries no verdict for one of the registered parity predictions |
+| `parity assessment` | an assessment names a run that is not the comparison track's sole sealed cell; the assessment of that cell does not recompute from the pinned table. (A WARN when the printed bounds differ from the table's own — the assessment used the TABLE; and a WARN when the expertise obligation is still open, which scopes the outcome to an unreproduced baseline) |
 | `contribution ledger` | the file and the chain disagree in length, in order, or in any line's hash |
 | `contribution coverage` | a slate row id or an admitted/refused hypothesis id has no ledger line |
 

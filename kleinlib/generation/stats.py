@@ -28,7 +28,21 @@ units, under this block declaration".
 bootstrap spread, or any non-finite unit value gets ``(nan, nan)`` and drops out
 of the max — it can then never satisfy ``L >= -epsilon``, which is precisely the
 preregistered "an undefined metric cannot pass" rule.  Inventing a bound for it
-would be the arbitrary denominator adjustment A4 §7 refuses.
+would be the arbitrary denominator adjustment A4 §7 refuses.  "Zero spread" is
+read at :data:`ZERO_SPREAD_REL`, not at exact zero: resampling blocks of unequal
+size re-associates the same per-block sums in a different order, so a metric that
+is genuinely constant comes back with a bootstrap sd around ``1e-17`` rather than
+``0.0``, and studentizing by that residue would manufacture an interval of width
+``1e-16`` around the mean — a metric nobody measured passing ``L >= -epsilon``.
+
+**Reproducible under a seed, not bit-stable across numpy versions.**  The same
+table, seed and numpy give the same bounds on every machine, which is what lets
+``generation verify`` recompute an assessment.  ``numpy.random.Generator`` makes
+no cross-VERSION bit-stream guarantee, though, so an upgrade can move the last
+digits: the assessment records ``numpy``'s version beside ``n_boot`` and ``seed``,
+verify compares the numbers at a relative tolerance rather than byte for byte,
+and a disagreement prints both environments so the drift is diagnosable instead
+of merely fatal.
 """
 
 from __future__ import annotations
@@ -38,12 +52,24 @@ from typing import Any
 
 import numpy as np
 
-__all__ = ["MIN_BOOT", "block_index", "block_count", "simultaneous_bounds"]
+__all__ = [
+    "MIN_BOOT",
+    "ZERO_SPREAD_REL",
+    "block_count",
+    "block_index",
+    "simultaneous_bounds",
+]
 
 #: Fewer replicates than this cannot resolve a 95% quantile of a max statistic
 #: at all; the declared ``n_boot`` is checked against it rather than silently
 #: producing a bound nobody could reproduce.
 MIN_BOOT = 200
+
+#: Relative size below which a bootstrap standard deviation is floating-point
+#: residue rather than variation (see the module docstring).  Scaled by
+#: ``max(1, |mean|)`` so the test means the same thing for a metric measured in
+#: Gini points and one measured in claim counts.
+ZERO_SPREAD_REL = 1e-12
 
 
 def block_index(blocks: Sequence[Any] | np.ndarray | None, n_units: int) -> list[np.ndarray]:
@@ -90,9 +116,10 @@ def simultaneous_bounds(
     metric on the SAME units in the SAME order.  ``blocks`` is the dependence
     block each unit belongs to (``None`` = iid units).
 
-    Deterministic under ``seed``: the same table gives the same bounds on every
-    machine, which is what lets ``generation verify`` recompute an assessment
-    and compare it numeral for numeral.
+    Deterministic under ``seed`` for one numpy: the same table gives the same
+    bounds, which is what lets ``generation verify`` recompute an assessment and
+    compare it number for number (at a relative tolerance — see the module
+    docstring on cross-version bit streams).
     """
     if not deltas:
         return {}
@@ -152,7 +179,14 @@ def simultaneous_bounds(
         done += width
 
     sds = {key: float(values.std(ddof=1)) for key, values in replicates.items()}
-    usable = [key for key in live if sds[key] > 0.0 and np.isfinite(sds[key])]
+    # Not `sds[key] > 0.0`: unequal block sizes make a CONSTANT metric resample
+    # to sd ~1e-17 rather than exactly 0, and studentizing by that residue would
+    # hand a metric nobody measured an interval narrow enough to pass.
+    usable = [
+        key
+        for key in live
+        if np.isfinite(sds[key]) and sds[key] > ZERO_SPREAD_REL * max(1.0, abs(means[key]))
+    ]
     if not usable:
         return dict.fromkeys(arrays, (float("nan"), float("nan")))
 
