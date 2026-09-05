@@ -541,6 +541,85 @@ def test_v12_a_revised_forecast_is_scored_in_its_own_panel(slate_study) -> None:
     assert score["panels"]["revisions"]["brier"] == pytest.approx((0.55 - 1) ** 2)
 
 
+def test_v12_a_revision_stays_a_revision_across_a_later_amendment(slate_study) -> None:
+    """B-8: `revision_of` is carried forward, so the row cannot drift back.
+
+    The revisions panel selects on `revision_of`, and the primary panels score
+    `p_first`.  Clearing the marker on the next amendment that happens not to
+    touch the row would move the revised forecast back into the primary panel and
+    score it against the number it replaced.
+    """
+    _repo, study = slate_study
+    assert _lock(study, V11_ROWS) == 0
+    rows = [dict(row) for row in _slate_object(study)["rows"]]
+    rows[0]["p_success"] = 0.55
+    _write_slate(study, rows)
+    assert _gen("slate", "amend", "--study", str(study), "--phase", PHASE) == 0
+    assert _slate_object(study)["rows"][0]["revision_of"] == 1
+
+    # v3 touches a DIFFERENT row; H1's forecast is untouched and stays revised
+    rows = [dict(row) for row in _slate_object(study)["rows"]]
+    rows[1]["p_success"] = 0.35
+    _write_slate(study, rows)
+    assert _gen("slate", "amend", "--study", str(study), "--phase", PHASE) == 0
+    third = _slate_object(study)
+    assert third["version"] == 3
+    assert third["rows"][0]["revision_of"] == 1, "H1 was revised in v2 and still is"
+    assert third["rows"][1]["revision_of"] == 2
+    assert third["rows"][2]["revision_of"] is None, "a row nobody ever revised"
+
+    _run_the_first_three(study)
+    assert _gen("slate", "score", "--study", str(study), "--phase", PHASE) == 0
+    _sha, score = _score_object(study)
+    assert score["panels"]["revisions"]["n"] == 2
+    assert _gen("verify", "--study", str(study)) == 0
+
+
+def test_v12_a_first_lock_can_never_be_late_and_an_amendment_may_be(slate_study) -> None:
+    """B-12: `late` on version 1 was an unreachable FAIL, and this is why.
+
+    `is_late` asks whether a receipt already named an id THIS phase allocated —
+    and before a phase's first lock there are no ids to name, so version 1 is
+    `late: false` by construction.  The rule that actually catches a hypothesis
+    admitted before the slate in force is the admission-order check, which reads
+    the receipts against the versions locked before each one.
+    """
+    _repo, study = slate_study
+    assert _lock(study, V11_ROWS) == 0
+    assert _slate_object(study, 0)["late"] is False
+
+    _bump(study, "h1")
+    assert _check(study, f"{STUDY}#H1", "P1") == 0
+    run_one(study, command=metric_command(0.7), tests="P1", echo=False)
+
+    rows = [dict(row) for row in _slate_object(study)["rows"]]
+    _write_slate(study, rows)
+    assert _gen("slate", "amend", "--study", str(study), "--phase", PHASE) == 0
+    assert _slate_object(study)["late"] is True, "informational on an amendment, not a FAIL"
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _receipt(study)["capabilities"]["slates"]["integrity"] == "PASS"
+
+
+def test_v12_a_parent_id_must_name_a_hypothesis_this_study_locked(slate_study, capsys) -> None:
+    """B-13: lineage that ends nowhere still looks like provenance."""
+    _repo, study = slate_study
+    invented = [dict(V11_ROWS[0], parent_ids=[f"{STUDY}#H99"]), *V11_ROWS[1:]]
+    assert _lock(study, invented) == 2
+    assert "no locked slate in this study ever allocated" in capsys.readouterr().out
+
+    malformed = [dict(V11_ROWS[0], parent_ids=[7]), *V11_ROWS[1:]]
+    assert _lock(study, malformed) == 2
+    assert "is not a hypothesis id" in capsys.readouterr().out
+
+    # a real ancestor is accepted, and an empty list always was
+    assert _lock(study, V11_ROWS) == 0
+    carried = [dict(row) for row in _slate_object(study)["rows"][:3]]
+    descendant = _row(5, p=0.4, success=("P4",), parent_ids=[f"{STUDY}#H1"])
+    _write_slate(study, [*carried, descendant])
+    assert _gen("slate", "amend", "--study", str(study), "--phase", PHASE) == 0
+    assert _slate_object(study)["rows"][3]["parent_ids"] == [f"{STUDY}#H1"]
+
+
 def test_the_base_rate_forecast_is_frozen_at_the_first_lock(slate_study) -> None:
     _repo, study = slate_study
     assert _lock(study, V11_ROWS) == 0
@@ -635,6 +714,69 @@ def test_the_receipt_pins_the_lock_it_was_taken_under(slate_study) -> None:
     from kleinlib.generation.admission import RECEIPT_INPUT_SLOTS
 
     assert set(receipt["inputs"]) == {"manifest", *RECEIPT_INPUT_SLOTS}
+
+
+def test_a_hypothesis_scores_on_its_first_resolution(slate_study) -> None:
+    """B-7: `y` comes from the FIRST admitted run, and the retry is counted.
+
+    A forecast is about what happens when the idea is tried.  Reading the LAST
+    admitted run would let a row that resolved `y = 0` be run again — knowing the
+    outcome this time — until it resolved `y = 1`, which scores the forecast
+    against a retry rather than against a prediction.  The second run stays on
+    the ledger, is counted in `n_bound_runs`, and earns a WARN.
+    """
+    _repo, study = slate_study
+    assert _lock(study, V11_ROWS) == 0
+
+    _bump(study, "h1 first try")
+    assert _check(study, f"{STUDY}#H1", "P1") == 0
+    first = run_one(study, command=metric_command(0.5), tests="P1", echo=False)
+    assert first["predictions"]["P1"]["verdict"] == "refuted"
+
+    _bump(study, "h1 again, now that the answer is known")
+    assert _check(study, f"{STUDY}#H1", "P1") == 0
+    second = run_one(study, command=metric_command(0.7), tests="P1", echo=False)
+    assert second["predictions"]["P1"]["verdict"] == "supported"
+
+    assert _gen("slate", "score", "--study", str(study), "--phase", PHASE) == 0
+    _sha, score = _score_object(study)
+    row = next(entry for entry in score["cohort"] if entry["id"] == f"{STUDY}#H1")
+    assert (row["y"], row["run"]) == (0, first["experiment"]), "the FIRST resolution scores"
+    assert row["n_bound_runs"] == 2
+    assert score["panels"]["unscouted"]["brier"] == pytest.approx((0.8 - 0) ** 2)
+
+    table = (study / "generation" / "tables" / f"slate_calibration_{PHASE}.tsv").read_text("utf-8")
+    header = table.splitlines()[0].split("\t")
+    assert header == list(slate.TABLE_COLUMNS) and "n_bound_runs" in header
+    assert table.splitlines()[1].split("\t")[-1] == "2"
+
+    assert _gen("verify", "--study", str(study)) == 0, "a re-run is a WARN, not a broken record"
+    detail = " ".join(
+        c["detail"] for c in _receipt(study)["checks"] if c["name"] == "generation slate"
+    )
+    assert f"{STUDY}#H1 bound more than one admitted run" in detail
+    assert _receipt(study)["capabilities"]["slates"]["integrity"] == "PASS"
+
+
+def test_one_admitted_run_per_row_counts_one_and_warns_about_nothing(slate_study) -> None:
+    """The valid control for B-7: the ordinary trajectory is unchanged."""
+    _repo, study = slate_study
+    assert _lock(study, V11_ROWS) == 0
+    _run_the_first_three(study)
+    assert _gen("slate", "score", "--study", str(study), "--phase", PHASE) == 0
+    _sha, score = _score_object(study)
+    counts = {row["id"]: row["n_bound_runs"] for row in score["cohort"]}
+    assert counts == {
+        f"{STUDY}#H1": 1,
+        f"{STUDY}#H2": 1,
+        f"{STUDY}#H3": 1,
+        f"{STUDY}#H4": 0,
+    }
+    assert _gen("verify", "--study", str(study)) == 0
+    detail = " ".join(
+        c["detail"] for c in _receipt(study)["checks"] if c["name"] == "generation slate"
+    )
+    assert "bound more than one admitted run" not in detail
 
 
 def test_an_unadmitted_hypothesis_run_censors_rather_than_resolving(slate_study) -> None:

@@ -39,7 +39,7 @@ module is the bookkeeping around it.
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, Sequence, Set
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -72,6 +72,7 @@ __all__ = [
     "ROW_KEY_ORDER",
     "ROW_KINDS",
     "SLATE_EVENTS",
+    "all_hypothesis_ids",
     "build_score",
     "build_version",
     "hypothesis_bindings",
@@ -287,12 +288,15 @@ def validation_problems(
     state: Mapping[str, Any],
     previous: Mapping[str, Any] | None,
     allocated: Mapping[str, dict[str, Any]],
+    known_ids: Set[str] = frozenset(),
 ) -> list[str]:
     """Everything wrong with an authored slate, one line each.
 
     ``previous`` is the version this one amends (``None`` for a first lock);
     ``allocated`` maps every id ever allocated for this phase to its row, so a
-    withdrawn id cannot be revived and a live id cannot be re-pointed.
+    withdrawn id cannot be revived and a live id cannot be re-pointed;
+    ``known_ids`` is every ``<study>#Hn`` this study has allocated in ANY phase,
+    which is what a row's ``parent_ids`` may point at.
     """
     problems: list[str] = []
     if payload.get("type") not in (None, "slate"):
@@ -351,6 +355,7 @@ def validation_problems(
                 sweeps=sweeps,
                 allocated=allocated,
                 live_before=live_before,
+                known_ids=known_ids,
             )
         )
         statement = raw.get("statement")
@@ -391,6 +396,7 @@ def _row_problems(
     sweeps: Mapping[str, Any],
     allocated: Mapping[str, dict[str, Any]],
     live_before: set[Any],
+    known_ids: Set[str],
 ) -> list[str]:
     problems: list[str] = []
     if row.get("kind") not in ROW_KINDS:
@@ -427,10 +433,36 @@ def _row_problems(
     for axis in AXES:
         if row.get(axis) not in (1, 2, 3):
             problems.append(f"{label}: {axis} is {row.get(axis)!r}, expected 1, 2 or 3")
-    parents = row.get("parent_ids")
-    if parents is not None and not isinstance(parents, list):
-        problems.append(f"{label}: parent_ids must be a list of hypothesis ids")
+    problems.extend(_parent_problems(row, label, known_ids=known_ids))
     problems.extend(_id_problems(row, label, allocated=allocated, live_before=live_before))
+    return problems
+
+
+def _parent_problems(
+    row: Mapping[str, Any], label: str, *, known_ids: Set[str]
+) -> list[str]:
+    """``parent_ids`` names hypotheses that exist — lineage, not decoration.
+
+    A3 §2 has a row's parents carry the lineage a later reader follows back to
+    the idea it came from, and a typo'd or invented id makes that trail end
+    nowhere while still looking like provenance.  The ids must already have been
+    allocated somewhere in THIS study (any phase); a hypothesis cannot descend
+    from one that does not exist yet.
+    """
+    parents = row.get("parent_ids")
+    if parents is None:
+        return []
+    if not isinstance(parents, list):
+        return [f"{label}: parent_ids must be a list of hypothesis ids"]
+    problems: list[str] = []
+    for parent in parents:
+        if not isinstance(parent, str):
+            problems.append(f"{label}: parent_ids entry {parent!r} is not a hypothesis id")
+        elif parent not in known_ids:
+            problems.append(
+                f"{label}: parent_ids names {parent!r}, which no locked slate in this study "
+                "ever allocated — a parent is an existing <study>#Hn, not a plan"
+            )
     return problems
 
 
@@ -564,8 +596,15 @@ def build_version(
             row.setdefault("revision_of", None)
         else:
             before = previous_rows.get(given, {})
+            # A revision STAYS a revision.  Clearing the flag on the next
+            # amendment that happens not to touch this row would quietly move the
+            # forecast back into the primary panel, scored on `p_first` — which
+            # is the number the revision replaced.  The panel selects on
+            # `revision_of`, so the marker is carried forward.
             row["revision_of"] = (
-                parent_version if before.get("p_success") != row.get("p_success") else None
+                parent_version
+                if before.get("p_success") != row.get("p_success")
+                else before.get("revision_of")
             )
         row.setdefault("parent_ids", [])
         rows.append({key: row[key] for key in ROW_KEY_ORDER if key in row})
@@ -642,6 +681,16 @@ def allocated_rows(
     return out
 
 
+def all_hypothesis_ids(study_dir: Path, events: Sequence[Mapping[str, Any]]) -> set[str]:
+    """Every ``<study>#Hn`` ever locked, across every phase — the lineage domain."""
+    out: set[str] = set()
+    for version in slate_versions(study_dir, events):
+        for row in _rows(version["object"]):
+            if isinstance(row.get("id"), str):
+                out.add(row["id"])
+    return out
+
+
 def _receipt_object(study_dir: Path, sha: str) -> dict[str, Any] | None:
     try:
         return read_object(study_dir, sha)
@@ -656,15 +705,26 @@ def _receipt_object(study_dir: Path, sha: str) -> dict[str, Any] | None:
 
 def hypothesis_bindings(
     study_dir: Path, events: Sequence[Mapping[str, Any]], match: Match
-) -> dict[str, str]:
-    """``{H: the run its LAST admitted receipt was consumed by}``.
+) -> dict[str, tuple[str, int]]:
+    """``{H: (the run its FIRST admitted receipt was consumed by, how many)}``.
 
     A receipt is in ``match.consumed`` only when the matcher classified the run
     ``admitted`` — so a hypothesis whose run was ``mismatched``, ``replayed`` or
     ``refused-but-run`` binds nothing, and the row censors rather than
-    resolving on evidence the extension already rejected.
+    resolving on evidence the extension already rejected.  A superseded or
+    unconsumed receipt does not count either.
+
+    **The FIRST resolution scores.**  A forecast is about what happens when the
+    idea is tried, and the first admitted run is when it was tried.  Reading the
+    LAST one would let a row that resolved ``y = 0`` be run again — differently,
+    with the outcome now known — until it resolved ``y = 1``, which is a
+    forecast scored against a retry rather than against a prediction.  Every
+    further admitted run on the row stays on the ledger and is counted here as
+    ``n_bound_runs``; the slate family WARNs when any row carries more than one,
+    because that is a fact a reader of the calibration table should see.
     """
     bound: dict[str, tuple[int, str]] = {}
+    counts: dict[str, int] = {}
     for receipt in load_receipts(study_dir, events):
         run = match.consumed.get(receipt.sha)
         if run is None or receipt.verdict != "admitted":
@@ -674,9 +734,10 @@ def hypothesis_bindings(
         named = intended.get("hypothesis_id") if isinstance(intended, Mapping) else None
         if not isinstance(named, str):
             continue
-        if named not in bound or receipt.sequence > bound[named][0]:
+        counts[named] = counts.get(named, 0) + 1
+        if named not in bound or receipt.sequence < bound[named][0]:
             bound[named] = (receipt.sequence, run)
-    return {name: run for name, (_sequence, run) in bound.items()}
+    return {name: (run, counts[name]) for name, (_sequence, run) in bound.items()}
 
 
 def _outcome_for_run(
@@ -757,7 +818,9 @@ def build_score(
         p_first = float(first_seen[name].get("p_success"))
         p_latest = float(row.get("p_success"))
         provenance = str(row.get("provenance"))
-        run = bindings.get(name)
+        binding = bindings.get(name)
+        run = binding[0] if binding else None
+        n_bound_runs = binding[1] if binding else 0
         if name not in live:
             status, y, reason = (
                 "withdrawn",
@@ -785,6 +848,7 @@ def build_score(
                 "y": y,
                 "reason": reason,
                 "run": run,
+                "n_bound_runs": n_bound_runs,
                 "revision_of": row.get("revision_of"),
             }
         )
@@ -836,6 +900,7 @@ TABLE_COLUMNS: tuple[str, ...] = (
     "y",
     "reason",
     "run",
+    "n_bound_runs",
 )
 
 
@@ -857,6 +922,7 @@ def table_text(score: Mapping[str, Any]) -> str:
                     "" if row["y"] is None else str(int(row["y"])),
                     str(row["reason"]).replace("\t", " "),
                     "" if row["run"] is None else str(row["run"]),
+                    str(int(row.get("n_bound_runs") or 0)),
                 ]
             )
         )
@@ -1061,12 +1127,12 @@ def _file_problems(
                 f"{newest['object'].get('version')} locked {str(recorded)[:12]}… — a locked "
                 "forecast is immutable; revise it with `klein generation slate amend`"
             )
-        first = [v for v in versions if str(v["object"].get("phase")) == phase][0]
-        if first["object"].get("late"):
-            problems.append(
-                f"the first lock for phase {phase} was recorded after a hypothesis "
-                "admission already named one of its rows"
-            )
+    # No check on version 1's `late` flag: `is_late` asks whether a receipt named
+    # an id THIS phase had already allocated, and before a phase's first lock no
+    # id exists to name — so version 1 is always `late: false` and a FAIL on it
+    # could never fire.  The real guard is `_admission_order_problems`, which
+    # compares every admitted hypothesis against the versions locked before its
+    # receipt and catches the late lock from the other side.
     return problems
 
 
@@ -1145,6 +1211,18 @@ def _phase_checks(
         )
     elif path.read_text(encoding="utf-8") != table_text(recomputed):
         problems.append(f"phase {phase}: {path.name} does not match the recomputed cohort")
+
+    retried = [
+        str(row.get("id"))
+        for row in (recorded.get("cohort") or [])
+        if int(row.get("n_bound_runs") or 0) > 1
+    ]
+    if retried:
+        warnings.append(
+            f"phase {phase}: {', '.join(retried)} bound more than one admitted run — the FIRST "
+            "resolution scores, so a re-run after the row resolved is on the ledger and in the "
+            "pinned table's n_bound_runs column, and it does not move y"
+        )
 
     covered = recorded.get("coverage")
     if isinstance(covered, int | float) and float(covered) < 1.0:

@@ -1377,6 +1377,7 @@ def _run_slate_lock(args: argparse.Namespace) -> int:
         state=_state(study, contract),
         previous=previous["object"] if previous else None,
         allocated=allocated,
+        known_ids=gs.all_hypothesis_ids(study, events),
     )
     if problems:
         print(f"slate {'amend' if amending else 'lock'} refused:")
@@ -1511,7 +1512,9 @@ def _run_slate_score(args: argparse.Namespace) -> int:
             f"{_number(entry['worst_case_brier'])}]"
         )
     for row in score["cohort"]:
-        print(f"  {row['id']}: {row['status']} y={_number(row['y'])} — {row['reason']}")
+        bound = int(row.get("n_bound_runs") or 0)
+        note = "" if bound <= 1 else f"  [{bound} admitted runs; the first one scores]"
+        print(f"  {row['id']}: {row['status']} y={_number(row['y'])} — {row['reason']}{note}")
     print(f"table: {gs.table_path(study, phase).relative_to(study).as_posix()}")
     return 0
 
@@ -2043,7 +2046,8 @@ def _register_parity(actions: argparse._SubParsersAction) -> None:
     bind.add_argument(
         "--floor-run",
         metavar="E####",
-        help="read every floor_<key> from this calibration run instead of each metric's floor_ref",
+        help="restate the calibration run every metric's floor_ref already names "
+        "(refused when it names a different run)",
     )
     bind.add_argument(
         "--ai-snapshot",
@@ -2267,15 +2271,29 @@ def _resolve_floor(
     manifests: dict[str, dict[str, Any]],
     override: str | None,
 ) -> dict[str, Any]:
-    """The measured floor ``delta_j``, read where the lock said it would be."""
-    source = f"run:{override}" if override else str(reference)
+    """The measured floor ``delta_j``, read where the LOCK said it would be.
+
+    ``--floor-run`` is a convenience for the common case where every metric's
+    floor came from the same Phase-0 calibration run; it may only NAME that run.
+    Pointing it somewhere else would be a floor chosen once the comparison was in
+    sight, which is the whole reason ``floor_ref`` is registered — and the bind
+    family FAILs the mismatch afterwards anyway, so refusing it here is the same
+    rule said earlier.
+    """
+    source = str(reference)
     if source.startswith("sweep:"):
         raise WorkflowError(
             f"metric {key!r}: floor_ref {source!r} — a registered sweep records its sidecar "
             "and script hashes, not a numeric floor, so this version cannot read delta from "
             "it. Print floor_" + key + " from a Phase-0 `--action calibration` run "
-            "(`evaluate*(..., extra={...})`) and reference it as `run:E####`, or pass "
-            "`--floor-run E####`."
+            "(`evaluate*(..., extra={...})`) and reference it as `run:E####` in an amended "
+            "lock."
+        )
+    if override and source != f"run:{override}":
+        raise WorkflowError(
+            f"metric {key!r}: --floor-run {override!r} does not name the run the lock froze "
+            f"({source!r}) — the floor's source is registered before the comparison, and the "
+            "flag may only restate it"
         )
     run = source.split(":", 1)[1] if ":" in source else ""
     manifest = manifests.get(run)
@@ -2435,6 +2453,14 @@ def _run_parity_assess(args: argparse.Namespace) -> int:
         return _refuse(
             f"{run} is a {manifest.get('evaluation_kind')} run; the comparison is the "
             "comparison track's SOLE sealed evaluation"
+        )
+    payload = versions[-1][1].get("payload") or {}
+    track = str(payload.get("comparison_track"))
+    if str(manifest.get("track")) != track:
+        return _refuse(
+            f"{run} is a sealed run on track {manifest.get('track')!r}, not the locked "
+            f"comparison track {track!r} — the parity outcome is that track's sole sealed "
+            "evaluation, and assessing another one would put a second verdict on the ledger"
         )
 
     study_name = gm.study_id(study, contract)

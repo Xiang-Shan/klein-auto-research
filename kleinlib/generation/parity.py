@@ -28,10 +28,18 @@ Four moves, in this order and no other:
 3. **Measure** in ONE sealed cell — an ordinary ``klein run-one --final-test
    --tests P…`` on the registered comparison track, whose entrypoint calls the
    study's ``lib/parity_score.py``.  The cell prints the whole metric table and
-   pins ``tables/parity_units.tsv``, one row per sampling unit.
+   pins ``tables/parity_units.tsv``, one row per sampling unit.  ``--tests`` must
+   name EVERY registered parity prediction: the admission is refused otherwise,
+   and a comparison run carrying no verdict for one of them FAILs — an assessment
+   the notary was never asked to reach is a second comparison wearing one name.
 4. **Assess**: recompute ``d``, ``L`` and ``U`` from the pinned table and apply
-   the decision rule.  ``generation verify`` recomputes the same numbers from
-   the same bytes and FAILs on any disagreement.
+   the decision rule.  The outcome is THAT cell's — the comparison track's sole
+   sealed evaluation, resolved from the lock — and never the most recent
+   assessment on the ledger; a sealed run of any other track cannot be assessed
+   at all.  ``generation verify`` recomputes the same numbers from the same bytes
+   and FAILs on any disagreement, comparing the decision exactly and the
+   bootstrap's numbers at a relative tolerance (see :mod:`.stats` on why bit
+   equality would be the wrong test).
 
 **The decision rule** (plan §A.4; A3 §6; B §3).  With ``D_j = sign_j × (AI_j −
 expert_j)`` and simultaneous bounds ``[L_j, U_j]``:
@@ -82,13 +90,13 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import yaml
 
-from ..contract import normalize_tracks, registered_predictions
+from ..contract import mutable_surface, normalize_tracks, registered_predictions
 from ..decision import OPERATOR_ALIASES
 from ..errors import WorkflowError
 from ..manifest import load_manifests
 from ..primitives import canonical_json, sha256_bytes, sha256_file
 from ..transaction import git_blob, relative
-from . import stats
+from . import calibration, stats
 from .chronology import run_started_events
 from .envelope import GENERATION_SCHEMA
 from .expert import _plain, joined, latest, roster_experimenter, same_actor
@@ -126,6 +134,7 @@ __all__ = [
     "parity_path",
     "read_parity_file",
     "read_units",
+    "scorer_problems",
     "sign_of",
     "validation_problems",
 ]
@@ -306,12 +315,7 @@ def validation_problems(
             + ", ".join(AGGREGATIONS)
         )
 
-    scorer = payload.get("scorer")
-    if not isinstance(scorer, Mapping) or not str(scorer.get("path") or "").strip():
-        problems.append("scorer.path is required (the study-local scorer, e.g. lib/parity_score.py)")
-    elif Path(str(scorer["path"])).is_absolute() or ".." in Path(str(scorer["path"])).parts:
-        problems.append("scorer.path must be a study-relative path inside the study")
-
+    problems.extend(scorer_problems(payload, contract))
     problems.extend(_margins_set_by_problems(payload.get("margins_set_by"), experimenter))
     scoring = payload.get("scoring")
     if not isinstance(scoring, Mapping):
@@ -333,6 +337,31 @@ def validation_problems(
         problems.append("ablation_study must be a study id or null")
     problems.extend(_amendment_problems(payload, previous))
     return problems
+
+
+def scorer_problems(payload: Mapping[str, Any], contract: Mapping[str, Any]) -> list[str]:
+    """Where the scorer may live — checked at the lock and again at every verify.
+
+    R-INV-3, the same sentence the loop contract makes of the verifier: **the
+    checker is never the searcher.**  A scorer inside ``entrypoint.mutable`` is
+    edited once per experiment, so the file that decides the comparison would be
+    the file the search was tuning — and the bind's hash would pin whichever
+    version happened to be on disk that afternoon.  ``surprise.py`` refuses an
+    adapter in the surface for the same reason and in the same words.
+    """
+    scorer = payload.get("scorer")
+    if not isinstance(scorer, Mapping) or not str(scorer.get("path") or "").strip():
+        return ["scorer.path is required (the study-local scorer, e.g. lib/parity_score.py)"]
+    raw = str(scorer["path"])
+    if Path(raw).is_absolute() or ".." in Path(raw).parts:
+        return ["scorer.path must be a study-relative path inside the study"]
+    if raw in set(mutable_surface(contract)):
+        return [
+            f"scorer.path {raw!r} is part of entrypoint.mutable — the scorer is study library "
+            "code, frozen at METHOD and hashed at the bind; a checker inside the surface the "
+            "experiments edit is a checker tuned to the answer (R-INV-3)"
+        ]
+    return []
 
 
 def _metrics_problems(payload: Mapping[str, Any]) -> list[str]:
@@ -606,6 +635,14 @@ def read_units(path: Path, keys: Sequence[str]) -> dict[str, Any]:
     Columns: ``unit``, ``block``, then ``ai_<key>`` and ``expert_<key>`` for
     every locked metric.  A missing column is a structural failure, not a
     silently dropped metric.
+
+    **Only an explicitly EMPTY cell is NA.**  A cell carrying anything else that
+    does not parse as a number — ``"N/A"``, ``"-"``, a stray thousands separator,
+    a column shifted by one — is a WorkflowError naming the line and the column,
+    not a silent ``nan``: swallowing it would let a mis-scored table read as an
+    undefined metric, which is a legitimate outcome, and the two must never be
+    confused.  The count of the NA cells is returned so the assessment can record
+    how much of the pinned table was blank.
     """
     try:
         text = path.read_text(encoding="utf-8")
@@ -628,6 +665,7 @@ def read_units(path: Path, keys: Sequence[str]) -> dict[str, Any]:
     columns: dict[str, list[float]] = {
         f"{side}_{key}": [] for key in keys for side in _PIPELINES
     }
+    na_cells = 0
     for number, line in enumerate(lines[1:], start=2):
         cells = line.split("\t")
         if len(cells) != len(header):
@@ -638,13 +676,22 @@ def read_units(path: Path, keys: Sequence[str]) -> dict[str, Any]:
         blocks.append(cells[index["block"]])
         for name in columns:
             raw = cells[index[name]].strip()
-            try:
-                columns[name].append(float(raw) if raw else float("nan"))
-            except ValueError:
+            if not raw:
+                na_cells += 1
                 columns[name].append(float("nan"))
+                continue
+            try:
+                columns[name].append(float(raw))
+            except ValueError as exc:
+                raise WorkflowError(
+                    f"{path.name} line {number}, column {name!r}: {raw!r} is not a number — "
+                    "leave the cell EMPTY to declare it NA; anything else is a mis-scored "
+                    "table, and an unreadable cell is not an undefined metric"
+                ) from exc
     return {
         "units": units,
         "blocks": blocks,
+        "na_cells": na_cells,
         "columns": {name: np.asarray(values, dtype=float) for name, values in columns.items()},
     }
 
@@ -660,7 +707,21 @@ def decide(metrics: Mapping[str, Mapping[str, Any]]) -> dict[str, Any]:
     Pure and total: the same rows always give the same verdict, which is what
     lets ``generation verify`` recompute an assessment and compare it to the
     recorded one numeral for numeral.
+
+    An EMPTY mapping is ``inconclusive``.  The conjunction over no metrics is
+    vacuously true, so the arithmetic would otherwise call a comparison that
+    measured nothing at all ``parity`` — the one verdict a zero-metric table must
+    never be able to reach.
     """
+    if not metrics:
+        return {
+            "verdict": "inconclusive",
+            "agreement_within_floor": False,
+            "undefined_metrics": [],
+            "reasons": [
+                "no metric rows were assessed — a conjunction over nothing is not parity"
+            ],
+        }
     undefined = [key for key, row in metrics.items() if not row.get("defined")]
     defined = {key: row for key, row in metrics.items() if row.get("defined")}
     refutes = [key for key, row in defined.items() if float(row["U"]) < -float(row["margin"])]
@@ -746,6 +807,7 @@ def build_assessment(
 
     parsed = read_units(table, keys)
     columns = parsed["columns"]
+    na_cells = int(parsed["na_cells"])
     block_column = payload.get("block_column")
     blocks = parsed["blocks"] if block_column else None
     n_units = len(parsed["units"])
@@ -759,11 +821,13 @@ def build_assessment(
         sign = sign_of(row.get("direction"))
         deltas[key] = sign * (columns[f"ai_{key}"] - columns[f"expert_{key}"])
     uncertainty = payload.get("uncertainty") if isinstance(payload.get("uncertainty"), Mapping) else {}
+    n_boot = int(uncertainty.get("n_boot", 2000))
+    seed = int(uncertainty.get("seed", 0))
     bounds = stats.simultaneous_bounds(
         deltas,
         blocks,
-        n_boot=int(uncertainty.get("n_boot", 2000)),
-        seed=int(uncertainty.get("seed", 0)),
+        n_boot=n_boot,
+        seed=seed,
         alpha=float(uncertainty.get("alpha", 0.05)),
     )
 
@@ -817,6 +881,12 @@ def build_assessment(
         "table_sha256": recorded,
         "n_units": n_units,
         "n_blocks": n_blocks,
+        "n_na_cells": na_cells,
+        # Diagnostic, never a criterion: the bootstrap is reproducible under a
+        # seed for one numpy, and numpy's Generator promises no bit stream across
+        # versions.  Recording the environment turns a recompute disagreement
+        # from "someone tampered" into "here are the two numpy versions".
+        "environment": {"numpy": np.__version__, "n_boot": n_boot, "seed": seed},
         "metrics": metrics,
         "verdict": decision["verdict"],
         "agreement_within_floor": decision["agreement_within_floor"],
@@ -863,6 +933,40 @@ def _rule_sealed_access_needs_a_bind(ctx: Context) -> list[str]:
         "parity is declared and no `klein generation parity bind` exists: both pipelines' "
         "snapshots and every metric's measured floor are frozen BEFORE any sealed access on "
         "ANY track (deferral D-2), so this look would put the comparison out of reach"
+    ]
+
+
+def _rule_sealed_comparison_carries_its_predictions(ctx: Context) -> list[str]:
+    """The comparison cell asks the notary the questions the lock registered.
+
+    The lock already forces every metric's registered rule to be exactly
+    ``L_<key> >= -margin``.  What was still possible was to spend the comparison
+    track's one sealed look WITHOUT ``--tests``: the assessment would then decide
+    the inequality on the pinned table while the run's manifest carried no
+    verdict at all, and the notary — the only party that decides anything in
+    Klein — would never have been asked.  Two comparisons wearing one name, one
+    of which nobody ran.
+    """
+    if ctx.action != "sealed":
+        return []
+    lock = _latest_lock(ctx.study_dir, read_events(ctx.study_dir))
+    if lock is None:
+        return []
+    payload = lock[1].get("payload") if isinstance(lock[1].get("payload"), Mapping) else {}
+    if str(payload.get("comparison_track")) != ctx.track:
+        return []
+    declared = payload.get("predictions")
+    declared = declared if isinstance(declared, Mapping) else {}
+    wanted = [
+        str(declared[key]) for key in metric_keys(payload) if isinstance(declared.get(key), str)
+    ]
+    missing = [name for name in wanted if name not in ctx.tests]
+    if not missing:
+        return []
+    return [
+        "the sealed comparison cell must ask the notary to adjudicate every parity prediction "
+        f"({', '.join(wanted)}); --tests is missing {', '.join(missing)} — an assessment the "
+        "notary was never asked to reach is a second comparison wearing the same name"
     ]
 
 
@@ -993,6 +1097,7 @@ def _lock_checks(
         )
     payload = newest.get("payload") if isinstance(newest.get("payload"), Mapping) else {}
     problems.extend(_prediction_problems(payload, ctx.contract))
+    problems.extend(scorer_problems(payload, ctx.contract))
     if problems:
         return [_fail(LOCK_CHECK, "; ".join(problems[:6]))]
     late_amendments = [
@@ -1005,6 +1110,7 @@ def _lock_checks(
             "with a margin, a rationale and the registered rule that adjudicates it",
         )
     ]
+    checks.extend(_masking_warnings(ctx, payload))
     if late_amendments:
         checks.append(
             _warn(
@@ -1014,6 +1120,31 @@ def _lock_checks(
             )
         )
     return checks
+
+
+def _masking_warnings(ctx: FamilyContext, payload: Mapping[str, Any]) -> list[Check]:
+    """Did the actor under comparison also do the scoring?
+
+    A WARN, never a FAIL: ``scoring.masked`` and ``scoring.scorer_name`` are
+    testimony (R-PAR-6, §A.6), and this is a string comparison between two
+    self-reported names, not an authenticated fact.  What it can do is put the
+    coincidence on the record, so a reader is not left to notice it — the margins
+    already refuse the same coincidence outright, because a bar is set once and a
+    score is only read.
+    """
+    scoring = payload.get("scoring") if isinstance(payload.get("scoring"), Mapping) else {}
+    name = scoring.get("scorer_name")
+    experimenter = experimenter_of(ctx.study_dir)
+    if not isinstance(name, str) or not same_actor(name, experimenter):
+        return []
+    return [
+        _warn(
+            LOCK_CHECK,
+            f"scoring.scorer_name {name!r} is the roster experimenter {experimenter!r}: the "
+            "pipeline's own author scored the comparison, so `scoring.masked` cannot mean "
+            "blind to which side is which (testimony, never authenticated)",
+        )
+    ]
 
 
 def _bind_checks(
@@ -1064,10 +1195,22 @@ def _bind_checks(
     payload = versions[-1][1].get("payload") if versions else {}
     payload = payload if isinstance(payload, Mapping) else {}
     floors = obj.get("floors") if isinstance(obj.get("floors"), Mapping) else {}
-    for key in metric_keys(payload):
+    for row in metric_rows(payload):
+        key = str(row.get("key"))
         entry = floors.get(key)
         if not isinstance(entry, Mapping) or _number(entry.get("value")) is None:
             problems.append(f"no measured floor is bound for metric {key!r}")
+            continue
+        # The lock says WHERE delta comes from; the bind may only read it there.
+        # `--floor-run` pointing somewhere else would be a floor chosen once the
+        # comparison was in sight, which is the move `floor_ref` exists to stop.
+        reference = str(row.get("floor_ref"))
+        if str(entry.get("source")) != reference:
+            problems.append(
+                f"metric {key!r}: the bind read its floor from {entry.get('source')!r} but the "
+                f"lock froze {reference!r} — the floor's source is registered, not chosen at "
+                "bind time"
+            )
     problems.extend(_pinned_file_problems(ctx, obj, manifests, payload))
     if problems:
         return [_fail(BIND_CHECK, "; ".join(problems[:6]))]
@@ -1191,6 +1334,7 @@ def _cell_checks(
                 f"{run} (and no `defined_{key}: 0` declared it undefined) — an omitted metric "
                 "is not a passed one"
             )
+    problems.extend(_cell_verdict_problems(payload, manifests[run], run))
     if problems:
         return [_fail(CELL_CHECK, "; ".join(problems[:6]))]
     return [
@@ -1199,6 +1343,33 @@ def _cell_checks(
             f"{run} is the sole sealed evaluation of track {track!r}, admitted as sealed, and "
             f"printed the full table for {len(metric_keys(payload))} metric(s)",
         )
+    ]
+
+
+def _cell_verdict_problems(
+    payload: Mapping[str, Any], manifest: Mapping[str, Any], run: str
+) -> list[str]:
+    """The comparison cell's manifest carries a verdict for every parity prediction.
+
+    The admission rule refuses the look without ``--tests``; this is the same
+    requirement read off the evidence afterwards, so a cell run around the
+    admission still shows up.  The verdict itself is not judged here — a
+    ``refuted`` P is exactly what a refuted comparison looks like.
+    """
+    declared = payload.get("predictions")
+    declared = declared if isinstance(declared, Mapping) else {}
+    verdicts = manifest.get("predictions")
+    verdicts = verdicts if isinstance(verdicts, Mapping) else {}
+    absent = sorted(
+        {str(declared[key]) for key in metric_keys(payload) if isinstance(declared.get(key), str)}
+        - set(verdicts)
+    )
+    if not absent:
+        return []
+    return [
+        f"{run} carries no verdict for {', '.join(absent)} — the sealed comparison cell "
+        "adjudicates every registered parity prediction, so the notary reaches the same "
+        "inequality the assessment does"
     ]
 
 
@@ -1218,19 +1389,52 @@ def _assessment_checks(
 ) -> tuple[list[Check], str, bool | None, list[str]]:
     if not assessments:
         return [], "unassessed", None, []
-    event, recorded = assessments[-1]
-    run = str(recorded.get("run"))
     if not versions or not binds:
+        named = ", ".join(sorted({str(obj.get("run")) for _e, obj in assessments}))
         return (
-            [_fail(ASSESS_CHECK, f"{run} was assessed without a lock and a bind")],
+            [_fail(ASSESS_CHECK, f"{named} was assessed without a lock and a bind")],
             "unassessed",
             None,
             [],
         )
+
+    # The outcome belongs to ONE cell — the comparison track's sole sealed
+    # evaluation, resolved from the lock — and not to whatever was assessed
+    # last.  Otherwise a refuted comparison could be followed by an assessment
+    # of some other track's sealed run and the family would report that one.
+    payload = versions[-1][1].get("payload")
+    payload = payload if isinstance(payload, Mapping) else {}
+    comparison = _comparison_run(manifests, payload)
+    prefix: list[Check] = []
+    foreign = sorted(
+        {str(obj.get("run")) for _e, obj in assessments if str(obj.get("run")) != comparison}
+    )
+    if foreign:
+        prefix.append(
+            _fail(
+                ASSESS_CHECK,
+                "assessment(s) name "
+                + ", ".join(foreign)
+                + ", which "
+                + (
+                    f"is not the comparison cell ({comparison})"
+                    if comparison
+                    else f"cannot be the comparison cell — track "
+                    f"{payload.get('comparison_track')!r} has no sealed run"
+                )
+                + ": the outcome is the comparison track's SOLE sealed evaluation, never the "
+                "last thing assessed",
+            )
+        )
+    mine = [row for row in assessments if str(row[1].get("run")) == comparison]
+    if not mine:
+        return prefix, "unassessed", None, []
+    event, recorded = mine[-1]
+    run = str(recorded.get("run"))
     manifest = manifests.get(run)
     if manifest is None:
         return (
-            [_fail(ASSESS_CHECK, f"no run manifest for {run}")],
+            [*prefix, _fail(ASSESS_CHECK, f"no run manifest for {run}")],
             "unassessed",
             None,
             [],
@@ -1246,34 +1450,37 @@ def _assessment_checks(
         )
     except WorkflowError as exc:
         return (
-            [_fail(ASSESS_CHECK, f"the assessment cannot be recomputed: {exc}")],
+            [*prefix, _fail(ASSESS_CHECK, f"the assessment cannot be recomputed: {exc}")],
             "unassessed",
             None,
             [],
         )
-    comparable = {key: recorded.get(key) for key in _ASSESS_KEYS}
-    expected = {key: recomputed[key] for key in _ASSESS_KEYS}
-    if canonical_json(comparable) != canonical_json(expected):
+    problems = _recompute_problems(recorded, recomputed)
+    if problems:
         return (
             [
+                *prefix,
                 _fail(
                     ASSESS_CHECK,
                     f"{run}: the recorded assessment does not recompute from the pinned table "
-                    f"(recorded {recorded.get('verdict')!r}, recomputes {recomputed['verdict']!r})",
-                )
+                    f"(recorded {recorded.get('verdict')!r}, recomputes "
+                    f"{recomputed['verdict']!r}); " + "; ".join(problems[:4]) + "; "
+                    + _environment_note(recorded, recomputed),
+                ),
             ],
             "unassessed",
             None,
             [],
         )
     checks = [
+        *prefix,
         _pass(
             ASSESS_CHECK,
             f"{event.get('id')} {run}: {recomputed['verdict']} "
             f"(agreement_within_floor={recomputed['agreement_within_floor']}) recomputes from "
             f"{str(recorded.get('table_sha256'))[:12]}… over {recomputed['n_units']} unit(s) in "
             f"{recomputed['n_blocks']} block(s)",
-        )
+        ),
     ]
     checks.extend(_printed_agreement_warnings(recomputed, manifest, run))
     return (
@@ -1284,20 +1491,61 @@ def _assessment_checks(
     )
 
 
-#: The fields verify recomputes and compares.  `reasons` is included on purpose:
-#: the explanation is part of the record, and a changed explanation for the same
-#: numbers is a changed decision rule.
-_ASSESS_KEYS: tuple[str, ...] = (
+#: The fields verify recomputes and compares EXACTLY: identities, counts and the
+#: decision itself.  `reasons` is included on purpose — the explanation is part of
+#: the record, and a changed explanation for the same numbers is a changed rule.
+_ASSESS_EXACT_KEYS: tuple[str, ...] = (
     "run",
     "table_sha256",
     "n_units",
     "n_blocks",
-    "metrics",
+    "n_na_cells",
     "verdict",
     "agreement_within_floor",
     "undefined_metrics",
     "reasons",
 )
+
+#: The fields compared at a relative tolerance instead.  ``metrics`` carries the
+#: bootstrap's own output, and a bit-exact float comparison would make an upgrade
+#: of numpy read as tampering: the bounds come from a pseudo-random stream whose
+#: bytes are not guaranteed across versions, so the honest test is that the
+#: numbers agree, not that they were serialized identically.  Booleans and
+#: strings inside it are still compared exactly by ``numbers_agree``.
+_ASSESS_CLOSE_KEYS: tuple[str, ...] = ("metrics",)
+
+
+def _recompute_problems(
+    recorded: Mapping[str, Any], recomputed: Mapping[str, Any]
+) -> list[str]:
+    """One line per disagreement between a recorded assessment and its replay."""
+    exact_recorded = {key: recorded.get(key) for key in _ASSESS_EXACT_KEYS}
+    exact_expected = {key: recomputed.get(key) for key in _ASSESS_EXACT_KEYS}
+    problems: list[str] = []
+    if canonical_json(exact_recorded) != canonical_json(exact_expected):
+        for key in _ASSESS_EXACT_KEYS:
+            if canonical_json(recorded.get(key)) != canonical_json(recomputed.get(key)):
+                problems.append(f"{key}: recorded {recorded.get(key)!r}")
+    problems.extend(
+        calibration.numbers_agree(
+            {key: recorded.get(key) for key in _ASSESS_CLOSE_KEYS},
+            {key: recomputed.get(key) for key in _ASSESS_CLOSE_KEYS},
+        )
+    )
+    return problems
+
+
+def _environment_note(recorded: Mapping[str, Any], recomputed: Mapping[str, Any]) -> str:
+    """The two environments, printed so a version drift is diagnosable."""
+    was = recorded.get("environment")
+    now = recomputed.get("environment")
+    was = was if isinstance(was, Mapping) else {}
+    now = now if isinstance(now, Mapping) else {}
+    return (
+        f"recorded under numpy {was.get('numpy', 'unrecorded')} "
+        f"(n_boot={was.get('n_boot', '?')}, seed={was.get('seed', '?')}), recomputed under "
+        f"numpy {now.get('numpy')} (n_boot={now.get('n_boot')}, seed={now.get('seed')})"
+    )
 
 
 def _printed_agreement_warnings(
@@ -1357,7 +1605,10 @@ def experimenter_of(study_dir: Path) -> str | None:
 
 CAPABILITY = Capability(
     name=CAPABILITY_NAME,
-    admission_rules=(_rule_sealed_access_needs_a_bind,),
+    admission_rules=(
+        _rule_sealed_access_needs_a_bind,
+        _rule_sealed_comparison_carries_its_predictions,
+    ),
     verify_family=parity_family,
     receipt_inputs=_receipt_inputs,
 )

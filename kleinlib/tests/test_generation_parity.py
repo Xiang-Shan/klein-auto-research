@@ -39,6 +39,7 @@ from test_generation_slate import BANNED_FUNCTION_PREFIXES
 from test_generation_spine import _bump, _gates, _gen, _receipt, _scaffold
 from test_workflow_v3 import commit_all, git, metric_command
 
+from kleinlib.errors import WorkflowError
 from kleinlib.generation import contribution as gc
 from kleinlib.generation import parity as gp
 from kleinlib.generation import stats
@@ -106,6 +107,37 @@ def test_a_zero_spread_metric_is_undefined_rather_than_certain() -> None:
 def test_a_single_block_carries_no_bound_at_all() -> None:
     bounds = stats.simultaneous_bounds({"a": _spread(0.0)}, ["one"] * 8, n_boot=N_BOOT)
     assert all(math.isnan(value) for value in bounds["a"])
+
+
+#: Three blocks of sizes 3, 2, 3.  Resampling them re-associates the same per-block
+#: sums under different denominators, so a CONSTANT metric comes back with a
+#: bootstrap sd of ~1e-18 rather than exactly 0.
+UNEQUAL_BLOCKS = ["b1", "b1", "b1", "b2", "b2", "b3", "b3", "b3"]
+
+
+def test_a_constant_metric_is_undefined_on_unequal_blocks_too() -> None:
+    """The zero-spread guard is relative: 1e-18 of spread is not a measurement.
+
+    Exact-zero would catch it only under iid units and equal blocks, where the
+    resampled means happen to be bit-identical.  With unequal block sizes the
+    floating-point residue is non-zero, and studentizing by it would hand a
+    metric nobody measured an interval of width ~1e-16 — which passes
+    ``L >= -epsilon`` for any margin at all.
+    """
+    flat = np.full(8, 0.05)
+    equal = stats.simultaneous_bounds({"flat": flat}, BLOCKS, n_boot=N_BOOT)
+    unequal = stats.simultaneous_bounds(
+        {"flat": flat, "real": _spread(0.0)}, UNEQUAL_BLOCKS, n_boot=N_BOOT
+    )
+    iid = stats.simultaneous_bounds({"flat": flat}, None, n_boot=N_BOOT)
+    assert all(math.isnan(value) for value in equal["flat"])
+    assert all(math.isnan(value) for value in iid["flat"])
+    assert all(math.isnan(value) for value in unequal["flat"])
+    # the metric that DID vary keeps its bound: the guard drops one metric, not the family
+    assert all(math.isfinite(value) for value in unequal["real"])
+    assert gp.decide({"flat": _row(d=0.0, low=float("nan"), high=float("nan"), defined=False)})[
+        "verdict"
+    ] == "inconclusive"
 
 
 def test_a_nonfinite_metric_drops_out_and_the_rest_keep_their_bounds() -> None:
@@ -206,6 +238,22 @@ def test_an_undefined_metric_can_never_pass() -> None:
     assert gp.decide(rows)["verdict"] == "refuted", "another metric refuting still refutes"
 
 
+def test_a_comparison_over_no_metrics_is_inconclusive_and_says_why() -> None:
+    """The vacuous conjunction is the one verdict an empty table must never reach.
+
+    ``all(...)`` over nothing is True, so without this the rule would call a
+    comparison that measured nothing at all `parity` — the single most
+    over-claimable word the capability issues.
+    """
+    decision = gp.decide({})
+    assert decision["verdict"] == "inconclusive"
+    assert decision["agreement_within_floor"] is False
+    assert decision["undefined_metrics"] == []
+    assert any("no metric rows" in reason for reason in decision["reasons"])
+    # and one real metric still decides normally
+    assert gp.decide({"gini": _row(d=0.05, low=0.02, high=0.08)})["verdict"] == "exceeds"
+
+
 def test_agreement_within_floor_is_reported_under_its_own_name_and_is_not_parity() -> None:
     """A4 §7's by-delta rule can hold while the conjunction is inconclusive."""
     decision = gp.decide({"gini": _row(d=0.004, low=-0.05, high=0.06)})
@@ -216,6 +264,55 @@ def test_agreement_within_floor_is_reported_under_its_own_name_and_is_not_parity
         {"ratio": _row(d=float("nan"), low=float("nan"), high=float("nan"), defined=False)}
     )
     assert undefined["agreement_within_floor"] is False
+
+
+# --------------------------------------------------------------------------
+# 2b. the pinned table's cells
+# --------------------------------------------------------------------------
+
+
+def _write_units_table(tmp_path: Path, rows: list[list[str]]) -> Path:
+    header = ["unit", "block", "ai_gini", "expert_gini"]
+    path = tmp_path / "parity_units.tsv"
+    path.write_text(
+        "\n".join(["\t".join(header), *["\t".join(row) for row in rows]]) + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_an_empty_cell_is_na_and_is_counted(tmp_path: Path) -> None:
+    parsed = gp.read_units(
+        _write_units_table(
+            tmp_path,
+            [["u1", "b1", "0.3", "0.2"], ["u2", "b1", "", "0.2"], ["u3", "b2", "0.4", ""]],
+        ),
+        ["gini"],
+    )
+    assert parsed["na_cells"] == 2
+    assert math.isnan(float(parsed["columns"]["ai_gini"][1]))
+    assert math.isnan(float(parsed["columns"]["expert_gini"][2]))
+    assert float(parsed["columns"]["ai_gini"][0]) == pytest.approx(0.3)
+
+
+@pytest.mark.parametrize("cell", ["N/A", "-", "0,3", "1 2", "—"])
+def test_an_unparseable_cell_is_an_error_naming_its_line_and_column(
+    tmp_path: Path, cell: str
+) -> None:
+    """A mis-scored table and an undefined metric are different facts.
+
+    Swallowing the cell as ``nan`` would make a shifted column, a locale's
+    decimal comma or a hand-typed ``N/A`` read as "this metric could not be
+    computed" — a legitimate, preregistered outcome — instead of as the broken
+    table it is.
+    """
+    path = _write_units_table(
+        tmp_path, [["u1", "b1", "0.3", "0.2"], ["u2", "b1", cell, "0.2"]]
+    )
+    with pytest.raises(WorkflowError) as excinfo:
+        gp.read_units(path, ["gini"])
+    message = str(excinfo.value)
+    assert "line 3" in message and "ai_gini" in message and repr(cell) in message
 
 
 # --------------------------------------------------------------------------
@@ -486,26 +583,35 @@ def _cell_command(table: str) -> list[str]:
 _CELL = _units()
 
 
-def _seal(repo: Path, study: Path, *, track: str = "comparison") -> dict[str, Any]:
+def _seal(
+    repo: Path,
+    study: Path,
+    *,
+    track: str = "comparison",
+    asked: tuple[str, ...] | None = None,
+    tests: tuple[str, ...] | None = None,
+) -> dict[str, Any]:
+    """The sealed comparison cell: acknowledge the phase, admit, run.
+
+    ``asked`` is what ``generation check`` is told the run will test; ``tests``
+    is what the run actually asks the notary.  They default to every parity
+    prediction and are separated so the two ways of losing a verdict — never
+    asking for the admission, and being admitted then not asking — can each be
+    exercised on their own.
+    """
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "acknowledge the adaptive phase")
-    _gen(
-        "check",
-        "--study",
-        str(study),
-        "--action",
-        "sealed",
-        "--track",
-        track,
-        "--tests",
-        *PRED.values(),
-    )
+    requested = tuple(PRED.values()) if asked is None else asked
+    argv = ["check", "--study", str(study), "--action", "sealed", "--track", track]
+    if requested:
+        argv += ["--tests", *requested]
+    _gen(*argv)
     return run_one(
         study,
         track=track,
         final_test=True,
         command=_cell_command(_CELL["table"]),
-        tests=list(PRED.values()),
+        tests=list(PRED.values()) if tests is None else list(tests),
         echo=False,
     )
 
@@ -650,6 +756,49 @@ def test_v15_a_scorer_edited_at_the_sealed_candidate_fails(bound_study) -> None:
     assert _capability(study, "parity")["integrity"] == "FAIL"
 
 
+def test_the_comparison_admission_needs_every_parity_prediction(bound_study) -> None:
+    """B-5, the admission half: the notary must be asked the questions that were locked."""
+    repo, study = bound_study
+    record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
+    commit_all(repo, "acknowledge the adaptive phase")
+
+    assert (
+        _gen(
+            "check", "--study", str(study), "--action", "sealed",
+            "--track", "comparison", "--tests", PRED["gini"], PRED["calib"],
+        )
+        == 2
+    )
+    receipt = _last_receipt(study)
+    assert receipt["verdict"] == "refused"
+    assert any(PRED["ratio"] in reason for reason in receipt["reasons"])
+
+    # a seal on ANOTHER track carries no parity obligation
+    assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 0
+    # and the full set is admitted
+    _bump(study, "the comparison cell")
+    assert (
+        _gen(
+            "check", "--study", str(study), "--action", "sealed",
+            "--track", "comparison", "--tests", *PRED.values(),
+        )
+        == 0
+    )
+
+
+def test_a_comparison_cell_that_never_asked_the_notary_fails(bound_study) -> None:
+    """B-5, the record half: admitted for three predictions, run asking for two."""
+    repo, study = bound_study
+    manifest = _seal(repo, study, tests=(PRED["gini"], PRED["calib"]))
+    assert manifest["experiment"] == "E0003"
+    assert set(manifest["predictions"]) == {PRED["gini"], PRED["calib"]}
+
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = _detail(study, "parity cell")
+    assert f"carries no verdict for {PRED['ratio']}" in detail
+    assert _capability(study, "parity")["integrity"] == "FAIL"
+
+
 def test_the_sealed_cell_is_the_comparison_tracks_sole_sealed_evaluation(bound_study) -> None:
     repo, study = bound_study
     _seal(repo, study)
@@ -673,6 +822,140 @@ def test_a_tampered_assessment_does_not_recompute(bound_study) -> None:
     git(repo, "commit", "-q", "-m", "tamper")
     assert _gen("verify", "--study", str(study)) == 2
     assert "does not recompute" in _detail(study, "parity assessment")
+
+
+# --------------------------------------------------------------------------
+# the outcome belongs to ONE cell, and recomputes within tolerance
+# --------------------------------------------------------------------------
+
+
+def _write_object(study: Path, sha: str, obj: dict[str, Any]) -> None:
+    """Rewrite a stored object's BYTES in place.
+
+    The store is content-addressed, so this also trips `generation orphans`; it
+    is the right tamper for a check that must fire on the CONTENT regardless.
+    """
+    (study / "generation" / "objects" / f"{sha}.json").write_text(
+        json.dumps(obj, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def _append_assessment(study: Path, body: dict[str, Any]) -> str:
+    """File a `parity_assessed` event by hand — the forgery the family must catch."""
+    from kleinlib.generation.admission import core_anchor
+    from kleinlib.generation.chronology import git_head, repo_for
+    from kleinlib.generation.ledger import append_event, write_object
+
+    sha = write_object(study, body)
+    append_event(
+        study,
+        gp.ASSESS_TYPE,
+        study=STUDY,
+        core_anchor=core_anchor(study),
+        git_head=git_head(repo_for(study)),
+        payload_sha256=sha,
+        testimony_fields={"actor": "a hand-written assessment"},
+        run=body["run"],
+        verdict=body["verdict"],
+        agreement_within_floor=body["agreement_within_floor"],
+    )
+    return sha
+
+
+def test_a_sealed_run_on_another_track_cannot_be_assessed(bound_study, capsys) -> None:
+    """B-1, the CLI half: `--run` names the LOCKED comparison track's cell or nothing."""
+    repo, study = bound_study
+    assert _seal(repo, study)["experiment"] == "E0003"
+    assert _gen("parity", "assess", "--study", str(study), "--run", "E0003") == 2
+
+    _bump(study, "a frontier seal after the bind")
+    assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 0
+    other = run_one(
+        study, track="primary", final_test=True, command=metric_command(0.6), echo=False
+    )
+    assert other["experiment"] == "E0004"
+    capsys.readouterr()
+    assert _gen("parity", "assess", "--study", str(study), "--run", "E0004") == 2
+    assert "not the locked comparison track" in capsys.readouterr().err
+    assert len(gp.joined(study, _events(study), gp.ASSESS_TYPE)) == 1, "nothing was recorded"
+
+
+def test_the_outcome_is_the_comparison_cells_never_the_last_assessment(bound_study) -> None:
+    """B-1, the record half: a foreign assessment FAILs and does not become the outcome.
+
+    The refuted comparison is the study's result.  Assessing some other track's
+    sealed run afterwards — by hand, around the CLI — used to overwrite the
+    reported outcome simply by being newer on the ledger.
+    """
+    repo, study = bound_study
+    _seal(repo, study)
+    assert _gen("parity", "assess", "--study", str(study), "--run", "E0003") == 2
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _capability(study, "parity")["outcome"] == "refuted"
+
+    _bump(study, "a frontier seal after the bind")
+    assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 0
+    run_one(study, track="primary", final_test=True, command=metric_command(0.6), echo=False)
+
+    forged = dict(_assessment(study), run="E0004", verdict="parity")
+    _append_assessment(study, forged)
+    commit_all(repo, "an assessment of the frontier seal")
+
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = _detail(study, "parity assessment")
+    assert "E0004" in detail and "SOLE sealed evaluation" in detail
+    outcome = _capability(study, "parity")
+    assert outcome["outcome"] == "refuted", "the comparison cell's verdict, not the newest one"
+    assert outcome["integrity"] == "FAIL"
+
+
+def test_an_assessment_recomputes_within_tolerance_but_not_beyond_it(bound_study) -> None:
+    """B-2: the bounds are a bootstrap, so a bit-exact float compare is the wrong test.
+
+    numpy's Generator promises no bit stream across versions; an upgrade must
+    not read as tampering. A relative 1e-15 nudge is accepted, a 1e-6 one is
+    not, and the FAIL prints both environments so a real drift is diagnosable.
+    """
+    repo, study = bound_study
+    _seal(repo, study)
+    assert _gen("parity", "assess", "--study", str(study), "--run", "E0003") == 2
+    recorded = _assessment(study)
+    assert recorded["environment"]["numpy"] == np.__version__
+    assert recorded["environment"]["n_boot"] == N_BOOT
+    assert recorded["environment"]["seed"] == 0
+    assert recorded["n_na_cells"] == 0
+
+    # a re-filed assessment, identical but for the last bit of one bound
+    nudged = copy.deepcopy(recorded)
+    nudged["metrics"]["gini"]["L"] = float(nudged["metrics"]["gini"]["L"]) * (1 + 1e-15)
+    nudged["environment"] = {"numpy": "1.99.0", "n_boot": N_BOOT, "seed": 0}
+    _append_assessment(study, nudged)
+    commit_all(repo, "the same assessment under a different numpy")
+    assert _gen("verify", "--study", str(study)) == 0, "a float's last bit is not tampering"
+    assert _capability(study, "parity")["outcome"] == "refuted"
+
+    moved = copy.deepcopy(recorded)
+    moved["metrics"]["gini"]["L"] = float(moved["metrics"]["gini"]["L"]) * (1 + 1e-6)
+    moved["environment"] = {"numpy": "1.99.0", "n_boot": N_BOOT, "seed": 0}
+    _append_assessment(study, moved)
+    commit_all(repo, "a bound moved where it can be seen")
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = _detail(study, "parity assessment")
+    assert "metrics.gini.L" in detail
+    assert "numpy 1.99.0" in detail and f"numpy {np.__version__}" in detail
+
+
+def test_a_recorded_verdict_is_still_compared_exactly(bound_study) -> None:
+    """The tolerance is for the NUMBERS; the decision and its reasons are exact."""
+    repo, study = bound_study
+    _seal(repo, study)
+    assert _gen("parity", "assess", "--study", str(study), "--run", "E0003") == 2
+    rewritten = copy.deepcopy(_assessment(study))
+    rewritten["reasons"] = ["the pipelines agreed"]
+    _append_assessment(study, rewritten)
+    commit_all(repo, "a friendlier explanation")
+    assert _gen("verify", "--study", str(study)) == 2
+    assert "reasons" in _detail(study, "parity assessment")
 
 
 def _assessment_sha(study: Path) -> str:
@@ -717,6 +1000,7 @@ def locked_ready(tmp_path: Path) -> tuple[Path, Path]:
         (lambda p: p["metrics"][0].update(undefined_handling="drop"), "undefined_handling"),
         (lambda p: p["predictions"].pop("ratio"), "predictions.ratio is required"),
         (lambda p: p.pop("ablation_study"), "ablation_study is required"),
+        (lambda p: p["scorer"].update(path="train.py"), "part of entrypoint.mutable"),
     ],
 )
 def test_the_lock_refuses_a_criterion_it_cannot_hold(locked_ready, mutate, needle) -> None:
@@ -786,6 +1070,108 @@ def test_a_bind_needs_a_reproduced_baseline_and_a_numeric_floor(tmp_path: Path) 
         )
         == 2
     ), "the expertise obligation is still open"
+
+
+def _scorer_joins_the_surface(contract: dict[str, Any]) -> None:
+    contract["entrypoint"]["mutable"] = ["train.py", SCORER]
+
+
+def test_a_scorer_that_joins_the_mutable_surface_later_fails_the_lock(parity_study) -> None:
+    """B-4, the record half: the check is re-run against study.yaml at every verify.
+
+    The lock refuses a `scorer.path` inside `entrypoint.mutable`, but the surface
+    is declared in study.yaml and study.yaml can be edited afterwards. A scorer
+    that becomes part of the per-experiment diff has stopped being a frozen
+    checker, whichever end of the study made it so (R-INV-3).
+    """
+    repo, study = parity_study
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _statuses(study, "parity lock")["parity lock"] == ["PASS"]
+
+    _amend_contract(study, _scorer_joins_the_surface)
+    commit_all(repo, "the scorer joins the mutable surface")
+    assert _gen("verify", "--study", str(study)) == 2
+    assert "part of entrypoint.mutable" in _detail(study, "parity lock")
+    assert _capability(study, "parity")["integrity"] == "FAIL"
+
+
+def test_the_scorer_being_the_experimenters_own_is_a_warning_not_a_refusal(
+    tmp_path: Path,
+) -> None:
+    """B-11: `scoring` is testimony, so the coincidence is recorded, not refused."""
+    repo, study = _enable(tmp_path, "expertise", "parity")
+    assert _reference(study) == 0
+    _write_card(study)
+    assert _gen("expert", "lock", "--study", str(study)) == 0
+    payload = _parity_payload()
+    payload["scoring"] = {"masked": True, "scorer_name": EXPERIMENTER}
+    _write_parity(study, payload)
+    assert _gen("parity", "lock", "--study", str(study)) == 0, "testimony is never a refusal"
+    _gates(repo, study)
+
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _statuses(study, "parity lock")["parity lock"] == ["PASS", "WARN"]
+    detail = _detail(study, "parity lock")
+    assert "roster experimenter" in detail and "cannot mean blind" in detail
+    assert _capability(study, "parity")["integrity"] == "PASS"
+
+
+def test_floor_run_may_only_restate_the_run_the_lock_froze(parity_study, capsys) -> None:
+    """B-3, the CLI half: `--floor-run` is a convenience, never an override."""
+    repo, study = parity_study
+    _bump(study, "a second floor recipe")
+    assert (
+        _gen("check", "--study", str(study), "--action", "calibration", "--track", "comparison")
+        == 0
+    )
+    assert run_one(
+        study,
+        track="comparison",
+        command=metric_command(0.7, extra={f"floor_{key}": 0.5 for key in KEYS}),
+        echo=False,
+    )["experiment"] == "E0003"
+    commit_all(repo, "a second, roomier floor recipe")
+
+    capsys.readouterr()
+    assert (
+        _gen(
+            "parity", "bind", "--study", str(study),
+            "--floor-run", "E0003",
+            "--ai-snapshot", AI_SNAPSHOT, "--expert-snapshot", EXPERT_SNAPSHOT,
+        )
+        == 2
+    ), "E0003 is not the run the lock froze"
+    assert "does not name the run the lock froze" in capsys.readouterr().err
+    assert not gp.joined(study, _events(study), gp.BIND_TYPE), "nothing was bound"
+
+    # restating the LOCKED run is lawful, and the floors are the locked ones
+    assert (
+        _gen(
+            "parity", "bind", "--study", str(study),
+            "--floor-run", "E0002",
+            "--ai-snapshot", AI_SNAPSHOT, "--expert-snapshot", EXPERT_SNAPSHOT,
+        )
+        == 0
+    )
+    floors = gp.joined(study, _events(study), gp.BIND_TYPE)[0][1]["floors"]
+    assert {key: floor["source"] for key, floor in floors.items()} == {
+        key: "run:E0002" for key in KEYS
+    }
+    assert all(floor["value"] == FLOOR for floor in floors.values())
+
+
+def test_a_bound_floor_from_somewhere_else_fails_the_bind(bound_study) -> None:
+    """B-3, the record half: the lock says WHERE delta comes from, forever."""
+    repo, study = bound_study
+    assert _gen("verify", "--study", str(study)) == 0
+
+    event, obj = gp.joined(study, _events(study), gp.BIND_TYPE)[0]
+    obj["floors"]["gini"]["source"] = "run:E9999"
+    _write_object(study, str(event["payload_sha256"]), obj)
+    commit_all(repo, "a floor from a run the lock never named")
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = _detail(study, "parity bind")
+    assert "'run:E9999'" in detail and "the lock froze 'run:E0002'" in detail
 
 
 def test_a_sweep_floor_reference_is_refused_with_the_reason(parity_study, capsys) -> None:

@@ -286,7 +286,8 @@ carries the full shape with comments.
 strictly inside (0, 1), an axis score outside {1, 2, 3}, an undeclared track, a
 `floor_ref` that is neither `minimum_delta` nor a **registered** `sweep:<name>`, and a
 `success_P` that study.yaml does not register, that is manual, or that belongs to
-another track. Then it assigns each row a permanent **`<study>#Hn`** — monotonic across
+another track, and a `parent_ids` entry naming a hypothesis id no slate in this study
+ever allocated. Then it assigns each row a permanent **`<study>#Hn`** — monotonic across
 the whole study, never recycled — rewrites the file with the ids in place, and hashes
 the committed bytes into the lock object.
 
@@ -294,7 +295,9 @@ the committed bytes into the lock object.
 sha and FAILs `generation slate` for the life of the study. The lawful revision is
 `slate amend`: a new version with the previous lock as its parent, in which a changed
 `p_success` sets `revision_of` and is scored in its own panel — the primary panels
-always use the FIRST forecast. An amendment may add rows (fresh ids) and drop rows, but
+always use the FIRST forecast. Once set, `revision_of` is carried forward by every later
+version, so a revised row stays in the revisions panel rather than sliding back into the
+primary one at the next amendment that leaves it alone. An amendment may add rows (fresh ids) and drop rows, but
 may never revive a freed id, re-point an existing one at a different hypothesis, or
 restate the frozen `base_rate_forecast` and `cohort_window`.
 
@@ -322,7 +325,11 @@ off-notary path exists for any of them.
 
 ### The success event, exactly
 
-For row `H`, the bound run is the one its LAST admitted receipt was consumed by.
+For row `H`, the bound run is the one its **FIRST** admitted receipt was consumed by — a
+forecast is about what happens when the idea is tried, so the first resolution scores.
+Every further admitted run on the row is counted as `n_bound_runs` (a column of the
+calibration table and a field of the score object) and the family WARNs when any row
+carries more than one; re-running a resolved row leaves `y` where it was.
 
 | | |
 |---|---|
@@ -333,7 +340,7 @@ For row `H`, the bound run is the one its LAST admitted receipt was consumed by.
 
 `slate score` records the core-chain tip as `closed_at_core_sequence`, writes
 `generation/tables/slate_calibration_<phase>.tsv` (one row per cohort member: id, panel,
-p_first, p_latest, status, y, reason, run) and hashes it. A phase is scored once;
+p_first, p_latest, status, y, reason, run, n_bound_runs) and hashes it. A phase is scored once;
 `--rescore --reason <why>` records a further score whose parent is the previous one —
 both objects survive, because a cohort that reopened is a fact about the study.
 
@@ -365,7 +372,8 @@ id that is not a live row of it; a slate file whose sha is not the newest versio
 recycled or non-monotonic id; a recorded score whose recomputation from the receipts,
 the manifests and the core chain differs in any number (compared at rel 1e-12); a cohort
 row missing from the score; a calibration table that is not the one the score hashed. It
-WARNs on coverage below 1.0 and on a phase acknowledged without a score. Its outcome is
+WARNs on coverage below 1.0, on a row with `n_bound_runs > 1`, and on a phase
+acknowledged without a score. Its outcome is
 `complete`, `conditional` or `unscored`, and the label copies it.
 
 ### What a slate score establishes, and what it does not
