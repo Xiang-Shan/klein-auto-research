@@ -211,6 +211,208 @@ def test_v03b_core_verify_never_mentions_generation(ready_study_v3) -> None:
     assert not [c for c in receipt["checks"] if c["name"].startswith("generation")]
 
 
+def _core_check_names(study: Path) -> list[str]:
+    receipt = json.loads((study / "verify_receipt.json").read_text(encoding="utf-8"))
+    return [check["name"] for check in receipt["checks"]]
+
+
+def test_v03b_the_core_receipt_shape_is_pinned_with_and_without_a_manifest(
+    ready_study_v3,
+) -> None:
+    """V-03(b), the other half: a DECLARED capability changes no core check.
+
+    A snapshot, not a property: the whole point of R-INV-8 is that the core
+    receipt a stranger reads is the same list of checks whether or not the study
+    opted in, so the list is written down here and a core check added or renamed
+    by the generation layer breaks this test on purpose.
+    """
+    repo, study = ready_study_v3
+    assert cli.main(["verify", "--study", str(study)]) == 0
+    before = _core_check_names(study)
+    assert before, "the core receipt has no checks"
+
+    # `ready_study_v3` already recorded CONSULT, so this opt-in is a late one —
+    # which the GENERATION audit fails and the CORE audit knows nothing about.
+    assert _gen("init", "--study", str(study), "--capability", "expertise", "--allow-late") == 0
+    assert _gen("verify", "--study", str(study)) == 2
+
+    assert cli.main(["verify", "--study", str(study)]) == 0
+    assert _core_check_names(study) == before
+    assert not [name for name in before if name.startswith("generation")]
+    assert git(repo, "status", "--porcelain") == ""
+
+
+# --------------------------------------------------------------------------
+# D-2 — a study that never opted in is never touched
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("argv", "code"),
+    [
+        (("verify",), 1),
+        (("status",), 0),
+        (("recover",), 0),
+        (("label",), 2),
+        (("check", "--action", "run", "--track", "primary"), 1),
+    ],
+)
+def test_a_non_opted_study_is_left_byte_identical_by_every_verb(
+    tmp_path: Path, argv: tuple[str, ...], code: int
+) -> None:
+    """Not opting in is not a failure, so no verb may manufacture evidence of one.
+
+    `verify` used to CREATE `generation/` and file a FAIL receipt here, which
+    turned "this study never opted in" into a permanent failing audit of a study
+    that had promised nothing.
+    """
+    repo, study = _scaffold(tmp_path)
+    _gates(repo, study)
+    head = git(repo, "rev-parse", "HEAD")
+    assert _gen(*argv, "--study", str(study)) == code
+    assert not (study / "generation").exists()
+    assert git(repo, "rev-parse", "HEAD") == head
+    assert git(repo, "status", "--porcelain") == ""
+
+
+# --------------------------------------------------------------------------
+# A-1 / D-1 — a generation commit never sweeps core state
+# --------------------------------------------------------------------------
+
+
+def test_a_dirty_core_state_is_never_swept_into_a_generation_commit(enabled_study) -> None:
+    """`scope="own"` prepends study_state.json and events.jsonl; this must not.
+
+    The invalid control is the sweep itself: with the operator's edit to
+    `study_state.json` uncommitted, `generation verify` must either refuse or
+    file a commit touching only `generation/**`. What it may never do is carry
+    somebody else's hand-edit of core state into a generation transaction and
+    leave the tree looking clean.
+    """
+    repo, study = enabled_study
+    state = study / "study_state.json"
+    state.write_text(state.read_text(encoding="utf-8").rstrip("\n") + "\n\n", encoding="utf-8")
+    dirty_before = git(repo, "status", "--porcelain")
+    assert "study_state.json" in dirty_before
+    head = git(repo, "rev-parse", "HEAD")
+
+    code = _gen("verify", "--study", str(study))
+    if code == 1:  # refused: nothing written, nothing filed
+        assert git(repo, "rev-parse", "HEAD") == head
+        assert git(repo, "status", "--porcelain") == dirty_before
+    else:  # filed a receipt: the commit carries generation/** and nothing else
+        names = git(repo, "show", "--name-only", "--format=", "HEAD").split()
+        assert all("/generation/" in f"/{name}" for name in names), names
+    assert "study_state.json" in git(repo, "status", "--porcelain")
+
+
+def test_the_expert_verbs_file_only_their_own_artifact_and_the_ledger(tmp_path: Path) -> None:
+    """A-10: write ownership for a capability verb, read off the commit itself."""
+    repo, study = _scaffold(tmp_path)
+    assert _gen("init", "--study", str(study), "--capability", "expertise") == 0
+    names = git(repo, "show", "--name-only", "--format=", "HEAD").split()
+    assert names and all("/generation/" in f"/{name}" for name in names), names
+
+
+# --------------------------------------------------------------------------
+# D-4 — the object store is write-once, and a rewrite is the operator's to undo
+# --------------------------------------------------------------------------
+
+
+def test_a_rewritten_object_blocks_every_writing_verb(enabled_study) -> None:
+    """The store is content-addressed: a file that is not its own hash is a tamper."""
+    repo, study = enabled_study
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
+    objects = sorted((study / "generation" / "objects").glob("*.json"))
+    assert objects
+    original = objects[-1].read_bytes()
+    forged = json.loads(objects[-1].read_text(encoding="utf-8"))
+    forged["verdict"] = "admitted"
+    forged["reasons"] = ["nothing to see here"]
+    objects[-1].write_text(json.dumps(forged, indent=1) + "\n", encoding="utf-8")
+    commit_all(repo, "rewrite a stored object in place")
+
+    # every writing verb refuses, and `recover` does NOT undo it
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 1
+    assert _gen("label", "--study", str(study)) == 1
+    head = git(repo, "rev-parse", "HEAD")
+    assert _gen("recover", "--study", str(study)) == 0
+    assert git(repo, "rev-parse", "HEAD") == head
+    assert json.loads(objects[-1].read_text(encoding="utf-8"))["verdict"] == "admitted"
+
+    # and the audit says so out loud rather than raising
+    assert _gen("verify", "--study", str(study)) == 2
+    detail = " ".join(
+        check["detail"] for check in _receipt(study)["checks"] if check["name"] == (
+            "generation orphans"
+        )
+    )
+    assert "does not hash to its file name" in detail
+
+    # the valid control: restoring the bytes by hand puts the store back
+    objects[-1].write_bytes(original)
+    commit_all(repo, "restore the rewritten object")
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
+
+
+def test_write_object_refuses_to_complete_a_rewrite(enabled_study) -> None:
+    """Invalid control at the API: re-writing an object never overwrites bytes."""
+    from kleinlib.errors import WorkflowError
+
+    _repo, study = enabled_study
+    payload = {"kind": "probe", "n": 1}
+    sha = ledger.write_object(study, payload)
+    assert ledger.write_object(study, payload) == sha  # identical bytes are a no-op
+    ledger.object_path(study, sha).write_text("{}\n", encoding="utf-8")
+    with pytest.raises(WorkflowError, match="write-once"):
+        ledger.write_object(study, payload)
+
+
+# --------------------------------------------------------------------------
+# D-7 / D-8 — the checkpoint vocabulary, and an unreadable state
+# --------------------------------------------------------------------------
+
+
+def test_the_check_action_choices_are_the_admission_checkpoints() -> None:
+    """The argparse tuple is a duplicate of `admission.CHECKPOINTS`; keep it one."""
+    from kleinlib.cli_generation import CHECKPOINT_CHOICES
+    from kleinlib.generation.admission import CHECKPOINTS
+
+    assert CHECKPOINT_CHOICES == CHECKPOINTS
+    parser = cli.build_parser()
+    actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
+    sub = [
+        a
+        for a in actions[0].choices["generation"]._subparsers._group_actions
+        if a.dest == "generation_action"
+    ][0]
+    with pytest.raises(SystemExit):
+        cli.main(["generation", "check", "--action", "telepathy", "--track", "primary"])
+    assert "cell" in sub.choices["check"].format_help()
+
+
+def test_an_unreadable_state_is_a_refusal_reason_not_an_empty_state(enabled_study) -> None:
+    """D-8: `final_holdout_access` lives in study_state.json — `{}` would admit a seal."""
+    repo, study = enabled_study
+    _bump(study, "one")
+    # valid control: a readable state admits the sealed check
+    assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 0
+
+    (study / "study_state.json").write_text("{not json", encoding="utf-8")
+    commit_all(repo, "study_state.json is unreadable")
+    _bump(study, "two")
+    assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 2
+    reasons = " ".join(_last_spine_object(study)["reasons"])
+    assert "study_state.json is unreadable" in reasons
+    assert "not an empty one" in reasons
+
+
+def _last_spine_object(study: Path) -> dict:
+    events = ledger.read_events(study)
+    return ledger.read_object(study, events[-1]["payload_sha256"])
+
+
 def test_v03c_and_v04_an_unadmitted_run_is_lawful_to_the_core_and_fails_here(
     enabled_study,
 ) -> None:
@@ -445,6 +647,90 @@ def test_v23_the_label_needs_both_audits_and_then_the_findings_line(enabled_stud
     commit_all(repo, "findings quote the label")
     assert _gen("verify", "--study", str(study)) == 0
     assert _statuses(_receipt(study), "generation findings label") == ["PASS"]
+
+
+def test_v23_c_relabel_after_unrelated_commit(enabled_study) -> None:
+    """F-1: an unrelated commit makes the receipt stale — and re-verify un-stales it.
+
+    The receipt is a pure function of the study at one HEAD, so a commit that
+    touched only `program.md` leaves the payload identical apart from
+    `git_head`. Skipping the rewrite on that ground alone stranded the study:
+    the receipt stayed stale, `label` refused forever, and re-running `verify`
+    changed nothing. Both properties are asserted here — the refresh, and the
+    byte-stability it must not cost.
+    """
+    repo, study = enabled_study
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
+    run_one(study, command=metric_command(0.7), echo=False)
+    assert cli.main(["verify", "--study", str(study)]) == 0
+    assert _gen("verify", "--study", str(study)) == 0
+
+    # the byte-stability property, at one HEAD: nothing written, nothing filed
+    before = (study / "generation" / "verify_receipt.json").read_bytes()
+    head = git(repo, "rev-parse", "HEAD")
+    assert _gen("verify", "--study", str(study)) == 0
+    assert (study / "generation" / "verify_receipt.json").read_bytes() == before
+    assert git(repo, "rev-parse", "HEAD") == head
+    stale_head = _receipt(study)["git_head"]
+
+    # an ORDINARY, unrelated commit: the lab notebook moved on
+    (study / "program.md").write_text(
+        (study / "program.md").read_text(encoding="utf-8") + "\nDecision: keep going\n", "utf-8"
+    )
+    commit_all(repo, "program.md: a later thought")
+    assert _gen("label", "--study", str(study)) == 2  # both receipts are stale now
+
+    assert cli.main(["verify", "--study", str(study)]) == 0
+    assert _gen("verify", "--study", str(study)) == 0
+    # the payload is identical apart from `git_head` — and it was REWRITTEN anyway
+    assert _receipt(study)["git_head"] != stale_head
+    assert _gen("label", "--study", str(study)) == 0
+
+
+# --------------------------------------------------------------------------
+# F-2 — a run after a refusal is `refused-but-run`, not `replayed`
+# --------------------------------------------------------------------------
+
+
+def test_a_run_after_a_refusal_is_reported_as_refused_but_run(enabled_study) -> None:
+    """The NEWEST preceding receipt decides; an older consumed one is not the fact.
+
+    Both classifications FAIL, so the disposition was never wrong — the LABEL
+    was: "re-used a spent receipt" is the milder story, and reporting it for a
+    driver who was told no and ran anyway understates what happened.
+    """
+    _repo, study = enabled_study
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
+    run_one(study, command=metric_command(0.7), echo=False)
+
+    # a refusal on the SAME track: a hypothesis needs the `slates` capability
+    _bump(study, "two")
+    assert (
+        _gen(
+            "check", "--study", str(study), "--action", "run", "--track", "primary",
+            "--hypothesis", "03-demo#H1",
+        )
+        == 2
+    )
+
+    # …and the driver ran anyway
+    run_one(study, command=metric_command(0.9), echo=False)
+    assert _gen("verify", "--study", str(study)) == 2
+    assert _receipt(study)["runs"] == {"E0001": "admitted", "E0002": "refused-but-run"}
+
+
+def test_a_run_re_using_a_spent_receipt_is_still_replayed(enabled_study) -> None:
+    """The valid control for the same branch: no refusal, so the fact is replay."""
+    _repo, study = enabled_study
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
+    run_one(study, command=metric_command(0.7), echo=False)
+    _bump(study, "two")
+    run_one(study, command=metric_command(0.8), echo=False)
+    assert _gen("verify", "--study", str(study)) == 2
+    assert _receipt(study)["runs"] == {"E0001": "admitted", "E0002": "replayed"}
 
 
 def test_v23_a_stale_core_receipt_refuses_the_label(enabled_study) -> None:

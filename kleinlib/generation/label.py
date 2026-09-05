@@ -14,10 +14,13 @@ research succeeded — an honestly stopped study with every capability outcome
 ``incomplete`` can carry it, and a spectacular result with one unadmitted run
 cannot.
 
-**The rung is ``local-order``.**  Order is established against this study's own
-chains and this repository's own history (see
-:mod:`kleinlib.generation.chronology`).  A custody attestation for a pushed,
-protected remote ref would raise the rung; the spine never issues that.
+**The rung is ALWAYS ``local-order`` in this release.**  Order is established
+against this study's own chains and this repository's own history (see
+:mod:`kleinlib.generation.chronology`), and no input raises it — not a
+``custody attest`` receipt, not a pushed protected ref.  A custody attestation
+is recorded and reported in its own place (the ``benchmark`` capability's entry
+and the custody receipts on the ledger), never as the label's rung: the layer
+cannot verify custody, and a rung is a claim about what was VERIFIED.
 
 ``findings.md`` must quote the label line, exactly as ``finalize`` requires its
 own label to appear — a machine-checked label nobody wrote down is a label the
