@@ -284,3 +284,82 @@ def _last_object(study: Path) -> dict:
     return json.loads(
         (study / "generation" / "objects" / f"{sha}.json").read_text(encoding="utf-8")
     )
+
+
+# --------------------------------------------------------------------------
+# Two capabilities cannot fill the same receipt input slot
+# --------------------------------------------------------------------------
+
+SECOND_MODULE = "kleinlib.generation._fake2"
+
+
+def _pins_the_slate(_ctx) -> dict[str, str]:
+    return {"slate": "a" * 64}
+
+
+def _also_pins_the_slate(_ctx) -> dict[str, str]:
+    return {"slate": "b" * 64}
+
+
+@pytest.fixture
+def colliding_capabilities(monkeypatch):
+    """Two registered capabilities that both fill the `slate` receipt slot."""
+    modules = {}
+    for name, module_name, inputs in (
+        ("fake", FAKE_MODULE, _pins_the_slate),
+        ("fake2", SECOND_MODULE, _also_pins_the_slate),
+    ):
+        module = types.ModuleType(module_name)
+        module.CAPABILITY = registry.Capability(name=name, receipt_inputs=inputs)
+        monkeypatch.setitem(sys.modules, module_name, module)
+        modules[name] = module
+    monkeypatch.setattr(capabilities, "MODULES", ("_fake", "_fake2"))
+    monkeypatch.setattr(
+        manifest, "KNOWN_CAPABILITIES", (*manifest.KNOWN_CAPABILITIES, "fake", "fake2")
+    )
+    monkeypatch.setattr(manifest, "SUPPORTED_CAPABILITIES", ("fake", "fake2"))
+    return modules
+
+
+def test_two_capabilities_filling_one_slot_is_a_recorded_refusal(
+    tmp_path: Path, colliding_capabilities
+) -> None:
+    """One slot pins ONE artifact, so a second writer is a packaging defect.
+
+    Silently letting the later capability win would make the receipt say the
+    action was taken under an artifact the driver never chose — and which one
+    won would depend on `MODULES` order.  The receipt is still written (a
+    refusal is evidence) with every slot null and the collision as the reason.
+    """
+    from kleinlib.errors import WorkflowError
+    from kleinlib.generation import admission
+
+    repo, study = _scaffold(tmp_path)
+    assert (
+        _gen("init", "--study", str(study), "--capability", "fake", "--capability", "fake2") == 0
+    )
+    _gates(repo, study)
+    _bump(study, "one")
+
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 2
+    receipt = _last_object(study)
+    assert receipt["verdict"] == "refused"
+    reason = "".join(receipt["reasons"])
+    assert "'fake'" in reason and "'fake2'" in reason and "'slate'" in reason
+    # the slot is left NULL rather than pinned to whichever capability ran last
+    assert receipt["inputs"]["slate"] is None
+    assert set(receipt["inputs"]) == {"manifest", *admission.RECEIPT_INPUT_SLOTS}
+
+    # and the raw helper names the defect rather than choosing a winner
+    with pytest.raises(WorkflowError, match="both fill the receipt input slot"):
+        admission.capability_inputs(
+            admission.Context(
+                study_dir=study,
+                repo=repo,
+                contract={},
+                state={},
+                manifest=manifest.load_manifest(study),
+                action="run",
+                track="primary",
+            )
+        )

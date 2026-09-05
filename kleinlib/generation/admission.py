@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import Any
 
 from ..contract import mutable_surface
+from ..errors import WorkflowError
 from ..manifest import load_manifests
 from ..primitives import canonical_json, sha256_bytes
 from ..transaction import git_blob, relative
@@ -293,15 +294,31 @@ def capability_inputs(ctx: Context) -> dict[str, str]:
     receipt's key set is the contract, so an unknown key is dropped rather than
     allowed to change the shape.  A capability that cannot resolve its artifact
     yet returns nothing and the slot stays null.
+
+    Two declared capabilities filling the SAME slot raises: one slot holds one
+    sha, so a second writer would silently decide which artifact the receipt
+    pins.  That is a packaging defect in this build, not a defect in the study —
+    :func:`build_receipt` turns it into a refusal reason so the receipt still
+    gets written, and the message names both capabilities and the slot.
     """
     loaded, _reasons = _declared_capabilities(ctx)
     filled: dict[str, str] = {}
+    owner: dict[str, str] = {}
     for capability in loaded:
         if capability.receipt_inputs is None:
             continue
         for key, value in dict(capability.receipt_inputs(ctx)).items():
-            if isinstance(value, str):
-                filled[str(key)] = value
+            if not isinstance(value, str):
+                continue
+            slot = str(key)
+            if slot in owner:
+                raise WorkflowError(
+                    f"capabilities {owner[slot]!r} and {capability.name!r} both fill the "
+                    f"receipt input slot {slot!r}: one slot pins one artifact, so this "
+                    "build cannot say which one the action was taken under"
+                )
+            owner[slot] = capability.name
+            filled[slot] = value
     return filled
 
 
@@ -320,7 +337,14 @@ def build_receipt(
     for rule in ADMISSION_RULES:
         reasons.extend(rule(ctx))
     reasons.extend(capability_reasons(ctx))
-    pinned = capability_inputs(ctx)
+    try:
+        pinned = capability_inputs(ctx)
+    except WorkflowError as exc:
+        # A slot collision is this build's defect, not the study's.  The receipt
+        # is still written — a refusal is evidence — with every slot left null
+        # and the collision on the record as the reason.
+        pinned = {}
+        reasons.append(str(exc))
     receipt: dict[str, Any] = {
         "schema": GENERATION_SCHEMA,
         "kind": "admission",
