@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2317,
+      "committed": true,
+      "sha256": "e762763792f7d28f3052ac9e94f03094a813540ce99bb9e6f1c7e638798bbfa0"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 1013,
+      "committed": true,
+      "sha256": "7f939e9f03cb5238e4fdade4b0dd592d54fd3cb6f926834fcd5e5bd2984d9459"
+    }
+  },
+  "base_commit": "115184bd9786d5ed7729c8a0be62d5c434a245d4",
+  "candidate_commit": "88f2d2260cc28c7344af2d0cae5fa96524add599",
+  "code_patch_hash": "dc2c12f641b7ded5549bacbfc332a938de1e282b028e629abced01707fa3f7a0",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 1 with minimum_delta=0",
+  "description": "E0005: RBF-kernel SVM vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0",
+  "disposition": "keep",
+  "ended_at": "2026-09-04T17:13:42.133455Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+    "split_partition": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed"
+  },
+  "incumbent": "E0003",
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "delta_vs_reference": 0.0,
+    "primary_metric": 1.0,
+    "reference_metric": 1.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 49.0,
+    "training_seconds": 0.0,
+    "val_accuracy": 0.96,
+    "val_best_threshold": 0.15,
+    "val_brier": 0.025616,
+    "val_errors": 1.0,
+    "val_f1_at_best": 1.0,
+    "val_lift_top10": 2.0833,
+    "val_logloss": 0.116257,
+    "val_pr_auc": 1.0,
+    "val_rows": 25.0,
+    "wall_seconds": 0.030714
+  },
+  "phase": "parade",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P7": {
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "verdict": "inconclusive"
+    }
+  },
+  "predictions_requested": [
+    "P7"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-04T17:13:41.350858Z",
+  "timed_out": false,
+  "track": "modern",
+  "transaction": {
+    "committed_at": "2026-09-04T17:13:42.184919Z",
+    "evidence_commit": "b9623a3f8edbe650f643303ab757a12230a95178",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.7825023748446256
+}

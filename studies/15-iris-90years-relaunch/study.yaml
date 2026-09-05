@@ -1,0 +1,385 @@
+schema_version: 3
+study_id: "15-iris-90years-relaunch"
+goal: "Ninety years after Fisher's 1936 linear discriminant, does any modern post-1936 classifier — regularized logistic regression, k-nearest neighbours, an RBF support-vector machine, or a histogram gradient-boosted tree — separate iris versicolor from virginica measurably better than Fisher's own LDA on a held-out partition of the same 100 flowers, and do the two petal measurements alone carry the separating signal that all four carry?"
+domain: "botany"
+target: "is_virginica"
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "predict"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "generic"               # generic | ml-research | math | insurance
+audience: "A scientist or data-literate reader who knows the iris dataset by name, has never read Fisher 1936, and wants to know whether ninety years of classification research beat him on his own data - and whether a 100-row table can even answer that."
+
+task_type: "classification"      # classification | regression | scalar
+method_depth: "full"             # brief | full
+family: "lda+classical-ml"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run.
+#
+# `lib/iris.py` is STABLE library code, complete before E0001: the loader, the
+# five model recipes, the three feature sets, the paired bootstrap, the block
+# assembly. It is NOT in the mutable surface — each cell COMPOSES those
+# primitives in train.py and prints its block, so the per-experiment diff is
+# always "which model / which feature set", never "a new method". train.py
+# branches on KLEIN_TRACK and KLEIN_EVALUATION_KIND, which run-one sets.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "train.py"]
+  mutable: ["train.py"]
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+#
+# THREE tracks, because the headline research question is a COMPARISON. One
+# sealed access per track means a single-track study could confirm only the
+# incumbent's LEVEL, never the GAP (consult-protocol.md, the sealed-gap rule).
+# So each side of the comparison gets its own track and its own sealed number,
+# and the ablation — a different question — gets a third.
+tracks:
+
+  # ---- the incumbent: what IS Fisher's 1936 separation on this split? ------
+  fisher:
+    kind: estimate
+    mode: registered            # an estimate is not improved; it is measured
+    metric:
+      name: "val_auc"
+      goal: "higher"
+      # MEASURED at Phase 0 and pasted in by a consult re-record; never guessed.
+      # This track measures a LEVEL, not a comparison, so the honest floor is
+      # the MARGINAL one: k=5 split-lottery redrawing train/development WITHIN
+      # THE NON-SEALED ROWS ONLY (74 rows after data_card.md's dedup fix, not
+      # the pre-fix 75; the sealed 25 are never touched by the lottery),
+      # refitting lda_all4 and rescoring. Recipe, estimand, k and the
+      # sealed-safety rule are all declared HERE, before the measurement.
+      #
+      # MEASURED (sweep:floor_fisher, k=5 stratified redraws inside the 74
+      # non-sealed rows, seeds [201..205]): lda_all4 reaches development AUC
+      # 1.0 on EVERY redraw — std=0, range=0 — so the honest floor is
+      # literally zero: this partition's own separability survives every
+      # marginal resplit tried. minimum_delta stays 0 as a result; see
+      # program.md's dated Decision for what that means downstream.
+      minimum_delta: 0
+      noise_floor:
+        k: 5
+        std: 0
+        range: 0
+        mean: 1
+        values: [1, 1, 1, 1, 1]
+        source: "sweeps/floor_fisher.sidecar.tsv"
+        measured_after: "E0001"
+        method: "split-lottery"
+        estimand: "marginal-resplit"
+      exactness: stochastic
+    guardrails:
+      wall_seconds: {max: 30}
+      val_rows: {min: 20}
+      # A floor, not a pin: the DATA gate has not yet settled whether any row is
+      # dropped, and a guardrail that fires on a lawful DATA decision is how a
+      # healthy run gets dispositioned wrongly (war story 6). 20 still catches a
+      # partition collapse.
+
+  # ---- the challengers: does ninety years of research beat him? -----------
+  modern:
+    kind: predict
+    mode: frontier               # there IS an incumbent here, and it climbs
+    metric:
+      name: "val_auc"
+      goal: "higher"
+      # MEASURED at Phase 0. Every keep on this track is a COMPARISON of a
+      # challenger against Fisher's LDA refitted on the SAME development rows in
+      # the SAME run, so the honest floor is the PAIRED one: paired-bootstrap,
+      # 1000 replicates, common random numbers by construction, on the pair
+      # (lda_all4, hgbt) — the parade's most dissimilar pair, which makes the bar
+      # conservative for every other comparison. Pair and replicate count are
+      # declared HERE, before the measurement, so neither can be chosen after
+      # seeing which answer it produces.
+      #
+      # MEASURED (sweep:floor_modern, 1000 paired-bootstrap replicates,
+      # common random numbers, pair (lda_all4, hgbt) on the 25 development
+      # rows): the delta AUC(hgbt) - AUC(lda_all4) is EXACTLY 0 on every
+      # single replicate (std=0, range=0) — hgbt matches lda_all4's perfect
+      # development separation (see E0001) on essentially every resample.
+      # minimum_delta is therefore measured to be literally 0, which
+      # DISARMS the headroom law for this track (kleinlib.decision
+      # .track_headroom returns h=None whenever minimum_delta <= 0) and
+      # leaves gap_in_floors/delta_in_floors unprintable — P4-P8 read as
+      # inconclusive by their own stated inconclusive_if wording, not
+      # refuted. See program.md's dated Decision for the full account and
+      # the open question this hands to Phase `parade`.
+      minimum_delta: 0
+      noise_floor:
+        k: 1000
+        std: 0
+        range: 0
+        mean: 0
+        source: "sweeps/floor_modern.sidecar.tsv"
+        measured_after: "E0001"
+        method: "paired-bootstrap"
+        estimand: "paired-comparison"
+      # fit_noise is PROVENANCE about the fit, never the keep bar
+      # (consult-protocol.md Phase 0). MEASURED (sweep:fit_noise_svm_rbf AND
+      # sweep:fit_noise_hgbt, k=5 each, seeds [1..5]): BOTH seeded recipes
+      # reach development AUC 1.0 on every seed — std=0, range=0 for both,
+      # so the two sub-sweeps are reported as ONE identical block here; the
+      # other is on record as sweep:fit_noise_hgbt (program.md).
+      fit_noise:
+        k: 5
+        std: 0
+        range: 0
+        mean: 1
+        values: [1, 1, 1, 1, 1]
+        source: "sweeps/fit_noise_svm_rbf.sidecar.tsv"
+        measured_after: "E0001"
+        method: "seed-sweep"
+        estimand: "fit-noise"
+      exactness: stochastic
+      bound:
+        ideal: 1.0              # a perfect ROC-AUC; arms the headroom audit
+        on_infeasible: ack      # h < 1 refuses further development runs until acked
+    guardrails:
+      wall_seconds: {max: 30}
+      val_rows: {min: 20}
+
+  # ---- the ablation: which measurements actually carry the signal? --------
+  ablation:
+    kind: test
+    mode: registered             # cells of a pre-registered measurement program
+    metric:
+      name: "val_auc"
+      goal: "higher"
+      # MEASURED at Phase 0. Also a comparison — one feature set against
+      # another on the SAME rows — so also the PAIRED floor: paired-bootstrap,
+      # 1000 replicates, on the pair (lda_all4, lda_sepal), this track's most
+      # dissimilar pair. Declared here, before the measurement.
+      #
+      # MEASURED (sweep:floor_ablation, 1000 paired-bootstrap replicates,
+      # common random numbers, pair (lda_all4, lda_sepal) on the 25
+      # development rows): delta AUC(lda_sepal) - AUC(lda_all4) has real
+      # spread (mean -0.190092, std 0.0952175, range 0.5625) — unlike the
+      # `modern`/`fisher` floors, sepal-only genuinely underperforms and the
+      # comparison is resolvable. suggested minimum_delta = max(2*std,
+      # range/2) = max(0.190435, 0.28125) = 0.28125.
+      minimum_delta: 0.28125
+      noise_floor:
+        k: 1000
+        std: 0.0952175
+        range: 0.5625
+        mean: -0.190092
+        source: "sweeps/floor_ablation.sidecar.tsv"
+        measured_after: "E0001"
+        method: "paired-bootstrap"
+        estimand: "paired-comparison"
+      exactness: stochastic
+    guardrails:
+      wall_seconds: {max: 30}
+      val_rows: {min: 20}
+
+data:
+  source: "sklearn:load_iris"    # offline allowlist; no pin required — the DATA
+                                  # gate fingerprints prepare.py's OUTPUT instead.
+                                  # The data card records sklearn's version and the
+                                  # prepared file's sha256, and must settle whether
+                                  # this copy of the table differs from Fisher's
+                                  # 1936 printed table in the versicolor/virginica
+                                  # rows (the UCI copy is documented as differing
+                                  # from the original in a small number of cells).
+  modality: "tabular"
+  prepared_path: "data/prepared/iris_hardpair.csv"
+  split:
+    # Development and test are deliberately SYMMETRIC and exchangeable: the
+    # paired floor measured on development then transfers to the sealed block,
+    # and "the sealed number landed within X floors of the development number"
+    # becomes a clean statement rather than an apples-to-oranges one. Train 50 is
+    # ample for a four-feature discriminant. The seed is the study's start date,
+    # fixed before any byte of the table was read.
+    kind: stratified
+    seed: 20260904
+    development_size: 0.25
+    test_size: 0.25
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 60
+phases:
+  - id: anchor-and-floor
+    description: "E0001: the identity anchor and the incumbent's level with a bootstrap interval; then the four registered Phase-0 sweeps (fit noise, the two paired floors, the marginal floor); then paste the floors and re-record the consult gate. NO CHALLENGER RUNS BEFORE THAT RE-RECORD."
+    budget_seconds: 600
+    max_experiments: 3
+  - id: parade
+    description: "E0002 seeds the modern frontier with Fisher's LDA and prints the headroom; then the four post-1936 challengers, one falsifiable idea each"
+    budget_seconds: 900
+    max_experiments: 6
+  - id: ablation-map
+    description: "petal-only and sepal-only against all-four on the same development rows, then one repeat of the petal comparison with the best modern family"
+    budget_seconds: 600
+    max_experiments: 4
+  - id: confirmation
+    description: "one sealed access per track — three sealed cells, each rehearsed with klein run-one --final-test --dry-run first"
+    budget_seconds: 600
+    max_experiments: 4
+
+research_questions:
+  - id: RQ1
+    question: "Does any modern post-1936 classification method — L2 logistic regression, 5-NN, an RBF SVM, or a histogram gradient-boosted tree — separate versicolor from virginica better than Fisher's 1936 LDA on held-out flowers, by more than the measured paired floor?"
+    prior: "No — zero of the four families earns a keep. Two independent reasons: the two species sit in four near-Gaussian, near-equal-covariance measurements with heavy overlap, which is exactly the setting LDA is optimal for, so there is little structure left for a nonlinear learner to find; and 25 development flowers cannot resolve a difference of a few AUC points. I expect the headroom to close the door before any challenger runs. (source: scouted - scouting_ledger.md S1: the protocol files this gate required me to read state headroom values and keep counts for three earlier iris studies in this repository, so my confidence here is not independent of them)"
+  - id: RQ2
+    question: "Is the separating signal really in all four measurements, or do petal length and petal width alone carry essentially all of it — and do sepal length and sepal width alone carry meaningfully less?"
+    prior: "Yes to both. Petal-only lands within one measured floor of all-four; sepal-only lands several floors below — I expect sepal-only ROC-AUC around 0.75 to 0.85 against all-four near 0.96. (source: uninformed - no value was computed or looked up for this study; the direction is textbook background about this dataset, disclosed so findings section 6 can discount it)"
+  - id: RQ3
+    question: "How large is the measurement floor on 25 development flowers, and how much of the incumbent's whole distance to a perfect ROC-AUC does it consume — that is, is 'which classifier wins' even an answerable question at n = 100?"
+    prior: "The paired floor lands somewhere between 0.02 and 0.10 AUC while the incumbent's entire distance to a perfect AUC is under 0.05, so h < 1 and no keep is arithmetically possible. The honest answer to the headline question will be 'this data cannot resolve it', not 'LDA wins'. (source: scouted - the same exposure as RQ1; the arithmetic is my own, the confidence is not independent)"
+  - id: RQ4
+    question: "Does the sealed partition agree with the development partition, or does one block of 25 flowers over- or under-state what another block of 25 shows?"
+    prior: "It shifts, and visibly: I expect the incumbent's sealed-minus-development distance to be between one and two measured floors — large enough that no single number should be read as this species pair's true separability, small enough not to overturn the ranking. (source: uninformed)"
+
+# Registered BEFORE the evidence exists; the consult gate hashes this file, so a
+# prediction added later is visible as a gate re-record with a reason. Each
+# carries an arithmetic rule on a printed key, or `manual: true` when no run can
+# decide it. Operators: lt le gt ge ne abs_lt abs_le (value), eq (+ tol),
+# within (target + tol), between (value: [low, high]); combine with all_of /
+# any_of / not, at most three deep.
+#
+# EVERY numeral below is either definitional (a row count, one floor, the
+# headroom law's own boundary of 1) or my own first-principles estimate. NONE of
+# them is a value seen in scouting_ledger.md — a scouted value may seed an anchor
+# but may never be a scored prediction.
+#
+# Printed keys the entrypoint must produce for these rules (via
+# kleinlib.eval.evaluate(..., extra={...})):
+#   anchor cell      raw_rows raw_versicolor raw_virginica raw_features
+#                    partition_sum_matches val_accuracy val_errors
+#                    ci_low ci_high ci_width n_boot
+#   frontier cells   gap_in_floors reference_metric delta_vs_reference
+#                    delta_in_floors val_accuracy val_errors
+#   ablation cells   reference_metric delta_vs_reference delta_in_floors
+#                    sepal_delta_in_floors (sealed cell only)
+#   sealed cells     sealed_shift_in_floors (plus the above)
+# `wall_seconds`, `train_rows`, `val_rows` and `split_fingerprint` print on every
+# run without being asked.
+predictions:
+
+  - id: P0
+    track: fisher
+    statement: "Identity anchor (E0001). The raw loader hands back exactly the flowers this study claims to study: 100 rows after restricting sklearn.datasets.load_iris to versicolor and virginica, 50 of each, 4 measurement columns; and the three partitions sum back to the prepared row count. A mismatch is a hard STOP — every later number would be measured on the wrong bytes. The counts are asserted on the RAW load, never on the prepared table, so a lawful DATA-gate decision to drop a row cannot manufacture a false refutation."
+    rule:
+      all_of:
+        - {key: raw_rows, op: "==", value: 100, tol: 0}
+        - {key: raw_versicolor, op: "==", value: 50, tol: 0}
+        - {key: raw_virginica, op: "==", value: 50, tol: 0}
+        - {key: raw_features, op: "==", value: 4, tol: 0}
+        - {key: partition_sum_matches, op: "==", value: 1, tol: 0}
+    inconclusive_if: "the anchor cell crashes before the evaluator prints, or the printed split_fingerprint does not match the one the DATA gate froze"
+
+  - id: P1
+    track: fisher
+    statement: "Fisher's 1936 linear discriminant — LinearDiscriminantAnalysis(solver='svd') on all four measurements, fit on the 50 training flowers — reaches a ROC-AUC of at least 0.90 on the 25 development flowers. Below that, suspect the split or the pipeline before suspecting Fisher."
+    rule: {key: primary_metric, op: ">=", value: 0.90}
+    inconclusive_if: "the run crashes before the evaluator prints"
+
+  - id: P2
+    track: fisher
+    statement: "Counted the way Fisher counted, that discriminant misclassifies at most 3 of the 25 development flowers at the 0.5 threshold — roughly four times the error rate a 3%-error discriminant would produce on 25 flowers, so this is a tight bar rather than a safe one."
+    rule: {key: val_errors, op: "<=", value: 3}
+    inconclusive_if: "the run crashes before the evaluator prints"
+
+  - id: P3
+    track: fisher
+    statement: "Twenty-five flowers cannot pin the incumbent's separation: the 95% bootstrap interval for its development ROC-AUC is wider than 0.05 AUC. If supported, no later 'improvement' smaller than five AUC points is resolvable by this data, and the study must say so in those words."
+    rule: {key: ci_width, op: ">", value: 0.05}
+    inconclusive_if: {key: n_boot, op: "<", value: 1000}
+
+  - id: P4
+    track: modern
+    statement: "The headroom law calls the end of the parade before the parade starts: with the paired floor measured at Phase 0 and a perfect ROC-AUC as the declared ideal, the incumbent's entire remaining distance to perfection is smaller than one floor, h < 1, so no keep is arithmetically possible. Pre-scripted branch — SUPPORTED: run `klein headroom ack` recording that the parade IS this study's registered question and that four dispositioned discards are the evidence the brief asked for, then run it. REFUTED: the door is ajar; run the frontier normally and report h with every candidate."
+    rule: {key: gap_in_floors, op: "<", value: 1}
+    inconclusive_if: "minimum_delta is still 0, so train.py prints no gap_in_floors line"
+
+  - id: P5
+    track: modern
+    statement: "L2-regularized logistic regression on standardized measurements — the first post-Fisher answer to this problem — does not beat Fisher's LDA, refitted on the same development rows in the same run, by one measured floor."
+    rule: {key: delta_in_floors, op: "<", value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the run declares no reference rung, so delta_in_floors is not printed"
+
+  - id: P6
+    track: modern
+    statement: "Five-nearest-neighbours on standardized measurements does not beat Fisher's LDA by one measured floor. I expect it strictly worse: with 25 development flowers its scores take only six distinct values, and every tie costs ranking resolution."
+    rule: {key: delta_in_floors, op: "<", value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the run declares no reference rung"
+
+  - id: P7
+    track: modern
+    statement: "An RBF-kernel support-vector machine does not beat Fisher's LDA by one measured floor. A kernel buys curvature this boundary does not appear to need."
+    rule: {key: delta_in_floors, op: "<", value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the run declares no reference rung"
+
+  - id: P8
+    track: modern
+    statement: "The sharpest bet in the study: a histogram gradient-boosted tree, given 50 training rows and four smooth numeric features, lands at least one measured floor BELOW Fisher's LDA on the same development rows — an axis-aligned high-variance learner is the wrong instrument for a near-linear boundary at this sample size, and the cost should exceed the noise."
+    rule: {key: delta_in_floors, op: "<=", value: -1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the run declares no reference rung"
+
+  - id: P9
+    track: modern
+    statement: "Ninety years produced no keep: after the parade closes, zero runs on the `modern` track carry status `keep` and the track's incumbent is still the run that fit Fisher's 1936 LDA. Adjudicated by counting, not by prose — the arithmetic is `count(results.tsv rows where track == 'modern' and status == 'keep') == 0`, recorded with `klein predict adjudicate` against the derived ledger, whose hash goes on the record. No single run's printed block can carry a fact about the whole track, which is why this one is manual."
+    manual: true
+    inconclusive_if: "the parade phase ends with fewer than four challengers run, so the parade the prediction speaks about did not happen"
+
+  - id: P10
+    track: modern
+    statement: "The selected `modern` candidate, evaluated once on the 25 sealed flowers, lands within two measured floors of the development score it was selected on."
+    rule: {key: sealed_shift_in_floors, op: "abs_le", value: 2}
+    inconclusive_if: "the sealed access is never spent, or the sealed run crashes before the evaluator prints"
+
+  - id: P11
+    track: modern
+    statement: "THE SEALED GAP. In its single sealed access, the `modern` track scores both the selected challenger and Fisher's 1936 LDA on the SAME 25 sealed flowers under common random numbers, and the two land within one measured floor of each other — ninety years of classification research and a 1936 discriminant are indistinguishable on this data at the resolution this data affords. The `fisher` track's own sealed access independently pins the incumbent's sealed LEVEL, so the study reports two sealed numbers and their difference, not one number and a story."
+    rule: {key: delta_in_floors, op: "abs_lt", value: 1}
+    inconclusive_if: "the sealed access is never spent, the contract still carries minimum_delta 0, or the sealed run declares no reference rung"
+
+  - id: P12
+    track: ablation
+    statement: "Petal length and petal width alone carry essentially all of it: an LDA fit on those two columns only, scored on the same development flowers as the all-four LDA refitted inside the same cell, lands within one measured floor of it."
+    rule: {key: delta_in_floors, op: "abs_lt", value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the cell declares no reference rung"
+
+  - id: P13
+    track: ablation
+    statement: "Sepal length and sepal width alone carry meaningfully less: an LDA fit on those two columns only lands at least one measured floor BELOW the all-four LDA on the same development flowers. This is the sanity check that makes P12 informative rather than a statement about the floor's size."
+    rule: {key: delta_in_floors, op: "<=", value: -1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the cell declares no reference rung"
+
+  - id: P14
+    track: ablation
+    statement: "The petal verdict is a property of the flowers, not of LDA: repeating the petal-only versus all-four comparison with the best-scoring modern family from the parade gives the same verdict — within one measured floor."
+    rule: {key: delta_in_floors, op: "abs_lt", value: 1}
+    inconclusive_if: "the contract still carries minimum_delta 0, or the cell declares no reference rung"
+
+  - id: P15
+    track: ablation
+    statement: "Both halves of the ablation survive a partition nobody looked at: in the `ablation` track's single sealed access, petal-only stays within one measured floor of all-four AND sepal-only stays at least one floor below it, all three fits scored on the same 25 sealed flowers."
+    rule:
+      all_of:
+        - {key: delta_in_floors, op: "abs_lt", value: 1}
+        - {key: sepal_delta_in_floors, op: "<=", value: -1}
+    inconclusive_if: "the sealed access is never spent, or the contract still carries minimum_delta 0"
+
+confirmation:
+  require: [sealed, replicate]
+  # `replicate` costs milliseconds here and the generic profile's doctrine wants
+  # a confirmed claim to cite two kinds of evidence. `klein replicate E####`
+  # re-executes the run in a detached worktree at its candidate commit.
+
+stop:
+  max_consecutive_discards: 4
+  scope: track
+  # Four is the size of the parade. If every challenger loses, the losing phase
+  # ends ON THE RECORD rather than by my quietly stopping; `klein stop ack`
+  # records the acknowledgement.
+
+# No `materiality:` block. The brief asks nothing about consequence or value, so
+# findings may only ever say that a registered bar was cleared. "Material" and
+# "actionable" are banned words in the generic profile for exactly this reason.
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html

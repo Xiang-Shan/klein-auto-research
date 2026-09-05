@@ -1,0 +1,181 @@
+{
+  "baseline": 1.0,
+  "block_differences": {
+    "ci_high": {
+      "difference": 0.0,
+      "original": 1.0,
+      "replicate": 1.0
+    },
+    "ci_low": {
+      "difference": 0.0,
+      "original": 1.0,
+      "replicate": 1.0
+    },
+    "ci_width": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "n": {
+      "difference": 0.0,
+      "original": 25.0,
+      "replicate": 25.0
+    },
+    "n_boot": {
+      "difference": 0.0,
+      "original": 2000.0,
+      "replicate": 2000.0
+    },
+    "partition_sum_matches": {
+      "difference": 0.0,
+      "original": 1.0,
+      "replicate": 1.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 1.0,
+      "replicate": 1.0
+    },
+    "raw_features": {
+      "difference": 0.0,
+      "original": 4.0,
+      "replicate": 4.0
+    },
+    "raw_rows": {
+      "difference": 0.0,
+      "original": 100.0,
+      "replicate": 100.0
+    },
+    "raw_versicolor": {
+      "difference": 0.0,
+      "original": 50.0,
+      "replicate": 50.0
+    },
+    "raw_virginica": {
+      "difference": 0.0,
+      "original": 50.0,
+      "replicate": 50.0
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "total_seconds": {
+      "difference": 2.8,
+      "original": 0.8,
+      "replicate": 3.6
+    },
+    "val_accuracy": {
+      "difference": 0.0,
+      "original": 0.96,
+      "replicate": 0.96
+    },
+    "val_errors": {
+      "difference": 0.0,
+      "original": 1.0,
+      "replicate": 1.0
+    },
+    "val_rows": {
+      "difference": 0.0,
+      "original": 25.0,
+      "replicate": 25.0
+    },
+    "wall_seconds": {
+      "difference": 2.794252,
+      "original": 0.803809,
+      "replicate": 3.598061
+    }
+  },
+  "candidate_commit": "bc1beecf8ac0500ad4be4c545f1d66855495d333",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+  "difference": 0.0,
+  "ended_at": "2026-09-04T17:44:29.830323Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "environment_match": true,
+  "evidence_id": "rep:E0001@20260904T174249Z",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "log": "runs/E0001/replications/20260904T174249Z.log",
+  "max_run_seconds": 240.0,
+  "metric_name": "val_auc",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "ci_high": 1.0,
+    "ci_low": 1.0,
+    "ci_width": 0.0,
+    "n": 25.0,
+    "n_boot": 2000.0,
+    "partition_sum_matches": 1.0,
+    "primary_metric": 1.0,
+    "raw_features": 4.0,
+    "raw_rows": 100.0,
+    "raw_versicolor": 50.0,
+    "raw_virginica": 50.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.8,
+    "val_accuracy": 0.96,
+    "val_errors": 1.0,
+    "val_rows": 25.0,
+    "wall_seconds": 0.803809
+  },
+  "original_environment_fingerprint": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+  "original_primary_metric": 1.0,
+  "record": "runs/E0001/replications/20260904T174249Z.json",
+  "replicate_block": {
+    "ci_high": 1.0,
+    "ci_low": 1.0,
+    "ci_width": 0.0,
+    "n": 25.0,
+    "n_boot": 2000.0,
+    "partition_sum_matches": 1.0,
+    "primary_metric": 1.0,
+    "raw_features": 4.0,
+    "raw_rows": 100.0,
+    "raw_versicolor": 50.0,
+    "raw_virginica": 50.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 3.6,
+    "val_accuracy": 0.96,
+    "val_errors": 1.0,
+    "val_rows": 25.0,
+    "wall_seconds": 3.598061
+  },
+  "replicate_primary_metric": 1.0,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [],
+  "setup_seconds": 0.3423905831295997,
+  "stamp": "20260904T174249Z",
+  "started_at": "2026-09-04T17:42:50.043860Z",
+  "timed_out": false,
+  "timestamp": "2026-09-04T17:42:49.475759Z",
+  "tolerance": 0.0,
+  "tolerance_source": "exact",
+  "track": "fisher",
+  "wall_seconds": 99.7862826671917,
+  "worktree_prepared": true
+}

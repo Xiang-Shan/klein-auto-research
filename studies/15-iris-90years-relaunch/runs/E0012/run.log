@@ -1,0 +1,24 @@
+split_fingerprint: 49a84dcd63b6defb5c929fc2fe591d9652f41e858f918cfb7ddb47513d1524f1
+---
+primary_metric:    0.987179
+metric_name:       val_auc
+metric_goal:       higher
+training_seconds:  0.0
+total_seconds:     0.0
+train_rows:        74
+val_rows:          25
+status:            ok
+--- aux_metrics ---
+val_pr_auc:        0.989744
+val_logloss:       0.164260
+val_brier:         0.057828
+val_lift_top10:    1.9231
+val_best_threshold: 0.7600
+val_f1_at_best:    0.9600
+wall_seconds:      0.032030
+reference_metric: 1.0
+delta_vs_reference: -0.012821
+delta_in_floors: -0.0456
+sepal_delta_in_floors: -0.8547
+runner_status: ok
+runner_exit_code: 0

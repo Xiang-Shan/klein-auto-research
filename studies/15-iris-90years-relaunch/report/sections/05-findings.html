@@ -1,0 +1,105 @@
+<h2>Findings &amp; insights</h2>
+
+<p>Twelve notarized runs across three tracks asked whether ninety years of classification
+research separates <em>versicolor</em> from <em>virginica</em> better than Fisher's own
+1936 discriminant. None of the four post-1936 challengers cleared the incumbent by any
+resolvable amount: on the development block three of them tied it exactly at
+<code>1.000000</code> and the fourth lost; in the one sealed access the selected challenger
+lost <code>-0.012821</code> val_auc. But the study's most useful output is a failure of its
+own instrument &mdash; the primary metric <strong>pegged at its own ideal</strong>, and
+that single fact reshaped everything downstream of it.</p>
+
+<h3>Why the metric pegged, and why every instrument built on it inherited the saturation</h3>
+
+<p>ROC-AUC was chosen for resolution: on 25 development flowers accuracy moves in steps of
+<code>0.04</code>, one whole flower, while AUC over 156 ordered pairs resolves to
+<code>0.0064</code>. That reasoning is sound and still is &mdash; it simply missed that a
+finer ruler is worthless against a quantity that has already reached its bound. On this
+partition the 25 development flowers are <strong>perfectly rank-separated</strong>: every
+versicolor scores below <code>0.02</code>, every virginica above <code>0.45</code>. Once a
+sample is cleanly rank-separated, every resample of it with replacement is cleanly
+rank-separated too &mdash; that is arithmetic, not a coding artifact &mdash; so the
+percentile bootstrap returns <code>ci_width=0</code>, the paired bootstrap returns a delta
+of exactly <code>0</code> on all 1000 replicates, and the split lottery returns
+<code>0</code> spread over five redraws. <code>minimum_delta</code> measures to
+<code>0</code>; every floor-normalized key stops printing; the headroom law returns no
+number at all. The sealed block reproduces the same peg (<code>val_auc=1.000000</code>
+again, on 25 flowers nobody had looked at), so this is a property of the species pair
+under these four measurements at this sample size, not one lucky development draw.</p>
+
+<h3>4 printed keeps, 0 resolvable wins</h3>
+
+<p>With <code>minimum_delta</code> measured at zero, the frontier rule
+<span data-math="\text{primary\_metric} \ge \text{incumbent} + 0"></span> is satisfied by
+an exact tie, and four of five <code>modern</code>-track development cells filed as
+<code>keep</code>. A ledger reader who counted <code>keep</code> rows without reading
+<code>delta_vs_reference</code> would conclude that three of four post-1936 methods
+improved on Fisher. None did &mdash; <code>delta_vs_reference</code> is <code>0.0</code>
+or <code>-0.0</code> on every single one. This is why prediction P9 (&ldquo;zero of the
+four families earns a keep&rdquo;) is recorded <strong>refuted</strong> on the letter of
+its own count while the science it was written to test &mdash; ninety years of research
+producing no measurable separation gain &mdash; is supported.</p>
+
+<h3>The fourth surprise: a calibration reversal</h3>
+
+<p>On development, the boosted tree was not merely tied on ranking &mdash; it was the
+parade's best-calibrated model by a wide margin, Brier <code>0.000945</code> and log-loss
+<code>0.012827</code> against Fisher's LDA at <code>0.017482</code> and
+<code>0.061537</code>. On the sealed rows the same recipe collapses to Brier
+<code>0.118994</code> and log-loss <code>0.750798</code> &mdash; two orders of magnitude
+worse than its own development calibration, while its <em>ranking</em> only slipped by
+<code>-0.012821</code> val_auc. The sealed LDA-family cell that scored the same rows (the
+petal-only comparison) sits at Brier <code>0.057828</code> and log-loss
+<code>0.164260</code> &mdash; a far milder shift.</p>
+
+<img data-fig="figures/calibration_reversal.png" alt="Top row: development Brier and log-loss across the five-family parade, with the boosted tree lowest on both. Bottom row: development-versus-sealed Brier and log-loss for the boosted tree and for petal-only LDA, showing the boosted tree's calibration collapsing on the sealed block while the LDA-family cell shifts only mildly.">
+
+<p>Read this as the textbook signature of a high-capacity learner memorizing 74 rows: the
+boosted tree's <em>confidence</em> was fitted to the training partition even where its
+<em>ordering</em> generalized. This is a mechanism interpretation, not a registered claim
+&mdash; the study's next-steps section names the direct repair.</p>
+
+<h3>The classification report, for the incumbent every other cell was measured against</h3>
+
+<p>Fisher's own <code>lda_all4</code> is the reference every parade and ablation cell
+refits inside the same run. Its score-separation on the development block is visibly
+absolute:</p>
+
+<img data-fig="figures/score_hist_by_family.png" alt="Predicted-probability histograms by species for all five parade families on the development block: four families show a clean gap between versicolor and virginica, five-nearest-neighbours shows a small overlapping bin.">
+
+<img data-fig="figures/plot_pr.png" alt="Precision-recall curve for Fisher's LDA on the development block, close to the top-right corner.">
+
+<img data-fig="figures/plot_reliability.png" alt="Reliability diagram for Fisher's LDA on the development block: four quantile bins tracking the perfect-calibration diagonal loosely, given only 25 rows.">
+
+<img data-fig="figures/plot_decile_lift.png" alt="Decile lift for Fisher's LDA on the development block.">
+
+<img data-fig="figures/plot_confusion_at_threshold.png" alt="Confusion matrix for Fisher's LDA at threshold 0.5 on the development block: thirteen versicolor correct, eleven virginica correct, one virginica misclassified.">
+
+<h3>The ablation's own honest wrinkle</h3>
+
+<p>Sepal length and sepal width alone lose a real, large, correctly-directed amount of
+separation &mdash; <code>-0.185897</code> val_auc on development, a wider
+<code>-0.8547</code> measured floors on the sealed block &mdash; and still fail the
+pre-registered &ldquo;at least one floor below&rdquo; bar, twice, because the ablation
+track's own floor (<code>0.28125</code>) was measured from this exact contrast's own
+paired-bootstrap spread. A one-floor rule then demands roughly one and a half times the
+effect's own mean magnitude. &ldquo;Refuted&rdquo; here means the registered bar was not
+cleared, never that no difference was found &mdash; and both numbers belong in any honest
+account of this result.</p>
+
+<h3>What the lock says</h3>
+
+<p>Ten claims in <code>claims.lock</code>: six reach <strong>confirmed</strong> strength,
+each citing both its sealed evidence and a replication record, per this study's
+<code>confirmation.require: [sealed, replicate]</code> &mdash; the two levels this study
+pinned (C3), the two ablation halves on both partitions (C4, C5), the one sealed gap
+(C6), and the agreement-and-disagreement between the two 25-row blocks (C7). The
+procedural verdict on the parade's own keep count (C2) is confirmed by direct count on the
+ledger itself. The three mechanism interpretations &mdash; the pegging (C8), the
+tie-as-keep arithmetic (C9), and the floor-from-effect wrinkle (C10) &mdash; stay
+<strong>exploratory</strong> by design: a mechanism is confirmed by a later study that
+tests it, not by this one asserting it. Of the sixteen registered predictions,
+<strong>5 supported, 4 refuted, 7 inconclusive, 0 open</strong> &mdash; and the seven
+inconclusive rows are not an accounting gap. Each one's own <code>inconclusive_if</code>
+clause, written before any run existed, names the exact condition that came to pass: the
+floor was measured, honestly, and it came back zero.</p>

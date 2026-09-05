@@ -1,0 +1,106 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3286,
+      "committed": true,
+      "sha256": "c823706471da17715636e28c58157f0cd00c10f9e492936db025ca7d8bf23517"
+    },
+    "models/best_ablation_E0007_1_ef19503896ca.joblib": {
+      "availability": "local",
+      "bytes": 1419,
+      "committed": false,
+      "sha256": "017496a06517e724b3f2b9579104ec0c6035966cc85b628d7bb21d34714d618e"
+    },
+    "models/manifest.tsv": {
+      "availability": "recorded",
+      "bytes": 447,
+      "committed": true,
+      "sha256": "06a6b31dcbdad39196239b4b9ad9efaf98176f3f55e137df052e57a526fab053"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 597,
+      "committed": true,
+      "sha256": "09d15b32e6d3f8fff78d480ad984276aad5b049866ca27b8ec48641427134f26"
+    }
+  },
+  "base_commit": "b18f9449ffec4cf5f6f81198ffe9d313a7e59fb6",
+  "candidate_commit": "fd61d7f4b27a0ec7114ee81def1fb2ca244401bb",
+  "code_patch_hash": "bef009329e619bb420841a49f33040bfcb4493e4cc5724bae27a7d31f6f3fdce",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "E0007 ablation: petal-only LDA vs all-four LDA (RQ2); registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-04T17:23:46.904310Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+    "split_partition": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "delta_in_floors": 0.0,
+    "delta_vs_reference": 0.0,
+    "primary_metric": 1.0,
+    "reference_metric": 1.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 49.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.13,
+    "val_brier": 0.038508,
+    "val_f1_at_best": 1.0,
+    "val_lift_top10": 2.0833,
+    "val_logloss": 0.128939,
+    "val_pr_auc": 1.0,
+    "val_rows": 25.0,
+    "wall_seconds": 0.029418
+  },
+  "phase": "ablation-map",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P12": {
+      "explanation": "|delta_in_floors| 0 < 1 (from 0) \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P12"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-04T17:23:46.088533Z",
+  "timed_out": false,
+  "track": "ablation",
+  "transaction": {
+    "committed_at": "2026-09-04T17:23:46.978658Z",
+    "evidence_commit": "e098b624e5ab0f9c2c7a410f0bb6c438dc81ee93",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.8156636669300497
+}

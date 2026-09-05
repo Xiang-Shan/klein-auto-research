@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1350,
+      "committed": true,
+      "sha256": "79a99d4deac331d04400a348d645f34eee2f0715e5626250495797716d08e834"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 1208,
+      "committed": true,
+      "sha256": "9f517914a48d5a28f59175bea48b8f6d96c43c3aae8c73cd3efea84db782d500"
+    }
+  },
+  "base_commit": "33ebf17abdb38ef55a98d69d56839d822e8f8474",
+  "candidate_commit": "604b43ee54bc935f48ad5ec2141f8e9f10382d6d",
+  "code_patch_hash": "75b4a201d3d36a237cbfcf33c82bfcdf63e4a914e344e6676a4144c272c0ca7e",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 1 with minimum_delta=0",
+  "description": "E0003: L2-regularized logistic regression vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0",
+  "disposition": "keep",
+  "ended_at": "2026-09-04T17:12:52.354767Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+    "split_partition": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed"
+  },
+  "incumbent": "E0002",
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "delta_vs_reference": 0.0,
+    "primary_metric": 1.0,
+    "reference_metric": 1.0,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.0,
+    "train_rows": 49.0,
+    "training_seconds": 0.0,
+    "val_accuracy": 0.96,
+    "val_best_threshold": 0.21,
+    "val_brier": 0.040319,
+    "val_errors": 1.0,
+    "val_f1_at_best": 1.0,
+    "val_lift_top10": 2.0833,
+    "val_logloss": 0.156643,
+    "val_pr_auc": 1.0,
+    "val_rows": 25.0,
+    "wall_seconds": 0.031471
+  },
+  "phase": "parade",
+  "phase_budget_seconds": 900.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P5": {
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "verdict": "inconclusive"
+    }
+  },
+  "predictions_requested": [
+    "P5"
+  ],
+  "primary_metric": 1.0,
+  "schema_version": 3,
+  "started_at": "2026-09-04T17:12:51.569191Z",
+  "timed_out": false,
+  "track": "modern",
+  "transaction": {
+    "committed_at": "2026-09-04T17:12:52.407653Z",
+    "evidence_commit": "5fad7f1eadb8f2a2aed3432bb4bd9b3ecab281f1",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.7854767499957234
+}

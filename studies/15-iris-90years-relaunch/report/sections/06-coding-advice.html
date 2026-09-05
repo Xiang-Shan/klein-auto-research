@@ -1,0 +1,93 @@
+<h2>Method coding advice</h2>
+
+<p>This is the actual, current mutable surface of the study &mdash; the bytes that
+produced E0006, the run whose configuration is still live in <code>train.py</code> as the
+<code>modern</code> track's incumbent (a non-selected candidate restores the surface after
+a run, but E0006 <em>was</em> selected, so nothing was restored away from it). No verifier
+is declared anywhere in this study: it is <code>kind: predict</code>, not
+<code>optimize</code>, and nothing is checkpoint-scored, so there is no checker to freeze
+&mdash; the fixed, unedited library code below plays that stabilizing role instead, without
+being described as a verifier.</p>
+
+<pre data-code="train.py" data-lang="python"></pre>
+
+<h3>Five things worth stealing</h3>
+
+<ul>
+  <li><strong>Keep the recipes and the printed-key shapes out of the mutable surface.</strong>
+      <code>lib/iris.py</code> owns the five model factories, the three feature sets, both
+      bootstrap helpers and the four <code>extra={...}</code> assembly functions
+      (<code>anchor_extra</code>, <code>frontier_extra</code>, <code>ablation_extra</code>,
+      <code>sealed_extra</code>), and it was complete and unedited before E0001 ran. Every
+      per-experiment diff in this study is therefore &ldquo;which recipe, which feature
+      set, which reference&rdquo; &mdash; never a new implementation smuggled in beside a
+      candidate change.</li>
+  <li><strong>Read the floor from the contract; never hardcode it.</strong>
+      <code>train.py</code> loads <code>minimum_delta</code> with
+      <code>load_contract(".")["tracks"]["modern"]["metric"].get("minimum_delta") or 0.0</code>
+      on every single run. Before Phase&nbsp;0 measured it, this evaluated to <code>0.0</code>
+      by the same idiom every other Klein study uses for an unmeasured floor &mdash; which
+      is precisely how this study surfaced a MEASURED zero as a live, undistinguished
+      contract state rather than crashing on a missing key.</li>
+  <li><strong>Guard the floor-normalized keys, and let a missing key mean
+      inconclusive.</strong> <code>lib.iris.frontier_extra</code> only adds
+      <code>delta_in_floors</code> / <code>gap_in_floors</code> to the printed block when
+      <code>minimum_delta &gt; 0</code>:
+      <pre><code class="language-python">if minimum_delta and minimum_delta &gt; 0:
+    extra["delta_in_floors"] = round(
+        (float(candidate_metric) - float(reference_metric)) / minimum_delta, 4
+    )
+    extra["gap_in_floors"] = round((float(ideal) - float(reference_metric)) / minimum_delta, 4)
+</code></pre>
+      That single guard is why P4&ndash;P8 read <strong>inconclusive</strong> rather than
+      crashing on a zero-division, and it is a direct, disclosed defensive pattern this
+      study borrowed from an earlier study's own <code>train.py</code>.</li>
+  <li><strong>Refit the reference inside the same cell, on the same rows.</strong> Every
+      <code>modern</code> and <code>ablation</code> cell fits its candidate <em>and</em>
+      re-fits <code>lda_all4</code> in the same process, on the same
+      <code>X_fit</code>/<code>X_eval</code> arrays, before computing any delta. A
+      comparison assembled later from two separate log files is not paired; it is two
+      numbers that happen to be near each other. That is what makes
+      <code>delta_in_floors</code> comparable to a paired-bootstrap floor measured the same
+      way at Phase&nbsp;0.</li>
+  <li><strong>Route every partition through <code>load_partition</code>, and read its
+      printed fingerprint.</strong> It prints <code>split_fingerprint:</code> before
+      anything else, and the notary checks that value against the one the data gate froze.
+      <code>KLEIN_SEALED_DRYRUN=1</code> answers a <code>final_test</code> request with
+      development data plus a <code>sealed_dryrun: 1</code> line, so
+      <code>--final-test --dry-run</code> exercises the whole code path and spends nothing
+      &mdash; the one sanctioned rehearsal, run three times in this study before any of the
+      three real sealed accesses.</li>
+</ul>
+
+<h3>Pitfalls this study actually hit</h3>
+
+<ul>
+  <li><strong>A measured floor of exactly zero is a state your disposition rule has to
+      handle, not a state that handles itself.</strong> <code>choose_disposition</code>'s
+      ordinary frontier arithmetic, <code>primary_metric &gt;= incumbent + minimum_delta</code>,
+      is exactly right when the floor is positive and becomes a non-strict comparison a
+      tie satisfies the moment the floor is zero. If a floor can plausibly measure to zero
+      on your data, decide in advance whether a tie should file as a keep, and say so on
+      the record before the first run that could produce one &mdash; this study discovered
+      the answer four keeps into the parade rather than one.</li>
+  <li><strong>A duplicate row is a leakage bug even when the fix costs one row.</strong>
+      The data gate's mechanized four-row audit failed unconditionally on the pre-fix
+      table; the fix was a one-line <code>DataFrame.duplicated(keep="first")</code> call in
+      <code>prepare.py</code>, with zero information cost and no contract edit. Run the
+      check before trusting any small table, even one this well known.</li>
+  <li><strong>The paired-bootstrap statistic for an AUC difference is not the library's
+      default row-mean statistic.</strong> An AUC floor needs the SAME resampled index
+      applied to the labels and to both score vectors together
+      (<code>lib.iris.paired_bootstrap_auc_delta</code> spells this out once, rather than
+      duplicating it in every sweep script), and a degenerate single-class resample has to
+      be redrawn rather than allowed to make <code>roc_auc_score</code> undefined &mdash;
+      rare at 13-versus-12 on 25 rows, but rare is exactly the class of event that should
+      never crash a Phase&nbsp;0 sweep at the end of a long run.</li>
+  <li><strong>A sealed cell that also fits a development-side reference will print two
+      <code>split_fingerprint:</code> lines.</strong> E0011 needed an in-run development
+      LDA to compute its <code>sealed_extra</code> block, so its log prints the
+      development fingerprint first and the sealed one second. The manifest still records
+      the correct (sealed) fingerprint, but a check that reads the <em>first</em> printed
+      fingerprint rather than the <em>last</em> would misjudge a perfectly healthy run.</li>
+</ul>

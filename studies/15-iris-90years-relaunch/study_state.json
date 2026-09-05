@@ -1,0 +1,669 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "timestamp": "2026-09-04T16:16:42.259515Z"
+    },
+    "data": {
+      "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "timestamp": "2026-09-04T15:22:12.366173Z"
+    },
+    "method": {
+      "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "timestamp": "2026-09-04T15:51:01.186234Z"
+    },
+    "referee": {
+      "by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "timestamp": "2026-09-04T18:43:53.736136Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166",
+    "method_card.md": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c",
+    "referee_report.md": "ae265f85e9911a135cc6dc7057a8e9a3bfd8173dd7aeda29b0e334df8f13d1b5",
+    "research_plan.md": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147",
+    "scouting_ledger.md": "f222f0e6574c96a6d4e168fb9826bc35c55e407c215e2de9c7bc976d224de9ee",
+    "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
+  },
+  "created_at": "2026-09-04T14:40:49.017369Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "ablation": {
+      "accessed_at": "2026-09-04T17:40:03.474562Z",
+      "count": 1,
+      "experiment": "E0012"
+    },
+    "fisher": {
+      "accessed_at": "2026-09-04T17:37:47.295361Z",
+      "count": 1,
+      "experiment": "E0010"
+    },
+    "modern": {
+      "accessed_at": "2026-09-04T17:38:50.491444Z",
+      "count": 1,
+      "experiment": "E0011"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "ablation": 1,
+      "fisher": 1,
+      "modern": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: Claude Opus 5 / claude-opus-5[1m])",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "ablation": "E0012",
+      "fisher": "E0010",
+      "modern": "E0011"
+    },
+    "timestamp": "2026-09-04T19:21:18.451460Z"
+  },
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "split": {
+      "development": "41553e71e4ed5c7bc97bf30e44e4453781c2f00e803c0b3e00bcc439bffa65ed",
+      "final_test": "49a84dcd63b6defb5c929fc2fe591d9652f41e858f918cfb7ddb47513d1524f1",
+      "policy": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205"
+    },
+    "verifier": {}
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-09-04T16:16:42.259515Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "program.md": "78791000f64c680828f51d3e2d6859c92a00be558ea0de52ccdf63083f8221b3",
+        "research_plan.md": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147",
+        "scouting_ledger.md": "f222f0e6574c96a6d4e168fb9826bc35c55e407c215e2de9c7bc976d224de9ee",
+        "study.yaml": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
+      },
+      "note": "minimum_delta set from the measured noise floor (fit_noise/floor_modern/floor_ablation/floor_fisher, Phase 0)",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-09-04T15:22:12.366173Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "data_card.md": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166"
+      },
+      "note": "duplicate-row split-contamination BLOCKER found and fixed in prepare.py (dedup, no study.yaml edit); 12/12 mechanized checks pass",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-09-04T15:51:01.186234Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "method_card.md": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c"
+      },
+      "note": "",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-09-04T18:43:53.736136Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "referee_report.md": "ae265f85e9911a135cc6dc7057a8e9a3bfd8173dd7aeda29b0e334df8f13d1b5"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: Claude Opus 5 / claude-opus-5[1m])",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 12,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "ablation-map": {
+      "acknowledged_at": "2026-09-04T17:29:37.960190Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "note": "P12/P14 supported (petal-only ties all-four, reproduces with hgbt); P13 refuted by the floor-normalized rule despite a real 18.6pt raw AUC gap (ablation floor 0.28125 is nearly a third of the AUC scale) - both numbers carried into findings",
+      "playbook_sha256": "5b709fa4bd814aeda579b88a1a4ab8d17d0e7b91b90c5fb8d142ac594bc46054"
+    },
+    "anchor-and-floor": {
+      "acknowledged_at": "2026-09-04T17:06:23.905633Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "note": "AUC pegs (floor=0) on fisher/modern; user directed: run the parade anyway, expect P4/P5-P8/P10/P11 inconclusive",
+      "playbook_sha256": "ee3032e4e0707d437d8cf457dc27e8e10d7b221c10879b1cfe325af6798814cc"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-09-04T17:53:57.798373Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "note": "all three sealed accesses spent and replicated; P10/P11 inconclusive as expected (zero floor); P15 refuted (petal half holds, sepal half real but floor-uncleared, same pattern as E0008); EXPERIMENT loop complete, 16/16 predictions adjudicated",
+      "playbook_sha256": "7698539594e761620ba7d851f639f2dd09030f3eb7c7e34fee038eef47f5af48"
+    },
+    "parade": {
+      "acknowledged_at": "2026-09-04T17:18:26.203896Z",
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "note": "4/5 modern-track cells disposition keep on a zero-floor tie (0.0 delta read as >=old+0); P4-P8 inconclusive as expected, P9 refuted (4 keeps, not 0); logged as a disposition-label caveat in program.md/playbook.md, code untouched",
+      "playbook_sha256": "76f42b896e88c3148d131616039ced8d15987dbeab0461669508b9c92265f298"
+    }
+  },
+  "predictions": {
+    "P0": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "all_of[raw_rows 100 == 100 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_versicolor 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_virginica 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_features 4 == 4 \u00b1 0 (|\u0394| = 0) \u2192 supported; partition_sum_matches 1 == 1 \u00b1 0 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "all_of[raw_rows 100 == 100 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_versicolor 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_virginica 50 == 50 \u00b1 0 (|\u0394| = 0) \u2192 supported; raw_features 4 == 4 \u00b1 0 (|\u0394| = 0) \u2192 supported; partition_sum_matches 1 == 1 \u00b1 0 (|\u0394| = 0) \u2192 supported] \u2192 supported",
+          "recorded_at": "2026-09-04T16:06:24.674546Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.674546Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 1 >= 0.9 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 1 >= 0.9 \u2192 supported",
+          "recorded_at": "2026-09-04T16:06:24.674804Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.674804Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P10": {
+      "evidence": [
+        "E0011"
+      ],
+      "explanation": "sealed_shift_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0011"
+          ],
+          "explanation": "sealed_shift_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:38:51.540146Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:38:51.540146Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P11": {
+      "evidence": [
+        "E0011"
+      ],
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0011"
+          ],
+          "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:38:51.540480Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:38:51.540480Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P12": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "|delta_in_floors| 0 < 1 (from 0) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "|delta_in_floors| 0 < 1 (from 0) \u2192 supported",
+          "recorded_at": "2026-09-04T17:23:46.904797Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:23:46.904797Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P13": {
+      "evidence": [
+        "E0008"
+      ],
+      "explanation": "delta_in_floors -0.661 <= -1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0008"
+          ],
+          "explanation": "delta_in_floors -0.661 <= -1 \u2192 refuted",
+          "recorded_at": "2026-09-04T17:25:04.142682Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:25:04.142682Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P14": {
+      "evidence": [
+        "E0009"
+      ],
+      "explanation": "|delta_in_floors| 0 < 1 (from 0) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0009"
+          ],
+          "explanation": "|delta_in_floors| 0 < 1 (from 0) \u2192 supported",
+          "recorded_at": "2026-09-04T17:26:02.138226Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:26:02.138226Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P15": {
+      "evidence": [
+        "E0012"
+      ],
+      "explanation": "all_of[|delta_in_floors| 0.0456 < 1 (from -0.0456) \u2192 supported; sepal_delta_in_floors -0.8547 <= -1 \u2192 refuted] \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0012"
+          ],
+          "explanation": "all_of[|delta_in_floors| 0.0456 < 1 (from -0.0456) \u2192 supported; sepal_delta_in_floors -0.8547 <= -1 \u2192 refuted] \u2192 refuted",
+          "recorded_at": "2026-09-04T17:40:04.252319Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:40:04.252319Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P2": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "val_errors 1 <= 3 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "val_errors 1 <= 3 \u2192 supported",
+          "recorded_at": "2026-09-04T16:06:24.674944Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.674944Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P3": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "ci_width 0 > 0.05 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "ci_width 0 > 0.05 \u2192 refuted",
+          "recorded_at": "2026-09-04T16:06:24.675064Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-09-04T16:06:24.675064Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "gap_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "gap_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:12:01.571371Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:12:01.571371Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P5": {
+      "evidence": [
+        "E0003"
+      ],
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0003"
+          ],
+          "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:12:52.355275Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:12:52.355275Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P6": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:13:16.393708Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:13:16.393708Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P7": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:13:42.133942Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:13:42.133942Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P8": {
+      "evidence": [
+        "E0006"
+      ],
+      "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+      "history": [
+        {
+          "evidence": [
+            "E0006"
+          ],
+          "explanation": "delta_in_floors was not printed by this run \u2192 inconclusive (a missing number is not a refutation)",
+          "recorded_at": "2026-09-04T17:14:13.919636Z",
+          "source": "run",
+          "verdict": "inconclusive"
+        }
+      ],
+      "recorded_at": "2026-09-04T17:14:13.919636Z",
+      "source": "run",
+      "verdict": "inconclusive"
+    },
+    "P9": {
+      "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+      "artifacts": {
+        "results.tsv": {
+          "bytes": 1186,
+          "sha256": "6dc8c35730c584d22aa66e88c4e0337ce48a3bbe2b33b387faceb1e8d5775abc"
+        }
+      },
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "results.tsv"
+      ],
+      "explanation": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+      "history": [
+        {
+          "acknowledged_by": "Claude Sonnet 5 (autonomous redo, ack given in chat by Xiang Shan)",
+          "artifacts": {
+            "results.tsv": {
+              "bytes": 1186,
+              "sha256": "6dc8c35730c584d22aa66e88c4e0337ce48a3bbe2b33b387faceb1e8d5775abc"
+            }
+          },
+          "evidence": [
+            "E0002",
+            "E0003",
+            "E0004",
+            "E0005",
+            "E0006",
+            "results.tsv"
+          ],
+          "explanation": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+          "note": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+          "recorded_at": "2026-09-04T17:14:55.654586Z",
+          "source": "manual",
+          "verdict": "refuted"
+        }
+      ],
+      "note": "count(results.tsv rows where track=='modern' and status=='keep') = 4 (E0002 lda_all4, E0003 logreg_l2, E0005 svm_rbf, E0006 hgbt), not 0 -- P9 REFUTED by direct count. Only E0004 (knn5, AUC 0.990385) discarded. Read this precisely, not as 'the parade produced four genuine wins': every keep is a tie at the printed AUC 1.000000 (logreg_l2 and svm_rbf exactly; hgbt's raw AUC is a hair under 1 via float rounding -- 0.9999999999999999 per the Phase-0 fit_noise sweep -- printed identically as 1.000000, and delta_vs_reference: -0.0 confirms it) against Fisher's own lda_all4 refit in the same cell. The mechanism is arithmetic, not substantive: choose_disposition's frontier rule with minimum_delta=0 reads 'primary_metric >= old + 0' off the PRINTED (rounded) block, so any challenger that matches or is printed as matching the incumbent registers as a frontier 'keep', never a genuine beat. Zero of the four challengers exceeded 1.000000; zero exceeded it outside print-rounding. Findings must report both numbers: 4 printed keeps, 0 real (uncertainty-resolvable) wins.",
+      "recorded_at": "2026-09-04T17:14:55.654586Z",
+      "source": "manual",
+      "verdict": "refuted"
+    }
+  },
+  "prepared_data": {
+    "path": "/private/tmp/claude-501/-Users-xiang-Claude-Auto-research-klein-auto-research/640c17a0-3232-46b0-bc3d-02d6e4d0a34a/scratchpad/study15-wt/studies/15-iris-90years-relaunch/data/prepared/iris_hardpair.csv",
+    "sha256": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69"
+  },
+  "replications": {
+    "E0001": {
+      "attempts": 2,
+      "modes": {
+        "replicate": {
+          "attempts": 2,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0001@20260904T174103Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-04T17:41:03.895337Z",
+          "tolerance": 0.0
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20260904T174249Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-04T17:42:49.475759Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "fisher"
+    },
+    "E0006": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0006@20260904T174449Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-04T17:44:49.949602Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "modern"
+    },
+    "E0007": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0007@20260904T174632Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-04T17:46:32.936401Z",
+          "tolerance": 0.28125
+        }
+      ],
+      "track": "ablation"
+    },
+    "E0008": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0008@20260904T174817Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-04T17:48:17.511230Z",
+          "tolerance": 0.28125
+        }
+      ],
+      "track": "ablation"
+    },
+    "E0009": {
+      "attempts": 2,
+      "modes": {
+        "replicate": {
+          "attempts": 2,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": null,
+          "evidence_id": "rep:E0009@20260904T191828Z",
+          "mode": "replicate",
+          "reproduced": false,
+          "timestamp": "2026-09-04T19:18:28.775367Z",
+          "tolerance": 0.28125
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0009@20260904T191942Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-09-04T19:19:42.857163Z",
+          "tolerance": 0.28125
+        }
+      ],
+      "track": "ablation"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "15-iris-90years-relaunch",
+  "sweeps": {
+    "fit_noise_hgbt": {
+      "registered_at": "2026-09-04T16:12:07.844852Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/fit_noise.py",
+      "script_sha256": "c100565fda03bffd7081d7e25a1c0b2ad9e695a2e050cd180da0908f3c832617",
+      "sidecar": "sweeps/fit_noise_hgbt.sidecar.tsv",
+      "sidecar_sha256": "473b4886217ed135c86f5e6de6f44813ac84fe8089c9385f6433351674e86219"
+    },
+    "fit_noise_svm_rbf": {
+      "registered_at": "2026-09-04T16:12:07.690366Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/fit_noise.py",
+      "script_sha256": "c100565fda03bffd7081d7e25a1c0b2ad9e695a2e050cd180da0908f3c832617",
+      "sidecar": "sweeps/fit_noise_svm_rbf.sidecar.tsv",
+      "sidecar_sha256": "b6ed51256e29fa9cc0e9e243e38cbc5055ae31d71e9cc46995157e562533df66"
+    },
+    "floor_ablation": {
+      "registered_at": "2026-09-04T16:12:08.146172Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/floor_ablation.py",
+      "script_sha256": "e7df96b1ee0a6f2dfd2561813a2135abe4cb461c7788b580bb7563f2643520de",
+      "sidecar": "sweeps/floor_ablation.sidecar.tsv",
+      "sidecar_sha256": "1f663540591a9ae8cab64470caf6202ef95190caedf9b69fbfe3c335a37793cb"
+    },
+    "floor_fisher": {
+      "registered_at": "2026-09-04T16:12:08.296237Z",
+      "rows_crash": 0,
+      "rows_ok": 5,
+      "script": "sweeps/floor_fisher.py",
+      "script_sha256": "d41a19b2c40ee3929d9ab6c6cbfd54a7b47b4015bf64980e6ecd163df09c09d8",
+      "sidecar": "sweeps/floor_fisher.sidecar.tsv",
+      "sidecar_sha256": "bb540b96466572b190d4ee9ce5d4192297b979437c6f0607b886091e429af994"
+    },
+    "floor_modern": {
+      "registered_at": "2026-09-04T16:12:07.995209Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/floor_modern.py",
+      "script_sha256": "ddb9216a9c1e72b8fda8133998d6018c610c1aeb79fce7206f6c5993d7006efc",
+      "sidecar": "sweeps/floor_modern.sidecar.tsv",
+      "sidecar_sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
+    }
+  },
+  "updated_at": "2026-09-04T19:21:18.451463Z"
+}

@@ -1,0 +1,197 @@
+<h2>The experiment journey</h2>
+
+<p>Twelve notarized runs, four phases, three sealed accesses. The full ledger, as the
+notary recorded it &mdash; every run's track, disposition and printed primary metric:</p>
+
+<!--LEDGER-->
+
+<p>Read it with the floor in hand, one phase at a time.</p>
+
+<h3>Phase 1 &mdash; anchor and floor: know the instrument before comparing anything</h3>
+
+<p><strong>E0001</strong> is the identity anchor and the incumbent's level, in one cell.
+On the raw loader: 100 rows, 50 of each species, 4 features, and the three partitions sum
+back to the prepared total &mdash; P0 supported on all five clauses. Fisher's
+<code>lda_all4</code>, fit on the 49 training flowers and scored on the 25 development
+flowers: <code>val_accuracy=0.96</code>, <code>val_errors=1</code>,
+<code>primary_metric(val_auc)=1.000000</code>. P1 (<span data-math="\ge 0.90"></span>)
+and P2 (<span data-math="\le 3"></span> errors) both supported, comfortably. The
+2000-replicate bootstrap interval for that AUC came back <code>ci_low=1.000000</code>,
+<code>ci_high=1.000000</code>, <code>ci_width=0.0</code> &mdash; and P3, which predicted
+an interval <em>wider</em> than <code>0.05</code>, was refuted. The reason is arithmetic,
+not a bug: hand-inspection of the score dump showed all 13 development versicolor flowers
+scoring below <code>0.02</code> and all 12 virginica above <code>0.45</code>, a clean rank
+gap. Resample 25 already-cleanly-separated rows with replacement and every resample is
+cleanly separated too &mdash; the percentile bootstrap has no variability left to report.
+That is the first sign of the pegging this whole study turns on.</p>
+
+<p>Four registered Phase&nbsp;0 sweeps then measured every floor this study would use,
+before any challenger ran:</p>
+
+<ul>
+  <li><strong><code>sweep:fit_noise_svm_rbf</code> / <code>sweep:fit_noise_hgbt</code></strong>
+      (seed-sweep, five seeds, same 49/25 split): both recipes reach AUC <code>1.0</code>
+      on every seed &mdash; provenance about the fit, never a bar.</li>
+  <li><strong><code>sweep:floor_modern</code></strong> (paired-bootstrap, 1000 replicates,
+      pair <code>(lda_all4, hgbt)</code>, fixed in <code>study.yaml</code> before the
+      measurement): the AUC difference is exactly <code>0</code> on every one of the 1000
+      resamples &mdash; std <code>0</code>, range <code>0</code>.</li>
+  <li><strong><code>sweep:floor_fisher</code></strong> (split-lottery, five redraws
+      strictly inside the 74 non-sealed rows): <code>lda_all4</code>'s own development AUC
+      is <code>1.0</code> on every redraw &mdash; std <code>0</code>, range <code>0</code>.</li>
+  <li><strong><code>sweep:floor_ablation</code></strong> (paired-bootstrap, 1000 replicates,
+      pair <code>(lda_all4, lda_sepal)</code>): a real, resolvable spread &mdash; mean
+      <code>-0.190092</code>, std <code>0.0952175</code>, range <code>0.5625</code>, so
+      <span data-math="\max(2\sigma,\ \mathrm{range}/2) = \max(0.190435,\ 0.28125) = 0.28125"></span>.</li>
+</ul>
+
+<img data-fig="figures/plot_decision_trajectory__fisher.png" alt="Decision trajectory for the fisher track: the anchor cell at val_auc 1.0 and the sealed final test, also at 1.0.">
+
+<p>Two of three tracks measured a keep bar of exactly <code>0</code>. That is a
+<em>measured</em> zero, pasted into <code>study.yaml</code> and re-recorded at the consult
+gate, not an unmeasured placeholder. Klein's headroom law returns no number at all,
+<code>h = None</code>, whenever <code>minimum_delta &lt;= 0</code> &mdash; not
+&ldquo;infinite headroom&rdquo;, <em>undefined</em> headroom &mdash; which meant seven of
+this study's sixteen predictions (P4&ndash;P8, P10, P11) could never print the
+floor-normalized key their own registered rule needed. Each one's own
+<code>inconclusive_if</code> clause, written before Phase&nbsp;0 measured anything, already
+named this exact condition. What it did not anticipate was that the floor would be
+<em>measured</em> at zero rather than simply left unmeasured. This was flagged as an
+explicit phase-boundary decision rather than resolved quietly: the orchestrator relayed the
+user's decision to run the parade anyway, with the structural inconclusiveness accepted as
+the honest, pre-registered outcome &mdash; not re-litigated, contract unedited.</p>
+
+<h3>Phase 2 &mdash; the parade: does ninety years of research beat him?</h3>
+
+<p><strong>E0002</strong> seeds the <code>modern</code> frontier with Fisher's own
+<code>lda_all4</code>, refit on the identical split: <code>primary_metric=1.000000</code>,
+matching E0001 to the printed digit &mdash; the two tracks are reading the same rows.
+Then four challengers, each refitting <code>lda_all4</code> as its reference inside the
+<em>same run</em>, on the <em>same</em> development rows, so every comparison is paired by
+construction:</p>
+
+<ul>
+  <li><strong>E0003</strong> &mdash; L2 logistic regression: <code>val_auc=1.000000</code>,
+      <code>delta_vs_reference=0.0</code>. An exact tie.</li>
+  <li><strong>E0004</strong> &mdash; 5-nearest-neighbours: <code>val_auc=0.990385</code>,
+      <code>delta_vs_reference=-0.009615</code>. The parade's one genuine loss, and it is
+      exactly the mechanism P6 predicted: with only 25 development rows,
+      <code>knn5</code> can only ever print six distinct scores
+      (<code>proba_unique_values=6</code>), and every tie costs ranking resolution.</li>
+  <li><strong>E0005</strong> &mdash; RBF-kernel SVM: <code>val_auc=1.000000</code>,
+      <code>delta_vs_reference=0.0</code>. Another exact tie, reproducing the Phase-0
+      seed-sweep's own finding.</li>
+  <li><strong>E0006</strong> &mdash; the boosted tree: printed <code>val_auc=1.000000</code>,
+      <code>delta_vs_reference=-0.0</code>; the raw stored value is
+      <code>0.9999999999999999</code>, a floating-point hair below the reference,
+      indistinguishable from a tie at print precision. <code>val_accuracy=1.0</code>,
+      <code>val_errors=0</code> &mdash; the one number in this cell that is not tied.</li>
+</ul>
+
+<img data-fig="figures/roc_parade.png" alt="ROC curves for all five modern-track recipes on the development block: four curves sit stacked at the perfect corner and the fifth, five-nearest-neighbours, sits visibly below them.">
+
+<h3>The disposition quirk: how a tie becomes a <code>keep</code></h3>
+
+<p>With <code>minimum_delta</code> measured at <code>0</code>, the frontier rule
+<span data-math="\text{primary\_metric} \ge \text{incumbent} + \text{minimum\_delta}"></span>
+degenerates to <span data-math="\text{printed} \ge \text{printed}"></span> &mdash; a
+condition an exact tie satisfies. Four of the five <code>modern</code>-track development
+cells (E0002, E0003, E0005, E0006) filed as <code>keep</code>; only E0004 discarded. Read
+the ledger above by <code>status</code> alone and it looks like three of four post-1936
+methods improved on Fisher. None of them resolvably did:
+<code>delta_vs_reference</code> is <code>0.0</code> or <code>-0.0</code> on every single
+keep. This is the exact mechanism the study's own stop-rule check confirms did
+<em>not</em> fire &mdash; only one discard occurred in the whole parade, never four
+consecutive, so <code>klein stop ack</code> was never needed &mdash; but it is also the
+reason prediction P9 (&ldquo;zero of the four families earns a keep&rdquo;) reads
+<strong>refuted on the letter</strong> of its own arithmetic (the count is four, not zero)
+while its <em>substance</em> &mdash; no post-1936 method separated the species measurably
+better &mdash; is supported.</p>
+
+<img data-fig="figures/plot_decision_trajectory__modern.png" alt="Decision trajectory for the modern track: four keeps forming an apparent frontier plateau at val_auc 1.0, one discard below it, and the sealed final test visibly lower than every development point.">
+
+<h3>Phase 3 &mdash; the ablation map: which measurements carry it</h3>
+
+<p>The <code>ablation</code> track's floor is not degenerate &mdash; <code>0.28125</code>,
+measured from real resampling spread &mdash; so every prediction here resolves by ordinary
+registered arithmetic, the first phase where nothing reads inconclusive.</p>
+
+<ul>
+  <li><strong>E0007</strong> &mdash; petal-only LDA against the all-four reference, refit
+      paired in the same cell: <code>val_auc=1.000000</code>,
+      <code>delta_vs_reference=0.0</code>, <code>delta_in_floors=0.0</code>. <strong>P12
+      supported</strong>, the tightest possible margin: petal length and petal width alone
+      land exactly on the all-four score.</li>
+  <li><strong>E0008</strong> &mdash; sepal-only LDA, same construction:
+      <code>val_auc=0.814103</code>, <code>delta_vs_reference=-0.185897</code>,
+      <code>delta_in_floors=-0.661</code>. <strong>P13 refuted</strong> &mdash; but read
+      that refutation carefully. An 18.6-point AUC loss is real, large and correctly
+      directed; it simply does not clear the pre-registered bar of a <em>full</em> floor
+      below, because the ablation floor itself (<code>0.28125</code>) was measured from
+      this exact contrast's own paired-bootstrap spread &mdash; nearly a third of the whole
+      0-to-1 AUC scale. A registered floor-normalized rule and a raw effect size can tell
+      different stories on the same run.</li>
+  <li><strong>E0009</strong> repeats E0007's comparison with the boosted tree in place of
+      LDA &mdash; the parade's incumbent, chosen because the parade itself left no
+      substantive ranking to pick a &ldquo;best&rdquo; family from (every keep tied), so
+      <code>hgbt</code> is both the track's current incumbent and the family least like
+      LDA, the hardest available test of the claim: <code>delta_in_floors=0.0</code>.
+      <strong>P14 supported</strong> &mdash; the petal verdict is a property of the
+      flowers, not an artifact of the discriminant.</li>
+</ul>
+
+<img data-fig="figures/plot_decision_trajectory__ablation.png" alt="Decision trajectory for the ablation track: petal-only and petal-with-hgbt tied at val_auc 1.0, sepal-only visibly lower at 0.814, and the sealed final test near the ceiling.">
+
+<img data-fig="figures/floor_vs_ceiling.png" alt="Measured floor against the AUC ceiling of 1.0, one row per track: fisher and modern show an invisible zero-width floor band, ablation shows a wide shaded band, with sepal-only landing inside it and petal-only landing right at the ceiling.">
+
+<p>The bottom panel of that figure is the whole study in one picture: on <code>fisher</code>
+and <code>modern</code> the shaded &ldquo;cannot resolve&rdquo; band has zero width, so
+even <code>hgbt</code>'s later sealed loss sits just outside a band too thin to see. On
+<code>ablation</code> the band is wide enough that sepal-only's very real shortfall still
+falls inside it.</p>
+
+<h3>Phase 4 &mdash; confirmation: three sealed numbers, spent once each</h3>
+
+<p>Every sealed cell was rehearsed first with <code>klein run-one --final-test --dry-run</code>
+&mdash; three rehearsals, each printing <code>sealed_dryrun: 1</code> on development data
+and spending nothing.</p>
+
+<p><strong>E0010</strong>, the <code>fisher</code> track's sealed access:
+<code>lda_all4</code> refit on the 74 train-plus-development rows, scored on the 25 sealed
+flowers nobody had looked at: <code>val_auc=1.000000</code> again &mdash; the same peg,
+reproduced on a different 25-row block, so it is a property of this species pair under
+these four measurements, not one lucky development draw. But
+<code>val_errors</code> rose from <code>1</code> to <code>2</code> at the ordinary
+threshold of <code>0.5</code>, and <code>val_accuracy</code> fell from <code>0.96</code>
+to <code>0.92</code>: the rank statistic transferred exactly, the raw error count did
+not.</p>
+
+<p><strong>E0011</strong>, the <code>modern</code> track's sealed access: the selected
+challenger, <code>hgbt</code>, refit on the 74 rows and scored against
+<code>lda_all4</code> refit on the <em>same</em> sealed rows in the <em>same</em> run:
+<code>val_auc=0.987179</code> against a reference of <code>1.0</code> &mdash;
+<code>delta_vs_reference=-0.012821</code>, exactly two of the block's 156 ordered pairs.
+<code>val_accuracy=0.88</code>, three flowers misclassified against Fisher's two on the
+identical rows. Predictions P10 and P11 both read <strong>inconclusive</strong> &mdash;
+the floor-normalized keys they need are still unprintable at <code>minimum_delta=0</code>
+&mdash; but this is the single most informative raw number the whole <code>modern</code>
+track produced: every development-side comparison in the parade printed a tie, and on
+rows neither model had ever seen, the ninety-years-later challenger lost.</p>
+
+<p><strong>E0012</strong>, the <code>ablation</code> track's sealed access: all three
+feature sets refit on the 74 rows, scored on the same 25 sealed flowers in the same run.
+Petal-only: <code>val_auc=0.987179</code>, <code>delta_in_floors=-0.0456</code> &mdash;
+comfortably inside the floor, confirming P12's development-side verdict on rows nobody had
+adaptively touched. Sepal-only: <code>sepal_delta_in_floors=-0.8547</code> &mdash; a real,
+large, correctly-directed shortfall, wider than on development, that again falls just
+short of the registered <span data-math="\le -1"></span> floor bar. <strong>P15
+refuted</strong> on that second clause, for the identical structural reason E0008 gave.</p>
+
+<p>Finally, <code>klein replicate</code> re-executed the development run behind every
+confirmed claim in a detached worktree: E0001, E0006, E0007 and E0008 all reproduced
+exactly, difference <code>0.0</code>. (A sealed run cannot itself be replicated &mdash;
+re-running it would be a second look at the sealed partition &mdash; so the replicate leg
+is filed against the development run each sealed cell's config and comparison rest on.
+E0001's first replication attempt timed out at the default budget with no output at all,
+a cold-worktree startup cost, not a failed reproduction; the retry, given a longer budget,
+reproduced exactly, and both attempts stayed on the record.)</p>

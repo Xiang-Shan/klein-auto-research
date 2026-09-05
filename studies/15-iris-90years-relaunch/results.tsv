@@ -1,0 +1,13 @@
+experiment	track	primary_metric	status	commit	description
+E0001	fisher	1	measured	bc1beecf8ac0500ad4be4c545f1d66855495d333	E0001 anchor: Fisher 1936 LDA, four features, fit on 49 training rows; registered cell measured
+E0002	modern	1	keep	c9925f599d1328c359677c48c1dde590e8e3b228	E0002 seeds modern frontier: Fisher 1936 LDA (same recipe as E0001); first valid result on this track
+E0003	modern	1	keep	604b43ee54bc935f48ad5ec2141f8e9f10382d6d	E0003: L2-regularized logistic regression vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0
+E0004	modern	0.990385	discard	96bf2a812383092c57a65c33ef66f33ba24221f2	E0004: 5-nearest-neighbours vs Fisher's LDA refit on the same 25 development rows; did not improve track frontier 1 by minimum_delta=0
+E0005	modern	1	keep	88f2d2260cc28c7344af2d0cae5fa96524add599	E0005: RBF-kernel SVM vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0
+E0006	modern	1	keep	ea61ca951af8abafbff76ff55b71feef07e1fd44	E0006: histogram gradient-boosted tree vs Fisher's LDA refit on the same 25 development rows; frontier improvement over 1 with minimum_delta=0
+E0007	ablation	1	measured	fd61d7f4b27a0ec7114ee81def1fb2ca244401bb	E0007 ablation: petal-only LDA vs all-four LDA (RQ2); registered cell measured
+E0008	ablation	0.814103	measured	99ab3489183ddcbe85ab8212a2756efd38cfcaa7	E0008 ablation: sepal-only LDA vs all-four LDA (RQ2 sanity check); registered cell measured
+E0009	ablation	1	measured	f4cef753c3817962a77593953b0c2db5f103961a	E0009 ablation: petal-only hgbt vs all-four hgbt (RQ2 repeated with the parade's best-scoring modern family); registered cell measured
+E0010	fisher	1	measured	4280d73cd7833f49db78a8dc953aa07310cbfd98	sealed: Fisher 1936 LDA level on the 25 sealed test rows; registered cell measured
+E0011	modern	0.987179	discard	d894643030ba18e019d6c6907bf296993f6aa6f6	sealed: hgbt (selected) vs lda_all4, paired, same sealed rows; sealed final-test evidence; excluded from the adaptive frontier
+E0012	ablation	0.987179	measured	b769819697043f8d12eeecf05278c972fa2168b6	sealed: petal-only + sepal-only vs all-four LDA, same sealed rows; registered cell measured

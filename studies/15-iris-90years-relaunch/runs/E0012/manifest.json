@@ -1,0 +1,95 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 6019,
+      "committed": true,
+      "sha256": "27edc17dd92b1e1009ec129d3d12955abb14b374b62643ada6873d82cc0c077b"
+    },
+    "runs/E0012/run.log": {
+      "availability": "recorded",
+      "bytes": 638,
+      "committed": true,
+      "sha256": "ca0d736cd2f474b3d3565344a59637071c8ed78ca7999d206027c37580285b48"
+    }
+  },
+  "base_commit": "25a0af8c6a75389cba674ff15d868eb755462cc3",
+  "candidate_commit": "b769819697043f8d12eeecf05278c972fa2168b6",
+  "code_patch_hash": "05bc2ebb609e62d15569fab92e2bdb2c57e30222075aa3e5762fb6d0d9aabd7b",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed: petal-only + sepal-only vs all-four LDA, same sealed rows; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-09-04T17:40:04.251869Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "arm64",
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "python": "3.13.3",
+    "uv_lock_sha256": "af0151142e07d75aae55553193d37055f1f16d0db76a0c7e6d002a3271318422"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0012",
+  "fingerprints": {
+    "data": "9976b4db3f163488b1f9a57f58d5e1faa8742427ec5ec6ee4d0b310b6ed55d69",
+    "environment": "4c35f956847413ab21a137e166ed67392f343398e71aa3ef9dc70dd78efc8d8e",
+    "split": "61a29de967c7377564c302a925a2327c196da917436be722146062911b3e8205",
+    "split_partition": "49a84dcd63b6defb5c929fc2fe591d9652f41e858f918cfb7ddb47513d1524f1"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 60.0,
+  "metric_goal": "higher",
+  "metric_name": "val_auc",
+  "metrics": {
+    "delta_in_floors": -0.0456,
+    "delta_vs_reference": -0.012821,
+    "primary_metric": 0.987179,
+    "reference_metric": 1.0,
+    "runner_exit_code": 0.0,
+    "sepal_delta_in_floors": -0.8547,
+    "total_seconds": 0.0,
+    "train_rows": 74.0,
+    "training_seconds": 0.0,
+    "val_best_threshold": 0.76,
+    "val_brier": 0.057828,
+    "val_f1_at_best": 0.96,
+    "val_lift_top10": 1.9231,
+    "val_logloss": 0.16426,
+    "val_pr_auc": 0.989744,
+    "val_rows": 25.0,
+    "wall_seconds": 0.03203
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P15": {
+      "explanation": "all_of[|delta_in_floors| 0.0456 < 1 (from -0.0456) \u2192 supported; sepal_delta_in_floors -0.8547 <= -1 \u2192 refuted] \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P15"
+  ],
+  "primary_metric": 0.987179,
+  "schema_version": 3,
+  "started_at": "2026-09-04T17:40:03.474901Z",
+  "timed_out": false,
+  "track": "ablation",
+  "transaction": {
+    "committed_at": "2026-09-04T17:40:04.324761Z",
+    "evidence_commit": "cb0acd52221272fa48f975f7cb8aaab22d04cb92",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 0.7768696250859648
+}

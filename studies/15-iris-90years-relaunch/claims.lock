@@ -1,0 +1,515 @@
+{
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "27edc17dd92b1e1009ec129d3d12955abb14b374b62643ada6873d82cc0c077b"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "19d6edafaa40830117e7f4e562b7616933065257ba763520d89641700fa5a8f2"
+    },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "4a81dc2791ba7bd53efeb3e5b69385dbe5d9eebee2728d506c2c2e9424ae5166"
+    },
+    "floor_ablation": {
+      "path": "sweeps/floor_ablation.sidecar.tsv",
+      "sha256": "1f663540591a9ae8cab64470caf6202ef95190caedf9b69fbfe3c335a37793cb"
+    },
+    "floor_fisher": {
+      "path": "sweeps/floor_fisher.sidecar.tsv",
+      "sha256": "bb540b96466572b190d4ee9ce5d4192297b979437c6f0607b886091e429af994"
+    },
+    "floor_modern": {
+      "path": "sweeps/floor_modern.sidecar.tsv",
+      "sha256": "7c7c0950e58f34215b4897e40198eee01c7edb37501a44b0dca4f6896f937b2b"
+    },
+    "method_card": {
+      "path": "method_card.md",
+      "sha256": "c9469b95cfe4ce384a1cbd838c686ca039f3e619c4f48d0c30eef6a8fb22a67c"
+    },
+    "plan": {
+      "path": "research_plan.md",
+      "sha256": "930b5e80ba816b01d6653bd92badbc28870d5c858ea651d504a6651b050d4147"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "675c877e0006713c5a62839d5d2456591df166af918eba29def66c887baae406"
+    },
+    "state": {
+      "path": "study_state.json",
+      "sha256": "4a9e794879822c38d5ca615b4185a8c483ab170f90a1ccdff6225acba7c072eb"
+    }
+  },
+  "claims": {
+    "C1": {
+      "claim": "On the development block of 25 rows, no post-1936 challenger exceeded Fisher's 1936 linear discriminant refit in the same cell: regularized logistic regression, the RBF support-vector machine and the histogram gradient-boosted tree each printed val_auc 1.000000 against the same printed reference 1.000000, and five-nearest-neighbours printed 0.990385, a delta_vs_reference of -0.009615.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "sweep:floor_modern"
+      ],
+      "numbers": [
+        "dev_knn_auc",
+        "dev_knn_delta",
+        "dev_lda_auc"
+      ],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "A large, real, correctly-directed effect failed a registered rule twice because the bar was measured from the effect's own spread: the range-based term of Klein's floor recipe, over 1000 resamples of the all-four-versus-sepal-only contrast, sets the ablation floor at 0.28125 - larger than the -0.185897 val_auc shortfall it then had to certify.",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0008",
+        "E0012",
+        "sweep:floor_ablation"
+      ],
+      "numbers": [
+        "ablation_floor",
+        "floor_ablation_range",
+        "sepal_dev_delta"
+      ],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "Before registering a bounded metric as a study's primary, check whether it can reach its bound on the data at hand: here val_auc hit its declared ideal of 1.0 on the anchor run and again on the sealed block, and everything downstream - the noise floor, the headroom audit, the frontier arithmetic and every floor-normalized rule - degenerated at once.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "sweep:floor_modern",
+        "sweep:floor_fisher"
+      ],
+      "numbers": [
+        "modern_ideal"
+      ],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "A minimum_delta measured at exactly 0 is a contract state that needs explicit handling rather than a silent pass-through: it makes the frontier rule non-strict, so a tie is filed as a keep, and it silences every floor-normalized key - require a strict inequality, or declare the metric's own printing resolution as the floor, or re-measure on a metric that is not saturated.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0005",
+        "E0006",
+        "art:results"
+      ],
+      "numbers": [
+        "modern_floor"
+      ],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "Write registered rules on keys that always print, and give every floor-normalized rule a raw-delta twin: 7 of 16 predictions in this study read inconclusive only because their rules name keys a zero floor never prints, while the raw keys printed on every run and told the story cleanly - five-nearest-neighbours at -0.009615 and the sealed gradient-boosted tree at -0.012821.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0004",
+        "E0006",
+        "E0011",
+        "art:state"
+      ],
+      "numbers": [
+        "dev_knn_delta",
+        "hgbt_sealed_delta"
+      ],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "Report the registered verdict and the raw effect size side by side: a reader who saw only the verdict words would miss a -0.185897 val_auc sepal shortfall on the development block, a larger one on the sealed block, and the study's single clearest challenger loss at -0.012821 val_auc.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0008",
+        "E0011",
+        "E0012"
+      ],
+      "numbers": [
+        "hgbt_sealed_delta",
+        "sepal_dev_delta"
+      ],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "Run the duplicate-row straddle audit before trusting any small-table split: this study's data gate mechanically found one exact-duplicate row pair - two virginica flowers identical on all four measurements - whose two copies land on opposite sides of the train/development boundary under the declared stratified split, and dropping the second copy before the table is written cost one row and no contract change.",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "art:data_card"
+      ],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "In the parade, the five development cells on the modern track filed 4 keeps and 1 discard, refuting the registered prediction's literal count of zero keeps; but every keep is a tie at the printed val_auc 1.000000 against Fisher's own discriminant refit in the same cell, because with a measured minimum_delta of 0 the frontier rule is satisfied by a tie - so the parade produced 4 keeps and no challenger that resolvably exceeded the incumbent.",
+      "class": "procedural-verdict",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0011",
+        "rep:E0006@20260904T174449Z",
+        "art:results",
+        "P9"
+      ],
+      "numbers": [
+        "dev_lda_auc",
+        "modern_floor"
+      ],
+      "strength": "confirmed"
+    },
+    "C3": {
+      "claim": "Fisher's 1936 discriminant reaches val_auc 1.000000 on the development block and 1.000000 again on the sealed block, its declared ideal is 1.0, and every floor recipe measured before the parade on the fisher and modern tracks returned a spread of exactly 0 - so minimum_delta is 0 on both tracks and no headroom number is computable.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "sweep:floor_fisher",
+        "sweep:floor_modern",
+        "sweep:fit_noise_svm_rbf",
+        "sweep:fit_noise_hgbt",
+        "rep:E0001@20260904T174249Z"
+      ],
+      "numbers": [
+        "dev_lda_auc",
+        "modern_floor",
+        "modern_ideal",
+        "sealed_lda_auc"
+      ],
+      "strength": "confirmed"
+    },
+    "C4": {
+      "claim": "Petal length and petal width alone carry essentially all of the separation: petal-only LDA ties all-four LDA exactly on the development block at delta_in_floors 0, the same comparison repeated with the histogram gradient-boosted tree also gives delta_in_floors 0, and on the sealed block petal-only scores val_auc 0.987179 against the all-four reference 1.0 - delta_vs_reference -0.012821, delta_in_floors -0.0456 against a measured floor of 0.28125.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0007",
+        "E0009",
+        "E0012",
+        "sweep:floor_ablation",
+        "rep:E0007@20260904T174632Z"
+      ],
+      "numbers": [
+        "ablation_floor",
+        "ablation_sealed_ref",
+        "petal_dev_delta_floors",
+        "petal_sealed_auc",
+        "petal_sealed_delta",
+        "petal_sealed_floors"
+      ],
+      "strength": "confirmed"
+    },
+    "C5": {
+      "claim": "Sepal length and sepal width alone carry a real, large and correctly-directed amount less and still fail the pre-registered one-floor bar on both partitions: sepal-only LDA scores val_auc 0.814103 against all-four LDA's 1.000000 on the development block, a delta_vs_reference of -0.185897 and delta_in_floors of -0.661, and sepal_delta_in_floors of -0.8547 on the sealed block - because the ablation track's floor was measured at 0.28125 from this contrast's own paired-bootstrap spread, mean -0.190092, std 0.0952175, range 0.5625.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0008",
+        "E0012",
+        "sweep:floor_ablation",
+        "rep:E0008@20260904T174817Z"
+      ],
+      "numbers": [
+        "ablation_floor",
+        "dev_lda_auc",
+        "floor_ablation_mean",
+        "floor_ablation_range",
+        "floor_ablation_std",
+        "sepal_dev_auc",
+        "sepal_dev_delta",
+        "sepal_dev_floors",
+        "sepal_sealed_floors"
+      ],
+      "strength": "confirmed"
+    },
+    "C6": {
+      "claim": "In the modern track's one sealed access the selected challenger, a histogram gradient-boosted tree, scores val_auc 0.987179 on the sealed block of 25 rows against Fisher's discriminant refit on the same rows at 1.0 - a delta_vs_reference of -0.012821, exactly 2 of 156 ordered pairs - and it misclassifies 3 of 25 sealed flowers at accuracy 0.88 where the same discriminant misclassifies 2 of 25 at accuracy 0.92.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0010",
+        "E0011",
+        "rep:E0006@20260904T174449Z"
+      ],
+      "numbers": [
+        "hgbt_sealed_auc",
+        "hgbt_sealed_delta",
+        "modern_sealed_ref",
+        "sealed_hgbt_acc",
+        "sealed_lda_acc"
+      ],
+      "strength": "confirmed"
+    },
+    "C7": {
+      "claim": "The two blocks of 25 rows agree on ranking and disagree on counts: Fisher's discriminant scores val_auc 1.000000 on both, at accuracy 0.96 with 1 of 25 misclassified on the development block against accuracy 0.92 with 2 of 25 on the sealed block, while the sepal-only shortfall widened from -0.661 to -0.8547 measured floors between them.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "E0008",
+        "E0012",
+        "rep:E0001@20260904T174249Z",
+        "rep:E0008@20260904T174817Z"
+      ],
+      "numbers": [
+        "dev_lda_acc",
+        "dev_lda_auc",
+        "sealed_lda_acc",
+        "sepal_dev_floors",
+        "sepal_sealed_floors"
+      ],
+      "strength": "confirmed"
+    },
+    "C8": {
+      "claim": "The primary metric pegged at its own bound and every resampling instrument inherited the saturation: the development block is perfectly rank-separated, so the percentile bootstrap returns ci_width 0, the paired bootstrap returns a delta of exactly 0 on all 1000 resamples and the split lottery returns 0 spread; a bounded metric on a separable small sample makes the measurement problem degenerate, and the sealed block reproduces the peg at val_auc 1.000000.",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0010",
+        "sweep:floor_fisher",
+        "sweep:floor_modern",
+        "sweep:fit_noise_svm_rbf",
+        "sweep:fit_noise_hgbt",
+        "ref:efron1979",
+        "ref:hanley1982"
+      ],
+      "numbers": [
+        "ci_width_zero",
+        "modern_floor",
+        "sealed_lda_auc"
+      ],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "The disposition arithmetic turned ties into keeps: with minimum_delta measured at 0 the frontier rule degenerates to a non-strict comparison of the printed block against itself, so the histogram gradient-boosted tree's raw val_auc of 0.9999999999999999 - a floating-point hair below the reference, printing as 1.000000 with delta_vs_reference -0.0 - was filed as a frontier improvement alongside two exact ties.",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0005",
+        "E0006",
+        "art:results"
+      ],
+      "numbers": [
+        "dev_lda_auc",
+        "hgbt_dev_auc_raw",
+        "modern_floor"
+      ],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "753eeac11d470ea873fdc2895380fa9c70e87bb7",
+  "klein_commit": "753eeac11d470ea873fdc2895380fa9c70e87bb7",
+  "klein_version": "2.0.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {
+    "ablation_floor": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "tracks.ablation.metric.minimum_delta, MEASURED (sweep:floor_ablation)",
+      "precision": 5,
+      "value": 0.28125
+    },
+    "ablation_sealed_ref": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0012 reference_metric, all-four LDA on the sealed rows",
+      "precision": 1,
+      "value": 1.0
+    },
+    "ci_width_zero": {
+      "art": "aux",
+      "claim": "C8",
+      "note": "E0001 ci_width - 2000-replicate percentile bootstrap on a perfectly rank-separated sample",
+      "precision": 1,
+      "value": 0
+    },
+    "dev_knn_auc": {
+      "art": "results",
+      "claim": "C1",
+      "note": "five-nearest-neighbours, development val_auc (E0004)",
+      "precision": 6,
+      "value": 0.990385
+    },
+    "dev_knn_delta": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0004 delta_vs_reference against lda_all4 refit in the same cell",
+      "precision": 6,
+      "value": -0.009615
+    },
+    "dev_lda_acc": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0001 val_accuracy, 1 of 25 development flowers misclassified",
+      "precision": 2,
+      "value": 0.96
+    },
+    "dev_lda_auc": {
+      "art": "results",
+      "claim": "C3",
+      "note": "Fisher's 1936 LDA, development block of 25 rows, val_auc (E0001/E0002)",
+      "precision": 6,
+      "value": 1.0
+    },
+    "floor_ablation_mean": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "sweep:floor_ablation paired-bootstrap mean over 1000 resamples",
+      "precision": 6,
+      "value": -0.190092
+    },
+    "floor_ablation_range": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "sweep:floor_ablation range; the range-over-two term binds",
+      "precision": 4,
+      "value": 0.5625
+    },
+    "floor_ablation_std": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "sweep:floor_ablation std",
+      "precision": 7,
+      "value": 0.0952175
+    },
+    "hgbt_dev_auc_raw": {
+      "art": "aux",
+      "claim": "C9",
+      "note": "E0006 val_auc as stored, printing as 1.000000",
+      "precision": 16,
+      "value": 0.9999999999999999
+    },
+    "hgbt_sealed_auc": {
+      "art": "results",
+      "claim": "C6",
+      "note": "E0011 primary_metric, the selected challenger on the sealed rows",
+      "precision": 6,
+      "value": 0.987179
+    },
+    "hgbt_sealed_delta": {
+      "art": "aux",
+      "claim": "C6",
+      "note": "E0011 delta_vs_reference - the study's only non-tied challenger-vs-Fisher comparison",
+      "precision": 6,
+      "value": -0.012821
+    },
+    "modern_floor": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "tracks.modern.metric.minimum_delta and tracks.fisher.metric.minimum_delta, both MEASURED at Phase 0",
+      "precision": 0,
+      "value": 0
+    },
+    "modern_ideal": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "tracks.modern.metric.bound.ideal - a perfect ROC-AUC",
+      "precision": 1,
+      "value": 1.0
+    },
+    "modern_sealed_ref": {
+      "art": "aux",
+      "claim": "C6",
+      "note": "E0011 reference_metric, Fisher's LDA refit on the same sealed rows",
+      "precision": 1,
+      "value": 1.0
+    },
+    "petal_dev_delta_floors": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0007 and E0009 delta_in_floors, petal-only against all-four",
+      "precision": 1,
+      "value": 0
+    },
+    "petal_sealed_auc": {
+      "art": "results",
+      "claim": "C4",
+      "note": "E0012 primary_metric, petal-only LDA on the sealed rows",
+      "precision": 6,
+      "value": 0.987179
+    },
+    "petal_sealed_delta": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0012 delta_vs_reference, petal-only against all-four on the sealed rows",
+      "precision": 6,
+      "value": -0.012821
+    },
+    "petal_sealed_floors": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0012 delta_in_floors, petal-only against all-four on the sealed rows",
+      "precision": 4,
+      "value": -0.0456
+    },
+    "sealed_hgbt_acc": {
+      "art": "aux",
+      "claim": "C6",
+      "note": "E0011 val_accuracy, 3 of 25 sealed flowers misclassified",
+      "precision": 2,
+      "value": 0.88
+    },
+    "sealed_lda_acc": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0010 val_accuracy, 2 of 25 sealed flowers misclassified",
+      "precision": 2,
+      "value": 0.92
+    },
+    "sealed_lda_auc": {
+      "art": "results",
+      "claim": "C3",
+      "note": "Fisher's LDA on the 25 sealed rows, val_auc (E0010)",
+      "precision": 6,
+      "value": 1.0
+    },
+    "sepal_dev_auc": {
+      "art": "results",
+      "claim": "C5",
+      "note": "E0008 primary_metric, sepal-only LDA on the development block",
+      "precision": 6,
+      "value": 0.814103
+    },
+    "sepal_dev_delta": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0008 delta_vs_reference, sepal-only against all-four",
+      "precision": 6,
+      "value": -0.185897
+    },
+    "sepal_dev_floors": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0008 delta_in_floors",
+      "precision": 3,
+      "value": -0.661
+    },
+    "sepal_sealed_floors": {
+      "art": "aux",
+      "claim": "C5",
+      "note": "E0012 sepal_delta_in_floors on the sealed rows",
+      "precision": 4,
+      "value": -0.8547
+    }
+  },
+  "study_id": "15-iris-90years-relaunch"
+}
