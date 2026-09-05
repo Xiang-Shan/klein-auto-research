@@ -81,7 +81,7 @@ def fake_study(tmp_path: Path, fake_capability) -> tuple[Path, Path]:
 def test_the_loader_and_the_manifest_registry_agree() -> None:
     """`manifest.py` cannot import the loader, so the agreement is asserted."""
     assert set(capabilities.load()) == set(manifest.SUPPORTED_CAPABILITIES)
-    assert capabilities.MODULES == ()  # the spine ships none
+    assert len(set(capabilities.MODULES)) == len(capabilities.MODULES)  # each listed once
 
 
 def test_the_loader_and_the_manifest_registry_agree_with_one_registered(

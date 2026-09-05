@@ -448,13 +448,16 @@ def test_capability_names_are_typed_before_they_are_available(tmp_path: Path) ->
 
     assert set(SUPPORTED_CAPABILITIES) <= set(KNOWN_CAPABILITIES)
     assert "unknown capability" in "; ".join(capability_problems(["telepathy"]))
-    assert "not available in this version" in "; ".join(capability_problems(["slates"]))
+    # `escalation` is in the vocabulary and ships later — a different problem
+    # from a typo, and it stays the example as each package lands.
+    assert "escalation" not in SUPPORTED_CAPABILITIES
+    assert "not available in this version" in "; ".join(capability_problems(["escalation"]))
     # the dependency table is encoded now, enforced as SUPPORTED grows
     assert "requires 'slates'" in "; ".join(capability_problems(["premortem"]))
 
     repo, study = _scaffold(tmp_path)
     assert _gen("init", "--study", str(study), "--capability", "telepathy") == 1
-    assert _gen("init", "--study", str(study), "--capability", "slates") == 1
+    assert _gen("init", "--study", str(study), "--capability", "escalation") == 1
     assert not (study / "generation" / "manifest.yaml").exists()
 
 
@@ -556,8 +559,11 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
     actions = [a for a in parser._subparsers._group_actions if a.dest == "command_name"]
     generation = actions[0].choices["generation"]
     sub = [a for a in generation._subparsers._group_actions if a.dest == "generation_action"][0]
-    assert set(sub.choices) == {"init", "check", "verify", "label", "status", "recover"}
-    for verb in sub.choices:
+    # The spine's six verbs are permanent; each capability package adds its own
+    # group beside them (`slate`, …), so this is a subset check, not equality.
+    spine = {"init", "check", "verify", "label", "status", "recover"}
+    assert spine <= set(sub.choices)
+    for verb in sorted(spine):
         assert "--study" in sub.choices[verb].format_help(), verb
     for flag in ("--capability", "--predecessor", "--custody-holder", "--allow-late"):
         assert flag in sub.choices["init"].format_help(), flag
