@@ -68,10 +68,20 @@ Every WRITING verb (`init`, `check`, `label`, `recover`,
 `slate show`, `parity show`, `contribution show`, `escalate show`, `knowledge show`,
 `surprise show` and `benchmark show` write no event and take none.
 
-Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
-where the question can be asked — wrong schema, no manifest, broken chain, orphan
-objects, dirty tree; nothing is recorded), `2` a REFUSAL or a failing audit (the
-question was asked and answered no — and the refusal is on the record first).
+Exit codes are three-valued, and the two failing values mean different things.
+
+`0` did it. `1` is an ERROR, printed to **stderr**: the question could not be ASKED —
+a malformed argument, an argument naming a file, run, claim, trigger or decision that
+does not exist, or a study that is not schema 3, has no manifest, a broken chain,
+orphan objects, a dirty tree, or no git repository at all. Nothing is recorded. `2`
+is a REFUSAL or a failing audit, printed to **stdout**: the question was asked and a
+rule of the study, the ledger or the authored artifact answered no. The reasons are
+the answer, so they print where an answer prints.
+
+Only `check` RECORDS its refusal — the receipt is written, hashed and committed
+before the exit, because a refusal is evidence. Every other verb PRINTS its refusal
+and leaves the ledger exactly as it found it; there is nothing to find afterwards but
+the message. So a driver that wants a refusal on the record asks for it at `check`.
 
 ## Opt in before CONSULT
 

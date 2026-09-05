@@ -148,7 +148,7 @@ def _outcome(study: Path) -> dict[str, Any]:
 
 
 def _said(capsys) -> str:
-    """Everything the verb printed — a refusal goes to stderr, its reasons to stdout."""
+    """Everything the verb printed — a refusal goes to stdout, an error to stderr."""
     captured = capsys.readouterr()
     return captured.out + captured.err
 
@@ -462,7 +462,9 @@ def test_r_esc_2_an_unknown_actual_needs_its_evidence(tmp_path: Path, capsys) ->
             "--actual-cost", "money=0", "--actual-cost", "samples=0",
             "--outcome", "the floor was re-measured and the delta stands",
         )
-        == 2
+        # exit 1: the close cannot be TYPED without saying why the unit is
+        # unknown; no rule of the ledger has been consulted yet.
+        == 1
     )
     assert "person_time recorded as unknown" in _said(capsys)
 
@@ -492,7 +494,8 @@ def test_r_esc_2_a_missing_cost_unit_is_not_a_zero_cost(tmp_path: Path, capsys) 
             "--action", "diagnose", "--changed", "the estimand's resolution",
             "--rationale", "three discards", "--estimated-cost", "compute=1",
         )
-        == 2
+        # exit 1: an incomplete cost vector is a malformed invocation.
+        == 1
     )
     output = _said(capsys)
     assert "person_time is missing" in output and "money is missing" in output

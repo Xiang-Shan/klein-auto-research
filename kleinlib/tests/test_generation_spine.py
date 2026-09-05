@@ -650,7 +650,7 @@ def test_v23_the_label_needs_both_audits_and_then_the_findings_line(enabled_stud
 
 
 def test_v23_c_relabel_after_unrelated_commit(enabled_study) -> None:
-    """F-1: an unrelated commit makes the receipt stale — and re-verify un-stales it.
+    """An unrelated commit makes the receipt stale — and re-verify un-stales it.
 
     The receipt is a pure function of the study at one HEAD, so a commit that
     touched only `program.md` leaves the payload identical apart from
@@ -689,7 +689,7 @@ def test_v23_c_relabel_after_unrelated_commit(enabled_study) -> None:
 
 
 # --------------------------------------------------------------------------
-# F-2 — a run after a refusal is `refused-but-run`, not `replayed`
+# A run after a refusal is `refused-but-run`, not `replayed`
 # --------------------------------------------------------------------------
 
 
@@ -982,3 +982,134 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
         cli.main(["generation", "--help"])
     assert exit_info.value.code == 0
     assert "never proposes, ranks, selects, schedules, or retries" in capsys.readouterr().out
+
+
+# --------------------------------------------------------------------------
+# The exit-code contract, one pass over every verb group
+# --------------------------------------------------------------------------
+
+#: Every capability this build supports, so one fixture can reach every group.
+ALL_CAPABILITIES: tuple[str, ...] = (
+    "expertise",
+    "slates",
+    "design",
+    "premortem",
+    "parity",
+    "contribution",
+    "escalation",
+    "knowledge",
+    "surprise",
+    "benchmark",
+)
+
+
+@pytest.fixture
+def every_capability_study(tmp_path: Path) -> tuple[Path, Path]:
+    """An opted-in study declaring all ten capabilities, gates recorded."""
+    repo, study = _scaffold(tmp_path)
+    argv = ["init", "--study", str(study)]
+    for name in ALL_CAPABILITIES:
+        argv += ["--capability", name]
+    assert _gen(*argv) == 0
+    _gates(repo, study)
+    return repo, study
+
+
+#: ONE malformed-argument invocation per verb group.  `{study}` is the enabled
+#: study; `{absent}` is a path that is not a study at all — for the spine's own
+#: verbs, `--study` is the only argument they take beyond testimony, so an
+#: unreadable study IS their malformed argument.
+MALFORMED_ARGV: tuple[tuple[str, ...], ...] = (
+    ("init", "--study", "{study}", "--capability", "nosuchcapability"),
+    ("check", "--study", "{absent}", "--action", "run", "--track", "primary"),
+    ("verify", "--study", "{absent}"),
+    ("label", "--study", "{absent}"),
+    ("status", "--study", "{absent}"),
+    ("recover", "--study", "{absent}"),
+    ("expert", "bind", "--study", "{study}", "E9999"),
+    (
+        "reference", "record", "--study", "{study}",
+        "--id", "Not An Id", "--title", "t", "--locator", "url:x",
+        "--statement", "s", "--basis", "bibliography",
+    ),
+    ("slate", "lock", "--study", "{study}", "--phase", "nosuchphase"),
+    ("design", "lock", "--study", "{study}"),
+    ("premortem", "record", "--study", "{study}", "--phase", "nosuchphase"),
+    ("parity", "assess", "--study", "{study}", "--run", "E9999"),
+    (
+        "contribution", "record", "--study", "{study}",
+        "--kind", "nosuchkind", "--subject", "03-demo#H1",
+        "--origin", "ai", "--actor", "tester",
+    ),
+    (
+        "escalate", "close", "--study", "{study}",
+        "--decision", "nosuchdecision", "--outcome", "nothing",
+    ),
+    ("knowledge", "promote", "--study", "{study}", "--claim", "C1", "--method"),
+    ("surprise", "record", "--study", "{study}", "--run", "E9999"),
+    ("benchmark", "submit", "--study", "{study}", "--arm", "nosucharm", "--file", "{absent}"),
+    (
+        "custody", "attest", "--study", "{study}",
+        "--holder", "   ", "--mechanism", "accounts", "--statement", "denied",
+    ),
+)
+
+
+def _tree(root: Path) -> dict[str, bytes]:
+    """Every file under ``root`` by relative path, git's own objects excluded."""
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+@pytest.mark.parametrize("argv", MALFORMED_ARGV, ids=lambda argv: "-".join(argv[:2]))
+def test_a_malformed_argument_exits_1_and_records_nothing(
+    every_capability_study, tmp_path: Path, argv: tuple[str, ...]
+) -> None:
+    """Exit 1 is "the question could not be ASKED", so nothing is written.
+
+    The invalid control for the whole exit-code contract: for every group, an
+    invocation whose ARGUMENT is the problem must exit 1 and leave the study
+    byte-identical — no receipt, no ledger line, no commit.  Exit 2 is reserved
+    for a rule of the study, the ledger or an authored artifact saying no.
+    """
+    repo, study = every_capability_study
+    absent = tmp_path / "not-a-study"
+    resolved = [
+        part.replace("{study}", str(study)).replace("{absent}", str(absent)) for part in argv
+    ]
+    before = _tree(study)
+    head = git(repo, "rev-parse", "HEAD")
+    status = git(repo, "status", "--porcelain")
+
+    assert _gen(*resolved) == 1, resolved
+    assert _tree(study) == before, "a malformed invocation wrote to the study"
+    assert git(repo, "rev-parse", "HEAD") == head, "a malformed invocation filed a commit"
+    assert git(repo, "status", "--porcelain") == status
+
+
+def test_a_refusal_answers_on_stdout_and_an_error_complains_on_stderr(
+    every_capability_study, capsys
+) -> None:
+    """The reasons are the ANSWER; only an error is a diagnostic.
+
+    A refusal is what the verb was asked to determine, so it prints where an
+    answer prints.  An error says the question could not be asked at all, which
+    is the one thing that belongs on stderr.
+    """
+    _repo, study = every_capability_study
+
+    # a refusal: `label` asks whether this study may carry a generation label,
+    # and the ledger answers no.
+    assert _gen("label", "--study", str(study)) == 2
+    refusal = capsys.readouterr()
+    assert "refused" in refusal.out
+    assert refusal.err == "", refusal.err
+
+    # an error: the same verb pointed at a study that cannot be read.
+    assert _gen("label", "--study", str(study / "nowhere")) == 1
+    error = capsys.readouterr()
+    assert error.out == "", error.out
+    assert error.err.startswith("klein: error:"), error.err

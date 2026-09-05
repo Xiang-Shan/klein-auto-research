@@ -1057,7 +1057,9 @@ def test_custody_attest_refuses_an_unnamed_holder_and_an_outside_receipt(tmp_pat
             "--statement",
             "nothing",
         )
-        == 2
+        # exit 1: an attestation nobody signed cannot be TYPED — every field is a
+        # flag, and neither invocation reaches a rule of the study.
+        == 1
     )
     outside = tmp_path / "elsewhere.md"
     outside.write_text("not in the record\n", encoding="utf-8")
@@ -1076,6 +1078,6 @@ def test_custody_attest_refuses_an_unnamed_holder_and_an_outside_receipt(tmp_pat
             "--receipt",
             str(outside),
         )
-        == 2
+        == 1
     )
     assert gcu.custody_state([]) == gcu.UNVERIFIED

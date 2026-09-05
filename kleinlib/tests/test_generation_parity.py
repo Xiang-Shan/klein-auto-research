@@ -876,7 +876,7 @@ def test_a_sealed_run_on_another_track_cannot_be_assessed(bound_study, capsys) -
     assert other["experiment"] == "E0004"
     capsys.readouterr()
     assert _gen("parity", "assess", "--study", str(study), "--run", "E0004") == 2
-    assert "not the locked comparison track" in capsys.readouterr().err
+    assert "not the locked comparison track" in capsys.readouterr().out
     assert len(gp.joined(study, _events(study), gp.ASSESS_TYPE)) == 1, "nothing was recorded"
 
 
@@ -1141,7 +1141,7 @@ def test_floor_run_may_only_restate_the_run_the_lock_froze(parity_study, capsys)
         )
         == 2
     ), "E0003 is not the run the lock froze"
-    assert "does not name the run the lock froze" in capsys.readouterr().err
+    assert "does not name the run the lock froze" in capsys.readouterr().out
     assert not gp.joined(study, _events(study), gp.BIND_TYPE), "nothing was bound"
 
     # restating the LOCKED run is lawful, and the floors are the locked ones
@@ -1196,7 +1196,7 @@ def test_a_sweep_floor_reference_is_refused_with_the_reason(parity_study, capsys
         )
         == 2
     )
-    assert "not a numeric floor" in capsys.readouterr().err
+    assert "not a numeric floor" in capsys.readouterr().out
 
 
 def _events(study: Path) -> list[dict[str, Any]]:
@@ -1315,7 +1315,9 @@ def test_a_human_acceptor_belongs_only_on_an_accepted_row(ledger_study) -> None:
             decision="rejected",
             human_acceptor="the underwriter",
         )
-        == 2
+        # exit 1: every field of a ledger line comes off a flag, so a line that
+        # cannot be typed is a malformed invocation, not a rule saying no.
+        == 1
     )
     assert gc.read_lines(study) == []
 

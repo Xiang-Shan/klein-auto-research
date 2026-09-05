@@ -258,7 +258,9 @@ def test_a_repair_may_not_touch_the_checker(expert_study) -> None:
             "--note",
             "make the checker agree with me",
         )
-        == 2
+        # exit 1: naming the verifier is a malformed `--changed`, not a rule of
+        # the study saying no — nothing is recorded either way.
+        == 1
     )
 
 

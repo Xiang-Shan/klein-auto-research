@@ -47,11 +47,17 @@ import time.  ``kleinlib/tests/test_generation_spine.py`` asserts that
 Exit codes are three-valued and mean different things on purpose:
 
 ``0``  the verb did what it says.
-``1``  an ERROR — the study is not in a state where the question can be asked
-       (not schema 3, no manifest, broken chain, orphan objects, dirty tree).
+``1``  an ERROR, on stderr — the question could not be ASKED. Malformed
+       arguments; an argument naming a file, run, claim, trigger or decision
+       that does not exist; a study that is not schema 3, has no manifest, a
+       broken chain, orphan objects, a dirty tree, or no git repository at all.
        Nothing is recorded.
-``2``  a REFUSAL or a FAILING audit — the question was asked and answered no.
-       A refused ``check`` writes its receipt first: a refusal is evidence.
+``2``  a REFUSAL or a FAILING audit, on stdout — the question was asked and a
+       rule of the study, the ledger or the authored artifact answered no.  The
+       reasons are the ANSWER, so they print where an answer prints.  Only
+       ``check`` RECORDS its refusal (the receipt is written, hashed and
+       committed before the exit: a refusal is evidence); every other verb
+       prints its refusal and leaves the ledger untouched.
 """
 
 from __future__ import annotations
@@ -862,8 +868,14 @@ def _register_expertise(actions: argparse._SubParsersAction) -> None:
 
 
 def _refuse(message: str) -> int:
-    """Exit 2: the question was asked and answered no."""
-    print(f"klein: refused: {message}", file=sys.stderr)
+    """Exit 2: the question was asked and a rule answered no.
+
+    On STDOUT, like ``check``'s reasons and like the multi-line refusal blocks:
+    the reasons are the answer to the question the verb was asked, not a
+    diagnostic about the verb's own failure to run.  Exit 1 (:func:`_error`) is
+    the stderr side.
+    """
+    print(f"klein: refused: {message}")
     return 2
 
 
@@ -987,7 +999,7 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
     try:
         front, _body = ge.parse_card(card)
     except WorkflowError as exc:
-        return _refuse(str(exc))
+        return _error(str(exc))
 
     study_name = gm.study_id(study, contract)
     problems = ge.card_problems(study, repo, front, study=study_name)
@@ -1205,12 +1217,12 @@ def _run_expert_repair(args: argparse.Namespace) -> int:
     for name in changed:
         path = study / name
         if name in verifiers:
-            return _refuse(
+            return _error(
                 f"--changed {name!r} is a declared verifier — the checker is never the "
                 "searcher, and it is never the repair either"
             )
         if not path.is_file():
-            return _refuse(f"--changed {name!r} does not exist in the study")
+            return _error(f"--changed {name!r} does not exist in the study")
         entries.append([name, sha256_file(path)])
 
     version = len(ge.joined(study, events, ge.REPAIR_TYPE)) + 1
@@ -1335,7 +1347,7 @@ def _run_reference_record(args: argparse.Namespace) -> int:
 
     record_id = str(args.record_id)
     if not gr.ID_RE.match(record_id):
-        return _refuse(f"--id {record_id!r} must match {gr.ID_RE.pattern}")
+        return _error(f"--id {record_id!r} must match {gr.ID_RE.pattern}")
     blob_sha: str | None = None
     if args.blob:
         blob = Path(args.blob)
@@ -1752,7 +1764,7 @@ def _run_design_lock(args: argparse.Namespace) -> int:
     try:
         document = gd.parse_design(path)
     except WorkflowError as exc:
-        return _refuse(str(exc))
+        return _error(str(exc))
 
     study_name = gm.study_id(study, contract)
     problems = gd.design_problems(contract, document, study=study_name)
@@ -2441,17 +2453,14 @@ def _run_parity_bind(args: argparse.Namespace) -> int:
 
     lock_event, lock = versions[-1]
     payload = lock.get("payload") or {}
+    # Two passes, because they fail for different reasons: a path that cannot be
+    # resolved is a question that cannot be ASKED (exit 1), while a floor the lock
+    # registered and the evidence does not carry is a rule saying no (exit 2).
     try:
         manifests = {str(m.get("experiment")): m for m in load_manifests(study)}
         scorer_path, scorer_sha = _study_relative_file(
             study, str((payload.get("scorer") or {}).get("path")), label="scorer.path"
         )
-        floors = {
-            str(row.get("key")): _resolve_floor(
-                str(row.get("key")), str(row.get("floor_ref")), manifests, args.floor_run
-            )
-            for row in gp.metric_rows(payload)
-        }
         snapshots = {
             "ai": [
                 list(_study_relative_file(study, raw, label="--ai-snapshot"))
@@ -2463,13 +2472,22 @@ def _run_parity_bind(args: argparse.Namespace) -> int:
             ],
         }
     except WorkflowError as exc:
-        return _refuse(str(exc))
+        return _error(str(exc))
     for side in ("ai", "expert"):
         if not snapshots[side]:
-            return _refuse(
+            return _error(
                 f"--{side}-snapshot names no file: BOTH pipelines are frozen at the bind, and "
                 "an unpinned pipeline is one that can still change before the sealed cell"
             )
+    try:
+        floors = {
+            str(row.get("key")): _resolve_floor(
+                str(row.get("key")), str(row.get("floor_ref")), manifests, args.floor_run
+            )
+            for row in gp.metric_rows(payload)
+        }
+    except WorkflowError as exc:
+        return _refuse(str(exc))
 
     study_name = gm.study_id(study, contract)
     obj = gp.bind_object(
@@ -2674,6 +2692,8 @@ def _run_contribution_record(args: argparse.Namespace) -> int:
         )
 
     refs = [ref.strip() for raw in args.refs for ref in str(raw).split(",") if ref.strip()]
+    # Every one of these reads a flag: a line that cannot be TYPED is a malformed
+    # invocation, not a rule of the study saying no.
     problems = gc.record_problems(
         kind=args.kind,
         subject=args.subject,
@@ -2683,10 +2703,7 @@ def _run_contribution_record(args: argparse.Namespace) -> int:
         human_acceptor=args.human_acceptor,
     )
     if problems:
-        print("contribution record refused:")
-        for problem in problems:
-            print(f"  - {problem}")
-        return 2
+        return _error("; ".join(problems))
 
     study_name = gm.study_id(study, contract)
     sequence = len(lines) + 1
@@ -3000,7 +3017,7 @@ def _run_escalate_lock(args: argparse.Namespace) -> int:
     try:
         document = ge.parse_plan(path)
     except WorkflowError as exc:
-        return _refuse(str(exc))
+        return _error(str(exc))
 
     study_name = gm.study_id(study, contract)
     problems = ge.plan_problems(contract, document, study=study_name)
@@ -3082,7 +3099,7 @@ def _run_escalate_record(args: argparse.Namespace) -> int:
         known = ", ".join(
             str(t.get("id")) for t in plan.get("triggers") or [] if isinstance(t, dict)
         )
-        return _refuse(
+        return _error(
             f"trigger {args.trigger!r} is not in the locked plan (declared: {known or 'none'})"
         )
 
@@ -3096,25 +3113,22 @@ def _run_escalate_record(args: argparse.Namespace) -> int:
         track=args.track,
     )
     if not reconstructed:
-        return _refuse(
+        return _error(
             f"trigger {args.trigger!r} counts per track and the plan names none — pass "
             "`--track <id>` so the count in the receipt is the count that refused the run"
         )
     trip = reconstructed[0]
 
-    skipped, problems = _pairs(args.skip, "--skip")
+    # The flags first (exit 1: the decision cannot be TYPED), the ladder second
+    # (exit 2: the ledger says this rung cannot be taken from where the study is).
+    skipped, flag_problems = _pairs(args.skip, "--skip")
     estimated, cost_flag_problems = _cost_vector(args.estimated_cost, "--estimated-cost")
-    problems.extend(cost_flag_problems)
-    rows = ge.decisions(study, events)
-    episode = ge.next_episode(study, events)
-    problems.extend(
-        ge.rung_problems(args.rung, skipped, accounted=ge.accounted_rungs(rows, episode))
-    )
-    problems.extend(ge.cost_problems(estimated, "--estimated-cost"))
+    flag_problems.extend(cost_flag_problems)
+    flag_problems.extend(ge.cost_problems(estimated, "--estimated-cost"))
     advice: dict[str, Any] | None = None
     if args.advisor or args.advice:
         cost, advice_problems = _cost_vector(args.advice_cost, "--advice-cost")
-        problems.extend(advice_problems)
+        flag_problems.extend(advice_problems)
         advice = {
             "advisor": args.advisor or "unavailable",
             "statement": args.advice or "",
@@ -3122,11 +3136,19 @@ def _run_escalate_record(args: argparse.Namespace) -> int:
             "cost": cost,
         }
     if args.rung == "human_expert" and (advice is None or not advice["statement"].strip()):
-        problems.append(
+        flag_problems.append(
             "the human_expert rung pins the consultation: `--advisor <who> --advice "
             '"<what they said>"` (and `--advice-accepted` when it was taken); expertise '
             "that was not available is recorded as `--advisor unavailable`"
         )
+    if flag_problems:
+        return _error("; ".join(flag_problems))
+
+    rows = ge.decisions(study, events)
+    episode = ge.next_episode(study, events)
+    problems = ge.rung_problems(
+        args.rung, skipped, accounted=ge.accounted_rungs(rows, episode)
+    )
     if problems:
         return _refuse("; ".join(problems))
 
@@ -3210,6 +3232,7 @@ def _run_escalate_close(args: argparse.Namespace) -> int:
             "rung is a new `escalate record`"
         )
 
+    # Every problem here reads a flag, so a close that cannot be typed is exit 1.
     actual, problems = _cost_vector(args.actual_cost, "--actual-cost")
     problems.extend(ge.cost_problems(actual, "--actual-cost"))
     unknown = [unit for unit in ge.BUDGET_UNITS if actual.get(unit) == "unknown"]
@@ -3219,7 +3242,7 @@ def _run_escalate_close(args: argparse.Namespace) -> int:
             "it cannot be measured; an unavailable actual is recorded, not waved through"
         )
     if problems:
-        return _refuse("; ".join(problems))
+        return _error("; ".join(problems))
 
     study_name = gm.study_id(study, contract)
     status = "stopped" if row.rung == ge.STOP_RUNG else "closed"
@@ -3301,7 +3324,7 @@ def _run_escalate_pivot(args: argparse.Namespace) -> int:
     if old_sha is None:
         problems.append("study.yaml is not committed, so the old contract cannot be pinned")
     if problems:
-        return _refuse("; ".join(problems))
+        return _error("; ".join(problems))
 
     study_name = gm.study_id(study, contract)
     exposure = ge.inherited_exposure(
@@ -3639,9 +3662,11 @@ def _run_knowledge_promote(args: argparse.Namespace) -> int:
                 f"pass on {study_name} right now: {problem}"
             )
     try:
+        # Every failure here is `--claim` malformed, `--claim` naming a claim the
+        # lock does not carry, or a missing method_card.md: exit 1, nothing said.
         source = gk.promote_source(study, repo, claim=args.claim, method=bool(args.method))
     except WorkflowError as exc:
-        return _refuse(str(exc))
+        return _error(str(exc))
 
     roots = list(source.evidence_roots)
     if args.method:
@@ -4680,6 +4705,9 @@ def _run_benchmark_commit(args: argparse.Namespace) -> int:
         return 2
 
     try:
+        # Reading the bundles: `--salt-file`, `--private` and the paths
+        # benchmark.yaml names.  A file that cannot be read is exit 1 — the
+        # commitment question was never asked, so nothing was answered.
         public = dict(payload["public_bundle"])
         public_sha = sha256_bytes(gb.bundle_bytes(study / str(public["path"])))
         salt = gb.read_salt(_outside_bundle(args.salt_file))
@@ -4688,7 +4716,7 @@ def _run_benchmark_commit(args: argparse.Namespace) -> int:
             study, str(payload["scorer"]["path"]), label="scorer.path"
         )
     except (WorkflowError, KeyError, TypeError) as exc:
-        return _refuse(str(exc))
+        return _error(str(exc))
     salt_sha = sha256_bytes(salt)
 
     declared = public.get("sha256")
@@ -4979,8 +5007,7 @@ def _run_benchmark_reveal(args: argparse.Namespace) -> int:
             f"{commitment[:12]}… under this salt, but the commitment is "
             f"{str(pinned.get('sha256'))[:12]}… — the bundle disclosed is not the bundle "
             "committed to, and `generation verify` will FAIL `benchmark commitment` from "
-            "here on",
-            file=sys.stderr,
+            "here on"
         )
         return 2
     print(
@@ -5034,7 +5061,7 @@ def _run_benchmark_retire(args: argparse.Namespace) -> int:
     if gb.joined(study, events, gb.RETIRE_TYPE):
         return _error("this benchmark is already retired")
     if not str(args.reason).strip():
-        return _refuse("--reason is required: what leaked, to whom, and how it was discovered")
+        return _error("--reason is required: what leaked, to whom, and how it was discovered")
 
     study_name = gm.study_id(study, contract)
     obj = gb.retire_object(
@@ -5130,18 +5157,16 @@ def _run_custody_attest(args: argparse.Namespace) -> int:
     except WorkflowError as exc:
         return _error(str(exc))
 
+    # All four read flags: an attestation that cannot be typed is exit 1.
     problems = gc.attestation_problems(
         holder=args.holder, mechanism=args.mechanism, statement=args.statement
     )
     if problems:
-        print("custody attest refused:")
-        for problem in problems:
-            print(f"  - {problem}")
-        return 2
+        return _error("; ".join(problems))
     try:
         receipt = gc.receipt_reference(study, args.receipt) if args.receipt else None
     except WorkflowError as exc:
-        return _refuse(str(exc))
+        return _error(str(exc))
 
     study_name = gm.study_id(study, contract)
     obj = gc.attestation_object(

@@ -440,8 +440,10 @@ def test_a_promotion_off_a_lock_that_does_not_verify_is_refused(tmp_path: Path) 
 
 
 def test_a_promotion_of_a_claim_that_is_not_in_the_lock_is_refused(store) -> None:
+    # exit 1: `--claim C9` names a claim the lock does not carry, so the
+    # promotion question was never asked — nothing is recorded either way.
     assert (
-        _gen("knowledge", "promote", "--study", str(store["alpha"]), "--claim", "C9") == 2
+        _gen("knowledge", "promote", "--study", str(store["alpha"]), "--claim", "C9") == 1
     )
 
 
