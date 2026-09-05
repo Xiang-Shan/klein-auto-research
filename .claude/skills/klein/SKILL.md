@@ -132,6 +132,19 @@ method card) with its class, strength and evidence roots copied verbatim;
 deleting either side. The markdown under `knowledge/` stays the human surface and
 is never rewritten (`references/knowledge-protocol.md`).
 <!-- end WP-08 -->
+<!-- WP-06: surprise -->
+Declaring `--capability surprise` (which requires `design`) adds discovery cells:
+`klein generation surprise register` freezes `discovery_cells.yaml` after METHOD and
+before any cell evidence — template, statistic, adapter and inputs with their hashes,
+partition (never sealed), unit and group policy, the COMPLETE segment inventory,
+`minimum_n`, and a declared multiplicity rule, because a measured effect floor is not a
+multiplicity correction. A cell then runs as an ordinary `klein run-one --tests P#`
+(admitted with `--action cell --cell <id>`), and `klein generation surprise record --run
+E####` reads the pinned per-unit table, recomputes every segment, and issues one
+`<study>#Sn` receipt per violation while retaining the null and inconclusive ones —
+explanations stay `unresolved` until a human writes one, and no `confirmed` claim may
+rest on a discovery table (`references/surprise-protocol.md`).
+<!-- end WP-06 -->
 
 ## Setup
 
@@ -391,6 +404,13 @@ model in the loop. Know the edges:
   independently established chronology. A slate's 1–3 axis scores are validated and
   copied verbatim; nothing sorts on them, and a Brier score over a four-row slate
   proves the arithmetic, not calibration in general.
+- **A screen selects what to look at; it cannot also confirm it.** Surprise mining
+  (`references/surprise-protocol.md`) proves that the search space and its
+  multiplicity rule predate the evidence and that every registered segment is
+  accounted for — not that a segmentation is meaningful or that a violation means
+  anything about the world. `metrology.family_maxt` is a randomization diagnostic
+  under a registered symmetry assumption, not exact family-wise error control;
+  confirmation belongs to a separately registered `test` study on fresh rows.
 - **No learned meta-controller.** The agent reasons conversationally; `playbook.md`
   is the within-study memory and `knowledge/` the cross-study memory — priors promote
   through claim-cited findings, not learned weights. The knowledge store's retrieval

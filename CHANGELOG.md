@@ -228,6 +228,39 @@ version.
   any study whose lock does not verify, with scope fields left empty for human
   curation. Protocol: `.claude/skills/klein/references/knowledge-protocol.md`.
 <!-- end WP-08 -->
+<!-- WP-06: surprise -->
+- **Surprise mining — registered discovery cells, three table templates, `<study>#Sn`
+  receipts** (`klein generation surprise register | record | show`, capability
+  `surprise`, which requires `design`). A study screening many segments now records the
+  DENOMINATOR: `discovery_cells.yaml` freezes the search space after METHOD and before
+  any cell evidence — template, statistic, adapter and inputs (hashed from disk by
+  `register` and pinned back into the file), partition (never `sealed`), unit and group
+  policy, the complete segment inventory, `minimum_n`, and a declared multiplicity rule.
+  **A measured effect floor is refused as one:** a floor answers "bigger than noise on
+  ONE comparison", so a screen declares `family_maxt` (`kleinlib.metrology.family_maxt`
+  over both signs of every segment), `bonferroni`, or a threshold from a registered null
+  sweep. Three table producers ship as library code a study entrypoint imports —
+  residual-by-segment, error slices, family disagreement — and the pinned table is PER
+  UNIT, because a sign-flip max-t acts on units and a summary-only artifact could not be
+  recomputed. A cell runs through ordinary `run-one --tests P#` (admitted with
+  `--action cell --cell <id>`, whose `--tests` must include the cell's registered
+  expectation); `surprise record --run E####` re-reads the pinned table, recomputes every
+  segment of the frozen inventory, makes a slice below `minimum_n` `inconclusive` rather
+  than `null`, and issues one `<study>#Sn` receipt per violation while retaining the null
+  and inconclusive segments in a complete inventory object and a derived
+  `generation/tables/surprise_<cell_id>.tsv`. **Explanations are never invented:**
+  a receipt reads `unresolved` until a driver types one, and `--explain SEGMENT=TEXT`
+  records that as testimony. The `surprise` verify family recomputes the record from the
+  pinned bytes and FAILs on a late first registration, an edited registry, an adapter or
+  input that differs today or at the run's candidate commit, a sealed-partition cell run,
+  an omitted eligible segment, an admitted cell run that was never recorded, and a
+  `confirmed` claim resting on a cell table or an S receipt — a screen selects what to
+  look at and cannot also confirm it. A bare `S#` in findings §③ WARNs, because the
+  scouting ledger already uses that token. Protocol:
+  `.claude/skills/klein/references/surprise-protocol.md`; templates:
+  `.claude/skills/klein/assets/discovery-cells-template.yaml` and
+  `.claude/skills/klein/assets/discovery_cell_template.py`.
+<!-- end WP-06 -->
 
 ### Unchanged
 

@@ -28,7 +28,7 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships seven
+Each capability adds one verb group beside those six. This release ships eight
 here (`expertise` has its own two groups — see `references/expert-protocol.md` and
 `references/reference-protocol.md`):
 
@@ -40,14 +40,16 @@ uv run --locked klein generation parity lock|amend|bind|assess|show --study stud
 uv run --locked klein generation contribution record|show    --study studies/NN-slug
 uv run --locked klein generation escalate lock|record|close|pivot|show --study studies/NN-slug
 uv run --locked klein generation knowledge promote|contest|resolve|query|decide|show --study studies/NN-slug
+uv run --locked klein generation surprise register|record|show --study studies/NN-slug [--run E####]
 ```
 
 Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
 `design lock`, `premortem record|respond`, `parity lock|amend|bind|assess`,
 `contribution record`, `escalate lock|record|close|pivot`,
-`knowledge promote|contest|resolve|query|decide`) takes the four **testimony** flags
-`--actor --tool --model --session`; `verify`, `status`, `slate show`, `parity show`,
-`contribution show`, `escalate show` and `knowledge show` write no event and take none.
+`knowledge promote|contest|resolve|query|decide`, `surprise register|record`) takes
+the four **testimony** flags `--actor --tool --model --session`; `verify`, `status`,
+`slate show`, `parity show`, `contribution show`, `escalate show`, `knowledge show`
+and `surprise show` write no event and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -85,13 +87,13 @@ availability. A name outside the vocabulary is refused as *unknown*; a known nam
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
 `benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
-`slates`, `design`, `premortem`, `parity`, `contribution`, `escalation` and
-`knowledge`** (see `references/expert-protocol.md`, "Slates and calibration" and
+`slates`, `design`, `premortem`, `parity`, `contribution`, `escalation`, `knowledge`
+and `surprise`** (see `references/expert-protocol.md`, "Slates and calibration" and
 "Evidence design" below, `references/premortem-protocol.md`,
-`references/expert-parity-protocol.md`, `references/escalation-protocol.md`, and
-`references/knowledge-protocol.md`); the rest ship later and are refused as *not
-available* until they do. Opting in with `capabilities: []` still buys the admission
-discipline and
+`references/expert-parity-protocol.md`, `references/escalation-protocol.md`,
+`references/knowledge-protocol.md`, and `references/surprise-protocol.md`); the rest
+ship later and are refused as *not available* until they do. Opting in with
+`capabilities: []` still buys the admission discipline and
 the chronology witnesses, and nothing that scores research. Later additions are
 `generation_amended` events which may only ADD capabilities; each addition is reported
 `late_added`.
@@ -136,7 +138,7 @@ no off-notary path. The receipt object records:
 |---|---|
 | `checkpoint`, `track`, `intended_action` | what is about to be run, and which predictions it adjudicates |
 | `surface_digest`, `surface_files` | the exact bytes of `entrypoint.mutable`, AS ON DISK |
-| `inputs` | the manifest hash (and, later, the slate / pre-mortem / parity / cells / design hashes) |
+| `inputs` | the manifest hash, and the hashes of the commitments in force — the locked slate, the locked design, the cells registration (pre-mortem and parity ship later) |
 | `protocol_hashes` | which rules the receipt was taken under |
 | `core_anchor` | the core chain tip at write time |
 | `verdict`, `reasons` | `admitted` or `refused`, and why |
@@ -487,3 +489,21 @@ achievable, and not that the custody chain was honoured. Every one of those is a
 for the referee and for the reader; the lock only guarantees they were stated in
 advance, in a form a stranger can compare against what the study ended up claiming.
 <!-- end WP-09 -->
+<!-- WP-06: surprise -->
+
+## Discovery cells
+
+*The `surprise` capability, which requires `design`. Its rules are long enough to have
+their own file: `references/surprise-protocol.md`.*
+
+`klein generation surprise register` freezes `discovery_cells.yaml` — the cells, their
+adapters and inputs with pinned hashes, their frozen segment inventories, `minimum_n`,
+and a declared multiplicity rule — after METHOD and before any cell evidence. A cell is
+admitted with `--action cell --cell <id>` (whose `--tests` must include the cell's
+registered `expectation_P`) and runs through ordinary `run-one`, pinning its per-unit
+table with an `artifact:` line. `surprise record --run E####` re-reads those bytes,
+recomputes every segment of the frozen inventory, applies the declared family rule once,
+and issues one `<study>#Sn` receipt per violation while retaining the null and
+inconclusive segments. The receipt pins the registration in `inputs.cells`; the
+`surprise` family recomputes the record and FAILs a `confirmed` claim that rests on it.
+<!-- end WP-06 -->

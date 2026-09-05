@@ -93,6 +93,8 @@ SUPPORTED_CAPABILITIES: tuple[str, ...] = (
     "escalation",
     # --- WP-08: cross-study knowledge ---
     "knowledge",
+    # --- WP-06: surprise mining (requires design) ---
+    "surprise",
 )
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {

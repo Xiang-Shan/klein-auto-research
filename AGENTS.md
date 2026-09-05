@@ -335,11 +335,17 @@ citations are filed under `docs/reviews/`.
   init|check|verify|label|status|recover`, plus one sub-group per declared capability
   (`generation expert lock|amend|bind|repair|review` and `generation reference record`
   for `expertise`; `generation slate lock|amend|score|show` for `slates`; `generation
-  design lock` for `design`; `generation escalate lock|record|close|pivot|show` for
-  `escalation`). It is schema-3 only and writes
+  design lock` for `design`; `generation premortem record|respond` for `premortem`;
+  `generation parity lock|amend|bind|assess|show` for `parity`; `generation
+  contribution record|show` for `contribution`; `generation escalate
+  lock|record|close|pivot|show` for `escalation`; `generation knowledge
+  promote|contest|resolve|query|decide|show` for `knowledge`; `generation surprise
+  register|record|show` for `surprise`). It is schema-3 only and writes
   nothing outside `<study>/generation/` except the human artifacts a capability names —
-  `domain_card.md` and `evidence_design.yaml` at the study root, and repo-level
-  `knowledge/references/<id>.json`.
+  `domain_card.md`, `evidence_design.yaml`, `parity.yaml`, `escalation_plan.yaml` and
+  `discovery_cells.yaml` at the study root, and repo-level
+  `knowledge/references/<id>.json`, `knowledge/objects/<sha256>.json` and
+  `knowledge/events.jsonl`.
 - `uv sync --locked` to set up; extras compose and must be named together:
   `uv sync --locked --extra gbdt --extra deep` (naming only some extras removes
   the others from the environment). `KLEIN_OFFLINE=1` refuses every network data

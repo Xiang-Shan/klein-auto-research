@@ -102,7 +102,10 @@ Copy `assets/findings-template.md`. Fill, in order:
   never as calibration, and say what `n` it rests on: a four-row slate proves the
   arithmetic, not that the driver is well calibrated.
 - **③ Surprises & why.** What defied the prior — AND the mechanism you believe explains
-  it. A surprise with no explanation is a loose end.
+  it. A surprise with no explanation is a loose end **to be recorded as `unresolved`,
+  never invented**. On a study that declared the `surprise` capability, cite the
+  `<study>#Sn` receipts (`references/surprise-protocol.md`) and pin the cell's table;
+  a bare `S#` means a scouting-ledger entry, so an id here is always fully qualified.
 - **④ Practical advice.** "On your own data do X, avoid Y" — concrete, numbered, in the
   best-practices voice.
 - **⑤ {{SECTION5_HEADING}}.** The heading and prompt come from the study's profile
