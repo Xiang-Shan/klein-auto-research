@@ -19,8 +19,8 @@ discipline and nothing that scores research.  Each capability package since then
 appends its name to each list — WP-01 added ``expert`` / ``expertise``, WP-02
 added ``slate`` / ``slates``, WP-09 added ``design`` / ``design``, WP-03 added
 ``premortem`` / ``premortem``, WP-04 added ``parity`` and ``contribution``
-under their own names, and WP-07 added ``escalate`` / ``escalation`` — and edits
-no other line of this package.
+under their own names, WP-07 added ``escalate`` / ``escalation``, and WP-08 added
+``knowledge`` / ``knowledge`` — and edits no other line of this package.
 """
 
 from __future__ import annotations
@@ -47,6 +47,8 @@ MODULES: tuple[str, ...] = (
     "contribution",
     # --- WP-07: escalation ladder + successor studies ---
     "escalate",
+    # --- WP-08: cross-study knowledge ---
+    "knowledge",
 )
 
 

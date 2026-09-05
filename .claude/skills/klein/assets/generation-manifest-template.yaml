@@ -31,8 +31,9 @@ study_id: NN-slug
 # (references/generation-protocol.md, "Slates and calibration"), `design`
 # (references/generation-protocol.md, "Evidence design"), `premortem`
 # (references/premortem-protocol.md), `parity` and `contribution`
-# (references/expert-parity-protocol.md), and `escalation`
-# (references/escalation-protocol.md).
+# (references/expert-parity-protocol.md), `escalation`
+# (references/escalation-protocol.md), and `knowledge`
+# (references/knowledge-protocol.md).
 capabilities: []
 
 # sha256 of each protocol file at init, so a receipt says WHICH rules it was taken

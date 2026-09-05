@@ -28,7 +28,9 @@ uv run --locked klein generation status  --study studies/NN-slug
 uv run --locked klein generation recover --study studies/NN-slug
 ```
 
-Each capability adds one verb group beside those six. This release ships six:
+Each capability adds one verb group beside those six. This release ships seven
+here (`expertise` has its own two groups — see `references/expert-protocol.md` and
+`references/reference-protocol.md`):
 
 ```bash
 uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
@@ -37,14 +39,15 @@ uv run --locked klein generation premortem record|respond    --study studies/NN-
 uv run --locked klein generation parity lock|amend|bind|assess|show --study studies/NN-slug
 uv run --locked klein generation contribution record|show    --study studies/NN-slug
 uv run --locked klein generation escalate lock|record|close|pivot|show --study studies/NN-slug
+uv run --locked klein generation knowledge promote|contest|resolve|query|decide|show --study studies/NN-slug
 ```
 
 Every WRITING verb (`init`, `check`, `label`, `recover`, `slate lock|amend|score`,
 `design lock`, `premortem record|respond`, `parity lock|amend|bind|assess`,
-`contribution record`, `escalate lock|record|close|pivot`) takes the four
-**testimony** flags `--actor --tool --model --session`; `verify`, `status`,
-`slate show`, `parity show`, `contribution show` and `escalate show` write no event
-and take none.
+`contribution record`, `escalate lock|record|close|pivot`,
+`knowledge promote|contest|resolve|query|decide`) takes the four **testimony** flags
+`--actor --tool --model --session`; `verify`, `status`, `slate show`, `parity show`,
+`contribution show`, `escalate show` and `knowledge show` write no event and take none.
 
 Exit codes are three-valued: `0` did it, `1` an ERROR (the study is not in a state
 where the question can be asked — wrong schema, no manifest, broken chain, orphan
@@ -82,10 +85,11 @@ availability. A name outside the vocabulary is refused as *unknown*; a known nam
 version cannot check is refused as *not available*. The dependency table is fixed:
 `premortem ⇒ slates`, `parity ⇒ expertise`, `contribution ⇒ slates`,
 `benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports `expertise`,
-`slates`, `design`, `premortem`, `parity`, `contribution` and `escalation`** (see
-`references/expert-protocol.md`, "Slates and calibration" and "Evidence design" below,
-`references/premortem-protocol.md`, `references/expert-parity-protocol.md`, and
-`references/escalation-protocol.md`); the rest ship later and are refused as *not
+`slates`, `design`, `premortem`, `parity`, `contribution`, `escalation` and
+`knowledge`** (see `references/expert-protocol.md`, "Slates and calibration" and
+"Evidence design" below, `references/premortem-protocol.md`,
+`references/expert-parity-protocol.md`, `references/escalation-protocol.md`, and
+`references/knowledge-protocol.md`); the rest ship later and are refused as *not
 available* until they do. Opting in with `capabilities: []` still buys the admission
 discipline and
 the chronology witnesses, and nothing that scores research. Later additions are

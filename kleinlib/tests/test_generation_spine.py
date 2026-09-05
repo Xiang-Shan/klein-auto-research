@@ -589,8 +589,8 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
     # own sub-group beside them (`expert`/`reference` from the expertise package,
     # `slate` from the slates one, `design` from the evidence-design one,
     # `premortem` from the pre-mortem one, `parity` and `contribution` from the
-    # expert-parity one, `escalate` from the escalation one), so this is a subset
-    # check, not equality.
+    # expert-parity one, `escalate` from the escalation one, `knowledge` from the
+    # cross-study one), so this is a subset check, not equality.
     spine = {"init", "check", "verify", "label", "status", "recover"}
     assert spine <= set(sub.choices)
     assert {
@@ -602,6 +602,7 @@ def test_the_generation_verbs_are_registered_with_help(capsys) -> None:
         "parity",
         "contribution",
         "escalate",
+        "knowledge",
     } <= set(sub.choices)
     for verb in sorted(spine):
         assert "--study" in sub.choices[verb].format_help(), verb

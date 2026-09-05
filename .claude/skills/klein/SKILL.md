@@ -121,6 +121,17 @@ actual costs and `escalate pivot` links a successor study with both contract has
 its inherited exposure. Editing the plan afterwards cannot discharge a stall
 (`references/escalation-protocol.md`).
 <!-- end WP-07 -->
+<!-- WP-08: knowledge -->
+Declaring `--capability knowledge` couples the study to the repo-level knowledge
+store: `klein generation knowledge query` records the consultation receipt CONSULT
+cites — pinned `store_head`, deterministic `lex-1` retrieval, COMPLETE hits, each
+hit's contest closure, and a use/reject reason for every one, or an explicit
+`no_match` — **before** Gate 0; `knowledge promote` imports a VERIFIED claim (or a
+method card) with its class, strength and evidence roots copied verbatim;
+`contest` and `resolve` append opposing evidence and adjudications without
+deleting either side. The markdown under `knowledge/` stays the human surface and
+is never rewritten (`references/knowledge-protocol.md`).
+<!-- end WP-08 -->
 
 ## Setup
 
@@ -382,7 +393,10 @@ model in the loop. Know the edges:
   proves the arithmetic, not calibration in general.
 - **No learned meta-controller.** The agent reasons conversationally; `playbook.md`
   is the within-study memory and `knowledge/` the cross-study memory — priors promote
-  through claim-cited findings, not learned weights.
+  through claim-cited findings, not learned weights. The knowledge store's retrieval
+  is deterministic lexical/tag overlap (`references/knowledge-protocol.md`) chosen
+  because it replays, not because it retrieves well: it proves what a study SAW, not
+  that the field was searched adequately or that the scope tags are honest.
 - **The referee is independent by mechanism, not by magic.** A fresh session of the
   same model is the lowest rung of the ladder and is recorded as such.
 - **The measured noise floor bounds honesty, not power.** A `minimum_delta` from a

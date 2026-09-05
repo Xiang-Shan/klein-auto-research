@@ -226,6 +226,16 @@ So must `klein generation expert lock` when the manifest declares `expertise`: t
 method shortlist and the baseline targets have to precede the gate for the same
 reason (`references/expert-protocol.md`).
 <!-- end WP-01 -->
+<!-- WP-08 -->
+And so must `klein generation knowledge query` when the manifest declares
+`knowledge`: the consultation receipt is what the summary below cites. Present the
+hits it returned with their contest closure, record a `use` or `reject` reason for
+every one (`--use K1=<why>` / `--reject K2=<why>`, or `knowledge decide` before the
+ack), and cite the explicit `no_match` receipt when the store held nothing — an
+empty store is consulted, never skipped. A store read after the ack is a
+bibliography, not a consultation, and FAILs `knowledge query`
+(`references/knowledge-protocol.md`).
+<!-- end WP-08 -->
 
 Present a concise summary: goal; kind / modality / profile with one line of reasoning
 each; the track contracts (mode, metric, floor recipe, bound, verifier); the data
@@ -254,7 +264,9 @@ Every research-question prior names its source in parentheses:
 `(source: knowledge/domains/insurance/gbdt-hyperparameter-guide.md#C2)`,
 `(source: method_card §4)`, `(source: scouted)`, `(source: uninformed)`, or — on a
 generation-enabled study — `(source: <study>#Hn)` for a prior that rests on an earlier
-slate row. Findings §⑥ then settles the scorecard — did knowledge-sourced priors
+slate row and `(source: knowledge:K7)` for one that rests on a store object the
+consultation receipt returned and the study recorded as `use`
+(`references/knowledge-protocol.md`). Findings §⑥ then settles the scorecard — did knowledge-sourced priors
 outpredict uninformed ones? — with scouted priors excluded, which is what makes the
 knowledge promotion loop measurable rather than devotional. An enabled study's scorecard
 also carries the slate calibration panels (`unscouted` and `derived` scored,

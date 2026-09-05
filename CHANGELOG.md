@@ -199,6 +199,35 @@ version.
   `.claude/skills/klein/references/escalation-protocol.md`; template:
   `.claude/skills/klein/assets/escalation-plan-template.yaml`.
 <!-- end WP-07 -->
+<!-- WP-08 -->
+- **Cross-study knowledge (WP-08) — transactions over pinned evidence** (the
+  `knowledge` capability; `klein generation knowledge promote | contest | resolve |
+  query | decide | show`). The markdown under `knowledge/` keeps its typed claim
+  citations and is never rewritten; beside it, a **repo-level** store of write-once
+  `knowledge/objects/<sha256>.json` and an append-only `knowledge/events.jsonl`
+  chain answers what prose cannot. `promote` imports a claim only if `klein claims
+  verify` passes on its study NOW, copies `class`, `strength` and `evidence_roots`
+  **verbatim** — a promotion creates availability, never stronger evidence — and
+  deduplicates by evidence roots, so one lesson repeated across ten studies is one
+  piece of evidence. `contest` attaches contradicting evidence from the citing
+  study's own verified lock and requires at least one CLAIM: **a prediction that
+  failed to transfer is a prediction verdict, not a refutation.** `resolve` appends
+  `upheld | scoped | withdrawn` and deletes nothing. Before the CONSULT ack, `query`
+  records the consultation receipt — contract draft hash, pinned `store_head`,
+  retriever version, typed query, COMPLETE hits (no top-k unless `--limit`, which is
+  recorded), **each hit's contest closure whatever it would have scored**, and a
+  use/reject reason for every one, or an explicit `no_match` so that an empty store
+  is consulted rather than skipped. Retrieval is `lex-1`: deterministic case-folded
+  token overlap, no embeddings and no model call, chosen because `generation verify`
+  replays the recorded query against the store at `store_head` via `git show` and
+  FAILs any difference as a suppressed hit or contest. The family also FAILs a late
+  consultation, an undecided hit, a broken store chain, a deleted transaction, an
+  unresolvable source hash (a foreign origin WARNs), and a strengthened copy.
+  `scripts/seed_knowledge_objects.py` seeds a repository from the citations already
+  in `knowledge/**/*.md` — dry-run by default, read-only over the markdown, skipping
+  any study whose lock does not verify, with scope fields left empty for human
+  curation. Protocol: `.claude/skills/klein/references/knowledge-protocol.md`.
+<!-- end WP-08 -->
 
 ### Unchanged
 

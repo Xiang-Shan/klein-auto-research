@@ -91,6 +91,8 @@ SUPPORTED_CAPABILITIES: tuple[str, ...] = (
     "contribution",
     # --- WP-07: escalation ladder + successor studies ---
     "escalation",
+    # --- WP-08: cross-study knowledge ---
+    "knowledge",
 )
 
 CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {
