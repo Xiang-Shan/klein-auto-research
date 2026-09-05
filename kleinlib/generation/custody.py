@@ -98,7 +98,11 @@ def attestation_object(
         "schema": GENERATION_SCHEMA,
         "kind": "custody_attestation",
         "study": study,
-        "subject": subject or None,
+        # A null subject means "this study's own hidden evidence"; anything else
+        # names WHAT was custodied, and a reader of the benchmark family is told
+        # which attestations were about the benchmark and which were about
+        # something else.  Whitespace is not a subject.
+        "subject": subject.strip() if isinstance(subject, str) and subject.strip() else None,
         "holder": holder,
         "mechanism": mechanism,
         "statement": statement,

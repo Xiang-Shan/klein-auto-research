@@ -106,6 +106,7 @@ __all__ = [
     "snapshot_at",
     "snapshot_on_disk",
     "store_chain_problems",
+    "store_is_local",
     "store_problems",
     "tokens",
     "verify_family",
@@ -747,18 +748,21 @@ def lock_claim_at(
     if claim_id is None:
         return None
     blob = git_blob(repo, commit, source_path)
-    if blob is None:
-        return None
+    return None if blob is None else _claim_from_lock(blob, claim_id)
+
+
+def _claim_from_lock(blob: bytes, claim_id: str) -> dict[str, Any] | None:
+    """One claim entry out of the bytes of a ``claims.lock``, or None."""
     try:
         lock = json.loads(blob.decode("utf-8"))
-    except ValueError:
+    except (UnicodeDecodeError, ValueError):
         return None
     if not isinstance(lock, Mapping):
         return None
     claims = lock.get("claims")
     local = claim_id.split("#")[-1]
     entry = claims.get(local) if isinstance(claims, Mapping) else None
-    return entry if isinstance(entry, Mapping) else None
+    return dict(entry) if isinstance(entry, Mapping) else None
 
 
 def contest_evidence_problems(
@@ -955,6 +959,18 @@ def _decision_checks(
     ]
 
 
+def store_is_local(repo: Path | None) -> bool:
+    """Does the store this study consulted live in THIS repository?
+
+    The distinction decides whether an unreplayable receipt is a broken record
+    or an unreadable one.  A study carried to a clone that has no ``knowledge/``
+    tree genuinely cannot replay its consultation, and saying FAIL there would
+    punish a reader for standing in the wrong directory.  When the store IS
+    here, the same symptom means the receipt does not describe it.
+    """
+    return repo is not None and (events_path(repo).is_file() or objects_dir(repo).is_dir())
+
+
 def _replay_checks(
     ctx: FamilyContext, rows: list[tuple[Mapping[str, Any], dict[str, Any]]]
 ) -> list[Check]:
@@ -962,25 +978,42 @@ def _replay_checks(
     name = "knowledge replay"
     if not rows or ctx.repo is None:
         return []
+    local = store_is_local(ctx.repo)
+    unreplayable = _fail if local else _warn
+    foreign = (
+        ""
+        if local
+        else " (this checkout carries no knowledge/ store, so the receipt cannot be read here)"
+    )
     checks: list[Check] = []
     for _event, obj in rows:
         head = obj.get("store_head")
         if not isinstance(head, str) or not head:
-            checks.append(_warn(name, "the receipt pins no store head; retrieval cannot be replayed"))
+            checks.append(
+                unreplayable(
+                    name,
+                    "the receipt pins no store head; retrieval cannot be replayed, so "
+                    "nothing establishes that these were the hits the store held" + foreign,
+                )
+            )
             continue
         if obj.get("retriever_version") != RETRIEVER_VERSION:
             checks.append(
-                _warn(
+                unreplayable(
                     name,
                     f"receipt taken under retriever {obj.get('retriever_version')!r}; this "
-                    f"version replays {RETRIEVER_VERSION!r} only",
+                    f"version replays {RETRIEVER_VERSION!r} only" + foreign,
                 )
             )
             continue
         snapshot = snapshot_at(ctx.repo, head)
         if snapshot is None:
             checks.append(
-                _warn(name, f"store head {head[:12]} does not resolve here — offline or foreign clone")
+                unreplayable(
+                    name,
+                    f"store head {head[:12]} does not resolve here — the receipt pins a "
+                    "commit this repository does not have" + foreign,
+                )
             )
             continue
         typed = obj.get("typed_query") or {}
@@ -1060,7 +1093,73 @@ def store_problems(snapshot: Snapshot) -> list[str]:
     return problems
 
 
-def _store_checks(ctx: FamilyContext) -> tuple[list[Check], Snapshot]:
+def _chain_hashes(events: Sequence[Mapping[str, Any]]) -> list[str]:
+    return [str(event.get("event_hash")) for event in events]
+
+
+def _prefix_problem(earlier: Sequence[Mapping[str, Any]], current: Sequence[Mapping[str, Any]], where: str) -> str | None:
+    """Is *earlier* still the beginning of *current*? — the append-only question.
+
+    A chain that GREW is fine, and a chain that changed under an existing
+    position or lost its tail is not: both mean a transaction that was on the
+    record is no longer on it.  The hash chain catches an edit in the middle,
+    but nothing in it notices the last line simply being deleted — every
+    remaining event still verifies — so the previous states of the file are what
+    the tip is measured against.
+    """
+    before = _chain_hashes(earlier)
+    now = _chain_hashes(current)
+    if len(before) > len(now):
+        return (
+            f"{where} carried {len(before)} transaction(s) and the store now has "
+            f"{len(now)}: events removed from the tip. The chain still verifies — a "
+            "deleted last line always does — so the store's own history is the witness"
+        )
+    if before != now[: len(before)]:
+        return f"{where} is not a prefix of the store on disk: a recorded transaction was rewritten"
+    return None
+
+
+def _append_only_problems(ctx: FamilyContext, snapshot: Snapshot, rows: Sequence[tuple[Mapping[str, Any], dict[str, Any]]]) -> list[str]:
+    """The store's tip, checked against every state a witness remembers it in."""
+    repo = ctx.repo
+    if repo is None:
+        return []
+    problems: list[str] = []
+    result = git(repo, ["log", "--format=%H", "--reverse", "--", EVENTS_REL], check=False)
+    commits = (
+        [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        if result.returncode == 0
+        else []
+    )
+    for commit in commits:
+        blob = git_blob(repo, commit, EVENTS_REL)
+        if blob is None:
+            continue
+        try:
+            events = _parse_events(blob.decode("utf-8"), f"{EVENTS_REL}@{commit[:12]}")
+        except (UnicodeDecodeError, WorkflowError) as exc:
+            problems.append(f"{EVENTS_REL} at {commit[:12]} is unreadable ({exc})")
+            continue
+        problem = _prefix_problem(events, snapshot.events, f"{EVENTS_REL} at commit {commit[:12]}")
+        if problem is not None:
+            problems.append(problem)
+    for _event, obj in rows:
+        head = obj.get("store_head")
+        if not isinstance(head, str) or not head:
+            continue
+        pinned = snapshot_at(repo, head)
+        if pinned is None:
+            continue
+        problem = _prefix_problem(pinned.events, snapshot.events, f"the store at pinned head {head[:12]}")
+        if problem is not None:
+            problems.append(problem)
+    return problems
+
+
+def _store_checks(
+    ctx: FamilyContext, rows: Sequence[tuple[Mapping[str, Any], dict[str, Any]]] = ()
+) -> tuple[list[Check], Snapshot]:
     name = "knowledge store"
     if ctx.repo is None:
         return [_warn(name, "not a git repository — the repo-level store cannot be read")], Snapshot()
@@ -1069,6 +1168,7 @@ def _store_checks(ctx: FamilyContext) -> tuple[list[Check], Snapshot]:
     except WorkflowError as exc:
         return [_fail(name, str(exc))], Snapshot()
     problems = store_problems(snapshot)
+    problems.extend(_append_only_problems(ctx, snapshot, rows))
     if problems:
         return [_fail(name, "; ".join(problems[:6]))], snapshot
     return (
@@ -1076,7 +1176,8 @@ def _store_checks(ctx: FamilyContext) -> tuple[list[Check], Snapshot]:
             _pass(
                 name,
                 f"{len(snapshot.objects)} object(s) and {len(snapshot.events)} transaction(s), "
-                "chain intact, nothing deleted",
+                "chain intact, nothing deleted, and every earlier state of the ledger is "
+                "still a prefix of it",
             )
         ],
         snapshot,
@@ -1098,57 +1199,100 @@ def _promotion_checks(ctx: FamilyContext, snapshot: Snapshot) -> list[Check]:
         return [_pass(name, "this study promoted nothing")]
     if ctx.repo is None:
         return [_warn(name, "not a git repository — promotion sources cannot be resolved")]
-    from ..primitives import sha256_bytes as _sha
-
     checks: list[Check] = []
     for obj in mine:
-        object_id = str(obj.get("id"))
-        commit = obj.get("commit")
-        source_path = str(obj.get("source_path") or "")
-        blob = git_blob(ctx.repo, str(commit), source_path) if isinstance(commit, str) else None
-        if blob is None:
-            checks.append(
-                _warn(
-                    name,
-                    f"{object_id}: foreign origin, unverifiable here "
-                    f"({obj.get('origin_repo')} {str(commit or '')[:12]}:{source_path})",
-                )
-            )
-            continue
-        problems: list[str] = []
-        if _sha(blob) != obj.get("source_hash"):
-            problems.append(
-                f"{source_path} at {str(commit)[:12]} hashes to {_sha(blob)[:12]}, the object "
-                f"records {str(obj.get('source_hash'))[:12]}"
-            )
-        entry = lock_claim_at(ctx.repo, str(commit), source_path, obj.get("claim_id"))
-        if entry is not None:
-            for field_name in ("class", "strength"):
-                if obj.get(field_name) != entry.get(field_name):
-                    problems.append(
-                        f"{field_name} is {obj.get(field_name)!r} in the store but "
-                        f"{entry.get(field_name)!r} in the source lock — a promotion copies "
-                        "the standing a claim earned; it never strengthens it"
-                    )
-            roots = evidence_key(obj.get("evidence_roots") or ())
-            if roots != evidence_key(entry.get("evidence") or ()):
-                problems.append("evidence_roots differ from the source claim's evidence")
-        elif obj.get("claim_id"):
-            problems.append(
-                f"claim {obj.get('claim_id')} is not in {source_path} at {str(commit)[:12]}"
-            )
-        if problems:
-            checks.append(_fail(name, f"{object_id}: " + "; ".join(problems)))
-        else:
-            checks.append(
-                _pass(
-                    name,
-                    f"{object_id}: {obj.get('claim_id') or source_path} resolves at "
-                    f"{str(commit)[:12]} with class {obj.get('class')!r} / strength "
-                    f"{obj.get('strength')!r} unchanged",
-                )
-            )
+        checks.append(_one_promotion_check(ctx, obj, name))
     return checks
+
+
+def _promotion_is_foreign(repo: Path, obj: Mapping[str, Any]) -> bool:
+    """Does this object say it was promoted somewhere else?
+
+    ``origin_repo`` is the store's own record of where the source lock lived.
+    ``local`` and this checkout's own remote both mean "here", and only an
+    object from a genuinely different repository is exempt from resolving —
+    otherwise an unresolvable commit (or none at all) would buy silence just by
+    being unresolvable, which is the shape of every hole worth closing.
+    """
+    origin = obj.get("origin_repo")
+    if not isinstance(origin, str) or not origin.strip() or origin.strip() == "local":
+        return False
+    result = git(repo, ["remote", "get-url", "origin"], check=False)
+    mine = result.stdout.strip() if result.returncode == 0 else ""
+    return origin.strip() != mine
+
+
+def _one_promotion_check(ctx: FamilyContext, obj: Mapping[str, Any], name: str) -> Check:
+    from ..primitives import sha256_bytes as _sha
+    from ..primitives import sha256_file as _sha_file
+
+    repo = ctx.repo
+    assert repo is not None  # the caller returned early without one
+    object_id = str(obj.get("id"))
+    commit = obj.get("commit")
+    source_path = str(obj.get("source_path") or "")
+    blob = git_blob(repo, str(commit), source_path) if isinstance(commit, str) else None
+    where = f"at {str(commit)[:12]}" if blob is not None else "in the working tree"
+    if blob is None and _promotion_is_foreign(repo, obj):
+        return _warn(
+            name,
+            f"{object_id}: foreign origin, unverifiable here "
+            f"({obj.get('origin_repo')} {str(commit or '')[:12]}:{source_path})",
+        )
+    problems: list[str] = []
+    entry: Mapping[str, Any] | None = None
+    if blob is not None:
+        actual = _sha(blob)
+        entry = lock_claim_at(repo, str(commit), source_path, obj.get("claim_id"))
+    else:
+        # The object is this repository's own and names no resolvable commit —
+        # a seeding run that predates commit recording, or a commit that was
+        # rewritten away.  The source is still here, so it is still checkable.
+        path = repo / source_path
+        if not path.is_file():
+            return _fail(
+                name,
+                f"{object_id}: {source_path} resolves neither at "
+                f"{str(commit or 'no commit')[:12]} nor in the working tree — a promotion "
+                "that cannot be traced back to the lock it copied is not a promotion",
+            )
+        actual = _sha_file(path)
+        entry = _lock_claim_on_disk(path, obj.get("claim_id"))
+    if actual != obj.get("source_hash"):
+        problems.append(
+            f"{source_path} {where} hashes to {actual[:12]}, the object records "
+            f"{str(obj.get('source_hash'))[:12]}"
+        )
+    if entry is not None:
+        for field_name in ("class", "strength"):
+            if obj.get(field_name) != entry.get(field_name):
+                problems.append(
+                    f"{field_name} is {obj.get(field_name)!r} in the store but "
+                    f"{entry.get(field_name)!r} in the source lock — a promotion copies "
+                    "the standing a claim earned; it never strengthens it"
+                )
+        roots = evidence_key(obj.get("evidence_roots") or ())
+        if roots != evidence_key(entry.get("evidence") or ()):
+            problems.append("evidence_roots differ from the source claim's evidence")
+    elif obj.get("claim_id"):
+        problems.append(f"claim {obj.get('claim_id')} is not in {source_path} {where}")
+    if problems:
+        return _fail(name, f"{object_id}: " + "; ".join(problems))
+    return _pass(
+        name,
+        f"{object_id}: {obj.get('claim_id') or source_path} resolves {where} with class "
+        f"{obj.get('class')!r} / strength {obj.get('strength')!r} unchanged",
+    )
+
+
+def _lock_claim_on_disk(path: Path, claim_id: Any) -> dict[str, Any] | None:
+    """The same claim lookup :func:`lock_claim_at` does, against a file on disk."""
+    if not isinstance(claim_id, str) or not claim_id:
+        return None
+    try:
+        return _claim_from_lock(path.read_bytes(), claim_id)
+    except OSError:  # pragma: no cover - is_file() was just true
+        return None
 
 
 def verify_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
@@ -1157,7 +1301,7 @@ def verify_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
     checks = _query_checks(ctx, rows)
     checks += _decision_checks(ctx, rows)
     checks += _replay_checks(ctx, rows)
-    store_checks, snapshot = _store_checks(ctx)
+    store_checks, snapshot = _store_checks(ctx, rows)
     checks += store_checks
     checks += _promotion_checks(ctx, snapshot)
 

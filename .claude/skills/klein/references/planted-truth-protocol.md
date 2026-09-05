@@ -224,8 +224,14 @@ which is which.
   null_fp_/cost_` key that is missing or that differs from the table's own number.
 - **`benchmark ceiling`** — a `confirmed` claim in `claims.lock` citing the
   scoring table (R-INV-6).
-- **`benchmark custody`** — never a FAIL. An attestation is a PASS that says
-  `TESTIMONY`; its absence is a WARN and the outcome `unverified`.
+- **`benchmark custody`** — never a FAIL. An attestation ABOUT THIS BENCHMARK is
+  a PASS that says `TESTIMONY`; its absence is a WARN and the outcome
+  `unverified`. An attestation counts only when its `subject` is null (the
+  default: this study's own hidden evidence) or names `benchmark.yaml`'s
+  `public_bundle`, `truth_file` or `custody.holder`. Because `custody attest` is
+  capability-agnostic, counting any attestation would let a statement about a
+  sample chain or a later time block turn this benchmark `custodied`; the others
+  stay on the record and are listed by subject in the check's detail.
 
 The capability outcome is decided in one fixed precedence — `retired`, then
 `unverified` (nobody attested custody), then `scored`, then `unscored` — and is
@@ -238,9 +244,14 @@ this layer.
 `custody attest` is **capability-agnostic**: it needs the generation opt-in and
 nothing else, so a study custodying a later time block or a wet-lab sample chain
 uses the same receipt. It records a NAMED holder, the mechanism in their own
-words, a statement of what was denied to whom, and optionally a receipt document
-inside the study whose bytes are hashed. The object carries `testimony: true`.
-Nothing here verifies any of it.
+words, a statement of what was denied to whom, the SUBJECT it is about, and
+optionally a receipt document inside the study whose bytes are hashed. The
+object carries `testimony: true`. Nothing here verifies any of it.
+
+Name the subject deliberately: omit `--subject` (or name the benchmark's
+`public_bundle`, `truth_file` or `custody.holder`) when the statement is about
+this benchmark's hidden evidence, and give it a subject of its own when it is
+not. A benchmark counts only the attestations that are about it.
 
 A participant who reads a public generator and restates its interaction earns
 "discovery" for free. Private custody closes that channel; randomized variable

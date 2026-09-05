@@ -752,3 +752,107 @@ def test_the_store_is_repo_level_and_never_rewrites_the_markdown(store) -> None:
     source = (REPO_ROOT / "kleinlib" / "generation" / "knowledge.py").read_text(encoding="utf-8")
     for forbidden in ("requests", "httpx", "urllib.request", "anthropic", "openai", "socket"):
         assert forbidden not in source, forbidden
+
+
+# --------------------------------------------------------------------------
+# the fix pass: the tip is anchored, and a promotion resolves or fails
+# --------------------------------------------------------------------------
+
+
+def test_c3_an_event_removed_from_the_tip_is_caught_by_the_stores_own_history(
+    store,
+) -> None:
+    """C-3: the hash chain cannot see a deleted LAST line — every event still verifies.
+
+    Valid control: the store after a contest verifies.  Invalid control: the
+    same store with that contest's line dropped.  Nothing inside the file
+    objects; the previous state of the file, in git, does.
+    """
+    repo, alpha = store["repo"], store["alpha"]
+    assert _contest(store) == 0
+    assert _gen("verify", "--study", str(alpha)) == 0
+
+    path = gk.events_path(repo)
+    lines = path.read_text(encoding="utf-8").splitlines()
+    path.write_text("\n".join(lines[:-1]) + "\n", encoding="utf-8")
+    # the truncated chain is internally perfect
+    assert gk.store_chain_problems(gk.snapshot_on_disk(repo).events) == []
+
+    assert _gen("verify", "--study", str(alpha)) == 2
+    assert "events removed from the tip" in _details(_receipt(alpha), "knowledge store")
+
+
+def test_c5_a_promotion_whose_commit_does_not_resolve_is_checked_on_disk(store) -> None:
+    """C-5: `commit: null` used to buy a WARN and skip the strengthening check."""
+    repo, alpha = store["repo"], store["alpha"]
+    snapshot = gk.snapshot_on_disk(repo)
+    obj = dict(snapshot.objects["K1"])
+    obj["commit"] = None
+
+    def _rewrite(payload: dict[str, Any]) -> None:
+        # content-addressed: the store keeps exactly ONE K1 file, named after its
+        # own bytes, and the transaction that references it is repointed by
+        # target — so only the promotion check has anything to say
+        from kleinlib.primitives import canonical_json, sha256_bytes
+
+        text = canonical_json(payload) + "\n"
+        sha = sha256_bytes(text.encode())
+        for existing in gk.objects_dir(repo).glob("*.json"):
+            if json.loads(existing.read_text(encoding="utf-8")).get("id") == "K1":
+                existing.unlink()
+        (gk.objects_dir(repo) / f"{sha}.json").write_text(text, encoding="utf-8")
+        events = gk.events_path(repo)
+        rows = [json.loads(line) for line in events.read_text(encoding="utf-8").splitlines() if line.strip()]
+        for row in rows:
+            if row.get("target") == "K1":
+                row["object_sha"] = sha
+        events.write_text(
+            "".join(json.dumps(row, sort_keys=True, separators=(",", ":")) + "\n" for row in rows),
+            encoding="utf-8",
+        )
+
+    _rewrite(obj)
+    # valid control: no commit to resolve, so the source lock ON DISK is read
+    # and the promotion still checks out (the store's own chain complains about
+    # the hand edit, as it does for every rewritten object; the promotion does not)
+    _gen("verify", "--study", str(alpha))
+    assert "in the working tree" in _details(_receipt(alpha), "knowledge promotions")
+    assert "PASS" in _statuses(_receipt(alpha), "knowledge promotions")
+
+    # invalid control: the same unresolvable commit, now with a strengthened copy
+    obj["strength"] = "confirmed"
+    _rewrite(obj)
+    assert _gen("verify", "--study", str(alpha)) == 2
+    assert "never strengthens it" in _details(_receipt(alpha), "knowledge promotions")
+
+
+def test_c7_an_unreplayable_receipt_fails_when_the_store_is_in_this_repo(store) -> None:
+    """C-7: WARN is for a reader in the wrong clone, not for a receipt that lies."""
+    repo, alpha = store["repo"], store["alpha"]
+    assert gk.store_is_local(repo)
+
+    path, obj = _query_object(alpha)
+    obj["store_head"] = "0" * 40
+    path.write_text(json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+
+    assert _gen("verify", "--study", str(alpha)) == 2
+    assert "FAIL" in _statuses(_receipt(alpha), "knowledge replay")
+    assert "does not resolve here" in _details(_receipt(alpha), "knowledge replay")
+
+
+def test_c7_a_checkout_without_the_store_only_warns(store, tmp_path: Path) -> None:
+    """C-7: the same symptom in a clone that has no knowledge/ tree stays a WARN."""
+    repo, alpha = store["repo"], store["alpha"]
+    path, obj = _query_object(alpha)
+    obj["retriever_version"] = "lex-99"
+    path.write_text(json.dumps(obj, sort_keys=True, separators=(",", ":")) + "\n", encoding="utf-8")
+    assert _gen("verify", "--study", str(alpha)) == 2
+    assert "FAIL" in _statuses(_receipt(alpha), "knowledge replay")
+
+    import shutil
+
+    shutil.rmtree(repo / "knowledge")
+    assert not gk.store_is_local(repo)
+    assert _gen("verify", "--study", str(alpha)) in (0, 2)
+    assert "WARN" in _statuses(_receipt(alpha), "knowledge replay")
+    assert "carries no knowledge/ store" in _details(_receipt(alpha), "knowledge replay")

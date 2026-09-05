@@ -48,10 +48,12 @@ from .envelope import GENERATION_SCHEMA
 
 __all__ = [
     "CAPABILITY_DEPENDENCIES",
+    "CAPABILITY_PROTOCOLS",
     "GENERATION_SCHEMA_VERSION",
     "KNOWN_CAPABILITIES",
     "PROTOCOL_KEYS",
     "SKILL_ROOT",
+    "SPINE_PROTOCOL",
     "SUPPORTED_CAPABILITIES",
     "build_manifest",
     "capability_problems",
@@ -60,6 +62,7 @@ __all__ = [
     "manifest_path",
     "manifest_sha256",
     "protocol_hashes",
+    "protocol_keys",
     "render_manifest",
     "study_id",
 ]
@@ -114,9 +117,40 @@ CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {
     "surprise": ("design",),
 }
 
-#: Where the protocol lives, relative to the skill root.  Hashing it pins WHICH
-#: rules a receipt was taken under.
-PROTOCOL_KEYS: tuple[str, ...] = ("references/generation-protocol.md",)
+#: Where the SPINE's protocol lives, relative to the skill root.  Hashing it
+#: pins WHICH rules a receipt was taken under.
+SPINE_PROTOCOL = "references/generation-protocol.md"
+
+#: The protocol file each capability's rules are written in, if it has one of
+#: its own.  ``slates`` and ``design`` are documented inside the spine protocol
+#: and add nothing here; ``parity`` and ``contribution`` share one document, and
+#: it is listed once.  A receipt that declares a capability pins the rules that
+#: capability was actually taken under — pinning only the spine's file left the
+#: nine documents that decide almost everything unhashed.
+CAPABILITY_PROTOCOLS: dict[str, str] = {
+    "expertise": "references/expert-protocol.md",
+    "premortem": "references/premortem-protocol.md",
+    "parity": "references/expert-parity-protocol.md",
+    "contribution": "references/expert-parity-protocol.md",
+    "surprise": "references/surprise-protocol.md",
+    "escalation": "references/escalation-protocol.md",
+    "knowledge": "references/knowledge-protocol.md",
+    "benchmark": "references/planted-truth-protocol.md",
+}
+
+#: Kept as the spine's own single-element view, for readers that want "the
+#: protocol" without a capability list.
+PROTOCOL_KEYS: tuple[str, ...] = (SPINE_PROTOCOL,)
+
+
+def protocol_keys(capabilities: Sequence[str] = ()) -> tuple[str, ...]:
+    """The spine's protocol, then one file per declared capability that has one."""
+    keys = [SPINE_PROTOCOL]
+    for name in capabilities:
+        key = CAPABILITY_PROTOCOLS.get(str(name))
+        if key is not None and key not in keys:
+            keys.append(key)
+    return tuple(keys)
 
 #: The skill directory, relative to the study's REPOSITORY root.  When Klein is
 #: installed as a dependency of a foreign repo the directory is absent; the hash
@@ -176,10 +210,12 @@ def capability_problems(capabilities: Sequence[str]) -> list[str]:
     return problems
 
 
-def protocol_hashes(repo_root: Path | None) -> dict[str, str | None]:
+def protocol_hashes(
+    repo_root: Path | None, capabilities: Sequence[str] = ()
+) -> dict[str, str | None]:
     """sha256 of each protocol file, or null when the skill tree is absent."""
     hashes: dict[str, str | None] = {}
-    for key in PROTOCOL_KEYS:
+    for key in protocol_keys(capabilities):
         path = None if repo_root is None else repo_root / SKILL_ROOT / key
         hashes[key] = sha256_file(path) if path is not None and path.is_file() else None
     return hashes

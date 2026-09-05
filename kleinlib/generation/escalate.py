@@ -72,7 +72,14 @@ from ..manifest import load_manifests
 from ..primitives import sha256_bytes, sha256_file
 from ..stop import consecutive_discards
 from ..transaction import git_blob, relative
-from .chronology import introducing_commit, read_core_events, run_started_events
+from .chronology import (
+    gate_events,
+    introducing_commit,
+    is_ancestor,
+    read_core_events,
+    run_started_events,
+    study_event_commit,
+)
 from .envelope import GENERATION_SCHEMA
 from .ledger import read_object
 from .registry import Capability, FamilyContext
@@ -1103,6 +1110,56 @@ def _warn(name: str, detail: str) -> Check:
     return Check(name, "WARN", detail)
 
 
+def _lock_order_problems(
+    ctx: FamilyContext, first: tuple[Mapping[str, Any], dict[str, Any]]
+) -> list[str]:
+    """The plan must precede the CONSULT gate by BOTH sequence and ancestry.
+
+    The lock object's own ``late: true`` is not consulted.  That flag is what
+    ``escalate lock`` wrote about itself when it saw a consult gate, and a
+    hand-written ledger can set it to ``false`` as easily as to ``true``; the
+    order is re-derived here from the two witnesses a writer does not control —
+    the core anchor sequence, and whether the commit that filed the lock is an
+    ancestor of the commit that filed the gate record.
+    """
+    gates = gate_events(ctx.core, "consult")
+    if not gates:
+        return []
+    event, _obj = first
+    anchor = event.get("core_anchor")
+    anchor_sequence = anchor.get("sequence") if isinstance(anchor, Mapping) else None
+    gate_sequence = gates[0].get("sequence")
+    if not isinstance(anchor_sequence, int) or not isinstance(gate_sequence, int):
+        return ["the escalation lock anchor or the consult gate record has no sequence"]
+    problems: list[str] = []
+    if anchor_sequence >= gate_sequence:
+        problems.append(
+            f"the plan is anchored at core sequence {anchor_sequence}, at or after the "
+            f"consult gate record (sequence {gate_sequence}) — a stall rule registered "
+            "once the study is running cannot constrain it"
+        )
+    repo = ctx.repo
+    sha = event.get("payload_sha256")
+    if repo is not None and isinstance(sha, str):
+        lock_commit = introducing_commit(
+            repo, relative(repo, ctx.study_dir / "generation" / "objects" / f"{sha}.json")
+        )
+        gate_hash = gates[0].get("event_hash")
+        gate_commit = (
+            study_event_commit(repo, ctx.study_dir, str(gate_hash))
+            if isinstance(gate_hash, str)
+            else None
+        )
+        if lock_commit is None:
+            problems.append("the escalation lock object is not committed, so ancestry cannot be read")
+        elif gate_commit is not None and not is_ancestor(repo, lock_commit, gate_commit):
+            problems.append(
+                f"the lock commit {lock_commit[:12]} is not an ancestor of the consult "
+                f"gate commit {gate_commit[:12]}"
+            )
+    return problems
+
+
 def _plan_checks(
     ctx: FamilyContext, rows: list[tuple[Mapping[str, Any], dict[str, Any]]], study: str
 ) -> list[Check]:
@@ -1121,11 +1178,7 @@ def _plan_checks(
             "threshold after the evidence is what the lock exists to prevent"
         )
     event, first = rows[0]
-    if first.get("late"):
-        problems.append(
-            "the plan was locked with --allow-late, after the consult gate: a stall rule "
-            "registered once the study is running cannot constrain it"
-        )
+    problems.extend(_lock_order_problems(ctx, rows[0]))
     path = plan_path(ctx.study_dir)
     if not path.is_file():
         problems.append(f"{PLAN_NAME} is missing but a lock exists")

@@ -60,7 +60,7 @@ from ..primitives import sha256_bytes, sha256_file
 from ..transaction import git_blob, relative
 from .admission import Context, load_receipts
 from .calibration import numbers_agree
-from .chronology import gate_events
+from .chronology import gate_events, introducing_commit, is_ancestor
 from .envelope import GENERATION_SCHEMA
 from .ledger import read_events, read_object
 from .registry import Capability
@@ -70,8 +70,11 @@ from .templates import (
     STATISTICS,
     TABLE_COLUMNS,
     TEMPLATES,
+    aggregate_by_group,
     parse_table,
     segments_in_order,
+    slug_collisions,
+    table_columns,
 )
 from .verify import Check
 
@@ -95,6 +98,7 @@ __all__ = [
     "cell_runs",
     "cells_path",
     "cells_problems",
+    "group_column_of",
     "next_surprise_number",
     "ordered_cell",
     "parse_cells",
@@ -203,9 +207,14 @@ def table_relpath(cell_id: str) -> str:
     return f"tables/{cell_id}.tsv"
 
 
+def _summary_relpath(cell_id: str) -> str:
+    """Where the derived per-segment summary lives, study-relative and POSIX."""
+    return f"generation/tables/surprise_{cell_id}.tsv"
+
+
 def summary_table_path(study_dir: Path, cell_id: str) -> Path:
     """The derived per-segment summary, written by ``record`` and re-derived by ``verify``."""
-    return study_dir / "generation" / "tables" / f"surprise_{cell_id}.tsv"
+    return study_dir / _summary_relpath(cell_id)
 
 
 def _plain(value: Any) -> Any:
@@ -286,6 +295,55 @@ def _segment_values(block: Any) -> list[str]:
     return []
 
 
+def group_column_of(cell: Mapping[str, Any]) -> str | None:
+    """The clustering column a cell declared, or ``None`` for unit-level inference.
+
+    ``group_policy: null`` is the unit-level contract and is byte-for-byte the
+    behaviour that existed before clustered cells.  ``group_policy: {column:
+    site}`` says the randomization unit is a SITE: the segment statistic becomes
+    the mean of the site means and the sign flip acts on sites.  Nothing else is
+    accepted — a prose policy would leave "are these units independent?" to a
+    reader, and the answer changes the arithmetic.
+    """
+    policy = cell.get("group_policy")
+    if not isinstance(policy, Mapping):
+        return None
+    column = policy.get("column")
+    return str(column).strip() if isinstance(column, str) and column.strip() else None
+
+
+def _group_policy_problems(cell: Mapping[str, Any], label: str) -> list[str]:
+    if "group_policy" not in cell:
+        return [f"{label}: group_policy is required (null when the units are independent)"]
+    policy = cell.get("group_policy")
+    if policy is None:
+        return []
+    if not isinstance(policy, Mapping):
+        return [
+            f"{label}: group_policy is {policy!r} — write `null` when the units are "
+            "independent, or `{column: <name>}` when they cluster. Prose cannot decide "
+            "whether the sign flip acts on units or on groups, and that decision is the "
+            "difference between a real family guard and a manufactured one"
+        ]
+    column = policy.get("column")
+    if not _text(column):
+        return [f"{label}: group_policy.column must name the clustering column"]
+    unknown = set(policy) - {"column", "rationale"}
+    problems = [f"{label}: group_policy has unknown key(s) {sorted(unknown)}"] if unknown else []
+    if str(column).strip() in TABLE_COLUMNS:
+        problems.append(
+            f"{label}: group_policy.column is {column!r}, which is already a table column"
+        )
+    return problems
+
+
+#: A sign-flip family is a permutation test and a permutation test is bounded
+#: work.  The cap is not a statistical claim — it is the point past which a
+#: registration is asking `verify` to re-run a job nobody will wait for, and a
+#: check nobody runs is not a check.
+MAX_N_PERM = 100_000
+
+
 def _multiplicity_problems(rule: Any, label: str) -> list[str]:
     """RF-13, in one function: a floor is not a multiple-testing correction."""
     if not isinstance(rule, Mapping):
@@ -311,6 +369,13 @@ def _multiplicity_problems(rule: Any, label: str) -> list[str]:
         n_perm = rule.get("n_perm")
         if isinstance(n_perm, bool) or not isinstance(n_perm, int) or n_perm < 1:
             problems.append(f"{label}: multiplicity_rule.n_perm is {n_perm!r}, expected a positive integer")
+        elif n_perm > MAX_N_PERM:
+            problems.append(
+                f"{label}: multiplicity_rule.n_perm is {n_perm}, above the cap of "
+                f"{MAX_N_PERM} — every `klein generation verify` re-runs this permutation "
+                "family from the pinned table, so a registration may not price the audit "
+                "out of ever being run"
+            )
         seed = rule.get("seed")
         if isinstance(seed, bool) or not isinstance(seed, int):
             problems.append(f"{label}: multiplicity_rule.seed is {seed!r}, expected an integer")
@@ -336,7 +401,8 @@ def _cell_problems(
     study_dir: Path,
     contract: Mapping[str, Any],
     state: Mapping[str, Any],
-    adapters: Mapping[str, str],
+    adapters: Mapping[str, str | None],
+    require_pins: bool = False,
 ) -> list[str]:
     label = f"cell {index}"
     if not isinstance(cell, Mapping):
@@ -389,8 +455,7 @@ def _cell_problems(
         )
     if not _text(cell.get("unit_policy")):
         problems.append(f"{label}: unit_policy must say, in words, what one row of the table is")
-    if "group_policy" not in cell:
-        problems.append(f"{label}: group_policy is required (null when the units are independent)")
+    problems.extend(_group_policy_problems(cell, label))
     if not _text(cell.get("units")):
         problems.append(f"{label}: units is required — a bare deviation is not a quantity")
 
@@ -405,6 +470,13 @@ def _cell_problems(
         )
     elif len(set(inventory)) != len(inventory):
         problems.append(f"{label}: the segment inventory repeats a name")
+    else:
+        for key, names in sorted(slug_collisions(inventory).items()):
+            problems.append(
+                f"{label}: segments {', '.join(names)} all print as {key!r} — the notary "
+                "adjudicates the expectation on the printed block, and a block that "
+                "cannot name a segment cannot decide it"
+            )
 
     minimum_n = cell.get("minimum_n")
     if isinstance(minimum_n, bool) or not isinstance(minimum_n, int) or minimum_n < 2:
@@ -415,10 +487,11 @@ def _cell_problems(
     problems.extend(_floor_problems(cell.get("floor_ref"), label, state=state))
     problems.extend(_multiplicity_problems(cell.get("multiplicity_rule"), label))
 
+    wanted_columns = list(table_columns(group_column_of(cell)))
     columns = cell.get("output_columns")
-    if list(columns or []) != list(TABLE_COLUMNS):
+    if list(columns or []) != wanted_columns:
         problems.append(
-            f"{label}: output_columns is {columns!r}, expected {list(TABLE_COLUMNS)} — the "
+            f"{label}: output_columns is {columns!r}, expected {wanted_columns} — the "
             "pinned table is per-unit; the per-segment summary is derived by "
             "`klein generation surprise record`"
         )
@@ -436,7 +509,11 @@ def _cell_problems(
             f"{label}: adapter {adapter!r} is not in the document's adapters list "
             f"({', '.join(sorted(adapters)) or 'none declared'})"
         )
-    problems.extend(_input_problems(cell.get("input_refs"), label, study_dir=study_dir))
+    problems.extend(
+        _input_problems(
+            cell.get("input_refs"), label, study_dir=study_dir, require=require_pins
+        )
+    )
     return problems
 
 
@@ -491,7 +568,7 @@ def _floor_problems(value: Any, label: str, *, state: Mapping[str, Any]) -> list
     ]
 
 
-def _input_problems(refs: Any, label: str, *, study_dir: Path) -> list[str]:
+def _input_problems(refs: Any, label: str, *, study_dir: Path, require: bool = False) -> list[str]:
     if not _listing(refs) or not refs:
         return [f"{label}: input_refs must be a non-empty list of {{path, sha256}}"]
     problems: list[str] = []
@@ -500,12 +577,24 @@ def _input_problems(refs: Any, label: str, *, study_dir: Path) -> list[str]:
         if not isinstance(ref, Mapping) or not _text(ref.get("path")):
             problems.append(f"{where} must be a mapping with a study-relative path")
             continue
-        problems.extend(_pin_problems(study_dir, str(ref["path"]), ref.get("sha256"), where))
+        problems.extend(
+            _pin_problems(
+                study_dir, str(ref["path"]), ref.get("sha256"), where, require=require
+            )
+        )
     return problems
 
 
-def _pin_problems(study_dir: Path, rel: str, recorded: Any, where: str) -> list[str]:
-    """One pinned file: inside the study, present, and hashing to what was pinned."""
+def _pin_problems(
+    study_dir: Path, rel: str, recorded: Any, where: str, *, require: bool = False
+) -> list[str]:
+    """One pinned file: inside the study, present, and hashing to what was pinned.
+
+    ``require`` is what separates a document being AUTHORED — where
+    ``klein generation surprise register`` fills the hashes in a moment — from
+    one already REGISTERED, where a missing hash means the freeze never
+    happened and the file could have changed under the cell without a trace.
+    """
     path = (study_dir / rel).resolve()
     try:
         path.relative_to(study_dir.resolve())
@@ -514,6 +603,12 @@ def _pin_problems(study_dir: Path, rel: str, recorded: Any, where: str) -> list[
     if not path.is_file():
         return [f"{where}: {rel!r} does not exist"]
     if recorded is None:
+        if require:
+            return [
+                f"{where}: {rel} is registered with no sha256 — an unhashed adapter or "
+                "input is not frozen, and nothing it produced can be attributed to the "
+                "version that was registered"
+            ]
         return []
     actual = sha256_file(path)
     if actual != recorded:
@@ -570,6 +665,7 @@ def cells_problems(
             "adapters must list the adapter modules the cells use — they map field "
             "measurements into the table contract and are hashed here"
         )
+    registered_adapters = set(_adapter_map(previous or {}))
     surface = set(mutable_surface(contract))
     for rel, sha in adapters.items():
         where = f"adapter {rel}"
@@ -579,7 +675,9 @@ def cells_problems(
                 "surface is edited per experiment, so nothing it produced can be "
                 "attributed to the version that was registered"
             )
-        problems.extend(_pin_problems(study_dir, rel, sha, where))
+        problems.extend(
+            _pin_problems(study_dir, rel, sha, where, require=rel in registered_adapters)
+        )
 
     cells = doc.get("cells")
     if not _listing(cells) or not cells:
@@ -592,6 +690,7 @@ def cells_problems(
         if isinstance(cell, Mapping)
     }
     for index, cell in enumerate(cells, start=1):
+        named = str(cell.get("cell_id")) if isinstance(cell, Mapping) else ""
         problems.extend(
             _cell_problems(
                 cell,
@@ -600,6 +699,7 @@ def cells_problems(
                 contract=contract,
                 state=state,
                 adapters=adapters,
+                require_pins=named in frozen,
             )
         )
         if not isinstance(cell, Mapping):
@@ -910,13 +1010,23 @@ def build_record(
     compares every number.  It reads the registered cell and the table and
     nothing else, so the two calls cannot disagree unless something on disk
     changed — which is the whole point.
+
+    **The unit of inference is the cell's, not this function's.**  A cell with
+    no ``group_policy`` is analysed per unit — the arithmetic that shipped
+    first, unchanged to the last digit.  A cell that declared a clustering
+    column is collapsed to group means FIRST and everything downstream (the
+    segment statistic, the dispersion, the sign flip) then acts on groups.
+    ``unit_of_inference`` is written into the record so a reader never has to
+    infer which one happened.
     """
     statistic = str(cell["statistic"])
     inventory = _segment_values(cell.get("segments"))
     rule = dict(cell.get("multiplicity_rule") or {})
-    rows = summarize(units, statistic=statistic, inventory=inventory)
+    group_column = group_column_of(cell)
+    analysed = aggregate_by_group(units) if group_column else list(units)
+    rows = summarize(analysed, statistic=statistic, inventory=inventory)
     expected = float(rows[0]["expected"]) if rows else 0.0
-    scores = adjusted_scores(units, rows, inventory=inventory, expected=expected, rule=rule)
+    scores = adjusted_scores(analysed, rows, inventory=inventory, expected=expected, rule=rule)
     segments = _verdicts(rows, scores, minimum_n=int(cell["minimum_n"]), rule=rule)
     present = set(segments_in_order(units))
     missing = [name for name in inventory if name not in present]
@@ -936,6 +1046,9 @@ def build_record(
         "multiplicity_rule": rule,
         "family_size": len(inventory),
         "units_measured": len(units),
+        "unit_of_inference": "group" if group_column else "unit",
+        "group_column": group_column,
+        "groups_measured": len(analysed) if group_column else None,
         "segments": segments,
         "missing_segments": missing,
         "extra_segments": extra,
@@ -1002,6 +1115,7 @@ def receipt_object(
         "table_path": str(record["table_path"]),
         "table_sha256": str(record["table_sha256"]),
         "family_size": int(record["family_size"]),
+        "unit_of_inference": str(record.get("unit_of_inference") or "unit"),
         "explanation": explanation,
         "label": "post-observation" if record.get("post_observation") else "preregistered",
         "exposure": list(exposure),
@@ -1022,6 +1136,7 @@ def build_registration(
     Verbatim because verification re-validates the registry rather than trusting
     a recorded verdict, and re-validating a summary would only prove the summary.
     """
+    cells = _plain(doc.get("cells") or [])
     return {
         "schema": GENERATION_SCHEMA,
         "kind": "discovery_cells",
@@ -1031,7 +1146,14 @@ def build_registration(
         "cells_path": CELLS_NAME,
         "file_sha256": file_sha256,
         "adapters": _plain(doc.get("adapters") or []),
-        "cells": _plain(doc.get("cells") or []),
+        "cells": cells,
+        # Derived, and stored so the reader of an object never has to re-derive
+        # it: which randomization unit each cell's family rule will flip.
+        "unit_of_inference": {
+            str(cell.get("cell_id")): "group" if group_column_of(cell) else "unit"
+            for cell in cells
+            if isinstance(cell, Mapping) and _text(cell.get("cell_id"))
+        },
         "late": bool(late),
     }
 
@@ -1084,12 +1206,20 @@ def _rule_cell_is_registered(ctx: Context) -> list[str]:
     adapter = cell.get("adapter")
     if _text(adapter):
         pinned = _adapter_pin(ctx.study_dir, events, str(adapter))
-        problems.extend(_pin_problems(ctx.study_dir, str(adapter), pinned, f"adapter {adapter}"))
+        problems.extend(
+            _pin_problems(
+                ctx.study_dir, str(adapter), pinned, f"adapter {adapter}", require=True
+            )
+        )
     for index_, ref in enumerate(cell.get("input_refs") or [], start=1):
         if isinstance(ref, Mapping) and _text(ref.get("path")):
             problems.extend(
                 _pin_problems(
-                    ctx.study_dir, str(ref["path"]), ref.get("sha256"), f"input_refs[{index_}]"
+                    ctx.study_dir,
+                    str(ref["path"]),
+                    ref.get("sha256"),
+                    f"input_refs[{index_}]",
+                    require=True,
                 )
             )
     return problems
@@ -1147,6 +1277,7 @@ def _cells_checks(ctx: FamilyContext, versions: Sequence[Mapping[str, Any]]) -> 
             "description of them"
         )
     problems.extend(_method_order_problems(ctx, first))
+    problems.extend(_registration_order_problems(ctx, versions))
 
     newest = versions[-1]["object"]
     path = cells_path(ctx.study_dir)
@@ -1166,7 +1297,11 @@ def _cells_checks(ctx: FamilyContext, versions: Sequence[Mapping[str, Any]]) -> 
         rel = str(entry["path"])
         if rel in surface:
             problems.append(f"adapter {rel} is now part of entrypoint.mutable")
-        problems.extend(_pin_problems(ctx.study_dir, rel, entry.get("sha256"), f"adapter {rel}"))
+        problems.extend(
+            _pin_problems(
+                ctx.study_dir, rel, entry.get("sha256"), f"adapter {rel}", require=True
+            )
+        )
 
     registered = registered_cells(ctx.study_dir, list(ctx.events))
     for name, cell in sorted(registered.items()):
@@ -1178,6 +1313,7 @@ def _cells_checks(ctx: FamilyContext, versions: Sequence[Mapping[str, Any]]) -> 
                         str(ref["path"]),
                         ref.get("sha256"),
                         f"{name}: input_refs[{index}]",
+                        require=True,
                     )
                 )
         problems.extend(_contract_drift_problems(ctx.contract, cell, name))
@@ -1196,7 +1332,13 @@ def _cells_checks(ctx: FamilyContext, versions: Sequence[Mapping[str, Any]]) -> 
 
 
 def _method_order_problems(ctx: FamilyContext, first: Mapping[str, Any]) -> list[str]:
-    """Registration comes after METHOD: the adapters are named on the method card."""
+    """Registration comes after METHOD, by BOTH the anchor and git ancestry.
+
+    The anchor sequence alone says only what the writer's chain claimed.  The
+    second witness is the reverse of the usual one: here the GATE must be the
+    ancestor, because the adapters a cell freezes are the ones the method card
+    already named — so the gate's commit has to be in the registration's history.
+    """
     gates = gate_events(ctx.core, "method")
     if not gates:
         return []
@@ -1205,13 +1347,104 @@ def _method_order_problems(ctx: FamilyContext, first: Mapping[str, Any]) -> list
     gate_sequence = gates[0].get("sequence")
     if not isinstance(sequence, int) or not isinstance(gate_sequence, int):
         return ["the registration anchor or the method gate record has no sequence"]
+    problems: list[str] = []
     if sequence < gate_sequence:
-        return [
+        problems.append(
             f"the cells were registered at core sequence {sequence}, before the method "
             f"gate (sequence {gate_sequence}) — the adapters a cell freezes are the ones "
             "the method card named"
-        ]
-    return []
+        )
+    repo = ctx.repo
+    sha = first["event"].get("payload_sha256")
+    if repo is not None and isinstance(sha, str):
+        from .chronology import study_event_commit
+
+        register_commit = _object_commit(ctx, sha)
+        gate_hash = gates[0].get("event_hash")
+        gate_commit = (
+            study_event_commit(repo, ctx.study_dir, str(gate_hash))
+            if isinstance(gate_hash, str)
+            else None
+        )
+        if register_commit is None:
+            problems.append("the registration object is not committed, so ancestry cannot be read")
+        elif gate_commit is not None and not is_ancestor(repo, gate_commit, register_commit):
+            problems.append(
+                f"the method gate commit {gate_commit[:12]} is not an ancestor of the "
+                f"registration commit {register_commit[:12]}"
+            )
+    return problems
+
+
+def _object_commit(ctx: FamilyContext, sha: str) -> str | None:
+    """The commit that filed one generation object, or None when it is uncommitted."""
+    if ctx.repo is None:
+        return None
+    return introducing_commit(
+        ctx.repo, relative(ctx.repo, ctx.study_dir / "generation" / "objects" / f"{sha}.json")
+    )
+
+
+def _registration_order_problems(
+    ctx: FamilyContext, versions: Sequence[Mapping[str, Any]]
+) -> list[str]:
+    """EVERY version must precede the runs of the cells IT introduced.
+
+    Version 1 is not special.  A registration that adds ``cell_x`` after a run
+    already produced ``cell_x``'s table is a description of that table, and the
+    only thing that separates the two is order — so the same two witnesses that
+    guard the first registration guard the fifth: the version's core anchor must
+    precede the run's ``run_started`` sequence, and the commit that filed the
+    version's object must be an ancestor of the run's ``candidate_commit``.
+
+    The self-reported ``late`` flag is not consulted here; it is a write-time
+    warning, and a hand-written ledger can set it to whatever it likes.
+    """
+    ran = cell_runs(ctx.study_dir, list(ctx.events), ctx.match)
+    if not ran:
+        return []
+    from .chronology import run_started_events
+
+    started = run_started_events(ctx.core)
+    manifests = _manifests(ctx)
+    problems: list[str] = []
+    introduced_before: set[str] = set()
+    for version in versions:
+        obj = version["object"]
+        event = version["event"]
+        names = {
+            str(cell.get("cell_id"))
+            for cell in obj.get("cells") or []
+            if isinstance(cell, Mapping) and _text(cell.get("cell_id"))
+        }
+        new = names - introduced_before
+        introduced_before |= names
+        anchor = event.get("core_anchor")
+        sequence = anchor.get("sequence") if isinstance(anchor, Mapping) else None
+        sha = event.get("payload_sha256")
+        commit = _object_commit(ctx, sha) if isinstance(sha, str) else None
+        for run, cell_id in sorted(ran.items()):
+            if cell_id not in new:
+                continue
+            label = f"v{obj.get('version')} introduced {cell_id}"
+            run_sequence = started.get(run, {}).get("sequence")
+            if isinstance(sequence, int) and isinstance(run_sequence, int) and sequence >= run_sequence:
+                problems.append(
+                    f"{label} at core sequence {sequence}, at or after {run} started "
+                    f"(sequence {run_sequence}) — a cell registered once its table exists "
+                    "is a description of it, and is labelled post_observation"
+                )
+            candidate = manifests.get(run, {}).get("candidate_commit")
+            if ctx.repo is None or not isinstance(candidate, str):
+                continue
+            if commit is None:
+                problems.append(f"{label} and its object is not committed, so {run}'s ancestry cannot be read")
+            elif not is_ancestor(ctx.repo, commit, candidate):
+                problems.append(
+                    f"{label} in commit {commit[:12]}, which is not an ancestor of {run}'s "
+                    f"candidate commit {str(candidate)[:12]}"
+                )
+    return problems
 
 
 def _contract_drift_problems(
@@ -1265,12 +1498,20 @@ def _records_checks(
         )
 
     violations = sum(int(entry["object"].get("n_violations") or 0) for entry in recorded)
+    grouped = sorted(
+        {
+            str(entry["object"].get("cell_id"))
+            for entry in recorded
+            if str(entry["object"].get("unit_of_inference") or "unit") == "group"
+        }
+    )
     summary = {
         "runs": len(by_run),
         "violations": violations,
         "post_observation": sum(
             1 for entry in recorded if entry["object"].get("post_observation")
         ),
+        "group_level_cells": grouped,
     }
     if problems:
         return [_fail(RECORDS_CHECK, "; ".join(problems[:8]))], summary
@@ -1282,11 +1523,17 @@ def _records_checks(
                 "are still to come",
             )
         ], summary
+    where = (
+        "group level for " + ", ".join(grouped) + "; unit level elsewhere"
+        if grouped
+        else "unit level throughout (no cell declared a group_policy)"
+    )
     return [
         _pass(
             RECORDS_CHECK,
             f"{len(by_run)} recorded cell run(s); every pinned table recomputes to the "
-            f"segments, family sizes and verdicts on the record ({violations} violation(s))",
+            f"segments, family sizes and verdicts on the record ({violations} violation(s)); "
+            f"inference at the {where}",
         )
     ], summary
 
@@ -1341,9 +1588,17 @@ def _one_record_problems(
     if sha256_file(path) != record.get("table_sha256"):
         problems.append(f"{run}: {rel} is not the table the record hashed")
         return problems
+    group_column = group_column_of(cell)
     try:
-        units = parse_table(path.read_text(encoding="utf-8"))
+        units = parse_table(path.read_text(encoding="utf-8"), group_column)
     except ValueError as exc:
+        if group_column:
+            problems.append(
+                f"{run}: {cell_id} declares group_policy.column {group_column!r} and "
+                f"{rel} does not carry it ({exc}) — the cell registered a clustered "
+                "family and pinned a table nothing can be clustered by"
+            )
+            return problems
         problems.append(f"{run}: {rel} is unreadable ({exc})")
         return problems
 
@@ -1358,6 +1613,7 @@ def _one_record_problems(
         "n_violations",
         "expected",
         "units_measured",
+        "unit_of_inference",
         "outcome",
     )
     for line in numbers_agree(
@@ -1455,19 +1711,19 @@ def _receipts_checks(
             row for row in record.get("segments") or [] if row.get("verdict") == "violation"
         ]
         got = by_run.get(run, [])
-        if len(got) != len(expected):
+        wanted = sorted(str(row["segment"]) for row in expected)
+        issued_for = sorted(str(obj.get("segment")) for obj in got)
+        if issued_for != wanted:
+            # The MULTISET, not the count and a membership test: two receipts for
+            # one segment and none for another have the right count and the right
+            # members, and still leave a violation unreceipted.
             problems.append(
-                f"{run}: {len(expected)} violation(s) recorded, {len(got)} receipt(s) issued "
-                "— every violation gets one, and nothing else does"
+                f"{run}: violating segment(s) {', '.join(wanted) or 'none'} recorded, "
+                f"receipt(s) issued for {', '.join(issued_for) or 'none'} — every "
+                "violation gets exactly one receipt, and nothing else gets any"
             )
             continue
-        wanted = {str(row["segment"]) for row in expected}
         for obj in got:
-            if str(obj.get("segment")) not in wanted:
-                problems.append(
-                    f"{obj.get('id')}: segment {obj.get('segment')!r} is not a violating "
-                    f"segment of {run}"
-                )
             if obj.get("table_sha256") != record.get("table_sha256"):
                 problems.append(f"{obj.get('id')}: does not carry the run's pinned table hash")
             label = "post-observation" if record.get("post_observation") else "preregistered"
@@ -1479,6 +1735,12 @@ def _receipts_checks(
                 problems.append(
                     f"{obj.get('id')}: explanation is empty — `unresolved` is the honest "
                     "value and the ledger keeps it"
+                )
+            level = str(record.get("unit_of_inference") or "unit")
+            if str(obj.get("unit_of_inference") or "unit") != level:
+                problems.append(
+                    f"{obj.get('id')}: unit_of_inference {obj.get('unit_of_inference')!r}, "
+                    f"but the record was computed per {level}"
                 )
 
     unresolved = sum(
@@ -1501,7 +1763,19 @@ def _receipts_checks(
 
 
 def _claims_checks(ctx: FamilyContext, study: str) -> list[Check]:
-    """R-INV-6: a discovery receipt can never carry a ``confirmed`` claim."""
+    """R-INV-6: a discovery receipt can never carry a ``confirmed`` claim.
+
+    A claim reaches a table by two roads and both are walked here: the claim's
+    own ``evidence`` may cite ``art:<alias>``, and a number the claim quotes may
+    live in the numbers ledger with an ``art`` of its own.  Reading only the
+    first left a confirmed claim whose headline figure came straight out of a
+    screening table passing without comment.  The discovery set is both tables
+    too: the pinned per-unit evidence AND the per-segment summary this
+    capability derives from it, because that derived file is the one findings
+    quote.
+    """
+    from ..claims import claims_map, detect_lock_schema, numbers_map
+
     path = ctx.study_dir / "claims.lock"
     if not path.is_file():
         return [_pass(CLAIMS_CHECK, "no claims.lock yet")]
@@ -1513,16 +1787,20 @@ def _claims_checks(ctx: FamilyContext, study: str) -> list[Check]:
         return [_warn(CLAIMS_CHECK, "claims.lock is not an object")]
 
     registered = registered_cells(ctx.study_dir, list(ctx.events))
-    tables = {table_relpath(name) for name in registered}
+    tables = {table_relpath(name) for name in registered} | {
+        _summary_relpath(name) for name in registered
+    }
     artifacts = lock.get("artifacts") if isinstance(lock.get("artifacts"), Mapping) else {}
     derived = {
-        alias
+        str(alias)
         for alias, meta in artifacts.items()
         if isinstance(meta, Mapping) and str(meta.get("path")) in tables
     }
+    schema = detect_lock_schema(lock)
+    numbers = numbers_map(lock, schema)
+    claims = claims_map(lock, schema)
     qualified = re.compile(rf"{re.escape(study)}#S\d+")
     problems: list[str] = []
-    claims = lock.get("claims") if isinstance(lock.get("claims"), Mapping) else {}
     for cid, claim in sorted(claims.items()):
         if not isinstance(claim, Mapping) or claim.get("strength") != "confirmed":
             continue
@@ -1536,18 +1814,27 @@ def _claims_checks(ctx: FamilyContext, study: str) -> list[Check]:
                 )
             if qualified.search(str(item)):
                 problems.append(f"{cid} is confirmed and cites {item} — an S receipt is exploratory")
+        for alias in claim.get("numbers") or ():
+            number = numbers.get(str(alias))
+            art = number.get("art", number.get("artifact")) if isinstance(number, Mapping) else None
+            if isinstance(art, str) and art in derived:
+                problems.append(
+                    f"{cid} is confirmed and quotes {alias}, a number whose home is "
+                    f"art:{art} — a discovery cell's table. The screen chose the segment; "
+                    "confirming it needs evidence the screen did not select"
+                )
         if qualified.search(str(claim.get("claim") or "")):
             problems.append(
                 f"{cid} is confirmed and its sentence names a {study}#Sn receipt — a "
                 "surprise is a hypothesis for the next study, never a confirmed finding"
             )
     if problems:
-        return [_fail(CLAIMS_CHECK, "; ".join(problems[:6]))]
+        return [_fail(CLAIMS_CHECK, "; ".join(sorted(set(problems))[:6]))]
     return [
         _pass(
             CLAIMS_CHECK,
-            f"no confirmed claim rests on a discovery table or an {study}#Sn receipt "
-            f"({len(derived)} cell table(s) pinned)",
+            f"no confirmed claim rests on a discovery table or an {study}#Sn receipt, by "
+            f"evidence or by a quoted number ({len(derived)} cell table alias(es) pinned)",
         )
     ]
 
@@ -1622,6 +1909,7 @@ def surprise_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
         "violations": receipt_summary["issued"],
         "unresolved": receipt_summary["unresolved"],
         "post_observation": record_summary["post_observation"],
+        "group_level_cells": record_summary["group_level_cells"],
     }
 
 
@@ -1649,8 +1937,10 @@ def write_summary_table(study_dir: Path, record: Mapping[str, Any]) -> str:
     return sha256_bytes(text.encode())
 
 
-def read_units(study_dir: Path, cell_id: str) -> list[dict[str, Any]]:
-    """The pinned per-unit table of one cell, parsed."""
+def read_units(
+    study_dir: Path, cell_id: str, group_column: str | None = None
+) -> list[dict[str, Any]]:
+    """The pinned per-unit table of one cell, parsed under the cell's own contract."""
     path = study_dir / table_relpath(cell_id)
     if not path.is_file():
         raise WorkflowError(
@@ -1658,6 +1948,6 @@ def read_units(study_dir: Path, cell_id: str) -> list[dict[str, Any]]:
             "`artifact:` line, and a cell that cannot produce its table measured nothing"
         )
     try:
-        return parse_table(path.read_text(encoding="utf-8"))
+        return parse_table(path.read_text(encoding="utf-8"), group_column)
     except ValueError as exc:
         raise WorkflowError(f"{table_relpath(cell_id)}: {exc}") from exc

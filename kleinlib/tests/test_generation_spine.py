@@ -780,6 +780,73 @@ def test_capability_names_are_typed_before_they_are_available(
     assert not (study / "generation" / "manifest.yaml").exists()
 
 
+def test_c12_a_receipt_pins_the_declared_capabilities_protocols(tmp_path: Path) -> None:
+    """C-12: pinning only the spine's protocol left nine documents unhashed.
+
+    A receipt says which RULES it was taken under.  A surprise study's rules are
+    mostly in `surprise-protocol.md`, and hashing only `generation-protocol.md`
+    meant that file could be rewritten under a live study without the drift
+    warning ever firing.
+    """
+    import yaml
+
+    from kleinlib.generation import manifest as gm
+
+    assert gm.protocol_keys() == (gm.SPINE_PROTOCOL,)
+    assert gm.protocol_keys(["design", "surprise"]) == (
+        gm.SPINE_PROTOCOL,
+        "references/surprise-protocol.md",
+    )
+    # parity and contribution share one document, and it is listed once
+    assert gm.protocol_keys(["parity", "contribution"]) == (
+        gm.SPINE_PROTOCOL,
+        "references/expert-parity-protocol.md",
+    )
+    # every declarable capability's protocol, where it has one, is a real file
+    root = REPO_ROOT / gm.SKILL_ROOT
+    for key in gm.protocol_keys(gm.SUPPORTED_CAPABILITIES):
+        assert (root / key).is_file(), key
+
+    repo, study = _scaffold(tmp_path)
+    assert _gen(
+        "init", "--study", str(study), "--capability", "design", "--capability", "surprise"
+    ) == 0
+    manifest = yaml.safe_load((study / "generation" / "manifest.yaml").read_text("utf-8"))
+    assert set(manifest["protocol_hashes"]) == {
+        "references/generation-protocol.md",
+        "references/surprise-protocol.md",
+    }
+    # the fixture repo has no .claude/skills tree, so every hash is null and
+    # drift simply cannot be observed — the KEY SET is what this pins
+    assert set(manifest["protocol_hashes"].values()) == {None}
+    assert set(gm.protocol_hashes(REPO_ROOT, ["surprise"])) == set(manifest["protocol_hashes"])
+
+    _gates(repo, study)
+    _bump(study, "one")
+    assert _gen("check", "--study", str(study), "--action", "run", "--track", "primary") == 0
+    receipt = _receipt_object(study)
+    assert set(receipt["protocol_hashes"]) == set(manifest["protocol_hashes"])
+
+    # and the drift WARN compares like with like — this is the comparison
+    # `generation manifest` makes, and it must not fire on an untouched tree
+    assert gm.protocol_hashes(repo, ["design", "surprise"]) == manifest["protocol_hashes"]
+    _gen("verify", "--study", str(study))
+    assert [
+        check
+        for check in _receipt(study)["checks"]
+        if check["name"] == "generation manifest" and check["status"] == "WARN"
+    ] == []
+
+
+def _receipt_object(study: Path) -> dict:
+    """The newest admission receipt object in the study's ledger."""
+    from kleinlib.generation.admission import load_receipts
+    from kleinlib.generation.ledger import read_events, read_object
+
+    receipts = load_receipts(study, read_events(study))
+    return read_object(study, receipts[-1].sha)
+
+
 def test_the_run_classification_vocabulary_has_no_unreachable_values() -> None:
     """Every classification the matcher can emit is exercised by a test above.
 

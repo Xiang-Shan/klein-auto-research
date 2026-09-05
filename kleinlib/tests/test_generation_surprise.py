@@ -22,6 +22,7 @@ segment, a null control and a sparse slice, measured by all three templates.
 
 from __future__ import annotations
 
+import copy
 import json
 import math
 from pathlib import Path
@@ -32,6 +33,7 @@ import yaml
 from test_generation_spine import _gen, _receipt, _scaffold
 from test_workflow_v3 import commit_all, git
 
+from kleinlib.contract import load_contract
 from kleinlib.decision import METRIC_LINE_RE
 from kleinlib.generation import surprise as gs
 from kleinlib.generation import templates as gt
@@ -107,6 +109,8 @@ from kleinlib.generation import templates  # noqa: E402
 from lib.habitat import observations  # noqa: E402
 
 CELL, TEMPLATE = sys.argv[1], sys.argv[2]
+EXTRA = sys.argv[3] if len(sys.argv) > 3 else ""
+GROUP = "site" if EXTRA == "grouped" else None
 ROWS = observations(Path("data/prepared/observations.csv"))
 if TEMPLATE == "residual_by_segment":
     UNITS = templates.residual_by_segment(
@@ -115,6 +119,7 @@ if TEMPLATE == "residual_by_segment":
         observed_column="observed",
         expected_column="expected",
         unit_column="unit",
+        group_column=GROUP,
     )
     STATISTIC = "mean_signed_residual"
 elif TEMPLATE == "error_slices":
@@ -132,18 +137,19 @@ else:
     )
     STATISTIC = "distance"
 
-if len(sys.argv) > 3 and sys.argv[3] == "drop-a-segment":
+if EXTRA == "drop-a-segment":
     UNITS = [row for row in UNITS if row["segment"] != "dry"]
 
 TABLE = Path("tables") / f"{CELL}.tsv"
 TABLE.parent.mkdir(parents=True, exist_ok=True)
-TABLE.write_text(templates.render_table(UNITS), encoding="utf-8")
+TABLE.write_text(templates.render_table(UNITS, GROUP), encoding="utf-8")
 
 print("primary_metric:    0.5")
 print("metric_name:       val_auc")
 print("metric_goal:       higher")
 print(f"artifact:          {TABLE.as_posix()}")
-for KEY, VALUE in sorted(templates.printed_summary(UNITS, statistic=STATISTIC).items()):
+SUMMARY = templates.printed_summary(UNITS, statistic=STATISTIC, grouped=bool(GROUP))
+for KEY, VALUE in sorted(SUMMARY.items()):
     print(f"{KEY}: {VALUE}")
 '''
 
@@ -168,7 +174,13 @@ CELL_C = "cell_family_disagreement"
 
 
 def _observations() -> str:
-    lines = ["segment,unit,observed,expected,loss,model_a,model_b"]
+    """The fixture table.  Every unit also names its SITE — two per segment.
+
+    The site column is what a clustered cell reads: the eight burned units are
+    four measurements at each of two sites, so "burned deviates" is really two
+    observations, not eight, and the two levels of inference disagree about it.
+    """
+    lines = ["segment,unit,observed,expected,loss,model_a,model_b,site"]
     for segment, residuals in (("wet", WET), ("dry", DRY), ("burned", BURNED), ("sparse", SPARSE)):
         for index, residual in enumerate(residuals, start=1):
             wobble = 0.3 * ((index % 3) - 1)
@@ -182,6 +194,7 @@ def _observations() -> str:
                         f"{LOSS[segment] + wobble:.6g}",
                         f"{DISAGREEMENT[segment] + wobble:.6g}",
                         f"{wobble:.6g}",
+                        f"{segment}-{'north' if index <= 4 else 'south'}",
                     )
                 )
             )
@@ -197,6 +210,7 @@ def _cell(
     partition: str = "development",
     adapter: str = "lib/habitat.py",
     segments: list[str] | None = None,
+    group_policy: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     return {
         "cell_id": cell_id,
@@ -208,13 +222,15 @@ def _cell(
         "adapter": adapter,
         "partition": partition,
         "unit_policy": "one row per observation",
-        "group_policy": None,
+        "group_policy": group_policy,
         "segments": {"column": "segment", "values": segments or ["wet", "dry", "burned", "sparse"]},
         "units": "millimetres",
         "floor_ref": "minimum_delta",
         "minimum_n": 2,
         "multiplicity_rule": rule,
-        "output_columns": list(gt.TABLE_COLUMNS),
+        "output_columns": list(
+            gt.table_columns((group_policy or {}).get("column") if group_policy else None)
+        ),
         "post_observation": False,
     }
 
@@ -1075,3 +1091,380 @@ def test_show_reads_and_writes_nothing(registered_study) -> None:
     head = git(repo, "rev-parse", "HEAD")
     assert _gen("surprise", "show", "--study", str(study)) == 0
     assert git(repo, "rev-parse", "HEAD") == head
+
+
+# --------------------------------------------------------------------------
+# the fix pass: evidence, not diligence, decides what is post-observation
+# --------------------------------------------------------------------------
+
+
+def _family_context(study: Path) -> Any:
+    """The FamilyContext `verify` hands a capability, built by hand for a unit test."""
+    from kleinlib.generation import manifest as gm
+    from kleinlib.generation.admission import load_receipts, match_runs
+    from kleinlib.generation.chronology import read_core_events, repo_for
+    from kleinlib.generation.registry import FamilyContext
+
+    contract = load_contract(study)
+    events = _events(study)
+    repo = repo_for(study)
+    return FamilyContext(
+        study_dir=study,
+        repo=repo,
+        contract=contract,
+        state={},
+        manifest=gm.load_manifest(study),
+        events=events,
+        core=read_core_events(study),
+        match=match_runs(study, contract, repo=repo, events=events),
+        receipts=load_receipts(study, events),
+    )
+
+
+def test_c1_a_cell_added_after_an_unrecorded_run_is_still_post_observation(
+    registered_study,
+) -> None:
+    """C-1: the label follows the EVIDENCE, not whether anybody recorded it.
+
+    Reading `surprise_recorded` events asked the driver whether they had written
+    the record down; a driver who ran a cell, read its table and then added a
+    segment got the new cell silently preregistered by declining to record.
+    """
+    _repo, study = registered_study
+    run = _run_cell(study, CELL_A, "residual_by_segment")
+    assert (study / gs.table_relpath(CELL_A)).is_file()
+    assert not gs.records(study, _events(study)), "deliberately not recorded"
+
+    document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
+    document["cells"].append(
+        _cell(
+            "cell_added_after_looking",
+            template="residual_by_segment",
+            statistic="mean_signed_residual",
+            rule={"method": "family_maxt", "n_perm": 1024, "seed": 0},
+        )
+    )
+    _write_registry(study, document)
+    assert _gen("surprise", "register", "--study", str(study)) == 0
+
+    registered = gs.registered_cells(study, _events(study))
+    assert registered["cell_added_after_looking"]["post_observation"] is True
+    assert registered[CELL_A]["post_observation"] is False
+    assert _gen("surprise", "record", "--study", str(study), "--run", run) == 0
+    assert _gen("verify", "--study", str(study)) == 0
+
+
+def test_c1_a_registration_anchored_after_its_own_cell_ran_is_out_of_order(
+    registered_study,
+) -> None:
+    """C-1: every version is ordered against the runs of the cells IT introduced.
+
+    Valid control: the real fixture, where v1 precedes E0001.  Invalid control:
+    the same ledger with that version's core anchor moved past the run — what a
+    hand-written ledger claiming an earlier registration looks like.
+    """
+    _repo, study = registered_study
+    _run_cell(study, CELL_A, "residual_by_segment")
+    ctx = _family_context(study)
+    versions = gs.registrations(study, list(ctx.events))
+    assert gs._registration_order_problems(ctx, versions) == []
+
+    moved = [
+        {**versions[0], "event": {**versions[0]["event"], "core_anchor": {"sequence": 9_999}}}
+    ]
+    problems = gs._registration_order_problems(ctx, moved)
+    assert problems and "at or after" in problems[0]
+    assert CELL_A in problems[0]
+
+
+def test_c2_a_confirmed_claim_whose_number_lives_in_the_cell_table_fails(
+    registered_study,
+) -> None:
+    """C-2: the numbers ledger is the other road from a claim to a screening table."""
+    repo, study = registered_study
+    run = _run_cell(study, CELL_A, "residual_by_segment")
+    assert _gen("surprise", "record", "--study", str(study), "--run", run) == 0
+    lock = {
+        "lock_schema": 2,
+        "study_id": "03-demo",
+        "artifacts": {
+            "surprise_table": {"path": gs.table_relpath(CELL_A), "sha256": "0" * 64}
+        },
+        "claims": {
+            "C1": {
+                "claim": "burned plots are biased high",
+                "class": "empirical-description",
+                "strength": "confirmed",
+                # NOT cited as evidence: the claim reaches the table through a
+                # number it quotes, which is the path that used to pass.
+                "evidence": [run],
+                "numbers": ["burned_deviation"],
+            }
+        },
+        "numbers": {"burned_deviation": {"value": 2.0, "art": "surprise_table"}},
+        "errata": [],
+    }
+    (study / "claims.lock").write_text(json.dumps(lock, indent=1), encoding="utf-8")
+    commit_all(repo, "a confirmed claim quoting a screening number")
+
+    assert _gen("verify", "--study", str(study)) == 2
+    assert _statuses(study, "surprise claims") == ["FAIL"]
+    assert "burned_deviation" in _details(study, "surprise claims")
+
+    lock["claims"]["C1"]["strength"] = "exploratory"
+    (study / "claims.lock").write_text(json.dumps(lock, indent=1), encoding="utf-8")
+    commit_all(repo, "downgrade to exploratory")
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _statuses(study, "surprise claims") == ["PASS"]
+
+
+def test_c2_the_derived_summary_table_is_a_discovery_table_too(registered_study) -> None:
+    """C-2: findings quote the per-segment summary, so it carries the same ceiling."""
+    repo, study = registered_study
+    run = _run_cell(study, CELL_A, "residual_by_segment")
+    assert _gen("surprise", "record", "--study", str(study), "--run", run) == 0
+    lock = {
+        "lock_schema": 2,
+        "study_id": "03-demo",
+        "artifacts": {
+            "summary": {"path": f"generation/tables/surprise_{CELL_A}.tsv", "sha256": "0" * 64}
+        },
+        "claims": {
+            "C1": {
+                "claim": "burned plots are biased high",
+                "class": "empirical-description",
+                "strength": "confirmed",
+                "evidence": ["art:summary"],
+                "numbers": [],
+            }
+        },
+        "numbers": {},
+        "errata": [],
+    }
+    (study / "claims.lock").write_text(json.dumps(lock, indent=1), encoding="utf-8")
+    commit_all(repo, "a confirmed claim on the derived summary")
+
+    assert _gen("verify", "--study", str(study)) == 2
+    assert "cannot also confirm" in _details(study, "surprise claims")
+
+
+def test_c8_a_registered_input_without_a_hash_is_not_frozen(registered_study) -> None:
+    """C-8: an unpinned adapter or input silently skipped its own freeze check."""
+    _repo, study = registered_study
+    document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
+    assert (
+        gs.cells_problems(
+            document,
+            study="03-demo",
+            study_dir=study,
+            contract=load_contract(study),
+            state={},
+            previous=document,
+        )
+        == []
+    )
+
+    stripped = copy.deepcopy(document)
+    stripped["cells"][0]["input_refs"][0]["sha256"] = None
+    stripped["adapters"][0]["sha256"] = None
+    problems = gs.cells_problems(
+        stripped,
+        study="03-demo",
+        study_dir=study,
+        contract=load_contract(study),
+        state={},
+        previous=document,
+    )
+    assert sum("registered with no sha256" in problem for problem in problems) == 2
+
+
+def test_c9_two_receipts_for_one_segment_do_not_cover_two_violations(
+    registered_study,
+) -> None:
+    """C-9: the multiset, not the count and a membership test."""
+    from kleinlib.generation.surprise import _receipts_checks
+
+    _repo, study = registered_study
+    ctx = _family_context(study)
+    record = {
+        "run": "E0001",
+        "table_sha256": "0" * 64,
+        "post_observation": False,
+        "unit_of_inference": "unit",
+        "segments": [
+            {"segment": "burned", "verdict": "violation"},
+            {"segment": "dry", "verdict": "violation"},
+        ],
+    }
+
+    def _issued(segment: str, number: int) -> dict[str, Any]:
+        return {
+            "object": {
+                "id": f"03-demo#S{number}",
+                "run": "E0001",
+                "segment": segment,
+                "table_sha256": "0" * 64,
+                "label": "preregistered",
+                "explanation": "unresolved",
+                "unit_of_inference": "unit",
+            }
+        }
+
+    honest = [_issued("burned", 1), _issued("dry", 2)]
+    checks, _summary = _receipts_checks(ctx, [{"object": record}], honest, "03-demo")
+    assert [check.status for check in checks] == ["PASS"]
+
+    doubled = [_issued("burned", 1), _issued("burned", 2)]
+    checks, _summary = _receipts_checks(ctx, [{"object": record}], doubled, "03-demo")
+    assert [check.status for check in checks] == ["FAIL"]
+    assert "dry" in checks[0].detail
+
+
+def test_c10_segments_that_print_as_one_key_are_refused(registered_study) -> None:
+    """C-10: a printed block that cannot name a segment cannot decide it."""
+    _repo, study = registered_study
+    document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
+    document["cells"][0]["segments"]["values"] = ["wet", "38.5 C", "38-5-C", "sparse"]
+    _write_registry(study, document)
+    assert _gen("surprise", "register", "--study", str(study)) == 2
+
+    with pytest.raises(ValueError, match="collide on one printed key"):
+        gt.printed_summary(
+            [
+                {"segment": "38.5 C", "unit": "a", "value": 1.0},
+                {"segment": "38-5-C", "unit": "b", "value": 2.0},
+            ],
+            statistic="mean_signed_residual",
+        )
+
+
+def test_c11_an_unbounded_permutation_family_is_refused(registered_study) -> None:
+    """C-11: an audit nobody will wait for is not an audit."""
+    _repo, study = registered_study
+    document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
+    document["cells"][0]["multiplicity_rule"]["n_perm"] = gs.MAX_N_PERM + 1
+    _write_registry(study, document)
+    assert _gen("surprise", "register", "--study", str(study)) == 2
+
+    document["cells"][0]["multiplicity_rule"]["n_perm"] = gs.MAX_N_PERM
+    problems = gs.cells_problems(
+        document,
+        study="03-demo",
+        study_dir=study,
+        contract=load_contract(study),
+        state={},
+        previous=None,
+    )
+    assert not [problem for problem in problems if "n_perm" in problem]
+
+
+# --------------------------------------------------------------------------
+# R-SUR-2 / C-13: the unit of inference is the cell's, and it is on the record
+# --------------------------------------------------------------------------
+
+CELL_G = "cell_grouped_residual"
+GROUPED = {"column": "site", "rationale": "four measurements at each of two sites"}
+
+
+def _grouped_cell() -> dict[str, Any]:
+    return _cell(
+        CELL_G,
+        template="residual_by_segment",
+        statistic="mean_signed_residual",
+        rule={"method": "family_maxt", "n_perm": 1024, "seed": 0, "alpha": 0.05},
+        group_policy=GROUPED,
+    )
+
+
+def test_c13_clustered_units_flip_as_groups_and_the_verdict_changes(
+    registered_study,
+) -> None:
+    """C-13: the same eight burned measurements are two observations, not eight.
+
+    Unit level: the sign vector has eight slots, the observed configuration is
+    2 of 256, and `burned` clears the family guard.  Group level: the same data
+    has two slots, the observed configuration is 2 of 4, and it does not.  A
+    sign flip that treats correlated units as independent manufactures exactly
+    this violation.
+    """
+    _repo, study = registered_study
+    document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
+    document["cells"].append(_grouped_cell())
+    _write_registry(study, document)
+    assert _gen("surprise", "register", "--study", str(study)) == 0
+
+    unit_run = _run_cell(study, CELL_A, "residual_by_segment", marker="unit-level")
+    assert _gen("surprise", "record", "--study", str(study), "--run", unit_run) == 0
+    unit_record = _record(study, unit_run)
+    assert unit_record["unit_of_inference"] == "unit"
+    assert unit_record["group_column"] is None
+    assert _verdicts(unit_record)["burned"] == "violation"
+
+    group_run = _run_cell(
+        study, CELL_G, "residual_by_segment", extra="grouped", marker="group-level"
+    )
+    assert _gen("surprise", "record", "--study", str(study), "--run", group_run) == 0
+    group_record = _record(study, group_run)
+    assert group_record["unit_of_inference"] == "group"
+    assert group_record["group_column"] == "site"
+    assert group_record["units_measured"] == 25
+    assert group_record["groups_measured"] == 7  # two sites per segment, one for sparse
+    assert _verdicts(group_record)["burned"] == "null"
+    assert _verdicts(group_record)["sparse"] == "inconclusive"
+
+    assert _gen("verify", "--study", str(study)) == 0
+    assert _statuses(study, "surprise records") == ["PASS"]
+    assert f"group level for {CELL_G}" in _details(study, "surprise records")
+    capability = _receipt(study)["capabilities"]["surprise"]
+    assert capability["group_level_cells"] == [CELL_G]
+
+
+def test_c13_a_group_column_absent_from_the_table_fails(registered_study) -> None:
+    """C-13: a cell that registered a clustered family owes a clustered table."""
+    _repo, study = registered_study
+    document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
+    document["cells"].append(_grouped_cell())
+    _write_registry(study, document)
+    assert _gen("surprise", "register", "--study", str(study)) == 0
+
+    # the runner is asked for the ordinary three-column table under the
+    # clustered cell's id: the group the registration promised is not in it
+    run = _run_cell(study, CELL_G, "residual_by_segment", marker="ungrouped-table")
+    assert _gen("surprise", "record", "--study", str(study), "--run", run) == 2
+
+
+def test_c13_a_prose_group_policy_is_refused(registered_study) -> None:
+    """C-13: `null` or a column — prose cannot decide what the sign flip acts on."""
+    _repo, study = registered_study
+    document = yaml.safe_load((study / gs.CELLS_NAME).read_text(encoding="utf-8"))
+    document["cells"][0]["group_policy"] = "the units cluster by site"
+    _write_registry(study, document)
+    assert _gen("surprise", "register", "--study", str(study)) == 2
+
+    document["cells"][0]["group_policy"] = {"column": "site"}
+    problems = gs.cells_problems(
+        document,
+        study="03-demo",
+        study_dir=study,
+        contract=load_contract(study),
+        state={},
+        previous=None,
+    )
+    # the shape is accepted; what it now owes is the fourth output column
+    assert not [problem for problem in problems if "group_policy" in problem]
+    assert any("output_columns" in problem for problem in problems)
+
+
+def test_c13_group_aggregation_is_the_mean_of_the_group_means() -> None:
+    """The arithmetic itself, on four rows: two sites, one segment."""
+    units = [
+        {"segment": "a", "unit": "1", "value": 1.0, "group": "north"},
+        {"segment": "a", "unit": "2", "value": 3.0, "group": "north"},
+        {"segment": "a", "unit": "3", "value": 10.0, "group": "south"},
+        {"segment": "b", "unit": "4", "value": 0.0, "group": "south"},
+    ]
+    assert gt.aggregate_by_group(units) == [
+        {"segment": "a", "unit": "north", "value": 2.0, "group": "north", "n_units": 2},
+        {"segment": "a", "unit": "south", "value": 10.0, "group": "south", "n_units": 1},
+        {"segment": "b", "unit": "south", "value": 0.0, "group": "south", "n_units": 1},
+    ]

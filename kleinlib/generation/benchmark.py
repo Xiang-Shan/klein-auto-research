@@ -123,6 +123,7 @@ __all__ = [
     "arm_ids",
     "benchmark_family",
     "benchmark_path",
+    "benchmark_subjects",
     "bundle_bytes",
     "commit_object",
     "commitment_of",
@@ -1094,7 +1095,8 @@ def benchmark_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:
             )
         )
 
-    state = gc.custody_state(attested)
+    # Only attestations ABOUT this benchmark move its custody word.
+    state = gc.custody_state(_split_attestations(payload, attested)[0])
     if retired:
         outcome = "retired"
     elif state == gc.UNVERIFIED:
@@ -1593,6 +1595,13 @@ def _custody_checks(
     Never a FAIL.  A study that did not attest has not broken its record; it has
     declined to claim something the mechanism could not check anyway, and the
     outcome says so in one word.
+
+    **An attestation counts for THIS benchmark only if it is about it.**  The
+    verb is capability-agnostic on purpose — a study may attest the custody of a
+    sample chain, a later time block, an interview transcript — so counting any
+    attestation would let a statement about something else turn a benchmark's
+    outcome from ``unverified`` to ``custodied``.  Whatever else was attested
+    stays on the record and is reported by name, under its own subject.
     """
     declared = payload.get("custody") if isinstance(payload.get("custody"), Mapping) else {}
     reference = declared.get("attestation")
@@ -1605,28 +1614,78 @@ def _custody_checks(
                 "in the study",
             )
         )
-    if not attested:
+    mine, others = _split_attestations(payload, attested)
+    if not mine:
         checks.append(
             _warn(
                 CUSTODY_CHECK,
-                "no `klein generation custody attest`: the benchmark outcome is reported "
-                "`unverified`. Isolation is accounts, containers or machines with denied "
-                "access — another directory of the same readable worktree is not custody, "
-                "and a hash is not secrecy",
+                "no `klein generation custody attest` names this benchmark: the outcome is "
+                "reported `unverified`. Isolation is accounts, containers or machines with "
+                "denied access — another directory of the same readable worktree is not "
+                "custody, and a hash is not secrecy"
+                + (
+                    ". Attestations about other subjects: "
+                    + ", ".join(f"{holder} on {subject}" for holder, subject in others)
+                    if others
+                    else ""
+                ),
             )
         )
         return checks
-    names = gc.holders(attested)
+    names = gc.holders(mine)
     checks.append(
         _pass(
             CUSTODY_CHECK,
             "custody attested by "
             + ", ".join(names)
             + " — TESTIMONY, never verified: the record carries the claim, and no check "
-            "here establishes that anyone was actually denied access",
+            "here establishes that anyone was actually denied access"
+            + (
+                f"; {len(others)} attestation(s) about other subjects are not counted here"
+                if others
+                else ""
+            ),
         )
     )
     return checks
+
+
+def benchmark_subjects(payload: Mapping[str, Any]) -> set[str]:
+    """The names an attestation may use to mean "this benchmark's hidden evidence"."""
+    subjects: set[str] = set()
+    bundle = payload.get("public_bundle")
+    if isinstance(bundle, Mapping) and isinstance(bundle.get("path"), str):
+        subjects.add(str(bundle["path"]).strip())
+    if isinstance(payload.get("truth_file"), str):
+        subjects.add(str(payload["truth_file"]).strip())
+    custody = payload.get("custody")
+    if isinstance(custody, Mapping) and isinstance(custody.get("holder"), str):
+        subjects.add(str(custody["holder"]).strip())
+    return {name for name in subjects if name}
+
+
+def _split_attestations(
+    payload: Mapping[str, Any],
+    attested: Sequence[tuple[Mapping[str, Any], dict[str, Any]]],
+) -> tuple[
+    list[tuple[Mapping[str, Any], dict[str, Any]]], list[tuple[str, str]]
+]:
+    """``(the ones about this benchmark, [(holder, subject)] for the rest)``.
+
+    A null ``subject`` means "this study's own bundle" — the default the verb
+    documents — so it counts.  Anything else has to name the public bundle, the
+    truth file, or the holder ``benchmark.yaml`` itself declares.
+    """
+    subjects = benchmark_subjects(payload)
+    mine: list[tuple[Mapping[str, Any], dict[str, Any]]] = []
+    others: list[tuple[str, str]] = []
+    for event, obj in attested:
+        subject = obj.get("subject")
+        if subject is None or (isinstance(subject, str) and subject.strip() in subjects):
+            mine.append((event, obj))
+        else:
+            others.append((str(obj.get("holder")), str(subject)))
+    return mine, others
 
 
 def _ceiling_checks(ctx: FamilyContext) -> list[Check]:

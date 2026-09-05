@@ -198,7 +198,7 @@ def _manifest_checks(
         )
 
     recorded_hashes = manifest.get("protocol_hashes")
-    current = _manifest.protocol_hashes(repo)
+    current = _manifest.protocol_hashes(repo, scope["capabilities"])
     if isinstance(recorded_hashes, Mapping) and dict(recorded_hashes) != current:
         checks.append(
             _warn(

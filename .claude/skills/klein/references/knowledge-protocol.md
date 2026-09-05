@@ -165,9 +165,12 @@ the recorded query against the store as it stood at `store_head` (`git show
 difference is a FAIL: **suppressed hit or contest**.
 
 A new algorithm is a NEW `retriever_version`, never an edit to this one:
-historical receipts replay under the rules they were taken under. A receipt whose
-`store_head` does not resolve in this clone WARNs — offline or foreign origin —
-rather than failing, and says so.
+historical receipts replay under the rules they were taken under. A receipt that
+cannot be replayed at all — no `store_head`, a head this repository does not
+have, or a foreign `retriever_version` — FAILs **when the store is in this
+repository**, and WARNs only when it is not (a checkout with no `knowledge/`
+tree genuinely cannot read it, and a reader should not be punished for standing
+in the wrong directory).
 
 ## The `knowledge` verify family
 
@@ -175,9 +178,9 @@ rather than failing, and says so.
 |---|---|
 | `knowledge query` | no receipt on a declaring study; or the receipt is anchored at or after the consult gate record (by sequence, or by git ancestry) |
 | `knowledge decisions` | a hit carries no `use`/`reject`, or a decision carries no reason |
-| `knowledge replay` | the recorded query at `store_head` does not reproduce the recorded hits and closure (suppressed hit or contest) |
-| `knowledge store` | the store chain is broken; an object's bytes do not hash to its name; an id is claimed twice; an event's target or object is missing (a deleted transaction) |
-| `knowledge promotions` | this study's promotion does not hash to its recorded source, cites a claim the source lock does not carry, or records a `class`/`strength`/`evidence_roots` the source lock does not — a strengthened copy |
+| `knowledge replay` | the recorded query at `store_head` does not reproduce the recorded hits and closure (suppressed hit or contest); or the receipt cannot be replayed here at all and the store IS in this repository |
+| `knowledge store` | the store chain is broken; an object's bytes do not hash to its name; an id is claimed twice; an event's target or object is missing (a deleted transaction); or an earlier state of `knowledge/events.jsonl` — any commit that touched it, or any pinned `store_head` — is no longer a PREFIX of the file on disk. That last one is what catches **events removed from the tip**: a deleted last line leaves every remaining event verifying perfectly, so the ledger's own history is the only witness |
+| `knowledge promotions` | this study's promotion does not hash to its recorded source, cites a claim the source lock does not carry, or records a `class`/`strength`/`evidence_roots` the source lock does not — a strengthened copy. A promotion of THIS repository's own whose `commit` does not resolve is not excused: the source is re-read from the working tree and checked there, and only a genuinely foreign `origin_repo` WARNs |
 
 Outcome: `{integrity, outcome: consulted | no-match | unconsulted, hits, used,
 rejected}`. Integrity says whether the RECORD is intact; the outcome says what the
