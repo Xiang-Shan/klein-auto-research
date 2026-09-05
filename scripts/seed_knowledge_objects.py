@@ -37,7 +37,9 @@ Usage::
 ``--apply`` writes ``knowledge/objects/<sha>.json`` and appends one ``promote``
 transaction each to ``knowledge/events.jsonl``.  It does NOT commit: it prints
 the exact ``git add -- …`` command, because a one-off ops script should not be
-the thing that decides what enters the history.
+the thing that decides what enters the history.  Each object records the HEAD it
+read its source lock at, which is what lets ``klein generation verify`` resolve
+the promotion later and check that nothing was strengthened on the way in.
 
 Exit codes: 0 ok (including a dry run), 1 nothing to seed or a usage problem.
 """
@@ -63,6 +65,7 @@ from kleinlib.claims import (  # noqa: E402
 )
 from kleinlib.errors import WorkflowError  # noqa: E402
 from kleinlib.generation import knowledge as gk  # noqa: E402
+from kleinlib.generation.chronology import git_head  # noqa: E402
 from kleinlib.primitives import sha256_file  # noqa: E402
 
 CITATION_RE = re.compile(r"\((?:supports|refutes) (?P<study>[0-9a-z][0-9a-z-]*)#(?P<claim>C\d+)\)")
@@ -134,6 +137,13 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     snapshot = gk.snapshot_on_disk(repo)
+    # Every object names the commit its source lock was read at.  Without one,
+    # `klein generation verify` has nothing to resolve the promotion against and
+    # a seeded object would be exempt from the strengthening check forever.
+    head = git_head(repo)
+    if head is None:
+        print(f"{repo} is not a git repository with a resolvable HEAD", file=sys.stderr)
+        return 1
     planned: list[tuple[dict[str, Any], Path]] = []
     skipped: list[str] = []
     verified: dict[str, bool] = {}
@@ -177,7 +187,7 @@ def main(argv: list[str] | None = None) -> int:
                 object_type="claim",
                 origin_repo="local",
                 study=study_name,
-                commit=None,
+                commit=head,
                 lock_git_head=lock.get("git_head"),
                 source_path=f"studies/{study_name}/claims.lock",
                 source_hash=sha256_file(study_dir / "claims.lock"),
