@@ -367,7 +367,7 @@ In the foreign repo, add the engine (see `assets/pyproject-study-template.toml`)
 `uv sync --locked`:
 
 ```bash
-uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v2.0.0"  # pin a tag — and record the commit
+uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v2.1.0"  # pin a tag — and record the commit
 ```
 
 Pin by tag *and* record the commit in your study's lock (`klein_commit`): since 2.0.0

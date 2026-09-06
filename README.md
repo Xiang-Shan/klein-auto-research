@@ -246,7 +246,8 @@ input.
 <p align="center"><img src="docs/diagrams/klein-bottle.png" alt="Why Klein — the inside is the outside; a study's findings become the next study's priors" width="560"></p>
 
 Release history is in [`CHANGELOG.md`](CHANGELOG.md); versioning is SemVer, and 2.0.0
-froze the schema-3 contract, the CLI surface and the ledger formats. To cite Klein see
+froze the schema-3 contract, the CLI surface and the ledger formats; 2.1.0 adds the
+opt-in generation layer beside them without changing any of the three. To cite Klein see
 [`CITATION.cff`](CITATION.cff); to contribute, [`CONTRIBUTING.md`](CONTRIBUTING.md);
 for vulnerabilities, [`SECURITY.md`](SECURITY.md). The software is MIT licensed
 ([LICENSE](LICENSE)); third-party data and lineage notices are collected in

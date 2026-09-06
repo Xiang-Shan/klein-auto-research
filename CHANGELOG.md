@@ -6,7 +6,7 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
-## [Unreleased]
+## [2.1.0] — 2026-09-06
 
 ### Added
 
