@@ -89,3 +89,32 @@ It intentionally does not inspect or rewrite the immutable v0.1 reports.
 uv run --no-sync python scripts/check_generated_tutorial_network.py \
   --evidence tutorial-network-evidence.json
 ```
+
+## `check_shipped_reports.py`
+
+Focused acceptance on the twelve reports we already shipped, measured in a real
+browser: zero page-initiated HTTP(S) requests (the sibling script's netlog
+machinery, imported so the two jobs cannot drift), no sideways scroll at
+1440/768/390/320 px, every `nav.topnav` anchor landing below the sticky nav's
+bottom edge at phone widths, every inlined figure decoded, and one report printed
+to PDF and re-read with `pdftotext`. It never rebuilds a study and never writes
+under `studies/`.
+
+The reports ship a `default-src 'none'` CSP, so the measurement cannot be
+injected into a report. Instead a wrapper page in a temp dir `<iframe>`s the
+report, measures `iframe.contentDocument`, and base64s the JSON into its own
+`<pre id="result">`, which `--dump-dom` hands back — one bounded subprocess, no
+debugging port. Schema-2 studies (03, 05–09) are measured but reported `LEGACY`:
+they are shipped history, and only a schema-3 report's FAIL sets the exit code.
+
+```bash
+uv run --locked python scripts/check_shipped_reports.py \
+  --evidence shipped-reports-evidence.json [--studies 15-iris-90years-relaunch]
+```
+
+Exits 1 when a schema-3 report fails a check, 2 on a usage error, 0 otherwise.
+`.github/workflows/scheduled.yml`'s `shipped-reports` job runs it weekly on
+ubuntu-latest with `poppler-utils` installed and uploads the evidence record.
+On macOS, `Google Chrome --headless=new` hangs on any page containing an iframe
+(Chrome 152; the same wrapper finishes in 0.2 s under `chrome-headless-shell`),
+so pass `--chrome /path/to/chrome-headless-shell` there.

@@ -131,3 +131,37 @@ jobs:
           done
       - name: The checkout stays byte-clean
         run: test -z "$(git status --porcelain)"
+
+  shipped-reports:
+    name: shipped report acceptance in a real browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # The fixture job in ci.yml is the gate on every push; this one measures the
+    # twelve reports we already shipped, which no push can change. A regression
+    # here is a real regression, so it blocks the scheduled run.
+    continue-on-error: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: pdftotext for the print check
+        # Without poppler-utils the print check still runs, it just records
+        # "print text assertions skipped: pdftotext absent" — installing it is
+        # what turns the print row into a real assertion.
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - name: Locked environment
+        run: uv sync --locked
+      - name: Overflow, nav reveal, image decode, zero network and print
+        run: >-
+          uv run --no-sync python scripts/check_shipped_reports.py
+          --chrome /usr/bin/google-chrome
+          --evidence shipped-reports-evidence.json
+      - name: Upload the measurement record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shipped-reports-evidence
+          path: shipped-reports-evidence.json
+          if-no-files-found: warn
