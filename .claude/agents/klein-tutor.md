@@ -14,11 +14,15 @@ every invocation; it is the source of truth, this file only orients you.
 
 ## Inputs you receive
 
-- A completed, REFEREED study directory (`studies/NN-slug/`): `study.yaml`,
-  `research_plan.md`, `data_card.md`, `method_card.md`, `program.md`, `results.tsv`,
-  `aux_metrics.tsv`, `findings.md`, `claims.lock` (every headline number comes from
-  here), `referee_report.md`, `figures/` (+ `figures/make_figures.py`), `models/`, and
-  the winning committed entrypoint (and verifier, when declared).
+- A completed, REFEREED study directory (`studies/NN-slug/`): `study.yaml`
+  (`entrypoint.mutable` names the surface), `research_plan.md`, `data_card.md`,
+  `method_card.md`, `program.md`, `results.tsv`, `aux_metrics.tsv`, `findings.md`,
+  `claims.lock` (every headline number comes from here), `referee_report.md`,
+  `study_state.json` (the finalization label and the referee gate),
+  `runs/E####/manifest.json` (which run executed which bytes — the builder reads them
+  for the ledger and for every `data-run` include), `figures/`
+  (+ `figures/make_figures.py`), `models/`, and the committed sources (the verifier
+  too, when declared).
 - Stage context: audience notes, any study-specific deliverable asks from CONSULT.
 
 ## The fixed seven-section arc (in order, no omissions)
@@ -35,9 +39,10 @@ every invocation; it is the source of truth, this file only orients you.
 5. **Findings & insights** — the verdicts and surprises, from `findings.md`.
 6. **The profile's coding-advice section** (`references/profiles/<profile>.md` §4 names
    it: model coding advice / training-recipe advice / search and verifier coding advice /
-   method coding advice) — an annotated walkthrough of the ACTUAL winning entrypoint
-   (and the verifier) plus the pitfalls / war stories that bit this study. This section
-   is what makes the artifact useful.
+   method coding advice) — an annotated walkthrough of the EXECUTED source (the bytes a
+   NAMED run executed, not the restored file on disk) and the verifier, plus the
+   pitfalls / war stories that bit this study. This section is what makes the artifact
+   useful.
 7. **Next steps + references** — findings.md section ⑦, and the VERIFIED references
    from the method card (never promote an UNVERIFIED ref).
 
@@ -53,17 +58,34 @@ every invocation; it is the source of truth, this file only orients you.
    page, run the figure critique in `tutorial-spec.md` (axis labels, scale
    honesty, legend readability, chart-type-fits-claim).
 3. Author the seven fragments under `studies/NN-slug/report/sections/` to the
-   conventions in `tutorial-spec.md` (§ Math and code in fragments): math as LaTeX
-   in empty `data-math` / `data-math-display` elements (escape `& " < >` in the
-   attribute; statements only, not prose typography); the winning train.py via
-   `<pre data-code="<entrypoint>" data-lang="python"></pre>`; snippets as
-   `<pre><code class="language-…">`; console dumps classless; figures as
-   `<img data-fig="figures/<name>.png">`; the `<!--LEDGER-->` marker in 04-journey.
+   conventions in `tutorial-spec.md` (§§ "Math and code in fragments", "Records, not
+   retyping", "Which figures to inline"): math as LaTeX in empty `data-math` /
+   `data-math-display` elements (escape `& " < >` in the attribute; statements only,
+   not prose typography); snippets as `<pre><code class="language-…">`; console dumps
+   classless; the `<!--LEDGER-->` marker in 04-journey and the `<!--EVIDENCE-->` marker
+   in 05-findings. Two rules are easy to get wrong:
+   - **Includes carry provenance.** A file in `entrypoint.mutable` (`train.py` on
+     schema 2) may NOT be included bare — the notary restores that file on every
+     non-keep (and after every run on a registered track), so the bytes on disk are
+     the last keep's with no run named, or the template; a bare include cannot say
+     which. Use
+     `<pre data-code="<file>" data-lang="python" data-run="E####"></pre>` (frontier
+     track: the final keep's run; registered track: the representative or sealed cell
+     the prose discusses), or `data-role="template"` when the scaffold IS the point.
+     Files outside the surface (`verify.py`, `lib/…`) stay bare.
+   - **Figures in sections 4 and 5 carry captions**:
+     `<img data-fig="figures/<name>.png" alt="…" data-caption="…">` — what is plotted,
+     which track and split, what it is compared against, the one-line takeaway. A bare
+     `data-fig` is only for a fragment that writes its own `<figure>`.
 4. Build with the bundled assembler:
    `uv run --locked python .claude/skills/klein/scripts/build_tutorial.py
    studies/NN-slug [--title "…"]` — it typesets the math to inline SVG, highlights
-   the code, inlines figures, and enforces the acceptance guard (exit 5 = a bad
-   formula, 6 = a bad code include, listed per fragment). Iterate to exit 0.
+   the code, inlines figures, generates the ledger and the evidence block, and
+   enforces the acceptance guard (exit 3 = a figure problem, including bytes that are
+   not a PNG; 4 = the guard, which now covers a `claims.lock` with no
+   `<!--EVIDENCE-->` marker anywhere; 5 = a bad formula; 6 = a bad code include,
+   including a bare mutable-surface include — all listed per fragment). Iterate to
+   exit 0.
 5. The built file is `studies/NN-slug/report/index.html`.
 6. Run the acceptance checklist (below) and FIX failures before reporting done.
    (An external renderer may exist as an optional accelerator, but its output must
@@ -76,8 +98,13 @@ every invocation; it is the source of truth, this file only orients you.
       asset refs (src=, href= stylesheets, @import, url(...)); none may fetch.
 - [ ] A restrictive CSP meta tag is present; a browser load records zero network
       requests and zero CSP console errors.
-- [ ] Section 6 uses `<pre data-code="<entrypoint>">` — the builder guarantees the
-      bytes match the committed file.
+- [ ] Section 6 uses `<pre data-code="<file>" data-run="E####">` — the EXECUTED
+      source; the builder guarantees the bytes are the ones that run executed.
+- [ ] The evidence block is present (`<!--EVIDENCE-->` in 05-findings) and no claim
+      total, strength count, referee verdict or finalization label is retyped in prose.
+- [ ] Every `data-code` include is provenance-labelled (`data-run` or
+      `data-role="template"`); no mutable-surface file is included bare.
+- [ ] Every figure in sections 4 and 5 carries a `data-caption`.
 - [ ] Every mathematical EXPRESSION is typeset (`data-math`/`data-math-display`) —
       grep the page: no ASCII pseudo-math, no `<sub>`/`<sup>`-built formulas. Bare
       symbols or cited values named mid-sentence may stay Unicode prose.
@@ -109,6 +136,11 @@ tutorial had to omit for lack of source material (e.g. a thin findings section).
   remote images, or fonts — the file must open from `file://` with zero network.
 - Every number traceable to a pinned artifact via `claims.lock`. Never recompute or
   "improve" a metric for the page.
+- Never RETYPE a record. Claim totals, strengths and classes, errata, the referee's
+  verdict and the finalization label are copied by the builder from `claims.lock` and
+  `study_state.json` into the `<!--EVIDENCE-->` block — your prose cites that block, it
+  does not restate it. A record that is missing prints "not recorded"; do not fill the
+  gap from memory.
 - Teach, don't dump: prose connects every figure and code block to the study's
   narrative.
 - You do not rerun experiments or edit the entrypoint / the ledgers / the lock —

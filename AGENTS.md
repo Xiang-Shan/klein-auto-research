@@ -80,10 +80,12 @@ runs only after this gate (`--no-referee --reason` is recorded and labels the st
 **TUTORIAL.** Build `report/index.html` — a self-contained TEACHING artifact, not a
 figure dump — with a fixed seven-section arc: the question → the method taught → the
 data story → the experiment journey → findings & insights → the profile's coding
-advice section → next steps + verified references. Base64-inlined figures that
-re-render byte-identically, build-time typeset math and highlighted code, the winning
-entrypoint included by reference, headline numbers read from `claims.lock`; no CDN,
-no fonts, no runtime rendering; must open from `file://`.
+advice section → next steps + verified references. Base64-inlined captioned figures
+that re-render byte-identically, build-time typeset math and highlighted code, the
+EXECUTED source included by reference (the bytes a named run ran, not the restored
+file on disk), claim totals and the referee's verdict copied from the records, headline
+numbers read from `claims.lock`; no CDN, no fonts, no runtime rendering; must open from
+`file://`.
 
 ## The stage map
 
