@@ -818,7 +818,7 @@ def test_a_tampered_assessment_does_not_recompute(bound_study) -> None:
         json.dumps(obj, indent=2) + "\n", encoding="utf-8"
     )
     git(repo, "add", "-A", "--", str(study / "generation"))
-    git(repo, "commit", "-q", "-m", "tamper")
+    git(repo, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "tamper")
     assert _gen("verify", "--study", str(study)) == 2
     assert "does not recompute" in _detail(study, "parity assessment")
 
