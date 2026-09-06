@@ -63,6 +63,11 @@ Fragment contract
   section with two or more of them gets a ``<nav class="subnav">`` after its
   ``<h2>`` — deep links into a subsection survive a rebuild.
 
+The head carries ``<meta name="generator" content="klein build_tutorial layout-N">``
+(``LAYOUT_GENERATION``): ``scripts/check_shipped_reports.py`` enforces its phone and
+print checks only on pages built at the current generation and reports older pages
+as LEGACY, so a stylesheet fix never fails the reports shipped before it.
+
 Acceptance guard (runs on the assembled page; non-zero exit lists violations):
 - all seven section anchors present;
 - the exact restrictive Content-Security-Policy is present (default/connect deny,
@@ -196,6 +201,16 @@ LANG_BY_SUFFIX = {
 
 #: The findings marker the records block replaces.
 EVIDENCE_MARK = "<!--EVIDENCE-->"
+
+#: The layout generation this builder emits, stamped into the page head as
+#: ``<meta name="generator" content="klein build_tutorial layout-N">``. Bump it
+#: when the stylesheet's phone/print guarantees change; a page built before the
+#: current generation is measured but never failed by
+#: ``scripts/check_shipped_reports.py`` — its layout is history, not a regression.
+LAYOUT_GENERATION = 2
+GENERATOR_META = (
+    f'<meta name="generator" content="klein build_tutorial layout-{LAYOUT_GENERATION}">'
+)
 
 #: Strengths in the order a reader wants them (strongest first); any other value
 #: the lock carries follows alphabetically, so a new strength is still shown.
@@ -1222,9 +1237,11 @@ blockquote{margin:0 0 16px;padding:2px 16px;border-left:3px solid var(--rule);co
 .note{font-size:14px;color:var(--muted)}
 .site-footer{border-top:1px solid var(--rule);padding:26px 0 48px;color:var(--muted);font-size:13px}
 .site-footer .lineage{font-family:ui-monospace,Menlo,monospace;font-size:12px;margin-top:6px}
-/* A long path, sha256 or URL must reflow rather than widen the whole page;
+/* A long path, sha256, DOI or URL must reflow rather than widen the whole page —
+   inside <code>/<a>/<cite> and as plain text in a reference list alike; the rule
+   only fires on a token that cannot fit a line by itself, so prose is untouched.
    <pre> is exempt because it scrolls (breaking source lines misreads code). */
-code,a,cite{overflow-wrap:anywhere}
+p,li,dd,td,th,figcaption,blockquote,code,a,cite{overflow-wrap:anywhere}
 pre code{overflow-wrap:normal}
 /* Section sub-navigation emitted after an <h2>. */
 nav.subnav{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 16px;font-size:13px}
@@ -1433,6 +1450,7 @@ def assemble(
         '<html lang="en">\n<head>\n<meta charset="utf-8">\n'
         f"{csp_meta_tag()}\n"
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+        f"{GENERATOR_META}\n"
         f"<title>{html.escape(title)}</title>\n"
         f"<style>{CSS}{render_css()}</style>\n</head>\n<body>\n"
         '<header class="site-header"><div class="wrap">\n'

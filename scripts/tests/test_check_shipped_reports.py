@@ -130,11 +130,33 @@ def test_schema_version_reads_only_the_top_level_key() -> None:
     assert module.schema_version("schema_version: 3\n") == 3
 
 
-def test_schema_two_and_v1_are_legacy_and_schema_three_is_not() -> None:
+CURRENT_PAGE = '<!doctype html>\n<html><head><meta charset="utf-8">\n<meta name="generator" content="klein build_tutorial layout-2">\n<title>t</title></head><body></body></html>\n'
+
+
+def test_schema_two_and_v1_are_legacy_and_a_current_schema_three_page_is_not() -> None:
     module = _load_module()
-    assert module.is_legacy(None) is True
-    assert module.is_legacy(2) is True
-    assert module.is_legacy(3) is False
+    assert module.is_legacy(None, CURRENT_PAGE) is True
+    assert module.is_legacy(2, CURRENT_PAGE) is True
+    assert module.is_legacy(3, CURRENT_PAGE) is False
+    assert module.legacy_reason(2, CURRENT_PAGE) == "schema 2 study"
+    assert module.legacy_reason(None, CURRENT_PAGE) == "schema v1 study"
+    assert module.legacy_reason(3, CURRENT_PAGE) is None
+
+
+def test_a_schema_three_page_built_before_the_layout_generation_is_legacy() -> None:
+    """The shipped schema-3 reports predate the phone/print stylesheet; a CSS fix
+    must not turn them red, so the check keys off the builder's generator tag."""
+    module = _load_module()
+    untagged = CURRENT_PAGE.replace(
+        '<meta name="generator" content="klein build_tutorial layout-2">\n', ""
+    )
+    assert module.layout_generation(untagged) is None
+    assert module.is_legacy(3, untagged) is True
+    assert "no generator tag" in module.legacy_reason(3, untagged)
+    older = CURRENT_PAGE.replace("layout-2", "layout-1")
+    assert module.layout_generation(older) == 1
+    assert module.legacy_reason(3, older) == "built at layout generation 1, check asserts 2"
+    assert module.layout_generation(CURRENT_PAGE) == 2
 
 
 # --- the check arithmetic ---------------------------------------------------

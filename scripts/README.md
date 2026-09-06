@@ -104,8 +104,11 @@ The reports ship a `default-src 'none'` CSP, so the measurement cannot be
 injected into a report. Instead a wrapper page in a temp dir `<iframe>`s the
 report, measures `iframe.contentDocument`, and base64s the JSON into its own
 `<pre id="result">`, which `--dump-dom` hands back — one bounded subprocess, no
-debugging port. Schema-2 studies (03, 05–09) are measured but reported `LEGACY`:
-they are shipped history, and only a schema-3 report's FAIL sets the exit code.
+debugging port. Schema-2 studies (03, 05–09) and any schema-3 report built before
+the builder's current layout generation (the page head's
+`<meta name="generator" content="klein build_tutorial layout-N">`) are measured
+but reported `LEGACY`: they are shipped history, and only a current-generation
+schema-3 report's FAIL sets the exit code.
 
 ```bash
 uv run --locked python scripts/check_shipped_reports.py \

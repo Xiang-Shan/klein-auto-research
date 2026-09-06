@@ -134,7 +134,7 @@ def test_scroll_margin_covers_h3_anchors_at_desktop(build_module):
 
 def test_long_tokens_wrap_but_code_blocks_still_scroll(build_module):
     css = build_module.CSS
-    assert "code,a,cite{overflow-wrap:anywhere}" in css
+    assert "p,li,dd,td,th,figcaption,blockquote,code,a,cite{overflow-wrap:anywhere}" in css
     assert "pre code{overflow-wrap:normal}" in css
     assert "pre{background:var(--code-bg)" in css and "overflow-x:auto" in css
 
@@ -325,3 +325,15 @@ def test_two_captioned_figures_number_in_document_order_and_are_deterministic(
     first = (study / "report" / "index.html").read_bytes()
     assert build_module.main([str(study)]) == 0
     assert (study / "report" / "index.html").read_bytes() == first
+
+
+def test_page_head_names_its_layout_generation(build_module, tmp_path):
+    """The shipped-report check keys its LEGACY classification off this tag."""
+    from test_build_tutorial import scaffold
+
+    study = scaffold(tmp_path / "00-generator")
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert build_module.GENERATOR_META in page
+    assert build_module.LAYOUT_GENERATION == 2
+    assert f'content="klein build_tutorial layout-{build_module.LAYOUT_GENERATION}"' in page

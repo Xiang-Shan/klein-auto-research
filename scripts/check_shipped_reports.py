@@ -23,9 +23,14 @@ Five checks per report:
    markup declares ``width``/``height``, they equal the natural size.
 5. ``print``    — one report is printed to PDF and its text re-read.
 
-Schema-2 studies (03, 05-09) are shipped history: they are measured and their
-numbers reported, but their rows are labelled ``LEGACY`` and can never fail the
-run.  Only a schema-3 report's FAIL sets the exit code.
+Two kinds of report are shipped history, measured and reported but labelled
+``LEGACY`` and never able to fail the run: a schema-2 or v1 study (03, 05-09),
+and a schema-3 report built before the layout generation this check asserts
+(``build_tutorial.py`` stamps ``<meta name="generator" content="klein
+build_tutorial layout-N">``; a page without the tag predates the phone/print
+guarantees).  Only a current-generation schema-3 report's FAIL sets the exit
+code, so a stylesheet fix never turns the reports shipped before it red — the
+evidence record still carries every measurement.
 
 Measurement mechanism -- why an iframe wrapper
 ----------------------------------------------
@@ -273,9 +278,42 @@ def schema_version(contract_text: str) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def is_legacy(version: int | None) -> bool:
-    """Schema-2 and schema-v1 reports are shipped history, never rebuilt."""
-    return version is None or version < 3
+#: The layout generation the current builder stamps into a page head
+#: (``build_tutorial.py`` ``LAYOUT_GENERATION``); a page without it, or with an
+#: older number, was built before the phone/print guarantees existed.
+LAYOUT_GENERATION = 2
+GENERATOR_RE = re.compile(r'<meta name="generator" content="klein build_tutorial layout-(\d+)">')
+
+
+def layout_generation(report_html: str) -> int | None:
+    """The layout generation a report was built at, or None for a pre-2.2 page."""
+    match = GENERATOR_RE.search(report_html[:4096])
+    return int(match.group(1)) if match else None
+
+
+def legacy_reason(version: int | None, report_html: str = "") -> str | None:
+    """Why a report is measured but never failed, or None when it is enforced.
+
+    Two kinds of history: a schema-2 or v1 STUDY (never rebuilt, its layout is
+    whatever its builder emitted), and a schema-3 report BUILT BEFORE the layout
+    generation this check asserts (the stylesheet fix landed after the page).
+    Both are measured and their numbers land in the evidence; neither can fail
+    the run, so a CSS change never turns the reports shipped before it red.
+    """
+    if version is None:
+        return "schema v1 study"
+    if version < 3:
+        return f"schema {version} study"
+    built_at = layout_generation(report_html)
+    if built_at is None:
+        return f"built before layout generation {LAYOUT_GENERATION} (no generator tag)"
+    if built_at < LAYOUT_GENERATION:
+        return f"built at layout generation {built_at}, check asserts {LAYOUT_GENERATION}"
+    return None
+
+
+def is_legacy(version: int | None, report_html: str = "") -> bool:
+    return legacy_reason(version, report_html) is not None
 
 
 def _repo_relative(path: Path) -> str:
@@ -844,7 +882,16 @@ def main(argv: list[str] | None = None) -> int:
         evidence["baseline_hosts"] = sorted(host for host in noise_hosts if host)
 
         for study in selected:
-            legacy = is_legacy(schema_version((study / "study.yaml").read_text(encoding="utf-8")))
+            reason = legacy_reason(
+                schema_version((study / "study.yaml").read_text(encoding="utf-8")),
+                (study / "report" / "index.html").read_text(encoding="utf-8", errors="replace"),
+            )
+            legacy = reason is not None
+            if legacy:
+                print(
+                    f"[shipped-reports] {study.name}: LEGACY — {reason}; measured, never failed",
+                    flush=True,
+                )
             report_rows, report_evidence = check_report(
                 study,
                 chrome,
@@ -865,6 +912,7 @@ def main(argv: list[str] | None = None) -> int:
                 print_row = _row(
                     study.name, "print", SKIP, f"not the --print-study ({print_study})"
                 )
+            report_evidence["legacy_reason"] = reason
             report_rows.append(print_row)
             rows.extend(report_rows)
             evidence["reports"].append(report_evidence)
