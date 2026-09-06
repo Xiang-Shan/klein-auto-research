@@ -24,6 +24,35 @@ Markdown stays the human surface; JSON and the ledger are the machine surface. N
 in the machine surface is hand-edited; nothing in the human surface is trusted without
 the machine surface behind it.
 
+**The evidence-design artifact supplements these five, on a study that asks for it.** A
+schema-3 study that opted into the generation layer with `--capability design` locks one
+`evidence_design.yaml` before the DATA gate, giving each object the fields it needs to
+say what a number MEANS rather than only what it was: the Question gains an estimand, a
+population, units, a measurement process, identification assumptions and an intended
+generalization; the Prediction gains an uncertainty method, validity conditions (each
+naming a `P#` whose rule can actually fire it), a practical threshold and provenance;
+Evidence gains representations, a dependency hierarchy, permitted reuse, a seal and an
+acquisition ledger; the Claim gains a named warrant; the Decision gains a typed
+continuation with its predecessor and successor. **The id grammar below does not change
+and neither does any engine rule** — the artifact adds vocabulary a stranger can review,
+and the generation layer's `design` family checks only that it was locked first and has
+not moved since (`references/generation-protocol.md`, "Evidence design"). A study that
+does not opt in is untouched by all of it.
+
+**The Decision object is typed, and one of its types links two studies.** A decision is
+a *continuation*, a *stop*, an *escalation*, or a *pivot*. On an ordinary study all four
+are the same dated `Decision:` line in `program.md`. On a study that declared
+`--capability escalation`, an escalation and a pivot additionally earn a machine
+surface: `klein generation escalate record` files a `<study>#Dn` receipt — the trigger
+it answers with its reconstructed count and evidence runs, the rung, the rungs skipped
+with reasons, the concrete changed resource or assumption, unit-bearing estimated and
+actual costs, and the condition that would close it — and **a pivot links a predecessor
+and a successor contract**, pinning both `study.yaml` hashes and the exposure the
+successor inherits. A successor id restores no blindness
+(`references/escalation-protocol.md`). Like every generation record, `<study>#Dn` is a
+sidecar id resolved by the extension: it is cited in prose, and reaches `claims.lock`
+only through an `art:` alias — see "Generation records" below.
+
 ## The three axes
 
 A study is typed on three orthogonal axes. CONSULT infers all three from the brief and
@@ -97,6 +126,28 @@ Rules that follow from the table:
 
 `klein claims verify` resolves every id a claim cites; an id that resolves nowhere fails
 the study.
+
+### Generation records (schema 3, opt-in)
+
+A study that opted into the generation layer carries a second family of ids. They are
+**sidecar ids, resolved by `klein generation verify`** — the claims law does not know
+them, and they reach a claim only through the `art:` alias of the table that carries
+them. They are always written fully qualified.
+
+| Form | Resolves to |
+|---|---|
+| `<study>#Hn` | one row of a locked hypothesis slate: its statement, track, forecast `p_success`, provenance, axis scores and `success_P` (`references/generation-protocol.md`, "Slates and calibration"). Permanent and never recycled; an admitted run binds to it through the receipt, never through prose. |
+| `<study>#Sn` | one surprise receipt: a violating segment of a registered discovery cell, with its pinned table (`references/surprise-protocol.md`). A **bare `S#` is a scouting-ledger entry**, not this. |
+| `<study>#Dn` | one escalation decision: the trigger it answers, the rung, the rungs skipped with reasons, the changed resource, its costs, and the condition that would close it (`references/escalation-protocol.md`). A pivot additionally links a predecessor and a successor contract. |
+| `knowledge/objects/<sha256>.json` | a promoted claim or method card, addressed by its own content hash rather than a `<study>#…` id, with its `promote` / `contest` / `resolve` transactions on `knowledge/events.jsonl` (`references/knowledge-protocol.md`) |
+| `generation/objects/<sha256>.json` | any other generation record with no id grammar of its own — an admission receipt, a benchmark commitment or reveal, a custody attestation — cited by its object sha (`references/planted-truth-protocol.md`) |
+
+An `Sn` is exploratory by construction: `klein generation verify` FAILs a `confirmed`
+claim that cites a discovery cell's table or names a receipt, and the confirmation is a
+separately registered `test` study on rows the selection never saw. A benchmark's
+recovery numbers are the same: they live in the pinned `tables/benchmark_scores.tsv`,
+reach a claim through its `art:` alias, and carry the benchmark outcome
+(`retired | unverified | scored | unscored`) with its `custody` reading beside them.
 
 ## Per-kind requirements at CONSULT
 

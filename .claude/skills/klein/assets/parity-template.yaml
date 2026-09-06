@@ -1,0 +1,131 @@
+# parity.yaml — the AI-vs-expert comparison's criteria (generation layer, opt-in).
+#
+# YOU write this file, by hand, at CONSULT, BEFORE `klein gate record consult`.
+# It fixes what "matched the expert" will mean before any number exists.  Klein
+# records it, hashes it, and applies it; it never chooses a metric or a margin.
+#
+#   uv run --locked klein generation parity lock   --study studies/NN-slug
+#   uv run --locked klein generation parity amend  --study studies/NN-slug
+#   uv run --locked klein generation parity bind   --study studies/NN-slug \
+#       --ai-snapshot <path> --expert-snapshot <path> [--floor-run E####]
+#   uv run --locked klein generation parity assess --study studies/NN-slug --run E####
+#
+# `lock` hashes this file: from then on the criteria are immutable, and an edit
+# FAILs `klein generation verify` for the life of the study.  Revise through
+# `amend`, which keeps both versions and cannot move a margin.
+# Rules and semantics: references/expert-parity-protocol.md.
+
+type: parity
+study: NN-slug                    # this study's id
+
+# A track declared in study.yaml with `mode: registered`.  Its SOLE sealed
+# evaluation is the comparison cell (references/registered-mode.md).
+comparison_track: comparison
+
+# The paired unit both pipelines are scored on, in words.
+sampling_unit: policy-year
+
+# The dependence block the bootstrap resamples, as a column of
+# tables/parity_units.tsv — or null for iid sampling units.  Required either
+# way: the dependence structure is preregistered, not chosen when the bounds
+# turn out inconvenient.
+block_column: household_id
+
+pipelines:
+  ai:
+    name: candidate-2026-09
+    description: "the AI-built pipeline: target encoding + HGBT, isotonic calibration"
+    owner: <roster row name>      # who is responsible for this side
+    selection_rule: "the frontier incumbent of track `primary` at the phase-2 boundary"
+  expert:
+    name: expert-tweedie-glm
+    description: "the domain card's baseline recipe, reproduced by expert bind E0001"
+    owner: <roster row name>
+    selection_rule: "the domain card's baseline, unchanged; power and transforms as locked"
+
+# The matched resources.  An expert beaten under a budget it never had was not
+# beaten; the resources on both sides are matched.
+budget_rule: "one machine-hour and the same inception-time feature set for both sides"
+
+metrics:
+  # Printed keys per metric: ai_<key>, expert_<key>, d_<key>, L_<key>, U_<key>,
+  # defined_<key>.  `d_j = sign_j * (ai_j - expert_j)`, so positive ALWAYS
+  # favours the AI.
+  - key: gini
+    name: exposure-weighted ranking Gini
+    direction: higher             # higher | lower — fixes sign_j
+    units: Gini points
+    estimand: "paired per-policy-year contribution to the exposure-weighted Gini"
+    floor_ref: run:E0002          # a Phase-0 --action calibration run that PRINTED floor_gini
+                                  # (`sweep:<name>` is accepted here but refused at bind:
+                                  #  a registered sweep pins hashes, not a number)
+    margin: 0.01                  # epsilon_j >= 0, the noninferiority margin
+    margin_rationale: >-
+      Underwriting accepts a 0.01 Gini give-back for a rate plan that is one
+      page shorter to file.  Justified by the filing decision, NOT by the
+      measured floor: resolution is not acceptability.
+    undefined_handling: cannot_pass   # the only value in this version
+
+  - key: calib
+    name: calibration error
+    direction: lower
+    units: absolute loss-ratio error
+    estimand: "paired per-policy-year absolute calibration error against actual"
+    floor_ref: run:E0002
+    margin: 0.005
+    margin_rationale: >-
+      A 0.005 drift stays inside the reserving tolerance the actuary signs off
+      quarterly; beyond it the rate plan needs a new calibration study.
+    undefined_handling: cannot_pass
+
+  - key: ratio
+    name: top-to-bottom decile ratio
+    direction: higher
+    units: ratio
+    estimand: "paired per-policy-year decile contribution to the top/bottom loss-cost ratio"
+    floor_ref: run:E0002
+    margin: 0.05
+    margin_rationale: >-
+      The ratio is a communication metric for the underwriting committee; a
+      0.05 move does not change how the plan is presented.  A zero-loss bottom
+      decile leaves it UNDEFINED — preregistered as cannot_pass, never rescued
+      by an arbitrary denominator adjustment.
+    undefined_handling: cannot_pass
+
+uncertainty:
+  method: block_bootstrap_maxt    # the only method this version implements
+  n_boot: 2000                    # >= 200
+  seed: 0                         # the bounds are deterministic under it
+  alpha: 0.05                     # simultaneous over the metrics above, and nothing else
+
+aggregation: conjunction          # the only value in this version: three metrics
+                                  # must describe ONE model on ONE population
+
+scorer:
+  path: lib/parity_score.py       # study library code, NEVER the mutable surface;
+                                  # `bind` pins its sha256 (assets/parity_score_template.py)
+
+# Who set the margins.  May NOT be program.md's roster `experimenter`: the actor
+# being compared cannot set the bar it is measured against.  Testimony, compared
+# as strings, never authenticated.
+margins_set_by:
+  name: <reviewer name>
+  session_receipt: null           # a path to a file evidencing the review, or null
+
+# How the scoring was done.  Testimony: recorded, never verified.
+scoring:
+  masked: true
+  scorer_name: <who scored>
+
+# One registered prediction per metric key.  Its rule must be EXACTLY
+# {key: L_<key>, op: ">=", value: -margin} so the notary decides the same
+# inequality the assessment does.  The lock refuses any mismatch.
+predictions:
+  gini: P1
+  calib: P2
+  ratio: P3
+
+# A matched frozen-2.0 arm, or null.  Required as a key: causal AI value needs a
+# matched ablation, and a study without one says so rather than implying it.
+# Setting it makes the contribution ledger's outcome `ablation-cited`.
+ablation_study: null

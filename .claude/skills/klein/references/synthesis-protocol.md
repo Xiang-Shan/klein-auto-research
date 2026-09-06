@@ -92,9 +92,20 @@ Copy `assets/findings-template.md`. Fill, in order:
   `exploratory` (development only) or `confirmed` (its track has sealed-test evidence).
 - **② Registered predictions (from the ledger).** One row per `P#`, verdict copied
   from `klein predict list`, the observed value, the evidence ids, and — for a refuted
-  row — the dated `Decision:` line in `program.md` that answered it.
+  row — the dated `Decision:` line in `program.md` that answered it. On a
+  generation-enabled study, add the phase's slate calibration beside it: pin the table
+  (`klein claims pin slate_calibration_<phase>
+  generation/tables/slate_calibration_<phase>.tsv`), cite it as
+  `art:slate_calibration_<phase>`, and summarize one line per phase — the cohort size,
+  coverage, the `unscouted` Brier against the base-rate forecast, and whether the outcome
+  is `complete` or `conditional`. Report the `scouted_descriptive` panel as descriptive,
+  never as calibration, and say what `n` it rests on: a four-row slate proves the
+  arithmetic, not that the driver is well calibrated.
 - **③ Surprises & why.** What defied the prior — AND the mechanism you believe explains
-  it. A surprise with no explanation is a loose end.
+  it. A surprise with no explanation is a loose end **to be recorded as `unresolved`,
+  never invented**. On a study that declared the `surprise` capability, cite the
+  `<study>#Sn` receipts (`references/surprise-protocol.md`) and pin the cell's table;
+  a bare `S#` means a scouting-ledger entry, so an id here is always fully qualified.
 - **④ Practical advice.** "On your own data do X, avoid Y" — concrete, numbered, in the
   best-practices voice.
 - **⑤ {{SECTION5_HEADING}}.** The heading and prompt come from the study's profile
@@ -175,3 +186,15 @@ remains greppably traceable to the evidence that earned it
 refute each other, surface the contradiction in the doc text; do not silently
 keep both. Ruled-out rows from `playbook.md` promote the same way. No graph
 engine, no registry file — the markdown convention IS the mechanism.
+
+**On a study that declares the `knowledge` capability, markdown remains the human
+surface and gains a machine one.** Each promoted statement is additionally filed
+with `klein generation knowledge promote --claim <Cn>`, which copies the claim's
+class, strength and evidence roots verbatim into the repo-level store — a
+promotion creates availability, never stronger evidence — and refuses a claim
+whose lock does not verify or whose evidence roots are already in the store. The
+promoted markdown line then cites its object id alongside the typed claim
+citation: `(supports <study_id>#Cn; knowledge:K7)`. A later study that measures
+the claim outside its stated scope files `knowledge contest`, not an edit — and a
+prediction that merely failed to transfer is a prediction verdict, not a contest
+(`references/knowledge-protocol.md`).

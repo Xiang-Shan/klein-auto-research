@@ -218,6 +218,15 @@ The standing rules around those layers:
 - Phase-boundary pauses: at every phase boundary defined in `study.yaml`, summarize,
   STOP for user ack, then record it with `klein gate record phase --phase <id>`.
 - Studies run on `experiments/<study>` branches, never on `main`. Merge at study end.
+- **The opt-in generation layer records commitments before actions.** A schema-3
+  study may run `klein generation init` before Gate 0 and one `klein generation check`
+  before every `run-one`; the receipt binds the intended action and the exact mutable
+  surface, a refusal is recorded evidence, and `klein generation verify` writes its own
+  separate receipt (`generation/verify_receipt.json`). The `generation-verified` label
+  needs BOTH that receipt and the core `klein verify` receipt passing at the same HEAD.
+  The core never depends on it: a study that does not opt in is untouched, no core verb,
+  receipt or disposition changes, and the layer never proposes, ranks, selects,
+  schedules or retries. `.claude/skills/klein/references/generation-protocol.md`.
 - Schema-2 studies (03, 05–09) keep verifying under schema-2 rules forever; none of
   the schema-3 checks are enforced on them. Version-1 studies are readable at tag
   `v1.3.0`. Nothing ever notarized is rewritten.
@@ -322,6 +331,26 @@ citations are filed under `docs/reviews/`.
   `uv run --locked pytest`), never bare `python`. CI may use `uv run --no-sync`
   immediately after a successful `uv sync --locked` to prove it is not mutating the
   environment. `klein doctor` reports what this machine can run without fetching.
+- The opt-in generation layer adds one verb group, `klein generation
+  init|check|verify|label|status|recover`, plus one sub-group per declared capability
+  (`generation expert lock|amend|bind|repair|review` and `generation reference record`
+  for `expertise`; `generation slate lock|amend|score|show` for `slates`; `generation
+  design lock` for `design`; `generation premortem record|respond` for `premortem`;
+  `generation parity lock|amend|bind|assess|show` for `parity`; `generation
+  contribution record|show` for `contribution`; `generation escalate
+  lock|record|close|pivot|show` for `escalation`; `generation knowledge
+  promote|contest|resolve|query|decide|show` for `knowledge`; `generation surprise
+  register|record|show` for `surprise`; `generation benchmark
+  commit|submit|reveal|retire|show` for `benchmark`), plus `generation custody attest`,
+  which belongs to no capability and any generation-enabled study may record. It is
+  schema-3 only and writes
+  nothing outside `<study>/generation/` except the human artifacts a capability names —
+  `domain_card.md`, `slates/<phase>.yaml`, `evidence_design.yaml`,
+  `premortem/<phase>.yaml`, `parity.yaml`, `ai_value.jsonl`, `escalation_plan.yaml`,
+  `discovery_cells.yaml`, `benchmark.yaml`, the copied
+  `benchmark-submission.schema.json` and `submissions/<arm>.json` at the study root,
+  and repo-level `knowledge/references/<id>.json`, `knowledge/objects/<sha256>.json`
+  and `knowledge/events.jsonl`.
 - `uv sync --locked` to set up; extras compose and must be named together:
   `uv sync --locked --extra gbdt --extra deep` (naming only some extras removes
   the others from the environment). `KLEIN_OFFLINE=1` refuses every network data

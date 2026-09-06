@@ -115,6 +115,36 @@ transaction and records the verdict (`supported | refuted | inconclusive`) in th
 manifest, in `study_state.json`, and as the event `prediction_adjudicated`. A missing
 key yields `inconclusive`, never a guess.
 
+On a **generation-enabled study** each cell also carries the `<study>#Hn` id of the
+slate row it is (`references/generation-protocol.md`): `klein generation check --action
+cell --track <id> --hypothesis <study>#Hn --tests P4` before the run, and the receipt
+binds the id, the slate's hash and the exact surface. The `--tests` set must cover the
+row's `success_P` — the same ids the slate named as its definition of success — because
+those verdicts are what resolve the row's outcome afterwards. A cell run without a
+hypothesis on an enabled study is refused unless it is a typed obligation (`calibration`,
+`baseline`, `repair`, `sealed`).
+
+A study that declares the **`parity`** capability registers one more cell, and it is a
+special one: the **AI-vs-expert comparison**, the comparison track's SOLE sealed
+evaluation, scoring both frozen pipelines together and pinning
+`tables/parity_units.tsv` (`references/expert-parity-protocol.md`). It **precedes every
+other sealed access in the study** — `klein generation check --action sealed` is refused
+on ANY track until `klein generation parity bind` has frozen both pipelines and every
+measured floor, and a `final_test` run recorded before that anchor FAILs the `parity`
+family afterwards. The cell is ordinary in every other way: `--action sealed` admission,
+`run-one --final-test --tests P…`, `measured` disposition, `artifact:` lines that make
+the table evidence.
+
+**A discovery cell is a registered cell.** A study that declared the `surprise`
+capability names the registered cell as well (`--cell cell_<name>`), and `--tests` must
+include the cell's registered `expectation_P`: the notary adjudicates the expectation on
+that run's printed block, and nothing else decides it. The cell's entrypoint prints its
+per-unit table as an ordinary `artifact:` line; `klein generation surprise record --run
+E####` reads those pinned bytes afterwards and applies the declared multiplicity rule
+once (`references/surprise-protocol.md`). A discovery cell may never run on the sealed
+partition — the seal is a track's single confirmation look, and a screen cannot confirm
+what it selected.
+
 ## What registered mode is not
 
 - Not a sweep escape hatch: a search still runs through `sweep-rules.md`, and a

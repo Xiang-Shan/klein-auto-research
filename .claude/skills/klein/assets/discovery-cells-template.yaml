@@ -1,0 +1,63 @@
+# discovery_cells.yaml — the registered search space of a discovery study.
+#
+# Copy to <study>/discovery_cells.yaml, fill it in, then:
+#   uv run --locked klein generation surprise register --study studies/NN-slug
+#
+# Register AFTER the METHOD gate (the adapters are the ones the method card
+# named) and BEFORE any cell runs (a search space written once its outputs are
+# visible is a description of them). `register` validates the document, hashes
+# every adapter and input from disk and writes the sha256s back into this file,
+# then freezes it: an edit afterwards FAILs `klein generation verify` for the
+# life of the study. Cells may be ADDED later; a cell added once any cell has
+# produced a table is forced `post_observation: true`.
+#
+# Full rules: .claude/skills/klein/references/surprise-protocol.md
+# Opt-in: `klein generation init --capability design --capability surprise`
+#         (a cell measures something; the evidence design says what).
+
+type: discovery-cells
+study: NN-slug
+
+# The adapters that map field measurements into the template contract. They live
+# OUTSIDE entrypoint.mutable — an adapter edited per experiment cannot have its
+# output attributed to the version that was registered. `sha256` is filled in by
+# `register`; leave it out when authoring.
+adapters:
+  - path: lib/<adapter>.py
+
+cells:
+  - cell_id: cell_<lowercase_name>      # plain and local; <study>#Sn ids are allocated by `record`
+    track: <track id>                   # a track declared in study.yaml
+    expectation_P: P<n>                 # a REGISTERED prediction with a rule, on this track;
+                                        # `run-one --tests P<n>` adjudicates it inside the run
+    template: residual_by_segment       # residual_by_segment | error_slices | family_disagreement
+    statistic: mean_signed_residual     # mean_signed_residual | mean_loss | distance
+                                        # (must be the statistic the template produces)
+    input_refs:                         # every table the cell reads; sha256 filled by `register`
+      - path: data/prepared/<observations>.csv
+    adapter: lib/<adapter>.py           # one of the adapters above
+    partition: development              # development | train | <named block> — NEVER `sealed`
+    unit_policy: one row per <unit>     # what ONE row of the pinned table is
+    group_policy: null                  # null when the units are independent, or
+                                        # {column: <name>, rationale: <text>} when they cluster:
+                                        # the statistic becomes the mean of the GROUP means and
+                                        # the sign flip acts on groups. Prose is refused — it
+                                        # cannot decide what the family rule flips.
+    segments:                           # the COMPLETE inventory, frozen. It IS the denominator.
+      column: <column name>
+      values: [<segment>, <segment>, <segment>]
+      # bins: [0, 10, 20, 30]           # or cut points; the segments are the intervals
+    units: <the deviation's unit>       # a bare number is not a quantity
+    floor_ref: minimum_delta            # or sweep:<registered name>
+    minimum_n: 2                        # below it a segment is `inconclusive`, never `null`
+    multiplicity_rule:                  # REQUIRED — a measured effect floor is not one
+      method: family_maxt               # family_maxt | bonferroni | declared
+      n_perm: 1024                      # family_maxt: 2**units <= n_perm enumerates exactly;
+                                        # capped at 100000 — every verify re-runs this family
+      seed: 0
+      alpha: 0.05
+      # method: bonferroni, alpha: 0.05
+      # method: declared, sweep: <registered null sweep>, threshold: 4.0   # on |t|
+    output_columns: [segment, unit, value]   # the pinned table is PER UNIT; the summary is derived
+                                        # a clustered cell adds its group column: [..., <name>]
+    post_observation: false             # true once the cell was added after seeing outputs

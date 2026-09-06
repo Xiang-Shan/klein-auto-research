@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://klein.invalid/schemas/benchmark-submission-1.json",
+  "title": "Klein planted-truth benchmark submission",
+  "description": "One arm's frozen, machine-readable answer to a planted-truth benchmark. The custodian imports this file with `klein generation benchmark submit --arm <id> --file <path>` before any reveal. Klein depends on no JSON Schema library: kleinlib.generation.benchmark.submission_problems enforces exactly these rules in plain Python, and this document is the participant-facing statement of them. The custodian hashes whichever copy is in the study at commit time, so the version in force is on the record.",
+  "type": "object",
+  "required": ["study", "arm", "structures"],
+  "additionalProperties": true,
+  "properties": {
+    "study": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The PARTICIPANT study's id — the workspace that produced this answer, which is never the custodian's study."
+    },
+    "arm": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The arm id, as declared in the custodian's benchmark.yaml. It must equal the --arm the custodian imports it under."
+    },
+    "structures": {
+      "type": "array",
+      "description": "The ranked structures the arm claims to have recovered. At most benchmark.yaml's hypothesis_cap entries: the cap is what stops an arm from listing every possible interaction and calling one of them a discovery.",
+      "items": {
+        "type": "object",
+        "required": ["rank", "variables", "relationship", "direction", "context", "h_ids"],
+        "additionalProperties": true,
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "1 is the arm's best answer. Ranks are unique inside one submission; recovery is scored in rank order, so the best-ranked structure that matches a planted truth is the one that claims it."
+          },
+          "variables": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1},
+            "description": "The variables the structure is over. Matched as a SET under matching_rule.variables: exact."
+          },
+          "relationship": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The relationship claimed, e.g. interaction, main, monotone, threshold. Matched as a string under matching_rule.relationship: exact."
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["positive", "negative", "none"],
+            "description": "The sign of the effect. Matched under matching_rule.direction: sign."
+          },
+          "context": {
+            "type": "string",
+            "description": "Where the structure is claimed to hold, in the arm's own words. Adjudicated by the custodian against the preregistered matching_rule.context sentence and recorded per row as the pinned table's context_ok column — this dimension is judgement, and it is labelled as judgement rather than folded into the arithmetic."
+          },
+          "h_ids": {
+            "type": "array",
+            "items": {"type": "string", "pattern": "^[0-9]{2}-[a-z0-9-]+#H[0-9]+$"},
+            "description": "The participant's own hypothesis ids that led to this structure. An empty list means the arm recorded no hypothesis provenance, which is a fact about the arm rather than an error."
+          },
+          "support": {
+            "type": "string",
+            "description": "Optional: a study-relative path, run id or command in the PARTICIPANT's study that reproduces the executable analysis supporting this structure. The custodian does not execute it; it is what an adjudicator reads when the context condition is contested."
+          }
+        }
+      }
+    }
+  }
+}

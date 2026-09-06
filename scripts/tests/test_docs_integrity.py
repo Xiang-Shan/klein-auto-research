@@ -66,17 +66,45 @@ def test_lifecycle_string_is_byte_identical_in_four_places() -> None:
         assert LIFECYCLE in _read(path), f"{path.relative_to(REPO_ROOT)} lost the canonical lifecycle string"
 
 
+#: Asset suffixes a protocol may name. The templates the generation layer added are
+#: `.yaml`, `.json` and `.py`, so a regex that stopped at `.md|.toml` silently
+#: exempted exactly the newest half of `assets/` from the dangling-reference check.
+ASSET_SUFFIXES = ("md", "toml", "yaml", "json", "py")
+
+ASSET_REF_RE = re.compile(
+    r"`(?:\.claude/skills/klein/)?"
+    r"(references/[A-Za-z0-9_./<>-]+\.md"
+    rf"|assets/[A-Za-z0-9_.-]+\.(?:{'|'.join(ASSET_SUFFIXES)}))`"
+)
+
+
 def test_every_referenced_protocol_and_asset_exists() -> None:
     missing: list[str] = []
-    ref_re = re.compile(r"`(?:\.claude/skills/klein/)?(references/[A-Za-z0-9_./<>-]+\.md|assets/[A-Za-z0-9_.-]+\.(?:md|toml))`")
     for path in NORMATIVE_MD:
-        for match in ref_re.finditer(_read(path)):
+        for match in ASSET_REF_RE.finditer(_read(path)):
             target = match.group(1)
             if "<" in target:  # `references/profiles/<profile>.md` placeholders
                 continue
             if not (SKILL_DIR / target).exists():
                 missing.append(f"{path.relative_to(REPO_ROOT)} → {target}")
     assert not missing, "dangling protocol/asset references:\n" + "\n".join(missing)
+
+
+def test_no_orphan_asset() -> None:
+    """Every packaged asset is named by at least one protocol or normative doc.
+
+    The mirror of ``test_no_orphan_protocol``: a template nobody points at is a
+    template nobody will find, and the fix is the pointer — never a narrower test.
+    """
+    corpus = "\n".join(_read(p) for p in NORMATIVE_MD)
+    orphans = [
+        asset.name
+        for asset in sorted(ASSETS.iterdir())
+        if asset.is_file()
+        and asset.suffix.lstrip(".") in ASSET_SUFFIXES
+        and f"assets/{asset.name}" not in corpus
+    ]
+    assert not orphans, f"assets nobody points at: {orphans}"
 
 
 def test_no_orphan_protocol() -> None:

@@ -28,7 +28,7 @@ unlock a run.
 
 `/klein <stage>` routes the lifecycle stages below. The STAGES are protocol routes;
 the `klein` CLI verbs (`new gate preflight run-one recover status finalize
-noise-floor verify headroom stop predict claims replicate sweep doctor`) are the
+noise-floor verify headroom stop predict claims replicate sweep doctor generation`) are the
 machine actions each stage uses — the two are mapped here, not identical. Run stages
 in lifecycle order for a new study; `status` any time. The reference PROTOCOLS are
 the source of truth — the worker agents in `.claude/agents/` are optional
@@ -37,18 +37,112 @@ accelerators; a solo session follows the protocols directly.
 | Stage | What it does | Protocol | CLI verbs used | Worker agent |
 |---|---|---|---|---|
 | `new` | Scaffold a study dir, typed by kind / modality / profile | `references/defaults-and-scaffolding.md`, `references/inquiry-model.md` | `klein new`, `klein doctor` | — |
-| `consult` | Gate 0: ≤6-question interview (or fast-path); type the inquiry; register predictions with rules | `references/consult-protocol.md` | `klein gate record consult` after the **user ack** | klein-consultant |
-| `data` | Gate 1: modality-typed profile → clean-room leakage audit → ranked go/no-go → data_card.md | `references/data-gate-protocol.md`, `references/data-sources.md` | `python -m kleinlib.leakage`; `klein gate record data` (or `gate override data --reason`) | klein-data-auditor |
-| `method` | Gate 2: intuition→math→impl→refs → method_card.md (+ the verifier, hashed) | `references/method-gate-protocol.md` | `klein gate record method` | klein-method-scholar |
-| `run` | One candidate transaction — or one registered cell — (edit → commit → run → verify → retain evidence) | Hard Rules below; `references/registered-mode.md`; phase starts: `references/phase-ritual.md`; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one [--tests P#]`; `klein noise-floor --recipe --estimand` at Phase 0; `klein run-one --final-test --dry-run` then `--final-test`; `klein replicate`; `klein sweep register`; `klein recover` after interruption | klein-experimenter / klein-sweeper |
-| `synthesize` | Mine trajectory + predictions ledger → 7-section findings + claims.lock | `references/synthesis-protocol.md`, `references/claims-protocol.md` | `klein predict list`, `klein claims init|pin|number|add|verify` | klein-synthesist |
-| `referee` | Gate 3: fresh context, different model; verifiers + ten-check rubric → referee_report.md | `references/referee-protocol.md` | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after | klein-referee |
+| `consult` | Gate 0: ≤6-question interview (or fast-path); type the inquiry; register predictions with rules | `references/consult-protocol.md` | `klein gate record consult` after the **user ack**; generation-enabled, all BEFORE the ack: `klein generation init`, then `generation knowledge query`, `generation expert lock`, `generation reference record`, `generation parity lock`, `generation escalate lock` | klein-consultant |
+| `data` | Gate 1: modality-typed profile → clean-room leakage audit → ranked go/no-go → data_card.md | `references/data-gate-protocol.md`, `references/data-sources.md` | `python -m kleinlib.leakage`; `klein gate record data` (or `gate override data --reason`); generation-enabled, BEFORE the record: `klein generation design lock` | klein-data-auditor |
+| `method` | Gate 2: intuition→math→impl→refs → method_card.md (+ the verifier, hashed) | `references/method-gate-protocol.md` | `klein gate record method`; generation-enabled, at or just after the gate: `klein generation benchmark commit`, `klein generation surprise register` | klein-method-scholar |
+| `run` | One candidate transaction — or one registered cell — (edit → commit → run → verify → retain evidence) | Hard Rules below; `references/registered-mode.md`; phase starts: `references/phase-ritual.md`; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one [--tests P#]`; `klein noise-floor --recipe --estimand` at Phase 0; `klein run-one --final-test --dry-run` then `--final-test`; `klein replicate`; `klein sweep register`; `klein recover` after interruption. Generation-enabled: `klein generation check` before EVERY `run-one`, with `generation slate lock\|amend\|score` and `generation premortem record\|respond` at phase starts, `generation expert bind\|repair`, `generation parity bind\|assess`, `generation contribution record`, `generation escalate record\|close\|pivot`, `generation surprise record`, `generation benchmark submit\|reveal` and `generation custody attest` as the work reaches them | klein-experimenter / klein-sweeper |
+| `synthesize` | Mine trajectory + predictions ledger → 7-section findings + claims.lock | `references/synthesis-protocol.md`, `references/claims-protocol.md` | `klein predict list`, `klein claims init\|pin\|number\|add\|verify`; generation-enabled: `klein generation label` (after both verifies pass at one HEAD) and `klein generation knowledge promote\|contest\|resolve` | klein-synthesist |
+| `referee` | Gate 3: fresh context, different model; verifiers + ten-check rubric → referee_report.md | `references/referee-protocol.md` | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after; generation-enabled: read `generation/verify_receipt.json` and `generation/label.json` and write the report's `Generation:` line — never re-derive a machine verdict | klein-referee |
 | `tutorial` | Build self-contained teaching HTML, numbers from the lock | `references/tutorial-spec.md`, `references/profiles/<profile>.md` | — (`.claude/skills/klein/scripts/build_tutorial.py`) | klein-tutor |
-| `status` | Summarize results, predictions, evidence use | `.claude/skills/klein/scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation (writes the receipt) | — |
+| `status` | Summarize results, predictions, evidence use | `.claude/skills/klein/scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation-protocol.md`) | — |
 
 War stories behind the guards: `references/war-stories.md`. Schema authority:
 `kleinlib/schema.py` — never restate columns anywhere. The five objects and three axes
 every study is typed on: `references/inquiry-model.md`.
+
+**Opt-in generation layer (schema 3).** A study may additionally record what it
+committed to BEFORE the evidence: `klein generation init` before Gate 0, then one
+`klein generation check` before every `run-one`, verified separately by `klein
+generation verify` — `references/generation-protocol.md`. A study that does not opt in
+is untouched by it, and no core verb, receipt or disposition changes either way.
+Declaring `--capability expertise` adds the reproduction obligation: `klein generation
+expert lock` freezes `domain_card.md` (pipeline, metrics, doctrine, pitfalls, a
+`method_shortlist` that precedes METHOD, and a baseline recipe with numeric targets)
+before Gate 0; the baseline runs as an ordinary `run-one` admitted with `--action
+baseline`; `klein generation expert bind E0001` adjudicates it, and no challenger run
+is admitted until a bind reproduces — repairs are versioned and targets never move
+(`references/expert-protocol.md`). Its citations are `klein generation reference
+record` entries under `knowledge/references/` — locator, supported statement, source
+hash and verification level — because on an enabled study a bare `verified: true` is
+insufficient (`references/reference-protocol.md`).
+A study that declares the **`slates`** capability additionally records each phase's
+hypothesis slate (`klein generation slate lock`, 4–6 authored rows → `<study>#Hn` ids),
+admits runs by `--hypothesis`, and scores the driver's own forecasts at phase end
+(`klein generation slate score` → `generation/tables/slate_calibration_<phase>.tsv`).
+Declaring `--capability design` adds the evidence-design artifact: `klein generation
+design lock` freezes `evidence_design.yaml` — estimand, population, units, measurement
+process, identification assumptions and intended generalization; uncertainty method,
+validity conditions, practical threshold and provenance; evidence representations,
+dependency hierarchy, permitted reuse, seal and acquisition custody; the warrant; the
+typed continuation — **before Gate 1**, and every validity condition must name a
+registered `P#` whose rule can fire it (an `inconclusive_if` rule or an
+`all_of`/`any_of`/`not` combinator, never a plain leaf). A `--action cell` admission is
+refused until it is locked (`references/generation-protocol.md`, "Evidence design").
+Declaring **`premortem`** (which requires `slates`) puts a recorded red team between
+the draft slate and the first run: `klein generation premortem record` binds the draft
+slate's hash, the reviewer, the hashed input bundle and the issues; `klein generation
+premortem respond` records one disposition per issue, and a `blocking` + `mechanical`
+issue must be accepted with the hash of a NEW slate version before any hypothesis of
+that phase is admitted. The reviewer may not be the roster's referee — the critic is
+not the closing referee (`references/premortem-protocol.md`).
+Declaring **`parity`** adds the AI-vs-expert comparison: `klein generation parity lock`
+freezes `parity.yaml` before Gate 0 (both pipelines, the sampling unit and block, and
+each metric's direction, measured-floor reference, noninferiority margin and written
+rationale, tied to the registered `P#` whose rule IS that margin); `parity bind` pins
+the scorer's hash, both frozen snapshots and the floors, and no `--action sealed`
+admission is granted on ANY track until it exists; one sealed registered cell measures;
+`klein generation parity assess` recomputes `d/L/U` from the cell's pinned per-unit
+table and decides `exceeds | parity | refuted | inconclusive` — an undefined metric can
+never pass, and the by-δ agreement check is reported as `agreement_within_floor`,
+never as parity. **`contribution`** appends `ai_value.jsonl` through `klein generation
+contribution record` (coverage includes rejections; an accepted row with no human
+acceptor stays agent-accepted; causal AI value needs the cited matched ablation)
+— `references/expert-parity-protocol.md`.
+Declaring `--capability escalation` adds the escalation ladder: `klein generation
+escalate lock` freezes `escalation_plan.yaml` before Gate 0 — the triggers a stall is
+reconstructed from (consecutive discards, closed headroom, an exhausted phase budget),
+the five rungs in one fixed order (metric diagnosis → method family → data leverage →
+adjacent-field analogy → human expert, with `stop` always available), unit-bearing
+budgets, and `stop`/`pivot` as terminal actions. Once a trigger trips, no `run` or
+`--hypothesis` admission is granted until `klein generation escalate record` files a
+`<study>#Dn` decision naming the concrete changed resource; `escalate close` adds the
+actual costs and `escalate pivot` links a successor study with both contract hashes and
+its inherited exposure. Editing the plan afterwards cannot discharge a stall
+(`references/escalation-protocol.md`).
+Declaring `--capability knowledge` couples the study to the repo-level knowledge
+store: `klein generation knowledge query` records the consultation receipt CONSULT
+cites — pinned `store_head`, deterministic `lex-1` retrieval, COMPLETE hits, each
+hit's contest closure, and a use/reject reason for every one, or an explicit
+`no_match` — **before** Gate 0; `knowledge promote` imports a VERIFIED claim (or a
+method card) with its class, strength and evidence roots copied verbatim;
+`contest` and `resolve` append opposing evidence and adjudications without
+deleting either side. The markdown under `knowledge/` stays the human surface and
+is never rewritten (`references/knowledge-protocol.md`).
+Declaring `--capability surprise` (which requires `design`) adds discovery cells:
+`klein generation surprise register` freezes `discovery_cells.yaml` after METHOD and
+before any cell evidence — template, statistic, adapter and inputs with their hashes,
+partition (never sealed), unit and group policy, the COMPLETE segment inventory,
+`minimum_n`, and a declared multiplicity rule, because a measured effect floor is not a
+multiplicity correction. A cell then runs as an ordinary `klein run-one --tests P#`
+(admitted with `--action cell --cell <id>`), and `klein generation surprise record --run
+E####` reads the pinned per-unit table, recomputes every segment, and issues one
+`<study>#Sn` receipt per violation while retaining the null and inconclusive ones —
+explanations stay `unresolved` until a human writes one, and no `confirmed` claim may
+rest on a discovery table (`references/surprise-protocol.md`).
+Declaring **`benchmark`** (which requires `parity`) makes the study the CUSTODIAN of
+a planted-truth benchmark: `klein generation benchmark commit` freezes
+`benchmark.yaml` at METHOD — arms and budgets, the hypothesis cap, the matching rule,
+the false-positive penalty, disjoint development/sealed seed blocks, the per-arm
+recovery `P#`s — and records `sha256(salt ‖ private bundle)` before any participant
+sees the public one; `benchmark submit --arm` imports each frozen answer;
+`benchmark reveal` recomputes the commitment (a mismatch is refused AND recorded) once
+every arm has submitted or has a recorded missing trial; ONE sealed registered cell
+then scores all arms, and verification re-applies the matching rule to the pinned
+`tables/benchmark_scores.tsv`. Each participant is a separate `discover` study on a
+separate machine that declares no `benchmark` capability. **A hash is not secrecy**:
+`klein generation custody attest` — capability-agnostic, usable by any
+generation-enabled study — records a named holder's testimony, and without one the
+outcome reads `unverified` (`references/planted-truth-protocol.md`).
 
 ## Setup
 
@@ -273,7 +367,7 @@ In the foreign repo, add the engine (see `assets/pyproject-study-template.toml`)
 `uv sync --locked`:
 
 ```bash
-uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v2.0.0"  # pin a tag — and record the commit
+uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v2.1.0"  # pin a tag — and record the commit
 ```
 
 Pin by tag *and* record the commit in your study's lock (`klein_commit`): since 2.0.0
@@ -301,9 +395,33 @@ model in the loop. Know the edges:
   pinned table; SYNTHESIZE weighs tradeoffs without manufacturing a global frontier.
 - **Single machine, one experiment at a time** (blocking foreground). No parallel
   dispatch, no scheduler: a cluster run is a blocking submit-and-wait entrypoint.
+- **The generation layer records and scores; it never generates.** The opt-in
+  layer (`references/generation-protocol.md`) hashes admission receipts, checks their
+  order against local witnesses, and computes arithmetic on rows the driver wrote. It
+  never proposes, ranks, selects, schedules or retries — and local ordering is not
+  independently established chronology. A slate's 1–3 axis scores are validated and
+  copied verbatim; nothing sorts on them, and a Brier score over a four-row slate
+  proves the arithmetic, not calibration in general.
+- **A screen selects what to look at; it cannot also confirm it.** Surprise mining
+  (`references/surprise-protocol.md`) proves that the search space and its
+  multiplicity rule predate the evidence and that every registered segment is
+  accounted for — not that a segmentation is meaningful or that a violation means
+  anything about the world. `metrology.family_maxt` is a randomization diagnostic
+  under a registered symmetry assumption, not exact family-wise error control;
+  confirmation belongs to a separately registered `test` study on fresh rows.
+- **Custody is testimony, and in-silico recovery is not discovery.** A hash proves a
+  private bundle was not altered, never that nobody read it: isolation is accounts,
+  containers or machines, `klein generation custody attest` records a named holder's
+  claim about it, and an unattested benchmark is reported `unverified` rather than
+  accused. Recovering a planted structure establishes performance on that generator
+  — a `confirmed` claim resting on the scoring table is refused
+  (`references/planted-truth-protocol.md`).
 - **No learned meta-controller.** The agent reasons conversationally; `playbook.md`
   is the within-study memory and `knowledge/` the cross-study memory — priors promote
-  through claim-cited findings, not learned weights.
+  through claim-cited findings, not learned weights. The knowledge store's retrieval
+  is deterministic lexical/tag overlap (`references/knowledge-protocol.md`) chosen
+  because it replays, not because it retrieves well: it proves what a study SAW, not
+  that the field was searched adequately or that the scope tags are honest.
 - **The referee is independent by mechanism, not by magic.** A fresh session of the
   same model is the lowest rung of the ladder and is recorded as such.
 - **The measured noise floor bounds honesty, not power.** A `minimum_delta` from a

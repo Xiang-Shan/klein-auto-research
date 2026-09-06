@@ -133,6 +133,38 @@ skipped them; the fix cost ~2h and salvaged every later comparison.)
   (a known-valid object it must accept), and the external best-known value with its
   source. The verifier script is named and is outside the entrypoint's `mutable[]`.
 
+**External evidence, on a study that locked an evidence design.** Any modality section
+that describes evidence Klein did not produce — an imported extract, a vendor table, a
+wet-lab run, a colleague's file — copies the acquisition and custody fields for it from
+the study's locked `evidence_design.yaml` (`evidence.acquisition[]`: `source`, `kind`,
+`acquired_at`, and for `kind: acquisition` the `custody` chain and who `attested_by` it).
+The card restates them; it never re-decides them, because the design was locked before
+this gate. Two reminders travel with them: import chronology does not prove acquisition
+chronology, and custody is testimony rather than a verification. Narratives about how
+the evidence was generated stay OUTSIDE the clean-room leakage audit — the audit reads
+the prepared table and the split index, and a provenance story is neither.
+
+**Planted-truth benchmarks: the DGP card belongs to the custodian.** A benchmark
+splits one simulation across two studies, so the `## DGP card` above splits with it
+(`references/planted-truth-protocol.md`). The CUSTODIAN's `simulate` study carries the
+card **in full** — generating process, every parameter, the seed blocks for
+development and sealed, the sample sizes, what "recover" means numerically — and that
+is where the simulation disclosure requirement is satisfied. Each PARTICIPANT's
+`discover` study carries a card that says, in one line, **"observations only; truth
+custodied by `<holder>`"**, names the public bundle and its hash, and declares nothing
+about the generating process, because it knows nothing about it. A participant card
+that describes the truth has either leaked it or invented it, and both are BLOCKERs.
+The custodian's own card is written before the commitment and hashed with it; neither
+card's generation narrative enters the clean-room leakage audit.
+
+The receipt behind that one line — `klein generation custody attest` — is
+**capability-agnostic**: it needs the generation opt-in and nothing else. A study whose
+later time block is held by a colleague, whose wet-lab samples are held by a lab, or
+whose sealed extract is held by a vendor records exactly the same testimony, and a card
+that says "custodian-held later block" should name the attestation beside the holder.
+Testimony, never a verification: a hash proves the bytes did not change, never that
+nobody read them.
+
 ## 4. Rank the issues
 
 List issues most-severe first, each with a severity and a recommended action:

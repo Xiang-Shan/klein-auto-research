@@ -1,0 +1,83 @@
+# premortem/<phase>.yaml — the slate-time red team (generation layer, opt-in).
+#
+# The REVIEWER writes `issues`, in a fresh session the driver arranges; Klein
+# calls no model and spawns nothing.  The DRIVER writes `responses`, afterwards,
+# once each objection has been answered.  Nothing here is scored, ranked or
+# selected — the reviewer supplies arguments and checks, the driver keeps every
+# selection judgement (references/premortem-protocol.md, references/phase-ritual.md).
+#
+#   uv run --locked klein generation premortem record  --study studies/NN-slug --phase <phase>
+#   uv run --locked klein generation premortem respond --study studies/NN-slug --phase <phase>
+#
+# The order is fixed and it is the whole point:
+#   slate lock (v1, the DRAFT) → premortem record → the fixes → premortem respond
+#   → slate amend (v2, the FINAL) → the first hypothesis admission.
+# `record` refuses once a hypothesis of the phase has been admitted; a review
+# recorded late with `--allow-late` FAILs `klein generation verify` for the life
+# of the study.
+
+type: premortem
+study: NN-slug                      # this study's id
+phase: adaptive-1                   # a phase id from study.yaml
+
+# The sha256 of the DRAFT slate lock OBJECT being reviewed — `klein generation
+# slate lock` prints it, and `klein generation slate show` lists it.  It must be
+# the version in force: reviewing a superseded draft corrects nothing.
+slate_object: 0000000000000000000000000000000000000000000000000000000000000000
+
+reviewer:
+  name: A. Reviewer                 # testimony, never authenticated
+  model: null                       # what ran the review, if a model did
+  tool: null
+  session_receipt: null             # study-relative path to the review transcript.
+                                    # Its sha256 is hashed into the record and is
+                                    # the ONLY thing that lifts independence from
+                                    # `self-attested` to `receipted`.  It certifies
+                                    # that a file existed — never that the review
+                                    # was independent, competent, or even read.
+
+# Exactly what the reviewer was handed, as study-relative paths.  Every one is
+# hashed into an input bundle and recomputed at verify time from the commit that
+# introduced the record, so "the reviewer saw the draft" is checkable rather than
+# claimed.  `slates/<phase>.yaml` is required — it is the thing under review.
+inputs:
+  - study.yaml
+  - domain_card.md
+  - playbook.md
+  - slates/adaptive-1.yaml
+
+issues:
+  - id: I1                          # I1, I2, … — local to this review
+    target: NN-slug#H2              # a live row of the reviewed slate, or `slate` / `design`
+    severity: blocking              # blocking | major | minor
+    kind: mechanical                # mechanical | scientific
+                                    #   mechanical — the record can adjudicate it: a
+                                    #     denominator, a partition, a metric that cannot
+                                    #     be computed as written.  A BLOCKING mechanical
+                                    #     issue must be `accept`ed, and the acceptance
+                                    #     must name a NEW slate version, before any
+                                    #     hypothesis of the phase is admitted.
+                                    #   scientific — a judgement about the world.  The
+                                    #     driver may `reject` it with a rationale: the
+                                    #     reviewer supplies arguments, not a veto.
+    text: >-
+      the yield metric divides by completed batches, so a route that fails half its
+      batches scores higher than one that finishes them all; count every batch
+      attempted, and state the denominator in the row.
+
+  # Free-form keys the reviewer adds are copied into the record verbatim and
+  # never interpreted — a fuller review shape fits here unchanged:
+  # failure_story / challenged_assumption / source_or_counterexample /
+  # discriminating_check.
+
+# `responses` MUST be absent or empty when `record` runs — a review is recorded
+# before it is answered, or it is not a review.  Write them afterwards, then run
+# `premortem respond`; the file is frozen from that moment and an edit FAILs
+# verification.
+responses: []
+#  - issue: I1
+#    disposition: accept             # accept | reject | defer
+#    rationale: the denominator now counts every batch attempted
+#    changed_artifact_hash: <sha256 of the NEW slate version `slate amend` printed>
+#                                    # required on `accept`, and it must descend
+#                                    # from `slate_object`; forbidden otherwise.

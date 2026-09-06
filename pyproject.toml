@@ -1,6 +1,6 @@
 [project]
 name = "klein-auto-research"
-version = "2.0.0"
+version = "2.1.0"
 description = "Klein Auto Research — process-verifiable research for AI for Science"
 readme = "README.md"
 license = "MIT"

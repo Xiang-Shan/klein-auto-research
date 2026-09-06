@@ -22,6 +22,10 @@ interrogate. The six axes, with example phrasings:
    synthetic known-truth lab, or is there a verifier that judges an object instead?"
 3. **Method familiarity.** "Is the method one you know well, or one you've only read
    about? Frontier / unfamiliar methods get a full METHOD gate (intuition → math → refs)."
+   On a study whose generation manifest declares `expertise`, this answer is read from
+   `domain_card.md`'s `method_shortlist[]` rather than invented here — the shortlist is
+   locked before this gate and is what METHOD chooses FROM
+   (`references/expert-protocol.md`).
 4. **Metric & decision use.** "For each distinct task, what primary metric should its
    track use, higher or lower, what minimum delta matters, and which guardrails
    must hold?" Never combine unrelated tasks into one global frontier. Declare
@@ -138,7 +142,11 @@ assert evaluate_rule(
   consult artifact — a study that scouted nothing may delete it, and the gate then
   records `scouting_ledger: absent` on the event trail so the absence is itself on
   the record. Values seen there may seed anchors and identity checks; they may
-  never be scored predictions, and priors resting on them are `(source: scouted)`.
+  never be scored predictions, and priors resting on them are `(source: scouted)`. On a
+  generation-enabled study the same rule types the slate: a hypothesis whose outcome the
+  ledger already observed carries `provenance: scouted`, is EXCLUDED from prospective
+  calibration, and is reported in a descriptive panel of its own
+  (`references/generation-protocol.md`).
 - **Fill the `experimenter` row of `program.md`'s `## Roster`** with the model, tool
   and session that will run the loop. REFEREE reads that table for the independence
   rung (`references/referee-protocol.md`); left blank, the rung is capped at "fresh
@@ -147,6 +155,13 @@ assert evaluate_rule(
   reproduce it EXACTLY, STOP if off — this catches split/leakage bugs before they
   poison every later comparison. A `replicate` study anchors on a published sum,
   count or table dimension of the transcribed data.
+  **On an `expertise`-enabled study the identity anchor IS the EXPERT obligation**: the
+  card's `baseline.targets` are frozen at `klein generation expert lock` before this
+  gate, the anchor runs as E0001 under a `--action baseline` admission after METHOD,
+  and `klein generation expert bind E0001` discharges it. A `mismatch` or `crash`
+  BLOCKS every challenger admission until a versioned `expert repair` reproduces —
+  "STOP if off" stops being a discipline the driver keeps and becomes one the notary
+  keeps (`references/expert-protocol.md`).
 - **Then measure the noise floor — never guess `minimum_delta`.** After the anchor,
   run the floor recipe that matches the question — `seed-sweep` (fit noise; k=5
   default, k=3 if one run exceeds ~5 minutes), `split-lottery` (marginal-resplit), or
@@ -197,6 +212,23 @@ assert evaluate_rule(
 
 ## Confirm — and STOP for ack
 
+**Generation-enabled studies first.** If this study opts into the generation layer
+(`references/generation-protocol.md`), `klein generation init` must already be
+anchored before the gate is recorded — a consult record that precedes the opt-in fails
+`klein generation verify` permanently, because a commitment registered after seeing
+what it was supposed to constrain constrains nothing.
+So must `klein generation expert lock` when the manifest declares `expertise`: the
+method shortlist and the baseline targets have to precede the gate for the same
+reason (`references/expert-protocol.md`).
+And so must `klein generation knowledge query` when the manifest declares
+`knowledge`: the consultation receipt is what the summary below cites. Present the
+hits it returned with their contest closure, record a `use` or `reject` reason for
+every one (`--use K1=<why>` / `--reject K2=<why>`, or `knowledge decide` before the
+ack), and cite the explicit `no_match` receipt when the store held nothing — an
+empty store is consulted, never skipped. A store read after the ack is a
+bibliography, not a consultation, and FAILs `knowledge query`
+(`references/knowledge-protocol.md`).
+
 Present a concise summary: goal; kind / modality / profile with one line of reasoning
 each; the track contracts (mode, metric, floor recipe, bound, verifier); the data
 source and pin; the split; the phase ladder with budgets; the research questions with
@@ -222,7 +254,13 @@ steps directly.
 
 Every research-question prior names its source in parentheses:
 `(source: knowledge/domains/insurance/gbdt-hyperparameter-guide.md#C2)`,
-`(source: method_card §4)`, `(source: scouted)`, or `(source: uninformed)`. Findings
-§⑥ then settles the scorecard — did knowledge-sourced priors outpredict uninformed
-ones? — with scouted priors excluded, which is what makes the knowledge promotion loop
-measurable rather than devotional.
+`(source: method_card §4)`, `(source: scouted)`, `(source: uninformed)`, or — on a
+generation-enabled study — `(source: <study>#Hn)` for a prior that rests on an earlier
+slate row and `(source: knowledge:K7)` for one that rests on a store object the
+consultation receipt returned and the study recorded as `use`
+(`references/knowledge-protocol.md`). Findings §⑥ then settles the scorecard — did knowledge-sourced priors
+outpredict uninformed ones? — with scouted priors excluded, which is what makes the
+knowledge promotion loop measurable rather than devotional. An enabled study's scorecard
+also carries the slate calibration panels (`unscouted` and `derived` scored,
+`scouted_descriptive` reported and never summarised as calibration), pinned as
+`art:slate_calibration_<phase>`.

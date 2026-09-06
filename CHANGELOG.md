@@ -6,6 +6,451 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [2.1.0] — 2026-09-06
+
+### Added
+
+- **Opt-in process-verifiable generation layer — the spine** (`klein generation
+  init | check | verify | label | status | recover`). A schema-3 study may now record
+  what it committed to BEFORE the evidence existed: an immutable opt-in manifest
+  anchored ahead of the CONSULT gate, one admission receipt per action binding the
+  intended action and the exact bytes of `entrypoint.mutable`, and a separate audit
+  (`generation/verify_receipt.json`) that classifies every run in scope as
+  `admitted | unadmitted | refused-but-run | mismatched | replayed`. Order is
+  established by three local witnesses — the extension hash chain, a core-chain
+  anchor, and git ancestry — never by a clock. A refusal is written and committed
+  like an admission, so ignoring one is detectable. The dual-pass
+  `generation-verified` label requires the core `klein verify` receipt AND the
+  generation receipt to pass at the same HEAD, and `findings.md` to quote it.
+  Protocol: `.claude/skills/klein/references/generation-protocol.md`; template:
+  `.claude/skills/klein/assets/generation-manifest-template.yaml`.
+- The capability vocabulary (`expertise, slates, premortem, parity, contribution,
+  surprise, escalation, knowledge, benchmark, design`) and its dependency table are
+  encoded. Opting in with `capabilities: []` buys the admission discipline and the
+  chronology witnesses, and nothing that scores research; each capability below is
+  declared explicitly at `klein generation init`. This release supports all ten; a
+  name a build cannot check is still refused as *not available* — a different message,
+  and a different problem, from a typo — which is what a study meets when it is
+  carried back to an older Klein.
+- **Capability registration hooks.** A capability now plugs into the generation spine
+  by registration (`kleinlib/generation/registry.py`: a name, admission rules, one
+  verify family; `capabilities.py`: the modules this version ships), never by editing
+  `admission.py`, `verify.py` or `label.py`. A capability the manifest does not declare
+  is not consulted; one it declares that this version cannot run FAILs
+  `generation manifest`. Families report `integrity` (is the record intact) and
+  `outcome` (what the research got) separately — the label copies the outcome, the
+  spine judges only the integrity — and a study with `capabilities: []` runs no family,
+  so its receipt is byte-for-byte the one the spine already produced.
+- `Capability.receipt_inputs` — a registered capability may FILL one of the admission
+  receipt's six existing `inputs` slots (`slate`, `premortem`, `parity`, `cells`,
+  `design`, `benchmark`) beside the spine's own `manifest` — the `slates` capability, for
+  instance, pins the lock's object sha in `inputs.slate`. The receipt's key set stays the
+  spine's — no capability may add a key — and a study that declares nothing gets the
+  receipt it always got.
+
+The ten capabilities follow, in the order the spine loads them — dependencies first.
+
+- **The `expertise` capability — acquire the domain, then prove you acquired it**
+  (`klein generation expert lock | amend | bind | repair | review`). A declaring study
+  freezes `domain_card.md` before the CONSULT gate — pipeline, metrics, doctrine,
+  pitfalls, incumbent, a `method_shortlist[]` that precedes METHOD, and a baseline
+  recipe with numeric targets — then executes that baseline as an ordinary `run-one`
+  transaction admitted with `--action baseline`. `expert bind E####` recomputes each
+  target from the run's printed metric block and records `reproduced | mismatch |
+  crash`; **until a bind reproduces, no `run` or `sealed` admission is granted.** A
+  failed reproduction is fixed by a versioned `expert repair` naming the changed files
+  and their hashes (never the declared verifier), verified afterwards against those
+  files at the next bound run's candidate commit. Targets are frozen at version 1: an
+  amendment that moves one is refused, because lowering a bar you did not clear is a
+  successor study, not a repair. The capability outcome is `incomplete` (label-eligible
+  — an honestly open obligation is a WARN, never a FAIL), `source-reconstructed`, or
+  `independent-review` when a recorded review carries a session-receipt hash and a
+  reviewer who is not `program.md`'s roster experimenter. Protocol:
+  `.claude/skills/klein/references/expert-protocol.md`; template:
+  `.claude/skills/klein/assets/domain-card-template.md`.
+- **Reference records** (`klein generation reference record`) — write-once, repo-level
+  `knowledge/references/<id>.json` carrying the locator, the one statement the work is
+  cited for, the hash of the bytes that were read, whether they were retained, and the
+  verification basis (`read-at-source > bibliography > abstract-only > hash-only`),
+  each basis enforcing its own consistency rule. Klein copies no bytes: the hash goes
+  into git, the source stays where it is. On an `expertise`-enabled study a
+  `references.yaml` row saying `verified: true` without a resolvable `record_id` FAILs
+  verification. Protocol:
+  `.claude/skills/klein/references/reference-protocol.md`.
+
+- **Hypothesis slates and forecast calibration** (the `slates` capability;
+  `klein generation slate lock | amend | score | show`). A generation-enabled study may
+  now record each phase's 4–6 authored candidates in `slates/<phase>.yaml`, give each a
+  permanent `<study>#Hn`, admit a run with `klein generation check --hypothesis` (which
+  binds the run to the row and refuses unless `--tests` covers the row's `success_P`),
+  and at phase end compute the Brier score, Murphy decomposition, base-rate skill and
+  best/worst bounds of the forecasts it wrote — into
+  `generation/tables/slate_calibration_<phase>.tsv`, pinned as
+  `art:slate_calibration_<phase>`. A locked forecast is immutable (an edit fails
+  verification for the life of the study); a revision is an amendment scored in its own
+  panel; the cohort denominator is frozen at lock, so withdrawal and perpetual deferral
+  report as coverage below 1.0 and outcome `conditional`, never as a better Brier; a
+  `provenance: scouted` row is descriptive and never calibration. Verification recomputes
+  every number from the receipts, the manifests and the core chain. **Nothing generates,
+  scores, ranks or selects a candidate** — the 1–3 axis scores are validated and copied,
+  and the phase ritual is still not automated. Protocol:
+  `references/generation-protocol.md` "Slates and calibration"; template:
+  `.claude/skills/klein/assets/slate-template.yaml`.
+- **Evidence design — what the evidence is FOR, locked before the DATA gate**
+  (`klein generation design lock`, capability `design`). A declaring study freezes
+  `evidence_design.yaml` into the extension chain before Gate 1: the Question's estimand,
+  population, units, measurement process, identification assumptions and intended
+  generalization; the Prediction's uncertainty method, validity conditions, practical
+  threshold and provenance; the Evidence's representations, dependency hierarchy,
+  permitted reuse, seal and acquisition ledger; the Claim's warrant (`prediction |
+  conditional-estimation | causal-inference | exploratory-structure | checked-witness`);
+  and the Decision's typed continuation with its predecessor and successor. **Every
+  validity condition must reach the arithmetic:** its `rule_ref` names a registered `P#`
+  carrying an `inconclusive_if` rule or an `all_of`/`any_of`/`not` combinator — a plain
+  leaf comparison and a prose `inconclusive_if` are both refused, and the cross-check is
+  re-run at every `generation verify` against `study.yaml` as it is now, so dropping an
+  `inconclusive_if` after the lock is caught. **Import chronology is not acquisition
+  chronology:** an `acquisition[]` entry with `kind: import` records when bytes arrived,
+  while `kind: acquisition` claims when the measurement was taken and is refused without
+  a `custody` chain and a named `attested_by` (testimony, never verified). A `--action
+  cell` admission is refused until the design is locked; the capability outcome is
+  `locked` or `unlocked`, and a late lock (`--allow-late`) FAILs `design lock`
+  permanently. The artifact supplements the five objects and changes no id grammar and no
+  engine rule. Protocol: the "Evidence design" section of
+  `.claude/skills/klein/references/generation-protocol.md`; template:
+  `.claude/skills/klein/assets/evidence-design-template.yaml`.
+- **Slate-time pre-mortem** — the `premortem` capability (`klein generation
+  premortem record | respond`), a recorded red team between the draft slate and the
+  first run. `record` binds the sha256 of the DRAFT slate lock, the reviewer, a hashed
+  bundle of exactly the inputs the reviewer was handed, and the issues — each
+  `{id, target, severity, kind, text}`, with the reviewer's own further fields copied
+  verbatim; `respond` binds one disposition per issue. A `blocking` + `mechanical`
+  issue must be `accept`ed with the hash of a NEW slate version descended from the
+  reviewed draft, or `klein generation check --hypothesis` is refused naming the issue
+  ids; a `scientific` objection may be rejected with a rationale, because the reviewer
+  supplies arguments and never a veto. **Nothing scores or ranks**: there is no
+  quality score for an issue and no comparison between candidates. A review recorded
+  after the phase's hypotheses ran FAILs; the reviewer's name matching `program.md`'s
+  roster `referee` FAILs — the proposal critic is not the closing referee; independence
+  is `self-attested` until a session receipt is hashed into the record, and Klein calls
+  no model to produce the review. The input bundle is recomputed at verify time from
+  the commit that introduced the record, and an answered review is immutable. The
+  generation spine's `generation orphans` family additionally FAILs an object file
+  whose bytes no longer hash to its own name. Protocol:
+  `.claude/skills/klein/references/premortem-protocol.md`; template:
+  `.claude/skills/klein/assets/premortem-template.yaml`.
+- **Expert parity and contribution ledger** — two more registered capabilities.
+  `parity` (`klein generation parity lock | amend | bind | assess | show`) turns "the AI
+  matched the expert" into a commitment made before the evidence: `parity.yaml` is locked
+  at CONSULT with both pipelines and their selection rules, the sampling unit and
+  dependence block, the matched budget rule, and every metric's direction, estimand,
+  measured-floor reference, noninferiority margin and **written margin rationale** — set
+  by someone who is not the roster's experimenter, and tied to a registered prediction
+  whose rule must be exactly `L_<key> >= -margin`, so the notary decides the same
+  inequality the assessment does. `parity bind` pins the scorer's hash, both frozen
+  snapshots and every measured floor, and a registered admission rule refuses
+  `--action sealed` on **any** track until it exists — the core still grants each
+  track its own single look, so parity must bind before any is spent. One sealed
+  registered cell measures; `parity assess` recomputes `d/L/U` from the cell's own pinned
+  `tables/parity_units.tsv` and applies the rule — **exceeds / at least parity / refuted
+  / inconclusive**, mutually exclusive by construction, with an undefined metric never
+  passing and the by-δ agreement check reported as `agreement_within_floor`, never parity.
+  Verification recomputes the same numbers from the same bytes and fails on a scorer or
+  snapshot that differs at the sealed candidate commit, on a second sealed run of the
+  comparison track, and on a locked metric the cell never printed or declared undefined.
+  `kleinlib.generation.stats.simultaneous_bounds` is the arithmetic: a block-bootstrap
+  max-t on per-block sums, pure numpy, deterministic under its seed — simultaneous bounds
+  under the declared block structure, not a p-value and not FWER control beyond this
+  registered family. `contribution` (`klein generation contribution record | show`)
+  appends `ai_value.jsonl` and seals each line's hash into the chain; coverage counts
+  every slate row and every hypothesis admission, rejections included, an accepted row
+  with no human acceptor is recorded as agent-accepted and never promoted, and the
+  outcome stays `descriptive` unless the parity lock cites a matched frozen-2.0 ablation
+  study. Protocol: `references/expert-parity-protocol.md`; templates:
+  `.claude/skills/klein/assets/parity-template.yaml` and `assets/parity_score_template.py`.
+- **The escalation ladder and successor studies — getting unstuck, accounted
+  for** (`klein generation escalate lock | record | close | pivot | show`, capability
+  `escalation`). A declaring study freezes `escalation_plan.yaml` before the CONSULT
+  gate: the triggers a stall is RECONSTRUCTED from — `consecutive_discards` through the
+  `stop:` rule's own counter, `headroom_closed` through the same `kleinlib.decision`
+  helpers `run-one` enforces on, `budget_exhausted` against a phase's registered
+  `max_experiments` — the five rungs in one fixed order (metric diagnosis → method
+  family → data leverage → adjacent-field analogy → human expert, with `stop` always
+  available from anywhere), unit-bearing budgets over compute/person-time/money/samples,
+  and `stop`/`pivot` as terminal actions. **Once a trigger trips, no `run` or
+  `--hypothesis` admission is granted** until a `<study>#Dn` decision citing it is
+  recorded after the tripping run — and the discharge is scoped to that count, exactly
+  like `klein stop ack`. Each decision names the rung, the lower rungs skipped WITH
+  REASONS (a silent skip is refused), the concrete changed resource or assumption, the
+  estimated cost and the condition that would close it; `close` adds the outcome and the
+  actuals, where a unit that cannot be measured is `unknown` with cost evidence rather
+  than omitted. Verification recomputes every count from the manifests, re-derives the
+  episode from the chain, FAILs an unaccounted rung, an open decision that outlived
+  `evidence_window`, a budget passed without a prior `extend-budget` decision, and a
+  pivot whose `old_contract_sha256` is not `study.yaml` at the pivot's own commit —
+  **editing the locked threshold cannot discharge a stall**. `escalate pivot` links a
+  successor study with both contract hashes, the exposure it inherits (spent seals, the
+  development partition, scouted ids) and every `#Hn`/`#Sn` id handed over; the
+  successor cites it back with `generation init --predecessor … --successor-receipt …`,
+  and its `escalation predecessor` check reads the receipt out of the predecessor's
+  store. A successor id restores no blindness. The capability outcome is
+  `none | escalated | stopped | pivoted`, reported beside its integrity. **The verb
+  neither chooses a rung nor launches, schedules or retries work** — whether the work
+  under a rung label deserves it stays the referee's judgement, which is why the changed
+  resource is written down. Protocol:
+  `.claude/skills/klein/references/escalation-protocol.md`; template:
+  `.claude/skills/klein/assets/escalation-plan-template.yaml`.
+- **Cross-study knowledge — transactions over pinned evidence** (the
+  `knowledge` capability; `klein generation knowledge promote | contest | resolve |
+  query | decide | show`). The markdown under `knowledge/` keeps its typed claim
+  citations and is never rewritten; beside it, a **repo-level** store of write-once
+  `knowledge/objects/<sha256>.json` and an append-only `knowledge/events.jsonl`
+  chain answers what prose cannot. `promote` imports a claim only if `klein claims
+  verify` passes on its study NOW, copies `class`, `strength` and `evidence_roots`
+  **verbatim** — a promotion creates availability, never stronger evidence — and
+  deduplicates by evidence roots, so one lesson repeated across ten studies is one
+  piece of evidence. `contest` attaches contradicting evidence from the citing
+  study's own verified lock and requires at least one CLAIM: **a prediction that
+  failed to transfer is a prediction verdict, not a refutation.** `resolve` appends
+  `upheld | scoped | withdrawn` and deletes nothing. Before the CONSULT ack, `query`
+  records the consultation receipt — contract draft hash, pinned `store_head`,
+  retriever version, typed query, COMPLETE hits (no top-k unless `--limit`, which is
+  recorded), **each hit's contest closure whatever it would have scored**, and a
+  use/reject reason for every one, or an explicit `no_match` so that an empty store
+  is consulted rather than skipped. Retrieval is `lex-1`: deterministic case-folded
+  token overlap, no embeddings and no model call, chosen because `generation verify`
+  replays the recorded query against the store at `store_head` via `git show` and
+  FAILs any difference as a suppressed hit or contest. The family also FAILs a late
+  consultation, an undecided hit, a broken store chain, a deleted transaction, an
+  unresolvable source hash (a foreign origin WARNs), and a strengthened copy.
+  `scripts/seed_knowledge_objects.py` seeds a repository from the citations already
+  in `knowledge/**/*.md` — dry-run by default, read-only over the markdown, skipping
+  any study whose lock does not verify, with scope fields left empty for human
+  curation. Protocol: `.claude/skills/klein/references/knowledge-protocol.md`.
+- **Surprise mining — registered discovery cells, three table templates, `<study>#Sn`
+  receipts** (`klein generation surprise register | record | show`, capability
+  `surprise`, which requires `design`). A study screening many segments now records the
+  DENOMINATOR: `discovery_cells.yaml` freezes the search space after METHOD and before
+  any cell evidence — template, statistic, adapter and inputs (hashed from disk by
+  `register` and pinned back into the file), partition (never `sealed`), unit and group
+  policy, the complete segment inventory, `minimum_n`, and a declared multiplicity rule.
+  **A measured effect floor is refused as one:** a floor answers "bigger than noise on
+  ONE comparison", so a screen declares `family_maxt` (`kleinlib.metrology.family_maxt`
+  over both signs of every segment), `bonferroni`, or a threshold from a registered null
+  sweep. Three table producers ship as library code a study entrypoint imports —
+  residual-by-segment, error slices, family disagreement — and the pinned table is PER
+  UNIT, because a sign-flip max-t acts on units and a summary-only artifact could not be
+  recomputed. A cell runs through ordinary `run-one --tests P#` (admitted with
+  `--action cell --cell <id>`, whose `--tests` must include the cell's registered
+  expectation); `surprise record --run E####` re-reads the pinned table, recomputes every
+  segment of the frozen inventory, makes a slice below `minimum_n` `inconclusive` rather
+  than `null`, and issues one `<study>#Sn` receipt per violation while retaining the null
+  and inconclusive segments in a complete inventory object and a derived
+  `generation/tables/surprise_<cell_id>.tsv`. **Explanations are never invented:**
+  a receipt reads `unresolved` until a driver types one, and `--explain SEGMENT=TEXT`
+  records that as testimony. The `surprise` verify family recomputes the record from the
+  pinned bytes and FAILs on a late first registration, an edited registry, an adapter or
+  input that differs today or at the run's candidate commit, a sealed-partition cell run,
+  an omitted eligible segment, an admitted cell run that was never recorded, and a
+  `confirmed` claim resting on a cell table or an S receipt — a screen selects what to
+  look at and cannot also confirm it. A bare `S#` in findings §③ WARNs, because the
+  scouting ledger already uses that token. Protocol:
+  `.claude/skills/klein/references/surprise-protocol.md`; templates:
+  `.claude/skills/klein/assets/discovery-cells-template.yaml` and
+  `.claude/skills/klein/assets/discovery_cell_template.py`.
+- **Planted-truth benchmark and custody receipts** — the `benchmark`
+  capability (`klein generation benchmark commit | submit | reveal | retire | show`),
+  plus one verb group that belongs to no capability at all,
+  `klein generation custody attest`. `commit` freezes `benchmark.yaml` after the
+  CUSTODIAN's METHOD gate and before any participant access: it hashes the public
+  bundle, computes `sha256(salt ‖ private-bundle bytes)` beside `sha256(salt)`, pins
+  the scorer and the participant-facing submission schema, and freezes the arms and
+  their budgets, the hypothesis cap, the false-positive penalty, the matching rule,
+  the per-arm recovery predictions and the **disjoint** development/sealed seed
+  blocks. The salt never enters the repository. `submit` validates each arm's ranked
+  structures against the schema and the cap and files the participant's own bytes as
+  `submissions/<arm>.json`; `reveal` recomputes the commitment once every arm has
+  submitted or carries a recorded missing trial that stays in the denominator — **a
+  mismatch is refused AND recorded** as `benchmark_reveal_failed`, and fails the audit
+  from then on. Scoring is an ordinary sealed `run-one` on a registered track: ONE
+  cell over all arms, pinning `tables/benchmark_scores.tsv`, which verification
+  recomputes row by row by re-applying the locked matching rule to the same
+  submissions and the same revealed truth. The machine decides variables (as a set),
+  relationship and sign; the fourth condition, *context*, is a preregistered sentence
+  the custodian adjudicates and records per row as `context_ok`, and verification
+  takes that column rather than pretending to derive it. Each planted truth is
+  recovered once — a later structure matching it is a duplicate, one matching nothing
+  is a false positive the declared penalty is charged against. The family also FAILs a
+  scorer that is not the pinned one at the scoring cell's candidate commit, a second
+  sealed scoring cell, and a `confirmed` claim resting on the in-silico table —
+  in-silico recovery is never confirmation. **A hash is not secrecy**: `custody
+  attest` records a NAMED holder's statement about accounts, containers or machines, stored with `testimony: true` and
+  reported as testimony; without one the outcome reads `unverified`, which fails
+  nothing. A benchmark known to have leaked is retired and its results are retained.
+  Protocol: `references/planted-truth-protocol.md`; templates:
+  `assets/benchmark-template.yaml`, `assets/benchmark-submission.schema.json` and
+  `assets/score_submissions_template.py`.
+- **The documentation surface says the same thing everywhere.** `AGENTS.md` and
+  `CLAUDE.md` carry the layer in one paragraph and one verb list — no new lifecycle
+  stage; `SKILL.md`'s stage table names the generation verbs used at each EXISTING
+  stage; `references/generation-protocol.md` lists every verb group, the six receipt
+  input slots, the dependency table, the eight verify families and the label's fields
+  as the code has them, and states once what the mechanism does not establish;
+  `references/inquiry-model.md` carries one table of the generation record ids
+  (`#Hn`, `#Sn`, `#Dn`, knowledge objects, generation objects) and the rule that they
+  reach a claim only through an `art:` alias; `references/referee-protocol.md` carries
+  one "Generation addenda" subsection — the ten core checks unchanged — with a reading
+  obligation per capability and the report's separate `Generation:` line, now in
+  `assets/referee-report-template.md`; and
+  `references/defaults-and-scaffolding.md` has a row per artifact the layer writes,
+  with the verb that writes it. `scripts/tests/test_docs_integrity.py` now checks the
+  `.yaml` / `.json` / `.py` templates protocols name, not only the `.md` and `.toml`
+  ones, and fails a packaged asset no protocol points at — the mirror of the
+  orphan-protocol check that has guarded `references/` since 2.0.
+
+### Fixed
+
+Everything below was found and repaired in one review pass over the layer before it
+shipped, so nothing here changes behaviour any study has ever depended on. The spine's
+fixes come first, then the capabilities' in the order the spine loads them.
+
+- **A generation receipt refreshes at a new HEAD.** `klein generation verify` used to
+  skip the rewrite whenever the new audit differed from the receipt on disk only in
+  `git_head`. After any unrelated commit — a `program.md` decision, a playbook
+  refresh, a framework doc — the receipt was therefore stale, re-verifying changed
+  nothing, and `klein generation label` refused for the life of the study. The
+  rewrite is now skipped only while the receipt is still current; two verifies at one
+  HEAD still file nothing.
+- **A generation commit carries generation paths only.** Every generation verb filed
+  its writes through a commit scope that also prepended `study_state.json` and the
+  core `events.jsonl`, so an operator's uncommitted core-state edit could be swept
+  into a generation transaction. Verbs now commit exactly the paths they wrote,
+  refuse to name core state or core evidence at all, and refuse to run while
+  `study_state.json` or the core `events.jsonl` is dirty.
+- **A study that never opted in is left untouched.** `klein generation verify` on a
+  study with no manifest and no chain exits 1 and writes nothing, instead of creating
+  `generation/` and filing a FAIL receipt against a study that had promised nothing.
+- **A run that went ahead after a refusal says so.** It is classified
+  `refused-but-run` from the newest preceding receipt, rather than `replayed` from any
+  older consumed one. Both still FAIL; only one is the truth.
+- **The object store refuses to complete a tamper.** Writing an object over different
+  bytes under the same name raises instead of overwriting, a file that is not its own
+  hash (or cannot be read) blocks every writing verb until it is restored by hand, and
+  `recover` never rewrites an object.
+- **The two ways a verb says no are told apart.** Exit 1 is an ERROR on stderr — the
+  question could not be asked: a malformed argument, an argument naming a file, run,
+  claim, trigger or decision that does not exist, or a study that cannot be read.
+  Exit 2 is a REFUSAL on stdout — a rule of the study, the ledger or an authored
+  artifact answered no, and the reasons ARE that answer. Only `check` records its
+  refusal, because a refusal is evidence; every other verb prints it and leaves the
+  ledger exactly as it found it.
+- **Two capabilities cannot fill one receipt input slot.** A slot pins one artifact,
+  so a build in which two declared capabilities both resolve `inputs.slate` now
+  refuses the admission and names both — rather than letting load order silently
+  decide which artifact the action was taken under.
+- Smaller: `check --action` takes argparse `choices` from a tuple asserted equal to
+  `admission.CHECKPOINTS`; an unreadable `study_state.json` is a recorded refusal
+  reason rather than an empty state that would admit a spent seal; `same_actor`
+  compares actor components symmetrically; a declared-but-unexercised capability
+  reports `incomplete` rather than `n/a`, which is the label's word for "not
+  declared"; admission receipts pin the protocol file of every declared capability
+  instead of the spine's alone; docs no longer describe a manifest amendment feature
+  that does not ship, and state that the label's rung is always `local-order` in this
+  release.
+
+Then the capabilities, dependencies first:
+
+- **The expert baseline's recipe is frozen with its targets.** `expert lock`
+  records the sha256 of `baseline.implementation` and `baseline.fixture`; a
+  `reproduced` bind whose recipe drifted since the lock now FAILs unless a repair
+  declared the change. Files inside the mutable surface are recorded but exempt.
+- **A repair changes what it says it changes.** `verify` diffs the study subtree
+  between the failing run and the repaired one and FAILs on any unnamed change;
+  `expert repair --changed` refuses core state, run evidence and the generation
+  ledger (naming a path also exempts it from the clean-tree check).
+- **Every cited reference record is opened.** A record reachable only from a
+  `references.yaml` row used to pass by never being looked at, and a row's
+  `verification_level` may no longer claim a stronger basis than its record's
+  `verification_basis`.
+- **A slate row's `y` comes from its FIRST admitted run**, not its last, so a resolved
+  row cannot be re-run into a better score. Every further admitted run is counted in a
+  new `n_bound_runs` field of the score object and column of the calibration table,
+  and the family WARNs when any row exceeds one. `revision_of` is carried forward
+  across later amendments, so a revised forecast stays in the revisions panel. A row's
+  `parent_ids` must name hypotheses this study locked.
+- **Pre-mortem independence is not asserted from an empty roster.** A missing
+  `referee` row now WARNs once per phase instead of passing silently, and a recorded
+  review is FAILed when the document it hashed is not the document at its own commit.
+- **The parity outcome is one cell's, decided once.** Four ways the comparison could
+  drift from the criteria it registered are closed:
+  - The outcome is read from the **comparison track's sole sealed cell**, resolved
+    from the lock, rather than from whatever was assessed most recently.
+    `parity assess --run` refuses a sealed run on any other track, and an assessment
+    naming one FAILs `parity assessment` without displacing the comparison's verdict.
+  - The sealed comparison cell must **ask the notary the questions the lock
+    registered**: `generation check --action sealed` on the comparison track is
+    refused unless `--tests` names every parity prediction, and `parity cell` FAILs a
+    comparison run whose manifest carries no verdict for one of them.
+  - `parity bind` may only read each metric's floor **where its `floor_ref` says**.
+    `--floor-run` must restate the run the lock froze, and a bound floor whose
+    `source` differs from the locked reference FAILs `parity bind`.
+  - A `scorer.path` inside `entrypoint.mutable` is refused by `parity lock` and FAILs
+    at every verify — the checker is never the searcher. A
+    `scoring.scorer_name` equal to the roster experimenter is a WARN (testimony).
+- **Parity arithmetic is honest about what it could not measure.** A comparison over
+  no metrics is `inconclusive` rather than a vacuous `parity`; a constant metric on
+  unequal blocks is undefined rather than bounded by floating-point residue; a
+  non-numeric, non-empty cell of `tables/parity_units.tsv` is an error naming its line
+  and column instead of a silent NA (and the NA count is recorded). Assessment replay
+  compares the bootstrap numbers at a relative tolerance and records `numpy`'s version
+  beside `n_boot` and `seed`, so a numpy upgrade is diagnosed rather than read as
+  tampering.
+- **The escalation plan's order is re-derived, not read off its own flag.** `verify`
+  establishes from the core anchor and git ancestry that the plan preceded the CONSULT
+  gate; the lock's `late` field stays a write-time refusal and is no longer the
+  witness.
+- **The knowledge store proves its TIP.** Every earlier state of
+  `knowledge/events.jsonl` in git, and every `store_head` a query receipt pinned, must
+  still be a prefix of the file on disk — a deleted last line leaves the hash chain
+  perfectly intact and was previously invisible. A query receipt that cannot be
+  replayed FAILs when the store is in this repository (it only WARNs for a checkout
+  that has no store), a promotion whose commit does not resolve is re-checked against
+  the source lock on disk rather than excused, and `scripts/seed_knowledge_objects.py`
+  records the HEAD it read each lock at.
+- **A discovery cell added after evidence arrived says so by itself.** A cell declared
+  once another cell already produced evidence is labelled `post_observation` whether
+  or not anybody ran `surprise record` — the label follows the run and the pinned
+  table, not the diligence of the person writing it down — and `klein generation
+  verify` re-derives, for EVERY registration version, that its core anchor and its
+  commit precede the runs of the cells that version introduced.
+- **A `confirmed` claim cannot rest on a screening table.** Quoting a number that
+  lives in one is now caught as well as citing the table as evidence, and the derived
+  per-segment summary counts as a screening table too. Registered adapters and inputs
+  must carry a `sha256`, segment names that would print as one key are refused, and
+  `n_perm` is capped at 100 000.
+- **Discovery cells can declare clustered units.** `group_policy: {column: <name>}`
+  makes the segment statistic the mean of the GROUP means, the dispersion a dispersion
+  over groups, and the sign-flip family rule act on groups — because eight measurements
+  at two sites are two observations, and flipping them as eight manufactures
+  violations. The pinned table carries the group column under its declared name, the
+  record and every `<study>#Sn` receipt carry `unit_of_inference: group | unit`, and a
+  cell that declared a clustering column whose table does not carry it FAILs. Cells
+  with no `group_policy` are unchanged, to the last digit.
+- **A custody attestation only custodies its own subject.** An attestation makes a
+  benchmark `custodied` only when its `subject` is that benchmark's own hidden
+  evidence; attestations about anything else stay on the record and are reported
+  separately.
+
+### Unchanged
+
+- **The core notary, its receipts, and schema-2 verification.** `run-one` gains no
+  call site, option, default or import; `verify_receipt.json` is byte-for-byte what it
+  was and never mentions the word "generation"; a lawful core run without an
+  admission keeps its disposition, its confirmation and its `finalize` label — it
+  simply cannot earn the generation label. `kleinlib.generation` is imported by no
+  core module and not at `kleinlib.cli` import time. Schema-2 studies are refused by
+  `klein generation init` outright.
+
 ## [2.0.0] — 2026-09-03
 
 **Process-verifiable research for AI for Science.** Klein 1.x ran a disciplined

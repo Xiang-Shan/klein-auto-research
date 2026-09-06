@@ -27,6 +27,10 @@ the experimenter.
   on the record distinguishes a different model from the same one. A missing or
   incomplete roster is a NOTE in the report (and a capped rung), never a FAIL — the
   roster is documentation, not evidence.
+- **A slate-time critic is not a referee.** On a generation-enabled study the
+  pre-mortem reviewer's rung is recorded separately (`references/premortem-protocol.md`)
+  and does not raise the referee rung; a reviewer who is also the roster's `referee`
+  FAILs that capability's own verification rather than earning independence twice.
 - **Reading order is part of the method.** `findings.md` FIRST, forming a view of what
   is claimed and how strongly; then `claims.lock`, `study.yaml`, `results.tsv` and the
   manifests, `data_card.md`, `method_card.md`; `program.md` LAST — the narrative that
@@ -54,6 +58,80 @@ the experimenter.
 | 8 | **References.** Every citation behind a claim is `verified: true` in `references.yaml` or marked UNVERIFIED; no UNVERIFIED reference supports a `confirmed` claim; the method card's `refs_verified` is honest. | an unverified reference behind a confirmed claim, or a citation absent from `references.yaml` |
 | 9 | **Figures.** `figures/make_figures.py` re-renders pixel-identically on the platform family that rendered the committed figures (byte-identically on that very machine; another platform's PNG encoder writes the same pixels in different bytes, which `klein verify` decodes and accepts; on another CPU family a computed curve can move a pixel in its last bits, which verify reports as a `[WARN]` naming both platforms — re-render on the rendering platform before signing); the four-point figure critique of `tutorial-spec.md` passes. | a figure whose pixels do not re-render on their own platform, or a truncated axis that inflates a within-noise delta |
 | 10 | **Vocabulary and scope.** The profile's banned words are absent or qualified; the floor's estimand is named; simulation claims carry their in-silico scope; measurement resolution is never called materiality. | any banned word unqualified, a missing estimand, an unscoped simulation claim, or resolution sold as materiality |
+
+## Generation addenda
+
+Only for a study whose `generation/manifest.yaml` exists; on every other study this
+section does not apply and the `Generation:` line reads `n/a`. **The ten checks above
+are unchanged** — these are additional reading obligations, not an eleventh check.
+
+- Read `generation/verify_receipt.json` and `generation/label.json`. **Never re-derive
+  a machine verdict**: the arithmetic is the layer's job and re-running it by hand is
+  how two answers appear. Report what the receipt says, and whether the study's prose
+  agrees with it.
+- Confirm the roster's pre-mortem reviewer is not the roster's referee — that is you
+  (`references/premortem-protocol.md`).
+- Confirm that **accepted pre-mortem corrections reached the executed artifacts** in
+  substance. The layer checks that an acceptance named a new slate version and that
+  the version was the one in force; only a reader can say whether the correction
+  actually fixed what the issue named. This is the check the mechanism cannot make.
+- A generic critique that passes the schema, or a specific one that changed nothing
+  that mattered, is a NOTE — it is exactly the failure the pre-mortem cannot detect
+  about itself.
+
+- **Parity.** Read `parity.yaml`, the pinned `tables/parity_units.tsv` and the recorded
+  decision; confirm findings state the outcome with its scope (population, sampling
+  unit, budget rule) and never as a bare "matched the expert", that
+  `agreement_within_floor` is reported under that name and never as parity, and that
+  each margin's `margin_rationale` justifies the margin by a decision rather than by the
+  measured floor. The one thing the machine cannot see is an **under-tuned expert**: a
+  control weakened in a way that still passes its own fixture is a referee obligation
+  (`references/expert-parity-protocol.md`).
+- **Contribution.** Read `ai_value.jsonl`: confirm rejections are present, that no
+  agent-accepted row is written up as human-accepted, and that any causal AI-value
+  language cites the matched ablation the lock names.
+
+- **Planted truth.** Read `benchmark.yaml`, the pinned `tables/benchmark_scores.tsv`
+  and the recorded reveal. Confirm the findings state recovery *in silico* with the
+  generator and the matching rule named, never as "the system discovered X"; that a
+  `benchmark: unverified` outcome is said in words rather than left in a JSON file;
+  and that recorded missing trials appear in the denominator the report quotes. The
+  two things the machine cannot see: whether the **planted families resemble a
+  scientific task at all**, and whether the `context` adjudication was applied as
+  preregistered rather than widened once it was clear which arm it would fail. Both
+  are yours (`references/planted-truth-protocol.md`).
+- **Escalation.** Read `escalation_plan.yaml` and every `<study>#Dn` decision: confirm
+  each names the trigger it answers, the rung taken, the lower rungs skipped WITH their
+  reasons, and the concrete resource or assumption that changed — and that findings
+  describe the escalation in those terms rather than as a change of mind. A pivot's
+  successor lineage (both contract hashes, the inherited exposure, the `#Hn` / `#Sn` ids
+  handed over) is the one place a reader can see what blindness the successor does NOT
+  have. Whether work labelled "method family" deserves that rung is your judgement, not
+  the machine's (`references/escalation-protocol.md`).
+- **Knowledge.** Read the pre-CONSULT `knowledge query` receipt and any contests:
+  confirm the study's prose reflects the hits it recorded — including a hit it rejected
+  and a contest closure it saw — and that an imported claim is never written up as
+  stronger than the class and strength copied from its source lock. `lex-1` retrieval
+  replays, which proves what the study SAW; whether the field was searched adequately is
+  yours (`references/knowledge-protocol.md`).
+- **Surprise.** Read `discovery_cells.yaml`, the pinned per-unit tables and every
+  `<study>#Sn` receipt: confirm the COMPLETE inventory is reported — nulls and
+  `inconclusive` slices included, not only the violations — that an `unresolved`
+  explanation is left as `unresolved` rather than narrated, and that no `confirmed`
+  claim rests on a screen. Whether a segmentation is scientifically meaningful is
+  yours (`references/surprise-protocol.md`).
+
+Add one line beneath the two machine-read lines of the report:
+
+```
+Generation: verified | failed | n/a
+```
+
+(`verified` when `generation/label.json` exists at this HEAD and the generation
+receipt reports no failed check, `failed` when it reports any, `n/a` when the study
+is not generation-enabled. It is a separate line rather than a suffix on `Verdict:`
+because `klein gate record referee` parses that line whole and the core parser is
+frozen.)
 
 ## The verdict
 
