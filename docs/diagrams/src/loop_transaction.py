@@ -81,6 +81,12 @@ LOOP_LABEL = "repeat — the loop is yours"
 TITLE = "One candidate transaction"
 SUB = "You think; run-one notarizes; the files remember. No exceptions."
 
+# One aside, in the cards' own dashed-callout style: where the opt-in generation
+# layer (2.1) attaches to this transaction. It adds no step of its own.
+NOTE = ("Opt-in (2.1): klein generation check files an admission receipt BEFORE step 2 —\n"
+        "the intended action and the surface bytes; a refusal is evidence too.")
+NOTE_H = 8.6
+
 
 def card_height(step):
     h = TOP_PAD + TITLE_H + len(step["body"]) * BODY_LINE_H + BOTTOM_PAD
@@ -100,7 +106,8 @@ def build(out_path: str):
     right_lane = 13.0
     card_w = W - 2 * margin_x - right_lane
     gap = 6.5
-    top_margin = 15.5
+    # Room under the subtitle for the generation-layer aside before card 1.
+    top_margin = 15.5 + NOTE_H + 4.6
     bottom_margin = 4.0
 
     heights = [card_height(s) for s in steps]
@@ -118,6 +125,15 @@ def build(out_path: str):
             fontsize=21, fontweight="bold", color=TEXT_PRIMARY)
     ax.text(W / 2, H - 9.6, SUB, ha="center", va="center",
             fontsize=11.5, color=TEXT_SECONDARY)
+
+    # Generation-layer aside — same dashed-callout style as the cards' callouts.
+    note_top = H - 14.2
+    ax.add_patch(FancyBboxPatch((margin_x, note_top - NOTE_H), card_w, NOTE_H,
+                                boxstyle="round,pad=0,rounding_size=1.4",
+                                facecolor=PAGE, edgecolor=BLUE, linewidth=1.2,
+                                linestyle=(0, (4, 2)), zorder=4))
+    ax.text(margin_x + 3.0, note_top - NOTE_H / 2, NOTE, ha="left", va="center",
+            fontsize=9.8, color=BLUE, linespacing=1.55, zorder=6)
 
     cursor_top = H - top_margin
     centers = []

@@ -31,6 +31,7 @@ from klein_palette import (
     TEXT_MUTED,
     TEXT_PRIMARY,
     TEXT_SECONDARY,
+    VIOLET,
     new_fig,
     setup_fonts,
 )
@@ -41,9 +42,9 @@ CARDS_EN = [
     dict(kind="gate", num="1", title="DATA", sub="Gate 1",
          body="GIGO guard: profiles the dataset, writes ranked\ngo / no-go issues. Never trust dtype alone."),
     dict(kind="gate", num="2", title="METHOD", sub="Gate 2",
-         body="Forces understanding before compute: intuition ->\nmath core -> minimal from-scratch implementation."),
+         body="Forces understanding before compute: intuition →\nmath core → minimal from-scratch implementation."),
     dict(kind="loop", num=None, title="EXPERIMENT / SWEEP", sub=None,
-         body="Edit the entrypoint with one falsifiable idea -> klein run-one:\ncommit candidate, bounded run, honest keep / discard / measured / crash."),
+         body="Edit the entrypoint with one falsifiable idea → klein run-one:\ncommit candidate, bounded run, honest keep / discard / measured / crash."),
     dict(kind="funnel", num=None, title="SYNTHESIZE", sub=None,
          body="Mines the full trajectory - manifests, predictions ledger,\nprogram.md - into findings.md + claims.lock, evidence-cited."),
     dict(kind="gate", num="3", title="REFEREE", sub="Gate 3",
@@ -54,7 +55,8 @@ CARDS_EN = [
 
 TITLE_EN = "The Klein study lifecycle — seven stages, four checkpoints"
 CAPTION_EN = "These last three stages are what make it research — not just experiment-running."
-FOOT_EN = "CONSULT -> DATA -> METHOD are pre-flight checkpoints; REFEREE is the post-flight one. Modeling is blocked until DATA says go and METHOD exists; finalize waits for the referee."
+FOOT_EN = "CONSULT → DATA → METHOD are pre-flight checkpoints; REFEREE is the post-flight one. Modeling is blocked until DATA says go and METHOD exists; finalize waits for the referee."
+FOOT_GEN_EN = "Opt-in since 2.1, the generation layer adds no stage: klein generation init before Gate 0, one generation check before every run-one, verified separately by generation verify."
 
 def draw_gate_badge(ax, cx, cy, r, num):
     ax.add_patch(Circle((cx, cy), r, facecolor=BLUE, edgecolor=SURFACE, linewidth=2.5, zorder=5))
@@ -130,6 +132,7 @@ def build(lang: str, out_path: str):
     title = TITLE_EN
     caption = CAPTION_EN
     foot = FOOT_EN
+    foot_gen = FOOT_GEN_EN
 
     W = 100.0
     margin_x = 9.0
@@ -137,7 +140,8 @@ def build(lang: str, out_path: str):
     card_h = 16.0
     gap = 6.5
     top_margin = 12.0
-    bottom_margin = 13.0
+    # Room for two footnote blocks: the gate footnote and the generation-layer line.
+    bottom_margin = 23.0
 
     n = len(cards)
     H = top_margin + n * card_h + (n - 1) * gap + bottom_margin
@@ -218,8 +222,10 @@ def build(lang: str, out_path: str):
     ax.text(margin_x + 4.4, star_y, caption, ha="left", va="center",
              fontsize=12.2, fontweight="bold", color=TEXT_PRIMARY, zorder=6)
 
-    # Footnote at very bottom
-    ax.text(W / 2, 3.2, foot, ha="center", va="center", fontsize=9.6, color=TEXT_MUTED,
+    # Footnotes at the very bottom: the gate rule, then where the opt-in layer sits.
+    ax.text(W / 2, 12.4, foot, ha="center", va="center", fontsize=9.6, color=TEXT_MUTED,
+             wrap=True)
+    ax.text(W / 2, 6.8, foot_gen, ha="center", va="center", fontsize=9.6, color=VIOLET,
              wrap=True)
 
     fig.savefig(out_path, dpi=200, facecolor=SURFACE, bbox_inches=None)

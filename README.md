@@ -1,6 +1,7 @@
 # Klein Auto Research
 
 [![ci](https://github.com/Xiang-Shan/klein-auto-research/actions/workflows/ci.yml/badge.svg)](https://github.com/Xiang-Shan/klein-auto-research/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/tag/Xiang-Shan/klein-auto-research?label=release&sort=semver)](https://github.com/Xiang-Shan/klein-auto-research/releases)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![python ≥3.11](https://img.shields.io/badge/python-%E2%89%A53.11-3776AB.svg)](pyproject.toml)
 
@@ -22,6 +23,34 @@ new ─▶ CONSULT ─▶ DATA ─▶ METHOD ═══▶ EXPERIMENT/SWEEP ─�
 ```
 
 <p align="center"><img src="docs/diagrams/lifecycle.png" alt="The Klein study lifecycle — seven stages, four checkpoints" width="640"></p>
+
+## Quickstart (5 minutes)
+
+Needs Python ≥ 3.11, [uv](https://docs.astral.sh/uv/), and git. No credentials and no
+downloads: every dataset an exhibit needs is bundled or generated.
+
+```bash
+git clone https://github.com/Xiang-Shan/klein-auto-research
+cd klein-auto-research
+uv sync --locked --extra encoders
+uv run --no-sync klein doctor                       # what this machine can run; fetches nothing
+uv run --no-sync klein verify --study studies/00-known-truth-quickstart --numbers   # the receipt
+```
+
+Then open `studies/00-known-truth-quickstart/report/index.html` — offline, one file —
+and read its `claims.lock`: every number on that page has a home there.
+
+Two longer checks are optional: `uv run --no-sync pytest kleinlib/tests
+.claude/skills/klein/scripts/tests scripts/tests -q` for the suite, and
+`uv run --no-sync python scripts/verify_shipped_studies.py` to re-verify every shipped
+ledger — the same proof CI runs on every push.
+
+Extras compose, and `uv sync` *removes* the ones you omit. `--extra gbdt` for
+LightGBM/XGBoost/CatBoost, `--extra deep` for PyTorch (only to re-run the
+character-language-model exhibit).
+
+To take one study of your own from scaffold to signed tutorial, follow the
+walk-through in [`docs/quickstart.md`](docs/quickstart.md).
 
 ## Why Klein
 
@@ -60,33 +89,23 @@ A mathematician's keep means "beat the best known value"; a deep-learning resear
 means "clear a five-seed noise floor". The engine does not know the difference; the
 protocols do — [`inquiry-model.md`](.claude/skills/klein/references/inquiry-model.md).
 
-## Quickstart
-
-Needs Python ≥ 3.11, [uv](https://docs.astral.sh/uv/), and git. No credentials and no
-downloads: the quickstart is a five-minute study on synthetic data whose truth you
-know, and every dataset an exhibit needs is bundled or generated.
-
-```bash
-git clone https://github.com/Xiang-Shan/klein-auto-research
-cd klein-auto-research
-uv sync --locked --extra encoders
-uv run --no-sync klein doctor                       # what this machine can run; fetches nothing
-uv run --no-sync pytest kleinlib/tests .claude/skills/klein/scripts/tests scripts/tests -q
-uv run --no-sync python scripts/verify_shipped_studies.py   # every shipped ledger still verifies
-uv run --no-sync klein verify --study studies/00-known-truth-quickstart --numbers   # the receipt
-```
-
-Then open `studies/00-known-truth-quickstart/report/index.html` — offline, one file —
-and read its `claims.lock`: every number on that page has a home there.
-
-Extras compose, and `uv sync` *removes* the ones you omit. `--extra gbdt` for
-LightGBM/XGBoost/CatBoost, `--extra deep` for PyTorch (only to re-run the
-character-language-model exhibit).
-
-## The `klein` command line
+## Run it on your own question
 
 New studies default to `schema_version: 3` and are driven through the packaged `klein`
-command. The arc of a study:
+command. Six moves, in order:
+
+1. **Scaffold, typed** — `klein new … --kind … --modality … --profile … --data <source>`
+   (`csv:`, `parquet:`, `synthetic:`, `bundled:`, `hub:`, `sklearn:`, `openml:`, `url:`;
+   network sources are pinned by sha256 and refused under `KLEIN_OFFLINE=1`).
+2. **CONSULT** — at most six questions turn the goal into predictions with rules.
+3. **DATA** — the modality-typed card ranks go/no-go issues; partitions come from the
+   contract, never from a seed in a script.
+4. **METHOD** — the card teaches the method to your audience; a verifier, when declared,
+   is hashed here and never edited again.
+5. **EXPERIMENT** — branch, pass `klein preflight`, run one candidate at a time, and
+   rehearse the sealed run before you spend it.
+6. **CLOSE** — SYNTHESIZE writes findings and the lock; the REFEREE reads them before
+   the story; the tutorial teaches it back.
 
 ```bash
 klein new 14-my-question --kind predict --modality tabular --profile generic \
@@ -104,7 +123,11 @@ klein finalize    --study … && klein verify --study …    # writes verify_rec
 Run `--help` on any command for its full arguments. The CLI commits its own receipts,
 so the loop never dead-ends on state it generated itself; `gate override`,
 `headroom ack` and `stop ack` each put a reason on the record instead of silently
-bypassing a rule. The full contract is in [`AGENTS.md`](AGENTS.md).
+bypassing a rule. Compute is one bounded foreground subprocess per run on whatever you
+have; long runs are budgeted in steps or tokens, not seconds. The full contract is in
+[`AGENTS.md`](AGENTS.md), the step-by-step walk-through in
+[`docs/quickstart.md`](docs/quickstart.md), the device rules in
+[`compute-and-devices.md`](.claude/skills/klein/references/compute-and-devices.md).
 
 <p align="center"><img src="docs/diagrams/loop-transaction.png" alt="One candidate transaction — you think; run-one notarizes; the files remember" width="640"></p>
 
@@ -117,6 +140,33 @@ best achievable value and Klein does the subtraction:
 `h < 1` refuses further development runs until `klein headroom ack` records the closed
 door. Read `h ≥ 1` as "not excluded", never as "plausible": study 08 stood at
 h = 1.015 and twenty-one challengers produced zero keeps.
+
+## The generation layer (opt-in, since 2.1)
+
+A schema-3 study may also record what it committed to *before* the evidence existed:
+
+```bash
+klein generation init   --study … [--capability NAME]…      # before the CONSULT gate
+klein generation check  --study … --action run --track …    # before every run-one
+klein generation verify --study …    # generation/verify_receipt.json, its own audit
+klein generation label  --study …    # generation-verified: both receipts, one HEAD
+```
+
+`check` binds the intended action to the exact bytes of `entrypoint.mutable`; the audit
+classifies every run `admitted | unadmitted | refused-but-run | mismatched | replayed`;
+a refusal is committed like an admission, so ignoring one is detectable; and order comes
+from three local witnesses — extension chain, core anchor, git ancestry — never a clock.
+Ten capabilities are declared at `init`: `expertise` (reproduce the domain baseline) ·
+`slates` (score your own forecasts) · `premortem` (a recorded red team) · `design` (what
+the evidence is for) · `parity` (a preregistered expert comparison) · `contribution`
+(the AI-value ledger: who proposed, who accepted) · `surprise` (registered discovery
+cells with complete tables) · `escalation`
+(an accounted ladder out of a stall) · `knowledge` (cross-study claims over pinned
+evidence) · `benchmark` (planted truths under a hash commitment).
+
+The layer never proposes, ranks, selects, schedules or retries. A study that does not
+opt in is untouched: no core verb, receipt or disposition changes either way. Protocol:
+[`generation-protocol.md`](.claude/skills/klein/references/generation-protocol.md).
 
 ## Drive it with your agent — or none
 
@@ -134,7 +184,7 @@ Klein is agent-agnostic and calls no model API. The operating manual is
 
 Where Klein sits among its neighbours — positioning, not a benchmark:
 
-| | Claude Science | [Kosmos](https://arxiv.org/abs/2511.02824) | [Curie](https://arxiv.org/abs/2502.16069) | autoresearch | **Klein 2.0** |
+| | Claude Science | [Kosmos](https://arxiv.org/abs/2511.02824) | [Curie](https://arxiv.org/abs/2502.16069) | autoresearch | **Klein** |
 |---|---|---|---|---|---|
 | Runs where | hosted workbench | hosted | local | local | local, from git |
 | Model | Claude | its own | any | any | any — none inside Klein |
@@ -152,7 +202,7 @@ workbench's agent can run *inside*. The full argument:
 Every study below ran the whole lifecycle in this repository's history: every candidate
 commit resolves and every ledger verifies, checked by CI on every push.
 
-**Klein 2.0 exhibits (schema 3) — one per axis of generality:**
+**Schema-3 exhibits — six studies across the axes of generality:**
 
 | Study | Typed as | What it showed |
 |---|---|---|
@@ -161,6 +211,7 @@ commit resolves and every ledger verifies, checked by CI on every push.
 | [`11-exact-verifier-construction`](studies/11-exact-verifier-construction/) | optimize · none · math | Zero keeps by arithmetic under an exact verifier — and what a search may claim when it cannot win |
 | [`12-insurance-claims-frequency`](studies/12-insurance-claims-frequency/) | predict · tabular · insurance | All three v1 anchors reproduce on 58k real claims; the measured floor leaves the v1 ladder exactly one keep |
 | [`13-charlm-fixed-budget`](studies/13-charlm-fixed-budget/) | predict · text · ml-research | At a fixed step budget, none of four registered levers cleared the noise floor; the only gain carried no prediction |
+| [`15-iris-90years-relaunch`](studies/15-iris-90years-relaunch/) | predict · tabular · generic | The metric pegged at its ideal, so the measured floor was exactly zero, the headroom law was disarmed and four ties were read as four keeps — the instrument failed, and that failure is the finding |
 
 **Schema-2 exhibits (frozen; they verify under schema-2 rules forever):**
 
@@ -179,25 +230,6 @@ Earlier exhibits and the original v1 quickstart are preserved intact at tags
 To see what "closing the loop" means, open any tutorial:
 `open studies/10-hubble-1929-replication/report/index.html`.
 
-## Run it on your own question
-
-1. **Scaffold, typed** — `klein new … --kind … --modality … --profile … --data <source>`
-   (`csv:`, `parquet:`, `synthetic:`, `bundled:`, `hub:`, `sklearn:`, `openml:`, `url:`;
-   network sources are pinned by sha256 and refused under `KLEIN_OFFLINE=1`).
-2. **CONSULT** — at most six questions turn the goal into predictions with rules.
-3. **DATA** — the modality-typed card ranks go/no-go issues; partitions come from the
-   contract, never from a seed in a script.
-4. **METHOD** — the card teaches the method to your audience; a verifier, when declared,
-   is hashed here and never edited again.
-5. **EXPERIMENT** — branch, pass `klein preflight`, run one candidate at a time, and
-   rehearse the sealed run before you spend it.
-6. **CLOSE** — SYNTHESIZE writes findings and the lock; the REFEREE reads them before
-   the story; the tutorial teaches it back.
-
-Compute is one bounded foreground subprocess per run on whatever you have; long runs
-are budgeted in steps or tokens, not seconds. Details in
-[`compute-and-devices.md`](.claude/skills/klein/references/compute-and-devices.md).
-
 ## Limitations
 
 Klein cannot make a model reason better — it makes reasoning failures detectable. It
@@ -210,7 +242,7 @@ places to look. Evaluators today cover binary classification, point and rate reg
 (incl. Poisson/Gamma/Tweedie deviance), scalar, estimate, test and table cells;
 multiclass, survival and ranking are documented extension points.
 
-## Is Klein a skill or a harness? Both — a harness that carries a skill.
+## Harness or skill? Both — a harness that carries a skill.
 
 - **Harness (recommended):** clone this repo and run studies inside it — engine,
   protocols, agents, knowledge base and executed exhibits, with commit hashes that
@@ -226,11 +258,11 @@ multiclass, survival and ranking are documented extension points.
 | `AGENTS.md` | the operating manual — any agent, or a human |
 | `.claude/skills/klein/` | lifecycle protocols, profiles, templates, helper scripts |
 | `.claude/agents/` | eight optional worker-role definitions |
-| `kleinlib/` | the engine: contract, events, state, transactions, checks, claims |
+| `kleinlib/` | the engine: contract, events, state, transactions, checks, claims, `generation/` |
 | `knowledge/` | promoted lessons and domain knowledge by profile |
 | `datasets/` | bundled datasets with their licences and provenance |
 | `studies/` | one directory per study — the unit of research |
-| `docs/` | the Klein 2.0 design rationale, `migration-schema2-to-3.md`, driver reviews |
+| `docs/` | `quickstart.md`, the Klein 2.0 design rationale, `migration-schema2-to-3.md`, driver reviews |
 | `scripts/` | the end-to-end proofs, including tests of the docs themselves |
 
 ## Lineage & citing
