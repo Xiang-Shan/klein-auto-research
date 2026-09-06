@@ -387,8 +387,11 @@ def test_include_by_reference_matches_source_bytes(build_module, tmp_path):
     import re as re_mod
 
     frags = dict(FRAGMENTS)
+    # train.py is the default mutable surface, so the include must say WHICH
+    # bytes it carries; here, the restored template on disk.
     frags["06-coding-advice.html"] = (
-        '<h2>Coding Advice</h2><pre data-code="train.py" data-lang="python"></pre>'
+        '<h2>Coding Advice</h2>'
+        '<pre data-code="train.py" data-lang="python" data-role="template"></pre>'
     )
     study = scaffold(tmp_path / "00-include", fragments=frags)
     (study / "train.py").write_text(TRAIN_PY, encoding="utf-8")
@@ -475,7 +478,7 @@ def test_acceptance_gates_still_pass_with_math_and_code(build_module, tmp_path):
         '<h2>M</h2><div data-math-display="\\hat{\\beta} = (X\'X)^{-1}X\'y"></div>'
     )
     frags["06-coding-advice.html"] = (
-        '<h2>C</h2><pre data-code="train.py" data-lang="python"></pre>'
+        '<h2>C</h2><pre data-code="train.py" data-lang="python" data-role="template"></pre>'
     )
     study = scaffold(tmp_path / "00-gates", fragments=frags)
     (study / "train.py").write_text(TRAIN_PY, encoding="utf-8")

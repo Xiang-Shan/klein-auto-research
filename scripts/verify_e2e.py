@@ -1564,7 +1564,7 @@ measured against the bar.</p>
 <!--LEDGER-->
 <p>The winning entrypoint, included by reference so this page carries its actual
 bytes:</p>
-<pre data-code="train.py" data-lang="python"></pre>
+<pre data-code="train.py" data-lang="python" data-role="template"></pre>
 """,
     "05-findings.html": """\
 <h2>Findings and insights</h2>
@@ -1576,6 +1576,7 @@ confirmed. Everything else stays exploratory by construction.</p>
 <p>The registered cell is the other half of the story. Rather than one run per
 family, one cell measured all four, hashed the resulting table into its manifest,
 and adjudicated the pre-registered prediction against the printed count.</p>
+<!--EVIDENCE-->
 <img data-fig="figures/plot_decision_trajectory__cells.png"
      alt="The registered track: a measured cell, drawn as its own mark, never on a frontier line.">
 """,

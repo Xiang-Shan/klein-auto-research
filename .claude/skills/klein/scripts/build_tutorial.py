@@ -26,12 +26,35 @@ Fragment contract
 - Code is highlighted at build time (Pygments, dual-theme CSS classes):
   ``<pre><code class="language-python">…escaped…</code></pre>`` is highlighted
   in place; a ``<pre><code>`` with no language class is left untouched. The
-  winning train.py is included BY REFERENCE — ``<pre data-code="train.py"
+  winning entrypoint is included BY REFERENCE — ``<pre data-code="train.py"
   data-lang="python"></pre>`` reads the file from ``<study_dir>``, guaranteeing
   the page carries the actual bytes. Paths outside the study dir or a missing
-  file FAIL the build.
+  file FAIL the build. Every include is wrapped in a ``<details class="source">``
+  whose summary states WHICH bytes these are:
+  - ``data-run="E0009"`` reads the file at that run's ``candidate_commit``
+    (``git show``), so the page shows the cell the notary executed rather than
+    the working tree. A missing manifest, key, object or git FAILS the build.
+  - a bare include of a file in the mutable surface (``entrypoint.mutable``;
+    ``train.py`` below schema 3) FAILS: run-one RESTORES that surface, so the
+    file on disk is the template, not any run's cell. Add ``data-run`` for the
+    executed source, or ``data-role="template"`` to label it as the template.
+  - anything outside the mutable surface (a verifier, ``lib/``, an analysis
+    script) still includes bare and is labelled "current file at build".
+  The three optional attributes may appear in any order after ``data-code``;
+  anything else survives the pass and the leftover probe reports it.
 - A ``<!--LEDGER-->`` marker (used in 04-journey) is replaced with an
-  auto-generated experiment ledger table read from ``results.tsv``.
+  auto-generated ledger table read from ``results.tsv``: Exp · Track · Kind ·
+  Metric · Status · Description, with Track dropped when the TSV has no such
+  column and Kind (a manifest's ``evaluation_kind``) dropped when the study has
+  no run manifests, over a ``<p class="ledger-key">`` naming each track's metric.
+- An ``<!--EVIDENCE-->`` marker (used in 05-findings) is replaced with a block
+  generated from the RECORDS — ``claims.lock`` and ``study_state.json`` — that
+  copies strings and counts nothing else. A study that HAS a lock and carries the
+  marker nowhere fails the acceptance guard: the findings section would otherwise
+  claim things the receipts never state.
+- Every ``<h3>`` without an ``id`` gets a stable page-unique slug id, and a
+  section with two or more of them gets a ``<nav class="subnav">`` after its
+  ``<h2>`` — deep links into a subsection survive a rebuild.
 
 Acceptance guard (runs on the assembled page; non-zero exit lists violations):
 - all seven section anchors present;
@@ -60,10 +83,12 @@ import csv
 import functools
 import hashlib
 import html
+import json
 import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 try:
     import yaml  # type: ignore
@@ -112,18 +137,32 @@ ATTR_URL_RE = re.compile(r"""(?:src|href)\s*=\s*(["'])(.*?)\1""", re.IGNORECASE)
 MATH_INLINE_RE = re.compile(r'<span\s+data-math="([^"]*)"\s*>\s*</span\s*>')
 MATH_DISPLAY_RE = re.compile(r'<div\s+data-math-display="([^"]*)"\s*>\s*</div\s*>')
 MATH_PROBE_RE = re.compile(r"data-math(?:-display)?\s*=")
+# The include idiom: ``data-code`` first, then any of the three optional
+# attributes in any order. Only the three are admitted by name, so a typo
+# ("data-lan=") does not half-match into a silently wrong include — it fails to
+# match, survives the pass, and CODE_PROBE_RE turns it into a build error.
 CODE_INCLUDE_RE = re.compile(
-    r'<pre\s+data-code="([^"]*)"(?:\s+data-lang="([^"]*)")?\s*>\s*</pre\s*>'
+    r'<pre\s+data-code="([^"]*)"'
+    r'((?:\s+data-(?:lang|run|role)="[^"]*")*)'
+    r"\s*>\s*</pre\s*>"
 )
+CODE_ATTR_RE = re.compile(r'\sdata-(lang|run|role)="([^"]*)"')
 CODE_PROBE_RE = re.compile(r"data-code\s*=")
+# An include that did NOT match sits inside a <pre> span, which every
+# attribute-scanning pass masks — so probe_leftovers can never see it. This
+# probe runs on the include pass's own output instead, where a surviving
+# ``<pre … data-code=…>`` opening tag means the idiom was mistyped.
+CODE_LEFTOVER_RE = re.compile(r"<pre[^>]*\sdata-code\s*=[^>]*>")
+H3_RE = re.compile(r"<h3\b([^>]*)>(.*?)</h3\s*>", re.DOTALL | re.IGNORECASE)
+ID_ATTR_RE = re.compile(r'\bid\s*=\s*"([^"]*)"')
+SLUG_STRIP_RE = re.compile(r"[^a-z0-9]+")
+TAG_RE = re.compile(r"<[^>]+>")
 LANG_CLASS_RE = re.compile(
     r'<pre([^>]*)><code\s+class="language-([A-Za-z0-9_+-]+)"\s*>(.*?)</code></pre>',
     re.DOTALL,
 )
 PRE_SPAN_RE = re.compile(r"<pre\b.*?</pre\s*>", re.DOTALL | re.IGNORECASE)
-SVG_VIEWBOX_RE = re.compile(
-    r'viewBox="(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)"'
-)
+SVG_VIEWBOX_RE = re.compile(r'viewBox="(-?[\d.]+) (-?[\d.]+) (-?[\d.]+) (-?[\d.]+)"')
 
 #: Pinned Pygments styles — named constants so a Pygments upgrade cannot
 #: silently reskin every shipped report (the pair is also what the dual-theme
@@ -138,6 +177,13 @@ LANG_BY_SUFFIX = {
     ".yml": "yaml",
     ".json": "json",
 }
+
+#: The findings marker the records block replaces.
+EVIDENCE_MARK = "<!--EVIDENCE-->"
+
+#: Strengths in the order a reader wants them (strongest first); any other value
+#: the lock carries follows alphabetically, so a new strength is still shown.
+STRENGTH_ORDER = ("confirmed", "exploratory")
 
 
 # --------------------------------------------------------------------------
@@ -158,50 +204,123 @@ def _clean_scalar(raw: str) -> str | None:
     return s or None
 
 
-def _tiny_parse_meta(text: str, meta: dict[str, str | None]) -> dict[str, str | None]:
-    """Stdlib fallback: harvest top-level goal/domain/target + nested metric.name."""
-    in_metric = False
-    in_tracks = False
+def _flow_list(raw: str) -> list[str] | None:
+    """``["a", "b"]`` → its items; ``None`` when the value is not a flow list.
+
+    A study declares ``mutable`` either inline or as a block list; returning
+    ``None`` (rather than an empty list) is what lets the caller tell "not a
+    flow list, keep reading the following lines" from "declared, but empty".
+    """
+    s = raw.strip()
+    if not (s.startswith("[") and s.endswith("]")):
+        return None
+    inner = s[1:-1].strip()
+    if not inner:
+        return []
+    return [item for item in (_clean_scalar(part) for part in inner.split(",")) if item]
+
+
+def _as_int(raw: str | None) -> int | None:
+    try:
+        return int(str(raw).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def _pack_tracks(
+    ordered: list[str],
+    per_track: dict[str, dict[str, str | None]],
+    top: dict[str, str | None],
+) -> list[tuple[str | None, str, str | None]]:
+    """``[(track or None, metric name, goal)]`` — the ledger key's raw material."""
+    packed: list[tuple[str | None, str, str | None]] = []
+    for name in ordered:
+        metric = per_track.get(name, {}).get("name")
+        if metric:
+            packed.append((name, metric, per_track[name].get("goal")))
+    if not packed and top.get("name"):
+        packed.append((None, str(top["name"]), top.get("goal")))
+    return packed
+
+
+def _tiny_parse_meta(text: str, meta: dict[str, Any]) -> dict[str, Any]:
+    """Stdlib fallback: goal/domain/target, the metric(s) and their goals,
+    ``schema_version`` and ``entrypoint.mutable``.
+
+    Deliberately a line walker, not a YAML subset: the skill directory has to
+    stay copy-a-directory portable, so PyYAML may be absent, and every key the
+    builder needs is top-level or two levels under one.
+    """
+    in_metric = in_tracks = in_entrypoint = in_mutable = False
     track_name: str | None = None
     in_track_metric = False
-    track_metrics: list[str] = []
+    ordered: list[str] = []
+    per_track: dict[str, dict[str, str | None]] = {}
+    top_metric: dict[str, str | None] = {}
+    mutable: list[str] = []
     for line in text.splitlines():
-        if not line.strip() or line.lstrip().startswith("#"):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
             continue
         indent = len(line) - len(line.lstrip(" "))
-        key, sep, value = line.strip().partition(":")
+        if in_mutable and stripped.startswith("- "):
+            item = _clean_scalar(stripped[2:])
+            if item:
+                mutable.append(item)
+            continue
+        key, sep, value = stripped.partition(":")
         if not sep:
             continue
         key = key.strip()
+        in_mutable = False
         if indent == 0:
             in_metric = key == "metric"
             in_tracks = key == "tracks"
+            in_entrypoint = key == "entrypoint"
             track_name = None
             in_track_metric = False
             if key in ("goal", "domain", "target"):
                 meta[key] = _clean_scalar(value)
-        elif in_metric and key == "name":
-            meta["metric_name"] = _clean_scalar(value)
+            elif key == "schema_version":
+                meta["schema_version"] = _as_int(_clean_scalar(value))
+        elif in_metric and key in ("name", "goal"):
+            top_metric[key] = _clean_scalar(value)
+        elif in_entrypoint and key == "mutable":
+            items = _flow_list(value)
+            if items is None:
+                in_mutable = True
+            else:
+                mutable.extend(items)
         elif in_tracks and indent == 2:
             track_name = key
             in_track_metric = False
+            if track_name not in per_track:
+                ordered.append(track_name)
+                per_track[track_name] = {}
         elif in_tracks and indent == 4:
             in_track_metric = key == "metric"
-        elif in_tracks and indent >= 6 and in_track_metric and key == "name":
-            metric_name = _clean_scalar(value)
-            if track_name and metric_name:
-                track_metrics.append(f"{metric_name} ({track_name})")
-    if track_metrics:
-        meta["metric_name"] = ", ".join(track_metrics)
+        elif in_tracks and indent >= 6 and in_track_metric and key in ("name", "goal"):
+            if track_name:
+                per_track[track_name][key] = _clean_scalar(value)
+    if top_metric.get("name"):
+        meta["metric_name"] = top_metric["name"]
+    tracks = _pack_tracks(ordered, per_track, top_metric)
+    if ordered and tracks:
+        meta["metric_name"] = ", ".join(f"{metric} ({name})" for name, metric, _g in tracks)
+    meta["tracks"] = tracks
+    meta["mutable"] = mutable
     return meta
 
 
-def load_study_meta(study_dir: Path) -> dict[str, str | None]:
-    meta: dict[str, str | None] = {
+def load_study_meta(study_dir: Path) -> dict[str, Any]:
+    meta: dict[str, Any] = {
         "goal": None,
         "metric_name": None,
         "domain": None,
         "target": None,
+        "schema_version": None,
+        "mutable": [],
+        "tracks": [],
     }
     path = study_dir / "study.yaml"
     if not path.exists():
@@ -215,23 +334,53 @@ def load_study_meta(study_dir: Path) -> dict[str, str | None]:
         if isinstance(data, dict):
             for k in ("goal", "domain", "target"):
                 meta[k] = data.get(k)
+            meta["schema_version"] = _as_int(data.get("schema_version"))
+            entrypoint = data.get("entrypoint")
+            if isinstance(entrypoint, dict):
+                declared = entrypoint.get("mutable")
+                if isinstance(declared, (list, tuple)):
+                    meta["mutable"] = [str(item) for item in declared]
+            top_metric: dict[str, str | None] = {}
             metric = data.get("metric")
             if isinstance(metric, dict):
+                top_metric = {"name": metric.get("name"), "goal": metric.get("goal")}
                 meta["metric_name"] = metric.get("name")
+            ordered: list[str] = []
+            per_track: dict[str, dict[str, str | None]] = {}
             tracks = data.get("tracks")
             if isinstance(tracks, dict):
-                names: list[str] = []
                 for track_name, track_spec in tracks.items():
                     if not isinstance(track_spec, dict):
                         continue
                     track_metric = track_spec.get("metric")
                     if not isinstance(track_metric, dict) or not track_metric.get("name"):
                         continue
-                    names.append(f"{track_metric['name']} ({track_name})")
-                if names:
-                    meta["metric_name"] = ", ".join(names)
+                    ordered.append(str(track_name))
+                    per_track[str(track_name)] = {
+                        "name": track_metric.get("name"),
+                        "goal": track_metric.get("goal"),
+                    }
+            packed = _pack_tracks(ordered, per_track, top_metric)
+            if ordered and packed:
+                meta["metric_name"] = ", ".join(
+                    f"{metric_name} ({name})" for name, metric_name, _g in packed
+                )
+            meta["tracks"] = packed
             return meta
     return _tiny_parse_meta(text, meta)
+
+
+def mutable_surface(meta: dict[str, Any]) -> tuple[str, ...]:
+    """The study-relative files ONE candidate may change.
+
+    COPIED from ``kleinlib.contract.mutable_surface``, never imported: the skill
+    directory must stay portable to a checkout that carries no kleinlib. Schema 2
+    has exactly one mutable file by construction and forever.
+    """
+    if (meta.get("schema_version") or 0) < 3:
+        return ("train.py",)
+    declared = tuple(str(item) for item in (meta.get("mutable") or []))
+    return declared or ("train.py",)
 
 
 def git_last_date(study_dir: Path) -> str | None:
@@ -248,6 +397,41 @@ def git_last_date(study_dir: Path) -> str | None:
         return None
     out = r.stdout.strip()
     return out if r.returncode == 0 and out else None
+
+
+def git_show_prefix(study_dir: Path) -> str | None:
+    """The study dir's path INSIDE its repository (``studies/11-…/``).
+
+    ``git show <commit>:<path>`` resolves paths from the repo ROOT, so a
+    study-relative include has to be re-rooted before it can be asked for.
+    """
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "--show-prefix"],
+            cwd=str(study_dir),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except (OSError, ValueError):  # pragma: no cover - git missing entirely
+        return None
+    return r.stdout.strip() if r.returncode == 0 else None
+
+
+def git_show_bytes(study_dir: Path, commit: str, repo_rel: str) -> tuple[bytes | None, str]:
+    """``(blob bytes, error)`` for one path at one commit — read-only, no checkout."""
+    try:
+        r = subprocess.run(
+            ["git", "show", f"{commit}:{repo_rel}"],
+            cwd=str(study_dir),
+            capture_output=True,
+            check=False,
+        )
+    except (OSError, ValueError):  # pragma: no cover - git missing entirely
+        return None, "git is not available"
+    if r.returncode != 0:
+        return None, r.stderr.decode("utf-8", "replace").strip() or "git show failed"
+    return r.stdout, ""
 
 
 # --------------------------------------------------------------------------
@@ -270,11 +454,42 @@ def inline_figures(content: str, study_dir: Path, missing: list[str]) -> str:
     return FIG_RE.sub(repl, content)
 
 
-def build_ledger(study_dir: Path) -> str:
-    """Auto-generate the experiment ledger table from results.tsv."""
+def _read_json(path: Path) -> dict[str, Any] | None:
+    """One JSON object, or ``None`` for absent/unreadable/not-an-object."""
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def ledger_key(tracks: list[tuple[str | None, str, str | None]]) -> str:
+    """One line naming what each track's number means — a status column is
+    unreadable without the direction its metric is judged in."""
+    if not tracks:
+        return ""
+    bits: list[str] = []
+    for name, metric, goal in tracks:
+        direction = f" ({html.escape(str(goal))} is better)" if goal else ""
+        metric_html = f"<strong>{html.escape(str(metric))}</strong>{direction}"
+        bits.append(f"{html.escape(str(name))} — {metric_html}" if name else metric_html)
+    label = "Tracks" if tracks[0][0] else "Metric"
+    return f'<p class="ledger-key">{label}: ' + " · ".join(bits) + "</p>\n"
+
+
+def build_ledger(study_dir: Path, meta: dict[str, Any] | None = None) -> str:
+    """Auto-generate the experiment ledger table from results.tsv.
+
+    Track and Kind are shown only when the study actually records them: a
+    schema-2 results.tsv has no ``track`` column, and a v1 study has no run
+    manifests to read ``evaluation_kind`` from. An empty column would read as
+    missing data rather than as a schema that never had the field.
+    """
     path = study_dir / "results.tsv"
     if not path.exists():
         return '<p class="note">results.tsv not found — ledger omitted.</p>'
+    if meta is None:
+        meta = load_study_meta(study_dir)
     with path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f, delimiter="\t")
         fields = reader.fieldnames or []
@@ -283,24 +498,176 @@ def build_ledger(study_dir: Path) -> str:
             None,
         )
         rows = list(reader)
-    head = (
-        '<table class="ledger">\n<thead><tr>'
-        "<th>Exp</th><th>Metric</th><th>Status</th><th>Description</th>"
-        "</tr></thead>\n<tbody>\n"
-    )
+    show_track = "track" in fields
+
+    kinds: dict[str, str] = {}
+    any_manifest = False
+    for r in rows:
+        exp = (r.get("experiment") or "").strip()
+        if not exp:
+            continue
+        manifest_path = study_dir / "runs" / exp / "manifest.json"
+        if not manifest_path.is_file():
+            continue
+        any_manifest = True
+        kind = (_read_json(manifest_path) or {}).get("evaluation_kind")
+        if kind:
+            kinds[exp] = str(kind)
+
+    columns = ["<th>Exp</th>"]
+    if show_track:
+        columns.append("<th>Track</th>")
+    if any_manifest:
+        columns.append("<th>Kind</th>")
+    columns += ["<th>Metric</th>", "<th>Status</th>", "<th>Description</th>"]
+    head = '<table class="ledger">\n<thead><tr>' + "".join(columns) + "</tr></thead>\n<tbody>\n"
+
     body: list[str] = []
     for r in rows:
-        exp = html.escape((r.get("experiment") or "").strip())
+        raw_exp = (r.get("experiment") or "").strip()
+        exp = html.escape(raw_exp)
         metric = html.escape((r.get(metric_col) or "").strip()) if metric_col else ""
         status = (r.get("status") or "").strip().lower()
         desc = html.escape((r.get("description") or "").strip())
-        body.append(
-            f'<tr class="st-{html.escape(status)}"><td>{exp}</td>'
-            f"<td>{metric}</td>"
-            f'<td><span class="badge">{html.escape(status)}</span></td>'
-            f"<td>{desc}</td></tr>"
+        kind = kinds.get(raw_exp, "—")
+        classes = [f"st-{html.escape(status)}"]
+        if kind == "final_test":
+            classes.append("kind-final_test")
+        cells = [f"<td>{exp}</td>"]
+        if show_track:
+            cells.append(f"<td>{html.escape((r.get('track') or '').strip())}</td>")
+        if any_manifest:
+            cells.append(f"<td>{html.escape(kind)}</td>")
+        cells += [
+            f'<td class="num">{metric}</td>',
+            f'<td><span class="badge">{html.escape(status)}</span></td>',
+            f"<td>{desc}</td>",
+        ]
+        body.append(f'<tr class="{" ".join(classes)}">' + "".join(cells) + "</tr>")
+    return ledger_key(meta.get("tracks") or []) + head + "\n".join(body) + "\n</tbody>\n</table>"
+
+
+# --------------------------------------------------------------------------
+# The evidence block — generated from the RECORDS, never from prose
+# --------------------------------------------------------------------------
+
+
+def _counts(values: list[str], first: tuple[str, ...] = ()) -> list[tuple[str, int]]:
+    """Value → count, ``first`` in the given order and the rest alphabetically."""
+    tally: dict[str, int] = {}
+    for value in values:
+        tally[value] = tally.get(value, 0) + 1
+    ranked = [k for k in first if k in tally] + sorted(k for k in tally if k not in first)
+    return [(k, tally[k]) for k in ranked]
+
+
+def _tally_html(pairs: list[tuple[str, int]]) -> str:
+    """``confirmed <code>6</code> · exploratory <code>9</code>``.
+
+    Every count lives inside ``<code>``: ``klein verify --numbers`` scans the
+    page's text nodes and skips code spans, so a generated count can never be
+    read as a claim numeral that no artifact pins.
+    """
+    return (
+        " · ".join(f"{html.escape(name)} <code>{count}</code>" for name, count in pairs)
+        or "none recorded"
+    )
+
+
+def build_evidence(study_dir: Path) -> str:
+    """The findings section's receipts block, copied out of the study's records.
+
+    Reads ``claims.lock`` and ``study_state.json`` and does ONE arithmetic
+    operation on them — counting. Everything else is a verbatim string, and a
+    record the study never wrote says so by name instead of being guessed at.
+    """
+    meta = load_study_meta(study_dir)
+    schema = meta.get("schema_version") or 0
+    rows: list[tuple[str, str]] = []
+
+    lock = _read_json(study_dir / "claims.lock")
+    claims = lock.get("claims") if isinstance(lock, dict) else None
+    if lock is None or (lock.get("lock_schema") or 0) < 2 or not isinstance(claims, dict):
+        rows.append(("claims.lock", "not recorded (schema 2)" if schema < 3 else "not recorded"))
+    else:
+        entries = [v for v in claims.values() if isinstance(v, dict)]
+        total = len(entries)
+        with_errata = sum(1 for entry in entries if entry.get("errata"))
+        top_errata = lock.get("errata")
+        top_count = len(top_errata) if isinstance(top_errata, (dict, list)) else 0
+        rows.append(("claims", f"<code>{total}</code> locked in <code>claims.lock</code>"))
+        rows.append(
+            (
+                "by strength",
+                _tally_html(
+                    _counts(
+                        [str(e.get("strength") or "unstated") for e in entries],
+                        STRENGTH_ORDER,
+                    )
+                ),
+            )
         )
-    return head + "\n".join(body) + "\n</tbody>\n</table>"
+        rows.append(
+            (
+                "by class",
+                _tally_html(_counts([str(e.get("class") or "unstated") for e in entries])),
+            )
+        )
+        rows.append(
+            (
+                "errata",
+                f"<code>{with_errata}</code> of <code>{total}</code> claims tagged · "
+                f"<code>{top_count}</code> erratum record(s) in the lock",
+            )
+        )
+        head = str(lock.get("git_head") or "")
+        version = str(lock.get("klein_version") or "")
+        locked_at = f"<code>{html.escape(head[:12])}</code>" if head else "not recorded"
+        if version:
+            locked_at += f" · klein <code>{html.escape(version)}</code>"
+        rows.append(("locked at", locked_at))
+
+    state = _read_json(study_dir / "study_state.json") or {}
+    final = state.get("finalization")
+    if not isinstance(final, dict):
+        rows.append(("finalization", "not recorded"))
+    else:
+        rows.append(("label", html.escape(str(final.get("label") or "not recorded"))))
+        referee = final.get("referee")
+        if isinstance(referee, dict) and referee.get("status") == "unrefereed":
+            # `klein finalize --no-referee --reason` writes exactly this shape;
+            # the reason is the study's own disclosure, so it is copied verbatim.
+            reason = html.escape(str(referee.get("reason") or "no reason recorded"))
+            rows.append(("referee", f"unrefereed (finalized with --no-referee: {reason})"))
+        elif not isinstance(referee, dict):
+            rows.append(("referee", "not recorded (schema 2)" if schema < 3 else "not recorded"))
+        else:
+            independent = "yes" if referee.get("independent_of_experimenter") else "no"
+            rows.append(
+                (
+                    "referee",
+                    f"{html.escape(str(referee.get('verdict') or 'no verdict'))} — "
+                    f"<code>{html.escape(str(referee.get('referee') or 'unnamed'))}</code> · "
+                    f"independent of the experimenter: {independent}",
+                )
+            )
+        gaps = final.get("confirmation_gaps")
+        if isinstance(gaps, dict) and gaps:
+            for track in sorted(gaps):
+                reasons = gaps[track]
+                listed = reasons if isinstance(reasons, list) else [reasons]
+                rows.append(
+                    (
+                        f"confirmation gap · {track}",
+                        "; ".join(html.escape(str(item)) for item in listed),
+                    )
+                )
+
+    items = "\n".join(f"<dt>{html.escape(term)}</dt><dd>{value}</dd>" for term, value in rows)
+    return (
+        '<div class="evidence" data-generated="evidence">\n'
+        '<dl class="evidence-list">\n' + items + "\n</dl>\n</div>"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -327,9 +694,7 @@ def outside_pre(text: str, fn) -> str:
 
 def _render_one_math(latex: str, display: bool) -> str:
     """One LaTeX expression → theme-aware inline SVG with the source as <title>."""
-    mathml = latex2mathml_converter.convert(
-        latex, display="block" if display else "inline"
-    )
+    mathml = latex2mathml_converter.convert(latex, display="block" if display else "inline")
     svg = ziamath.Math(mathml).svg()
     # ziamath hard-codes black; currentColor follows the page's --fg in both
     # colour schemes (the CSS re-asserts it for every child as well).
@@ -381,10 +746,7 @@ def render_math(content: str, fragment: str, errors: list[str]) -> str:
         source = html.escape(latex, quote=True)
         if display:
             return f'<div class="kmath-display" data-latex="{source}">{svg}</div>'
-        return (
-            f'<span class="kmath" data-latex="{source}"{_inline_math_style(svg)}>'
-            f"{svg}</span>"
-        )
+        return f'<span class="kmath" data-latex="{source}"{_inline_math_style(svg)}>{svg}</span>'
 
     content = MATH_INLINE_RE.sub(repl_inline, content)
     return MATH_DISPLAY_RE.sub(repl_display, content)
@@ -424,38 +786,160 @@ def highlight_code(content: str, fragment: str, errors: list[str]) -> str:
     return LANG_CLASS_RE.sub(repl, content)
 
 
-def include_code(content: str, study_dir: Path, fragment: str, errors: list[str]) -> str:
+def _run_source(
+    study_dir: Path, run_id: str, rel: str, fragment: str
+) -> tuple[bytes | None, dict[str, str], str]:
+    """The bytes ONE run executed, plus that run's (commit, kind, track).
+
+    ``run-one`` restores the mutable surface after a non-keep, so the file on
+    disk is never proof of what a given cell ran; the candidate commit is. This
+    reads the blob out of git rather than trusting the working tree.
+    """
+    manifest_rel = f"runs/{run_id}/manifest.json"
+    manifest = _read_json(study_dir / manifest_rel)
+    if manifest is None:
+        return (
+            None,
+            {},
+            f"{fragment}: data-run={run_id!r} for data-code={rel!r} has no readable "
+            f"manifest at {manifest_rel}",
+        )
+    commit = str(manifest.get("candidate_commit") or "")
+    if not commit:
+        return (
+            None,
+            {},
+            f"{fragment}: data-run={run_id!r} for data-code={rel!r}: {manifest_rel} "
+            "records no 'candidate_commit'",
+        )
+    facts = {
+        "commit": commit,
+        "kind": str(manifest.get("evaluation_kind") or "unrecorded"),
+        "track": str(manifest.get("track") or "unrecorded"),
+    }
+    prefix = git_show_prefix(study_dir)
+    if prefix is None:
+        return (
+            None,
+            facts,
+            f"{fragment}: data-run={run_id!r} needs git to read {rel!r} at commit "
+            f"{commit[:12]}, and git is not available here",
+        )
+    repo_rel = f"{prefix}{rel}"
+    blob, error = git_show_bytes(study_dir, commit, repo_rel)
+    if blob is None:
+        return (
+            None,
+            facts,
+            f"{fragment}: data-run={run_id!r}: git show {commit[:12]}:{repo_rel} failed — {error}",
+        )
+    return blob, facts, ""
+
+
+def include_code(
+    content: str,
+    study_dir: Path,
+    fragment: str,
+    errors: list[str],
+    meta: dict[str, Any] | None = None,
+) -> str:
     """Resolve ``<pre data-code="…"></pre>`` includes against the study dir.
 
     This is what turns the spec's "the page carries the ACTUAL winning
-    train.py" from a checklist promise into a build-time guarantee.
+    entrypoint" from a checklist promise into a build-time guarantee — and, with
+    ``data-run``, names WHICH run's bytes those are instead of letting the reader
+    assume the working tree is a cell.
     """
+    surface = set(mutable_surface(meta if meta is not None else load_study_meta(study_dir)))
 
     def repl(match: re.Match[str]) -> str:
-        rel, lang = match.group(1), match.group(2)
+        rel = match.group(1)
+        attrs = dict(CODE_ATTR_RE.findall(match.group(2)))
+        lang, run, role = attrs.get("lang"), attrs.get("run"), attrs.get("role")
         if Path(rel).is_absolute() or ".." in Path(rel).parts:
             errors.append(
                 f"{fragment}: data-code={rel!r} must be a relative path inside the study dir"
             )
             return ""
-        path = study_dir / rel
-        if not path.is_file():
-            errors.append(f"{fragment}: data-code={rel!r} not found under {study_dir}")
+        if role is not None and role != "template":
+            errors.append(f'{fragment}: data-role={role!r} is not a known role (only "template")')
             return ""
-        source = path.read_text(encoding="utf-8")
+        norm = Path(rel).as_posix()
+        if norm in surface and not run and role != "template":
+            errors.append(
+                f"{fragment}: data-code={norm!r} is the mutable surface, so the file "
+                "on disk is the RESTORED template, not the cell a run executed; add "
+                'data-run="E####" to include the executed source, or '
+                'data-role="template" to label it'
+            )
+            return ""
+
+        path = study_dir / rel
+        if run:
+            raw, facts, error = _run_source(study_dir, run, norm, fragment)
+            if raw is None:
+                errors.append(error)
+                return ""
+            try:
+                source = raw.decode("utf-8")
+            except UnicodeDecodeError:
+                errors.append(
+                    f"{fragment}: data-run={run!r}: {norm!r} at commit "
+                    f"{facts['commit'][:12]} is not UTF-8 text"
+                )
+                return ""
+        else:
+            if not path.is_file():
+                errors.append(f"{fragment}: data-code={rel!r} not found under {study_dir}")
+                return ""
+            raw, facts = path.read_bytes(), {}
+            source = path.read_text(encoding="utf-8")
+
         resolved_lang = lang or LANG_BY_SUFFIX.get(path.suffix, "text")
         try:
             highlighted = _highlight_source(source, resolved_lang)
         except ClassNotFound:
             errors.append(f"{fragment}: data-lang={resolved_lang!r} is not a known lexer")
             return ""
+
+        sha = hashlib.sha256(raw).hexdigest()[:12]
+        if run:
+            provenance = (
+                f"executed by <code>{html.escape(run)}</code> "
+                f"({html.escape(facts['kind'])}, track {html.escape(facts['track'])}) "
+                f"at commit <code>{html.escape(facts['commit'][:12])}</code> · "
+                f"sha256 <code>{sha}…</code>"
+            )
+        elif role == "template":
+            provenance = f"restored template on disk, not a run's cell · sha256 <code>{sha}…</code>"
+        else:
+            provenance = (
+                f"current file at build (outside the mutable surface) · sha256 <code>{sha}…</code>"
+            )
+
+        esc_rel = html.escape(norm, quote=True)
+        wrapper = f' data-code-source="{esc_rel}"'
+        if run:
+            wrapper += f' data-run="{html.escape(run, quote=True)}"'
+        if role == "template":
+            wrapper += ' data-role="template"'
         return (
-            f'<pre class="klein-code" data-code-source="{html.escape(rel, quote=True)}">'
+            f'<details class="source"{wrapper}>\n'
+            f'<summary><span class="src-path"><code>{html.escape(norm)}</code></span> · '
+            f'<span class="src-prov">{provenance}</span></summary>\n'
+            f'<pre class="klein-code" data-code-source="{esc_rel}">'
             f'<code class="language-{html.escape(resolved_lang, quote=True)}">'
-            f"{highlighted}</code></pre>"
+            f"{highlighted}</code></pre>\n"
+            "</details>"
         )
 
-    return CODE_INCLUDE_RE.sub(repl, content)
+    resolved = CODE_INCLUDE_RE.sub(repl, content)
+    for leftover in CODE_LEFTOVER_RE.finditer(resolved):
+        errors.append(
+            f"{fragment}: unconsumed data-code (unknown attribute, unquoted value, or a "
+            f"non-empty element?): {leftover.group(0)[:80]!r}"
+        )
+    return resolved
 
 
 def probe_leftovers(
@@ -481,6 +965,75 @@ def probe_leftovers(
         return segment
 
     outside_pre(content, scan)
+
+
+def slugify(text: str) -> str:
+    """A heading's TEXT → a stable ASCII anchor slug."""
+    plain = html.unescape(TAG_RE.sub(" ", text))
+    return SLUG_STRIP_RE.sub("-", plain.lower()).strip("-") or "section"
+
+
+def heading_text(inner: str) -> str:
+    """A heading's rendered words: tags out, entities back, spaces collapsed."""
+    return re.sub(r"\s+", " ", html.unescape(TAG_RE.sub(" ", inner))).strip()
+
+
+def _insert_after_first_h2(section: str, block: str) -> str:
+    """Put ``block`` right after the section's own heading, never inside a <pre>."""
+    spans = [m.span() for m in PRE_SPAN_RE.finditer(section)]
+    start = 0
+    while True:
+        idx = section.find("</h2>", start)
+        if idx == -1:  # a fragment with no <h2> keeps its subnav-less shape
+            return section
+        if not any(begin <= idx < stop for begin, stop in spans):
+            end = idx + len("</h2>")
+            return f"{section[:end]}\n{block}{section[end:]}"
+        start = idx + 1
+
+
+def add_subsection_anchors(sections: list[str]) -> list[str]:
+    """Give every ``<h3>`` a page-unique id, and every multi-h3 section a subnav.
+
+    The slug depends only on the heading text and on the headings BEFORE it, so
+    appending a subsection never renumbers an existing anchor — a tutorial that
+    is cited by deep link has to survive its own rebuild. The seven section
+    anchors are reserved up front so an ``<h3>Findings</h3>`` cannot steal
+    ``#findings`` from the section it lives in.
+    """
+    seen: dict[str, int] = {anchor: 1 for _f, anchor, _t in SECTIONS}
+    out: list[str] = []
+    for section in sections:
+        headings: list[tuple[str, str]] = []
+
+        def annotate(segment: str, headings: list[tuple[str, str]] = headings) -> str:
+            def repl(match: re.Match[str]) -> str:
+                attrs, inner = match.group(1), match.group(2)
+                existing = ID_ATTR_RE.search(attrs)
+                if existing:
+                    headings.append((existing.group(1), heading_text(inner)))
+                    return match.group(0)
+                base = slugify(inner)
+                count = seen.get(base, 0) + 1
+                seen[base] = count
+                slug = base if count == 1 else f"{base}-{count}"
+                headings.append((slug, heading_text(inner)))
+                return f'<h3 id="{slug}"{attrs}>{inner}</h3>'
+
+            return H3_RE.sub(repl, segment)
+
+        section = outside_pre(section, annotate)
+        if len(headings) >= 2:
+            links = "".join(
+                f'<a href="#{html.escape(slug, quote=True)}">{html.escape(text)}</a>'
+                for slug, text in headings
+            )
+            section = _insert_after_first_h2(
+                section,
+                '<nav class="subnav" aria-label="In this section">' + links + "</nav>",
+            )
+        out.append(section)
+    return out
 
 
 def render_css() -> str:
@@ -590,9 +1143,7 @@ def content_security_policy() -> str:
     than by ``'unsafe-inline'``.  Everything capable of network activity is
     denied explicitly as well as by ``default-src 'none'``.
     """
-    script_hash = base64.b64encode(hashlib.sha256(NAV_JS.encode("utf-8")).digest()).decode(
-        "ascii"
-    )
+    script_hash = base64.b64encode(hashlib.sha256(NAV_JS.encode("utf-8")).digest()).decode("ascii")
     return "; ".join(
         (
             "default-src 'none'",
@@ -613,22 +1164,20 @@ def content_security_policy() -> str:
 
 
 def csp_meta_tag() -> str:
-    return (
-        '<meta http-equiv="Content-Security-Policy" '
-        f'content="{content_security_policy()}">'
-    )
+    return f'<meta http-equiv="Content-Security-Policy" content="{content_security_policy()}">'
 
 
 def assemble(
     study_dir: Path,
     title: str,
-    meta: dict[str, str | None],
+    meta: dict[str, Any],
     missing: list[str],
     math_errors: list[str],
     code_errors: list[str],
 ) -> str:
     study_id = study_dir.name
-    ledger = build_ledger(study_dir)
+    ledger = build_ledger(study_dir, meta)
+    evidence = build_evidence(study_dir)
 
     body_sections: list[str] = []
     for filename, anchor, _title in SECTIONS:
@@ -638,7 +1187,7 @@ def assemble(
         # cannot double-process it, and the include emits final form); math
         # and figures scan attributes, so both run masked outside <pre>.
         frag = highlight_code(frag, filename, code_errors)
-        frag = include_code(frag, study_dir, filename, code_errors)
+        frag = include_code(frag, study_dir, filename, code_errors, meta)
         frag = outside_pre(
             frag,
             functools.partial(render_math, fragment=filename, errors=math_errors),
@@ -649,7 +1198,12 @@ def assemble(
         )
         probe_leftovers(frag, filename, math_errors, code_errors)
         frag = frag.replace("<!--LEDGER-->", ledger)
+        frag = frag.replace(EVIDENCE_MARK, evidence)
         body_sections.append(f'<section id="{anchor}">\n{frag}\n</section>')
+
+    # Last pass, deliberately: ids must be unique across the WHOLE page, and the
+    # generated ledger/evidence blocks are part of the text an <h3> can precede.
+    body_sections = add_subsection_anchors(body_sections)
 
     nav_links = "\n".join(
         f'<a href="#{anchor}">{i}. {html.escape(nav)}</a>'
@@ -681,9 +1235,7 @@ def assemble(
         "</div></header>\n"
         '<nav class="topnav"><div class="wrap">\n'
         f"{nav_links}\n</div></nav>\n"
-        '<main class="wrap">\n'
-        + "\n".join(body_sections)
-        + "\n</main>\n"
+        '<main class="wrap">\n' + "\n".join(body_sections) + "\n</main>\n"
         '<footer class="site-footer"><div class="wrap">\n'
         "<p>Generated by Klein Auto Research — the SYNTHESIZE→TUTORIAL loop. "
         "Self-contained: every figure is a base64-inlined PNG, no network required.</p>\n"
@@ -735,8 +1287,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if ziamath is None:
         print(
-            "[build_tutorial] FAIL: the tutorial renderer needs pygments + "
-            "ziamath + latex2mathml.",
+            "[build_tutorial] FAIL: the tutorial renderer needs pygments + ziamath + latex2mathml.",
             file=sys.stderr,
         )
         print("       In this repo:      uv sync --locked", file=sys.stderr)
@@ -783,6 +1334,13 @@ def main(argv: list[str] | None = None) -> int:
         return 6
 
     violations = acceptance_violations(page)
+    # A study with a lock has receipts; a findings section that never shows them
+    # is asking the reader to take the verdicts on trust.
+    if (study_dir / "claims.lock").is_file() and 'data-generated="evidence"' not in page:
+        violations.append(
+            f"claims.lock exists but no fragment carries {EVIDENCE_MARK}; "
+            "add the marker to 05-findings.html"
+        )
     if violations:
         print("[build_tutorial] acceptance guard FAILED:", file=sys.stderr)
         for v in violations:
