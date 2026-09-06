@@ -117,7 +117,7 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
         action="append",
         default=[],
         metavar="NAME",
-        help="declare a capability to be checked (repeatable); none ships in this version",
+        help="declare a capability to be checked (repeatable); this version ships all ten",
     )
     init.add_argument("--predecessor", help="study id this study succeeds (inherited exposure)")
     # A successor cites the pivot receipt that created it.
