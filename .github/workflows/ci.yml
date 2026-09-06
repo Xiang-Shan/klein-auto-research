@@ -384,8 +384,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     # Windows now also runs the full kleinlib/tests + scripts/tests suite (see
     # below), which is heavier than the --help/test_data_splits smoke macOS
-    # gets and Windows runners tend to be slower; 15 min was tight for that.
-    timeout-minutes: 20
+    # gets and Windows runners tend to be slower; 15 min was tight for that
+    # before 2.1, and the 2.1 generation tests (hundreds of small git
+    # transactions, ~9 min on a fast Mac) pushed the step past 20. A cap, not
+    # a target: run 34028212643 timed out at 20 with every other lane green.
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -446,6 +449,11 @@ jobs:
           uv run --no-sync klein sweep --help
           uv run --no-sync klein sweep register --help
           uv run --no-sync klein doctor --help
+          uv run --no-sync klein generation --help
+          uv run --no-sync klein generation init --help
+          uv run --no-sync klein generation check --help
+          uv run --no-sync klein generation verify --help
+          uv run --no-sync klein generation label --help
       - name: Full engine + scripts test suite on Windows (no coverage)
         if: matrix.os == 'windows-latest'
         # bash, not pwsh: a multi-line pwsh step exits with its LAST command's
