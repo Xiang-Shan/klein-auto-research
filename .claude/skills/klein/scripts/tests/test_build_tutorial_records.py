@@ -578,7 +578,7 @@ def test_single_h3_gets_an_id_but_no_subnav(build_module, tmp_path):
     assert build_module.main([str(study)]) == 0
     page = (study / "report" / "index.html").read_text(encoding="utf-8")
     assert '<h3 id="one-only">' in page
-    assert "subnav" not in page
+    assert 'class="subnav"' not in page  # the stylesheet names it; the markup must not
 
 
 def test_duplicate_headings_are_numbered_and_existing_ids_kept(build_module, tmp_path):

@@ -14,8 +14,15 @@ Fragment contract
     05-findings.html  06-coding-advice.html  07-next-steps.html
 
 - Figures are referenced as ``<img data-fig="figures/<name>.png">``; the builder
-  reads the PNG from ``<study_dir>`` and inlines it as a ``data:`` URI. A missing
-  figure FAILS the build (listing the name).
+  reads the PNG from ``<study_dir>``, decodes its IHDR to emit intrinsic
+  ``width``/``height`` (no layout shift on load) and inlines the bytes as a
+  ``data:`` URI. A missing file, or a file whose PNG signature/header does not
+  decode, FAILS the build naming the file and the reason. Adding an optional
+  ``data-caption="…"`` (entity-escaped) wraps the image in a numbered
+  ``<figure class="fig" id="fig-N">`` with a caption and a CSS-``:target``
+  enlargement that duplicates no image bytes; a bare ``data-fig`` keeps its
+  authored surroundings untouched (fragments that already write their own
+  ``<figure>``/``<figcaption>`` are never double-wrapped).
 - Math is authored as LaTeX in EMPTY elements — ``<span data-math="…"></span>``
   (inline) / ``<div data-math-display="…"></div>`` (display) — and rendered at
   BUILD time to inline SVG glyph paths (ziamath; no fonts, no runtime script).
@@ -63,7 +70,7 @@ Acceptance guard (runs on the assembled page; non-zero exit lists violations):
 - ``href`` values are local fragments and ``src`` values are inlined PNGs only.
   Plain-text URLs inside <cite>/<code>/reference lists remain allowed.
 
-Exit codes: 2 missing fragment(s) · 3 missing figure(s) · 4 acceptance guard ·
+Exit codes: 2 missing fragment(s) · 3 figure problem(s) · 4 acceptance guard ·
 5 math render failure · 6 code include failure · 7 renderer dependency missing.
 (argparse itself also exits 2 on a usage error — pre-existing collision, kept.)
 
@@ -83,8 +90,10 @@ import csv
 import functools
 import hashlib
 import html
+import itertools
 import json
 import re
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -127,6 +136,13 @@ SECTIONS: tuple[tuple[str, str, str], ...] = (
 )
 
 FIG_RE = re.compile(r"""data-fig\s*=\s*(["'])(.*?)\1""")
+#: The whole ``<img …>`` tag, so the inliner can ADD intrinsic width/height and
+#: (with a caption) wrap the element — the attribute-only pass above still runs
+#: afterwards over anything that carried ``data-fig`` outside an ``<img>``, so
+#: no authoring form silently loses its inlining.
+FIG_IMG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+FIG_CAPTION_RE = re.compile(r"""\s*data-caption\s*=\s*(["'])(.*?)\1""", re.IGNORECASE)
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 ATTR_URL_RE = re.compile(r"""(?:src|href)\s*=\s*(["'])(.*?)\1""", re.IGNORECASE)
 
 # Math/code authoring idioms. The element forms are deliberately STRICT — the
@@ -439,19 +455,99 @@ def git_show_bytes(study_dir: Path, commit: str, repo_rel: str) -> tuple[bytes |
 # --------------------------------------------------------------------------
 
 
-def inline_figures(content: str, study_dir: Path, missing: list[str]) -> str:
-    """Replace every ``data-fig="figures/x.png"`` with an inline base64 ``src=``."""
+def png_intrinsic_size(data: bytes) -> tuple[int, int]:
+    """Width/height from a PNG's IHDR, or ValueError naming what did not decode.
 
-    def repl(match: re.Match[str]) -> str:
-        rel = match.group(2)
+    Fail closed rather than guess: a JPEG renamed ``.png`` (or a truncated
+    write from an interrupted ``make_figures.py``) would otherwise ship as a
+    broken image inside a self-contained artifact nobody can re-fetch.
+    """
+    if data[:8] != PNG_SIGNATURE:
+        raise ValueError("not a PNG: bad signature")
+    if len(data) < 24 or data[12:16] != b"IHDR":
+        raise ValueError("not a PNG: truncated or missing IHDR header")
+    width, height = struct.unpack(">II", data[16:24])
+    if not width or not height:
+        raise ValueError("not a PNG: IHDR declares a zero dimension")
+    return width, height
+
+
+def inline_figures(
+    content: str,
+    study_dir: Path,
+    missing: list[str],
+    figure_number: itertools.count | None = None,
+) -> str:
+    """Inline every ``data-fig="figures/x.png"`` as base64 with intrinsic size.
+
+    ``figure_number`` is the PAGE-WIDE figure counter (``assemble`` threads one
+    through every fragment) so ``id="fig-N"`` is document order and identical on
+    every rebuild; it advances for every figure, captioned or not, so adding a
+    caption to one figure cannot renumber its neighbours.
+
+    Two passes, deliberately: whole ``<img>`` tags first (they gain
+    ``width``/``height``, and a ``data-caption`` promotes them into a numbered
+    ``<figure>`` with a ``:target`` enlargement), then the historic
+    attribute-only substitution for any ``data-fig`` that was authored on
+    something other than an ``<img>``.
+    """
+    counter = itertools.count(1) if figure_number is None else figure_number
+
+    def read_figure(rel: str) -> tuple[str, int, int] | None:
         fig_path = study_dir / rel
         if not fig_path.exists():
-            missing.append(rel)
-            return match.group(0)  # leave untouched; the build fails downstream
-        data = base64.b64encode(fig_path.read_bytes()).decode("ascii")
-        return f'src="data:image/png;base64,{data}"'
+            missing.append(f"{rel} — not found under {study_dir}")
+            return None
+        raw = fig_path.read_bytes()
+        try:
+            width, height = png_intrinsic_size(raw)
+        except ValueError as exc:
+            missing.append(f"{rel} — {exc}")
+            return None
+        return base64.b64encode(raw).decode("ascii"), width, height
 
-    return FIG_RE.sub(repl, content)
+    def repl_img(match: re.Match[str]) -> str:
+        tag = match.group(0)
+        if FIG_RE.search(tag) is None:
+            return tag  # a plain <img src=…>: not ours to rewrite
+        caption = FIG_CAPTION_RE.search(tag)
+        if caption is not None:
+            tag = tag[: caption.start()] + tag[caption.end() :]
+        fig = FIG_RE.search(tag)
+        if fig is None:  # pragma: no cover - a data-caption swallowing data-fig
+            return match.group(0)
+        loaded = read_figure(fig.group(2))
+        if loaded is None:
+            return match.group(0)  # leave untouched; the build fails downstream
+        data, width, height = loaded
+        # Rebuild the tag rather than append to it: the closing ">" (and an XHTML
+        # "/>" author's slash) must stay last so width/height land inside the tag.
+        rest = tag[fig.end() : -1].rstrip()
+        if rest.endswith("/"):
+            rest = rest[:-1].rstrip()
+        img = (
+            f'{tag[: fig.start()]}src="data:image/png;base64,{data}"{rest}'
+            f' width="{width}" height="{height}">'
+        )
+        index = next(counter)
+        if caption is None:
+            return img
+        text = html.escape(html.unescape(caption.group(2)))
+        return (
+            f'<figure class="fig" id="fig-{index}">'
+            f'<a class="fig-zoom" href="#fig-{index}" aria-label="Enlarge figure">{img}</a>'
+            f"<figcaption>{text} "
+            f'<a class="fig-close" href="#fig-{index}-close">Close</a></figcaption>'
+            "</figure>"
+        )
+
+    def repl_attr(match: re.Match[str]) -> str:
+        loaded = read_figure(match.group(2))
+        if loaded is None:
+            return match.group(0)
+        return f'src="data:image/png;base64,{loaded[0]}"'
+
+    return FIG_RE.sub(repl_attr, FIG_IMG_RE.sub(repl_img, content))
 
 
 def _read_json(path: Path) -> dict[str, Any] | None:
@@ -1049,8 +1145,17 @@ def render_css() -> str:
         # get_style_defs emits its own container background; the theme wins:
         + "pre.klein-code{background:var(--code-bg);border:1px solid var(--rule)}\n"
         + "@media (prefers-color-scheme:dark){pre.klein-code{background:var(--code-bg)}}\n"
+        + "@media print{\n"
+        # Re-assert the LIGHT token colours for print: without this a reader in
+        # dark mode prints white-on-paper code from the dark block above.
+        + light
+        + "\n}\n"
         + "/* Build-time math (inline SVG glyph paths) */\n"
-        + ".kmath{display:inline-block}\n"
+        # max-width + overflow-x let a formula wider than the column scroll on
+        # its own instead of widening the page; the element's inline
+        # vertical-align (computed from the viewBox) still sets the baseline,
+        # and the box hugs the SVG height, so no descent is clipped.
+        + ".kmath{display:inline-block;max-width:100%;overflow-x:auto}\n"
         + ".kmath svg{display:block;margin:0;border:0;background:none}\n"
         + ".kmath-display{margin:18px 0;text-align:center;overflow-x:auto}\n"
         + ".kmath-display svg{display:inline-block;margin:0;border:0;background:none;max-width:none}\n"
@@ -1085,7 +1190,8 @@ nav.topnav a{font-size:13px;color:var(--muted);text-decoration:none;padding:4px 
 nav.topnav a:hover{color:var(--fg)}
 nav.topnav a.active{color:var(--accent);border-bottom-color:var(--accent)}
 main{padding:8px 0 40px}
-section{padding:34px 0;border-bottom:1px solid var(--rule);scroll-margin-top:64px}
+section{padding:34px 0;border-bottom:1px solid var(--rule);scroll-margin-top:76px}
+h3[id]{scroll-margin-top:76px}
 section:last-child{border-bottom:0}
 section h2{font-size:23px;margin:0 0 14px;padding-left:12px;border-left:4px solid var(--accent)}
 h3{font-size:18px;margin:26px 0 8px}
@@ -1104,7 +1210,11 @@ figure{margin:20px 0}figcaption{font-size:14px;color:var(--muted);text-align:cen
 table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;display:block;overflow-x:auto}
 th,td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
 th{background:var(--code-bg);font-weight:600}
-table.ledger td:nth-child(2){font-variant-numeric:tabular-nums;white-space:nowrap}
+table.ledger td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+table.ledger tr.kind-final_test td:first-child{font-weight:600}
+table.ledger tr.kind-final_test td:first-child::after{content:" · sealed";font-weight:400;
+font-size:11px;letter-spacing:.03em;color:var(--muted)}
+.ledger-key{font-size:14px;color:var(--muted)}
 .badge{display:inline-block;font-size:11px;letter-spacing:.03em;text-transform:uppercase;
 background:var(--badge);color:var(--accent);border-radius:999px;padding:2px 9px}
 tr.st-discard .badge{color:var(--muted)}tr.st-crash .badge{color:var(--accent2)}
@@ -1112,25 +1222,115 @@ blockquote{margin:0 0 16px;padding:2px 16px;border-left:3px solid var(--rule);co
 .note{font-size:14px;color:var(--muted)}
 .site-footer{border-top:1px solid var(--rule);padding:26px 0 48px;color:var(--muted);font-size:13px}
 .site-footer .lineage{font-family:ui-monospace,Menlo,monospace;font-size:12px;margin-top:6px}
-@media print{nav.topnav{position:static;backdrop-filter:none}
-body{font-size:12pt}section{border-color:#ccc;page-break-inside:avoid}
-a{color:inherit;text-decoration:none}img{border-color:#ccc}}
+/* A long path, sha256 or URL must reflow rather than widen the whole page;
+   <pre> is exempt because it scrolls (breaking source lines misreads code). */
+code,a,cite{overflow-wrap:anywhere}
+pre code{overflow-wrap:normal}
+/* Section sub-navigation emitted after an <h2>. */
+nav.subnav{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 16px;font-size:13px}
+nav.subnav a{color:var(--muted);text-decoration:none;overflow-wrap:anywhere}
+nav.subnav a:hover{color:var(--fg)}
+/* Evidence blocks: a bordered key/value card that collapses to one column. */
+.evidence{margin:16px 0;padding:12px 16px;border:1px solid var(--rule);border-radius:8px;
+background:var(--card);font-size:15px;overflow-wrap:anywhere}
+.evidence dl{margin:0;display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:4px 16px}
+.evidence dt{color:var(--muted);font-size:14px}
+.evidence dd{margin:0;min-width:0}
+.evidence table{margin:0}
+/* Source disclosure: the summary reads as the listing's caption, and the
+   listing sits flush inside it (the <pre> drops its own border, never two). */
+details.source{margin:0 0 16px;border:1px solid var(--rule);border-radius:8px;
+background:var(--code-bg);overflow:hidden}
+details.source>summary{cursor:pointer;padding:8px 14px;font-size:13px;line-height:1.5;
+color:var(--muted);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+overflow-wrap:anywhere}
+/* Two rules, not one selector list: a browser that knows only one of these
+   pseudo-elements would otherwise drop the whole declaration. */
+details.source>summary::marker{color:var(--rule)}
+details.source>summary::-webkit-details-marker{color:var(--rule)}
+details.source>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+details.source .src-path code{background:none;padding:0;font-size:13px;color:var(--fg)}
+details.source .src-prov{color:var(--muted)}
+details.source[open]>summary{border-bottom:1px solid var(--rule)}
+details.source>pre,details.source>pre.klein-code{margin:0;border:0;border-radius:0;background:none}
+/* Captioned figures: one image, two states. The enlargement is CSS :target on
+   the SAME element, so the page never carries a second copy of the bytes. */
+figure.fig{margin:20px 0}
+figure.fig .fig-zoom{display:block;text-decoration:none}
+figure.fig .fig-close{display:none}
+figure.fig:target{position:fixed;inset:0;z-index:20;margin:0;padding:14px 16px 20px;
+overflow:auto;background:var(--bg)}
+figure.fig:target .fig-zoom{display:inline-block}
+figure.fig:target img{max-width:none;width:auto;margin:0}
+figure.fig:target figcaption{position:sticky;left:0;text-align:left;margin-top:10px}
+figure.fig:target .fig-close{display:inline-block;margin-left:8px;color:var(--accent);
+font-weight:600;text-decoration:underline}
+/* 860px is the content column's own max-width: at or above it the nav provably
+   fits one 52px row, below it the links would wrap and bury the anchor targets
+   under a two-row bar. So below it the nav becomes ONE scrollable row instead,
+   and scroll-margin gains the ~15px a non-overlay scrollbar adds to that row. */
+@media (max-width:860px){
+nav.topnav .wrap{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+nav.topnav a{white-space:nowrap;flex:0 0 auto}
+section{scroll-margin-top:84px}h3[id]{scroll-margin-top:84px}
+.evidence dl{grid-template-columns:minmax(0,1fr)}
+.evidence dt{margin-top:6px}}
+@media print{
+/* Re-declare the light palette: a dark-scheme reader must print on paper. */
+:root{--bg:#fff;--fg:#111;--muted:#444;--rule:#ccc;--card:#fff;--accent:#0a5c55;
+--accent2:#7f1d1d;--code-bg:#f6f6f6;--badge:#eee;--shadow:none}
+nav.topnav{position:static;backdrop-filter:none;background:#fff}
+body{font-size:12pt;background:#fff;color:#111}
+/* break-inside:avoid on a SECTION pushed whole sections onto fresh pages and
+   left the previous one near-empty; the atoms below are what must stay whole. */
+section{border-color:#ccc;break-inside:auto}
+h2,h3{break-after:avoid}
+figure,img,table.ledger tr{break-inside:avoid}
+a{color:inherit;text-decoration:none}img{border-color:#ccc}
+pre{white-space:pre-wrap;overflow:visible;border-color:#ccc}
+table{display:table;overflow:visible}
+td,th{overflow-wrap:anywhere}
+.kmath{overflow:visible;max-width:none}.kmath-display{overflow:visible}
+details.source{display:block}details.source>summary{display:block}
+figure.fig:target{position:static;inset:auto;overflow:visible;padding:0}
+figure.fig:target img{max-width:100%}figure.fig .fig-close{display:none}}
 """
 
 NAV_JS = """
 (function(){
   var links=[].slice.call(document.querySelectorAll('nav.topnav a'));
   var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a;});
-  if(!('IntersectionObserver' in window))return;
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){
-        links.forEach(function(a){a.classList.remove('active');});
-        var a=map[e.target.id];if(a)a.classList.add('active');
-      }
+  if('IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(a){a.classList.remove('active');});
+          var a=map[e.target.id];if(a)a.classList.add('active');
+        }
+      });
+    },{rootMargin:'-45% 0px -50% 0px'});
+    document.querySelectorAll('main section[id]').forEach(function(s){obs.observe(s);});
+  }
+  /* A printout must not lose a listing that happens to be collapsed on screen.
+     The pre-print state is restored, so printing never edits what is read. */
+  var reopened=[];
+  window.addEventListener('beforeprint',function(){
+    reopened=[];
+    document.querySelectorAll('details.source').forEach(function(d){
+      reopened.push([d,d.open]);d.open=true;
     });
-  },{rootMargin:'-45% 0px -50% 0px'});
-  document.querySelectorAll('main section[id]').forEach(function(s){obs.observe(s);});
+  });
+  window.addEventListener('afterprint',function(){
+    reopened.forEach(function(pair){pair[0].open=pair[1];});reopened=[];
+  });
+  /* Escape leaves a :target figure enlargement exactly the way the Close link
+     does — move to a hash that matches no element, so nothing scrolls. */
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape')return;
+    var h=location.hash;
+    if(h.lastIndexOf('#fig-',0)!==0||h.slice(-6)==='-close')return;
+    location.hash=h.slice(1)+'-close';
+  });
 })();
 """
 
@@ -1178,6 +1378,9 @@ def assemble(
     study_id = study_dir.name
     ledger = build_ledger(study_dir, meta)
     evidence = build_evidence(study_dir)
+    # One counter for the whole page: figure ids are document order, not
+    # per-fragment order, and a rebuild renumbers nothing.
+    figure_number = itertools.count(1)
 
     body_sections: list[str] = []
     for filename, anchor, _title in SECTIONS:
@@ -1194,7 +1397,12 @@ def assemble(
         )
         frag = outside_pre(
             frag,
-            functools.partial(inline_figures, study_dir=study_dir, missing=missing),
+            functools.partial(
+                inline_figures,
+                study_dir=study_dir,
+                missing=missing,
+                figure_number=figure_number,
+            ),
         )
         probe_leftovers(frag, filename, math_errors, code_errors)
         frag = frag.replace("<!--LEDGER-->", ledger)
@@ -1316,7 +1524,7 @@ def main(argv: list[str] | None = None) -> int:
     page = assemble(study_dir, title, meta, missing_figs, math_errors, code_errors)
 
     if missing_figs:
-        print("[build_tutorial] missing figure(s) referenced via data-fig:", file=sys.stderr)
+        print("[build_tutorial] figure problem(s) referenced via data-fig:", file=sys.stderr)
         for rel in dict.fromkeys(missing_figs):  # dedupe, keep order
             print(f"  - {rel}", file=sys.stderr)
         return 3
