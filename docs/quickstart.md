@@ -567,9 +567,14 @@ summary: 34 checks, 0 failed
 ```
 
 Math is authored as LaTeX in empty `data-math` attributes and typeset to SVG at build
-time; the winning `train.py` is included by reference (`<pre data-code="train.py">`), so
-the page carries the actual bytes; `<!--LEDGER-->` becomes the results table; figures
-are base64-inlined. The acceptance guard fails the build on any external URL. Protocol:
+time; the executed `train.py` is included by reference with the run that executed it
+named (`<pre data-code="train.py" data-run="E0002">` — the final keep — read at that
+run's candidate commit, with a provenance line; a bare include of a mutable-surface
+file is refused, because the file on disk cannot say which run it was); `<!--EVIDENCE-->`
+becomes the claim totals and the referee's verdict read from `claims.lock` and
+`study_state.json`; `<!--LEDGER-->` becomes the results table; figures are
+base64-inlined, each with a `data-caption`. The acceptance guard fails the build on any
+external URL. Protocol:
 [`.claude/skills/klein/references/tutorial-spec.md`](../.claude/skills/klein/references/tutorial-spec.md).
 
 ---
