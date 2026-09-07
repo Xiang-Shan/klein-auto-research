@@ -26,7 +26,7 @@
       "ok": true
     },
     {
-      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a8f2d47a81f401ad0",
+      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research",
       "name": "git repository",
       "ok": true
     },
@@ -186,7 +186,7 @@
       "ok": true
     },
     {
-      "message": "[WARN] 19 of 164 rendered numerals have no home \u2014 line 101: 2.2 (2.2 Regression dilution: the direction of the bias); line 213: 3.4 (3.4 The go / no-go call); line 242: 4.1 (4.1 The programme, phase by phase); line 281: 4.2 (4.2 The rehearsals earned their keep twice, in two different ways); line 300: 4.3 (4.3 The ledger); \u2026 14 more (advisory: the tutorial pass never fails a study; the referee reads the list)",
+      "message": "[WARN] 20 of 162 rendered numerals have no home \u2014 line 95: 2.2 (2.2 Regression dilution: the direction of the bias); line 208: 3.4 (3.4 The go / no-go call); line 238: 4.1 (4.1 The programme, phase by phase); line 277: 4.2 (4.2 The rehearsals earned their keep twice, in two different ways); line 296: 4.3 (4.3 The ledger); \u2026 15 more (advisory: the tutorial pass never fails a study; the referee reads the list)",
       "name": "tutorial numbers",
       "ok": true
     },
@@ -197,22 +197,22 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "fede4e3f14c198df2476fc8e1ef2cfa16cbceb95",
+  "git_head": "27a1b66f4e4ca706b08bff4b26a3fdcb54315afd",
   "inputs": {
     "aux_metrics.tsv": "092fbfe0ba2e6d4e5520996efc87631cba0819c738534a2e3ea128222f90c493",
     "claims.lock": "07d7a83fa2589c9030e79b0abe12975338812aa8638d02671acfae7789c2639b",
     "events.jsonl": "809f9a0827251aae26d304df9a10902e0062edb983bce44fb107b28408e7879c",
     "findings.md": "2540ff403c3203c70dfaabf2e9a86df1ce20ca6cdf7a5d19383653c8076386a6",
     "playbook.md": "4518ca3c85eb7d7a2ccb4dcde274f8ffd18bd2b71f066d867b4daa7be4e61b1c",
-    "program.md": "988e304bb6387c8d5ef2310a161eae3fb7d52ced200eeb5cb18f5979514b28ce",
+    "program.md": "aef5ee69e1e889d1cb8452b1bcf8a28d97f9e448324bba259818ea11f665527d",
     "referee_report.md": "7b4610156dbda8a6575f69e75e2dee949eafa255cea36501c4a84a94132113a3",
-    "report/index.html": "933a0147f7e7e79ce71b48c89e9386fa772e0699f762207e186bb6723dc38c1e",
+    "report/index.html": "d5cbbaef15c55078d1bb2608e33f0fd1bfe954cafc738c4911eaf2ce792309f5",
     "results.tsv": "efdee7d78268ee61206143be3fbf1c7114d70c7d02b27f80a6b9b520627149f5",
     "study.yaml": "6378b7302cfea9dc8d2144b17cf9347fbbc247a901af0175402bec31706ce627",
     "study_state.json": "5431ce517e7f18e248f9847c90aff615f4bcee6a80fc8914c4ec9373710d57e9"
   },
-  "klein_commit": "fede4e3f14c198df2476fc8e1ef2cfa16cbceb95",
-  "klein_version": "2.0.0",
+  "klein_commit": "27a1b66f4e4ca706b08bff4b26a3fdcb54315afd",
+  "klein_version": "2.1.0",
   "manifests": {
     "E0001": "d6c7a294aa13eb8c500a8f13b026e6a2b22a79e2c8582d31c34522e61dafbad2",
     "E0002": "a1f81c5b06ac72bb6d5baabccbd50acca9939c200f6b2756375107a13ea63620",
@@ -236,7 +236,7 @@
     "failed": 0,
     "warned": 3
   },
-  "timestamp": "2026-09-03T08:39:14.701050Z",
+  "timestamp": "2026-09-07T19:37:48.275828Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
