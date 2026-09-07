@@ -3,7 +3,8 @@
 <h3>5.1 The reproduction verdict: one target of five</h3>
 
 <img data-fig="figures/velocity_distance.png"
-     alt="Hubble's 24 objects with both two-parameter fits and his own published line; the four Virgo-cluster objects marked separately.">
+     alt="Hubble's 24 objects with both two-parameter fits and his own published line; the four Virgo-cluster objects marked separately."
+     data-caption="The reproduction track on its development block: the objects of Hubble&rsquo;s published Table 1, with the study&rsquo;s two two-parameter fits &mdash; through the origin, and with a free intercept &mdash; drawn against the line his own published constant implies. The square markers are the Virgo-cluster galaxies, which share one assigned distance between them. Neither ordinary fit lands on his published constant, and the reason is which model was fitted, not the arithmetic of fitting it.">
 
 <p>Neither two-parameter fit returns the published constant. Through the origin gives
 <strong>423.937323</strong>; with a free intercept, <strong>454.158441</strong>. The
@@ -34,7 +35,8 @@ afterwards to make it pass.</p>
 <h3>5.2 What the objects actually support</h3>
 
 <img data-fig="figures/bootstrap_k.png"
-     alt="Point estimates and 95 percent bootstrap intervals for three estimators, against every quoted reference value.">
+     alt="Point estimates and 95 percent bootstrap intervals for three estimators, against every quoted reference value."
+     data-caption="The estimate track on the same development block: each estimator&rsquo;s point value and its percentile-bootstrap interval, set against every constant anyone has quoted for this relation &mdash; Hubble&rsquo;s two published solutions, the intermediate value textbooks adopted, the modern one, and what is left when the Virgo rows are dropped. The two ordinary-least-squares intervals are wide enough to contain his published constant while the inverse one sits entirely above it, and none of the three comes anywhere near the modern value &mdash; changing which variable is called the response shifts the interval further than resampling the data does.">
 
 <p>The estimate is <strong>454.158441</strong> with a 95 % percentile-bootstrap
 interval of <strong>316.648582</strong> to <strong>603.704762</strong>, a width of
@@ -81,7 +83,8 @@ numbers.</p>
 <h3>5.4 Does the interval cover? Measured, not assumed</h3>
 
 <img data-fig="figures/coverage.png"
-     alt="Coverage of the bootstrap and analytic intervals under the declared truth, against the nominal level, the registered bar and the five Phase-0 floor blocks.">
+     alt="Coverage of the bootstrap and analytic intervals under the declared truth, against the nominal level, the registered bar and the five Phase-0 floor blocks."
+     data-caption="The simulate track under its declared known truth: how often each interval actually covers the true constant &mdash; the analytic and the bootstrap interval on the development seed block, and the bootstrap on the sealed block &mdash; against the nominal level and the bar registered before the run. The small panel sets the development block beside the five Phase-0 floor blocks that sized the resolution. Both intervals under-cover at this sample size and the bootstrap under-covers by more: the sealed cell clears its registered bar, but an interval from this method is optimistic rather than exact.">
 
 <p>Under the declared generating process at the paper's own design points, the
 percentile interval covers <strong>0.925</strong> of the time on the sealed seed block
@@ -125,3 +128,13 @@ The study registered the foreseeability when it was created, kept the refutation
 live, and took the verdict on a seed block the floor never touched &mdash; but the
 honest summary is that the prediction was no longer a surprise by the time it was
 adjudicated.</p>
+
+<h3>5.7 What the records say</h3>
+
+<p>The block below is not written by hand: the builder copies it out of
+<code>claims.lock</code> and <code>study_state.json</code> at build time &mdash; the claim
+ledger with its classes and strengths, any errata, the lock&rsquo;s git head, the
+referee&rsquo;s verdict and independence, and the finalization label. Records are read,
+never retyped.</p>
+
+<!--EVIDENCE-->

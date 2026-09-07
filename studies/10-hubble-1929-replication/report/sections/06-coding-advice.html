@@ -123,13 +123,14 @@ access once. Then say "locked before", not "blind".</p>
 
 <h3>6.7 The sealed cell, in full</h3>
 
-<p>Below is the actual entrypoint that spent this study's reproduction seal, read
-byte-for-byte from its candidate commit <code>34107cee</code>. On a registered track
-the mutable surface is restored after every run, so what ran lives in the candidate
-commits rather than in the working tree &mdash; this file is a verbatim copy, and
-<code>git show 34107cee:studies/10-hubble-1929-replication/analyze.py</code> reproduces
-it. Note the three things it does before it computes anything: it reads its constant
+<p>Below is the actual entrypoint that spent this study's reproduction seal, included
+as it was at its candidate commit <code>34107cee</code>. On a registered track the
+mutable surface is restored after every run, so what ran lives in the candidate commits
+rather than in the working tree; the builder reads the bytes from that commit itself,
+and the provenance line above the listing names the run, the commit and the hash
+(<code>git show 34107cee:studies/10-hubble-1929-replication/analyze.py</code> reproduces
+it). Note the three things it does before it computes anything: it reads its constant
 from a <em>pinned table</em> rather than refitting, it goes through the single data
 door, and it re-asserts the column exclusion itself.</p>
 
-<pre data-code="report/e0011-analyze.py" data-lang="python"></pre>
+<pre data-code="analyze.py" data-lang="python" data-run="E0011"></pre>
