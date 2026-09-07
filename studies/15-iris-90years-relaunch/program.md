@@ -691,3 +691,16 @@ Chosen: all three cells, in this exact order — no candidate deferred. Phase
 `confirmation` (three sealed cells, `--final-test --dry-run` first, adjudicating
 P10/P11/P15) is next; this experimenter session stops at the phase boundary per the
 task brief and hands back for orchestrator/user review before any sealed access.
+
+
+## Report rebuilt under the layout-2 tutorial builder (2026-09-07)
+
+- 2026-09-07 — REPORT REBUILD, authoring only. `report/index.html` was rebuilt by the
+  repository's tutorial builder after its layout-2 release (Klein 2.2.0). What changed is
+  the report's authoring, not the study: no run, manifest, ledger, prediction, claim, gate
+  record, lock, referee report or `findings.md` was touched, and every number on the page
+  is still a copy of a pinned value (the advisory numeral scan reports no new unsourced
+  numeral). Fragment changes under `report/sections/`: the "What the lock says" paragraph in 05-findings, which described a ten-claim lock while the lock already held fifteen claims at the commit that built the report, replaced by the `<!--EVIDENCE-->` block plus a paragraph that names the claims without counting them; the `train.py` include names its run (`data-run="E0006"`, the modern track's final keep); and the eleven figures in sections 4 and 5 carry teaching captions. `klein verify` was
+  re-run after the rebuild so `verify_receipt.json` hashes the rebuilt page, and the
+  weekly shipped-report check now measures this page as a current-generation report
+  rather than LEGACY.

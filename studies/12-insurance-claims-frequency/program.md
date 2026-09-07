@@ -713,3 +713,16 @@ note is answered here, dated, with what was done about it.
   `tables/pair_floors.tsv` give 10.9263, which rounds to 10.93. The pinned number is the
   full-precision one; the table is a rounded VIEW of the same sidecars, and a reader who
   recomputes from the table rather than from the sidecars will land one hundredth away.
+
+
+## Report rebuilt under the layout-2 tutorial builder (2026-09-07)
+
+- 2026-09-07 — REPORT REBUILD, authoring only. `report/index.html` was rebuilt by the
+  repository's tutorial builder after its layout-2 release (Klein 2.2.0). What changed is
+  the report's authoring, not the study: no run, manifest, ledger, prediction, claim, gate
+  record, lock, referee report or `findings.md` was touched, and every number on the page
+  is still a copy of a pinned value (the advisory numeral scan reports no new unsourced
+  numeral). Fragment changes under `report/sections/`: an `<!--EVIDENCE-->` marker in 05-findings under a closing heading (the lock paragraph reworded without its claim, class and strength counts), the `train.py` include names its run (`data-run="E0003"`, the frontier's final keep), and the seven figures in sections 4 and 5 carry teaching captions. `klein verify` was
+  re-run after the rebuild so `verify_receipt.json` hashes the rebuilt page, and the
+  weekly shipped-report check now measures this page as a current-generation report
+  rather than LEGACY.

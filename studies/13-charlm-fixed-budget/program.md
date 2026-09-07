@@ -496,3 +496,16 @@ all ten rubric checks PASS, none FAIL, two notes. Independence rung **model** â€
   standalone edit. **Decision: the lock note stands, unedited**, exactly as `klein
   claims verify` already accepts it; nothing it supports is wrong, so no erratum is
   filed against C5.
+
+
+## Report rebuilt under the layout-2 tutorial builder (2026-09-07)
+
+- 2026-09-07 â€” REPORT REBUILD, authoring only. `report/index.html` was rebuilt by the
+  repository's tutorial builder after its layout-2 release (Klein 2.2.0). What changed is
+  the report's authoring, not the study: no run, manifest, ledger, prediction, claim, gate
+  record, lock, referee report or `findings.md` was touched, and every number on the page
+  is still a copy of a pinned value (the advisory numeral scan reports no new unsourced
+  numeral). Fragment changes under `report/sections/`: an `<!--EVIDENCE-->` marker in 05-findings under a closing heading (a strength count and a stale claim total reworded), `model.py` and `train.py` included through `data-run="E0006"` (the incumbent the prose already named), and the four figures in section 4 carry teaching captions. `klein verify` was
+  re-run after the rebuild so `verify_receipt.json` hashes the rebuilt page, and the
+  weekly shipped-report check now measures this page as a current-generation report
+  rather than LEGACY.
