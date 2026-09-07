@@ -45,7 +45,7 @@ before any challenger ran:</p>
       <span data-math="\max(2\sigma,\ \mathrm{range}/2) = \max(0.190435,\ 0.28125) = 0.28125"></span>.</li>
 </ul>
 
-<img data-fig="figures/plot_decision_trajectory__fisher.png" alt="Decision trajectory for the fisher track: the anchor cell at val_auc 1.0 and the sealed final test, also at 1.0.">
+<img data-fig="figures/plot_decision_trajectory__fisher.png" alt="Decision trajectory for the fisher track: the anchor cell at val_auc 1.0 and the sealed final test, also at 1.0." data-caption="The fisher track's entire decision trajectory: the development anchor cell, then, marked apart, the one sealed final test. Both points sit at the same height on the AUC ceiling, and the track's keep bar was measured at zero width, so the incumbent's level is identical on rows the study worked near and on rows nobody had looked at &mdash; a flat line is the honest picture of a saturated metric.">
 
 <p>Two of three tracks measured a keep bar of exactly <code>0</code>. That is a
 <em>measured</em> zero, pasted into <code>study.yaml</code> and re-recorded at the consult
@@ -88,7 +88,7 @@ construction:</p>
       <code>val_errors=0</code> &mdash; the one number in this cell that is not tied.</li>
 </ul>
 
-<img data-fig="figures/roc_parade.png" alt="ROC curves for all five modern-track recipes on the development block: four curves sit stacked at the perfect corner and the fifth, five-nearest-neighbours, sits visibly below them.">
+<img data-fig="figures/roc_parade.png" alt="ROC curves for all five modern-track recipes on the development block: four curves sit stacked at the perfect corner and the fifth, five-nearest-neighbours, sits visibly below them." data-caption="The ninety-year parade itself: ROC curves for all five modern-track recipes &mdash; Fisher's own lda_all4 and the four post-1936 challengers &mdash; scored on the same development rows. Four curves lie on top of one another in the perfect corner and only five-nearest-neighbours falls away below them; against this species pair on twenty-five flowers, nine decades of method development draw one curve.">
 
 <h3>The disposition quirk: how a tie becomes a <code>keep</code></h3>
 
@@ -108,7 +108,7 @@ reason prediction P9 (&ldquo;zero of the four families earns a keep&rdquo;) read
 while its <em>substance</em> &mdash; no post-1936 method separated the species measurably
 better &mdash; is supported.</p>
 
-<img data-fig="figures/plot_decision_trajectory__modern.png" alt="Decision trajectory for the modern track: four keeps forming an apparent frontier plateau at val_auc 1.0, one discard below it, and the sealed final test visibly lower than every development point.">
+<img data-fig="figures/plot_decision_trajectory__modern.png" alt="Decision trajectory for the modern track: four keeps forming an apparent frontier plateau at val_auc 1.0, one discard below it, and the sealed final test visibly lower than every development point." data-caption="The modern track's development frontier &mdash; keeps as the stepped line, the one discard as a dot below it &mdash; with the sealed final test marked separately, as evidence of a different kind. The plateau of keeps is the tie-as-keep arithmetic, not four improvements, and the only cell scored on rows nobody had touched is the lowest point on the plot.">
 
 <h3>Phase 3 &mdash; the ablation map: which measurements carry it</h3>
 
@@ -140,9 +140,9 @@ registered arithmetic, the first phase where nothing reads inconclusive.</p>
       flowers, not an artifact of the discriminant.</li>
 </ul>
 
-<img data-fig="figures/plot_decision_trajectory__ablation.png" alt="Decision trajectory for the ablation track: petal-only and petal-with-hgbt tied at val_auc 1.0, sepal-only visibly lower at 0.814, and the sealed final test near the ceiling.">
+<img data-fig="figures/plot_decision_trajectory__ablation.png" alt="Decision trajectory for the ablation track: petal-only and petal-with-hgbt tied at val_auc 1.0, sepal-only visibly lower at 0.814, and the sealed final test near the ceiling." data-caption="The ablation track's trajectory: the petal-only cells at the incumbent's level, sepal-only far below them, and the sealed final test marked apart. This is the one track whose measured floor is not zero, so it is the only trajectory here on which the registered arithmetic could resolve a difference at all &mdash; and the drop it draws is a feature story, not a model story.">
 
-<img data-fig="figures/floor_vs_ceiling.png" alt="Measured floor against the AUC ceiling of 1.0, one row per track: fisher and modern show an invisible zero-width floor band, ablation shows a wide shaded band, with sepal-only landing inside it and petal-only landing right at the ceiling.">
+<img data-fig="figures/floor_vs_ceiling.png" alt="Measured floor against the AUC ceiling of 1.0, one row per track: fisher and modern show an invisible zero-width floor band, ablation shows a wide shaded band, with sepal-only landing inside it and petal-only landing right at the ceiling." data-caption="One row per track: the track's reference val_auc, the shaded band of differences its measured floor cannot resolve, and every candidate the study placed against it. On fisher and modern the band has no width at all, so nothing &mdash; not even the sealed loss just outside it &mdash; is resolvable; on ablation the band is wide enough to swallow sepal-only's large and correctly-directed shortfall. The whole study in one picture: two tracks with no ruler, and one with a ruler too coarse for its own effect.">
 
 <p>The bottom panel of that figure is the whole study in one picture: on <code>fisher</code>
 and <code>modern</code> the shaded &ldquo;cannot resolve&rdquo; band has zero width, so
