@@ -6,9 +6,9 @@ sealed partition returned 0.880949 against its own ceiling of 0.893469. That cla
 the only kind this study is allowed to call <strong>confirmed</strong>: it cites both a
 development run and the sealed run, which are two different kinds of evidence.</p>
 
-<p>The result a practitioner should take away is the second confirmed claim, and it
-carries the scope tag <code>in-silico</code> because it is a statement about behaviour
-under <em>this declared process</em> and not about the world: a boosted tree shown
+<p>The result a practitioner should take away carries the scope tag
+<code>in-silico</code>, because it is a statement about behaviour under <em>this
+declared process</em> and not about the world: a boosted tree shown
 <em>none</em> of the true terms out-earned handing a linear model the true interaction
 &mdash; 4.7779 floors against 3.9699, and 4.6190 on the sealed rows. Nobody had to know
 which term to specify.</p>
@@ -16,7 +16,8 @@ which term to specify.</p>
 <h3>Where the linear model actually goes wrong</h3>
 
 <img data-fig="figures/known_truth_calibration.png"
-     alt="Left panel: mean predicted probability against mean true probability in twenty equal-count bins; the linear model bows away from the diagonal while the boosted tree tracks it. Right panel: mean predicted minus true against true probability; the linear model over-predicts below a true probability of about 0.3 and under-predicts sharply above it.">
+     alt="Left panel: mean predicted probability against mean true probability in twenty equal-count bins; the linear model bows away from the diagonal while the boosted tree tracks it. Right panel: mean predicted minus true against true probability; the linear model over-predicts below a true probability of about 0.3 and under-predicts sharply above it."
+     data-caption="Mean predicted probability against the mean TRUE probability of the same development rows (left), and the residual, predicted minus true, against the true probability (right), for the raw-feature anchor and the boosted incumbent of the primary track. Both panels compare against the declared truth rather than against observed frequencies &mdash; the plot only a known-truth study can draw. The takeaway is the shape, not the size: the linear model's error is a clean sign flip rather than noise, and the boosted tree shows the same shape an order of magnitude smaller and only in the tails."
 
 <p>This is the plot only a known-truth study can draw: predicted probability against
 the <strong>true</strong> probability of the same rows, not against observed
@@ -58,3 +59,11 @@ harness, which copies exactly what the contract names, never copied it.</p>
 the entrypoint was not quietly edited afterwards to make an unproven fix look proven.
 The failure became a claim instead, which is the single most useful thing here for the
 next author.</p>
+
+<h3>What the records say</h3>
+
+<p>Everything below is copied out of this study's own records at build time &mdash;
+<code>claims.lock</code> and <code>study_state.json</code> &mdash; rather than retyped
+into the prose above, so the page cannot drift from the ledger it describes.</p>
+
+<!--EVIDENCE-->
