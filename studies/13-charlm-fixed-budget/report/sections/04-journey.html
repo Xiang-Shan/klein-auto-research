@@ -13,7 +13,7 @@ deviation 0.00747623 and range 0.026494, and the bar is
 nats &mdash; set from the comparison quantity, not the level quantity, because a keep
 IS a comparison.</p>
 
-<img data-fig="figures/seed_variance.png" alt="Left panel: the anchor's five seeds as zero-based bars around their mean. Right panel: the ten paired differences that actually set the bar, with the +/-1-floor band shaded.">
+<img data-fig="figures/seed_variance.png" alt="Left panel: the anchor's five seeds as zero-based bars around their mean. Right panel: the ten paired differences that actually set the bar, with the +/-1-floor band shaded." data-caption="Phase 0 on the primary track, both panels measured on the development partition: at left the anchor recipe at five seeds as zero-based bars around their mean, at right the ten paired differences between two seeds of the same recipe, with the one-floor band shaded. The bar every later candidate must clear is read off the right panel and not the left &mdash; a keep is a comparison, so its floor is measured on comparisons.">
 
 <h3>The anchor</h3>
 
@@ -80,7 +80,7 @@ absolute terms. Same parameters, same tokens, same arithmetic per step: only WHE
 learning rate is spent changed. It carried no registered prediction and is the only
 frontier improvement in the study.</p>
 
-<img data-fig="figures/learning_curves.png" alt="Validation loss against optimizer steps on a log scale, anchor versus cosine decay: the two schedules are indistinguishable for the first few hundred steps and separate once the decay bites.">
+<img data-fig="figures/learning_curves.png" alt="Validation loss against optimizer steps on a log scale, anchor versus cosine decay: the two schedules are indistinguishable for the first few hundred steps and separate once the decay bites." data-caption="Development-partition validation loss in nats per character against optimizer steps (log scale) for two single development runs on the primary track &mdash; the anchor&rsquo;s constant learning rate against cosine decay, both retrained from scratch by the registered learning-curve sweep &mdash; with a context-free add-one unigram drawn as the dashed reference line. The two schedules are indistinguishable for the first few hundred steps and separate only once the decay bites, so the schedule earns its floors late in the budget rather than early.">
 
 <p><em>A referee note on this exact figure: the first render distinguished the two
 curves by colour alone (same marker, same solid line). Fixed for the version above
@@ -101,14 +101,14 @@ neither cost nor benefit. P2&rsquo;s registered verdict stands exactly as adjudi
 against the anchor, but the honest advice sharpens: decay, and warmup is then
 optional &mdash; not &ldquo;warmup is harmful.&rdquo;</p>
 
-<img data-fig="figures/candidate_effects.png" alt="All six single-change candidates, in units of the measured floor, against the anchor's five-seed mean. Four fail outright, one sits inside the floor, one clears it.">
+<img data-fig="figures/candidate_effects.png" alt="All six single-change candidates, in units of the measured floor, against the anchor's five-seed mean. Four fail outright, one sits inside the floor, one clears it." data-caption="The six single-change development candidates on the primary track, each as its improvement over the anchor&rsquo;s five-seed mean on the development partition, measured in units of one measured floor, with the plus-or-minus one-floor band shaded; colour is the effect against the anchor and the bracketed tag is the notary&rsquo;s frontier decision against the incumbent. Four levers land outside the band in the losing direction, one sits inside it where nothing is decidable, and only the schedule change clears the bar.">
 
 <p>Six candidate transactions, six single ideas, six notarized verdicts: zero crashes,
 one keep. The searcher-versus-checker gap stayed at 0.0 nats on every one of them, and
 the <code>steps</code>/<code>eval_context</code> guardrails held at 2000 and 128 on
 every run &mdash; no candidate bought anything with extra compute.</p>
 
-<img data-fig="figures/trajectory.png" alt="The full decision trajectory: eight runs in order, the development incumbent as a step line, the one keep as a star, and the sealed final test as a diamond.">
+<img data-fig="figures/trajectory.png" alt="The full decision trajectory: eight runs in order, the development incumbent as a step line, the one keep as a star, and the sealed final test as a diamond." data-caption="The whole decision trajectory of the primary track in run order: every point is the checker&rsquo;s own recomputed validation loss in nats per character, with the development incumbent as a step line, discards as dots, the single keep as a star, and the once-only sealed final test as the diamond at the right &mdash; the only point not measured on the development partition. Development climbs to one keep, and the sealed final tenth then lands above that incumbent, which is the distribution shift a contiguous-block split buys rather than a sign of overfitting.">
 
 <h3>The sealed look</h3>
 

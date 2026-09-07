@@ -6,6 +6,128 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [2.2.0] — 2026-09-07
+
+The report builder learns to read the study's own records. A tutorial used to be
+trusted to retype what `claims.lock` and `study_state.json` already said, to include
+whichever bytes happened to be sitting on disk, and to be legible on a phone or on
+paper because someone looked once. All three are now mechanical.
+
+### Added
+
+- **The evidence block — the records copied, never retyped.** A fragment drops
+  `<!--EVIDENCE-->` (05-findings, where the claim totals used to be typed by hand) and
+  `build_tutorial.py` generates the block from `claims.lock` — claim count, counts by
+  strength and by class, errata, the lock's git head and the Klein version — and from
+  `study_state.json` — the finalization label, the referee's verdict, who refereed,
+  whether they were independent of the experimenter, `unrefereed` and any confirmation
+  gaps. Nothing is computed and nothing is guessed: a record that does not exist prints
+  an explicit "not recorded" line, and a study that HAS a lock while no fragment
+  carries the marker fails the acceptance guard (exit 4).
+- **`data-run="E####"` — the source the run actually executed.**
+  `<pre data-code="search.py" data-run="E0009">` reads `runs/E0009/manifest.json` for
+  the `candidate_commit` and includes the file AT that commit (read-only `git show`),
+  with a provenance line naming the run, its evaluation kind, its track, the short
+  commit and the sha256 of the included bytes. `data-role="template"` labels a
+  deliberate include of the scaffold instead.
+- **Captions, intrinsic sizes and a zoom for figures.**
+  `<img data-fig="…" alt="…" data-caption="…">` becomes a `<figure>` + `<figcaption>`
+  with a CSS-only enlargement (`:target`, a visible close link, Esc to return) that
+  duplicates no image bytes. The builder decodes the PNG header and stamps the real
+  `width`/`height`, so a page no longer reflows while it loads. A bare `data-fig` is
+  unchanged, for fragments that write their own `<figure>`.
+- **Subsection anchors.** Every `<h3>` gets a stable slug id, and a section holding two
+  or more of them gets an "In this section" list under its `<h2>` — a report is now
+  linkable at the paragraph a reader wants to send someone to.
+- **`scripts/check_shipped_reports.py`** — a focused acceptance pass over every shipped
+  `report/index.html` from `file://`: zero network, no horizontal overflow at 1440 /
+  768 / 390 / 320 px (local scrolling allowed only inside `pre`, tables, math and the
+  nav), every nav target revealed below the nav bar, every image decoding at its
+  declared size, and a print-to-PDF pass that asserts the ledger's last header and the
+  longest code line survive into the text. Schema-2 studies, and any schema-3 report
+  built before the builder's current layout generation (read from the page head's
+  generator tag), report `LEGACY`: measured and recorded, never failing the run — so
+  a stylesheet fix never turns the reports shipped before it red, and a rebuilt report
+  is enforced from the day it is rebuilt. New weekly `shipped-reports` job in
+  `.github/workflows/scheduled.yml`; `ci.yml` is untouched.
+
+### Changed
+
+- **The experiment ledger is track- and kind-aware**: `Exp · Track · Kind · Metric ·
+  Status · Description`, `Kind` read as `evaluation_kind` from the run manifests so a
+  sealed cell is visibly a sealed cell, under a key line naming each track's metric and
+  goal. The `Track` column is omitted when `results.tsv` has no such column and the
+  `Kind` column when the study has no run manifests, so such a ledger (the test
+  fixtures, a v1 study) renders exactly as it did.
+- **A source include is a disclosure, not a wall.** Each `data-code` include renders as
+  a closed `<details class="source">` whose summary IS the provenance line, so a
+  400-line listing no longer buries the prose that explains it; print opens every one.
+  Literal `<pre><code class="language-…">` snippets stay visible inline — they are the
+  short examples the prose teaches from.
+- **The page fits a 320 px screen.** The section nav becomes one horizontally
+  scrollable row instead of wrapping to four, `scroll-margin` clears it at every width
+  so a nav link no longer lands the heading under the bar, long tokens, URLs and
+  plain-text DOIs wrap (inside `code`/`a`/`cite` and in ordinary prose alike), and
+  wide tables, code and math scroll inside their own box rather than the document.
+  Measured on the six schema-3 reports rebuilt in a scratch checkout: every one fits
+  at 390 and 320 px, every nav and subsection anchor is revealed at phone widths, and
+  studies 13 and 15 print whole. The page head now names its layout generation
+  (`<meta name="generator" content="klein build_tutorial layout-2">`).
+- **The six schema-3 reports are rebuilt under this contract** — studies 00, 10, 11, 12,
+  13 and 15. Each `05-findings` fragment carries the `<!--EVIDENCE-->` marker, every
+  mutable-surface include names the run it shows (`data-run` on the frontier's final
+  keep — E0003, E0003, E0006, E0006 — or on the sealed cell — study 10's E0011, study
+  11's E0009), every figure in sections 4 and 5 carries a teaching caption (34 in
+  all), and the prose that retyped a claim total, a strength count or the finalization
+  label is reworded to say it in words. Study 15's "What the lock says" paragraph,
+  which described a ten-claim lock while the lock held fifteen, is replaced by the
+  generated block plus a paragraph that names the claims without counting them; study
+  10's hand-made copy `report/e0011-analyze.py` is removed because the builder now
+  reads those bytes from the candidate commit itself (the copy was byte-identical).
+  Nothing else in any study changed: no run, ledger, prediction, claim, gate record,
+  lock, referee report or `findings.md`; each `program.md` discloses the rebuild and
+  `klein verify` re-issued each receipt so it hashes the rebuilt page.
+- **The tutorial numeral scan skips `<nav>`.** `kleinlib.numbers.html_text` no longer
+  reads navigation text nodes: the section bar and the builder's "In this section"
+  lists repeat heading text, so a numbered heading (`5.1 …`) was counted twice — once
+  as content and once as chrome — on every rebuilt page. The scan is advisory on
+  every schema and no disposition depends on it.
+- **The tutorial protocol and the tutor worker teach the new contract.**
+  `references/tutorial-spec.md` gains "Records, not retyping", the executed-source rule
+  (including why a bare mutable-surface include is wrong), the caption requirement for
+  every section-4 and section-5 figure, and three new acceptance boxes;
+  `.claude/agents/klein-tutor.md` mirrors them. `AGENTS.md` § TUTORIAL no longer says
+  "the winning entrypoint".
+
+### Fixed
+
+- **A tutorial can no longer teach bytes that no named run executed.** `run-one`
+  restores the mutable surface on every non-keep and after every run on a registered
+  track, so a bare `<pre data-code="search.py">` on a registered track included the
+  restored template while the prose called it the executed cell (study 11's report
+  did exactly that), and on a frontier track a bare include carried the last keep's
+  bytes with no run named. A bare include of a file in `entrypoint.mutable`
+  (`train.py` on schema 2) is now refused (exit 6) with the fix named: add
+  `data-run="E####"`, or `data-role="template"` to say it IS the template.
+- **Printing carries the whole page.** Wide tables were clipped at the paper's edge,
+  code lines ran off it, and `break-inside: avoid` on whole sections produced
+  near-empty pages. Print now wraps code, lets tables and equations overflow visibly,
+  breaks inside sections but never inside a figure or a ledger row, keeps headings with
+  what follows them, opens every source disclosure (a `beforeprint` handler that
+  `afterprint` undoes), and re-declares the light palette so a dark-mode reader does
+  not print a dark page.
+- **A tag inside a figure caption is refused, not silently dropped.** The `<img>`
+  matcher stopped at the first `>` inside a quoted attribute, so a `data-caption`
+  holding `<code>` made the figure lose its caption with exit 0 — three rebuild lanes
+  hit it on their first build. The matcher now steps over quoted values, and a caption
+  containing markup is a figure problem (exit 3) naming the figure: a caption is plain
+  text, entities allowed, because the builder escapes it into the `<figcaption>`.
+- **A figure that is not a PNG is refused instead of shipped.** Whatever bytes sat at
+  the `data-fig` path were base64-inlined behind an `image/png` prefix, so a JPEG or a
+  truncated file became a broken image inside a self-contained artifact nobody could
+  re-render. The signature is decoded now; a bad file is a figure problem (exit 3)
+  naming the file and the reason.
+
 ## [2.1.0] — 2026-09-06
 
 ### Added

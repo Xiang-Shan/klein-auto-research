@@ -16,7 +16,7 @@
       "ok": true
     },
     {
-      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a2505303497ddbacd",
+      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research",
       "name": "git repository",
       "ok": true
     },
@@ -71,7 +71,7 @@
       "ok": true
     },
     {
-      "message": "derived view matches manifests",
+      "message": "[WARN] E0001: models/best_primary_E0001_0.806201_f54e47905e2b.joblib: local artifact absent (not committed by policy) \u2014 hash recorded a0eaa7c3bf86b5942a884a6c2410773f560551fe61dc930c9b25bed07f291eb0; re-run prepare.py / `klein replicate` to re-check; E0002: models/best_primary_E0002_0.835785_60b28d753b36.joblib: local artifact absent (not committed by policy) \u2014 hash recorded 3a7b82ab0f5d5bdfd9d6deaea16b70de8292303532c0bfbb22e01bbf1445aad8; re-run prepare.py / `klein replicate` to re-check; E0003: models/best_primary_E0003_0.87139_f322ed32c8bb.joblib: local artifact absent (not committed by policy) \u2014 hash recorded 7f505c18211241de729db3766d1815392c0462c15f0cf63b7b103e3d35aab443; re-run prepare.py / `klein replicate` to re-check; E0005: models/best_primary_E0005_0.880949_32d175d10fbb.joblib: local artifact absent (not committed by policy) \u2014 hash recorded 1b297b25a71e0129addf1fca34738393c6c35efb5fa3f9b7915d0c3f66baa3b9; re-run prepare.py / `klein replicate` to re-check",
       "name": "ledger integrity",
       "ok": true
     },
@@ -166,7 +166,7 @@
       "ok": true
     },
     {
-      "message": "all 59 rendered numerals trace to a pinned source",
+      "message": "all 55 rendered numerals trace to a pinned source",
       "name": "tutorial numbers",
       "ok": true
     },
@@ -177,22 +177,22 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "b41894c3daa66015cf7e902205600c4589342ee2",
+  "git_head": "51372867c5f2e3728737c34cc2ca376703e7f4ed",
   "inputs": {
     "aux_metrics.tsv": "e17bd6f44ea73d9f253428bd90dce3ddd5f6b770a0a2d2c75ba61b57f647918f",
     "claims.lock": "941347b424a7cdbe770fe2aa9d3410f9527883cb67a0f06473264fbffba6ddac",
     "events.jsonl": "e428f54490ea9e8394a86e60ae0bcd22ffb1ca96d8b06405387308b2ed949913",
     "findings.md": "97ab039fcb313c292f10ddef1b845606152aece03024d159a4601ef21b4e32cb",
     "playbook.md": "64da873113a814a2c7e3e4f215deebd7ef3d4903dd7fd5614726df1754c18ee1",
-    "program.md": "40633d808c4d4c56400bc8b53498609727e0edf1c0c4921ac1dec7447bb9c32a",
+    "program.md": "0ab1b634bced54298bb3abaf14379dec8a98b5c8223e49f2bdd53870dfec63b3",
     "referee_report.md": "1b49636093f3c7af32eb4bde08d71397fa8eafb1d1d3dd8a890c7fd4e46be902",
-    "report/index.html": "b5040d81f6dde9ded285204585284e67f8b1c91086dc7b6a67c197b775218204",
+    "report/index.html": "e2df83ead71aaa6cfd3c576a726181ba35cfe5e633e9b51aea2ab71bb00d39a6",
     "results.tsv": "d802518273c96ed9c093792d7be286a0a09e03f55f7d8c14f0252fe4fbf3bce0",
     "study.yaml": "f26579c3a2ef9338153427d2802f39f5f2f3ae8ead2f5e6b37ec0dd2c2e20d96",
     "study_state.json": "10289d00867463bc0230afeeded1774163f4f7b032505d9207d71c4e41c86086"
   },
-  "klein_commit": "b41894c3daa66015cf7e902205600c4589342ee2",
-  "klein_version": "2.0.0",
+  "klein_commit": "51372867c5f2e3728737c34cc2ca376703e7f4ed",
+  "klein_version": "2.1.0",
   "manifests": {
     "E0001": "61dc934bcb9d230b81db769b705b940a340c4e8f97075bb5ecd1553318abb1c8",
     "E0002": "877ee69144b08dbba92e99c21e64ef34ca6f30776cac61269033f8d9e94d1f53",
@@ -206,9 +206,9 @@
   "summary": {
     "checks": 35,
     "failed": 0,
-    "warned": 0
+    "warned": 1
   },
-  "timestamp": "2026-09-03T06:35:19.872876Z",
+  "timestamp": "2026-09-07T19:37:41.464956Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }

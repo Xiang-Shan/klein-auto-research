@@ -120,7 +120,7 @@ def build_fresh_tutorial(root: Path) -> Path:
             else ""
         )
         code = (
-            '\n<pre data-code="train.py" data-lang="python"></pre>'
+            '\n<pre data-code="train.py" data-lang="python" data-role="template"></pre>'
             '\n<pre><code class="language-bash">uv run --locked klein status</code></pre>'
             if index == 6
             else ""

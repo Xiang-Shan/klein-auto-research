@@ -70,14 +70,14 @@ implementation of the same class, so a candidate that changes the module tree pr
 a checkpoint the checker cannot load, and the run crashes rather than silently
 comparing two different architectures.</p>
 
-<pre data-code="model.py" data-lang="python"></pre>
+<pre data-code="model.py" data-lang="python" data-run="E0006"></pre>
 
 <p><code>train.py</code> carries the recipe: everything in the <code>RECIPE</code>
 dict at the top is the whole per-experiment diff, and everything below it is fixed
 machinery that a candidate transaction never touches. The version below is the
 E0006 incumbent &mdash; the winning cosine-decay recipe, exactly as committed.</p>
 
-<pre data-code="train.py" data-lang="python"></pre>
+<pre data-code="train.py" data-lang="python" data-run="E0006"></pre>
 
 <p>Three details in that file are worth reading deliberately rather than skimming
 past. <strong>The batching is a streamed index shuffle straight out of a numpy array</strong>

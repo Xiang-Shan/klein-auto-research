@@ -19,7 +19,8 @@ That is a stronger endorsement of the advice than the prior that predicted it.</
 
 <h3>Calibration is cheap and enormous; rank is expensive and invisible</h3>
 
-<img data-fig="figures/plot_reliability.png" alt="Reliability diagram for the frontier incumbent: predicted probability against observed frequency by bin.">
+<img data-fig="figures/plot_reliability.png" alt="Reliability diagram for the frontier incumbent: predicted probability against observed frequency by bin."
+     data-caption="Mean predicted probability against observed claim rate over ten quantile bins for the frontier incumbent on the primary track's development partition, with perfect calibration as the diagonal. Every bin sits far below the line: balanced class weighting inflates the whole level while leaving the ranking intact, which is precisely why the insurance doctrine calibrates rather than reweights.">
 
 <p>Replacing balanced class weighting with unweighted fitting plus a cross-fitted isotonic
 wrapper improves the Brier score by a factor of 4.055, from 0.240641 to 0.059337, and pays
@@ -34,11 +35,14 @@ the primary metric integrates, and the precision-recall curve, which is the hard
 read at a claim rate of 0.063968 and the one that shows how little of the book any
 model can pick out with confidence.</p>
 
-<img data-fig="figures/plot_roc.png" alt="ROC curve for the frontier incumbent on the development partition, with the chance diagonal.">
+<img data-fig="figures/plot_roc.png" alt="ROC curve for the frontier incumbent on the development partition, with the chance diagonal."
+     data-caption="True-positive against false-positive rate for the same incumbent on the same primary development rows, with the chance diagonal &mdash; the curve the primary metric integrates. It is the rank view and blind to the level by construction: run every score through any increasing curve and this picture does not move.">
 
-<img data-fig="figures/plot_pr.png" alt="Precision-recall curve for the frontier incumbent on the development partition.">
+<img data-fig="figures/plot_pr.png" alt="Precision-recall curve for the frontier incumbent on the development partition."
+     data-caption="Precision against recall for the same incumbent on the same primary development rows, against the flat line a random ranker would hold at a claim rate of 0.063968. Precision never rises far above that line at any recall &mdash; that is how little of a book at this claim rate any of these rungs can pick out with confidence.">
 
-<img data-fig="figures/lorenz_gini.png" alt="Lorenz curves for all three rungs on the development partition, each with its Gini in the legend.">
+<img data-fig="figures/lorenz_gini.png" alt="Lorenz curves for all three rungs on the development partition, each with its Gini in the legend."
+     data-caption="Share of realised claims against share of policies ordered from lowest predicted risk, for all three rungs on the primary track's development partition, with each rung's Gini in the legend and the no-discrimination diagonal. The calibrated GLM and the boosted tree trace nearly the same curve &mdash; the pricing-side reading of a rank gap of 0.3714 of a floor, which the measured bar cannot resolve.">
 
 <h3>Four surprises, each with a mechanism</h3>
 
@@ -65,10 +69,14 @@ model can pick out with confidence.</p>
       &ldquo;fixed&rdquo; the convergence would have missed the anchor it was chasing.</li>
 </ul>
 
-<h3>What the lock says</h3>
+<h3>What a sealed access can confirm</h3>
 
-<p>Twelve claims across four classes. Exactly <strong>one</strong> reaches
-<em>confirmed</em> &mdash; the incumbent's level on the sealed partition &mdash; because
-one track gets one sealed access, and that confirms a level, never a difference. Every
-rung-to-rung gap on this page is development evidence and is exploratory by construction,
-which the plan registered before the first run rather than discovering afterwards.</p>
+<p>The incumbent's level on the sealed partition is what this design can confirm; a
+rung-to-rung gap is not, because one track gets one sealed access, and that confirms a
+level, never a difference. So every rung-to-rung gap on this page is development evidence
+and is exploratory by construction, which the plan registered before the first run rather
+than discovering afterwards.</p>
+
+<h3>What the records say</h3>
+
+<!--EVIDENCE-->

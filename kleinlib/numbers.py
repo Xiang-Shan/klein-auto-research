@@ -377,10 +377,13 @@ class _TextNodes(HTMLParser):
     SVG at build time (``references/tutorial-spec.md``), so scanning anything but
     text nodes would scan megabytes of encoded bytes and every path coordinate.
     ``<code>``/``<pre>``/``<script>``/``<style>``/``<svg>`` are the law's code and
-    formula exemptions, applied where a document keeps them.
+    formula exemptions, applied where a document keeps them; ``<nav>`` is skipped
+    because navigation repeats headings rather than stating anything.
     """
 
-    SKIP = frozenset({"script", "style", "code", "pre", "svg", "math", "textarea"})
+    #: ``nav`` is page chrome — the section bar and the builder's "In this section"
+    #: lists repeat heading text, so a numbered heading would be counted twice.
+    SKIP = frozenset({"script", "style", "code", "pre", "svg", "math", "textarea", "nav"})
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)

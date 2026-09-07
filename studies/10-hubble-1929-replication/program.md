@@ -811,3 +811,16 @@ is answered first because it is the only one that touched a study artifact.
   absolute path inside `program.md` and tripped the guard a second time from the
   notebook itself. The quotation is elided above for that reason — the report itself
   is the record of what was written, and it now carries the corrected form.
+
+
+## Report rebuilt under the layout-2 tutorial builder (2026-09-07)
+
+- 2026-09-07 — REPORT REBUILD, authoring only. `report/index.html` was rebuilt by the
+  repository's tutorial builder after its layout-2 release (Klein 2.2.0). What changed is
+  the report's authoring, not the study: no run, manifest, ledger, prediction, claim, gate
+  record, lock, referee report or `findings.md` was touched, and every number on the page
+  is still a copy of a pinned value (the advisory numeral scan reports no new unsourced
+  numeral). Fragment changes under `report/sections/`: an `<!--EVIDENCE-->` marker in 05-findings under a closing heading, the sealed cell's `analyze.py` included through `data-run="E0011"` (the builder reads it at candidate `34107cee` itself, so the hand-made copy `report/e0011-analyze.py` was removed as redundant — its bytes were identical to that commit's file — and the paragraph above the include says how the bytes are read), and the four figures in sections 4 and 5 carry teaching captions. `klein verify` was
+  re-run after the rebuild so `verify_receipt.json` hashes the rebuilt page, and the
+  weekly shipped-report check now measures this page as a current-generation report
+  rather than LEGACY.

@@ -348,3 +348,15 @@ The rehearsal (`klein run-one --final-test --dry-run`) runs first and is not
 optional: study 09 lost its only seal to a crash that happened before any data
 was read.
 
+
+## Report rebuilt under the layout-2 tutorial builder (2026-09-07)
+
+- 2026-09-07 — REPORT REBUILD, authoring only. `report/index.html` was rebuilt by the
+  repository's tutorial builder after its layout-2 release (Klein 2.2.0). What changed is
+  the report's authoring, not the study: no run, manifest, ledger, prediction, claim, gate
+  record, lock, referee report or `findings.md` was touched, and every number on the page
+  is still a copy of a pinned value (the advisory numeral scan reports no new unsourced
+  numeral). Fragment changes under `report/sections/`: an `<!--EVIDENCE-->` marker in 05-findings under a closing heading (the claim totals, the finalization label and the referee's verdict are read from `claims.lock` and `study_state.json`; one retyped strength ordinal was reworded), the `train.py` include names its run (`data-run="E0003"`, the frontier's final keep, read at its candidate commit) instead of the bytes on disk, and the three figures in sections 4 and 5 carry teaching captions. `klein verify` was
+  re-run after the rebuild so `verify_receipt.json` hashes the rebuilt page, and the
+  weekly shipped-report check now measures this page as a current-generation report
+  rather than LEGACY.

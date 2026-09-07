@@ -16,7 +16,7 @@
       "ok": true
     },
     {
-      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a4aa4ac77de454679",
+      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research",
       "name": "git repository",
       "ok": true
     },
@@ -71,7 +71,7 @@
       "ok": true
     },
     {
-      "message": "derived view matches manifests",
+      "message": "[WARN] E0001: models/best_primary_E0001_0.61414_6a8843fdf853.joblib: local artifact absent (not committed by policy) \u2014 hash recorded 483fe5a725cb58532bd0d26468f82776bdcae6a968b3f70c3cdfc55419870ef5; re-run prepare.py / `klein replicate` to re-check; E0002: models/best_primary_E0002_0.650095_b2f6e68ee140.joblib: local artifact absent (not committed by policy) \u2014 hash recorded e9c3dc39b4a040145b9a4324974672a8199f9c1201a83de315e238cba7130308; re-run prepare.py / `klein replicate` to re-check; E0003: models/best_primary_E0003_0.664051_20bc52a45049.joblib: local artifact absent (not committed by policy) \u2014 hash recorded d4353f90687f29fc00bda0877fdfdcf8108a6024dbefb324143272dc81755875; re-run prepare.py / `klein replicate` to re-check",
       "name": "ledger integrity",
       "ok": true
     },
@@ -182,22 +182,22 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "0ac384c451a7595ecfacd7a0b732a3f210df9951",
+  "git_head": "f7ec96b00943d9039a4d7637d7876b55421ccb8a",
   "inputs": {
     "aux_metrics.tsv": "409fedb832b400684cc1e4b466c515f12c44848ad6ed8e39af796d0664b5f062",
     "claims.lock": "9f3088505bf5f48515360e02afb28b4fc266fe55696df55973b50f41a69b01d2",
     "events.jsonl": "0e43c98c79f5d357a1832f8400ac556592bed988ce3547ea4c16eb342c7c5ba5",
     "findings.md": "034b7ca2269d1d797ccfdd960f2577c383256465f36a0fa2d9135a8bb25cbfc6",
     "playbook.md": "45b423b0d948024bb847cdf62850e9e107de123c229627671cdb78f034bb6575",
-    "program.md": "6fe15e15b61d28468b0996c9ffd407c8f59d9e1cbf284a878dbc5757a0f82042",
+    "program.md": "f7391592aac83156202403e2edcad8c5c6a32182cbec4d17523fd90205d90e8d",
     "referee_report.md": "98931ace51ab6a9f39338a96110ef85860e9cb4dfffb6413cf4fe844faccd726",
-    "report/index.html": "69787e6bff3094f0265471e551ee7399a7923dc88251cece4901ce4b0fc6dcd4",
+    "report/index.html": "b1b86125c98ceaf5667a19a76b8158009bd145e039dde2b607b97180aa6b676f",
     "results.tsv": "2e592c5762f38166a0e41b1336d2e1eeedf623930c63faf00ab574dfb5381f38",
     "study.yaml": "05839c6d770f30f5c14b035a6d6226567562448117436dd7197b63059bb9bea0",
     "study_state.json": "accc89b880311c3eaeafb0d25d2ed99e384163f9ad6429bba9d3ed354ec7478c"
   },
-  "klein_commit": "0ac384c451a7595ecfacd7a0b732a3f210df9951",
-  "klein_version": "2.0.0",
+  "klein_commit": "f7ec96b00943d9039a4d7637d7876b55421ccb8a",
+  "klein_version": "2.1.0",
   "manifests": {
     "E0001": "561bb3798d1b695a8acc91f330cab9634163adb98f187a640b2e8211f55a956a",
     "E0002": "c7c9801383431add6976ff8b66b3d43ae3d5bc9a0eae5982a8549054109a7518",
@@ -211,9 +211,9 @@
   "summary": {
     "checks": 36,
     "failed": 0,
-    "warned": 1
+    "warned": 2
   },
-  "timestamp": "2026-09-03T13:17:44.080656Z",
+  "timestamp": "2026-09-07T19:40:43.426478Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }

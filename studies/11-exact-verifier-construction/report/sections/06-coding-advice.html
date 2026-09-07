@@ -75,11 +75,12 @@ constants.</p>
 <code>tolerance: 0</code>. If you ship a disagreement guard, spend one run proving it
 fires; documentation that a mechanism exists is not evidence that it works.</p>
 
-<p>Here is the entrypoint the notary actually executed, in full. Note that it computes no
+<p>Here is the entrypoint the notary actually executed for the sealed <code>n_small</code>
+cell, E0009, in full &mdash; the honest surface, not E0008's inflated one. Note that it computes no
 objective that enters the ledger: it writes an object, states what it thinks that object is
 worth, and prints the artifact path the verifier will be pointed at.</p>
 
-<pre data-code="search.py" data-lang="python"></pre>
+<pre data-code="search.py" data-lang="python" data-run="E0009"></pre>
 
 <h3>§6.4 · Do the headroom arithmetic before the first run — C9</h3>
 

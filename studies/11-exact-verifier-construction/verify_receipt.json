@@ -21,7 +21,7 @@
       "ok": true
     },
     {
-      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7fd1bb40fc17104b",
+      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research",
       "name": "git repository",
       "ok": true
     },
@@ -176,7 +176,7 @@
       "ok": true
     },
     {
-      "message": "all 149 rendered numerals trace to a pinned source",
+      "message": "all 162 rendered numerals trace to a pinned source",
       "name": "tutorial numbers",
       "ok": true
     },
@@ -187,22 +187,22 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "4906c41c726f284ab482b2750c7966b420875dcd",
+  "git_head": "529088e5093d567c52be50acf1bdfbeaea9fdbf0",
   "inputs": {
     "aux_metrics.tsv": "2f2487c39a506a06912067ab5ff1dab003d88b8c605eee74ba614c525cf1d8e0",
     "claims.lock": "968fbab6ec578d08869995f78b910d43170fc963be7643827372cc45e93cf2e2",
-    "events.jsonl": "8f22d35ab2adff679a4887fef78114cbfd79f857c3eb0a81ffb2b467a321fccd",
+    "events.jsonl": "f05d3de7bedeceaacc57dcb1416772168b15dc2c1586c5c6a8de517ebe1f4e18",
     "findings.md": "58b386d0fc6531add90fc32091a7da80924c0e418cd0b7b0a919c5cc17e71ea5",
     "playbook.md": "bf76c01813fdec25a779059e37bfbf98645bcc9bfa43c93ff33139dc5e0235d3",
-    "program.md": "98347b5abcc3b1eebc2de9c21478d83388095c8b9174364ec8ed4784800a63fd",
+    "program.md": "9f49986e776749aa79128fcfdd9272602979902dcac7cfb09e3ea4e945acc7d7",
     "referee_report.md": "e0996e817cbbfb1675ae0e1dc55e933a1a6b6796cd3d4c1ca27277852e8ec33e",
-    "report/index.html": "360dc5a53291ae5858a75dac72620918c9a502a437171b17ea68fbcf7eca8acd",
+    "report/index.html": "5b41d490efcbbdc8a2a153a4547d173cb4d5f44f4aa28ea9a65a516665094276",
     "results.tsv": "e771c0baa3bcae9b0b0e7dedd3d365401ac5b8156a953ef25e839142e1d7f757",
     "study.yaml": "fb1b45de6b2f4a5b65a2bfd0778c17265dcdabdc101dda941e33116004239bb3",
-    "study_state.json": "cd216c2c02f63d65af4b048c0750322d28d61d28ed74099805b41ba3f1ccc8ac"
+    "study_state.json": "78ff6538f6f373b8c89e4c694ddf80ef2fc29a5c03055fd0005f16098324fc0b"
   },
-  "klein_commit": "4906c41c726f284ab482b2750c7966b420875dcd",
-  "klein_version": "2.0.0",
+  "klein_commit": "529088e5093d567c52be50acf1bdfbeaea9fdbf0",
+  "klein_version": "2.1.0",
   "manifests": {
     "E0001": "a18e2256c80b30a203cb2856bddb6dddbfdeddb12a9b23c67f51b3d84454c900",
     "E0002": "e08c5ef5f52831af6ede7ec6f7f58b548b7538c1146bbe29c44b95674d2f918a",
@@ -223,7 +223,7 @@
     "failed": 0,
     "warned": 2
   },
-  "timestamp": "2026-09-03T11:30:53.562071Z",
+  "timestamp": "2026-09-07T19:37:53.974574Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }

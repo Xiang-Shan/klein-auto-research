@@ -52,7 +52,7 @@ worse than its own development calibration, while its <em>ranking</em> only slip
 petal-only comparison) sits at Brier <code>0.057828</code> and log-loss
 <code>0.164260</code> &mdash; a far milder shift.</p>
 
-<img data-fig="figures/calibration_reversal.png" alt="Top row: development Brier and log-loss across the five-family parade, with the boosted tree lowest on both. Bottom row: development-versus-sealed Brier and log-loss for the boosted tree and for petal-only LDA, showing the boosted tree's calibration collapsing on the sealed block while the LDA-family cell shifts only mildly.">
+<img data-fig="figures/calibration_reversal.png" alt="Top row: development Brier and log-loss across the five-family parade, with the boosted tree lowest on both. Bottom row: development-versus-sealed Brier and log-loss for the boosted tree and for petal-only LDA, showing the boosted tree's calibration collapsing on the sealed block while the LDA-family cell shifts only mildly." data-caption="Calibration rather than ranking. Top row: Brier and log-loss for all five modern-track parade families on the development block. Bottom row: the same two measures carried across to the sealed block, for the boosted tree and for the petal-only LDA cell that scored the identical rows. The parade's best-calibrated development model becomes its worst-calibrated sealed one while its ordering barely moves &mdash; the signature of a high-capacity learner fitting its confidence, not its ranking, to the rows it trained on.">
 
 <p>Read this as the textbook signature of a high-capacity learner memorizing 74 rows: the
 boosted tree's <em>confidence</em> was fitted to the training partition even where its
@@ -65,15 +65,15 @@ boosted tree's <em>confidence</em> was fitted to the training partition even whe
 refits inside the same run. Its score-separation on the development block is visibly
 absolute:</p>
 
-<img data-fig="figures/score_hist_by_family.png" alt="Predicted-probability histograms by species for all five parade families on the development block: four families show a clean gap between versicolor and virginica, five-nearest-neighbours shows a small overlapping bin.">
+<img data-fig="figures/score_hist_by_family.png" alt="Predicted-probability histograms by species for all five parade families on the development block: four families show a clean gap between versicolor and virginica, five-nearest-neighbours shows a small overlapping bin." data-caption="What a perfect AUC looks like before it is summarized: predicted-probability histograms by species, one panel per modern-track family, on the development block. Four families leave a clean empty gap between versicolor and virginica; only five-nearest-neighbours puts the two species in a shared bin, which is exactly why it is the parade's one loss. The peg lives in these flowers, not in the metric code.">
 
-<img data-fig="figures/plot_pr.png" alt="Precision-recall curve for Fisher's LDA on the development block, close to the top-right corner.">
+<img data-fig="figures/plot_pr.png" alt="Precision-recall curve for Fisher's LDA on the development block, close to the top-right corner." data-caption="Precision-recall for Fisher's own lda_all4 &mdash; the incumbent every parade and ablation cell is refit against &mdash; on the development block, the same cell and the same rows the ROC parade scores. It hugs the top-right corner for the same reason the AUC pegs: the block is perfectly rank-separated. A second view of a saturated score is still saturated.">
 
-<img data-fig="figures/plot_reliability.png" alt="Reliability diagram for Fisher's LDA on the development block: four quantile bins tracking the perfect-calibration diagonal loosely, given only 25 rows.">
+<img data-fig="figures/plot_reliability.png" alt="Reliability diagram for Fisher's LDA on the development block: four quantile bins tracking the perfect-calibration diagonal loosely, given only 25 rows." data-caption="Reliability for that same Fisher lda_all4 development cell: predicted probability against observed frequency in quantile bins, compared with the perfect-calibration diagonal. Ranking can be perfect while calibration wanders, and with only twenty-five flowers the bins are too thin to say much either way &mdash; which is why this study reads its calibration verdicts from Brier and log-loss rather than from this plot.">
 
-<img data-fig="figures/plot_decile_lift.png" alt="Decile lift for Fisher's LDA on the development block.">
+<img data-fig="figures/plot_decile_lift.png" alt="Decile lift for Fisher's LDA on the development block." data-caption="Decile lift for the same Fisher lda_all4 cell on the same development block: the observed virginica rate inside each score decile, against the block's base rate. Perfect separation makes the lift a step rather than a slope, every positive in the top bins &mdash; the operational way of saying the incumbent left no ranking headroom for a challenger to take.">
 
-<img data-fig="figures/plot_confusion_at_threshold.png" alt="Confusion matrix for Fisher's LDA at threshold 0.5 on the development block: thirteen versicolor correct, eleven virginica correct, one virginica misclassified.">
+<img data-fig="figures/plot_confusion_at_threshold.png" alt="Confusion matrix for Fisher's LDA at threshold 0.5 on the development block: thirteen versicolor correct, eleven virginica correct, one virginica misclassified." data-caption="The last view of that same Fisher lda_all4 development cell, counted the way Fisher counted it: hard labels at a fixed probability cut rather than by rank, so the errors become countable flowers. It is the reminder that the pegged rank metric and the error count are different instruments &mdash; carried across to the sealed block, the AUC held exactly and this count did not.">
 
 <h3>The ablation's own honest wrinkle</h3>
 
@@ -89,16 +89,20 @@ account of this result.</p>
 
 <h3>What the lock says</h3>
 
-<p>Ten claims in <code>claims.lock</code>: six reach <strong>confirmed</strong> strength,
-each citing both its sealed evidence and a replication record, per this study's
+<!--EVIDENCE-->
+
+<p>The claims that reach <strong>confirmed</strong> strength each cite both their sealed
+evidence and a replication record, per this study's
 <code>confirmation.require: [sealed, replicate]</code> &mdash; the two levels this study
 pinned (C3), the two ablation halves on both partitions (C4, C5), the one sealed gap
 (C6), and the agreement-and-disagreement between the two 25-row blocks (C7). The
 procedural verdict on the parade's own keep count (C2) is confirmed by direct count on the
-ledger itself. The three mechanism interpretations &mdash; the pegging (C8), the
-tie-as-keep arithmetic (C9), and the floor-from-effect wrinkle (C10) &mdash; stay
-<strong>exploratory</strong> by design: a mechanism is confirmed by a later study that
-tests it, not by this one asserting it. Of the sixteen registered predictions,
+ledger itself. Everything else in the lock stays <strong>exploratory</strong> by design:
+the development-only parade description (C1); the three mechanism interpretations &mdash;
+the pegging (C8), the tie-as-keep arithmetic (C9), and the floor-from-effect wrinkle (C10)
+&mdash; because a mechanism is confirmed by a later study that tests it, not by this one
+asserting it; and the research-discipline lessons (C11&ndash;C15), which are advice for
+the next study, not measurements of this one. Of the sixteen registered predictions,
 <strong>5 supported, 4 refuted, 7 inconclusive, 0 open</strong> &mdash; and the seven
 inconclusive rows are not an accounting gap. Each one's own <code>inconclusive_if</code>
 clause, written before any run existed, names the exact condition that came to pass: the

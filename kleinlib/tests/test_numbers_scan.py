@@ -284,6 +284,22 @@ def test_html_text_reads_text_nodes_and_skips_code_svg_and_script() -> None:
     assert tokens(text) == ["0.026409"]
 
 
+def test_html_text_skips_navigation_so_a_numbered_heading_counts_once() -> None:
+    page = (
+        '<nav class="topnav"><a href="#s5">5. Findings</a></nav>'
+        '<section id="s5"><h2>5. Findings</h2>'
+        '<nav class="subnav"><a href="#a">5.1 The verdict</a></nav>'
+        "<h3 id=\"a\">5.1 The verdict</h3><p>scored 0.026409</p></section>"
+    )
+    assert tokens(html_text(page)) == ["5.", "5.1", "0.026409"] or tokens(html_text(page)) == [
+        "5",
+        "5.1",
+        "0.026409",
+    ]
+    assert "The verdict" in html_text(page)
+    assert html_text(page).count("5.1") == 1
+
+
 def test_adjacent_table_cells_never_concatenate_into_a_number_nobody_wrote() -> None:
     """`<td>E0001</td><td>0.029442</td>` must not read as `00010.029442`."""
     text = html_text("<tr><td>E0001</td><td>0.029442</td></tr>")
