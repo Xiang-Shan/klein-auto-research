@@ -48,7 +48,8 @@ inside its own measurement error.</p>
       after the mandatory dry-run rehearsal.</li>
 </ul>
 
-<img data-fig="figures/plot_decision_trajectory.png" alt="Decision trajectory: two keeps, three non-keeps, the sealed run marked separately, with the measured floor band around the frontier.">
+<img data-fig="figures/plot_decision_trajectory.png" alt="Decision trajectory: two keeps, three non-keeps, the sealed run marked separately, with the measured floor band around the frontier."
+     data-caption="The primary track's ledger as the notary recorded it &mdash; development keeps stepping the frontier line, discards left as retained-evidence dots, the sealed final test drawn as a star and excluded from the frontier &mdash; with the declared keep bar and the paired noise floor shaded around it. Read the bands, not the dots: after the anchor keep the frontier steps exactly once, and every other gap in the ladder is narrower than the band that prices it.">
 
 <h3>The picture the study is really about</h3>
 
@@ -56,7 +57,8 @@ inside its own measurement error.</p>
 and divided by the floor that actually prices each comparison. Both panels are
 zero-based.</p>
 
-<img data-fig="figures/floors_vs_gaps.png" alt="Left: each comparison's absolute lift and its own pair's floor, against the declared bar. Right: the same gaps in floors, with the one-floor line drawn.">
+<img data-fig="figures/floors_vs_gaps.png" alt="Left: each comparison's absolute lift and its own pair's floor, against the declared bar. Right: the same gaps in floors, with the one-floor line drawn."
+     data-caption="Every rung-to-rung comparison on the primary track's development partition, drawn twice on zero-based axes: left in val_auc units against the declared bar, right divided by the declared floor and by each pair's own floor. Which floor prices a gap decides its verdict &mdash; the splines rung stands at 0.9568 of the declared bar and 1.0926 of its own pair's floor, refuted against the first and supported against the second.">
 
 <p>The right panel is where the honesty lives. The spline rung sits at 0.9568 of the
 declared bar &mdash; refuted &mdash; and at 1.0926 of the floor of the comparison it
@@ -72,7 +74,8 @@ a bar chosen after the measurement is not a bar; but that refutation is
 0.5101, from 2.2167 to 1.7067, at a claim rate of 0.063968: a decile rests on a tenth of
 the rows, and it is a far noisier statistic than the AUC computed beside it.</p>
 
-<img data-fig="figures/plot_decile_lift.png" alt="Decile lift for the frontier incumbent on the development partition, bars from zero.">
+<img data-fig="figures/plot_decile_lift.png" alt="Decile lift for the frontier incumbent on the development partition, bars from zero."
+     data-caption="Lift over the portfolio claim rate by predicted-probability decile for the frontier incumbent on the primary track's development partition, bars from zero against the no-lift line. The top decile reaches 2.2167 here and 1.7067 on the sealed rows &mdash; a decile rests on a tenth of the rows, so size a triage list from a sealed number rather than from this one.">
 
 <p>Finally <code>klein replicate</code> re-executed the kept run in a detached worktree
 and reproduced it exactly, difference 0.</p>
