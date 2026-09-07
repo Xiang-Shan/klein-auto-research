@@ -16,7 +16,7 @@
       "ok": true
     },
     {
-      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research/.claude/worktrees/agent-a7d994db2a9c6c485",
+      "message": "/Users/xiang/Claude/Auto_research/klein-auto-research",
       "name": "git repository",
       "ok": true
     },
@@ -71,7 +71,7 @@
       "ok": true
     },
     {
-      "message": "derived view matches manifests",
+      "message": "[WARN] E0001: models/E0001.pt: local artifact absent (not committed by policy) \u2014 hash recorded f1408df06f0a87a854f11841443a5b3eb0eaa4487415fca3ecd9adc06d1df799; re-run prepare.py / `klein replicate` to re-check; E0002: models/E0002.pt: local artifact absent (not committed by policy) \u2014 hash recorded a32f88d754704cd3d0de48abfc33b45a2e838f2af020b98233a7963c8041ecd5; re-run prepare.py / `klein replicate` to re-check; E0003: models/E0003.pt: local artifact absent (not committed by policy) \u2014 hash recorded 37639d6108308d308bf51b208b9ec65e8e7e42b5947961745a55692dd2fd6eee; re-run prepare.py / `klein replicate` to re-check; E0004: models/E0004.pt: local artifact absent (not committed by policy) \u2014 hash recorded 2d41edbf7f8f10b0e7f48eb8a96ef08494daee73c8502b5fb1389c6f2d73faaa; re-run prepare.py / `klein replicate` to re-check; E0005: models/E0005.pt: local artifact absent (not committed by policy) \u2014 hash recorded 918a566a347c0de3b70a593d632f0ec4ebc03d4a39b460ae4aaa225130e1d42d; re-run prepare.py / `klein replicate` to re-check; E0006: models/E0006.pt: local artifact absent (not committed by policy) \u2014 hash recorded 745c34b4c74f96490759dd1b8aef132c16f36e1d0e221b3138335e42f505f33a; re-run prepare.py / `klein replicate` to re-check; E0007: models/E0007.pt: local artifact absent (not committed by policy) \u2014 hash recorded 88fc584a3b59e864093f063b767671dd938b5e1a42529b0859aa7af0ec6acf4a; re-run prepare.py / `klein replicate` to re-check; E0008: models/E0008.pt: local artifact absent (not committed by policy) \u2014 hash recorded d013d0d1cc1542e1426e2869e1b151d0b5d2d7747edbef695f3ad239d59dec2f; re-run prepare.py / `klein replicate` to re-check",
       "name": "ledger integrity",
       "ok": true
     },
@@ -171,7 +171,7 @@
       "ok": true
     },
     {
-      "message": "all 150 rendered numerals trace to a pinned source",
+      "message": "all 147 rendered numerals trace to a pinned source",
       "name": "tutorial numbers",
       "ok": true
     },
@@ -182,22 +182,22 @@
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "85f248782b8476de018f5c49e618891ea7fa79ea",
+  "git_head": "ad76cdf5a3ba6951a35971f621d670683d336825",
   "inputs": {
     "aux_metrics.tsv": "cfe1fc2eef88215846cae55616f19f04291bd30611812f31021c4a5c6b00b374",
     "claims.lock": "8e2f0addc24f2d3c7bd280f704f95ad729cd2f459cfbf3ef17cbb2a9047c8e2e",
     "events.jsonl": "28f77e47fdc07551eb5e86e6c0dd4489818829bfc389a45031de2812e61fc901",
     "findings.md": "2a8d675867284fb82526b5a5ce6af0b5e10b9e0d75ff9e8544b9274baf34e7ba",
     "playbook.md": "35ae293258ec116291c9ca0df1d37607096a25eb0a94f3eb7829582b692207bb",
-    "program.md": "bd6ecc0b7e2bd805985b2d54ba8984a9307de09620d58dc22410479b6e7348a5",
+    "program.md": "e298bc171e054e8d9144beac16515e90511ecb931dcc0e3a167871f3fcfabe12",
     "referee_report.md": "bd4dad96ce4c169d6a89341ac37ecb2798ce020a5dd9180c7c079899a976708a",
-    "report/index.html": "166f835fae5353827aa6ccd5bbe724737ab552434918d2dff52bd99bd7966358",
+    "report/index.html": "e8cce09aa1ec8e541d5bc50d23bfe62d9a506e331620d5ca610b01cbbaff8a3a",
     "results.tsv": "0b31323ecaaceb4b90fccfd694d7ded1344bd7edb9bb1f30cf56e60d2767739a",
     "study.yaml": "dbad32785ef75599ebc879ecc2507bce18abdd5d4c984078fbec6e04d599d332",
     "study_state.json": "74483ddde1f29b10b0cb202df4fcca2b1d963fdef321c759f14ab18a3b4d507b"
   },
-  "klein_commit": "85f248782b8476de018f5c49e618891ea7fa79ea",
-  "klein_version": "2.0.0",
+  "klein_commit": "ad76cdf5a3ba6951a35971f621d670683d336825",
+  "klein_version": "2.1.0",
   "manifests": {
     "E0001": "cfa3ee34640f6f9f0988f32dc53453dceffe3ff47d3f8a4191f94f0c64f11838",
     "E0002": "bdbd3fc2a7101d43264b924a4ab9a1f67f2df807e81c49f23b72ba11c92ad62a",
@@ -214,9 +214,9 @@
   "summary": {
     "checks": 36,
     "failed": 0,
-    "warned": 0
+    "warned": 1
   },
-  "timestamp": "2026-09-03T15:50:46.628913Z",
+  "timestamp": "2026-09-07T19:40:48.834366Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
