@@ -6,9 +6,7 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
-## [Unreleased]
-
-<!-- version on release -->
+## [2.2.0] — 2026-09-07
 
 The report builder learns to read the study's own records. A tutorial used to be
 trusted to retype what `claims.lock` and `study_state.json` already said, to include
