@@ -9,7 +9,7 @@ verifier, committed as bytes at <code>models/E0009/solution.json</code>. Twenty-
 <strong>attains the proven maximum</strong> and matches the best known value for this
 instance. Beside it, the negative control it was checked against.</p>
 
-<img data-fig="figures/verified_object.png" alt="Left: the sealed run's 22-point object on the 11 by 11 grid, exactly two points per row and per column. Right: the eleven-point Erdos parabola control.">
+<img data-fig="figures/verified_object.png" alt="Left: the sealed run's 22-point object on the 11 by 11 grid, exactly two points per row and per column. Right: the eleven-point Erdos parabola control." data-caption="The two objects the checker accepted, drawn from the same bytes it scored. Left: E0009&#39;s sealed 22-point configuration on the 11 × 11 grid from track n_small, with two points in every row and every column. Right: the negative control it was checked against &mdash; Erdős&#39;s 11-point parabola set, valid by theorem before any code ran. Attaining 2n looks like the left panel, and make_figures.py re-runs the collinearity test over every triple before it will draw either one.">
 
 <p>Count the rows and columns in the left panel: exactly two points in each. That is what
 attaining <span data-math="2n"></span> looks like, and it is what the checker verified over
@@ -88,12 +88,17 @@ numeral, so <code>klein verify --numbers</code> was never looking at it. A numer
 catches invented numbers; it does not catch an adjective that has quietly become a claim.</p>
 </blockquote>
 
-<h3>§5.6 · Why this study closes <code>exploratory</code></h3>
+<p>The lock and the gate keep their own tally of all of that — what is claimed, at what
+strength, with which errata attached, and what the referee made of it:</p>
 
-<p>Not a shortfall — arithmetic. <code>confirmation.require</code> is <code>[verify]</code>,
+<!--EVIDENCE-->
+
+<h3>§5.6 · Why the label above is not a shortfall</h3>
+
+<p>Arithmetic, not a shortfall. <code>confirmation.require</code> is <code>[verify]</code>,
 which on a frontier track resolves to a re-verification record for the track's final
 <em>keep</em>. There are no keeps and there could not have been, so there is no incumbent to
-confirm and the engine labels the study <code>exploratory</code>. The label does not mean the
-objects are unverified: every development run carries a re-verification at tolerance 0, both
-<code>procedural-verdict</code> claims close <code>confirmed</code>, and the referee re-ran
-the declared verifier itself, in a fresh process, on the pinned object — and got 22.</p>
+confirm, and the engine files the label it does. That label does not mean the
+objects are unverified: every development run carries a re-verification at tolerance 0, and
+the referee re-ran the declared verifier itself, in a fresh process, on the pinned object —
+and got 22.</p>

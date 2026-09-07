@@ -11,8 +11,8 @@ crash has no metric and therefore no place on a metric axis, so it sits on the r
 it can still be seen; the sealed cell is a star, outside the adaptive frontier by
 construction.</p>
 
-<img data-fig="figures/plot_decision_trajectory__n_small.png" alt="Decision trajectory for track n_small: four development discards, the E0008 crash on the rug, and the sealed star at 22.">
-<img data-fig="figures/plot_decision_trajectory__n_large.png" alt="Decision trajectory for track n_large: three development discards and the sealed star at 55.">
+<img data-fig="figures/plot_decision_trajectory__n_small.png" alt="Decision trajectory for track n_small: four development discards, the E0008 crash on the rug, and the sealed star at 22." data-caption="Track n_small (the 11 × 11 grid), every notarized run in ledger order against the objective the declared verifier scored: the development cells as discard dots, the E0008 crash on the rug because a run with no metric has no place on a metric axis, and the sealed cell as a star off the frontier. Headroom was zero before the first run, so every development cell was a discard by design &mdash; and the sealed cell reached 22, the proven maximum.">
+<img data-fig="figures/plot_decision_trajectory__n_large.png" alt="Decision trajectory for track n_large: three development discards and the sealed star at 55." data-caption="The same drawing for track n_large (the 31 × 31 grid): its development cells, all discards by the same arithmetic, and its one sealed cell as a star apart from them. The star reads 55, above the development lane&#39;s 54 and far below the 62 that is known to be attainable here &mdash; so what this panel measures is a reach, not a climb.">
 
 <!--LEDGER-->
 
@@ -26,7 +26,7 @@ invocation rather than by the search. Printed: <code>planted: 12</code>,
 predicts. <strong>P3 supported.</strong> Nothing after this line would be worth reading if
 this line had failed.</p>
 
-<img data-fig="figures/checker_ledger.png" alt="Left: all twelve planted invalid objects rejected with exit 2. Right: E0008's searcher reported 21 where the checker measured 20.">
+<img data-fig="figures/checker_ledger.png" alt="Left: all twelve planted invalid objects rejected with exit 2. Right: E0008's searcher reported 21 where the checker measured 20." data-caption="What the checker did to the ledger, from E0001 and E0008, both development cells on track n_small. Left: each frozen invalid object against the verdict it received &mdash; all 12 rejected, so the detector fires when it should. Right: the deliberate overclaim cell, the search&#39;s own report beside the checker&#39;s measurement, 21 against 20, recorded as a crash whose ledger row is NA. A guard that has never fired is a guard nobody has tested.">
 
 <h3>§4.3 · E0002–E0007 — the same search, two instances, one budget ladder</h3>
 
@@ -34,7 +34,7 @@ this line had failed.</p>
 seed block. Because the budget is a strict prefix of one random stream, the three rungs are
 one trajectory read at three points, so the curve is monotone by construction.</p>
 
-<img data-fig="figures/reach_vs_budget.png" alt="Verified objective against evaluation budget for both tracks, with the proven maximum drawn as a dashed reference line.">
+<img data-fig="figures/reach_vs_budget.png" alt="Verified objective against evaluation budget for both tracks, with the proven maximum drawn as a dashed reference line." data-caption="The verified objective against the evaluation budget, one panel per track on a log budget axis: the development seed block&#39;s three rungs joined into a line, the sealed cell as a hollow star at the same largest budget, and the proven maximum 2n as a dashed reference no point can rise above. On n_small the star sits on that line at 22 where the development lane stopped at 21; on n_large both lanes stay well short of 62, and the same budget bought 19014 greedy completions at n = 11 against 2190 at n = 31.">
 
 <p>On the 11 × 11 grid: 20, then 21, then 21. On the 31 × 31 grid: 50, then 53, then 54.
 <strong>P2 supported</strong> at n = 31 (54 &lt; 62). And at n = 11 —</p>
