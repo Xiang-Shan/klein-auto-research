@@ -145,7 +145,9 @@ FIG_RE = re.compile(r"""data-fig\s*=\s*(["'])(.*?)\1""")
 #: (with a caption) wrap the element — the attribute-only pass above still runs
 #: afterwards over anything that carried ``data-fig`` outside an ``<img>``, so
 #: no authoring form silently loses its inlining.
-FIG_IMG_RE = re.compile(r"<img\b[^>]*>", re.IGNORECASE)
+#: Quoted attribute values may contain ">" (a caption saying "a > b"), so the tag
+#: match steps over quoted values instead of stopping at the first ">".
+FIG_IMG_RE = re.compile(r"""<img\b(?:[^>"']|"[^"]*"|'[^']*')*>""", re.IGNORECASE)
 FIG_CAPTION_RE = re.compile(r"""\s*data-caption\s*=\s*(["'])(.*?)\1""", re.IGNORECASE)
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 ATTR_URL_RE = re.compile(r"""(?:src|href)\s*=\s*(["'])(.*?)\1""", re.IGNORECASE)
@@ -530,6 +532,15 @@ def inline_figures(
             tag = tag[: caption.start()] + tag[caption.end() :]
         fig = FIG_RE.search(tag)
         if fig is None:  # pragma: no cover - a data-caption swallowing data-fig
+            return match.group(0)
+        if caption is not None and ("<" in caption.group(2) or ">" in caption.group(2)):
+            # Refused, never rendered as literal tags and never silently dropped:
+            # a caption is plain text (entities are fine), because the builder
+            # escapes it into the <figcaption>.
+            missing.append(
+                f"{fig.group(2)} — data-caption contains markup; a caption is plain "
+                "text (entities such as &mdash; are fine, tags are not)"
+            )
             return match.group(0)
         loaded = read_figure(fig.group(2))
         if loaded is None:

@@ -75,8 +75,9 @@ every invocation; it is the source of truth, this file only orients you.
      Files outside the surface (`verify.py`, `lib/…`) stay bare.
    - **Figures in sections 4 and 5 carry captions**:
      `<img data-fig="figures/<name>.png" alt="…" data-caption="…">` — what is plotted,
-     which track and split, what it is compared against, the one-line takeaway. A bare
-     `data-fig` is only for a fragment that writes its own `<figure>`.
+     which track and split, what it is compared against, the one-line takeaway. Plain
+     text with entities; a tag inside the caption is refused. A bare `data-fig` is only
+     for a fragment that writes its own `<figure>`.
 4. Build with the bundled assembler:
    `uv run --locked python .claude/skills/klein/scripts/build_tutorial.py
    studies/NN-slug [--title "…"]` — it typesets the math to inline SVG, highlights

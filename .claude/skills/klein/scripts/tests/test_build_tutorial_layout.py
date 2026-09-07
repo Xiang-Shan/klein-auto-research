@@ -286,6 +286,41 @@ def test_caption_wraps_the_image_in_a_numbered_figure(build_module, tmp_path):
     assert build_module.acceptance_violations(page) == []
 
 
+def test_caption_with_markup_is_refused_with_exit_3_naming_the_figure(
+    build_module, tmp_path, capsys
+):
+    """A tag inside data-caption is refused — never rendered literally, never
+    silently dropped (the old <img> regex stopped at the tag's ">")."""
+    frags = dict(BASE_FRAGMENTS)
+    frags["03-data.html"] = (
+        '<h2>The Data</h2><img data-fig="figures/wide.png" alt="wide" '
+        'data-caption="The <code>primary</code> track">'
+    )
+    study = scaffold(tmp_path / "00-figmarkup", fragments=frags)
+    assert build_module.main([str(study)]) == 3
+    err = capsys.readouterr().err
+    assert "figure problem(s)" in err
+    assert "figures/wide.png" in err
+    assert "data-caption contains markup" in err
+    assert not (study / "report" / "index.html").exists()
+
+
+def test_greater_than_inside_a_quoted_attribute_does_not_end_the_img_tag(
+    build_module, tmp_path
+):
+    frags = dict(BASE_FRAGMENTS)
+    frags["03-data.html"] = (
+        '<h2>The Data</h2><img data-fig="figures/wide.png" alt="frontier > incumbent" '
+        'data-caption="Kept when frontier &gt; incumbent &mdash; by arithmetic.">'
+    )
+    study = scaffold(tmp_path / "00-figgt", fragments=frags)
+    page = build(build_module, study)
+    assert 'alt="frontier > incumbent"' in page
+    assert "<figcaption>Kept when frontier &gt; incumbent — by arithmetic. " in page
+    assert "data-caption" not in page
+    assert build_module.acceptance_violations(page) == []
+
+
 def test_bare_data_fig_keeps_its_authored_wrapping(build_module, tmp_path):
     """Shipped studies wrap their own <figure>/<figcaption>; never double-wrap."""
     frags = dict(BASE_FRAGMENTS)

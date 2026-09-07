@@ -75,6 +75,25 @@ paper because someone looked once. All three are now mechanical.
   at 390 and 320 px, every nav and subsection anchor is revealed at phone widths, and
   studies 13 and 15 print whole. The page head now names its layout generation
   (`<meta name="generator" content="klein build_tutorial layout-2">`).
+- **The six schema-3 reports are rebuilt under this contract** — studies 00, 10, 11, 12,
+  13 and 15. Each `05-findings` fragment carries the `<!--EVIDENCE-->` marker, every
+  mutable-surface include names the run it shows (`data-run` on the frontier's final
+  keep — E0003, E0003, E0006, E0006 — or on the sealed cell — study 10's E0011, study
+  11's E0009), every figure in sections 4 and 5 carries a teaching caption (34 in
+  all), and the prose that retyped a claim total, a strength count or the finalization
+  label is reworded to say it in words. Study 15's "What the lock says" paragraph,
+  which described a ten-claim lock while the lock held fifteen, is replaced by the
+  generated block plus a paragraph that names the claims without counting them; study
+  10's hand-made copy `report/e0011-analyze.py` is removed because the builder now
+  reads those bytes from the candidate commit itself (the copy was byte-identical).
+  Nothing else in any study changed: no run, ledger, prediction, claim, gate record,
+  lock, referee report or `findings.md`; each `program.md` discloses the rebuild and
+  `klein verify` re-issued each receipt so it hashes the rebuilt page.
+- **The tutorial numeral scan skips `<nav>`.** `kleinlib.numbers.html_text` no longer
+  reads navigation text nodes: the section bar and the builder's "In this section"
+  lists repeat heading text, so a numbered heading (`5.1 …`) was counted twice — once
+  as content and once as chrome — on every rebuilt page. The scan is advisory on
+  every schema and no disposition depends on it.
 - **The tutorial protocol and the tutor worker teach the new contract.**
   `references/tutorial-spec.md` gains "Records, not retyping", the executed-source rule
   (including why a bare mutable-surface include is wrong), the caption requirement for
@@ -99,6 +118,12 @@ paper because someone looked once. All three are now mechanical.
   what follows them, opens every source disclosure (a `beforeprint` handler that
   `afterprint` undoes), and re-declares the light palette so a dark-mode reader does
   not print a dark page.
+- **A tag inside a figure caption is refused, not silently dropped.** The `<img>`
+  matcher stopped at the first `>` inside a quoted attribute, so a `data-caption`
+  holding `<code>` made the figure lose its caption with exit 0 — three rebuild lanes
+  hit it on their first build. The matcher now steps over quoted values, and a caption
+  containing markup is a figure problem (exit 3) naming the figure: a caption is plain
+  text, entities allowed, because the builder escapes it into the `<figcaption>`.
 - **A figure that is not a PNG is refused instead of shipped.** Whatever bytes sat at
   the `data-fig` path were base64-inlined behind an `image/png` prefix, so a JPEG or a
   truncated file became a broken image inside a self-contained artifact nobody could

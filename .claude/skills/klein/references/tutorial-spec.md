@@ -189,9 +189,12 @@ into a `<figure>` + `<figcaption>` with a zoom link (CSS-only enlargement; the c
 link or Esc returns). A caption says four things in a sentence or two: what is plotted,
 which track and which split, what it is compared against, and the one-line takeaway the
 reader should leave with. `alt` describes the image for someone who cannot see it;
-`data-caption` teaches. A bare `data-fig` with no caption still works — that is the form
-for a fragment authoring its own `<figure>`/`<figcaption>` — and bytes that are not a
-PNG are refused (exit 3); the decoded width and height are stamped on the `<img>`.
+`data-caption` teaches. A caption is PLAIN TEXT: entities (`&mdash;`, `&quot;`) are
+fine, tags are not — the builder escapes the value into the `<figcaption>`, so a
+`<code>` or `<em>` inside it is refused (exit 3, naming the figure) rather than rendered
+as literal angle brackets. A bare `data-fig` with no caption still works — that is the
+form for a fragment authoring its own `<figure>`/`<figcaption>` — and bytes that are not
+a PNG are refused (exit 3); the decoded width and height are stamped on the `<img>`.
 
 An opening "takeaways" block in section 1 — an `<h3>` and three items naming what the
 study found, the way study 15 opens — is RECOMMENDED, not required: it hands the reader
