@@ -24,7 +24,7 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. Cells phase DONE (6/6). Next: fit phase (exponent track; P1, P2, P5) after the phase ack. Caveat to carry: N=500 below N=1000 and best_step at end of budget everywhere.
+1. Fit phase: run exponent cell on all six cells (P1,P2,P5); P2 at risk. (Cells phase DONE 6/6.) Next: fit phase (exponent track; P1, P2, P5) after the phase ack. Caveat to carry: N=500 below N=1000 and best_step at end of budget everywhere.
 
 ## Observations
 

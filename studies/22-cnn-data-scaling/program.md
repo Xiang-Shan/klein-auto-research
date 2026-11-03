@@ -163,3 +163,13 @@ required by the fit phase, so none is dropped. No cell adjudicates a prediction.
   - Observation (E0005): N=8000 mean 0.652 (sd 0.007), best_step 1100 of 1125 in all seeds: still compute-limited at the end of the budget. Wall time ~2x the N=4000 cell.
 - 2026-11-03 — E0006 N 16000 mean 0.5637 sd(ddof1) 0.0077 seeds [0.572035, 0.556876, 0.562141] best_step [2240, 2240, 2128] wall 566.404 detached False 4 cpu x86_64 measured; hardware: 4-cpu x86_64 Linux VM, no GPU, torch 2.13 cpu path; local-executor worktree, attested (observed_by_notary false).
   - Observation (E0006): N=16000 mean 0.564 (sd 0.008), best_step 2128-2240 of 2250. All six cells measured; phase boundary reached (no phase gate recorded by the experimenter). Pattern: loss falls monotonically from N=1000, but N=500 < N=1000 (the 400-step floor gives N=500 114 epochs vs 57), and every cell's best checkpoint is at the end of its budget, so the curve measures a compute-limited protocol; the fit phase should read alpha with that caveat (P7 is the same question at the full pool).
+
+### Phase fit slate
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Exponent cell: OLS log-log fit over all six pinned cells as registered (adjudicates P1 alpha in [0.10,0.60], P2 fit_r2>=0.98, P5 alpha in [0.15,0.32]) | 3 | 3 | 3 | 9 |
+| 2 | Refit dropping N=500 (post-hoc robustness; NOT registered, would not be pinned as the fit) | 2 | 2 | 2 | 6 |
+| 3 | Refit over N>=4000 only (compute-limited regime check) | 2 | 2 | 2 | 6 |
+
+Chosen: #1 only; all six cells enter as registered. Expectation from the journal: the non-monotone N=500/1000 pair makes P2 (fit_r2 >= 0.98) at real risk.
