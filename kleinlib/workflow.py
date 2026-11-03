@@ -383,6 +383,7 @@ def _run_declared_verifier(
     reported_metrics: Mapping[str, float],
     manifest: dict[str, Any],
     echo: bool,
+    evaluation_kind: str = "development",
 ) -> tuple[float, dict[str, float]]:
     """Re-score the run's artifact with the declared checker, and decide on IT.
 
@@ -424,6 +425,12 @@ def _run_declared_verifier(
             "KLEIN_ARTIFACT": str(artifact),
             "KLEIN_EXPERIMENT_ID": run_id,
             "KLEIN_TRACK": track,
+            # Which partition the run was judged on (Klein 2.3; found at study
+            # 24's DATA gate): without it a checker can only trust the lane the
+            # artifact declares for itself, so a development run could score the
+            # sealed lane without spending the seal. `klein replicate` already
+            # passes the manifest's kind (replicate._child_env).
+            "KLEIN_EVALUATION_KIND": evaluation_kind,
             # The checker never runs in smoke or rehearsal mode: it is the
             # thing being trusted.
             "KLEIN_SMOKE": "",
@@ -874,6 +881,16 @@ def _close_transaction(
                     log_path, seeds
                 )
                 declared_artifacts.update(_write_seed_table(study_dir, run_dir, per_seed))
+                # Every seed's evaluator replaced the previous seed's aux rows
+                # (`_append_aux_rows` is idempotent per experiment), leaving the
+                # LAST seed's values under the array's id — found at study 22. The
+                # notary writes the array's own rows instead: the seed means it
+                # decided on plus their spread; per-seed values live in seeds.tsv.
+                from .eval import _append_aux_rows
+
+                _append_aux_rows(
+                    study_dir, run_id, {k: v for k, v in metrics.items() if k != "primary_metric"}
+                )
             else:
                 primary, printed_name, printed_goal, metrics = parse_metric_log(
                     log_path, scope=str(manifest.get("printed_scope", "log"))
@@ -916,6 +933,7 @@ def _close_transaction(
                     reported_metrics=metrics,
                     manifest=manifest,
                     echo=echo,
+                    evaluation_kind="final_test" if final_test else "development",
                 )
             disposition, reason = choose_disposition(
                 primary_metric=primary,

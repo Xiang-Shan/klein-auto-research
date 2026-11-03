@@ -160,3 +160,26 @@ def test_a_seed_array_replicates_as_a_seed_array(tmp_path: Path) -> None:
     record = replicate_run(study, "E0001", echo=False)
     assert record["reproduced"] is True, record.get("failure_reason")
     assert record["replicate_block"]["seeds_n"] == 3
+
+
+def test_aux_metrics_hold_the_array_not_the_last_seed(tmp_path: Path) -> None:
+    """Study 22's instrument found it: each seed's evaluator replaced the previous
+    seed's aux rows, so aux_metrics.tsv held the LAST seed. The notary writes the
+    seed means it decided on, plus their spread."""
+    import csv
+
+    study = _study(tmp_path, entry_extra="  seeds: [0, 1, 2]\n")
+    _touch(study, 1)
+    body = (
+        "import os, time; from kleinlib.eval import evaluate_scalar; seed = int(os.environ['KLEIN_SEED']); "
+        "print('---'); "
+        "evaluate_scalar(0.70 + 0.01 * seed, exp_id=os.environ['KLEIN_EXPERIMENT_ID'], metric_name='val_auc', "
+        "metric_goal='higher', extra={'val_extra': float(seed)}, study_dir='.', t0=time.time())"
+    )
+    manifest = run_one(study, command=[sys.executable, "-c", body], echo=False)
+    assert manifest["disposition"] == "keep", manifest["decision_reason"]
+    with (study / "aux_metrics.tsv").open(encoding="utf-8") as stream:
+        rows = {r["metric"]: float(r["value"]) for r in csv.DictReader(stream, delimiter="\t") if r["experiment"] == "E0001"}
+    assert rows["val_extra"] == pytest.approx(1.0)  # the mean of seeds 0, 1, 2 — not seed 2's 2.0
+    assert rows["primary_metric_std"] == pytest.approx(0.01)
+    assert rows["seeds_n"] == 3
