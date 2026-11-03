@@ -1,0 +1,199 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 5688,
+      "committed": true,
+      "sha256": "a7f397322d01c28775169cae30437583a4348c7a2ac3e95836784d2e5a6613be"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 3092,
+      "committed": true,
+      "sha256": "62d7c08a136415925a0ddc2fa30d1d111eb0b26a879ab2a68488f7a7566dad5d"
+    },
+    "runs/E0008/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 912,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "bff34b493c087a35f99a40b8494a40ba6c07a5190f1b02501b0833fa19274794"
+    },
+    "runs/E0008/usage.json": {
+      "availability": "recorded",
+      "bytes": 251,
+      "committed": true,
+      "role": "usage",
+      "sha256": "f3e141b9b1facce606cd9f81808082968f758b4fd6cd90c22a35313f8cf5a426"
+    },
+    "tables/confusion_E0008_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 300,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1a0e4a57c95373526197466977ff18a1a285e492ac3703082e8e1cefe02eab02"
+    },
+    "tables/confusion_E0008_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 296,
+      "committed": true,
+      "role": "declared",
+      "sha256": "a7a3347af79c9bf56663668ab76c5434d3b31bca4d54d92467c0b144c44b8876"
+    },
+    "tables/confusion_E0008_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 299,
+      "committed": true,
+      "role": "declared",
+      "sha256": "2d1fda93fb65f5967ddbf70bb94581c5669ca144d7a6559f2f7a74e42aaa6042"
+    },
+    "tables/sealed_E0008_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 175,
+      "committed": true,
+      "role": "declared",
+      "sha256": "539ad1c3c1cdf87125beebc59b2ce5c75e4c198a026099cf41485c3aedabdab5"
+    },
+    "tables/sealed_E0008_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 174,
+      "committed": true,
+      "role": "declared",
+      "sha256": "9dc623610aefe243db86d7686b1d066536fcd51dcc59c5f946732c91367ce828"
+    },
+    "tables/sealed_E0008_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 175,
+      "committed": true,
+      "role": "declared",
+      "sha256": "a506cd01b9faa0d53161cc0d0ed7d556a63708a31289a083b9d23494623d5b1d"
+    }
+  },
+  "base_commit": "ae8c1b441dc83b821cea8fcbbc816799fb845ecf",
+  "candidate_commit": "23f405e00a60da8f865416da8014e24866450936",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed confirmation: full pool N=59,992; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T08:41:20.133609Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "final_test",
+  "execution": {
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "mode": "local"
+  },
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "c8111cbf142422f03faa13554744dca028089c362ee723f99878d9e9abd321a5"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric_goal": "lower",
+  "metric_name": "val_mlogloss",
+  "metrics": {
+    "best_inner_loss": 0.3639426666666667,
+    "best_step": 8050.0,
+    "eval_every": 210.0,
+    "extrapolation_rel_error": -0.2801519225030284,
+    "fit_a": 2.125837465,
+    "fit_alpha": 0.1303601958,
+    "n_classes": 10.0,
+    "n_fit": 53993.0,
+    "n_inner": 5999.0,
+    "n_train": 59992.0,
+    "predicted_loss": 0.5065903039398731,
+    "primary_metric": 0.395864,
+    "primary_metric_max": 0.405217,
+    "primary_metric_min": 0.387183,
+    "primary_metric_std": 0.00903576100834899,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 8437.0,
+    "total_seconds": 622.8333333333334,
+    "train_rows": 53993.0,
+    "training_seconds": 614.6333333333333,
+    "val_accuracy": 0.8604633333333332,
+    "val_balanced_accuracy": 0.86043,
+    "val_ece": 0.010415666666666667,
+    "val_macro_f1": 0.8590546666666666,
+    "val_mlogloss": 0.395864,
+    "val_rows": 9995.0,
+    "val_top5_accuracy": 0.9967649999999999,
+    "wall_seconds": 622.8291776666666
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 5400.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P3": {
+      "explanation": "|extrapolation_rel_error| 0.280151922503 <= 0.2 (from -0.280151922503) \u2192 refuted",
+      "verdict": "refuted"
+    },
+    "P4": {
+      "explanation": "extrapolation_rel_error -0.280151922503 > 0 \u2192 refuted",
+      "verdict": "refuted"
+    },
+    "P6": {
+      "explanation": "extrapolation_rel_error -0.280151922503 in [0.03, 0.25] \u2192 refuted",
+      "verdict": "refuted"
+    },
+    "P7": {
+      "explanation": "best_step 8050 >= 6329 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P3",
+    "P4",
+    "P6",
+    "P7"
+  ],
+  "primary_metric": 0.395864,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T08:09:56.307301Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-11-03T08:41:20.157135Z",
+    "status": "pending"
+  },
+  "usage": {
+    "steps": 25311.0
+  },
+  "wall_seconds": 1883.8262372509998
+}
