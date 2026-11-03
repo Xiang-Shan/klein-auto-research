@@ -1,0 +1,27 @@
+<h3>What you will take away</h3>
+<ul>
+  <li><strong>At a matched number of verifier calls, the LLM arm matched the tabulated length on more development pairs than the classical search did (6 of 12 against 0 of 12), and on the sealed orders neither arm matched (0 of 6 each).</strong> The development contrast is a count difference on two orders, not an established rate (claims C2, C3).</li>
+  <li><strong>The recall signature that was registered (a match already in the first proposal batch) was not seen:</strong> 1 of 12 pairs, with the other matches arriving after verifier feedback (claim C4). That refutes the registered rule; it does not exclude recall.</li>
+  <li><strong>Every verdict is the verifier's number, not the searcher's,</strong> and every matched ruler re-attains a length that OEIS A003022 already lists. The study establishes nothing new about any Golomb ruler (claim C16).</li>
+</ul>
+<p class="note">The referee's verdict on this study covers the study record (<code>findings.md</code>, the lock, the predictions). It was given before any figure or tutorial existed, so <strong>it does not cover this page or its figures</strong>. The page reads its records from the lock and the state file (section 5 prints them) and has had its own mechanical checks, which are not a second referee.</p>
+
+<h3>The decision this study informs</h3>
+<p>Claims that a language model &ldquo;found an optimal combinatorial object&rdquo; are now common. A reader weighing one needs two things the headline rarely gives: <em>who checked the object</em>, and <em>whether the model searched or remembered</em>. This study builds the smallest honest test of both. The object is the Golomb ruler: <span data-math="n"></span> integer marks on a ruler such that every pairwise distance occurs once. The shortest ruler for each <span data-math="n"></span> is tabulated in OEIS A003022 and in public tables, so the answer key is printed in the textbook.</p>
+<p>The question, as registered in <code>study.yaml</code>:</p>
+<blockquote>At a matched budget of verifier calls, does an LLM proposing Golomb rulers as data match the known tabulated lengths as often as a classical randomized search, on development orders 8&ndash;11 and sealed orders 12&ndash;13, and is a match search or recall?</blockquote>
+<p>The decision the answer feeds is practical: <em>should a claimed LLM match on a combinatorial benchmark be read as search, as recall, or as neither until a control says otherwise?</em></p>
+
+<h3>The design in one picture</h3>
+<table>
+  <thead><tr><th>Piece</th><th>What it is</th></tr></thead>
+  <tbody>
+    <tr><td>Instance</td><td>Orders 8&ndash;11 (development, 12 pairs of order and trial) and orders 12&ndash;13 (sealed, 6 pairs), three trials per order. Each pair gets 2000 candidate evaluations.</td></tr>
+    <tr><td>Arm 1 &mdash; <code>search</code> track</td><td>Randomized construction plus simulated annealing, in <code>search.py</code>.</td></tr>
+    <tr><td>Arm 2 &mdash; <code>llm</code> track</td><td>The dated snapshot <code>qwen-flash-2025-07-28</code> proposes 10 rulers per request as JSON data, never code, for 200 requests, each told the verifier's verdicts on its previous batch.</td></tr>
+    <tr><td>Judge</td><td>One declared verifier, <code>verify.py</code>, outside the mutable surface and hashed at the METHOD gate. It recomputes every count from the artifact with integer arithmetic.</td></tr>
+    <tr><td>Metric</td><td><code>optima_matched</code>: the number of pairs whose best verified ruler has the tabulated length. An exact integer; resolution 1.</td></tr>
+    <tr><td>Registered rules</td><td>Five predictions (P1 to P5), each an arithmetic rule adjudicated by the notary, not by prose.</td></tr>
+  </tbody>
+</table>
+<p>Both tracks are <em>registered</em>: every run is a pre-declared cell that is measured, not a climb with keeps and discards. That shapes section 4.</p>

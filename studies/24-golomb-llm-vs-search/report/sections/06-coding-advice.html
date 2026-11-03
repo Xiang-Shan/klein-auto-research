@@ -1,0 +1,79 @@
+<h3>Why this section exists</h3>
+<p>The study&rsquo;s conclusions are only as good as two small programs: the searcher that proposes and the verifier that judges. This section walks the <em>executed</em> source of both. For the searcher the page includes the exact bytes each named run executed, read from that run&rsquo;s recorded candidate commit, not the file lying on disk (a registered track restores the mutable surface after every run, so the disk copy names no run). The verifier is outside the mutable surface and is shown as the declared verifier with its pinned hash.</p>
+
+<h3>The searcher, as executed</h3>
+<p><code>search.py</code> is the study&rsquo;s whole mutable surface and holds both arms, selected by the track. The four listings below are the same file included at four runs. Their provenance lines print the run id, evaluation kind, track, commit and sha256; the four hashes are identical, because the surface was never edited between runs. That identity is itself the point: the classical arm and the LLM arm ran on the same bytes, and the sealed runs ran the code the development runs ran.</p>
+<p><strong>Classical arm, development cell (E0001) and sealed cell (E0005).</strong></p>
+<pre data-code="search.py" data-lang="python" data-run="E0001"></pre>
+<pre data-code="search.py" data-lang="python" data-run="E0005"></pre>
+<p><strong>LLM arm, development cell (E0004) and sealed cell (E0006).</strong></p>
+<pre data-code="search.py" data-lang="python" data-run="E0004"></pre>
+<pre data-code="search.py" data-lang="python" data-run="E0006"></pre>
+
+<h3>Annotated walkthrough</h3>
+<h3>1. One evaluation is one call of the private checker</h3>
+<p>The matched budget is only as real as its counter. Every candidate, whatever produced it, goes through <code>_is_golomb</code>, which spends one evaluation before it looks at the input, and a 2001st call raises. A missing entry still spends one, so malformed LLM output is not free.</p>
+<pre><code class="language-python">def _is_golomb(marks: Any, n: int, budget: Budget) -&gt; Verdict:
+    """The searcher's private checker. Each call is one evaluation of the budget."""
+    budget.spend()
+    if marks is None:
+        return Verdict(False, "missing", None, None, 0, ())</code></pre>
+<p>The counter lives in the mutable file, so the verifier cannot audit it; it only enforces that each pair spent exactly the budget. The independent record of the LLM arm&rsquo;s spend is the call ledger.</p>
+
+<h3>2. The annealer: aim one shorter, repair, accept by repeated differences</h3>
+<p>The classical arm never searches in the space of lengths blindly. It aims one length below its best valid ruler, cuts empty cells out of the best ruler to get there, and then anneals interior marks to drive the number of repeated differences to zero. The acceptance rule is the Metropolis one (<code>ref:kirkpatrick1983</code>), with the energy being the count of repeated differences:</p>
+<pre><code class="language-python">        if (
+            state_verdict is None
+            or verdict.repeats &lt;= state_verdict.repeats
+            or rng.random() &lt; math.exp((state_verdict.repeats - verdict.repeats) / temperature)
+        ):
+            state, state_verdict = candidate, verdict
+        temperature = max(SA_T_MIN, temperature * SA_COOLING)</code></pre>
+<p>The verdict returned by the checker carries the <em>conflicted</em> mark indices, and the move operator biases toward moving a mark that takes part in a repeated difference. That is the whole algorithm. It is deliberately simple, and the study&rsquo;s zero for it is a statement about this annealer at 2000 evaluations. At the method-gate toy orders the same code reached the tabulated length in most trials, which is why its zero at orders 8 to 13 reads as hardness growth, not a bug.</p>
+
+<h3>3. The LLM arm: objects as data, never code, never repaired</h3>
+<p>The model never writes a program and the searcher never executes a model string. The prompt asks for JSON data only, the reply is parsed by a deliberately strict rule, and anything not already a valid ruler is simply an invalid evaluation:</p>
+<pre><code class="language-python">def _parse_batch(text: str, batch: int) -&gt; tuple[list[Any], bool]:
+    """Exactly `batch` entries (None = missing) and whether the reply was one JSON list.
+
+    The outermost [...] span is read as JSON (this strips code fences and any prose
+    around it). A reply cut off mid-list falls back to every complete inner list.
+    Nothing is repaired: an entry that is not already a valid ruler is an invalid
+    evaluation, and a missing entry still spends its evaluation.
+    """</code></pre>
+<p>This rule is why a fifth to three in ten of replies counted as unparsed (section 5), and why the findings recount the sealed lane from the ledger with an <em>independent</em> checker that reads every bracketed list generously. The strict and generous readings agree on every development best length and on every sealed zero, so the headline counts do not depend on the extraction rule.</p>
+<p>The feedback loop is the second design choice. Each request carries the checker&rsquo;s verdicts on the previous batch and the best valid length so far, and nothing else: no optimum, no table, no mention of OEIS, no lane name. One template serves both lanes, so what the model is shown does not depend on the lane.</p>
+<pre><code class="language-python">    if previous is not None:
+        lines += ["", "The verifier's verdicts on your previous batch:"]
+        lines += [f"{i}. {_show(entry)}: {_describe(verdict)}"
+                  for i, (entry, verdict) in enumerate(previous, start=1)]
+        lines.append(f"Best valid length so far: {best_length}." if best_length is not None
+                     else "No valid ruler so far.")</code></pre>
+<p>The tabulated optima are loaded by <code>search.py</code> for book-keeping only (the provisional count and the index of the first match). They enter no stopping rule, move, message or request. The DATA gate read every use to confirm it.</p>
+
+<h3>4. The one number the notary trusts is the verifier&rsquo;s</h3>
+<p><code>main()</code> prints a provisional <code>optima_matched</code> and the artifact path under <code>solution:</code>. The notary then runs the declared verifier on that artifact and decides on <em>its</em> number. In every measured run the searcher&rsquo;s report equals the verifier&rsquo;s. Keep that pattern: print a provisional number for the human, and let a separate script that shares no code with the searcher decide.</p>
+
+<h3>The verifier, as declared</h3>
+<p><code>verify.py</code> is the declared verifier of both tracks. It is not in <code>entrypoint.mutable</code> (the checker is never the searcher), it imports nothing from <code>search.py</code>, and it was hashed at the METHOD gate with sha256 <code>63a60221be1a0b66c36095c804d08799df889156c7299c1129df16f2c0bc903c</code>, the value the data card records and the file at build matches. It is shown bare, as the current file, because a file outside the mutable surface has only one version.</p>
+<pre data-code="verify.py" data-lang="python"></pre>
+<p>What to steal from it:</p>
+<ul>
+  <li><strong>Pin the oracle inside the hashed file.</strong> The <code>ORACLE</code> dictionary holds the lanes, trials, budget, batch size and OEIS lengths, and <code>pinned_instance()</code> refuses an <code>instance.json</code> that disagrees. A file the searcher can write is not an oracle.</li>
+  <li><strong>Take the lane from the notary, not the artifact.</strong> <code>expected_lane()</code> maps <code>KLEIN_EVALUATION_KIND</code> to the lane and rejects an artifact that declares another one; a missing kind is rejected outright, so running the script by hand scores nothing.</li>
+  <li><strong>Write the check from the definition.</strong> <code>golomb_length</code> builds the set of all pairwise differences with exact integers, a separate implementation from the searcher&rsquo;s owner-dictionary scan. Two independent implementations disagreeing is a bug alarm; one implementation shared by both is not a check.</li>
+  <li><strong>Refuse a contradiction.</strong> A verified ruler shorter than the table aborts the run (&ldquo;the table or this checker is wrong&rdquo;), which is what makes <code>s = 1</code> mean &ldquo;equal to&rdquo; and never &ldquo;beat&rdquo;.</li>
+  <li><strong>Know what it does not check.</strong> It cannot tell how a valid ruler was produced: an edit that pastes a tabulated ruler would score as a match. The defence is procedural: the committed diff, the empty-diff record on every run, replication, and the call ledger. The verifier also does not audit the searcher&rsquo;s own valid-ruler and unparsed counts.</li>
+</ul>
+
+<h3>Pitfalls and war stories that bit this study</h3>
+<ol>
+  <li><strong>A rate limit killed the first LLM cell.</strong> The ledger&rsquo;s retry window (three attempts over seconds) was shorter than a per-minute provider limit, so E0002 crashed with HTTP 429 and the concurrency cap had to drop. <em>Lesson:</em> budget for the provider&rsquo;s limit, not the happy path.</li>
+  <li><strong>A dropped connection killed the second.</strong> The standard library raises a bare <code>ConnectionResetError</code> that the retry loop did not catch, so E0003 crashed after hundreds of paid calls. <em>Lesson:</em> every response read is a place for a transport error; cache every response so a rerun does not pay twice.</li>
+  <li><strong>A rerun after a crash is partly the crashed run.</strong> E0004 answered a large share of its requests from the crashed runs&rsquo; shards. They are genuine responses, but only a salted re-query is an independent second draw (C12).</li>
+  <li><strong>Count in orders, not only pairs.</strong> The three trials of an order sent byte-identical first requests, so every development order came out all-or-none and the exact test moved from 0.03125 to 0.5 when the unit changed (C11).</li>
+  <li><strong>Declare a price block before a model-calling run.</strong> Without one, every usd reads 0, which is <em>unrecorded</em>, not zero (C13).</li>
+  <li><strong>Keep the replica&rsquo;s solution table.</strong> The salted re-query kept its call shards and metric block but not its per-pair artifact, so which pairs matched on the second draw cannot be read from the record (C14).</li>
+  <li><strong>The labels were swapped between documents.</strong> The gate-hashed data card calls verifier acceptance and rejection controls the other way round from findings; the controls test the verifier only. <em>Lesson:</em> pick one convention before the gate hashes it.</li>
+  <li><strong>A match on a tabulated object is not search.</strong> A matched-budget comparison on public answers measures recall and search together, so a claim about search needs a contamination control and a no-feedback arm before it is made (C15).</li>
+</ol>
