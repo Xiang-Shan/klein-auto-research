@@ -6,7 +6,7 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
-## [2.3.0] — unreleased
+## [2.3.0] — 2026-11-03
 
 Klein 2.2 notarized research on tables well and on everything else by workaround: a
 binary evaluator, a whole-log metric channel, one input file, wall-clock budgets only,
@@ -107,6 +107,30 @@ non-default rule only when it applied.
   scan; CI asserts byte-identity and that the recipes are packaged.
 - `.github/workflows/release.yml` — PyPI trusted publishing on `v*` tags.
 
+### Added — five exhibits, one per domain pack
+
+Each ran the full lifecycle on its own `experiments/<id>` branch, merged with history:
+recipe scaffold, typed data card with the new audits, method card with verified
+references, registered predictions, sealed run after the mandatory dry run,
+replications, claims lock, an independent referee (20–23 failed round 1 and passed round 2
+with notes; 24 passed round 1 with notes), finalize `confirmed`, a tutorial, and knowledge promoted with typed
+citations (`knowledge/domains/{llm,cv,data-science}/`, `ml-research/`, `math/`,
+`research-discipline.md` lessons 12 onward).
+
+- **20 `llm-cot-contamination`** (test · text · llm) — chain-of-thought vs direct
+  answers on GSM8K and on procedurally generated twins, every DashScope call ledgered;
+  re-verifies with the network off.
+- **21 `bloodmnist-cnn`** (predict · image · cv) — pixel logistic regression to a small
+  CNN under a 3-seed-array floor; predefined official split with cross-split
+  near-duplicates removed by the audit's rule.
+- **22 `cnn-data-scaling`** (estimate · image · ml-research) — a data-scaling law fitted
+  on detached (attested) cells and held to a sealed full-data extrapolation.
+- **23 `lalonde-causal-replication`** (replicate · tabular · data-science) — Dehejia–Wahba
+  NSW/PSID/CPS via `data.inputs`; an operator incident (a history repair during a live
+  run) is filed under `incidents/`.
+- **24 `golomb-llm-vs-search`** (test · none · math) — LLM proposals vs a classical
+  randomized search at a matched budget of exact-verifier calls.
+
 ### Fixed
 
 - The leakage audit reproduces scalar-task and predefined splits (found at study 23's
@@ -136,6 +160,20 @@ non-default rule only when it applied.
   WebSearch/WebFetch, logged in the scouting ledger. Insurance doctrine moved out of the
   generic agents into `profiles/insurance.md`. SKILL.md's generation-layer block moved
   to `references/generation-overview.md`.
+
+### Known limitations
+
+- The claims numeral scan reads digits inside identifiers (the "8" of `GSM8K`) as
+  numerals; study 20 carries a labelled identifier alias. Changing the scanner would
+  re-count shipped receipts, so it waits for a schema bump.
+- `klein replicate --verify-only` refuses a sealed run by design, so a sealed artifact's
+  re-verification is the notary's own verifier pass; confirmation rests on development
+  replications.
+- A study without a `calls.price` block records `usd: 0` for model calls: unrecorded,
+  not free.
+- The Claude Science kit is written against the product's published documentation; its
+  live smoke record needs a person with a seat. PyPI publishing needs the project's
+  trusted publisher to be created by its owner.
 
 ## [2.2.0] — 2026-09-07
 
