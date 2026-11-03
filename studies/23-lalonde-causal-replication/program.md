@@ -222,3 +222,12 @@ Sealed access of the reproduction track spent. Primary metric 2: CPS-1 unadjuste
 ### Sealed att dry run (no experiment id; seal intact)
 
 The mandatory `--final-test --dry-run` of the att track (AIPW, dw_psid, 500 reps) printed `sealed_dryrun: 1` but exited 124: the 900 s `max_run_seconds` timeout, on development (PSID-1, 2,490 rows) data under machine load average about 9.6 (E0006 took about 11 min at lower load). The real sealed run on CPS-1 (15,992 rows, about 6x the rows, a heavier logit and bootstrap) cannot be expected to finish inside 900 s. The sealed att run was NOT launched; reported to the lead for a decision (contract change to max_run_seconds, or fewer reps, would both be registered amendments). The dry run spent nothing.
+
+- 2026-11-03 — Decision (lead): the ATT sealed dry run timed out (exit 124) at the 900 s
+  `max_run_seconds` on PSID-1 data under a machine load of about 9 from the sibling
+  exhibits; the real sealed cell runs on CPS-1 (about six times the rows). The seal is
+  intact (a dry run spends nothing). The cell is NOT changed — it is the selected cell
+  (AIPW, dw_psid, 500 reps) exactly — so time is raised instead: `max_run_seconds`
+  900 -> 10800, the att `wall_seconds` guardrail 900 -> 10800, and the confirmation phase's
+  `budget_seconds` 2400 -> 14400. No prediction, rule, target or cell changed; consult
+  re-recorded with this reason. Replications pass `--timeout-seconds` explicitly.

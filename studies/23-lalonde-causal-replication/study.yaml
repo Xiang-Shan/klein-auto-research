@@ -56,7 +56,7 @@ tracks:
         `goal: higher` is inert on a registered track; the contract requires a
         direction.
     guardrails:
-      wall_seconds: {max: 900}
+      wall_seconds: {max: 10800}   # was 900; see program.md 2026-11-03 (sealed CPS-1 ATT under load)
     confirmation:
       require: [sealed, replicate]
 
@@ -84,7 +84,7 @@ policy:
 # Per-run, per-phase time, and experiment-count limits are intentionally separate.
 # A bootstrap cell re-fits the propensity logit 500 times; on CPS-1 (15,992 rows)
 # that is the slowest cell, hence 900 s.
-max_run_seconds: 900
+max_run_seconds: 10800   # was 900: the sealed CPS-1 AIPW cell re-fits a logit 500 times on 16,177 rows under a loaded machine
 phases:
   - id: anchor
     description: "split-identity anchor: reproduce Table 3 columns (1)-(2) and Table 1's sizes on the development lane (P1); STOP and re-check the files if any target misses"
@@ -96,7 +96,7 @@ phases:
     max_experiments: 6          # was 4; raised after two driver crashes (E0003, E0004) spent two slots — see program.md 2026-11-03
   - id: confirmation
     description: "one sealed CPS-1 cell per track, each after its dry run: reproduction (P6) and the selected estimator (P7)"
-    budget_seconds: 2400
+    budget_seconds: 14400       # was 2400; raised with max_run_seconds (program.md 2026-11-03)
     max_experiments: 2
 
 research_questions:
