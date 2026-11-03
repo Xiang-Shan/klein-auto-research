@@ -230,8 +230,30 @@
     "path": "/home/user/wt-20/studies/20-llm-cot-contamination/data/prepared",
     "sha256": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62"
   },
+  "replications": {
+    "E0002": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.016667,
+          "evidence_id": "rep:E0002@20261103T082725Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T08:27:25.213197Z",
+          "tolerance": 0.03
+        }
+      ],
+      "track": "cot_gain"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T08:27:14.015696Z"
+  "updated_at": "2026-11-03T08:44:35.532970Z"
 }
