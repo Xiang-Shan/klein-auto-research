@@ -192,6 +192,28 @@
     "path": "/home/user/wt-21/studies/21-bloodmnist-cnn/data/prepared",
     "sha256": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d"
   },
+  "replications": {
+    "E0008": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0008@20261103T090709Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T09:07:09.560387Z",
+          "tolerance": 0.0438435
+        }
+      ],
+      "track": "primary"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "21-bloodmnist-cnn",
@@ -215,5 +237,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T09:05:19.594968Z"
+  "updated_at": "2026-11-03T09:32:22.953549Z"
 }
