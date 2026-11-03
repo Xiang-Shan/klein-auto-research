@@ -56,6 +56,10 @@
       "path": "runs/E0001/replications/20261103T065031Z.json",
       "sha256": "a4cf50f932dba9b35ae06bc7b95f3a19c24c38c7279cbed10d22f28c50c01a21"
     },
+    "rep_e0001_log": {
+      "path": "runs/E0001/replications/20261103T065031Z.log",
+      "sha256": "9f679d2f4932790d59d30c5b1c902d92af3ad5914866098b48505ded6da9b72b"
+    },
     "rep_e0006": {
       "path": "runs/E0006/replications/20261103T065104Z.json",
       "sha256": "6b9dace567fcad430213827983482dfac5d64eeda0dfe0bd340491c286ab8431"
@@ -71,6 +75,10 @@
     "results": {
       "path": "results.tsv",
       "sha256": "e2cd869f0447a4c45606ede7b8894a6735cce1b82b770a1fb2fededb251cc51e"
+    },
+    "run_e0001_log": {
+      "path": "runs/E0001/run.log",
+      "sha256": "6c2e7e175321d172915644e980f645b8d3f9b75e437adcdd55da644e0f78ea18"
     }
   },
   "claims": {
@@ -357,6 +365,181 @@
       ],
       "strength": "exploratory"
     },
+    "C22": {
+      "claim": "Replacing the PSID-1 logit with the specification without 1974 earnings, which removes all three 1974-earnings terms and adds a 1975 zero-earnings flag, moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67) and changes the common support from 1146 to 1092 men and the largest weight share from 0.135 to 0.0583; the shift belongs to that whole specification change, not to 1974 earnings alone, and the bootstrap interval [-2642.44, 2471.35] still contains the benchmark",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0007",
+        "E0002",
+        "art:att_e0007",
+        "art:att_e0002",
+        "P5"
+      ],
+      "numbers": [
+        "att_ipw",
+        "att_no_re74",
+        "ci_high_no_re74",
+        "ci_low_no_re74",
+        "gap_no_re74",
+        "n_support_no_re74",
+        "n_support_psid",
+        "name_one",
+        "share_no_re74",
+        "share_psid"
+      ],
+      "strength": "exploratory"
+    },
+    "C23": {
+      "claim": "On PSID-1 with the Dehejia-Wahba logit only AIPW lands within 1000 dollars of the experimental estimate, with gaps of +1244.09 (IPW), -1234.06 (1-NN matching) and +889.48 (AIPW); the percentile-bootstrap ranges [976.01, 4501.30], [-619.80, 3857.86] and [689.10, 4101.53] each contain 1794.34, but they hold the 260 NSW controls fixed, so they are ranges for the ATT estimate and not for the gap, the matching range is descriptive only, and no inference that an estimator recovers the benchmark rests on them",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0005",
+        "E0006",
+        "rep:E0006@20261103T065104Z",
+        "art:att_e0002",
+        "art:att_e0005",
+        "art:att_e0006",
+        "ref:abadie2008",
+        "P2",
+        "P3",
+        "P4"
+      ],
+      "numbers": [
+        "band_usd",
+        "ci_high_aipw",
+        "ci_high_ipw",
+        "ci_high_match",
+        "ci_low_aipw",
+        "ci_low_ipw",
+        "ci_low_match",
+        "experimental_att",
+        "gap_aipw",
+        "gap_ipw",
+        "gap_match",
+        "n_nsw_control",
+        "name_one"
+      ],
+      "strength": "exploratory"
+    },
+    "C24": {
+      "claim": "Treat a registered selection among estimators as a tie-break, not a ranking: AIPW won on PSID-1 at a gap of +889.48 against +1244.09 and -1234.06, an order the study's own bootstrap cannot test because it holds the experimental controls fixed and is no valid interval for matching, and only the sealed cell at -466.80 speaks for the selected estimator, once",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0005",
+        "E0006",
+        "E0009",
+        "art:att_e0002",
+        "art:att_e0005",
+        "art:att_e0006",
+        "art:att_e0009",
+        "ref:abadie2008"
+      ],
+      "numbers": [
+        "gap_aipw",
+        "gap_ipw",
+        "gap_match",
+        "gap_sealed",
+        "name_one"
+      ],
+      "strength": "exploratory"
+    },
+    "C25": {
+      "claim": "The sealed AIPW gap (-466.80) differs from its development gap (+889.48), and better CPS-1 overlap is only one candidate reason: CPS-1 puts more men on support in absolute terms (4493 against 1146) with a smaller largest weight share (0.0426 against 0.135), but a smaller fraction of its pool (4493 of 15992 against 1146 of 2490), and before weighting the trainees differ from CPS-1 more in black (standardized mean difference 2.43 against 1.48) and about as much in 1974 and 1975 earnings (-1.57 and -1.75 against -1.72 and -1.77); each lane's estimate lies inside the other's bootstrap range ([689.10, 4101.53] and [-129.17, 2835.62]), so one sealed draw cannot separate any mechanism from luck, and agreement with the benchmark does not show that selection on observables holds",
+      "class": "mechanism-interpretation",
+      "errata": [],
+      "evidence": [
+        "E0006",
+        "E0009",
+        "art:att_e0006",
+        "art:att_e0009",
+        "art:repro_cps1",
+        "art:repro_psid1",
+        "art:data_card",
+        "ref:imbens2025"
+      ],
+      "numbers": [
+        "ci_high_aipw",
+        "ci_high_sealed",
+        "ci_low_aipw",
+        "ci_low_sealed",
+        "gap_aipw",
+        "gap_sealed",
+        "n_controls_sealed",
+        "n_cps1",
+        "n_psid1",
+        "n_support_psid",
+        "name_one",
+        "share_psid",
+        "share_sealed",
+        "smd_black_cps",
+        "smd_black_psid",
+        "smd_re74_cps",
+        "smd_re74_psid",
+        "smd_re75_cps",
+        "smd_re75_psid"
+      ],
+      "strength": "exploratory"
+    },
+    "C26": {
+      "claim": "Note a's covariate list reproduces Table 2 Panel C column (4) on all three lanes (1672.20, 217.94 and 738.83 against 1672, 218 and 739), and neither all-covariates reading recovers the printed Table 3 column (2) comparison values 731 and 972 (PSID-1 795.02 or 67.28; CPS-1 793.59 or 1137.20); every printed value was transcribed from the NBER working paper alone",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0001",
+        "E0008",
+        "rep:E0001@20261103T065031Z",
+        "art:repro_psid1",
+        "art:repro_cps1",
+        "art:rep_e0001_log",
+        "art:run_e0001_log",
+        "ref:dehejia1998nber",
+        "P1",
+        "P6"
+      ],
+      "numbers": [
+        "column_four",
+        "cps1_adjusted",
+        "cps1_adjusted_published",
+        "diag_cps1_married",
+        "diag_cps1_married_u",
+        "diag_psid1_married",
+        "diag_psid1_married_u",
+        "name_one",
+        "nsw_note_a",
+        "panel_c4_cps1",
+        "panel_c4_nsw",
+        "panel_c4_psid1",
+        "psid1_adjusted",
+        "psid1_adjusted_published",
+        "table_three",
+        "table_two"
+      ],
+      "strength": "confirmed"
+    },
+    "C27": {
+      "claim": "Call an exact re-execution what it is: the same commit, data, environment and seed reproduced E0001 and E0006 with a difference of 0 on every key the records compare except the two timing fields (E0006 wall time 904.60 seconds against 639.89), E0001's record compares only its four summary keys and its table values agree through the identical table hash in the two logs, and that shows the pipeline is deterministic and says nothing about robustness to code, seed or specification",
+      "class": "research-discipline",
+      "errata": [],
+      "evidence": [
+        "rep:E0001@20261103T065031Z",
+        "rep:E0006@20261103T065104Z",
+        "art:rep_e0001",
+        "art:rep_e0006",
+        "art:rep_e0001_log",
+        "art:run_e0001_log"
+      ],
+      "numbers": [
+        "orig_wall",
+        "rep_diff",
+        "rep_wall"
+      ],
+      "strength": "exploratory"
+    },
     "C3": {
       "claim": "On PSID-1 with the Dehejia-Wahba logit only AIPW lands within 1000 dollars of the experimental estimate: the gaps are +1244.09 (IPW), -1234.06 (1-NN matching) and +889.48 (AIPW), and all three percentile-bootstrap intervals contain the benchmark 1794.34",
       "class": "empirical-description",
@@ -627,6 +810,27 @@
       "precision": 2,
       "value": 0.6
     },
+    "ci_high_aipw": {
+      "art": "att_e0006",
+      "claim": "C23",
+      "note": "AIPW dw_psid upper bound (E0006)",
+      "precision": 2,
+      "value": 4101.53
+    },
+    "ci_high_ipw": {
+      "art": "att_e0002",
+      "claim": "C23",
+      "note": "IPW dw_psid upper bound (E0002)",
+      "precision": 2,
+      "value": 4501.3
+    },
+    "ci_high_match": {
+      "art": "att_e0005",
+      "claim": "C23",
+      "note": "1-NN matching upper bound, descriptive only (E0005)",
+      "precision": 2,
+      "value": 3857.86
+    },
     "ci_high_no_re74": {
       "art": "att_e0007",
       "claim": "C4",
@@ -640,6 +844,27 @@
       "note": "percentile-bootstrap upper bound (E0009)",
       "precision": 2,
       "value": 2835.62
+    },
+    "ci_low_aipw": {
+      "art": "att_e0006",
+      "claim": "C23",
+      "note": "AIPW dw_psid lower bound (E0006)",
+      "precision": 2,
+      "value": 689.1
+    },
+    "ci_low_ipw": {
+      "art": "att_e0002",
+      "claim": "C23",
+      "note": "IPW dw_psid percentile-bootstrap lower bound (E0002)",
+      "precision": 2,
+      "value": 976.01
+    },
+    "ci_low_match": {
+      "art": "att_e0005",
+      "claim": "C23",
+      "note": "1-NN matching lower bound, descriptive only (E0005)",
+      "precision": 2,
+      "value": -619.8
     },
     "ci_low_no_re74": {
       "art": "att_e0007",
@@ -816,6 +1041,13 @@
       "precision": 0,
       "value": 4493
     },
+    "n_cps1": {
+      "art": "repro_cps1",
+      "claim": "C25",
+      "note": "CPS-1 comparison men in the file (E0008 n_cps1)",
+      "precision": 0,
+      "value": 15992
+    },
     "n_match_controls": {
       "art": "att_e0005",
       "claim": "C7",
@@ -823,12 +1055,26 @@
       "precision": 0,
       "value": 56
     },
+    "n_nsw_control": {
+      "art": "repro_psid1",
+      "claim": "C23",
+      "note": "NSW experimental controls, held fixed in every bootstrap draw",
+      "precision": 0,
+      "value": 260
+    },
     "n_psid1": {
       "art": "repro_psid1",
       "claim": "C7",
       "note": "PSID-1 comparison men in the file (Table 1 size)",
       "precision": 0,
       "value": 2490
+    },
+    "n_support_no_re74": {
+      "art": "att_e0007",
+      "claim": "C22",
+      "note": "PSID-1 comparison men on common support, no_re74 (E0007)",
+      "precision": 0,
+      "value": 1092
     },
     "n_support_psid": {
       "art": "att_e0002",
@@ -942,6 +1188,13 @@
       "precision": 3,
       "value": 0.146
     },
+    "share_no_re74": {
+      "art": "att_e0007",
+      "claim": "C22",
+      "note": "largest single odds-weight share, no_re74 (E0007)",
+      "precision": 4,
+      "value": 0.0583
+    },
     "share_psid": {
       "art": "att_e0002",
       "claim": "C7",
@@ -955,6 +1208,48 @@
       "note": "largest single odds-weight share on CPS-1 (E0009)",
       "precision": 4,
       "value": 0.0426
+    },
+    "smd_black_cps": {
+      "art": "data_card",
+      "claim": "C25",
+      "note": "pre-weighting SMD for black, NSW treated vs CPS-1",
+      "precision": 2,
+      "value": 2.43
+    },
+    "smd_black_psid": {
+      "art": "data_card",
+      "claim": "C25",
+      "note": "pre-weighting SMD for black, NSW treated vs PSID-1",
+      "precision": 2,
+      "value": 1.48
+    },
+    "smd_re74_cps": {
+      "art": "data_card",
+      "claim": "C25",
+      "note": "pre-weighting SMD for re74 vs CPS-1",
+      "precision": 2,
+      "value": -1.57
+    },
+    "smd_re74_psid": {
+      "art": "data_card",
+      "claim": "C25",
+      "note": "pre-weighting SMD for re74 vs PSID-1",
+      "precision": 2,
+      "value": -1.72
+    },
+    "smd_re75_cps": {
+      "art": "data_card",
+      "claim": "C25",
+      "note": "pre-weighting SMD for re75 vs CPS-1",
+      "precision": 2,
+      "value": -1.75
+    },
+    "smd_re75_psid": {
+      "art": "data_card",
+      "claim": "C25",
+      "note": "pre-weighting SMD for re75 vs PSID-1",
+      "precision": 2,
+      "value": -1.77
     },
     "table_three": {
       "art": "card",
