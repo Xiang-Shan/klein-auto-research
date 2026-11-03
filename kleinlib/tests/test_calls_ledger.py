@@ -243,3 +243,46 @@ def test_replay_reproduces_offline_and_requery_salts(tmp_path: Path, server: str
     assert requery["mode"] == "replicate" and requery["reproduced"] is True
     assert _Handler.calls == calls_before + 4  # salted: every call made afresh
     assert requery["calls_kept"]
+
+
+def test_a_rate_limit_is_waited_out_not_crashed(monkeypatch) -> None:
+    """Study 24's E0002 crashed on one HTTP 429 after 613 calls: the transport now backs
+    off long enough for a per-minute limit, and honours Retry-After."""
+    from kleinlib import calls
+
+    class _Limited(BaseHTTPRequestHandler):
+        hits = 0
+
+        def do_POST(self) -> None:  # noqa: N802
+            type(self).hits += 1
+            self.rfile.read(int(self.headers["Content-Length"]))
+            if type(self).hits <= 3:
+                self.send_response(429)
+                self.send_header("Retry-After", "7")
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+                return
+            data = json.dumps({"model": "m", "choices": [{"message": {"content": "ok"}}], "usage": {}}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def log_message(self, *args) -> None:
+            return
+
+    httpd = HTTPServer(("127.0.0.1", 0), _Limited)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    waits: list[float] = []
+    monkeypatch.setattr(calls.time, "sleep", waits.append)
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "sk-test")
+    for name in ("NO_PROXY", "no_proxy"):  # never route the local fixture through a proxy
+        monkeypatch.setenv(name, "127.0.0.1,localhost")
+    try:
+        out = calls.openai_chat(f"http://127.0.0.1:{httpd.server_address[1]}/v1", {"model": "m", "messages": []})
+    finally:
+        httpd.shutdown()
+    assert out["choices"][0]["message"]["content"] == "ok"
+    assert waits == [7.0, 7.0, 7.0]  # Retry-After honoured; three limits, then success
