@@ -42,7 +42,7 @@ Claim sentences, as locked:
 
 - C1 — The pure power law fitted to the six seed-mean development cells has exponent alpha 0.1304 and prefactor a 2.126; its printed bootstrap spread 0.1181 to 0.1411 is descriptive, not a calibrated interval.
 - C2 — A pure power law is not an adequate description of N=500 to 16000: the six-cell log-log fit has R² 0.7955, below the registered 0.98, because the three smallest cells are flat at 0.8296, 0.9492 and 0.8408 instead of declining.
-- C3 — The law fitted on the development cells did not predict the sealed full-pool test loss within the registered 0.20: measured 0.3959 against predicted 0.5066, a signed relative error of -0.2802 (P3 refuted).
+- C3 — The law fitted on the development cells did not predict the sealed full-pool test loss within the registered 0.20: measured 0.3959 against predicted 0.5066, a signed relative error of -0.2802 (P3 refuted). *(As locked; re-scoped by erratum E1, see the Errata appendix.)*
 - C4 — The miss runs opposite to the registered direction: the measured full-pool loss is below the law's prediction by 0.1107 nats, so the pure law was pessimistic rather than optimistic (P4 and P6 refuted), with the fit cells scored on development and the sealed cell on the official test set.
 
 **Relative-error definition.** Every -0.2802 in this file (C3, C14, ②) is the seed mean
@@ -181,7 +181,7 @@ covariate shift (WARN 1: per-image SMD +0.015) but not loss. The partition diffe
 an unquantified confound (C16). C4 is a procedural verdict on a registered rule and does not
 lean on this interpretation. Erratum E2 tags C11 with this re-scoping.
 
-- C11 — An easier test set is an unlikely explanation of the over-prediction: the sealed cell's test loss is 1.0877 times its own inner-validation loss against 1.0158 and 1.0161 for the two largest development cells, so the test partition looks slightly harder, not easier.
+- C11 — An easier test set is an unlikely explanation of the over-prediction: the sealed cell's test loss is 1.0877 times its own inner-validation loss against 1.0158 and 1.0161 for the two largest development cells, so the test partition looks slightly harder, not easier. *(As locked; re-scoped by erratum E2, see the Errata appendix.)*
 
 **Surprise 3 (expected by the card, confirmed) — the printed interval is too narrow.**
 
