@@ -253,3 +253,8 @@ Sealed att access spent, after a successful dry run (exit 0, `sealed_dryrun: 1`;
 ### Replications and confirmation close
 
 `klein replicate` E0001 (reproduction): reproduced, difference 0, tolerance 0 (exact), record runs/E0001/replications/20261103T065031Z.json. E0006 (att, AIPW PSID-1): reproduced, difference 0, tolerance 0 (exact), record runs/E0006/replications/20261103T065104Z.json. Both tracks now hold a sealed run (E0008, E0009) and a replication record. P6 refuted (Decision above), P7 supported.
+
+- 2026-11-03 — Referee round 1 returned FAIL on check 1 only: the heading of findings.md
+  §③ item 1 stated the exploratory Table 3 reading (C10) as confirmed. The lead reworded
+  that heading exactly as the referee's clearing condition proposes; no lock, erratum or
+  evidence changed. The study returns to REFEREE in a fresh context.

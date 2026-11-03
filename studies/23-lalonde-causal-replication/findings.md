@@ -225,8 +225,9 @@ selected (about 0.45); it was not.
 
 ## ③ Surprises and why
 
-**1. The paper's Table 3 column (2) is not one regression — found at METHOD, confirmed
-on both lanes as transcribed.** The registered targets were transcribed from Table 3 (scouting ledger
+**1. Table 3 column (2) appears to mix two Table 2 columns (exploratory, [C10]) — found at
+METHOD. The column-(4) half is measured on all three lanes ([C26]); the column-(5) half is
+open and single-source.** The registered targets were transcribed from Table 3 (scouting ledger
 S3). Only when the method scholar read Table 2 beside it did the mismatch show: the NSW
 adjusted value (1672 / 638) is Table 2 Panel C column (4), note a's covariates, while the
 PSID-1 (731 / 886) and CPS-1 (972 / 550) values are Panel C column (5), "all
