@@ -70,8 +70,10 @@
   "timed_out": false,
   "track": "llm",
   "transaction": {
-    "ready_at": "2026-11-03T06:51:40.167412Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T06:51:40.531213Z",
+    "evidence_commit": "56b0445ca1ca0f9d0a6849c6afa86be28b6144f8",
+    "recovered": false,
+    "status": "complete"
   },
   "usage": {
     "calls": 523.0,
