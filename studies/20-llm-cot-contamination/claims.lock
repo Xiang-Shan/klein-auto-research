@@ -16,6 +16,10 @@
       "path": "tables/contamination_E0006.tsv",
       "sha256": "f4e7072b083a10e4c654a920f41dc88dd5a7791233c340054c4a1970ea25b4a5"
     },
+    "controls": {
+      "path": "tables/synthesis_controls.tsv",
+      "sha256": "1c87eba89d1b653b9136a6d8f6405c59adcf0a26a58e08f50001d1ac86fda9d2"
+    },
     "cot_gain_E0002": {
       "path": "tables/cot_gain_E0002.tsv",
       "sha256": "066018b65f3f23cfe667aaa8a7faa562a895dbe14fce83772ea54a068cedcdc8"
@@ -27,6 +31,10 @@
     "cot_gain_E0005": {
       "path": "tables/cot_gain_E0005.tsv",
       "sha256": "24cb39ae2c5f4ba030134603294f291ddd4da6a1667df38c7f59f1f95003b735"
+    },
+    "familywise": {
+      "path": "tables/synthesis_familywise.tsv",
+      "sha256": "4a661ab4d372a81515a69b2b5324ede7c683b91d75bfdbe890f3e1580159869c"
     },
     "method_card": {
       "path": "method_card.md",
@@ -174,6 +182,66 @@
       ],
       "numbers": [],
       "strength": "confirmed"
+    },
+    "C16": {
+      "claim": "Post-hoc negative control, exploratory: re-scoring the recorded replies against golds permuted across each cell's items drops exact-match to chance, a mean of 0.0126 for the direct arm over 100 permutations of the public items, and leaves the chain-of-thought gain at 0.0033 on the public items and 0.000 on both twin blocks, so the pipeline does not manufacture a gain from mismatched answers.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0004",
+        "E0005",
+        "art:controls"
+      ],
+      "numbers": [
+        "neg_em_direct_public_mean100",
+        "neg_gain_public",
+        "neg_gain_twins",
+        "neg_permutations"
+      ],
+      "strength": "exploratory"
+    },
+    "C17": {
+      "claim": "Post-hoc positive control, exploratory: planting a gain of 0.10 by scoring a seeded set of correct direct replies as wrong was recovered exactly in all three cot_gain cells, with an interval lying wholly above zero in each (public items [0.0733, 0.15], sealed twins [0.045, 0.15]); a planted 0.05 was detected on the public items ([0.03, 0.0933]) but on neither twin block, so the twin blocks cannot resolve a gain as small as 0.05.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0004",
+        "E0005",
+        "art:controls"
+      ],
+      "numbers": [
+        "pos_ci_public",
+        "pos_ci_sealed",
+        "pos_planted_gain",
+        "pos_planted_small",
+        "pos_small_ci_public"
+      ],
+      "strength": "exploratory"
+    },
+    "C18": {
+      "claim": "With n_comparisons of 4 in the cot_gain family (P1, P2, P4, P5) and 2 in the contamination family (P3, P6), Bonferroni-level intervals at levels 0.9875 and 0.975 still exclude the registered 0.10 for every gain cell (upper ends 0.0367 public, 0.01 development twins, 0.055 sealed twins) and still fail to exclude 0.05 for either gap (upper ends 0.065 and 0.075), so the verdicts of C2, C3 and C4 stand as written.",
+      "class": "empirical-description",
+      "errata": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "art:familywise"
+      ],
+      "numbers": [
+        "fw_levels",
+        "fw_n_contamination",
+        "fw_n_cot_gain",
+        "fw_threshold_gain",
+        "fw_threshold_gap",
+        "fw_upper_gain",
+        "fw_upper_gap"
+      ],
+      "strength": "exploratory"
     },
     "C2": {
       "claim": "On 300 items of public GSM8K, chain-of-thought exceeded the registered direct prompt by +0.01 exact-match, paired item-bootstrap interval [-0.01, 0.03] (E0002); the interval excludes the registered 0.10, and the salted re-query gave -0.0067, a shift of 0.0167 inside the pre-registered 0.03 tolerance.",
@@ -461,6 +529,65 @@
       "precision": 2,
       "value": 0.98
     },
+    "fw_levels": {
+      "art": "familywise",
+      "claim": "C18",
+      "note": "Bonferroni levels 1-0.05/4 and 1-0.05/2",
+      "precision": 4,
+      "value": [
+        0.9875,
+        0.975
+      ]
+    },
+    "fw_n_contamination": {
+      "art": "familywise",
+      "claim": "C18",
+      "note": "n_comparisons, contamination family",
+      "precision": 0,
+      "value": 2
+    },
+    "fw_n_cot_gain": {
+      "art": "familywise",
+      "claim": "C18",
+      "note": "n_comparisons, cot_gain family",
+      "precision": 0,
+      "value": 4
+    },
+    "fw_threshold_gain": {
+      "art": "familywise",
+      "claim": "C18",
+      "note": "registered gain threshold",
+      "precision": 2,
+      "value": 0.1
+    },
+    "fw_threshold_gap": {
+      "art": "familywise",
+      "claim": "C18",
+      "note": "registered gap threshold",
+      "precision": 2,
+      "value": 0.05
+    },
+    "fw_upper_gain": {
+      "art": "familywise",
+      "claim": "C18",
+      "note": "family-wise upper ends: E0002, E0004, E0005",
+      "precision": 4,
+      "value": [
+        0.036667,
+        0.01,
+        0.055
+      ]
+    },
+    "fw_upper_gap": {
+      "art": "familywise",
+      "claim": "C18",
+      "note": "family-wise upper ends: E0003, E0006",
+      "precision": 3,
+      "value": [
+        0.065,
+        0.075
+      ]
+    },
     "gain_public": {
       "art": "results",
       "claim": "C2",
@@ -551,6 +678,78 @@
       "note": "twins per block",
       "precision": 0,
       "value": 200
+    },
+    "neg_em_direct_public_mean100": {
+      "art": "controls",
+      "claim": "C16",
+      "note": "negative control: direct EM against permuted golds, mean over 100 permutations, E0002 items",
+      "precision": 4,
+      "value": 0.012633
+    },
+    "neg_gain_public": {
+      "art": "controls",
+      "claim": "C16",
+      "note": "negative control gain, public items, one seeded permutation",
+      "precision": 4,
+      "value": 0.003333
+    },
+    "neg_gain_twins": {
+      "art": "controls",
+      "claim": "C16",
+      "note": "negative control gain on E0004 and E0005 (both 0.000000)",
+      "precision": 3,
+      "value": 0
+    },
+    "neg_permutations": {
+      "art": "controls",
+      "claim": "C16",
+      "note": "number of permutations averaged (NEG_REPEATS)",
+      "precision": 0,
+      "value": 100
+    },
+    "pos_ci_public": {
+      "art": "controls",
+      "claim": "C17",
+      "note": "positive control +0.10, E0002, 95% interval",
+      "precision": 4,
+      "value": [
+        0.073333,
+        0.15
+      ]
+    },
+    "pos_ci_sealed": {
+      "art": "controls",
+      "claim": "C17",
+      "note": "positive control +0.10, E0005, 95% interval",
+      "precision": 3,
+      "value": [
+        0.045,
+        0.15
+      ]
+    },
+    "pos_planted_gain": {
+      "art": "controls",
+      "claim": "C17",
+      "note": "planted gain (planted_shift)",
+      "precision": 2,
+      "value": 0.1
+    },
+    "pos_planted_small": {
+      "art": "controls",
+      "claim": "C17",
+      "note": "smaller planted gain",
+      "precision": 2,
+      "value": 0.05
+    },
+    "pos_small_ci_public": {
+      "art": "controls",
+      "claim": "C17",
+      "note": "positive control +0.05, E0002, 95% interval",
+      "precision": 4,
+      "value": [
+        0.03,
+        0.093333
+      ]
     },
     "replay_difference": {
       "art": "replay_E0002",
