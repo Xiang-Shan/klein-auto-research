@@ -1,0 +1,32 @@
+<h2>Next steps and references</h2>
+<h3>What to try next</h3>
+<ol>
+<li><strong>Decompose E0008.</strong> Three registered cells of three seeds each: E0008 minus augmentation, minus the extra steps, minus the third block. This is the only way to attribute the bundle's gain and to resolve augmentation, which E0005 left open.</li>
+<li><strong>Re-measure the keep bar at the incumbent.</strong> The item bootstrap ran on the anchor's confusion tables; rerun it on E0008's pinned tables before attempting another keep. At a headroom of 1.23 the frontier is nearly closed under the anchor's bar, and a bar measured near 0.95 is expected to be narrower.</li>
+<li><strong>Run the missing harness control</strong> (label-shuffled training through <code>train.py</code>), and a learning-rate decay at matched steps, the one recipe difference to the MedMNIST ResNet that the study never varied.</li>
+<li><strong>Measure transfer, not only fit:</strong> a patient-grouped or other-site blood-smear set, to answer the question that this image-level split cannot.</li>
+</ol>
+
+<h3>References</h3>
+<p>All rows below are verified in the method card (each read against a fetched record on 2026-11-03); none is promoted beyond that status. The last row is a url-only reference.</p>
+<ul>
+<li>Yang et al. 2023, MedMNIST v2: a large-scale lightweight benchmark for 2D and 3D biomedical image classification. <em>Scientific Data</em> 10:41. doi:10.1038/s41597-022-01721-8; arXiv:2110.14795.</li>
+<li>Acevedo et al. 2020, A dataset of microscopic peripheral blood cell images for development of automatic recognition systems. <em>Data in Brief</em> 30:105474. doi:10.1016/j.dib.2020.105474.</li>
+<li>Acevedo et al. 2019, Recognition of peripheral blood cell images using convolutional neural networks. <em>Comput. Methods Programs Biomed.</em> 180:105020. doi:10.1016/j.cmpb.2019.105020.</li>
+<li>LeCun, Bottou, Bengio and Haffner 1998, Gradient-based learning applied to document recognition. <em>Proc. IEEE</em> 86(11). doi:10.1109/5.726791.</li>
+<li>He, Zhang, Ren and Sun 2016, Deep residual learning for image recognition. CVPR 2016. doi:10.1109/CVPR.2016.90; arXiv:1512.03385.</li>
+<li>Ioffe and Szegedy 2015, Batch normalization. ICML 2015, PMLR 37. arXiv:1502.03167.</li>
+<li>Santurkar, Tsipras, Ilyas and Madry 2018, How does batch normalization help optimization? NeurIPS 2018. arXiv:1805.11604.</li>
+<li>Kingma and Ba 2015, Adam. ICLR 2015. arXiv:1412.6980.</li>
+<li>Loshchilov and Hutter 2019, Decoupled weight decay regularization. ICLR 2019. arXiv:1711.05101.</li>
+<li>Shorten and Khoshgoftaar 2019, A survey on image data augmentation for deep learning. <em>J. Big Data</em> 6:60. doi:10.1186/s40537-019-0197-0.</li>
+<li>Cohen and Welling 2016, Group equivariant convolutional networks. ICML 2016, PMLR 48. arXiv:1602.07576.</li>
+<li>Veeling, Linmans, Winkens, Cohen and Welling 2018, Rotation equivariant CNNs for digital pathology. MICCAI 2018. doi:10.1007/978-3-030-00934-2_24; arXiv:1806.03962.</li>
+<li>Bouthillier et al. 2021, Accounting for variance in machine learning benchmarks. MLSys 2021. arXiv:2103.03098.</li>
+<li>Picard 2021, Torch.manual_seed(3407) is all you need. arXiv:2109.08203 (preprint).</li>
+<li>Varoquaux and Cheplygina 2022, Machine learning for medical imaging: methodological failures and recommendations for the future. <em>npj Digit. Med.</em> 5:48. doi:10.1038/s41746-022-00592-y.</li>
+<li>Efron 1979, Bootstrap methods: another look at the jackknife. <em>Ann. Statist.</em> 7(1). doi:10.1214/aos/1176344552.</li>
+<li>Guo, Pleiss, Sun and Weinberger 2017, On calibration of modern neural networks. ICML 2017, PMLR 70. arXiv:1706.04599.</li>
+<li>Doerrich, Di Salvo, Brockmann and Ledig 2025, Rethinking model prototyping through the MedMNIST+ dataset collection. <em>Sci. Rep.</em> 15:7669. doi:10.1038/s41598-025-92156-9; arXiv:2404.15786.</li>
+<li>MedMNIST package metadata, <code>medmnist/info.py</code> (label index map, split sizes). github.com/MedMNIST/MedMNIST (url-only, read 2026-11-03).</li>
+</ul>

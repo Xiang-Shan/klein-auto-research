@@ -1,0 +1,274 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T05:51:19.684935Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T04:55:28.976992Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T05:17:54.314105Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T09:58:13.913168Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "2521cd4d51c7456c2d09203028eebd3fc88789ee1a6882e1d0ef7fb00a5a09a9",
+    "method_card.md": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee",
+    "referee_report.md": "8cf9d75a831e0ae4bfa3143406bf31e46f530ac9d5349417209c0dd4a2180555",
+    "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
+    "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
+    "study.yaml": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
+  },
+  "created_at": "2026-11-03T04:45:23.119158Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": "2026-11-03T08:56:29.855517Z",
+      "count": 1,
+      "experiment": "E0009"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "primary": "E0009"
+    },
+    "timestamp": "2026-11-03T09:59:12.901735Z"
+  },
+  "fingerprints": {
+    "data": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d",
+    "split": {
+      "development": "29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b",
+      "final_test": "90aaa686f449993dae796c2e445a9b3129c3b1a457c8dfc74d016f19dac8e80e",
+      "policy": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4"
+    },
+    "verifier": {}
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-11-03T05:51:19.684935Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "3868f4daba7aefb600ad11cfed85c9d3369bf9eaeb8e89f3f44848f832c83c41",
+        "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
+        "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
+        "study.yaml": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
+      },
+      "note": "RE-RECORD at the anchor/adaptive boundary: max_run_seconds and the wall_seconds guardrail 1800 -> 5400 (a whole 3-seed array under CPU contention); no prediction, rule, metric or floor changed",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-11-03T04:55:28.976992Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "2521cd4d51c7456c2d09203028eebd3fc88789ee1a6882e1d0ef7fb00a5a09a9"
+      },
+      "note": "delegated (program.md Roster). GO with cautions: 11 cross-split near-duplicates removed in prepare.py (audit 8/8); scope limit \u2014 the official split is image-level, not patient-grouped",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-11-03T05:17:54.314105Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee"
+      },
+      "note": "delegated (program.md Roster). Card complete (triad all true); refs verify 19 references, 0 failed",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-11-03T09:58:13.913168Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "8cf9d75a831e0ae4bfa3143406bf31e46f530ac9d5349417209c0dd4a2180555"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 9,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "adaptive": {
+      "acknowledged_at": "2026-11-03T08:34:46.771161Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "ccc3651201cde2433021b3ef78a68444ac1743b4941e294b62c665d8472b6ffb"
+    },
+    "anchor": {
+      "acknowledged_at": "2026-11-03T05:51:20.148889Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated (program.md Roster). E0001 anchor keep (macro-F1 0.719, P2 refuted), E0002 linear discard (0.690, P1 supported); floor measured (minimum_delta 0.0438; fit noise 0.047 noted); proceed to adaptive",
+      "playbook_sha256": "5d91ebeceb3ce4f259f76bc904cb7181489f3efcad1606615bb529bcae44968d"
+    }
+  },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "primary_metric 0.69032 in [0.5, 0.85] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "primary_metric 0.69032 in [0.5, 0.85] \u2192 supported",
+          "recorded_at": "2026-11-03T05:44:20.173744Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:44:20.173744Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 0.718932 >= 0.85 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 0.718932 >= 0.85 \u2192 refuted",
+          "recorded_at": "2026-11-03T05:37:53.898797Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:37:53.898797Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P3": {
+      "evidence": [
+        "E0008"
+      ],
+      "explanation": "primary_metric 0.946093333333 >= 0.93 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0008"
+          ],
+          "explanation": "primary_metric 0.946093333333 >= 0.93 \u2192 supported",
+          "recorded_at": "2026-11-03T08:33:05.216607Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:33:05.216607Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P4": {
+      "evidence": [
+        "E0009"
+      ],
+      "explanation": "primary_metric 0.946519666667 >= 0.9 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0009"
+          ],
+          "explanation": "primary_metric 0.946519666667 >= 0.9 \u2192 supported",
+          "recorded_at": "2026-11-03T09:05:19.585819Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T09:05:19.585819Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P5": {
+      "evidence": [
+        "E0009"
+      ],
+      "explanation": "val_accuracy 0.952729333333 < 0.958 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0009"
+          ],
+          "explanation": "val_accuracy 0.952729333333 < 0.958 \u2192 supported",
+          "recorded_at": "2026-11-03T09:05:19.587155Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T09:05:19.587155Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
+  "prepared_data": {
+    "path": "/home/user/wt-21/studies/21-bloodmnist-cnn/data/prepared",
+    "sha256": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d"
+  },
+  "replications": {
+    "E0008": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0008@20261103T090709Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T09:07:09.560387Z",
+          "tolerance": 0.0438435
+        }
+      ],
+      "track": "primary"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "21-bloodmnist-cnn",
+  "sweeps": {
+    "fit_noise": {
+      "registered_at": "2026-11-03T05:49:48.899039Z",
+      "rows_crash": 0,
+      "rows_ok": 3,
+      "script": "sweeps/fit_noise.py",
+      "script_sha256": "a0eff45557fa5f41ba5272578668cc95966ac52b39a1b5a10b474919eb687e5a",
+      "sidecar": "sweeps/fit_noise.sidecar.tsv",
+      "sidecar_sha256": "ad4f3cf051b691f0529c84c10e7832ca9beec87c565cb3f5cc604601f2efcb81"
+    },
+    "item_bootstrap": {
+      "registered_at": "2026-11-03T05:44:52.697782Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/item_bootstrap.py",
+      "script_sha256": "9f9d47fbc00259b4c0a78dbbeec754ff8bd795186d2e2a3366c6d411a3d85081",
+      "sidecar": "sweeps/item_bootstrap.sidecar.tsv",
+      "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
+    }
+  },
+  "updated_at": "2026-11-03T09:59:12.901762Z"
+}

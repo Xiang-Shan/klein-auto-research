@@ -1,0 +1,96 @@
+[KLEIN] seed 1/3 (KLEIN_SEED=0)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+split_fingerprint: 29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b
+step: 250 loss: 0.5951
+step: 500 loss: 0.3475
+step: 750 loss: 0.4371
+step: 1000 loss: 0.2337
+step: 1250 loss: 0.2256
+step: 1500 loss: 0.2312
+---
+primary_metric:    0.215863
+metric_name:       val_macro_f1
+metric_goal:       higher
+training_seconds:  82.6
+total_seconds:     84.6
+train_rows:        11959
+val_rows:          1709
+status:            ok
+--- aux_metrics ---
+val_accuracy: 0.246343
+val_balanced_accuracy: 0.329498
+val_macro_f1: 0.215863
+val_top5_accuracy: 0.832066
+val_mlogloss: 4.579365
+val_ece: 0.588806
+n_classes:         8
+wall_seconds:      84.555898
+steps: 1500
+seed: 0
+artifact: tables/confusion_E0003_s0.tsv
+runner_status: ok
+runner_exit_code: 0
+[KLEIN] seed 2/3 (KLEIN_SEED=1)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+split_fingerprint: 29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b
+step: 250 loss: 0.6373
+step: 500 loss: 0.4772
+step: 750 loss: 0.3042
+step: 1000 loss: 0.2730
+step: 1250 loss: 0.2938
+step: 1500 loss: 0.3359
+---
+primary_metric:    0.354057
+metric_name:       val_macro_f1
+metric_goal:       higher
+training_seconds:  36.5
+total_seconds:     38.7
+train_rows:        11959
+val_rows:          1709
+status:            ok
+--- aux_metrics ---
+val_accuracy: 0.485079
+val_balanced_accuracy: 0.425076
+val_macro_f1: 0.354057
+val_top5_accuracy: 0.983616
+val_mlogloss: 3.867893
+val_ece: 0.365610
+n_classes:         8
+wall_seconds:      38.700304
+steps: 1500
+seed: 1
+artifact: tables/confusion_E0003_s1.tsv
+runner_status: ok
+runner_exit_code: 0
+[KLEIN] seed 3/3 (KLEIN_SEED=2)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+split_fingerprint: 29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b
+step: 250 loss: 0.4347
+step: 500 loss: 0.3558
+step: 750 loss: 0.3352
+step: 1000 loss: 0.2022
+step: 1250 loss: 0.5477
+step: 1500 loss: 0.2285
+---
+primary_metric:    0.331695
+metric_name:       val_macro_f1
+metric_goal:       higher
+training_seconds:  27.8
+total_seconds:     30.1
+train_rows:        11959
+val_rows:          1709
+status:            ok
+--- aux_metrics ---
+val_accuracy: 0.369222
+val_balanced_accuracy: 0.400397
+val_macro_f1: 0.331695
+val_top5_accuracy: 0.921006
+val_mlogloss: 4.720725
+val_ece: 0.444555
+n_classes:         8
+wall_seconds:      30.073874
+steps: 1500
+seed: 2
+artifact: tables/confusion_E0003_s2.tsv
+runner_status: ok
+runner_exit_code: 0

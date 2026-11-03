@@ -1,0 +1,145 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 4206,
+      "committed": true,
+      "sha256": "2bc3486595cca0aae620e61299d523a62e2f50a1fef3122ebf7a38a63aa97771"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 3476,
+      "committed": true,
+      "sha256": "8e69fab24ac7d936405ad2d136ffaccfaf2c111da416627d353ddd85ace19520"
+    },
+    "runs/E0007/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 528,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "761532e9434696b5a1d146c13db9607cd3d66109722e6ea2b29ea0a207fc9994"
+    },
+    "runs/E0007/usage.json": {
+      "availability": "recorded",
+      "bytes": 251,
+      "committed": true,
+      "role": "usage",
+      "sha256": "f491d59c69fb628cf4196862dc7e0f8797d477ba5cd0afcfa82e9b10fbcf530b"
+    },
+    "tables/confusion_E0007_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 187,
+      "committed": true,
+      "role": "declared",
+      "sha256": "a1b2a984d093721aed6e0c1e2e76c12c3348c686beb04d0fc289cead95eedf3f"
+    },
+    "tables/confusion_E0007_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 187,
+      "committed": true,
+      "role": "declared",
+      "sha256": "ed66fdd88b56cc3937931166d8795e75e8f0efff2091ba12bc747547a4119abd"
+    },
+    "tables/confusion_E0007_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 187,
+      "committed": true,
+      "role": "declared",
+      "sha256": "c66a450341308f98314c598b809af3585ff093c040dc00b43ea0cee21c36716d"
+    }
+  },
+  "base_commit": "acc06fd3bed8bf57134e9a8457884cf806be2da5",
+  "candidate_commit": "8508e8ba0bcf24d157d0ac3115ea145bc0ff1e8f",
+  "code_patch_hash": "c485a66f44a20a6fe395ef40aab87e325c460c2f47c35f5fd7d9e49628f49d50",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.896005333333 by minimum_delta=0.0438435",
+  "description": "4,000 steps instead of 1,500 (schedule only) on the BN incumbent; did not improve track frontier 0.896005333333 by minimum_delta=0.0438435",
+  "disposition": "discard",
+  "ended_at": "2026-11-03T07:35:21.574162Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "execution": {
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "mode": "local"
+  },
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b"
+  },
+  "incumbent": "E0004",
+  "max_run_seconds": 5400.0,
+  "metric_goal": "higher",
+  "metric_name": "val_macro_f1",
+  "metrics": {
+    "n_classes": 8.0,
+    "primary_metric": 0.9240036666666667,
+    "primary_metric_max": 0.938951,
+    "primary_metric_min": 0.913746,
+    "primary_metric_std": 0.013240760413712414,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 4000.0,
+    "total_seconds": 136.06666666666666,
+    "train_rows": 11959.0,
+    "training_seconds": 133.53333333333333,
+    "val_accuracy": 0.9346596666666667,
+    "val_balanced_accuracy": 0.91859,
+    "val_ece": 0.020868333333333332,
+    "val_macro_f1": 0.9240036666666667,
+    "val_mlogloss": 0.20288333333333333,
+    "val_rows": 1709.0,
+    "val_top5_accuracy": 0.999415,
+    "wall_seconds": 136.066654
+  },
+  "phase": "adaptive",
+  "phase_budget_seconds": 10800.0,
+  "phase_experiment_limit": 6,
+  "predictions_requested": [],
+  "primary_metric": 0.9240036666666667,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T07:28:20.384189Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-11-03T07:35:21.704480Z",
+    "evidence_commit": "79a1f2aeebc4342c5a162a4358caca7118851d26",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "steps": 12000.0
+  },
+  "wall_seconds": 421.18991231100154
+}
