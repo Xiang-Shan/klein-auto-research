@@ -202,3 +202,13 @@ ATT -15.33, bootstrap 95% CI [-2642.44, 2471.35], gap -1809.67 vs 1794.34, n_con
 |gap| over the P2-P4 cells: IPW E0002 1244.09; 1-NN matching E0005 1234.06; AIPW E0006 889.48. No tie.
 
 - 2026-11-03 — Decision: by the registered rule (smallest |gap| among P2-P4; ties IPW < matching < AIPW), the estimator carried to the sealed CPS-1 cell is AIPW with spec dw_psid unchanged, selected from E0006 (gap +889.48). Recorded before any sealed access (no --final-test, no dry run has been run). Verdicts after the history repair re-read from `klein predict list`: P2 refuted, P3 supported, P4 refuted, P5 supported.
+
+### Phase confirmation slate
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | reproduction cell, sealed CPS-1 (P6): all 5 CPS-1 targets within +-1; expected to miss the adjusted value and SE (column (5) set unrecovered, H5) | 3 | 3 | 3 | 9 |
+| 2 | att cell, sealed CPS-1: AIPW dw_psid unchanged, 500 reps (P7): |gap| <= 1000 | 3 | 3 | 3 | 9 |
+| 3 | replication of E0001 and E0006 on development lanes (confirmation.require replicate) | 2 | 3 | 2 | 7 |
+
+Chosen order: dry run then sealed reproduction (P6), dry run then sealed att (P7), then replications. Both sealed cells are pre-registered; the selection was fixed at E0006 before any sealed access.
