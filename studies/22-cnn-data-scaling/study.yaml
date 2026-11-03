@@ -114,12 +114,27 @@ predictions:
     rule: {key: fit_r2, op: ">=", value: 0.98}
   - id: P3
     track: primary
-    statement: "Trained on the full 60,000 images, the seed-mean test cross-entropy is within 20 percent of the pure power law's prediction at N = 60,000 (relative error |measured - predicted| / measured <= 0.20)."
+    statement: "Trained on the full fit pool (59,992 images: 60,000 minus the 8 development near-copies removed at DATA), the seed-mean test cross-entropy is within 20 percent of the pure power law's prediction at that N (relative error |measured - predicted| / measured <= 0.20)."
     rule: {key: extrapolation_rel_error, op: abs_le, value: 0.20}
   - id: P4
     track: primary
     statement: "The measured full-data test cross-entropy is ABOVE the pure power law's prediction (signed relative error > 0: the law is optimistic)."
     rule: {key: extrapolation_rel_error, op: ">", value: 0.0}
+
+  # Registered at the METHOD gate (2026-11-03), before any cell ran: the method card's
+  # sharper priors, formed from theory and synthetic checks of lib/scaling.py only.
+  - id: P5
+    track: exponent
+    statement: "The fitted exponent alpha lies between 0.15 and 0.32 — a fixed 23,946-parameter network shows a smaller effective exponent than model-grown-with-data scaling studies report."
+    rule: {key: primary_metric, op: between, value: [0.15, 0.32]}
+  - id: P6
+    track: primary
+    statement: "The signed relative extrapolation error at the full pool lies between 0.03 and 0.25: the pure power law is optimistic, but by less than a quarter."
+    rule: {key: extrapolation_rel_error, op: between, value: [0.03, 0.25]}
+  - id: P7
+    track: primary
+    statement: "At the full pool the best inner-validation checkpoint comes late (seed-mean best_step >= 6,329, three quarters of the 8,437-step budget): the full-data cell is still compute-limited at 20 epochs."
+    rule: {key: best_step, op: ">=", value: 6329}
 
 confirmation:
   require: [sealed, replicate]

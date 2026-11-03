@@ -142,12 +142,38 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+#: Pixel-space near-copy rule (DATA gate, 2026-11-03): a held-out image whose
+#: pixel-nearest reference differs by at most this many grey levels RMS is a copy.
+#: A 64-bit dHash is too coarse for 28x28 silhouettes (56% of held-out images
+#: collided, none byte-identical); the same rule is the audit's `--pixel-rmse 4`.
+NEAR_COPY_RMSE = 4.0
+
+
+def drop_near_copies(images: np.ndarray, index: pd.DataFrame) -> tuple[np.ndarray, pd.DataFrame]:
+    """Remove development items copied from train, and test items copied from train or
+    the kept development items (the sealed run fits on both). Train is never touched."""
+    from kleinlib.neardup import pixel_rmse_min
+
+    split = index["split"].to_numpy()
+    keep = np.ones(len(index), dtype=bool)
+    reference = np.flatnonzero(split == "train")
+    for name in ("development", "test"):
+        positions = np.flatnonzero(split == name)
+        distance = pixel_rmse_min(images[positions], images[reference])
+        dropped = positions[distance <= NEAR_COPY_RMSE]
+        keep[dropped] = False
+        print(f"near-copies dropped from {name}: {len(dropped)} {sorted(index['id'].iloc[dropped].tolist())}")
+        reference = np.concatenate([reference, positions[distance > NEAR_COPY_RMSE]])
+    return images[keep], index[keep].reset_index(drop=True)
+
+
 def main() -> None:
     arrays = load_arrays(resolve_files())
     images = np.concatenate([arrays[TRAIN_IMAGES], arrays[TEST_IMAGES]]).astype(np.uint8)
     index = build_index(arrays[TRAIN_LABELS], arrays[TEST_LABELS])
     if len(index) != len(images):
         raise SystemExit("index and payload disagree on the number of items")
+    images, index = drop_near_copies(images, index)
 
     OUT.mkdir(parents=True, exist_ok=True)
     np.save(OUT / "images.npy", images, allow_pickle=False)

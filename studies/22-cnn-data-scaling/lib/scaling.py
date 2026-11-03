@@ -6,10 +6,14 @@ MEANS of the pinned development cells (one point per training-set size N), with
 resamples the seeds WITHIN each N (independently across N; 2,000 draws, a fixed
 resampling seed). Within a seed the cells' subsamples are nested
 (`lib/protocol.py`), so losses at different N of the same seed are positively
-correlated; resampling within N ignores that pairing, which for a slope makes the
-interval wider, not narrower. With 3 seeds per N the resampled mean's variance is
-(3-1)/3 of the sample variance of the mean — a known small-sample shortfall of
-the percentile bootstrap, stated rather than corrected.
+correlated; resampling within N ignores that pairing. That widens the interval
+only for the component shared along a seed's whole curve (e.g. its initialization);
+for the nested-SUBSAMPLE component the METHOD gate's synthetic checks found the
+interval can be too NARROW, so this interval is a descriptive spread, not a
+calibrated 95% interval (method_card.md §4; findings must say so). With 3 seeds per
+N the resampled mean's variance is also (3-1)/3 of the sample variance of the mean
+— a known small-sample shortfall of the percentile bootstrap, stated rather than
+corrected.
 
 ``tables/scaling_fit.tsv`` carries one row per N (``n_train, n_seeds,
 mean_val_mlogloss, std_val_mlogloss, fitted_loss``) and repeats the fit's

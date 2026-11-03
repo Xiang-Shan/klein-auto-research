@@ -75,13 +75,31 @@ state and must not be hand-edited.
 - Framework fixes reached this study before any run: one confusion table per seed, and
   the array's aux rows written by the notary (seed means + spread).
 
+## Lead decisions after the DATA/METHOD review (2026-11-03, before any cell)
+
+- DATA: the 64-bit dHash audit flagged 56% of held-out images (none byte-identical): a
+  tooling false positive on 28x28 silhouettes. Framework fix: `--pixel-rmse` (exact
+  pixel-nearest reference, RMS grey levels) and the sealed partition audited against
+  train + development (the sealed fit pool). `prepare.py` removes genuine copies at
+  <= 4 grey levels RMS: 8 development (vs train) and 5 test (vs train + kept development).
+  The sealed fit pool is therefore 59,992 (`lib/protocol.py: N_FULL`), and P3's wording
+  says so; the rule and threshold are unchanged.
+- METHOD: three sharper predictions from the method card's analysis (theory and synthetic
+  checks only, no data) are registered before any cell: P5 (alpha in [0.15, 0.32]),
+  P6 (signed extrapolation error in [0.03, 0.25]), P7 (the full-pool cell's best
+  checkpoint at or after step 6,329 of 8,437: compute-limited).
+- METHOD: `lib/scaling.py`'s claim that the seed bootstrap "errs wide" is withdrawn — the
+  synthetic checks show it can be too narrow for the nested-subsample component; the
+  printed interval is descriptive, never a calibrated 95% interval. `lib/protocol.py`'s
+  receptive-field and thread-count notes corrected (18x18 per conv3 unit; 1 thread).
+
 ## Phases and registered predictions (mirror of study.yaml)
 
 | Phase | Cells | Predictions |
 | --- | --- | --- |
 | cells | primary · N = 500, 1k, 2k, 4k, 8k, 16k (detached, 3 seeds each) | — (measurements) |
-| fit | exponent · the power-law fit | P1 — alpha in [0.10, 0.60]; P2 — fit_r2 >= 0.98 |
-| confirmation | primary · N = 60,000 on the sealed test, after its dry run | P3 — abs rel. error <= 0.20; P4 — rel. error > 0 |
+| fit | exponent · the power-law fit | P1 — alpha in [0.10, 0.60]; P2 — fit_r2 >= 0.98; P5 — alpha in [0.15, 0.32] |
+| confirmation | primary · the full pool (59,992) on the sealed test, after its dry run | P3 — abs rel. error <= 0.20; P4 — rel. error > 0; P6 — rel. error in [0.03, 0.25]; P7 — best_step >= 6,329 |
 
 ## Workflow
 

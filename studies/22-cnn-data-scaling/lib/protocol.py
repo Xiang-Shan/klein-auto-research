@@ -8,8 +8,9 @@ file is a deliberate, recorded protocol change, never part of a candidate.
 The protocol, in one paragraph
 ------------------------------
 The network is a small 3-conv CNN with global average pooling
-(:data:`ARCHITECTURE`, 23,946 parameters): two max-pool stages bring the
-receptive field over the whole 28x28 image before pooling — the recipe's
+(:data:`ARCHITECTURE`, 23,946 parameters): two max-pool stages give each conv3
+unit an 18x18-pixel receptive field (3 -> 4 -> 8 -> 10 -> 18, stride 4), averaged by
+global pooling over a 7x7 grid that tiles the image — the recipe's
 two-block variant pools globally at 14x14 after two 3x3 convolutions, which
 leaves it a bag of 6x6 local textures. Pixels are divided by 255; no
 augmentation, no normalization layer, no dropout, PyTorch's default
@@ -21,7 +22,7 @@ batch 128, for :func:`steps_for` optimizer steps (20 epochs of the 90%, at least
 :func:`eval_every` steps and at the last step; the checkpoint with the lowest
 inner loss is kept in memory and is the one that is scored. Batches are streamed
 index-shuffles (`kleinlib.torch_loop.iterate_minibatches`, war story 2) — no
-DataLoader, no TensorDataset. Torch runs on 4 threads.
+DataLoader, no TensorDataset. Torch runs on 1 thread (TORCH_THREADS).
 
 Sources of randomness (all from the one integer `KLEIN_SEED`): the subsample and
 its inner split (``numpy.random.default_rng(seed).permutation``), the minibatch
@@ -74,8 +75,9 @@ EVAL_POINTS = 40                    # eval_every = max(EVAL_EVERY_MIN, steps // 
 TORCH_THREADS = 1  # 4 is ~2x faster on a quiet machine but 15-30x slower when sibling studies train (instrument report); 1 is robust
 SCORE_BATCH = 1_000                 # items per forward pass when scoring (speed only)
 
-#: The sealed cell trains on the whole fit pool (official train = train + development).
-N_FULL = 60_000
+#: The sealed cell trains on the whole fit pool (official train = train + development):
+#: 60,000 rows minus the 8 development near-copies prepare.py removes (DATA gate).
+N_FULL = 59_992
 
 # --- the smoke budget (KLEIN_SMOKE=1 only — a shape check, never evidence) -----
 SMOKE_N_TRAIN = 300
