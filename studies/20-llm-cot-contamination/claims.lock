@@ -1,124 +1,331 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "arms": {
+      "path": "tables/synthesis_arms.tsv",
+      "sha256": "3ad6b880cec2f84ac02deae8bd22a5e23ebedcc69d4a688c7936e294f8a239b9"
+    },
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "ba11c6276cd09baec0d6570ef21ce07320dd7ef1214bfd895499d9e627c8144b"
+    },
+    "contamination_E0003": {
+      "path": "tables/contamination_E0003.tsv",
+      "sha256": "42c46b8d19fa4c200f1bb1a20e347177466a138facaf89ea1c7c43bba7f5b917"
+    },
+    "contamination_E0006": {
+      "path": "tables/contamination_E0006.tsv",
+      "sha256": "f4e7072b083a10e4c654a920f41dc88dd5a7791233c340054c4a1970ea25b4a5"
+    },
+    "cot_gain_E0002": {
+      "path": "tables/cot_gain_E0002.tsv",
+      "sha256": "066018b65f3f23cfe667aaa8a7faa562a895dbe14fce83772ea54a068cedcdc8"
+    },
+    "cot_gain_E0004": {
+      "path": "tables/cot_gain_E0004.tsv",
+      "sha256": "882681b4e2ef8bbd536141ebc848859d30875efbf4a80f51e42efac7c37974dd"
+    },
+    "cot_gain_E0005": {
+      "path": "tables/cot_gain_E0005.tsv",
+      "sha256": "24cb39ae2c5f4ba030134603294f291ddd4da6a1667df38c7f59f1f95003b735"
+    },
+    "method_card": {
+      "path": "method_card.md",
+      "sha256": "59a9f5fe65bbc851f0cb0395aad2bf7541377040fd0c2dc86f448e73a8d8412e"
+    },
+    "paired": {
+      "path": "tables/synthesis_paired.tsv",
+      "sha256": "c7be3836f4b24f5993e038331969f6f14f41f9bcda75c0febe70ae18323bebcf"
+    },
+    "quant": {
+      "path": "tables/synthesis_quantities.tsv",
+      "sha256": "2b119207e8de728c7876de15e0b0a2ff6d130f8e8431de2ce1c88f173658fecc"
+    },
+    "rep_E0002": {
+      "path": "runs/E0002/replications/20261103T082725Z.json",
+      "sha256": "980db597cd7d1e6104d650eebaa1aabc19cb685937e352179fc30dcd1b198ce7"
+    },
+    "rep_E0003": {
+      "path": "runs/E0003/replications/20261103T084446Z.json",
+      "sha256": "0da15613fd154ddc093e6fac32981b6e342d16ae2b9dba86d17b9cce010ec31a"
+    },
+    "replay_E0002": {
+      "path": "runs/E0002/replications/20261103T085311Z.json",
+      "sha256": "30ec49b1c4952ce7fe6d6b810cc09301203d8f87ce48b25b3e6ed70ac0233457"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "87b01775355a3924e9e946e114720294cc01e752b943ac22bac0bada56832938"
+    },
+    "study_yaml": {
+      "path": "study.yaml",
+      "sha256": "d1aa5eba455a7dbd3fd5155074bfcdc10426a49565eb3c03c83d56546b906f46"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "Under the registered number-only instruction, qwen-flash scored 0.95 direct exact-match on 300 items of public GSM8K (E0002), 0.985 on the development twins (E0004) and 0.97 on the sealed twins (E0005), so the RQ1 prior of a direct score between 0.55 and 0.85 is refuted; the salted re-query of the anchor scored 0.9533.",
-      "class": null,
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0002",
+        "E0004",
+        "E0005",
+        "rep:E0002@20261103T082725Z",
+        "art:aux",
+        "art:study_yaml"
+      ],
+      "numbers": [
+        "em_direct_public",
+        "em_direct_twin_dev",
+        "em_direct_twin_sealed",
+        "requery_em_direct_public",
+        "rq1_prior_range"
+      ],
+      "strength": "confirmed"
     },
     "C10": {
       "claim": "Before registering a gain threshold, check the headroom the direct arm leaves: a gain cannot exceed one minus the direct score, so at a direct score of 0.95 a registered gain of at least 0.10 was arithmetically unreachable on the public items.",
-      "class": null,
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0002",
+        "art:quant"
+      ],
+      "numbers": [
+        "em_direct_public",
+        "gain_threshold"
+      ],
       "strength": "exploratory"
     },
     "C11": {
       "claim": "Size a template-paired contamination probe to the gap it must resolve: with 50 templates the interval on the gap was 0.075 wide on the development twins and 0.105 wide on the sealed twins, so a gap of 0.05 can be neither detected nor excluded; plan on roughly four times the templates to halve the interval.",
-      "class": null,
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0003",
+        "E0006",
+        "art:quant",
+        "art:method_card"
+      ],
+      "numbers": [
+        "ci_width_gap_dev",
+        "ci_width_gap_sealed",
+        "gap_bound",
+        "n_templates"
+      ],
       "strength": "exploratory"
     },
     "C12": {
       "claim": "Treat cells that share ledger entries as one measurement: the sealed contamination cell made no new model call and re-scored the 50 original and 200 sealed chain-of-thought answers that E0003 and E0005 had already recorded, so its agreement with them is by construction; an independent check needs a salted re-query.",
-      "class": null,
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0006",
+        "E0003",
+        "E0005",
+        "art:quant"
+      ],
+      "numbers": [
+        "n_templates",
+        "n_twin_items"
+      ],
       "strength": "exploratory"
     },
     "C13": {
       "claim": "Never count a ledger replay as a replication of a model result: the offline replay of E0002 reproduced with a difference of 0 because it re-scored the same recorded answers, while the salted re-query of the same cell changed 9 of 600 item-arm scores and moved the gain by 0.0167.",
-      "class": null,
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "replay:E0002@20261103T085311Z",
+        "rep:E0002@20261103T082725Z",
+        "art:quant"
+      ],
+      "numbers": [
+        "replay_difference",
+        "requery_shift_public"
+      ],
       "strength": "exploratory"
     },
     "C14": {
       "claim": "On twin blocks, report the cluster bootstrap over templates, not McNemar's test: the four twins of one template share their wording and structure, and McNemar's p (0.125 on the development twins) treats them as independent and overstates the evidence.",
-      "class": null,
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0005",
+        "art:method_card"
+      ],
+      "numbers": [
+        "mcnemar_p_twin_dev"
+      ],
       "strength": "exploratory"
     },
     "C15": {
       "claim": "The notary adjudicated all six registered predictions \u2014 P1, P2, P4 and P5 refuted, P3 and P6 supported \u2014 and every refuted prediction carries a dated Decision line in program.md.",
-      "class": null,
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006"
+      ],
       "numbers": [],
-      "strength": "exploratory"
+      "strength": "confirmed"
     },
     "C2": {
       "claim": "On 300 items of public GSM8K, chain-of-thought exceeded the registered direct prompt by +0.01 exact-match, paired item-bootstrap interval [-0.01, 0.03] (E0002); the interval excludes the registered 0.10, and the salted re-query gave -0.0067, a shift of 0.0167 inside the pre-registered 0.03 tolerance.",
-      "class": null,
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0002",
+        "E0005",
+        "rep:E0002@20261103T082725Z",
+        "art:paired",
+        "art:cot_gain_E0002"
+      ],
+      "numbers": [
+        "ci_gain_public",
+        "gain_public",
+        "gain_threshold",
+        "requery_gain_public",
+        "requery_shift_public",
+        "tolerance_cot_gain"
+      ],
+      "strength": "confirmed"
     },
     "C3": {
       "claim": "With chain-of-thought, exact-match on the 50 template originals exceeded their development twins by 0.02 (interval over templates [-0.015, 0.06], E0003) and the sealed twins by 0.01 ([-0.04, 0.065], E0006); no measurement detected a gap, but both upper ends exceed 0.05, so a contamination gap of 0.05 is not excluded, and the salted re-query of E0003 gave -0.025.",
-      "class": null,
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0003",
+        "E0006",
+        "rep:E0003@20261103T084446Z",
+        "art:contamination_E0003",
+        "art:contamination_E0006",
+        "art:quant"
+      ],
+      "numbers": [
+        "ci_gap_dev",
+        "ci_gap_sealed",
+        "gap_bound",
+        "gap_dev",
+        "gap_sealed",
+        "n_templates",
+        "requery_gap_dev"
+      ],
+      "strength": "confirmed"
     },
     "C4": {
       "claim": "The chain-of-thought gain does not appear on fresh twins either: -0.025 exact-match on the development twins (cluster bootstrap over 50 templates [-0.065, 0.005], E0004) and 0.000 on the sealed twins ([-0.055, 0.045], E0005), both intervals excluding the registered 0.10.",
-      "class": null,
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0004",
+        "E0005",
+        "art:cot_gain_E0004",
+        "art:cot_gain_E0005"
+      ],
+      "numbers": [
+        "ci_gain_twin_dev",
+        "ci_gain_twin_sealed",
+        "gain_threshold",
+        "gain_twin_dev",
+        "gain_twin_sealed",
+        "n_templates"
+      ],
+      "strength": "confirmed"
     },
     "C5": {
       "claim": "The registered direct arm did not comply with the number-only instruction: 4 of 300 public replies were a bare number (0 of 200 on each twin block), its median output was 112.5 tokens against 243 for chain-of-thought, and chain-of-thought wrote only 1.85 times the direct arm's mean output tokens on public items (1.92 on the sealed twins), so em_gain here compares chain-of-thought with a terse chain-of-thought, not with answering without written steps.",
-      "class": null,
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0002",
+        "E0004",
+        "E0005",
+        "rep:E0002@20261103T082725Z",
+        "art:arms",
+        "art:quant"
+      ],
+      "numbers": [
+        "cot_tokens_median_public",
+        "direct_tokens_median_public",
+        "token_ratio_public",
+        "token_ratio_sealed"
+      ],
+      "strength": "confirmed"
     },
     "C6": {
       "claim": "The chain-of-thought gain is near-unmeasurable here because both arms sit at the ceiling: direct and chain-of-thought exact-match lie between 0.95 and 0.985 in every cell, so the largest gain the public cell could have shown is 0.05 (one minus 0.95), and only 9 of 300 public items (E0002) and 12 of 200 sealed twins (E0005) were discordant.",
-      "class": null,
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0002",
+        "E0004",
+        "E0005",
+        "art:paired",
+        "art:quant"
+      ],
+      "numbers": [
+        "em_direct_public",
+        "em_direct_twin_dev",
+        "headroom_public"
+      ],
       "strength": "exploratory"
     },
     "C7": {
       "claim": "The salted re-query of the development contamination cell flipped the sign of the gap, from 0.02 to -0.025, a shift of 0.045 inside the pre-registered 0.05 tolerance: 3 of 50 originals went from right to wrong and one from wrong to right, moving em_original from 0.98 to 0.94, while 7 of 200 twin scores changed.",
-      "class": null,
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0003",
+        "rep:E0003@20261103T084446Z",
+        "art:quant",
+        "ref:he2025",
+        "ref:atil2024"
+      ],
+      "numbers": [
+        "em_original_dev",
+        "gap_bound",
+        "gap_dev",
+        "gap_shift_requery_dev",
+        "requery_em_original_dev",
+        "requery_gap_dev"
+      ],
       "strength": "exploratory"
     },
     "C8": {
       "claim": "On the development twins the direct arm scored above chain-of-thought (0.985 vs 0.96, gain -0.025, E0004), and on the sealed twins the two arms tied at 0.97 (E0005); the reversal did not survive fresh instances of the same templates, which is most consistent with noise, since only 7 of 200 development twins were discordant.",
-      "class": null,
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0005",
+        "art:paired",
+        "art:arms"
+      ],
+      "numbers": [
+        "em_cot_twin_dev",
+        "em_direct_twin_dev",
+        "em_direct_twin_sealed",
+        "gain_twin_dev"
+      ],
       "strength": "exploratory"
     },
     "C9": {
       "claim": "Before reading any CoT-vs-direct gain, audit the direct arm's compliance from the ledger \u2014 the share of bare-number replies and the output tokens per item against the CoT arm \u2014 because here only 4 of 300 direct replies were bare and the CoT arm wrote only 1.85 times the direct arm's tokens, which turns the comparison into CoT versus terse CoT.",
-      "class": null,
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0002",
+        "art:arms"
+      ],
+      "numbers": [
+        "token_ratio_public"
+      ],
       "strength": "exploratory"
     }
   },
@@ -128,6 +335,277 @@
   "klein_version": "2.2.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "ci_gain_public": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0002 paired item-bootstrap 95% interval",
+      "precision": 2,
+      "value": [
+        -0.01,
+        0.03
+      ]
+    },
+    "ci_gain_twin_dev": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0004 cluster-bootstrap 95% interval",
+      "precision": 3,
+      "value": [
+        -0.065,
+        0.005
+      ]
+    },
+    "ci_gain_twin_sealed": {
+      "art": "aux",
+      "claim": "C4",
+      "note": "E0005 cluster-bootstrap 95% interval",
+      "precision": 3,
+      "value": [
+        -0.055,
+        0.045
+      ]
+    },
+    "ci_gap_dev": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0003 bootstrap-over-templates 95% interval",
+      "precision": 3,
+      "value": [
+        -0.015,
+        0.06
+      ]
+    },
+    "ci_gap_sealed": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0006 bootstrap-over-templates 95% interval",
+      "precision": 3,
+      "value": [
+        -0.04,
+        0.065
+      ]
+    },
+    "ci_width_gap_dev": {
+      "art": "quant",
+      "claim": "C11",
+      "note": "E0003 ci_high - ci_low",
+      "precision": 3,
+      "value": 0.075
+    },
+    "ci_width_gap_sealed": {
+      "art": "quant",
+      "claim": "C11",
+      "note": "E0006 ci_high - ci_low",
+      "precision": 3,
+      "value": 0.105
+    },
+    "cot_tokens_median_public": {
+      "art": "arms",
+      "claim": "C5",
+      "note": "median output tokens, CoT arm, public items",
+      "precision": 1,
+      "value": 243
+    },
+    "direct_tokens_median_public": {
+      "art": "arms",
+      "claim": "C5",
+      "note": "median output tokens, direct arm, public items",
+      "precision": 1,
+      "value": 112.5
+    },
+    "em_cot_twin_dev": {
+      "art": "aux",
+      "claim": "C8",
+      "note": "E0004 em_cot",
+      "precision": 2,
+      "value": 0.96
+    },
+    "em_direct_public": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0002 em_direct, 300 public GSM8K items",
+      "precision": 2,
+      "value": 0.95
+    },
+    "em_direct_twin_dev": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0004 em_direct, 200 development twins",
+      "precision": 3,
+      "value": 0.985
+    },
+    "em_direct_twin_sealed": {
+      "art": "aux",
+      "claim": "C1",
+      "note": "E0005 em_direct, 200 sealed twins",
+      "precision": 2,
+      "value": 0.97
+    },
+    "em_original_dev": {
+      "art": "aux",
+      "claim": "C7",
+      "note": "E0003 em_original",
+      "precision": 2,
+      "value": 0.98
+    },
+    "gain_public": {
+      "art": "results",
+      "claim": "C2",
+      "note": "E0002 em_gain (CoT minus direct, paired)",
+      "precision": 2,
+      "value": 0.01
+    },
+    "gain_threshold": {
+      "art": "study_yaml",
+      "claim": "C2",
+      "note": "P2/P4/P5 rule value",
+      "precision": 2,
+      "value": 0.1
+    },
+    "gain_twin_dev": {
+      "art": "results",
+      "claim": "C4",
+      "note": "E0004 em_gain",
+      "precision": 3,
+      "value": -0.025
+    },
+    "gain_twin_sealed": {
+      "art": "results",
+      "claim": "C4",
+      "note": "E0005 em_gain (sealed)",
+      "precision": 3,
+      "value": 0
+    },
+    "gap_bound": {
+      "art": "study_yaml",
+      "claim": "C3",
+      "note": "P3/P6 rule value; also contamination minimum_delta",
+      "precision": 2,
+      "value": 0.05
+    },
+    "gap_dev": {
+      "art": "results",
+      "claim": "C3",
+      "note": "E0003 em_gap",
+      "precision": 2,
+      "value": 0.02
+    },
+    "gap_sealed": {
+      "art": "results",
+      "claim": "C3",
+      "note": "E0006 em_gap",
+      "precision": 2,
+      "value": 0.01
+    },
+    "gap_shift_requery_dev": {
+      "art": "rep_E0003",
+      "claim": "C7",
+      "note": "|re-query - original| em_gap, E0003",
+      "precision": 3,
+      "value": 0.045
+    },
+    "headroom_public": {
+      "art": "quant",
+      "claim": "C6",
+      "note": "1 - em_direct on public items (E0002)",
+      "precision": 2,
+      "value": 0.05
+    },
+    "mcnemar_p_twin_dev": {
+      "art": "aux",
+      "claim": "C14",
+      "note": "E0004 McNemar exact p (treats twins as independent)",
+      "precision": 3,
+      "value": 0.125
+    },
+    "n_templates": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "templates per contamination cell / per twin block",
+      "precision": 0,
+      "value": 50
+    },
+    "n_twin_items": {
+      "art": "aux",
+      "claim": "C12",
+      "note": "twins per block",
+      "precision": 0,
+      "value": 200
+    },
+    "replay_difference": {
+      "art": "replay_E0002",
+      "claim": "C13",
+      "note": "offline replay of E0002: difference",
+      "precision": 0,
+      "value": 0
+    },
+    "requery_em_direct_public": {
+      "art": "rep_E0002",
+      "claim": "C1",
+      "note": "salted re-query of E0002, direct arm",
+      "precision": 4,
+      "value": 0.953333
+    },
+    "requery_em_original_dev": {
+      "art": "rep_E0003",
+      "claim": "C7",
+      "note": "re-query em_original",
+      "precision": 2,
+      "value": 0.94
+    },
+    "requery_gain_public": {
+      "art": "rep_E0002",
+      "claim": "C2",
+      "note": "salted re-query em_gain",
+      "precision": 4,
+      "value": -0.006667
+    },
+    "requery_gap_dev": {
+      "art": "rep_E0003",
+      "claim": "C3",
+      "note": "salted re-query of E0003 em_gap",
+      "precision": 3,
+      "value": -0.025
+    },
+    "requery_shift_public": {
+      "art": "rep_E0002",
+      "claim": "C2",
+      "note": "|re-query - original| em_gain",
+      "precision": 4,
+      "value": 0.016667
+    },
+    "rq1_prior_range": {
+      "art": "study_yaml",
+      "claim": "C1",
+      "note": "RQ1 prior: direct EM between 0.55 and 0.85",
+      "precision": 2,
+      "value": [
+        0.55,
+        0.85
+      ]
+    },
+    "token_ratio_public": {
+      "art": "quant",
+      "claim": "C5",
+      "note": "mean CoT / mean direct output tokens, public items",
+      "precision": 2,
+      "value": 1.851568
+    },
+    "token_ratio_sealed": {
+      "art": "quant",
+      "claim": "C5",
+      "note": "mean CoT / mean direct output tokens, sealed twins",
+      "precision": 2,
+      "value": 1.916937
+    },
+    "tolerance_cot_gain": {
+      "art": "study_yaml",
+      "claim": "C2",
+      "note": "cot_gain minimum_delta = pre-registered replication tolerance",
+      "precision": 2,
+      "value": 0.03
+    }
+  },
   "study_id": "20-llm-cot-contamination"
 }
