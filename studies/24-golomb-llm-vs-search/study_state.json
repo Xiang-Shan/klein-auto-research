@@ -81,7 +81,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 3,
+  "last_experiment": 4,
   "overrides": [],
   "phase_acknowledgements": {},
   "predictions": {
@@ -104,6 +104,46 @@
       "recorded_at": "2026-11-03T06:19:40.191507Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "primary_metric 6 >= 9 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "primary_metric 6 >= 9 \u2192 refuted",
+          "recorded_at": "2026-11-03T07:58:30.433353Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T07:58:30.433353Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P3": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "first_batch_matches 1 >= 6 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "first_batch_matches 1 >= 6 \u2192 refuted",
+          "recorded_at": "2026-11-03T07:58:30.459660Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T07:58:30.459660Z",
+      "source": "run",
+      "verdict": "refuted"
     }
   },
   "prepared_data": {
@@ -113,5 +153,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T07:03:20.307731Z"
+  "updated_at": "2026-11-03T07:58:30.479719Z"
 }
