@@ -58,6 +58,23 @@ state and must not be hand-edited.
 - Adaptive work uses train + development only. The sealed block is read once per track.
 - Gate 1 records the prepared-data SHA-256 and split-policy fingerprint.
 
+## Instrument notes (before DATA)
+
+- 50 templates from the first 56 permutation candidates; 6 skipped (5 with too few
+  well-posed twins in 0.5x-2x, 1 with an ambiguous gold answer). Every template
+  reproduces its GSM8K question byte-for-byte and its gold answer exactly.
+- Twins never reuse the original's answer (a memorized number cannot score on a twin);
+  the sealed block is disjoint from the development block by construction.
+- Identical requests are answered once: a CoT request on a twin shared by the
+  contamination and cot_gain cells is one ledger entry (temperature 0). Cells are
+  therefore not independent re-queries of each other; the salted re-query replication
+  is the independent one.
+- The sealed DRY run answers only from the ledger and writes no table, so it spends
+  nothing; it needs the development twin answers recorded first (P3, P4 run before it).
+- 2026-11-03 — Decision: CONSULT re-recorded before any run to (a) say the call and
+  token caps are per run, and (b) add scouting entry S4 (templates were written from
+  GSM8K items). No prediction, rule, track or phase changed.
+
 ## Phases and registered predictions (mirror of study.yaml)
 
 | Phase | Cells | Predictions |

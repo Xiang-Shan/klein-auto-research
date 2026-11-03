@@ -71,8 +71,8 @@ calls:
   dir: calls
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"   # any OpenAI-compatible endpoint
   model: "qwen-flash"
-  budget_calls: 6000               # a hard stop in calls (the whole study needs about 2,700)
-  budget_tokens: 4000000           # a hard stop in tokens; prices are not pinned, so no USD cap
+  budget_calls: 6000               # a hard stop in calls PER RUN (the largest cell needs about 600; the study about 2,700)
+  budget_tokens: 4000000           # a hard stop in tokens PER RUN; prices are not pinned, so no USD cap
   max_workers: 8                   # concurrent requests from chat_many
   # price: {input_per_mtok: 0.0, output_per_mtok: 0.0}   # from the provider's page, dated
   # budget_usd: 5.0
