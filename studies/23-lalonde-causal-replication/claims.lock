@@ -227,7 +227,9 @@
     "C16": {
       "claim": "Treat a registered selection among estimators whose intervals overlap as a tie-break, not a ranking: AIPW won on PSID-1 at a gap of +889.48 against +1244.09 and -1234.06, inside intervals that all contain the benchmark, and only the sealed cell at -466.80 speaks for the selected estimator, once",
       "class": "research-discipline",
-      "errata": [],
+      "errata": [
+        "E2"
+      ],
       "evidence": [
         "E0002",
         "E0005",
@@ -352,7 +354,9 @@
     "C3": {
       "claim": "On PSID-1 with the Dehejia-Wahba logit only AIPW lands within 1000 dollars of the experimental estimate: the gaps are +1244.09 (IPW), -1234.06 (1-NN matching) and +889.48 (AIPW), and all three percentile-bootstrap intervals contain the benchmark 1794.34",
       "class": "empirical-description",
-      "errata": [],
+      "errata": [
+        "E2"
+      ],
       "evidence": [
         "E0002",
         "E0005",
@@ -533,6 +537,14 @@
       ],
       "filed": "2026-11-03",
       "note": "The no_re74 cell is not a one-covariate drop. lib/lalonde.py PROPENSITY: dw_psid has re74, re75, re74sq, re75sq, u74_black; no_re74 has re75, re75sq, u75 - it removes all three 1974 terms, ADDS the 1975 zero-earnings flag u75, and the common support moves from 1146 (att_E0002.tsv) to 1092 men with the largest weight share 0.058339 against 0.134919 (att_E0007.tsv). C4's sentence attributes the whole 3038.44 -> -15.33 shift to 1974 earnings; it belongs to the whole specification change. C13's lesson (a band rule cannot discriminate a sensitivity) stands, but its 'without them' means that specification, not 1974 earnings alone. Superseded by C22. Strength unchanged (exploratory). Raised by the adversarial check of 2026-11-03."
+    },
+    "E2": {
+      "claims": [
+        "C3",
+        "C16"
+      ],
+      "filed": "2026-11-03",
+      "note": "C3's 'all three percentile-bootstrap intervals contain the benchmark 1794.34' and C16's 'inside intervals that all contain the benchmark' read the 500-draw bootstrap as inference. Findings scope item 2 and C17 say that bootstrap holds the 260 NSW controls fixed (an interval for the ATT estimate, not the gap) and that for 1-NN matching (E0005, [-619.80, 3857.86]) it is no valid confidence interval at all (ref:abadie2008). The containment is descriptive only and no conclusion that an estimator recovers the benchmark rests on it. Superseded by C23 (for C3) and C24 (for C16). Strength unchanged (exploratory). Raised by the adversarial check of 2026-11-03."
     }
   },
   "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
