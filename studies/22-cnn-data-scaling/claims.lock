@@ -46,7 +46,7 @@
     },
     "program": {
       "path": "program.md",
-      "sha256": "bbba7545cb1f1d0a97a50380e51f987ec0cdf172e48931e99f594ff3fb96cf36"
+      "sha256": "cc0a0502a74291a323906dc4419bb3837cdb52d7f5ca6fb2d451286aaf14f552"
     },
     "refs": {
       "path": "references.yaml",
