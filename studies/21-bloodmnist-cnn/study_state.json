@@ -1,0 +1,45 @@
+{
+  "acknowledgements": {},
+  "artifact_hashes": {},
+  "created_at": "2026-11-03T04:45:23.119158Z",
+  "current_phase": "adaptive-1",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "42aa1fa107e783ccb4bfff2f570587e8ddd83ad0548581022023f23b5a5536ec"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/home/user/wt-21/studies/21-bloodmnist-cnn/data/prepared",
+    "sha256": null
+  },
+  "schema_version": 3,
+  "status": "active",
+  "study_id": "21-bloodmnist-cnn",
+  "updated_at": "2026-11-03T04:45:23.119184Z"
+}

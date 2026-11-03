@@ -1,0 +1,117 @@
+schema_version: 3
+study_id: "21-bloodmnist-cnn"
+goal: "From pixel logistic regression to a small CNN: what earns a keep under a measured floor on 8-class blood-cell microscopy images (BloodMNIST, official split), and how far does a CPU-budget CNN get toward the published MedMNIST baselines?"
+domain: "medical image classification (hematology microscopy)"
+target: "label"
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "predict"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "cv"            # generic | ml-research | math | insurance | llm | cv | data-science
+# profile_doc: profiles/my-field.md   # ... or a repo-relative profile of your own
+audience: "an ML practitioner who trains small CNNs but has not had to prove an improvement is larger than its seed and item noise"
+
+task_type: "classification"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "cnn"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "train.py"]
+  mutable: ["model.py", "train.py"]
+  printed: block                # metrics are read from the final `---` block only
+  seeds: [0, 1, 2]             # one candidate = one seed array; the notary decides on the mean
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  primary:
+    mode: frontier
+    metric:
+      name: "val_macro_f1"
+      goal: "higher"
+      minimum_delta: 0          # replaced by the Phase-0 floor block (klein noise-floor) before Phase 2
+      exactness: stochastic
+      bound:
+        ideal: 1.0
+        on_infeasible: ack
+    guardrails:
+      wall_seconds: {max: 1800}
+data:
+  source: "url:https://zenodo.org/records/10519652/files/bloodmnist.npz"
+  sha256: "062023e186f537e26b3c21ea3b2614ddfc475e8a14825dfd20663bbb7e37bddc"
+  modality: "image"
+  prepared_path: "data/prepared"
+  split:
+    kind: predefined        # MedMNIST v2's official partitions: train / val (-> development) / test (sealed)
+    index: index.csv        # inside prepared_path: id, label, split
+    id_column: id
+    label_column: label
+    split_column: split
+    seed: 42                # inert: nothing is partitioned at random
+
+policy:
+  card_sections: enforce
+  realized_split: required
+  noise_floor: required
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 1800
+phases:
+  - id: anchor
+    description: "the recipe SmallCNN as the anchor (P2), the pixel-linear softmax baseline (P1), then the Phase-0 floor sweep on the anchor: an item bootstrap of the development macro-F1 (the keep bar) and seed blocks (fit noise, provenance)"
+    budget_seconds: 3600
+    max_experiments: 2
+  - id: adaptive
+    description: "one idea per seed-array candidate against the measured floor: depth / normalization, augmentation, longer schedules, width (P3 rides on one registered cell)"
+    budget_seconds: 10800
+    max_experiments: 6
+  - id: confirmation
+    description: "the incumbent once on the sealed test split, after its dry run (P4, P5)"
+    budget_seconds: 1800
+    max_experiments: 1
+
+research_questions:
+  - id: RQ1
+    question: "How much of BloodMNIST is solved by a linear softmax on raw pixels?"
+    prior: "a fair amount but far from all: macro-F1 around 0.70 (between 0.50 and 0.85). MedMNIST v2 reports auto-sklearn near 0.88 test accuracy with feature engineering; raw pixels and no features should do worse (source: knowledge, recalled; verified at METHOD)."
+  - id: RQ2
+    question: "Does the recipe's two-block CNN clear the linear baseline by more than the measured floor, and by how much?"
+    prior: "yes, by a wide margin — macro-F1 at or above 0.85 at 1,500 steps (source: uninformed beyond general experience with 28-pixel MedMNIST tasks)."
+  - id: RQ3
+    question: "Which single change earns a keep beyond the floor once the CNN is in place: normalization and depth, augmentation, or a longer schedule?"
+    prior: "augmentation and depth together reach 0.93; a longer schedule alone helps less than the floor (source: uninformed)."
+  - id: RQ4
+    question: "Does the CPU-budget incumbent hold on the sealed official test split, and does it reach MedMNIST v2's ResNet-18 (28) test accuracy of 0.958?"
+    prior: "holds within a couple of points; stays below 0.958 (about 0.65) — a 28-pixel ResNet-18 trained for 100 epochs is a stronger recipe than a few thousand CPU steps (source: knowledge, recalled; verified at METHOD)."
+
+predictions:
+  - id: P1
+    track: primary
+    statement: "A linear softmax on raw pixels (no hidden layer), trained like the anchor, scores a seed-mean development macro-F1 between 0.50 and 0.85."
+    rule: {key: primary_metric, op: between, value: [0.50, 0.85]}
+  - id: P2
+    track: primary
+    statement: "The recipe's SmallCNN (two conv blocks, width 32, 1,500 AdamW steps, batch 64) scores a seed-mean development macro-F1 of at least 0.85."
+    rule: {key: primary_metric, op: ">=", value: 0.85}
+  - id: P3
+    track: primary
+    statement: "A three-block CNN with batch normalization, trained 4,000 steps with flip / 90-degree-rotation augmentation, scores a seed-mean development macro-F1 of at least 0.93."
+    rule: {key: primary_metric, op: ">=", value: 0.93}
+  - id: P4
+    track: primary
+    statement: "The final incumbent scores a seed-mean macro-F1 of at least 0.90 on the sealed official test split."
+    rule: {key: primary_metric, op: ">=", value: 0.90}
+  - id: P5
+    track: primary
+    statement: "The final incumbent's seed-mean accuracy on the sealed test split stays below 0.958, the MedMNIST v2 ResNet-18 (28) test accuracy."
+    rule: {key: val_accuracy, op: "<", value: 0.958}
+
+confirmation:
+  require: [sealed, replicate]
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html
