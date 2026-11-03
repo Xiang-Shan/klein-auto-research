@@ -264,8 +264,8 @@ the registered prediction rules.
 - **Rosenfeld et al. 2020; Hoffmann et al. 2022; Bahri et al. 2024** (`ref:rosenfeld2020`,
   `ref:hoffmann2022`, `ref:bahri2024`): fixed-model curves saturate at a floor, so a pure
   law should be optimistic. **Not observed at this scale** — the error sign was negative
-  (C4). This does not refute the floor; it says a floor, if present, was masked by the
-  steepening.
+  (C4). This does not refute the floor; one reading is that a floor, if present, was
+  masked by the in-range steepening (C7).
 - **Alabdulmohsin et al. 2022** (`ref:alabdulmohsin2022`): judge laws by extrapolation, not
   interpolation. Matched — the sealed point is what exposed the law; R² alone would have
   refuted it without saying which way it misses.
