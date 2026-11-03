@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T07:41:51.117394Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T07:41:53.542917Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "b05281868bcb8f0255c206d071b2a9f9738e4383bf75286f518b9ec72ef03c01",
+    "method_card.md": "c9587e8479a3a59f600baaf7534529120452f5ae4eb9c848aba2161ac9a30264",
     "research_plan.md": "6ca9d03b419a29e838c135f0bc244eb36cbb18657ac37f3d87fceba5bce4b67e",
     "scouting_ledger.md": "8ef609056a75f741d8035fcf762a3e81e23fc572f1231d70fc2d124d3f150745",
     "study.yaml": "b1b7d96b292920a7ad6fb89a5e6d4f791a3d9606f18bf008aca723e428325bd0"
@@ -35,7 +40,8 @@
       "development": "90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05",
       "final_test": "c8111cbf142422f03faa13554744dca028089c362ee723f99878d9e9abd321a5",
       "policy": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -60,9 +66,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T07:41:53.542917Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "c9587e8479a3a59f600baaf7534529120452f5ae4eb9c848aba2161ac9a30264"
+      },
+      "note": "delegated. Card complete; review findings applied",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -75,5 +85,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T07:41:52.784874Z"
+  "updated_at": "2026-11-03T07:41:53.551699Z"
 }
