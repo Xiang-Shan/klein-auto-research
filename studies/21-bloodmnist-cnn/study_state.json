@@ -21,7 +21,7 @@
     "study.yaml": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
   },
   "created_at": "2026-11-03T04:45:23.119158Z",
-  "current_phase": "adaptive",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "primary": {
       "accessed_at": null,
@@ -73,6 +73,12 @@
   "last_experiment": 8,
   "overrides": [],
   "phase_acknowledgements": {
+    "adaptive": {
+      "acknowledged_at": "2026-11-03T08:34:46.771161Z",
+      "acknowledged_by": "lead-agent",
+      "note": "",
+      "playbook_sha256": "ccc3651201cde2433021b3ef78a68444ac1743b4941e294b62c665d8472b6ffb"
+    },
     "anchor": {
       "acknowledged_at": "2026-11-03T05:51:20.148889Z",
       "acknowledged_by": "lead-agent",
@@ -169,5 +175,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T08:33:05.231731Z"
+  "updated_at": "2026-11-03T08:34:46.773362Z"
 }
