@@ -54,7 +54,7 @@ SMOKE_BUDGET = {"search": 200, "llm": 30}
 
 # --- the search arm -----------------------------------------------------------
 SA_T0 = 1.0           # starting temperature, in units of "repeated differences"
-SA_COOLING = 0.98     # per evaluation
+SA_COOLING = 0.98     # per INVALID candidate (a valid candidate resets the temperature to 1.0)
 SA_T_MIN = 0.05
 SA_PATIENCE = 150     # evaluations at one target length without a valid ruler -> restart there
 P_CONFLICTED = 0.85   # move a mark that takes part in a repeated difference
@@ -171,7 +171,7 @@ def _move(marks: list[int], verdict: Verdict, rng: random.Random) -> list[int]:
 def search_pair(n: int, seed: int, limit: int, optimum: int) -> dict[str, Any]:
     """One (order, trial): the shortest valid ruler found within `limit` evaluations.
 
-    Construction: n marks at random on a ruler of length n*n (sparse enough that a few
+    Construction: both ends fixed at 0 and n*n, n-2 interior marks at random (sparse enough that a few
     moves make it valid). Then repeatedly: aim one length shorter than the best valid
     ruler (an adaptive step, doubling while successes come fast), start from the best
     with empty cells cut out, and anneal the interior marks to remove repeated

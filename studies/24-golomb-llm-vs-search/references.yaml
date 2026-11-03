@@ -1,0 +1,279 @@
+# The citations a `ref:<key>` evidence id resolves to (shape: kleinlib/references.py).
+# Written at the METHOD gate on 2026-11-03 by the method scholar. Every row was checked
+# against a primary record on that date, never quoted from memory: DOIs at Crossref
+# (title, container, volume, issue, pages, issued date, authors) with the abstract read
+# from OpenAlex where one is deposited; arXiv ids via OpenAlex's record of the
+# 10.48550/arXiv.<id> DOI plus the arxiv.org abstract page (export.arxiv.org timed
+# out from this machine); web pages by fetching the page itself. `klein refs verify
+# --record` then adds the mechanical title match (resolved_*).
+#
+# What each row is relied on FOR is in `why`. Where a row is a secondary source for a
+# fact whose primary was not located, `why` says so: that fact is cited as "per
+# <secondary>", never as if the primary had been read.
+references:
+  oeis_a003022:
+    title: "A003022: Length of shortest (or optimal) Golomb ruler with n marks"
+    authors: "OEIS Foundation (sequence entry and its editors)"
+    year: 2026
+    venue: "The On-Line Encyclopedia of Integer Sequences"
+    url: "https://oeis.org/A003022"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the entry: name, offset 2, terms a(2..28) = 1, 3, 6, 11, 17, 25, 34, 44, 55, 72, 85, 106, 127, ..., 553, 585 read off the page; a(8..13) = 34, 44, 55, 72, 85, 106 equal instance.json; comments credit a(27) to OGR-27 and a(28) to OGR-28)"
+    verified_at: "2026-11-03"
+    why: "The source of every optimum this study compares against (instance.json `optima`). OEIS records lengths, not proofs: the proofs of optimality are the exhaustive searches cited below."
+  wikipedia_golomb:
+    title: "Golomb ruler"
+    authors: "Wikipedia contributors"
+    year: 2026
+    venue: "Wikipedia, The Free Encyclopedia"
+    url: "https://en.wikipedia.org/wiki/Golomb_ruler"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the article, table of known optimal rulers)"
+    verified_at: "2026-11-03"
+    why: "SECONDARY source for three facts the card uses: (a) the table lists all known optimal rulers excluding mirror images - one each at orders 8, 9, 10, 12 and 13, two at order 11 (and 2, 4, 5 at orders 5, 6, 7, which the card re-derived by an exhaustive enumeration pinned as sweeps/toy_enumeration.py and sweeps/toy_enumeration.tsv); (b) proof credits - orders 8-11 to William Mixon (1972), 12 to J. P. Robinson (1979), 13 to Robinson (1981), 14 to Shearer (1985); the Mixon primary was NOT located, so 'optimal' at orders 8-11 rests on this row and on oeis_a003022; (c) distributed.net completion dates, OGR-24 (2004-10-13) to OGR-28 (2022-11-23). The table also prints the optimal rulers themselves, through order 28 - it is a page a language model may have read."
+  robinson1979:
+    title: "Optimum Golomb Rulers"
+    authors: "Robinson, J. P. (Crossref deposits the surname only; 'John P. Robinson' per wikipedia_golomb)"
+    year: 1979
+    venue: "IEEE Transactions on Computers C-28(12), 943-944"
+    doi: "10.1109/TC.1979.1675287"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract: 'A fast search procedure is outlined for determining the shortest ruler. For 12 marks the shortest ruler is 85 units.')"
+    verified_at: "2026-11-03"
+    why: "The primary for the sealed order 12: the shortest 12-mark ruler has length 85, established by search. P4 and P5 compare against this number."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Optimum Golomb Rulers"
+    resolved_at: "2026-11-03"
+  robinson1983:
+    title: 'Addendum to "Optimum Golomb Rulers"'
+    authors: "Robinson, J. P."
+    year: 1983
+    venue: "IEEE Transactions on Computers C-32(2), 201"
+    doi: "10.1109/TC.1983.1676205"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract: 'The optimum Golomb ruler with 13 marks has been found.')"
+    verified_at: "2026-11-03"
+    why: "The primary for the sealed order 13 (length 106). Wikipedia dates the result 1981; the addendum reporting it is dated February 1983 at Crossref."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Addendum to \"Optimum Golomb Rulers\""
+    resolved_at: "2026-11-03"
+  shearer1990:
+    title: "Some new optimum Golomb rulers"
+    authors: "Shearer, J. B."
+    year: 1990
+    venue: "IEEE Transactions on Information Theory 36(1), 183-184"
+    doi: "10.1109/18.50388"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract: 'By exhaustive computer search, the minimum length Golomb rulers ... containing 14, 15, and 16 marks are found. They are unique and of length 127, 151, and 177')"
+    verified_at: "2026-11-03"
+    why: "The textbook example of what 'optimal' costs: an exhaustive search, one order at a time, each result unique up to mirror image. Outside both lanes (orders 14-16); cited for the method, not for a lane value."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Some new optimum Golomb rulers"
+    resolved_at: "2026-11-03"
+  dollas1998:
+    title: "A new algorithm for Golomb ruler derivation and proof of the 19 mark ruler"
+    authors: "Dollas, A.; Rankin, W. T.; McCracken, D."
+    year: 1998
+    venue: "IEEE Transactions on Information Theory 44(1), 379-382"
+    doi: "10.1109/18.651068"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract: a parallel distributed algorithm used 'to prove computationally the optimality of three rulers', the last of 19 marks and size 246)"
+    verified_at: "2026-11-03"
+    why: "The step from single-machine to parallel distributed proof - the bridge to distributed.net. Outside both lanes; cited for how optimality proofs scale."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "A new algorithm for Golomb ruler derivation and proof of the 19 mark ruler"
+    resolved_at: "2026-11-03"
+  distributed_net_ogr:
+    title: "Project OGR (Optimal Golomb Rulers)"
+    authors: "distributed.net"
+    year: 2022
+    venue: "distributed.net project page (last edited 2022-11-16)"
+    url: "https://www.distributed.net/OGR"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the page: defines an OGR as 'the shortest Golomb Ruler possible for a given number of marks'; the page itself is stale and does not list stage results, which are taken from oeis_a003022 comments and wikipedia_golomb)"
+    verified_at: "2026-11-03"
+    why: "The volunteer-computing project whose stages OGR-24 to OGR-28 proved the optimal lengths at orders 24-28 (dates per wikipedia_golomb; a(27), a(28) attributions per oeis_a003022). The scale anchor for 'why optimality is hard': OGR-27 completed in 2014 and OGR-28 only in 2022 (per wikipedia_golomb)."
+  babcock1953:
+    title: "Intermodulation Interference in Radio Systems"
+    authors: "Babcock, Wallace C."
+    year: 1953
+    venue: "Bell System Technical Journal 32(1), 63-73"
+    doi: "10.1002/j.1538-7305.1953.tb01422.x"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract on choosing interference-free operating channels from a band of n consecutive channels)"
+    verified_at: "2026-11-03"
+    why: "Where the object first earned its keep: picking radio channels so that no two pairs share a frequency difference. Wikipedia credits Babcock (with Sidon, 1932) as the independent discoverer."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Intermodulation Interference in Radio Systems"
+    resolved_at: "2026-11-03"
+  bloom_golomb1977:
+    title: "Applications of numbered undirected graphs"
+    authors: "Bloom, G. S.; Golomb, S. W."
+    year: 1977
+    venue: "Proceedings of the IEEE 65(4), 562-570"
+    doi: "10.1109/PROC.1977.10517"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record: title, venue, volume, issue, pages, authors; no abstract deposited)"
+    verified_at: "2026-11-03"
+    why: "The applications survey behind the name: dollas1998's abstract calls the object a 'Golomb (1977) ruler', citing this paper. Cited for provenance only."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Applications of numbered undirected graphs"
+    resolved_at: "2026-11-03"
+  atkinson1986:
+    title: "Integer Sets with Distinct Sums and Differences and Carrier Frequency Assignments for Nonlinear Repeaters"
+    authors: "Atkinson, M.; Santoro, N.; Urrutia, J."
+    year: 1986
+    venue: "IEEE Transactions on Communications 34(6), 614-617"
+    doi: "10.1109/TCOM.1986.1096587"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract: close upper and lower bounds and 'close to optimal solutions ... for n < 100' in the third-order case)"
+    verified_at: "2026-11-03"
+    why: "The classical construction-side counterpart to the exhaustive searches: explicit near-optimal sets at sizes no exhaustive search reaches. It is why 'short' and 'shortest' are different problems."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Integer Sets with Distinct Sums and Differences and Carrier Frequency Assignments for Nonlinear Repeaters"
+    resolved_at: "2026-11-03"
+  erdos_turan1941:
+    title: "On a Problem of Sidon in Additive Number Theory, and on some Related Problems"
+    authors: "Erdos, P.; Turan, P."
+    year: 1941
+    venue: "Journal of the London Mathematical Society s1-16(4), 212-215"
+    doi: "10.1112/jlms/s1-16.4.212"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; the bound's statement read from wikipedia_sidon, not from the paper)"
+    verified_at: "2026-11-03"
+    why: "The upper bound sqrt(N) + O(N^(1/4)) on a Sidon subset of {1..N} - equivalently a lower bound of n^2 - O(n^(3/2)) on the length of an n-mark Golomb ruler (card section 2, equation 2)."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "On a Problem of Sidon in Additive Number Theory, and on some Related Problems"
+    resolved_at: "2026-11-03"
+  singer1938:
+    title: "A theorem in finite projective geometry and some applications to number theory"
+    authors: "Singer, J."
+    year: 1938
+    venue: "Transactions of the American Mathematical Society 43(3), 377-385"
+    doi: "10.1090/S0002-9947-1938-1501951-4"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract on PG(2, p^n), q = p^2n + p^n + 1 points and lines; the Sidon-set consequence read from wikipedia_sidon)"
+    verified_at: "2026-11-03"
+    why: "The matching construction: perfect difference sets of q+1 residues modulo q^2+q+1 for every prime power q, i.e. Golomb rulers of length below q^2+q+1. Shows the order of magnitude n^2 is right; it does not reach the tabulated optima at this study's orders."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "A theorem in finite projective geometry and some applications to number theory"
+    resolved_at: "2026-11-03"
+  wikipedia_sidon:
+    title: "Sidon sequence"
+    authors: "Wikipedia contributors"
+    year: 2026
+    venue: "Wikipedia, The Free Encyclopedia"
+    url: "https://en.wikipedia.org/wiki/Sidon_sequence"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the article)"
+    verified_at: "2026-11-03"
+    why: "SECONDARY source for the statements of the Sidon-set results: 'All finite Sidon sets are Golomb rulers, and vice versa'; the Erdos-Turan bound sqrt(x) + O(x^(1/4)), improved by Lindstrom (1969) and by Balogh, Furedi and Roy (2023); Singer's (1 - o(1)) sqrt(x) construction."
+  funsearch2024:
+    title: "Mathematical discoveries from program search with large language models"
+    authors: "Romera-Paredes, B.; Barekatain, M.; Novikov, A.; Balog, M.; Kumar, M. P.; Dupont, E.; Ruiz, F. J. R.; Ellenberg, J. S.; Wang, P.; Fawzi, O.; Kohli, P.; Fawzi, A."
+    year: 2024
+    venue: "Nature 625(7995), 468-475 (published online 2023-12-14)"
+    doi: "10.1038/s41586-023-06924-6"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract: an LLM paired with 'a systematic evaluator'; 'FunSearch searches for programs that describe how to solve a problem, rather than what the solution is'; cap sets and online bin packing)"
+    verified_at: "2026-11-03"
+    why: "The seminal verifier-guided LLM search. Its key design choice - evolve PROGRAMS, not objects - is exactly what this study's LLM arm does NOT do, and is the reason a FunSearch result is hard to explain by recall while this study's LLM matches are easy to."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Mathematical discoveries from program search with large language models"
+    resolved_at: "2026-11-03"
+  alphaevolve2025:
+    title: "AlphaEvolve: A coding agent for scientific and algorithmic discovery"
+    authors: "Novikov, A.; Vu, N.; Eisenberger, M.; Dupont, E.; Huang, P.-S.; Wagner, A. Z.; Shirobokov, S.; Kozlovskii, B.; Ruiz, F. J. R.; Mehrabian, A.; Kumar, M. P.; See, A.; Chaudhuri, S.; Holland, G.; Davies, A.; Nowozin, S.; Kohli, P.; Balog, M."
+    year: 2025
+    venue: "arXiv preprint (white paper), v1 2025-06-16"
+    arxiv: "2506.13131"
+    doi: "10.48550/arXiv.2506.13131"
+    verified: true
+    verified_by: "klein-method-scholar (arxiv.org abstract page: title, 18 authors, v1 date; OpenAlex record of the arXiv DOI with abstract: LLMs make direct changes to code, evolved with feedback from evaluators; a 4x4 complex matrix-multiplication procedure with 48 scalar multiplications)"
+    verified_at: "2026-11-03"
+    why: "The key follow-up: FunSearch's program-evolution loop scaled to whole codebases and many evaluators. Preprint, not peer-reviewed."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "AlphaEvolve: A coding agent for scientific and algorithmic discovery"
+    resolved_at: "2026-11-03"
+  georgiev2025:
+    title: "Mathematical exploration and discovery at scale"
+    authors: "Georgiev, B.; Gomez-Serrano, J.; Tao, T.; Wagner, A. Z."
+    year: 2025
+    venue: "arXiv preprint, v1 2025-11-03, v3 2025-12-22 (81 pages)"
+    arxiv: "2511.02864"
+    doi: "10.48550/arXiv.2511.02864"
+    verified: true
+    verified_by: "klein-method-scholar (arxiv.org abstract page: title, authors, versions; abstract: AlphaEvolve on 67 problems across analysis, combinatorics, geometry and number theory, rediscovering the best known solutions in most cases and improving several; OpenAlex record of the arXiv DOI)"
+    verified_at: "2026-11-03"
+    why: "The resonant application in this study's field: mathematicians running an LLM-plus-evaluator loop over a problem list and reporting 'rediscovered' separately from 'improved' - the same distinction this study's 'matched' vs 'found' vocabulary enforces. Preprint, not peer-reviewed; its abstract does not mention Golomb rulers."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Mathematical exploration and discovery at scale"
+    resolved_at: "2026-11-03"
+  opro2024:
+    title: "Large Language Models as Optimizers"
+    authors: "Yang, C.; Wang, X.; Lu, Y.; Liu, H.; Le, Q. V.; Zhou, D.; Chen, X."
+    year: 2024
+    venue: "ICLR 2024 (arXiv v1 2023-09-07, v3 2024-04-15)"
+    arxiv: "2309.03409"
+    doi: "10.48550/arXiv.2309.03409"
+    verified: true
+    verified_by: "klein-method-scholar (arxiv.org abstract page: 7 authors, comments field 'ICLR 2024'; abstract: each step the LLM generates new solutions from a prompt holding previous solutions with their values; OpenAlex record of the arXiv DOI)"
+    verified_at: "2026-11-03"
+    why: "The template this study's LLM arm is styled on: solutions as DATA, scored by the task, fed back into the prompt. It is NOT OPRO's loop: OPRO's meta-prompt accumulates previously generated solutions with their values, while search.py sends back only the previous batch with its verdicts and the best length so far (an OPRO-style loop with a one-batch memory). It is the regime in which recall and search are hardest to tell apart, because the output is the same kind of object a table stores."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Large Language Models as Optimizers"
+    resolved_at: "2026-11-03"
+  kirkpatrick1983:
+    title: "Optimization by Simulated Annealing"
+    authors: "Kirkpatrick, S.; Gelatt, C. D.; Vecchi, M. P."
+    year: 1983
+    venue: "Science 220(4598), 671-680"
+    doi: "10.1126/science.220.4598.671"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract on the statistical-mechanics analogy for combinatorial optimization)"
+    verified_at: "2026-11-03"
+    why: "The acceptance rule the search arm uses: accept a worse state with probability exp(-delta / T) under a cooling schedule (search.py SA_T0, SA_COOLING, SA_T_MIN)."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Optimization by Simulated Annealing"
+    resolved_at: "2026-11-03"
+  dotu2005:
+    title: "A simple Hybrid Evolutionary Algorithm for Finding Golomb Rulers"
+    authors: "Dotu, I.; Van Hentenryck, P."
+    year: 2005
+    venue: "2005 IEEE Congress on Evolutionary Computation, vol. 3, 2018-2023"
+    doi: "10.1109/CEC.2005.1554943"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; OpenAlex abstract: the algorithm 'focuses on feasibility, finding near-optimal rulers indirectly', 'quickly finds optimal rulers with up to 11 marks and isolates optimal rulers with up to 14 marks in reasonable time')"
+    verified_at: "2026-11-03"
+    why: "The classical-heuristic regime anchor: a hybrid evolutionary algorithm that focuses on feasibility (per its abstract) reaches the optima through order 11 - at a budget the abstract states in time, not in evaluations, and that is not this study's 2,000. search.py's fixed-length annealer is a design in the same feasibility-first family, NOT the same algorithm: it is a single-trajectory annealer with restarts, not an evolutionary algorithm."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "A simple Hybrid Evolutionary Algorithm for Finding Golomb Rulers"
+    resolved_at: "2026-11-03"
+  patternboost2024:
+    title: "PatternBoost: Constructions in Mathematics with a Little Help from AI"
+    authors: "Charton, F.; Ellenberg, J. S.; Wagner, A. Z.; Williamson, G."
+    year: 2024
+    venue: "arXiv preprint"
+    arxiv: "2411.00566"
+    doi: "10.48550/arXiv.2411.00566"
+    verified: true
+    verified_by: "klein-method-scholar (OpenAlex record of the arXiv DOI with abstract: alternates a classical local search with a transformer trained on the best constructions it found)"
+    verified_at: "2026-11-03"
+    why: "The design that removes the recall confound by construction: its transformer is trained from scratch on the search's own outputs, so it cannot have read a table. The contrast case for this study's pretrained proposer."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "PatternBoost: Constructions in Mathematics with a Little Help from AI"
+    resolved_at: "2026-11-03"
+  carlini2023:
+    title: "Quantifying Memorization Across Neural Language Models"
+    authors: "Carlini, N.; Ippolito, D.; Jagielski, M.; Lee, K.; Tramer, F.; Zhang, C."
+    year: 2023
+    venue: "ICLR 2023 (arXiv v1 2022-02-15)"
+    arxiv: "2202.07646"
+    doi: "10.48550/arXiv.2202.07646"
+    verified: true
+    verified_by: "klein-method-scholar (iclr.cc/virtual/2023/poster/11469 lists the paper and authors at ICLR 2023; arxiv.org abstract: three log-linear relationships - memorization grows with model capacity, with the number of times an example is duplicated, and with the context tokens in the prompt)"
+    verified_at: "2026-11-03"
+    why: "Why recall is plausible and why its rate should vary: a short integer list duplicated across Wikipedia, OEIS-linked tables and their mirrors is the kind of string memorization grows with; a fast-tier model of undisclosed capacity, prompted with a short context, may memorize less."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Quantifying Memorization Across Neural Language Models"
+    resolved_at: "2026-11-03"

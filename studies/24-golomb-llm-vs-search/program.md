@@ -34,7 +34,7 @@ state and must not be hand-edited.
 - Goal: At a matched budget of verifier calls, does an LLM proposing Golomb rulers as data match the known optimal lengths (OEIS A003022) as often as a classical randomized search, on development orders n = 8-11 and sealed orders n = 12-13 — and is a match search or recall?
 - Tracks (both registered, one per arm, each with the SAME declared verifier):
   - `search` — a classical randomized construction + local search;
-  - `llm` — `qwen-flash` proposes rulers as JSON data (never code), 10 per request, told
+  - `llm` — `qwen-flash-2025-07-28` proposes rulers as JSON data (never code), 10 per request, told
     the searcher's verdict on its previous batch.
   Both spend exactly 2,000 candidate evaluations per (order, trial); `verify.py`
   (outside the surface, hashed at METHOD) re-checks every reported ruler with exact
@@ -57,14 +57,14 @@ state and must not be hand-edited.
 
 - `instance.json` (sha256 717e406c…) is deterministic; OEIS A003022 re-checked on
   2026-11-03 (revision #130) — values unchanged; order 1's 0 is the one-mark convention.
-- Search arm: n random marks on length n^2, then repeatedly aim one below the best valid
+- Search arm: both ends fixed at 0 and n^2 with n-2 random interior marks, then repeatedly aim one below the best valid
   ruler (cut empty unit cells, anneal interior marks to remove repeated differences),
   restart from the best after 150 evaluations without a valid ruler; each candidate
   checked costs one of the 2,000 evaluations.
 - LLM arm: each proposal is one request (system + user), repeating the previous batch
   with the searcher's verdicts and the best length so far, labelled "proposal k of 200";
   each (order, trial) loop runs on a worker pool of `calls.max_workers`, with the trial
-  as the ledger's `sample`. Parsing is strict: nothing is sorted, shifted or repaired.
+  as the ledger's `sample`. Extraction is lenient (inner lists are recovered from malformed JSON) and validation is strict: nothing is sorted, shifted or repaired.
 - The searcher reads the optima only to report the first optimal proposal and its
   provisional count; they never enter a prompt or a search decision. The verifier
   re-derives everything and its number decides (tolerance 0).
@@ -79,6 +79,33 @@ state and must not be hand-edited.
   Not about rulers; recorded here because the consult gate is already recorded.
 - The LLM sealed dry run answers from the ledger only, so the LLM development cell runs
   before it; dry-run artifacts go to `sweeps/solution_DRYRUN_<track>.json`.
+
+## Lead decisions after the DATA/METHOD review (2026-11-03, before any study call)
+
+- Decision: the verifier carries its own PINNED oracle (orders per lane, trials, budget,
+  batch size, OEIS optima for orders 8-13) and refuses an instance.json that disagrees
+  with it: instance.json is gitignored and the mutable search.py runs with write access
+  before the verifier reads it (review finding). The verifier also refuses an artifact
+  whose lane differs from the partition the run was judged on — `KLEIN_EVALUATION_KIND`,
+  which `klein run-one` now passes to every declared verifier (framework fix fcadacf) and
+  `klein replicate` already did. Tested: right lane scores; wrong lane either way, a
+  missing kind, a tampered optimum and a tampered budget all exit 2.
+- Decision: pin the model to the dated snapshot `qwen-flash-2025-07-28` (served).
+- Note: `budget_calls` is a per-run cap; study-wide live calls are about 7,200 including
+  the salted re-query replication (a `--replay` never counts as one).
+- Note (METHOD gate, recorded for the referee): the scholar checked the method on TOY
+  orders 5-7 only (seeds 1-20, budget 2,000): the classical search reached the optimum in
+  20/20, 20/20 and 9/20 trials; no lane order was searched and no model was called.
+- Decision (lead, after the re-check): the verifier also requires each pair to report
+  exactly the 2,000-evaluation budget (both arms always spend it) and the artifact to name
+  the run being verified (KLEIN_EXPERIMENT_ID); its docstring now describes the pinned
+  oracle. `sweeps/verifier_checks.py` re-runs nine checks (right lane both ways, wrong lane
+  both ways, missing kind, another run's artifact, a short budget, a tampered optimum, a
+  tampered budget) — 9/9 pass. Framework fixes this study prompted: verifiers run with
+  PYTHONSAFEPATH=1 (no import from the searcher's directory) and a replication of a
+  verifier track is judged by the verifier on the replica's artifact (3ceabe8).
+- Note: the sealed dry run of the search arm re-runs the development cell outside a
+  transaction (rehearsal output, under sweeps/); it is never citable evidence.
 
 ## Phases and registered predictions (mirror of study.yaml)
 
@@ -108,7 +135,7 @@ base commit.
 - 2026-11-03 — Decision: the budget is matched in CANDIDATE EVALUATIONS (2,000 per
   order and trial), not in wall time or model calls: the LLM spends 10 per proposal.
 - 2026-11-03 — Decision: P3 asks whether matches are recall (in the first batch) — the
-  optimal rulers to order 27 are tabulated publicly, so a match is evidence of retrieval
+  optimal rulers to order 28 are tabulated publicly, so a match is evidence of retrieval
   as much as of search, and the findings must keep the two apart.
 - 2026-11-03 — Decision: `policy.realized_split: advisory` — the study has no rows; its
   sealed lane is a set of orders in instance.json, fingerprinted at the DATA gate.

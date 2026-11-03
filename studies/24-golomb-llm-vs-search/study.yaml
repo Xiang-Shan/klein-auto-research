@@ -76,8 +76,8 @@ policy:
 calls:
   dir: calls
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-  model: "qwen-flash"
-  budget_calls: 5000            # the LLM arm needs about 3,600 (200 proposals per order and trial)
+  model: "qwen-flash-2025-07-28"   # the dated snapshot, not the alias the provider can repoint
+  budget_calls: 5000            # PER RUN: the development cell needs 2,400, the sealed cell 1,200
   budget_tokens: 6000000
   max_workers: 6
 

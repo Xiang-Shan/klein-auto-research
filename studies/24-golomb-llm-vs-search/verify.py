@@ -6,22 +6,29 @@ script prints. It is outside `entrypoint.mutable`, hashed at the METHOD gate, an
 shares no code with search.py: nothing is imported from it, and the check below is
 written from the definition, not from the searcher's private checker.
 
-It is the dumbest correct thing. For every (order, trial) pair of the lane the
-artifact declares, the stored best ruler is re-checked from scratch with exact
+It is the dumbest correct thing. Its oracle — the lanes' orders, trials, the
+budget, the batch size and the OEIS optima — is PINNED below (ORACLE) and
+instance.json must agree with it field by field; the lane it scores is the one the
+notary judged the run on (KLEIN_EVALUATION_KIND), never the one the artifact
+declares; and the artifact must name the run being verified (KLEIN_EXPERIMENT_ID).
+For every (order, trial) pair of that lane the stored best ruler is re-checked from scratch with exact
 integer arithmetic — exactly n integer marks, starting at 0, strictly increasing,
 and all n(n-1)/2 pairwise differences distinct as a set — and it prints
 
   primary_metric       optima_matched: pairs whose VERIFIED best length equals the
-                       optimum of OEIS A003022 for that order (instance.json)
+                       optimum of OEIS A003022 for that order (pinned in ORACLE)
   first_batch_matches  llm arm: pairs whose stored FIRST proposal batch holds a valid
                        optimal ruler (re-checked here); 0 for the search arm
   invalid_best         pairs with no verified best ruler (none stored, or the stored
                        one fails the check while claiming no length); never matched
   pairs                pairs checked;  sealed_lane: 1 when the artifact is the sealed lane
 
-Rejects (exit 2): a malformed artifact (not JSON, wrong problem, an arm other than
-the run's track, orders that are not the lane's, a missing or repeated (order,
-trial) pair, more evaluations than the budget, an llm first batch that is not
+Rejects (exit 2): an instance.json that disagrees with ORACLE; a missing or unknown
+KLEIN_EVALUATION_KIND; an artifact whose lane is not the run's partition or whose
+experiment id is not the run's; a malformed artifact (not JSON, wrong problem, an
+arm other than the run's track, orders that are not the lane's, a missing or
+repeated (order, trial) pair, a pair that did not spend exactly the budget — both
+arms always spend all of it — an llm first batch that is not
 exactly llm_batch entries); a claimed `best_length` that differs from the verified
 one (including a length claimed for a ruler that fails the check); a first-batch
 ruler that is valid and shorter than the stored best (the searcher lost its best);
@@ -40,6 +47,46 @@ from pathlib import Path
 from kleinlib.eval import evaluate_scalar
 
 INSTANCE = Path(__file__).resolve().parent / "data" / "prepared" / "instance.json"
+
+#: The oracle, PINNED in this file (hashed at the METHOD gate), never read from a
+#: file the searcher could rewrite: instance.json is gitignored and sits where the
+#: mutable search.py has just run with write access. instance.json must agree with
+#: these values exactly or nothing is scored (found at the DATA gate's review).
+#: Optima: OEIS A003022 a(8..13), revision #130 (Oct 28 2026), checked 2026-11-03.
+ORACLE = {
+    "development_orders": [8, 9, 10, 11],
+    "sealed_orders": [12, 13],
+    "trials": 3,
+    "budget_evaluations": 2000,
+    "llm_batch": 10,
+    "optima": {"8": 34, "9": 44, "10": 55, "11": 72, "12": 85, "13": 106},
+}
+
+#: Which lane a run may be scored on is decided by the partition the notary judged
+#: it on (KLEIN_EVALUATION_KIND, set by `klein run-one` and `klein replicate`), never
+#: by the lane the artifact declares for itself.
+LANE_FOR_KIND = {"development": "development", "final_test": "sealed"}
+
+
+def pinned_instance(instance: dict) -> dict:
+    """The oracle, after checking instance.json agrees with it field by field."""
+    for key, value in ORACLE.items():
+        found = instance.get(key)
+        if key == "optima":
+            found = {order: (instance.get("optima") or {}).get(order) for order in value}
+        if found != value:
+            raise Rejected(f"instance.json {key} = {found!r} disagrees with the verifier's pinned {value!r}")
+    return dict(ORACLE)
+
+
+def expected_lane() -> str:
+    kind = os.environ.get("KLEIN_EVALUATION_KIND")
+    if kind not in LANE_FOR_KIND:
+        raise Rejected(
+            f"KLEIN_EVALUATION_KIND={kind!r}: the verifier must be told the partition the run was "
+            "judged on (run it through `klein run-one` or `klein replicate`)"
+        )
+    return LANE_FOR_KIND[kind]
 
 
 class Rejected(Exception):
@@ -81,9 +128,17 @@ def check(payload: object, instance: dict, track: str | None) -> tuple[int, dict
         raise Rejected(f"unknown arm {arm!r}")
     if track and track != arm:
         raise Rejected(f"the artifact is from arm {arm!r} but the run's track is {track!r}")
+    run = os.environ.get("KLEIN_EXPERIMENT_ID")
+    if run and payload.get("experiment") != run:
+        raise Rejected(f"the artifact names experiment {payload.get('experiment')!r}, not the run {run!r}")
     lane = payload.get("lane")
     if lane not in ("development", "sealed"):
         raise Rejected(f"unknown lane {lane!r}")
+    if lane != expected_lane():
+        raise Rejected(
+            f"the artifact declares the {lane} lane but the run was judged on the "
+            f"{expected_lane()} partition (KLEIN_EVALUATION_KIND)"
+        )
     orders = instance[f"{lane}_orders"]
     if payload.get("orders") != orders:
         raise Rejected(f"orders {payload.get('orders')!r} are not the {lane} orders {orders}")
@@ -108,8 +163,11 @@ def check(payload: object, instance: dict, track: str | None) -> tuple[int, dict
             raise Rejected(f"pair ({order}, {trial}) appears twice")
         seen.add((order, trial))
         evaluations = pair.get("evaluations")
-        if not is_int(evaluations) or not 0 <= evaluations <= budget:
-            raise Rejected(f"pair ({order}, {trial}): evaluations {evaluations!r} outside 0..{budget}")
+        if not is_int(evaluations) or evaluations != budget:
+            raise Rejected(
+                f"pair ({order}, {trial}): evaluations {evaluations!r} — both arms spend exactly "
+                f"the budget of {budget} candidate evaluations per pair"
+            )
         optimum = optima[str(order)]
 
         claimed = pair.get("best_length")
@@ -164,13 +222,16 @@ def main() -> None:
     path = os.environ.get("KLEIN_ARTIFACT")
     if not path:
         raise SystemExit("verify.py is run by `klein run-one`, which sets KLEIN_ARTIFACT")
-    instance = json.loads(INSTANCE.read_text(encoding="utf-8"))
     try:
+        try:
+            instance = json.loads(INSTANCE.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise Rejected(f"instance.json is not readable JSON: {exc}") from exc
         try:
             payload = json.loads(Path(path).read_text(encoding="utf-8"))
         except (OSError, ValueError) as exc:
             raise Rejected(f"the artifact is not readable JSON: {exc}") from exc
-        matched, extra = check(payload, instance, os.environ.get("KLEIN_TRACK") or None)
+        matched, extra = check(payload, pinned_instance(instance), os.environ.get("KLEIN_TRACK") or None)
     except Rejected as exc:
         print(f"REJECTED: {exc}")
         sys.exit(2)
