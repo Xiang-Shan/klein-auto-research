@@ -263,3 +263,27 @@ def test_item_metrology() -> None:
     assert resample_spread([0.61, 0.63, 0.6]).block_key == "fit_noise"
     decomposition = seed_item_variance(np.vstack([a, b, a]))
     assert decomposition["items"] == 12 and decomposition["var_seed_means"] >= 0
+
+
+def test_seed_arrays_pin_one_table_per_seed(tmp_path, monkeypatch) -> None:
+    """Study 21's METHOD gate found it: every seed of a seed array wrote the same
+    confusion table, so only the last seed's survived to be pinned."""
+    import numpy as np
+
+    from kleinlib.eval_items import evaluate_items
+    from kleinlib.eval_multiclass import evaluate_multiclass
+
+    y = np.array([0, 1, 2, 0, 1, 2])
+    proba = np.eye(3)[[0, 1, 2, 0, 2, 1]] * 0.8 + 0.2 / 3
+    for seed in ("0", "1"):
+        monkeypatch.setenv("KLEIN_SEED", seed)
+        evaluate_multiclass(y, proba, exp_id="E0001", metric_name="val_macro_f1", study_dir=tmp_path)
+        import pandas as pd
+
+        evaluate_items(pd.DataFrame({"item_id": ["a", "b"], "score": [1, 0]}), exp_id="E0001",
+                       metric_name="exact_match", study_dir=tmp_path)
+    names = sorted(p.name for p in (tmp_path / "tables").iterdir())
+    assert names == ["confusion_E0001_s0.tsv", "confusion_E0001_s1.tsv", "items_E0001_s0.tsv", "items_E0001_s1.tsv"]
+    monkeypatch.delenv("KLEIN_SEED")
+    evaluate_multiclass(y, proba, exp_id="E0002", metric_name="val_macro_f1", study_dir=tmp_path)
+    assert (tmp_path / "tables" / "confusion_E0002.tsv").is_file()  # no seed array: name unchanged

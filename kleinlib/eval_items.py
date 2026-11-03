@@ -25,6 +25,7 @@ name is allowed with an explicit ``metric_goal`` (a custom judged score).
 from __future__ import annotations
 
 import math
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -158,7 +159,9 @@ def evaluate_items(
     writing = study_dir is not None and not _smoke_mode()
     table_rel: str | None = None
     if writing:
-        table_rel = f"tables/{table_name or f'items_{exp_id}'}.tsv"
+        seed = os.environ.get("KLEIN_SEED")  # a seed array pins one table per seed
+        suffix = f"_s{seed}" if seed is not None else ""
+        table_rel = f"tables/{table_name or f'items_{exp_id}'}{suffix}.tsv"
         path = Path(study_dir) / table_rel
         path.parent.mkdir(parents=True, exist_ok=True)
         keep = ["item_id", "score"] + [
