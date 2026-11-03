@@ -103,25 +103,45 @@ def openai_chat(base_url: str, payload: Mapping[str, Any], *, timeout: float = 1
         },
         method="POST",
     )
-    delay = 2.0
-    for attempt in range(4):
+    # A rate limit is a property of the provider's minute, not of the request: three
+    # retries over 14 s let one 429 crash a 2,400-call run (study 24, E0002). Back off
+    # exponentially to a 60 s cap over RETRY_ATTEMPTS tries (about three minutes in
+    # all), honouring a numeric Retry-After header when the server sends one.
+    delay = RETRY_BASE_SECONDS
+    for attempt in range(RETRY_ATTEMPTS):
+        last = attempt == RETRY_ATTEMPTS - 1
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
                 return json.loads(response.read().decode("utf-8"))
         except urllib.error.HTTPError as exc:
-            if exc.code in (429, 500, 502, 503, 504) and attempt < 3:
-                time.sleep(delay)
-                delay *= 2
+            if exc.code in (429, 500, 502, 503, 504) and not last:
+                time.sleep(_retry_after(exc, delay))
+                delay = min(delay * 2, RETRY_CAP_SECONDS)
                 continue
             detail = exc.read().decode("utf-8", errors="replace")[:500]
             raise RuntimeError(f"model endpoint returned HTTP {exc.code}: {detail}") from exc
         except urllib.error.URLError as exc:
-            if attempt < 3:
+            if not last:
                 time.sleep(delay)
-                delay *= 2
+                delay = min(delay * 2, RETRY_CAP_SECONDS)
                 continue
             raise RuntimeError(f"model endpoint unreachable: {exc.reason}") from exc
     raise RuntimeError("model endpoint: retries exhausted")  # pragma: no cover
+
+
+#: Transport retry schedule (see :func:`openai_chat`).
+RETRY_ATTEMPTS = 8
+RETRY_BASE_SECONDS = 2.0
+RETRY_CAP_SECONDS = 60.0
+
+
+def _retry_after(exc: urllib.error.HTTPError, fallback: float) -> float:
+    """Seconds to wait before the next attempt: a numeric Retry-After (capped), else *fallback*."""
+    header = exc.headers.get("Retry-After") if exc.headers is not None else None
+    try:
+        return min(max(float(header), 0.0), 2 * RETRY_CAP_SECONDS) if header is not None else fallback
+    except ValueError:
+        return fallback
 
 
 def _read_shard(path: Path) -> list[dict[str, Any]]:
