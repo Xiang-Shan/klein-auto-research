@@ -113,7 +113,14 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase anchor slate
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | Reproduction cell on the development lane as committed (Table 3 cols (1)-(2) + Table 1 sizes, plus never-counted diagnostic rows): 0 targets missed (P1) | 3 | 3 | 3 | 9 |
+| 2 | Same cell with a HC-robust standard-error formula for the SE targets: only if 1 misses on SEs other than PSID-1 adjusted | 2 | 3 | 2 | 7 |
+| 3 | Re-hash the three pinned files against the NBER page: only if 1 misses on a count or an unadjusted value | 1 | 3 | 2 | 6 |
+| 4 | att cell (IPW, PSID-1) ahead of the anchor | 3 | 2 | 1 | 6 |
+
+Chosen: #1 -- the anchor is the phase's single pre-registered cell (max_experiments 1); 2-3 are contingent follow-ups that the STOP rule forbids anyway, and 4 belongs to the estimators phase.
+
