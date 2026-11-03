@@ -157,3 +157,19 @@ Registered track: the candidates are cells, not ideas to rank away; both are run
 | 2 | llm arm (qwen-flash-2025-07-28), orders 8-11 x 3 trials, 200 x 10 proposals; tests P2 (>= 9/12) and P3 (first-batch matches >= 6) | 3 | 3 | 3 | 9 |
 
 Chosen: both, in order E0001 (search) then E0002 (llm). Mirrored into playbook.md.
+
+## Development phase results (2026-11-03)
+
+- E0001 (search, measured): verifier optima_matched = 0/12, first_batch_matches 0, invalid_best 0.
+  Best verified length vs OEIS optimum: n=8 41/38/40 vs 34; n=9 56/54/56 vs 44; n=10 80/83/77 vs 55;
+  n=11 111/105/106 vs 72 (trials 0/1/2). P1 supported (0 <= 6).
+  Note: the searcher stayed 4-7 marks above the optimum even at n=8, far from the METHOD-gate toy result
+  (orders 5-7 reached optima 20/20); the gap grows with order. Not a bug claim; flagged for the referee.
+- E0002 (llm): CRASH at 613 of ~2,400 calls (calls/E0002-000.jsonl.gz): the endpoint returned HTTP 429
+  ("exceeded your current request limit") under the max_workers pool; the exception propagated and no
+  artifact or verifier block exists (metric NA). 613 calls, 585,586 tokens (387,966 in / 197,620 out).
+  Crash class: provider rate limit, not a code bug. Per instructions, NOT retried. P2 and P3 remain open.
+- Phase max_experiments (2) is exhausted; an LLM re-run needs the lead's decision (lower calls.max_workers
+  or a retry/backoff in search.py, plus a new experiment allowance).
+- Decision: no prediction was refuted in this phase (P1 supported; P2, P3 open after the crash), so no
+  refutation Decision line is owed.
