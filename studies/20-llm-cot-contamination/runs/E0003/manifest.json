@@ -108,8 +108,10 @@
   "timed_out": false,
   "track": "contamination",
   "transaction": {
-    "ready_at": "2026-11-03T08:08:33.179000Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T08:08:33.464341Z",
+    "evidence_commit": "09259f0e7a5d5d07e81e8f9c08ba27d9a28bfb74",
+    "recovered": false,
+    "status": "complete"
   },
   "usage": {
     "calls": 250.0,
