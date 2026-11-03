@@ -242,8 +242,30 @@
     "path": "/home/user/klein-auto-research/studies/23-lalonde-causal-replication/data/prepared/prepared.csv",
     "sha256": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a"
   },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20261103T065031Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T06:50:31.466631Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T06:49:48.847671Z"
+  "updated_at": "2026-11-03T06:50:50.468978Z"
 }
