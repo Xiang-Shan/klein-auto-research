@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T07:41:45.666856Z"
+      "timestamp": "2026-11-03T07:57:30.268927Z"
     },
     "data": {
       "by": "lead-agent",
@@ -18,7 +18,7 @@
     "method_card.md": "59a9f5fe65bbc851f0cb0395aad2bf7541377040fd0c2dc86f448e73a8d8412e",
     "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
     "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
-    "study.yaml": "fb65806975ed3af9db6fe5f3cec0717b2bc0f591b59393942e326ba25a6dcf57"
+    "study.yaml": "d1aa5eba455a7dbd3fd5155074bfcdc10426a49565eb3c03c83d56546b906f46"
   },
   "created_at": "2026-11-03T04:53:53.769673Z",
   "current_phase": "anchor",
@@ -50,15 +50,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T07:41:45.666856Z",
+      "acknowledged_at": "2026-11-03T07:57:30.268927Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "a63cc630e3bc177b3d1e1a8b98f635b128f8c0cd6a1a33e7754bb5aee47f10c9",
+        "program.md": "afaa22aa4ecd6acc19d9a90805ba8b8ab9ccf4f743d99cf3a898cbc9cd69315e",
         "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
         "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
-        "study.yaml": "fb65806975ed3af9db6fe5f3cec0717b2bc0f591b59393942e326ba25a6dcf57"
+        "study.yaml": "d1aa5eba455a7dbd3fd5155074bfcdc10426a49565eb3c03c83d56546b906f46"
       },
-      "note": "RE-RECORD before any study call: minimum_delta = pre-registered replication tolerances (0.03 / 0.05); twin sampler fixed (log-uniform, degeneracy guards, 7 skipped); no prediction or rule changed",
+      "note": "RE-RECORD: E0001 crashed on a provider rate limit; calls.max_workers 8 -> 2, anchor max_experiments 1 -> 2, budget_seconds 3600 -> 7200; no prediction, rule, prompt or cell changed",
       "status": "recorded"
     },
     "data": {
@@ -98,5 +98,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T07:56:18.235695Z"
+  "updated_at": "2026-11-03T07:57:30.278337Z"
 }
