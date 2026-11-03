@@ -32,6 +32,10 @@
       "path": "tables/per_class.tsv",
       "sha256": "6f5cc6312fcbb314c306e62204931aad6fc2a562912d3eff14c51a3ab8baafd7"
     },
+    "per_class_noise": {
+      "path": "tables/per_class_noise.tsv",
+      "sha256": "ecfd0be8a742bf3ce06f453bc120f686fd23f7392316a089ba9fc848262ea284"
+    },
     "rep_E0008": {
       "path": "runs/E0008/replications/20261103T090709Z.json",
       "sha256": "358c81915ab43e9807c1be7c045eb8bb3f05aaa4638f2a06fbde79b2a8328e66"
@@ -86,7 +90,7 @@
     },
     "synthesis_script": {
       "path": "tables/synthesis.py",
-      "sha256": "74c511f3e21dd1dc60762ad29ee1e86b6d973db234778d7d38d90f216beca26f"
+      "sha256": "c60a6dfe72558d236db18ed979c65e32970ada9d0d6a8c8d062b0321aa4eead7"
     },
     "usage_E0009": {
       "path": "runs/E0009/usage.json",
