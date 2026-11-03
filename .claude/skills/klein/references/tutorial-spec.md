@@ -169,7 +169,16 @@ bundled builder above is the route of record.
 
 Pull from `figures/` (produced by `figures/make_figures.py`, which must re-render
 byte-identically — the referee checks), matched to the problem by the profile's
-figure sets (`references/profiles/<profile>.md` §4). The generic sets:
+figure sets (`references/profiles/<profile>.md` §4). Render the committed figures the
+way `klein verify` re-renders them — matplotlib's own defaults, never the machine's
+config (a host-wide `matplotlibrc` that prefers an installed font draws different pixels
+than a CI runner without it):
+
+```bash
+cfg=$(mktemp -d) && : > "$cfg/matplotlibrc" && MPLBACKEND=Agg MATPLOTLIBRC="$cfg/matplotlibrc" MPLCONFIGDIR="$cfg" uv run --locked python figures/make_figures.py --study . --out figures
+```
+
+(`kleinlib.checks.figure_render_env` builds the same environment.) The generic sets:
 
 - **classification:** ROC, PR, reliability, score-hist-by-class, decile-lift, confusion@best.
 - **regression:** pred-vs-actual, residuals, QQ (insurance adds Lorenz/Gini and lift-quantile).

@@ -1545,7 +1545,10 @@ def run_one(
         base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
         _git(repo, ["add", "--", *surface_rels])
         candidate_commit = _git_commit(repo, f"candidate {run_id}: {description or track}", allow_empty=True)
-        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", *surface_rels]).stdout.encode(*GIT_TEXT)
+        diff = transaction.surface_patch(repo, base_commit, candidate_commit, surface_rels)
+        if diff.returncode:
+            raise WorkflowError(f"git diff of the candidate failed: {diff.stderr.strip()}")
+        patch = diff.stdout.encode(*GIT_TEXT)
         patch_hash = sha256_bytes(patch)
         empty_diff = patch == b""
         env_hash, env_details = environment_fingerprint(repo)

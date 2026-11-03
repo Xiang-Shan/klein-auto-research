@@ -1058,6 +1058,34 @@ def test_scaffolded_train_smoke_mode_runs_without_klein_env(tmp_path: Path, monk
     assert list((study / "models").glob("*.joblib")) == []
 
 
+def test_the_patch_hash_does_not_depend_on_how_wide_git_prints_object_names(ready_study) -> None:
+    """Found on PR 3's CI: ``git diff`` abbreviates the blob names on its ``index``
+    lines to a width git derives from the repository's size, so a fresh, fully
+    packed clone printed 8 characters where the recording repository printed 7 and
+    every shipped study failed ledger integrity. Recording pins the width;
+    verification accepts any width git may widen to."""
+    import hashlib
+
+    from kleinlib.transaction import GIT_TEXT, PATCH_ABBREV, surface_patch
+
+    repo, study = ready_study
+    # Record in a repository that would print 12 characters by default.
+    git(repo, "config", "core.abbrev", "12")
+    train = study / "train.py"
+    train.write_text(train.read_text() + "\nCANDIDATE = True\n", encoding="utf-8")
+    manifest = run_one(study, command=metric_command(0.7), echo=False)
+    rel = train.relative_to(repo).as_posix()
+    pinned = surface_patch(repo, manifest["base_commit"], manifest["candidate_commit"], [rel])
+    digest = hashlib.sha256(pinned.stdout.encode(*GIT_TEXT)).hexdigest()
+    assert manifest["code_patch_hash"] == digest, f"recorded at a width other than {PATCH_ABBREV}"
+
+    # Verify where git prints other widths: 7 (a small repository) and 9 (a big clone).
+    for width in ("7", "9"):
+        git(repo, "config", "core.abbrev", width)
+        ledger = next(check for check in verify_study(study) if check.name == "ledger integrity")
+        assert ledger.ok, ledger.message
+
+
 def test_manifest_integrity_resolves_commits_and_detects_hash_tampering(ready_study) -> None:
     repo, study = ready_study
     train = study / "train.py"

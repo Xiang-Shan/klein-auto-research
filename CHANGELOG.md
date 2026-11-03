@@ -156,6 +156,17 @@ citations (`knowledge/domains/{llm,cv,data-science}/`, `ml-research/`, `math/`,
 - The referee protocol asks for repo-relative paths: a gate-hashed report cannot be
   edited afterwards, and study 21's round-2 report named its worktree (exempted by exact
   path in the universality guard, as frozen evidence).
+- `klein verify`'s ledger integrity no longer depends on the repository's size: `git
+  diff` abbreviates object names on its `index` lines to a width git derives from the
+  object count, so a fresh, fully packed clone printed 8 characters where the recording
+  repository printed 7 and every study's `code_patch_hash` failed on CI. `run-one`
+  records the patch at a pinned width of 7 (the width every shipped manifest used) and
+  verify accepts any width git may widen to (found on the release PR's CI).
+- The figure re-render runs the study's script with matplotlib's defaults (an empty
+  `MATPLOTLIBRC`, a private `MPLCONFIGDIR`, the Agg backend), never the machine's
+  config; the 2.3 exhibits' figures, first rendered under a host config that preferred
+  an installed font, were re-rendered that way and their tutorials rebuilt (text
+  unchanged).
 - A phase-ladder test still expected the pre-repoint behaviour; it now checks both
   halves (followed before work, drift after).
 
