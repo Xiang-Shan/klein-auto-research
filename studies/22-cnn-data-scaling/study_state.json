@@ -237,8 +237,30 @@
     "path": "/home/user/wt-22/studies/22-cnn-data-scaling/data/prepared",
     "sha256": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9"
   },
+  "replications": {
+    "E0005": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0005@20261103T084144Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T08:41:44.406610Z",
+          "tolerance": 0.001
+        }
+      ],
+      "track": "primary"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T08:41:20.171726Z"
+  "updated_at": "2026-11-03T08:46:29.660999Z"
 }
