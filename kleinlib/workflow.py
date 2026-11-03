@@ -561,6 +561,27 @@ def _commit_state_writes(
     )
 
 
+def _untracked_study_files(study_dir: Path) -> set[str]:
+    """Untracked, non-ignored files under the study, study-relative POSIX paths."""
+    result = transaction.git(
+        study_dir,
+        ["ls-files", "--others", "--exclude-standard", "--full-name", "--", "."],
+        check=False,
+    )
+    if result.returncode != 0:
+        return set()
+    repo = repo_root_for(study_dir)
+    prefix = study_dir.resolve().relative_to(repo.resolve()).as_posix()
+    out: set[str] = set()
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        rel = line[len(prefix) + 1 :] if prefix not in ("", ".") and line.startswith(prefix + "/") else line
+        out.add(rel)
+    return out
+
+
 #: What a sealed dry-run exits with when the child never acknowledged it.
 SEALED_DRYRUN_UNACKNOWLEDGED = 3
 
@@ -667,6 +688,7 @@ def sealed_dry_run(
                 else ("uv", "run", "--locked", "python", "-u", "train.py")
             )
         )
+        untracked_before = _untracked_study_files(study_dir)
         process = run_subprocess(
             cmd,
             cwd=study_dir,
@@ -704,10 +726,14 @@ def sealed_dry_run(
         # rows are filed in this same state commit: a verb that leaves the tree
         # dirty would have the mandatory rehearsal block, through
         # `assert_run_worktree`, the very sealed run it is mandatory for.
+        # The same holds for files the evaluator wrote (a DRYRUN-keyed confusion
+        # table under tables/): new untracked, non-ignored files are filed too.
+        # Study 21's rehearsal left `tables/confusion_DRYRUN.tsv` untracked.
+        created = sorted(_untracked_study_files(study_dir) - untracked_before)
         _commit_state_writes(
             study_dir,
             f"klein: sealed dry-run rehearsal ({track})",
-            paths=("aux_metrics.tsv",),
+            paths=("aux_metrics.tsv", *created),
         )
     if echo:
         if exit_code == 0:
@@ -1852,16 +1878,33 @@ def finalize(
         # every schema-2 study (no track declares confirmation), so this path is
         # unchanged there.
         confirmation_gaps = replicate.confirmation_gaps(study_dir, contract, manifests)
+        # A track whose declared `confirmation.require` is non-empty and names no
+        # `sealed` (study 22's `exponent: [replicate]`) closes on its records, not
+        # on a sealed look it was never meant to take. An EMPTY requirement (the
+        # `discover` default) still cannot close confirmed, and every track that
+        # needs a sealed look still needs exactly one.
+        needs_sealed = {
+            track: (
+                "sealed" in required
+                or not required
+            )
+            for track in tracks
+            for required in [replicate.required_confirmation(tracks[track], contract)]
+        }
+        sealed_ok = all(
+            counts[track] == 1 and successful_confirmation[track]
+            for track in tracks
+            if needs_sealed[track]
+        )
         label = (
             "confirmed"
             if counts
-            and all(count == 1 for count in counts.values())
-            and all(successful_confirmation.values())
+            and sealed_ok
             and not confirmation_gaps
             else "exploratory"
         )
         if label == "exploratory" and not allow_exploratory:
-            reason = "not every track has one successful sealed final-test evaluation"
+            reason = "not every track that requires one has a successful sealed final-test evaluation"
             if confirmation_gaps:
                 reason += "; missing confirmation records — " + "; ".join(
                     f"{track}: {'; '.join(missing)}"

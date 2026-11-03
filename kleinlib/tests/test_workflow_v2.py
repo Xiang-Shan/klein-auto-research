@@ -848,6 +848,19 @@ def test_phase_ladder_drift_is_caught_by_preflight(ready_study) -> None:
     record_gate(study, "consult", acknowledged_by="tester", note="rename")
     ladder = [c for c in preflight_checks(study, require_clean=False, require_branch=False)
               if c.name == "phase ladder"]
+    # Nothing ran and no phase was acknowledged: the state follows the rewritten
+    # ladder (state._repoint_unstarted_phase) instead of orphaning.
+    assert len(ladder) == 1 and ladder[0].ok
+    assert "renamed-phase" in ladder[0].message
+
+    # Once evidence exists inside the phase, renaming it is drift, never followed.
+    (study / "study.yaml").write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+    record_gate(study, "consult", acknowledged_by="tester", note="restore")
+    (study / "runs" / "E0001").mkdir(parents=True)
+    (study / "runs" / "E0001" / "manifest.json").write_text("{}", encoding="utf-8")
+    (study / "study.yaml").write_text(yaml.safe_dump(renamed, sort_keys=False), encoding="utf-8")
+    ladder = [c for c in preflight_checks(study, require_clean=False, require_branch=False)
+              if c.name == "phase ladder"]
     assert len(ladder) == 1 and not ladder[0].ok
     assert "renamed" in ladder[0].message or "not in the contract" in ladder[0].message
 

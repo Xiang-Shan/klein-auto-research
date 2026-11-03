@@ -252,6 +252,18 @@ def test_preflight_reports_the_registered_fingerprints_once_a_source_uses_them(
     assert "development=" in check.message and "final_test=" in check.message
 
 
+def test_preflight_recognises_the_index_wrapper_load_items(split_study) -> None:
+    """``load_items`` wraps ``load_partition``; a study that calls it is routed."""
+    repo, study = split_study
+    (study / "train.py").write_text(
+        "from kleinlib.data import load_items\n\nload_items()\n", encoding="utf-8"
+    )
+    _commit(repo, "route the items through the contract")
+    check = next(c for c in preflight_checks(study) if c.name == "contract-driven split")
+    assert "no study source calls" not in check.message
+    assert "train.py" in check.message
+
+
 def test_schema_2_never_sees_the_contract_split_check(ready_study) -> None:
     _, study = ready_study
     assert not [c for c in preflight_checks(study) if c.name == "contract-driven split"]

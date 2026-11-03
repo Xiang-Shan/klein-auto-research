@@ -1054,3 +1054,27 @@ def test_replicate_module_imports_alone_without_the_heavy_stacks() -> None:
         "lightgbm": False,
         "sklearn": False,
     }
+
+
+def test_a_track_declaring_replicate_without_sealed_closes_on_its_records(replicable) -> None:
+    """`confirmation.require: [replicate]` names what `confirmed` costs on that
+    track: it closes on a reproduced record without a sealed look it was never
+    meant to take (study 22's fitted-exponent track)."""
+    _repo, study, _value, _marker, _manifest = replicable
+    _findings(study)
+    _require(study, "replicate")
+    with pytest.raises(WorkflowError, match="no `reproduced: true` replicate record"):
+        finalize(study)
+    assert replicate_run(study, "E0001", echo=False)["reproduced"] is True
+    assert finalize(study) == "confirmed"
+
+
+def test_an_empty_requirement_never_closes_confirmed_without_a_sealed_look(replicable) -> None:
+    """`require: []` (the `discover` default) is not a waiver: with no sealed look
+    the study stays exploratory."""
+    _repo, study, _value, _marker, _manifest = replicable
+    _findings(study)
+    _require(study)
+    with pytest.raises(WorkflowError, match="successful sealed final-test"):
+        finalize(study)
+    assert finalize(study, allow_exploratory=True) == "exploratory"

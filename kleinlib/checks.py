@@ -599,7 +599,9 @@ def _verifier_hash_check(
 
 
 #: How a schema-3 study is supposed to obtain its partitions.
-_CONTRACT_SPLIT_RE = re.compile(r"\b(contract_split|load_partition)\s*\(")
+#: ``load_items`` is the index-table wrapper over ``load_partition`` (2.3), so a
+#: study that calls it IS routed through the contract (found at studies 20/21).
+_CONTRACT_SPLIT_RE = re.compile(r"\b(contract_split|load_partition|load_items)\s*\(")
 
 
 def _contract_split_check(study_dir: Path, state: Mapping[str, Any]) -> Check:

@@ -195,6 +195,31 @@ def test_a_rehearsal_files_the_aux_rows_it_wrote_and_leaves_a_clean_tree(
     assert _git(repo, "status", "--porcelain") == ""
 
 
+#: An entrypoint whose evaluator also writes a DRYRUN-keyed table (study 21's
+#: multiclass evaluator writes tables/confusion_<id>.tsv).
+TABLE_WRITING_ENTRYPOINT = EVALUATING_ENTRYPOINT + """
+from pathlib import Path
+
+Path("tables").mkdir(exist_ok=True)
+Path("tables/confusion_" + os.environ["KLEIN_EXPERIMENT_ID"] + ".tsv").write_text("a\\tb\\n")
+"""
+
+
+def test_a_rehearsal_files_the_tables_it_wrote_but_nothing_else(dryrun_study) -> None:
+    """Found at study 21: the rehearsal's confusion table stayed untracked and the
+    dirty tree refused the sealed run. Files the rehearsal created are filed in its
+    own commit; an untracked file that predates it is left alone."""
+    repo, study = dryrun_study
+    command = _entrypoint_command(study, TABLE_WRITING_ENTRYPOINT)
+    _commit(repo, "an entrypoint that writes a table")
+    (study / "scratch_notes.txt").write_text("mine\n", encoding="utf-8")
+
+    assert sealed_dry_run(study, command=command, echo=False) == 0
+    tracked = _git(repo, "ls-files", "--", str(study / "tables"))
+    assert tracked.endswith("tables/confusion_DRYRUN.tsv")
+    assert _git(repo, "status", "--porcelain") == "?? studies/03-demo/scratch_notes.txt"
+
+
 def test_the_real_sealed_run_is_still_available_after_a_rehearsal(dryrun_study) -> None:
     """The whole point: rehearsing does not consume the one look."""
     repo, study = dryrun_study
