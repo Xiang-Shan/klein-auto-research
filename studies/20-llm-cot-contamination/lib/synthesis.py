@@ -204,6 +204,8 @@ def main() -> None:
             aux[(r["experiment"], r["metric"])] = float(r["value"])
     q["m2_direct_drop_public_minus_twin_dev"] = aux[("E0002", "em_direct")] - aux[("E0004", "em_direct")]
     q["m3_cot_drop_public_minus_twin_dev"] = aux[("E0002", "em_cot")] - aux[("E0004", "em_cot")]
+    for exp, label in (("E0002", "public"), ("E0004", "twin_dev"), ("E0005", "twin_sealed")):
+        q[f"headroom_{label}_one_minus_em_direct"] = 1.0 - aux[(exp, "em_direct")]
     q["m4_ci_width_E0003"] = aux[("E0003", "ci_high")] - aux[("E0003", "ci_low")]
     q["E0006_ci_width"] = aux[("E0006", "ci_high")] - aux[("E0006", "ci_low")]
     for cell, ratio in ratio_rows.items():

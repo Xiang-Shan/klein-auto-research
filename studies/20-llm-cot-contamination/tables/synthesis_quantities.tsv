@@ -33,6 +33,9 @@ E0006_templates_differing	3
 originals_identical_E0003_E0006	50
 m2_direct_drop_public_minus_twin_dev	-0.035000
 m3_cot_drop_public_minus_twin_dev	0.000000
+headroom_public_one_minus_em_direct	0.050000
+headroom_twin_dev_one_minus_em_direct	0.015000
+headroom_twin_sealed_one_minus_em_direct	0.030000
 m4_ci_width_E0003	0.075000
 E0006_ci_width	0.105000
 m6_token_ratio_anchor_gsm8k	1.851568

@@ -50,10 +50,10 @@ measured may be `confirmed`, scoped to this snapshot and these prompts. Mechanis
 
 | Claim | RQ | Track | Verdict | Strength | Class | Evidence | Delta + uncertainty |
 |---|---|---|---|---|---|---|---|
-| **[C1]** | RQ1 | cot_gain | prior **refuted**: no loss detected | confirmed | empirical-description | E0002, E0004, E0005, rep:E0002@20261103T082725Z | direct EM 0.95 / 0.985 / 0.97; the direct arm is not number-only (C5) |
-| **[C2]** | RQ2 | cot_gain | **refuted** | confirmed | empirical-description | E0002, E0005, rep:E0002@20261103T082725Z | em_gain +0.01, 95% CI [-0.01, 0.03]; re-query -0.0067 |
-| **[C3]** | RQ3 | contamination | **inconclusive at 5 points**: no gap detected, a 5-point gap not excluded | confirmed | empirical-description | E0003, E0006, rep:E0003@20261103T084446Z | em_gap 0.02 [-0.015, 0.06] dev; 0.01 [-0.04, 0.065] sealed; re-query -0.025 |
-| **[C4]** | RQ4 | cot_gain | **refuted** (there is no gain to survive) | confirmed | empirical-description | E0004, E0005 | em_gain -0.025 [-0.065, 0.005] dev twins; 0.000 [-0.055, 0.045] sealed twins |
+| C1 | RQ1 | cot_gain | prior **refuted**: no loss detected | confirmed | empirical-description | E0002, E0004, E0005, rep:E0002@20261103T082725Z | direct EM 0.95 / 0.985 / 0.97; the direct arm is not number-only (C5) |
+| C2 | RQ2 | cot_gain | **refuted** | confirmed | empirical-description | E0002, E0005, rep:E0002@20261103T082725Z | em_gain +0.01, 95% CI [-0.01, 0.03]; re-query -0.0067 |
+| C3 | RQ3 | contamination | **inconclusive at 5 points**: no gap detected, a 5-point gap not excluded | confirmed | empirical-description | E0003, E0006, rep:E0003@20261103T084446Z | em_gap 0.02 [-0.015, 0.06] dev; 0.01 [-0.04, 0.065] sealed; re-query -0.025 |
+| C4 | RQ4 | cot_gain | **refuted** (there is no gain to survive) | confirmed | empirical-description | E0004, E0005 | em_gain -0.025 [-0.065, 0.005] dev twins; 0.000 [-0.055, 0.045] sealed twins |
 
 **[C1]** Under the registered number-only instruction, qwen-flash scored 0.95 direct exact-match on 300 items of public GSM8K (E0002), 0.985 on the development twins (E0004) and 0.97 on the sealed twins (E0005), so the RQ1 prior of a direct score between 0.55 and 0.85 is refuted; the salted re-query of the anchor scored 0.9533.
 
@@ -64,7 +64,7 @@ not detectably different from zero (C2, C4). The lead recorded the non-complianc
 any score was computed (program.md, 2026-11-03: "The registered prompt is NOT changed")
 and kept the prompt, so this is a property of the measurement, not a post-hoc rescue.
 
-**[C2]** On 300 items of public GSM8K, chain-of-thought exceeded the registered direct prompt by +0.01 exact-match, paired item-bootstrap 95% interval [-0.01, 0.03] (E0002); the interval excludes the registered 0.10, and the salted re-query gave -0.0067, a shift of 0.0167 inside the pre-registered 0.03 tolerance.
+**[C2]** On 300 items of public GSM8K, chain-of-thought exceeded the registered direct prompt by +0.01 exact-match, paired item-bootstrap interval [-0.01, 0.03] (E0002); the interval excludes the registered 0.10, and the salted re-query gave -0.0067, a shift of 0.0167 inside the pre-registered 0.03 tolerance.
 
 The paired outcome table (`art:paired`) is 282 both right, 6 CoT only, 3 direct only, 9
 both wrong; McNemar's exact p is 0.5078 on these independent public items. The
@@ -72,7 +72,7 @@ re-query's table is 280 / 4 / 6 / 10: the sign of a difference resting on 9 and 
 discordant items is not stable under re-query, which is what a true gain near zero
 predicts.
 
-**[C3]** With chain-of-thought, exact-match on the 50 template originals exceeded their development twins by 0.02 (95% interval over templates [-0.015, 0.06], E0003) and the sealed twins by 0.01 ([-0.04, 0.065], E0006); no measurement detected a gap, but both upper ends exceed 0.05, so a 5-point contamination gap is not excluded, and the salted re-query of E0003 gave -0.025.
+**[C3]** With chain-of-thought, exact-match on the 50 template originals exceeded their development twins by 0.02 (interval over templates [-0.015, 0.06], E0003) and the sealed twins by 0.01 ([-0.04, 0.065], E0006); no measurement detected a gap, but both upper ends exceed 0.05, so a contamination gap of 0.05 is not excluded, and the salted re-query of E0003 gave -0.025.
 
 RQ3 asked whether the gap exceeds 5 points. Every point estimate says no (0.02, 0.01,
 -0.025); no interval excludes a gap of 0.05. The verdict is therefore "no contamination
@@ -146,7 +146,7 @@ failure mode in advance ("the direct arm writing steps anyway"), and M6's ≥20�
 expectation is the quantitative form of the prior it broke. The fact is an
 empirical description; that it is *why* the gain vanished is C6's interpretation.
 
-**[C6]** The chain-of-thought gain is near-unmeasurable here because both arms sit at the ceiling: direct and chain-of-thought exact-match lie between 0.95 and 0.985 in every cell, so the largest gain the public cell could have shown is 0.05, and only 9 of 300 public items (E0002) and 12 of 200 sealed twins (E0005) were discordant.
+**[C6]** The chain-of-thought gain is near-unmeasurable here because both arms sit at the ceiling: direct and chain-of-thought exact-match lie between 0.95 and 0.985 in every cell, so the largest gain the public cell could have shown is 0.05 (one minus 0.95), and only 9 of 300 public items (E0002) and 12 of 200 sealed twins (E0005) were discordant.
 
 Class: mechanism-interpretation, exploratory. The arithmetic is fixed (a gain cannot
 exceed 1 minus em_direct), but whether a compliant direct arm would open headroom is an
@@ -154,7 +154,7 @@ untested hypothesis (playbook H3; ⑦ item 1). The ceiling also explains M4: wit
 0.96 the gap's variance shrinks (the card's §2 ceiling row), so the interval came out
 narrower than the 0.100 the card expected.
 
-**[C7]** The salted re-query of the development contamination cell flipped the sign of the gap, from 0.02 to -0.025, a shift of 0.045 inside the pre-registered 0.05 tolerance: 3 of 50 originals went from right to wrong and 1 from wrong to right, moving em_original from 0.98 to 0.94, while 7 of 200 twin scores changed.
+**[C7]** The salted re-query of the development contamination cell flipped the sign of the gap, from 0.02 to -0.025, a shift of 0.045 inside the pre-registered 0.05 tolerance: 3 of 50 originals went from right to wrong and one from wrong to right, moving em_original from 0.98 to 0.94, while 7 of 200 twin scores changed.
 
 Class: mechanism-interpretation, exploratory. Mechanism: temperature 0 is not
 determinism on a hosted model (`ref:he2025`, `ref:atil2024`); the anchor re-query changed
@@ -164,7 +164,7 @@ its pre-registered arithmetic, and that is the correct procedural verdict; it is
 demonstration that the *sign* of a gap below about 0.05 is set by serving noise on 50
 originals. The record lists `ci_low` (-0.015 → -0.08) as outside tolerance, descriptively.
 
-**[C8]** On the development twins the direct arm scored above chain-of-thought (0.985 vs 0.96, gain -0.025, E0004), and on the sealed twins the two arms tied at 0.97 (E0005); the reversal did not survive fresh instances of the same templates, which is most consistent with noise on 7 discordant twins.
+**[C8]** On the development twins the direct arm scored above chain-of-thought (0.985 vs 0.96, gain -0.025, E0004), and on the sealed twins the two arms tied at 0.97 (E0005); the reversal did not survive fresh instances of the same templates, which is most consistent with noise, since only 7 of 200 development twins were discordant.
 
 Class: mechanism-interpretation, exploratory; `unresolved` beyond "noise". Neither
 interval excludes zero. Three CoT twin replies on the development block were cut at
@@ -188,13 +188,13 @@ Evidence: E0002, `art:arms`. A recent instruct model may ignore "number only"; a
 that falls back to the last number will still score it, so the arm silently becomes a
 different arm.
 
-**[C10]** Before registering a gain threshold, check the headroom the direct arm leaves: a gain cannot exceed 1 minus the direct score, so at a direct score of 0.95 a registered gain of at least 0.10 was arithmetically unreachable on the public items.
+**[C10]** Before registering a gain threshold, check the headroom the direct arm leaves: a gain cannot exceed one minus the direct score, so at a direct score of 0.95 a registered gain of at least 0.10 was arithmetically unreachable on the public items.
 
 Evidence: E0002, P2. Register the threshold from a pilot direct score or from items off
 the ceiling (a harder benchmark, longer chains); otherwise the refutation is guaranteed
 by arithmetic, not learned from the model.
 
-**[C11]** Size a template-paired contamination probe to the gap it must resolve: with 50 templates the 95% interval on the gap was 0.075 wide on the development twins and 0.105 wide on the sealed twins, so a 5-point gap can be neither detected nor excluded; plan on roughly four times the templates to halve the interval.
+**[C11]** Size a template-paired contamination probe to the gap it must resolve: with 50 templates the interval on the gap was 0.075 wide on the development twins and 0.105 wide on the sealed twins, so a gap of 0.05 can be neither detected nor excluded; plan on roughly four times the templates to halve the interval.
 
 Evidence: E0003, E0006, method_card.md §2 ("Halving the SE would take about four times
 as many templates").
