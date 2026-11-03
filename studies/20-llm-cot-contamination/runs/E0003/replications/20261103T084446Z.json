@@ -1,0 +1,185 @@
+{
+  "baseline": 0.02,
+  "block_differences": {
+    "calls_cached": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "calls_cost_usd": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "calls_tokens_in": {
+      "difference": 0.0,
+      "original": 22960.0,
+      "replicate": 22960.0
+    },
+    "calls_tokens_out": {
+      "difference": 1795.0,
+      "original": 76392.0,
+      "replicate": 74597.0
+    },
+    "calls_total": {
+      "difference": 0.0,
+      "original": 250.0,
+      "replicate": 250.0
+    },
+    "ci_high": {
+      "difference": 0.039999999999999994,
+      "original": 0.06,
+      "replicate": 0.02
+    },
+    "ci_low": {
+      "difference": 0.065,
+      "original": -0.015,
+      "replicate": -0.08
+    },
+    "em_original": {
+      "difference": 0.040000000000000036,
+      "original": 0.98,
+      "replicate": 0.94
+    },
+    "em_twins": {
+      "difference": 0.0050000000000000044,
+      "original": 0.96,
+      "replicate": 0.965
+    },
+    "n": {
+      "difference": 0.0,
+      "original": 50.0,
+      "replicate": 50.0
+    },
+    "n_templates": {
+      "difference": 0.0,
+      "original": 50.0,
+      "replicate": 50.0
+    },
+    "n_twin_items": {
+      "difference": 0.0,
+      "original": 200.0,
+      "replicate": 200.0
+    },
+    "primary_metric": {
+      "difference": 0.045,
+      "original": 0.02,
+      "replicate": -0.025
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "total_seconds": {
+      "difference": 3.0,
+      "original": 490.5,
+      "replicate": 487.5
+    },
+    "wall_seconds": {
+      "difference": 3.0888840000000073,
+      "original": 490.546216,
+      "replicate": 487.457332
+    }
+  },
+  "calls_kept": [
+    "runs/E0003/replications/20261103T084446Z-calls/E0001-000.jsonl.gz",
+    "runs/E0003/replications/20261103T084446Z-calls/E0002-000.jsonl.gz",
+    "runs/E0003/replications/20261103T084446Z-calls/E0003-000.jsonl.gz"
+  ],
+  "candidate_commit": "a8a99381f56f389483aac559f9469b2590f1c906",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62",
+  "difference": 0.045,
+  "ended_at": "2026-11-03T08:53:01.007365Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "environment_match": true,
+  "evidence_id": "rep:E0003@20261103T084446Z",
+  "exit_code": 0,
+  "experiment": "E0003",
+  "log": "runs/E0003/replications/20261103T084446Z.log",
+  "max_run_seconds": 7200.0,
+  "metric_name": "em_gap",
+  "mismatched_keys": [
+    "ci_low"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "calls_cached": 0.0,
+    "calls_cost_usd": 0.0,
+    "calls_tokens_in": 22960.0,
+    "calls_tokens_out": 76392.0,
+    "calls_total": 250.0,
+    "ci_high": 0.06,
+    "ci_low": -0.015,
+    "em_original": 0.98,
+    "em_twins": 0.96,
+    "n": 50.0,
+    "n_templates": 50.0,
+    "n_twin_items": 200.0,
+    "primary_metric": 0.02,
+    "runner_exit_code": 0.0,
+    "total_seconds": 490.5,
+    "wall_seconds": 490.546216
+  },
+  "original_environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "original_primary_metric": 0.02,
+  "record": "runs/E0003/replications/20261103T084446Z.json",
+  "replicate_block": {
+    "calls_cached": 0.0,
+    "calls_cost_usd": 0.0,
+    "calls_tokens_in": 22960.0,
+    "calls_tokens_out": 74597.0,
+    "calls_total": 250.0,
+    "ci_high": 0.02,
+    "ci_low": -0.08,
+    "em_original": 0.94,
+    "em_twins": 0.965,
+    "n": 50.0,
+    "n_templates": 50.0,
+    "n_twin_items": 200.0,
+    "primary_metric": -0.025,
+    "runner_exit_code": 0.0,
+    "total_seconds": 487.5,
+    "wall_seconds": 487.457332
+  },
+  "replicate_primary_metric": -0.025,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "encoders"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "encoders"
+  ],
+  "setup_seconds": 1.2237041119988135,
+  "stamp": "20261103T084446Z",
+  "started_at": "2026-11-03T08:44:48.169097Z",
+  "timed_out": false,
+  "timestamp": "2026-11-03T08:44:46.417499Z",
+  "tolerance": 0.05,
+  "tolerance_source": "minimum_delta",
+  "track": "contamination",
+  "wall_seconds": 492.8357577159986,
+  "worktree_prepared": true
+}
