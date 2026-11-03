@@ -21,7 +21,7 @@
     "study.yaml": "893769d6c9d1f7bae6e438c4cd3396800b85f384a313856b5b2dea586b5c0cc9"
   },
   "created_at": "2026-11-03T04:41:22.375465Z",
-  "current_phase": "adaptive-1",
+  "current_phase": "anchor",
   "final_holdout_access": {
     "att": {
       "accessed_at": null,
@@ -80,9 +80,31 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+          "recorded_at": "2026-11-03T05:04:48.865957Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:04:48.865957Z",
+      "source": "run",
+      "verdict": "refuted"
+    }
+  },
   "prepared_data": {
     "path": "/home/user/klein-auto-research/studies/23-lalonde-causal-replication/data/prepared/prepared.csv",
     "sha256": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a"
@@ -90,5 +112,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T05:02:33.630936Z"
+  "updated_at": "2026-11-03T05:04:48.870553Z"
 }

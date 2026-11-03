@@ -1,0 +1,92 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 259,
+      "committed": true,
+      "sha256": "e3ae8e6d5a6df61e3393568da4c55314b6597b209618621432c2ca064ef0c933"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 714,
+      "committed": true,
+      "sha256": "6c2e7e175321d172915644e980f645b8d3f9b75e437adcdd55da644e0f78ea18"
+    },
+    "tables/reproduction_psid1.tsv": {
+      "availability": "recorded",
+      "bytes": 1561,
+      "committed": true,
+      "role": "declared",
+      "sha256": "0dcb193e748a4e6a839952104990189449843084384aa0ee8e6973483f796662"
+    }
+  },
+  "base_commit": "15a13fb1c762bbb6e384cd45f4e7c9fc30666416",
+  "candidate_commit": "28d1f9f0ded284cacd78560e87afe465edec5a4c",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "anchor: reproduce DW (1999) Table 3 columns (1)-(2) and Table 1 sizes on the development lane; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T05:04:48.864884Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130",
+    "split_partition": "301cc9c3c8cd54188515afa3f24fa45ec6b75350e5cbe1b111a194ea5392a67c"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 600.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "experimental_att": 1794.3423818563415,
+    "primary_metric": 2.0,
+    "rows": 23.0,
+    "runner_exit_code": 0.0,
+    "targets": 11.0,
+    "total_seconds": 0.1,
+    "wall_seconds": 0.140388
+  },
+  "phase": "anchor",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 1,
+  "predictions": {
+    "P1": {
+      "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P1"
+  ],
+  "primary_metric": 2.0,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T05:04:46.535425Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "ready_at": "2026-11-03T05:04:48.867753Z",
+    "status": "pending"
+  },
+  "wall_seconds": 2.3290442480010825
+}

@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	reproduction	2	measured	28d1f9f0ded284cacd78560e87afe465edec5a4c	anchor: reproduce DW (1999) Table 3 columns (1)-(2) and Table 1 sizes on the development lane; registered cell measured

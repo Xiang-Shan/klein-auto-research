@@ -1,0 +1,20 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+split_fingerprint: 301cc9c3c8cd54188515afa3f24fa45ec6b75350e5cbe1b111a194ea5392a67c
+---
+primary_metric:    2.000000
+metric_name:       targets_outside_tolerance
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.1
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+artifact: tables/reproduction_psid1.tsv
+rows:              23
+sha256:            0dcb193e748a4e6a839952104990189449843084384aa0ee8e6973483f796662
+wall_seconds:      0.140388
+targets: 11
+experimental_att: 1794.3423818563415
+runner_status: ok
+runner_exit_code: 0

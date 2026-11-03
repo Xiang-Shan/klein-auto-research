@@ -1,1 +1,7 @@
 experiment	metric	value
+E0001	artifact	tables/reproduction_psid1.tsv
+E0001	wall_seconds	0.14038801193237305
+E0001	rows	23
+E0001	sha256	0dcb193e748a4e6a839952104990189449843084384aa0ee8e6973483f796662
+E0001	targets	11
+E0001	experimental_att	1794.3423818563415
