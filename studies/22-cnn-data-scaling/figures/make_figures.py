@@ -34,7 +34,6 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import yaml  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
@@ -87,10 +86,18 @@ def scaling_loglog(study: Path, out: Path) -> None:
     means = cells.groupby("n_train")["val_mlogloss"].mean()
 
     fig, ax = plt.subplots(figsize=(7.6, 5.0))
-    n_in = np.geomspace(500, 16000, 50)
-    n_out = np.geomspace(16000, n_full, 50)
-    ax.plot(n_in, a * n_in ** (-alpha), color=ACCENT, lw=2, label="pinned power law, fitted range (E0007)")
-    ax.plot(n_out, a * n_out ** (-alpha), color=ACCENT, lw=2, ls="--", label="same law, extrapolated")
+    # The curve is computed point by point in Python and rounded to 12 significant
+    # digits: numpy's vectorized power/exp dispatch to CPU-specific code that can
+    # differ in the last bit, which moved antialiased pixels between a workstation
+    # and the CI runner (the re-render must be byte-identical on any machine).
+    def _law(lo: float, hi: float) -> tuple[list[float], list[float]]:
+        ns = [float(f"{lo * (hi / lo) ** (i / 49):.12g}") for i in range(50)]
+        return ns, [float(f"{a * n ** (-alpha):.12g}") for n in ns]
+
+    n_in, loss_in = _law(500.0, 16000.0)
+    n_out, loss_out = _law(16000.0, float(n_full))
+    ax.plot(n_in, loss_in, color=ACCENT, lw=2, label="pinned power law, fitted range (E0007)")
+    ax.plot(n_out, loss_out, color=ACCENT, lw=2, ls="--", label="same law, extrapolated")
     ax.scatter(cells["n_train"], cells["val_mlogloss"], s=22, facecolors="none", edgecolors=GREY,
                label="development cells, one seed each (E0001-E0006)")
     ax.plot(means.index, means.values, "s", color=INK, ms=7, label="development cells, seed mean")
