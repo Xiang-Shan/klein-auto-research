@@ -237,3 +237,13 @@ Chosen: #1 (the phase allows one experiment and it is the identity anchor; #2-#3
   cut at max_tokens; CoT arm 0/300 bare, median 243 tokens (mean 265.7), 2/300 cut at
   max_tokens. So the "direct" arm is a terse CoT (about 0.46x the CoT tokens), which
   explains the near-zero gain. Reported, prompt not changed (lead decision).
+
+### Phase twins slate (2026-11-03)
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | contamination cell: CoT on 50 originals vs 200 development twins, template-paired (P3: gap <= 0.05) | 3 | 3 | 3 | 9 |
+| 2 | cot_gain on development twins, CELL twin_dev (P4: gain >= 0.10) | 2 | 3 | 2 | 7 |
+| 3 | descriptive splits of the P3 table (GSM-Symbolic overlap 5 vs 45; magnitude-matched) | 2 | 2 | 2 | 6 (not a run; read from the pinned table) |
+
+Chosen: #1 then #2 (the phase's two experiments); #3 is read-only. Expectation: both arms near ceiling, so P3 likely supported and P4 likely refuted.
