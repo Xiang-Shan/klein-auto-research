@@ -308,3 +308,19 @@ Cells (no development runs are spent; adaptive selection is closed, incumbent E0
 | 3 | `klein replicate E0008` (re-execution of the development run in a detached worktree; `confirmation.require` includes replicate) | 2 | 3 | 3 | 8 |
 
 Chosen: 1 then 2 then 3, the order the contract fixes.
+
+## Phase confirmation — run log
+
+- 2026-11-03 — Sealed dry run (primary): OK, rehearsed on development data, nothing spent (seed 0
+  macro-F1 0.9372, the E0008 seed-0 value).
+- 2026-11-03 — E0009 (sealed official test split, E0008's config refit as the surface specifies;
+  seeds 0/1/2): test macro-F1 seed-mean 0.9465 (seeds 0.9453 / 0.9543 / 0.9399; std 0.0072),
+  test accuracy 0.9527 (seeds 0.9517 / 0.9587 / 0.9478; std 0.0055). Recorded `sealed`
+  (confirmation evidence, excluded from the frontier). Test macro-F1 0.9465 vs development
+  0.9461: no development-to-test drop.
+- 2026-11-03 — Decision: P4 supported (0.9465 >= 0.90, notary verdict on E0009). P5 supported
+  (test accuracy 0.9527 < 0.958; gap to ResNet-18 (28) 0.0053, about 1.6 binomial standard errors
+  (0.0034 at n = 3,421), so "indistinguishable from ResNet-18 (28)" is the honest wording even
+  though the arithmetic verdict is "below"). Scope: image-level split, not patient-grouped.
+- 2026-11-03 — `klein replicate E0008`: reproduced, difference 0 (tolerance 0.0438 =
+  minimum_delta), evidence rep:E0008@20261103T090709Z. `klein next`: SYNTHESIZE.
