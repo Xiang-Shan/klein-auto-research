@@ -81,7 +81,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 3,
+  "last_experiment": 4,
   "overrides": [
     {
       "acknowledged_at": "2026-11-03T07:41:46.152602Z",
@@ -158,6 +158,26 @@
       "recorded_at": "2026-11-03T08:08:33.164565Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P4": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "primary_metric -0.025 >= 0.1 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "primary_metric -0.025 >= 0.1 \u2192 refuted",
+          "recorded_at": "2026-11-03T08:14:19.923532Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:14:19.923532Z",
+      "source": "run",
+      "verdict": "refuted"
     }
   },
   "prepared_data": {
@@ -167,5 +187,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T08:08:33.188860Z"
+  "updated_at": "2026-11-03T08:14:19.943661Z"
 }
