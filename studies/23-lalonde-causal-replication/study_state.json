@@ -1,0 +1,45 @@
+{
+  "acknowledgements": {},
+  "artifact_hashes": {},
+  "created_at": "2026-11-03T04:41:22.375465Z",
+  "current_phase": "adaptive-1",
+  "final_holdout_access": {
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/home/user/klein-auto-research/studies/23-lalonde-causal-replication/data/prepared/prepared.csv",
+    "sha256": null
+  },
+  "schema_version": 3,
+  "status": "active",
+  "study_id": "23-lalonde-causal-replication",
+  "updated_at": "2026-11-03T04:41:22.375488Z"
+}

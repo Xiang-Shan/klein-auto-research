@@ -1,0 +1,175 @@
+schema_version: 3
+study_id: "23-lalonde-causal-replication"
+goal: "Does the Dehejia-Wahba NSW experimental benchmark (about $1,794) reproduce from the authors' own files, how far does a naive non-experimental comparison miss it, and do propensity-score estimators recover it on PSID-1 and then, sealed, on CPS-1?"
+domain: "program evaluation (labor economics)"
+target: "re78"
+
+# The three axes (references/inquiry-model.md).
+kind: "replicate"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "data-science"            # generic | ml-research | math | insurance | llm | cv | data-science
+audience: "an applied data scientist who has fit propensity models but never audited one against an experimental benchmark"
+
+task_type: "scalar"
+method_depth: "full"
+family: "propensity-score"
+
+# A cell CHOOSES (lane, estimator, specification); lib/lalonde.py computes.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "analyze.py"]
+  mutable: ["analyze.py"]
+  printed: block                # metrics are read from the final `---` block only
+
+tracks:
+  reproduction:
+    kind: replicate
+    mode: registered
+    metric:
+      name: "targets_outside_tolerance"
+      goal: "lower"
+      minimum_delta: 1
+      exactness: exact
+      exactness_note: >-
+        An integer count of the published Dehejia-Wahba (1999) Table 3 / Table 1
+        targets this cell failed to reproduce within the registered tolerance
+        (+-1 dollar for estimates and standard errors, exact for counts). Every
+        cell is closed-form least squares over the fixed pinned files, so the
+        count's resolution is exactly one target and a seed floor would measure
+        nothing. A target the cell could not compute counts as missed.
+    guardrails:
+      wall_seconds: {max: 60}
+    confirmation:
+      require: [sealed, replicate]
+  att:
+    kind: estimate
+    mode: registered
+    metric:
+      name: "att_usd"
+      goal: "higher"
+      minimum_delta: 0.01
+      exactness: exact
+      exactness_note: >-
+        The ledger scalar is a point estimate of the effect of NSW on 1978
+        earnings (1982 dollars) from an unpenalized logit and closed-form
+        weighting or matching over fixed rows — deterministic to floating point,
+        resolution one cent. Its uncertainty is the cell's measurement (a
+        percentile bootstrap that re-fits the score, fixed seed), not a floor.
+        `goal: higher` is inert on a registered track; the contract requires a
+        direction.
+    guardrails:
+      wall_seconds: {max: 900}
+    confirmation:
+      require: [sealed, replicate]
+
+
+data:
+  source: "url:https://users.nber.org/~rdehejia/data/nsw_dw.dta"
+  sha256: "d1bd2680a1c6f799f1c6d2455bf29633fdf19be01cb19490621c20a560b4e072"
+  inputs:
+    - {source: "url:https://users.nber.org/~rdehejia/data/psid_controls.dta", sha256: "7beebae8928035d6abf662b994ce77a4fbea7ae6575037ff94e92fe099b43e14"}
+    - {source: "url:https://users.nber.org/~rdehejia/data/cps_controls.dta", sha256: "80f0123eaf723870bd060ba9f8569617a7cb519a462dc20badbfb3443cd8374b"}
+  modality: "tabular"
+  prepared_path: "data/prepared/prepared.csv"
+  split:
+    kind: predefined          # the lanes ARE the design: NSW experiment / PSID-1 / CPS-1
+    split_column: partition   # train = NSW experimental sample, development = PSID-1, test = CPS-1 (sealed)
+    id_column: id
+    label_column: re78
+    seed: 42                  # inert: nothing is partitioned at random
+
+policy:
+  card_sections: enforce
+  realized_split: required
+  noise_floor: required
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+# A bootstrap cell re-fits the propensity logit 500 times; on CPS-1 (15,992 rows)
+# that is the slowest cell, hence 900 s.
+max_run_seconds: 900
+phases:
+  - id: anchor
+    description: "split-identity anchor: reproduce Table 3 columns (1)-(2) and Table 1's sizes on the development lane (P1); STOP and re-check the files if any target misses"
+    budget_seconds: 600
+    max_experiments: 1
+  - id: estimators
+    description: "four registered propensity-score cells on PSID-1: IPW (P2), AIPW (P3), 1-NN matching (P4), IPW without 1974 earnings (P5); then select the sealed estimator by the registered rule"
+    budget_seconds: 3600
+    max_experiments: 4
+  - id: confirmation
+    description: "one sealed CPS-1 cell per track, each after its dry run: reproduction (P6) and the selected estimator (P7)"
+    budget_seconds: 2400
+    max_experiments: 2
+
+research_questions:
+  - id: RQ1
+    question: "Do Dehejia-Wahba's Table 3 columns (1)-(2) and Table 1 sample sizes reproduce within +-1 from the files on Dehejia's data page?"
+    prior: "likely, about 0.7. The files are the authors' own and every estimator is closed-form least squares. The two UNADJUSTED point values were seen during data inspection (source: scouted, scouting_ledger.md) and are anchors, not evidence; the two adjusted values and all four standard errors were not, and the paper does not say which standard-error formula it used — that is where a miss would come from."
+  - id: RQ2
+    question: "How far does a naive difference in means against PSID-1 miss the experimental estimate?"
+    prior: "by about $17,000 — seen at inspection (source: scouted); reported as an anchor only, no prediction rides on it."
+  - id: RQ3
+    question: "Do IPW, doubly robust AIPW and 1-NN matching on Dehejia-Wahba's PSID-1 logit land within $1,000 of the experimental estimate?"
+    prior: "about even (0.5-0.6 each). Dehejia-Wahba report $1,608 (stratification) and $1,691 (matching) on PSID-1; Smith and Todd (2005) report that such agreement is sensitive to the sample and the specification, and odds weights on 2,490 mostly dissimilar controls can concentrate on a few units (source: knowledge, recalled; verified at METHOD)."
+  - id: RQ4
+    question: "Is 1974 earnings the load-bearing covariate — does IPW without any 1974-earnings term miss by more than $1,000?"
+    prior: "likely, about 0.6. Dehejia-Wahba's own no-RE74 sensitivity on PSID-1 spans roughly -$1,000 to +$1,700 (source: knowledge, recalled from the 1999 paper's section 5; verified at METHOD)."
+  - id: RQ5
+    question: "Does the estimator selected on PSID-1, with its PSID-1 specification unchanged, transfer to the sealed CPS-1 lane?"
+    prior: "about even, 0.55. Dehejia-Wahba refit a CPS-specific logit; holding the PSID-1 specification fixed is a harder transfer test than theirs (source: uninformed beyond that)."
+
+# Registered BEFORE the evidence exists; the consult gate hashes this file.
+predictions:
+  - id: P1
+    track: reproduction
+    statement: >-
+      On the development lane every registered target — Table 3 columns (1)-(2)
+      for NSW and PSID-1 (four estimates, four classical OLS standard errors) and
+      Table 1's three sample sizes — reproduces within +-1.
+    rule: {key: primary_metric, op: "<=", value: 0}
+    inconclusive_if: "the cell crashes before the evaluator prints"
+  - id: P2
+    track: att
+    statement: >-
+      Odds-weighted IPW with Dehejia-Wahba's PSID-1 logit (Table 3 note c), on
+      common support, lands within $1,000 of the experimental estimate.
+    rule: {key: att_gap_usd, op: abs_le, value: 1000}
+  - id: P3
+    track: att
+    statement: >-
+      Doubly robust AIPW (the same odds weights, an OLS outcome model on the
+      comparison units with note a's covariates) lands within $1,000 of the
+      experimental estimate.
+    rule: {key: att_gap_usd, op: abs_le, value: 1000}
+  - id: P4
+    track: att
+    statement: >-
+      One-nearest-neighbour matching on that score, with replacement, lands within
+      $1,000 of the experimental estimate.
+    rule: {key: att_gap_usd, op: abs_le, value: 1000}
+  - id: P5
+    track: att
+    statement: >-
+      Dropping every 1974-earnings term from the logit pushes the IPW estimate
+      MORE than $1,000 away from the experimental estimate.
+    rule: {not: {key: att_gap_usd, op: abs_le, value: 1000}}
+  - id: P6
+    track: reproduction
+    statement: >-
+      On the sealed CPS-1 lane, Table 3's CPS-1 columns (1)-(2) (two estimates,
+      two standard errors) and Table 1's CPS-1 size reproduce within +-1.
+    rule: {key: primary_metric, op: "<=", value: 0}
+  - id: P7
+    track: att
+    statement: >-
+      The estimator selected on PSID-1 by the registered rule (smallest |gap|
+      among the P2-P4 cells; ties to the simpler estimator), with its
+      specification unchanged, lands within $1,000 of the experimental estimate
+      on the sealed CPS-1 lane.
+    rule: {key: att_gap_usd, op: abs_le, value: 1000}
+
+confirmation:
+  require: [sealed, replicate]
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html
