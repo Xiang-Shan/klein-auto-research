@@ -21,7 +21,7 @@
     "study.yaml": "d1aa5eba455a7dbd3fd5155074bfcdc10426a49565eb3c03c83d56546b906f46"
   },
   "created_at": "2026-11-03T04:53:53.769673Z",
-  "current_phase": "twins",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "contamination": {
       "accessed_at": null,
@@ -96,6 +96,12 @@
       "acknowledged_by": "lead-agent",
       "note": "delegated. E0002: em_gain 0.01 [-0.01, 0.03], em_direct 0.95, em_cot 0.96 (P1, P2 refuted); direct arm non-compliant (1.3% bare numbers) \u2014 P1/P2 measure the registered instruction; E0001 rate-limit crash",
       "playbook_sha256": "734bea667566210d5fe051129eb894ec11e1ec12b14588d855ed803a3a9e1ca2"
+    },
+    "twins": {
+      "acknowledged_at": "2026-11-03T08:15:18.628449Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated. E0003 contamination gap 0.02 [-0.015, 0.060] (P3 supported); E0004 twin gain -0.025 [-0.065, 0.005] (P4 refuted); both arms at ceiling",
+      "playbook_sha256": "513384a7a28277d013c7d8cb1ad5f3b8d55ce9c4cdf4f8751cfc2f4384e15544"
     }
   },
   "predictions": {
@@ -187,5 +193,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T08:14:19.943661Z"
+  "updated_at": "2026-11-03T08:15:18.635635Z"
 }
