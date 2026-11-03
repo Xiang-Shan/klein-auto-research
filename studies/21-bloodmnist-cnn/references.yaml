@@ -1,0 +1,267 @@
+# The citations a `ref:<key>` evidence id resolves to (shape: kleinlib/references.py).
+# Written at the METHOD gate (2026-11-03) by the klein-method-scholar subagent. Every
+# row was checked against a record fetched on that date — the publisher full text
+# (Europe PMC), Crossref, the arXiv abstract page, PMLR / MLSys / NeurIPS proceedings
+# pages, or the repository file — never quoted from memory. `klein refs verify
+# --record` then adds the mechanical DOI / arXiv title match (resolved_* fields).
+references:
+  yang2023medmnist:
+    title: "MedMNIST v2 - A large-scale lightweight benchmark for 2D and 3D biomedical image classification"
+    authors: "Yang, J.; Shi, R.; Wei, D.; Liu, Z.; Zhao, L.; Ke, B.; Pfister, H.; Ni, B."
+    year: 2023
+    venue: "Scientific Data 10, article 41 (published 2023-01-19); arXiv v1 2021-10-27"
+    doi: "10.1038/s41597-022-01721-8"
+    arxiv: "2110.14795"
+    url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9852451/"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; published full text via Europe PMC PMC9852451, Table 3 parsed from the JATS XML; cross-checked against the arXiv LaTeX source table tab:2DResults)"
+    verified_at: "2026-11-03"
+    why: "The dataset and the published reference numbers. Table 3 (BloodMNIST columns, test split, mean of at least 3 trials): ResNet-18 (28) AUC 0.998 / ACC 0.958; ResNet-18 (224) 0.998 / 0.963; ResNet-50 (28) 0.997 / 0.956; ResNet-50 (224) 0.997 / 0.950; auto-sklearn 0.984 / 0.878; AutoKeras 0.998 / 0.961; Google AutoML Vision 0.998 / 0.966. P5's 0.958 and RQ1's ~0.88 are confirmed. The split is a 7:1:2 ratio split of the source images (11,959 / 1,712 / 3,421); the text says nothing about patients. ResNets: Adam lr 0.001, batch 128, 100 epochs, lr x0.1 after epochs 50 and 75, early stopping on validation. auto-sklearn was given the flattened images (no hand-made features)."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "MedMNIST v2 - A large-scale lightweight benchmark for 2D and 3D biomedical image classification"
+    resolved_at: "2026-11-03"
+  acevedo2020:
+    title: "A dataset of microscopic peripheral blood cell images for development of automatic recognition systems"
+    authors: "Acevedo, A.; Merino, A.; Alférez, S.; Molina, Á.; Boldú, L.; Rodellar, J."
+    year: 2020
+    venue: "Data in Brief 30, 105474"
+    doi: "10.1016/j.dib.2020.105474"
+    url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7182702/"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; full text via Europe PMC PMC7182702 — specifications table and Table 1 read)"
+    verified_at: "2026-11-03"
+    why: "The source of BloodMNIST: 17,092 single normal-cell images, CellaVision DM96, May Grünwald-Giemsa stain, Hospital Clinic of Barcelona, 2015-2019, 360 x 363 jpg, labelled by clinical pathologists. Table 1 class shares run from 19.48% (neutrophils) to 7.10% (lymphocytes). Each image 'was annotated ... and saved with a random identification number to remove any link and traceability to the patient data' — so no patient grouping can be reconstructed, and the official split cannot be patient-grouped."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "A dataset of microscopic peripheral blood cell images for development of automatic recognition systems"
+    resolved_at: "2026-11-03"
+  acevedo2019:
+    title: "Recognition of peripheral blood cell images using convolutional neural networks"
+    authors: "Acevedo, A.; Alférez, S.; Merino, A.; Puigví, L.; Rodellar, J."
+    year: 2019
+    venue: "Computer Methods and Programs in Biomedicine 180, 105020"
+    doi: "10.1016/j.cmpb.2019.105020"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; abstract via Europe PMC, PMID 31425939 search on DOI)"
+    verified_at: "2026-11-03"
+    why: "The resonant application: the dataset's own authors classified the same eight classes at full resolution with transfer learning — VGG-16 / Inception-v3 features + SVM reached 86% / 90% test accuracy, fine-tuned end-to-end 96% / 95%, best overall 96.2%. Their split is not MedMNIST's, so this positions the task's difficulty, it is not a comparator for P5."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Recognition of peripheral blood cell images using convolutional neural networks"
+    resolved_at: "2026-11-03"
+  lecun1998:
+    title: "Gradient-based learning applied to document recognition"
+    authors: "LeCun, Y.; Bottou, L.; Bengio, Y.; Haffner, P."
+    year: 1998
+    venue: "Proceedings of the IEEE 86(11), 2278-2324"
+    doi: "10.1109/5.726791"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record)"
+    verified_at: "2026-11-03"
+    why: "The convolutional network trained by back-propagation: local receptive fields, shared weights and sub-sampling (pooling) — the inductive bias the P1-versus-P2 comparison isolates at matched parameter count."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Gradient-based learning applied to document recognition"
+    resolved_at: "2026-11-03"
+  he2016:
+    title: "Deep Residual Learning for Image Recognition"
+    authors: "He, K.; Zhang, X.; Ren, S.; Sun, J."
+    year: 2016
+    venue: "2016 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 770-778; arXiv 2015-12-10"
+    doi: "10.1109/CVPR.2016.90"
+    arxiv: "1512.03385"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record for the CVPR DOI; arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "ResNet-18 / ResNet-50 are the architectures behind MedMNIST v2's reference rows, including the 0.958 P5 compares against. This study does not train a ResNet; it measures how far a much smaller CPU-budget network gets toward one."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Deep Residual Learning for Image Recognition"
+    resolved_at: "2026-11-03"
+  ioffe2015:
+    title: "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift"
+    authors: "Ioffe, S.; Szegedy, C."
+    year: 2015
+    venue: "Proceedings of the 32nd International Conference on Machine Learning (ICML 2015), PMLR 37:448-456"
+    doi: "10.48550/arXiv.1502.03167"   # arXiv's own DataCite DOI for this record
+    arxiv: "1502.03167"
+    url: "https://proceedings.mlr.press/v37/ioffe15.html"
+    verified: true
+    verified_by: "klein-method-scholar (PMLR proceedings page metadata; arXiv abstract page; DataCite record for the arXiv DOI — export.arxiv.org returned HTTP 429 to this egress on 2026-11-03, so the mechanical title match runs through the DOI)"
+    verified_at: "2026-11-03"
+    why: "The normalization lever in P3. The abstract's claim that matters at a fixed step budget: batch normalization 'allows us to use much higher learning rates' and reached the same accuracy 'with 14 times fewer training steps' on their ImageNet model."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift"
+    resolved_at: "2026-11-03"
+  santurkar2018:
+    title: "How Does Batch Normalization Help Optimization?"
+    authors: "Santurkar, S.; Tsipras, D.; Ilyas, A.; Madry, A."
+    year: 2018
+    venue: "Advances in Neural Information Processing Systems 31 (NeurIPS 2018)"
+    arxiv: "1805.11604"
+    url: "https://papers.nips.cc/paper_files/paper/2018"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv abstract page, comments 'In NeurIPS'18'; title present in the NeurIPS 2018 proceedings listing)"
+    verified_at: "2026-11-03"
+    why: "The honest correction to ioffe2015's mechanism: distributional stability of layer inputs 'has little to do with the success of BatchNorm'; it 'makes the optimization landscape significantly smoother'. The card teaches the smoother-landscape reading, which is also why BN is a step-budget lever."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "How Does Batch Normalization Help Optimization?"
+    resolved_at: "2026-11-03"
+  kingma2015:
+    title: "Adam: A Method for Stochastic Optimization"
+    authors: "Kingma, D. P.; Ba, J."
+    year: 2015
+    venue: "3rd International Conference on Learning Representations (ICLR 2015), San Diego"
+    doi: "10.48550/arXiv.1412.6980"   # arXiv's own DataCite DOI for this record
+    arxiv: "1412.6980"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv abstract page, comments field 'Published as a conference paper at ... ICLR, San Diego, 2015'; DataCite record for the arXiv DOI — export.arxiv.org returned HTTP 429 to this egress on 2026-11-03, so the mechanical title match runs through the DOI)"
+    verified_at: "2026-11-03"
+    why: "The optimizer of MedMNIST v2's ResNet recipe (Adam, lr 0.001) — the base the study's AdamW decouples weight decay from."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Adam: A Method for Stochastic Optimization"
+    resolved_at: "2026-11-03"
+  loshchilov2019:
+    title: "Decoupled Weight Decay Regularization"
+    authors: "Loshchilov, I.; Hutter, F."
+    year: 2019
+    venue: "International Conference on Learning Representations (ICLR 2019); arXiv first posted 2017-11-14"
+    arxiv: "1711.05101"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv abstract page, comments field 'Published as a conference paper at ICLR 2019')"
+    verified_at: "2026-11-03"
+    why: "AdamW, the anchor's optimizer (lr 3e-3, weight decay 1e-4 in train.py): weight decay applied directly to the weights, not folded into the adaptive gradient as an L2 term."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Decoupled Weight Decay Regularization"
+    resolved_at: "2026-11-03"
+  shorten2019:
+    title: "A survey on Image Data Augmentation for Deep Learning"
+    authors: "Shorten, C.; Khoshgoftaar, T. M."
+    year: 2019
+    venue: "Journal of Big Data 6, article 60"
+    doi: "10.1186/s40537-019-0197-0"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; Semantic Scholar abstract; open-access PDF text searched for the 'safety' passage)"
+    verified_at: "2026-11-03"
+    why: "The label-preservation test every augmentation must pass: 'The safety of a Data Augmentation method refers to its likelihood of preserving the label post-transformation ... rotations and flips are generally safe on ImageNet challenges such as cat versus dog, but not safe for digit recognition tasks such as 6 versus 9.' Blood cells on a smear are the cat-versus-dog case."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "A survey on Image Data Augmentation for Deep Learning"
+    resolved_at: "2026-11-03"
+  cohen2016:
+    title: "Group Equivariant Convolutional Networks"
+    authors: "Cohen, T. S.; Welling, M."
+    year: 2016
+    venue: "Proceedings of the 33rd International Conference on Machine Learning (ICML 2016), PMLR 48:2990-2999"
+    arxiv: "1602.07576"
+    url: "https://proceedings.mlr.press/v48/cohenc16.html"
+    verified: true
+    verified_by: "klein-method-scholar (PMLR proceedings page metadata; arXiv abstract page, journal-ref ICML 2016)"
+    verified_at: "2026-11-03"
+    why: "The architectural alternative to D4 augmentation: build rotation-by-90-degree and reflection equivariance into the layers (G-convolutions) instead of teaching it with augmented copies. Named in the lit-scan, not run here."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Group Equivariant Convolutional Networks"
+    resolved_at: "2026-11-03"
+  veeling2018:
+    title: "Rotation Equivariant CNNs for Digital Pathology"
+    authors: "Veeling, B. S.; Linmans, J.; Winkens, J.; Cohen, T.; Welling, M."
+    year: 2018
+    venue: "Medical Image Computing and Computer Assisted Intervention - MICCAI 2018, LNCS 11071, 210-218"
+    doi: "10.1007/978-3-030-00934-2_24"
+    arxiv: "1806.03962"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record for the LNCS chapter; arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "The resonant application of the symmetry prior in microscopy: 'histopathology images are inherently symmetric under rotation and reflection', and exploiting it 'significantly improves tumor detection performance' (lymph-node metastases; the PCam benchmark). The same physical argument licenses flips and 90-degree rotations for blood smears."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Rotation Equivariant CNNs for Digital Pathology"
+    resolved_at: "2026-11-03"
+  bouthillier2021:
+    title: "Accounting for Variance in Machine Learning Benchmarks"
+    authors: "Bouthillier, X.; Delaunay, P.; Bronzi, M.; Trofimov, A.; Nichyporuk, B.; Szeto, J.; Mohammadi Sepahvand, N.; Raff, E.; Madan, K.; Voleti, V.; Ebrahimi Kahou, S.; Michalski, V.; Arbel, T.; Pal, C.; Varoquaux, G.; Vincent, P."
+    year: 2021
+    venue: "Proceedings of Machine Learning and Systems 3 (MLSys 2021)"
+    doi: "10.48550/arXiv.2103.03098"   # arXiv's own DataCite DOI for this record
+    arxiv: "2103.03098"
+    url: "https://proceedings.mlsys.org/paper_files/paper/2021/hash/0184b0cd3cfb185989f858a1d9f5c1eb-Abstract.html"
+    verified: true
+    verified_by: "klein-method-scholar (MLSys 2021 proceedings listing and abstract page; arXiv abstract page; DataCite record for the arXiv DOI — export.arxiv.org returned HTTP 429 to this egress on 2026-11-03, so the mechanical title match runs through the DOI)"
+    verified_at: "2026-11-03"
+    why: "Why the study keeps two floors apart: 'variance due to data sampling, parameter initialization and hyperparameter choice impact markedly machine learning benchmark'. The seed array measures initialization (+ batch order); the item bootstrap measures data sampling of the evaluation set."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Accounting for Variance in Machine Learning Benchmarks"
+    resolved_at: "2026-11-03"
+  picard2021:
+    title: "Torch.manual_seed(3407) is all you need: On the influence of random seeds in deep learning architectures for computer vision"
+    authors: "Picard, D."
+    year: 2021
+    venue: "arXiv preprint"
+    doi: "10.48550/arXiv.2109.08203"   # arXiv's own DataCite DOI for this record
+    arxiv: "2109.08203"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv abstract page; DataCite record for the arXiv DOI — export.arxiv.org returned HTTP 429 to this egress on 2026-11-03, so the mechanical title match runs through the DOI)"
+    verified_at: "2026-11-03"
+    why: "Seed spread in vision models: 'even if the variance is not very large, it is surprisingly easy to find an outlier that performs much better or much worse than the average' — why a candidate is a seed array and the notary decides on its mean."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Torch.manual_seed(3407) is all you need: On the influence of random seeds in deep learning architectures for computer vision"
+    resolved_at: "2026-11-03"
+  varoquaux2022:
+    title: "Machine learning for medical imaging: methodological failures and recommendations for the future"
+    authors: "Varoquaux, G.; Cheplygina, V."
+    year: 2022
+    venue: "npj Digital Medicine 5, article 48"
+    doi: "10.1038/s41746-022-00592-y"
+    url: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9005663/"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; full text via Europe PMC PMC9005663)"
+    verified_at: "2026-11-03"
+    why: "The medical-imaging statement of both of this study's worries: evaluation noise on the test set is often as large as the gap between methods (their Kaggle public-vs-private analysis), and 'repeated measures of an individual are split across train and test set' is a named leakage route — the patient-grouping caveat the official BloodMNIST split cannot rule out. Also: accept a method on 'a sizable improvement', compared to 'variation of the results due to arbitrary choices such as data sampling or random seeds'."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Machine learning for medical imaging: methodological failures and recommendations for the future"
+    resolved_at: "2026-11-03"
+  efron1979:
+    title: "Bootstrap Methods: Another Look at the Jackknife"
+    authors: "Efron, B."
+    year: 1979
+    venue: "The Annals of Statistics 7(1), 1-26"
+    doi: "10.1214/aos/1176344552"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record)"
+    verified_at: "2026-11-03"
+    why: "The item bootstrap that sets the keep bar: re-draw the 1,712 development items with replacement and recompute the statistic — for macro-F1, recompute it, because macro-F1 is not a mean over items."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Bootstrap Methods: Another Look at the Jackknife"
+    resolved_at: "2026-11-03"
+  guo2017:
+    title: "On Calibration of Modern Neural Networks"
+    authors: "Guo, C.; Pleiss, G.; Sun, Y.; Weinberger, K. Q."
+    year: 2017
+    venue: "Proceedings of the 34th International Conference on Machine Learning (ICML 2017), PMLR 70:1321-1330"
+    arxiv: "1706.04599"
+    url: "https://proceedings.mlr.press/v70/guo17a.html"
+    verified: true
+    verified_by: "klein-method-scholar (PMLR proceedings page metadata; arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "Expected calibration error, the `val_ece` the multiclass evaluator prints beside the primary metric. The abstract: 'depth, width, weight decay, and Batch Normalization are important factors influencing calibration' — P3 changes two of them, so its cell should be read for ECE as well as macro-F1."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "On Calibration of Modern Neural Networks"
+    resolved_at: "2026-11-03"
+  doerrich2025:
+    title: "Rethinking model prototyping through the MedMNIST+ dataset collection"
+    authors: "Doerrich, S.; Di Salvo, F.; Brockmann, J.; Ledig, C."
+    year: 2025
+    venue: "Scientific Reports 15, article 7669 (published 2025-03-05); arXiv 2024-04-24"
+    doi: "10.1038/s41598-025-92156-9"
+    arxiv: "2404.15786"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref search hit and record; abstract via Europe PMC PMC11883007; arXiv abstract page, journal-ref Scientific Reports 15, 7669)"
+    verified_at: "2026-11-03"
+    why: "The key follow-up for positioning: a systematic re-benchmark of CNNs and ViTs on MedMNIST+ across resolutions (28 to 224) and training schemes, finding that 'higher image resolutions do not consistently improve performance beyond a certain threshold' and reaffirming 'the competitiveness of CNNs compared to ViTs'. Cited qualitatively; no number from it is used."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Rethinking model prototyping through the MedMNIST+ dataset collection"
+    resolved_at: "2026-11-03"
+  medmnist_info:
+    title: "MedMNIST package metadata, medmnist/info.py (BloodMNIST entry)"
+    authors: "MedMNIST team (Yang, J. et al.)"
+    year: 2026
+    venue: "GitHub repository MedMNIST/MedMNIST, file medmnist/info.py on the main branch, read 2026-11-03"
+    url: "https://github.com/MedMNIST/MedMNIST/blob/main/medmnist/info.py"
+    verified: true
+    verified_by: "klein-method-scholar (raw file fetched from raw.githubusercontent.com on the date below)"
+    verified_at: "2026-11-03"
+    why: "The label-index mapping the card's class-level prior uses: 0 basophil, 1 eosinophil, 2 erythroblast, 3 immature granulocytes (myelocytes, metamyelocytes and promyelocytes), 4 lymphocyte, 5 monocyte, 6 neutrophil, 7 platelet; n_samples train 11959 / val 1712 / test 3421; the 28-px file URL is the Zenodo record 10519652 the study pins; licence CC BY 4.0."

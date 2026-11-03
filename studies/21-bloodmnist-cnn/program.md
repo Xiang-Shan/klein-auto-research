@@ -86,6 +86,16 @@ base commit.
   near-duplicates (dHash <= 4 bits); `prepare.py` drops them from development (3) and
   test (8). Scope limit on every claim: the official split is image-level, not grouped
   by patient or slide, so all scores are image-level.
+- 2026-11-03 — METHOD: the card confirms MedMNIST v2 Table 3 (BloodMNIST, test):
+  ResNet-18 (28) ACC 0.958 (P5 unchanged), auto-sklearn ACC 0.878 on flattened raw
+  pixels. Decision: re-record CONSULT to correct RQ1's prior text (it said auto-sklearn
+  used feature engineering; it did not) and to make RQ4's probability explicit. No
+  prediction, rule, track or phase changed; no run exists yet.
+- 2026-11-03 — METHOD flags for the floor sweep: macro-F1 is not a per-image mean, so
+  its item bootstrap resamples images and recomputes macro-F1 (not `item_bootstrap` on
+  per-image correctness); augmentation draws from its own RNG so batch order matches the
+  anchor at the same seed; per-seed confusion tables are now pinned separately
+  (framework fix d2a4f08).
 - 2026-11-03 — Decision: `prepare.py` stores the source's uint8 pixels; the training
   loader scales them (the payload stays byte-faithful to the source).
 

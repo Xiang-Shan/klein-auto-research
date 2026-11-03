@@ -75,7 +75,7 @@ phases:
 research_questions:
   - id: RQ1
     question: "How much of BloodMNIST is solved by a linear softmax on raw pixels?"
-    prior: "a fair amount but far from all: macro-F1 around 0.70 (between 0.50 and 0.85). MedMNIST v2 reports auto-sklearn near 0.88 test accuracy with feature engineering; raw pixels and no features should do worse (source: knowledge, recalled; verified at METHOD)."
+    prior: "a fair amount but far from all: macro-F1 around 0.70 (between 0.50 and 0.85). MedMNIST v2 (Table 3) reports auto-sklearn at 0.878 test accuracy on the same flattened raw pixels, with automated model search a single softmax lacks, so a linear softmax should do somewhat worse (source: knowledge, verified at METHOD against Yang et al. 2023 Table 3)."
   - id: RQ2
     question: "Does the recipe's two-block CNN clear the linear baseline by more than the measured floor, and by how much?"
     prior: "yes, by a wide margin — macro-F1 at or above 0.85 at 1,500 steps (source: uninformed beyond general experience with 28-pixel MedMNIST tasks)."
@@ -84,7 +84,7 @@ research_questions:
     prior: "augmentation and depth together reach 0.93; a longer schedule alone helps less than the floor (source: uninformed)."
   - id: RQ4
     question: "Does the CPU-budget incumbent hold on the sealed official test split, and does it reach MedMNIST v2's ResNet-18 (28) test accuracy of 0.958?"
-    prior: "holds within a couple of points; stays below 0.958 (about 0.65) — a 28-pixel ResNet-18 trained for 100 epochs is a stronger recipe than a few thousand CPU steps (source: knowledge, recalled; verified at METHOD)."
+    prior: "holds within a couple of points of development; P(test accuracy stays below 0.958) about 0.65 — a 28-pixel ResNet-18 trained for 100 epochs is a stronger recipe than a few thousand CPU steps (source: knowledge, recalled; verified at METHOD)."
 
 predictions:
   - id: P1
