@@ -92,8 +92,10 @@
   "timed_out": false,
   "track": "search",
   "transaction": {
-    "ready_at": "2026-11-03T06:19:40.200243Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T06:19:40.393524Z",
+    "evidence_commit": "bee75afe2d52a5834d2494c75c0ae51919f2d654",
+    "recovered": false,
+    "status": "complete"
   },
   "verifier": {
     "artifact": "tables/solution_E0001.json",
