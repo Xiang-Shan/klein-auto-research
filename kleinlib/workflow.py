@@ -435,6 +435,9 @@ def _run_declared_verifier(
             # thing being trusted.
             "KLEIN_SMOKE": "",
             "KLEIN_SEALED_DRYRUN": "",
+            # ...and never imports from the directory the searcher just wrote to
+            # (a planted json.py there would shadow the stdlib; study 24).
+            "PYTHONSAFEPATH": "1",
         },
     )
     scripts = [
