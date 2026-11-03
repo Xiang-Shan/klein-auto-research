@@ -78,6 +78,7 @@
         "em_direct_public",
         "em_direct_twin_dev",
         "em_direct_twin_sealed",
+        "gsm8k_name_numeral",
         "requery_em_direct_public",
         "rq1_prior_range"
       ],
@@ -189,6 +190,7 @@
         "ci_gain_public",
         "gain_public",
         "gain_threshold",
+        "gsm8k_name_numeral",
         "requery_gain_public",
         "requery_shift_public",
         "tolerance_cot_gain"
@@ -504,6 +506,13 @@
       "note": "|re-query - original| em_gap, E0003",
       "precision": 3,
       "value": 0.045
+    },
+    "gsm8k_name_numeral": {
+      "art": "study_yaml",
+      "claim": "C1",
+      "note": "NOT a measured value: the digit in the benchmark name GSM8K (an identifier) that the claim-sentence scan reads as a numeral; homed in study.yaml's data.source 'bundled:gsm8k-test'. Added because C1 and C2 name the benchmark.",
+      "precision": 0,
+      "value": 8
     },
     "headroom_public": {
       "art": "quant",
