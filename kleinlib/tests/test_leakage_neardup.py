@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+import pytest
 from test_index_split import PREDEFINED, _image_study
 
 from kleinlib.leakage import audit_index, main
@@ -146,3 +147,47 @@ def test_multiclass_track_gets_a_balanced_accuracy_chance_audit(tmp_path: Path) 
     chance = [c for c in checks if "chance[" in c.name]
     assert len(chance) == 2 and all(c.ok for c in chance), chance
     assert all("1/K = 0.3333" in c.message for c in chance)
+
+
+def _three_way(tmp_path: Path, n: int = 40):
+    _, study = _image_study(tmp_path, PREDEFINED)
+    prepared = study / "data" / "prepared"
+    prepared.mkdir(parents=True)
+    rows = ["id,label,split"]
+    for i in range(n):
+        part = "train" if i < 24 else ("development" if i < 32 else "test")
+        rows.append(f"img{i:03d},{i % 2},{part}")
+    (prepared / "index.csv").write_text("\n".join(rows) + "\n", encoding="utf-8")
+    return study, prepared
+
+
+def test_the_sealed_partition_is_audited_against_train_and_development(tmp_path: Path) -> None:
+    """Study 22's review: the sealed run fits on train + development, so a test image
+    copied from a DEVELOPMENT image is a leak too."""
+    study, prepared = _three_way(tmp_path)
+    images = _images(40)
+    images[36] = images[27]  # test copies a development image
+    np.save(prepared / "images.npy", images)
+    checks = audit_index(prepared / "index.csv", study_dir=study, near_dup="image", payload=prepared / "images.npy")
+    failing = [c.name for c in checks if c.name.startswith("near-duplicates") and not c.ok]
+    assert failing == ["near-duplicates (image, test vs train+development)"]
+
+
+def test_the_pixel_criterion_confirms_copies_and_matches_brute_force(tmp_path: Path) -> None:
+    from kleinlib.neardup import pixel_rmse_min
+
+    study, prepared = _three_way(tmp_path)
+    rng = np.random.default_rng(3)
+    images = rng.integers(0, 256, size=(40, 12, 12), dtype=np.uint8)
+    noisy = images[5].astype(int) + rng.integers(-2, 3, size=(12, 12))
+    images[30] = np.clip(noisy, 0, 255).astype(np.uint8)  # a development near-copy of train item 5
+    np.save(prepared / "images.npy", images)
+    brute = np.sqrt(((images[30].astype(float) - images[:24].astype(float)) ** 2).reshape(24, -1).mean(axis=1)).min()
+    assert pixel_rmse_min(images[30:31], images[:24])[0] == pytest.approx(brute)
+    checks = audit_index(
+        prepared / "index.csv", study_dir=study, near_dup="image", payload=prepared / "images.npy", pixel_rmse=4.0
+    )
+    rows = {c.name: c for c in checks if c.name.startswith("near-duplicates")}
+    assert not rows["near-duplicates (image, development vs train)"].ok
+    assert rows["near-duplicates (image, test vs train+development)"].ok
+    assert "grey levels RMS" in rows["near-duplicates (image, development vs train)"].message

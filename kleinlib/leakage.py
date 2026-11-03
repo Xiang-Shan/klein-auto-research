@@ -646,12 +646,21 @@ def _near_dup_checks(
     against: str | Path | None,
     threshold: float | None,
     max_rate: float,
+    pixel_rmse: float | None = None,
 ) -> list[Check]:
     from . import neardup
 
     checks: list[Check] = []
     train = positions.get("train", np.array([], dtype=int))
     held = {name: positions[name] for name in ("development", "test") if positions.get(name) is not None}
+    # The sealed run fits on train + development, so the sealed partition is audited
+    # against BOTH (study 22's review): a test item copied from a development item
+    # would be in the sealed fit pool.
+    development = positions.get("development", np.array([], dtype=int))
+    references = {
+        "development": ("train", train),
+        "test": ("train+development", np.concatenate([train, development]).astype(int)),
+    }
     if kind == "image":
         if payload is None:
             return [Check("near-duplicates (image)", False, "--payload <images.npy> is required")]
@@ -665,15 +674,33 @@ def _near_dup_checks(
                     "(row i of the payload must be the item of index row i)",
                 )
             ]
+        if pixel_rmse is not None:
+            # Pixel-space criterion (opt-in): exact nearest neighbour, RMS grey levels.
+            pixels = np.asarray(images)
+            for name, pos in held.items():
+                label, ref = references[name]
+                distance = neardup.pixel_rmse_min(pixels[pos], pixels[ref])
+                hits = int((distance <= pixel_rmse).sum())
+                rate = hits / max(len(pos), 1)
+                checks.append(
+                    Check(
+                        f"near-duplicates (image, {name} vs {label})",
+                        rate <= max_rate,
+                        f"{hits}/{len(pos)} {name} images ({rate:.2%}) have a {label} image within "
+                        f"{pixel_rmse:g} grey levels RMS (pixel space; max rate {max_rate:.2%})",
+                    )
+                )
+            return checks
         bits = int(threshold if threshold is not None else neardup.DEFAULT_THRESHOLD)
         hashes = neardup.dhash_many(np.asarray(images))
         for name, pos in held.items():
-            report = neardup.cross_partition_image_dups(hashes[pos], hashes[train], threshold=bits)
+            label, ref = references[name]
+            report = neardup.cross_partition_image_dups(hashes[pos], hashes[ref], threshold=bits)
             checks.append(
                 Check(
-                    f"near-duplicates (image, {name} vs train)",
+                    f"near-duplicates (image, {name} vs {label})",
                     report.rate <= max_rate,
-                    f"{report.hits}/{report.query_n} {name} images ({report.rate:.2%}) have a train "
+                    f"{report.hits}/{report.query_n} {name} images ({report.rate:.2%}) have a {label} "
                     f"image within {bits} bits of dHash (max rate {max_rate:.2%})",
                 )
             )
@@ -683,15 +710,15 @@ def _near_dup_checks(
             return [Check("near-duplicates (text)", False, "--text-column naming an index column is required")]
         n = int(threshold if threshold is not None else neardup.DEFAULT_NGRAM)
         texts = index[text_column].astype(str).tolist()
-        reference = [texts[i] for i in train]
         for name, pos in held.items():
-            report = neardup.text_contamination([texts[i] for i in pos], reference, n=n)
+            label, ref = references[name]
+            report = neardup.text_contamination([texts[i] for i in pos], [texts[i] for i in ref], n=n)
             checks.append(
                 Check(
-                    f"near-duplicates (text, {name} vs train)",
+                    f"near-duplicates (text, {name} vs {label})",
                     report.rate <= max_rate,
                     f"{report.hits}/{report.query_n} {name} items ({report.rate:.2%}) share a "
-                    f"{n}-gram with train (max rate {max_rate:.2%})",
+                    f"{n}-gram with {label} (max rate {max_rate:.2%})",
                 )
             )
         if against is not None:
@@ -721,6 +748,7 @@ def audit_index(
     against: str | Path | None = None,
     threshold: float | None = None,
     max_rate: float = 0.0,
+    pixel_rmse: float | None = None,
 ) -> list[Check]:
     """Audit a SPLIT INDEX TABLE — the modality-agnostic form of checklist row 3.
 
@@ -783,6 +811,7 @@ def audit_index(
             against=against,
             threshold=threshold,
             max_rate=max_rate,
+            pixel_rmse=pixel_rmse,
         )
     return checks
 
@@ -824,6 +853,13 @@ def main(argv: list[str] | None = None) -> int:
         help="image: max dHash bits apart (default 4); text: n-gram length (default 13)",
     )
     parser.add_argument(
+        "--pixel-rmse",
+        type=float,
+        help="(image) use a PIXEL-space criterion instead of dHash: a held-out image counts when its "
+        "pixel-nearest reference differs by at most this many grey levels RMS (0-255 scale); for tiny "
+        "images where a 64-bit hash is too coarse",
+    )
+    parser.add_argument(
         "--max-rate",
         type=float,
         default=0.0,
@@ -851,6 +887,7 @@ def main(argv: list[str] | None = None) -> int:
                 against=args.against,
                 threshold=args.threshold,
                 max_rate=args.max_rate,
+                pixel_rmse=args.pixel_rmse,
             )
         else:
             checks = audit_split(args.prepared, target=args.target, study_dir=args.study,

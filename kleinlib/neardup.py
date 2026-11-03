@@ -178,6 +178,36 @@ def cross_partition_image_dups(
     )
 
 
+def _gray255(images: np.ndarray) -> np.ndarray:
+    """``(N, P)`` float32 grey pixels on a 0-255 scale (uint8 as is; [0, 1] floats scaled)."""
+    gray = _to_gray_batch(np.asarray(images)).astype(np.float32)
+    if np.issubdtype(np.asarray(images).dtype, np.floating) and float(np.nanmax(gray, initial=0.0)) <= 1.0:
+        gray = gray * 255.0
+    return gray.reshape(gray.shape[0], -1)
+
+
+def pixel_rmse_min(query: np.ndarray, reference: np.ndarray, *, chunk: int = 2048) -> np.ndarray:
+    """For each query image: the RMS grey-level difference to its pixel-nearest reference image.
+
+    Exact nearest neighbour in pixel space (|a-b|^2 = |a|^2 + |b|^2 - 2ab, chunked);
+    images must share a shape. The confirmation a coarse hash needs on tiny images
+    (study 22: 64-bit dHash flagged 56% of 28x28 Fashion-MNIST held-out images, of
+    which a dozen were real pixel-level copies).
+    """
+    q, r = _gray255(query), _gray255(reference)
+    if q.shape[1] != r.shape[1]:
+        raise ValueError("pixel-space near-duplicates need images of one shape")
+    if r.shape[0] == 0:
+        return np.full(q.shape[0], np.inf)
+    r_sq = (r.astype(np.float64) ** 2).sum(axis=1)
+    out = np.empty(q.shape[0])
+    for start in range(0, q.shape[0], chunk):
+        block = q[start : start + chunk].astype(np.float64)
+        d2 = (block**2).sum(axis=1)[:, None] + r_sq[None, :] - 2.0 * block @ r.T.astype(np.float64)
+        out[start : start + chunk] = np.sqrt(np.maximum(d2.min(axis=1), 0.0) / q.shape[1])
+    return out
+
+
 # ---------------------------------------------------------------------------
 # text
 # ---------------------------------------------------------------------------
