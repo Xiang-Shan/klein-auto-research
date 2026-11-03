@@ -225,3 +225,18 @@ one lever per seed-array candidate, P3 last as its own registered bundle:
 | 6 | P3 bundle: 3 blocks + BN + D4 + 4,000 steps, `--tests P3` | 2 | 3 | 3 | 8 |
 
 Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; a discard does not.
+
+## Phase adaptive — run log
+
+- 2026-11-03 — E0003 (BatchNorm2d after each conv, anchor otherwise): `discard`, val_macro_f1
+  seed-mean 0.3005 (seeds 0.2159 / 0.3541 / 0.3317; std 0.0725), accuracy 0.3669 (seeds 0.246 /
+  0.485 / 0.369). Margin vs incumbent 0.7189: -0.4184, far outside seed spread. Training loss
+  at step 1500 was 0.23-0.34 (anchor 0.5-1.0), so training worked. Off-loop diagnostic
+  (seed 0, same recipe, in-process; not evidence): dev accuracy with batch statistics 0.83 /
+  0.89 / 0.92 at steps 250 / 750 / 1500, but 0.44 / 0.65 / 0.25 in eval mode with the running
+  averages. So the failure is the evaluation-time running statistics (momentum 0.1 lagging
+  weights that still move at constant lr 3e-3), not the idea: BN made the network far better
+  fit, and the candidate as written measured a broken inference path. Bug-in-implementation,
+  not a bad idea; NOT recorded as "ruled out". Next: the same lever with the running
+  statistics recomputed on the training set (no_grad, cumulative average, train data only; no
+  development statistics are used) before `eval()`.
