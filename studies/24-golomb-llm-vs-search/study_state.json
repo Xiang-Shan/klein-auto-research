@@ -217,10 +217,30 @@
         }
       ],
       "track": "search"
+    },
+    "E0004": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0004@20261103T090054Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T09:00:54.948626Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "llm"
     }
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T09:00:52.720794Z"
+  "updated_at": "2026-11-03T10:25:28.255800Z"
 }
