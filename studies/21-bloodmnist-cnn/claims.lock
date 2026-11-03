@@ -1,0 +1,149 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | primary | supported (prior range held) | exploratory | empirical-description | E0002, `art:controls` | A linear softmax on raw pixels reached a seed-mean development macro-F1 of 0.6903 (accuracy 0.7353), far above the chance controls (prior-matched random 0.125, majority class 0.0408) and inside the prior range of 0.50 to 0.85, so a pixel-linear model solves a large part of BloodMNIST but not most of it. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "RQ3, RQ4 | primary | measured | exploratory | empirical-description | E0001, E0008, E0009, `art:summary` | Ranking and calibration did not trade off: expected calibration error fell from 0.0828 at the anchor to 0.0125 at E0008 (0.0086 on the sealed test) and log-loss from 0.6660 to 0.1333. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "RQ2 | primary | interpretation | exploratory | mechanism-interpretation | E0001, E0004, `sweep:fit_noise`, `art:summary` | The anchor's narrow margin over the linear model reflects unstable, under-trained optimisation rather than missing capacity: the same two-block network with working batch normalization at the same 1500 steps reached 0.8960, and its seed sd fell from 0.0255 to 0.0145. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "1.  Before calling a batch-normalization candidate a failure, compare its training-mode and evaluation-mode outputs and recompute the running statistics on the training set; at a constant learning rate and a short budget the default running averages broke inference here. (evidence: E0003, E0004)",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "2.  Measure fit noise across seed blocks as well as item noise before the adaptive phase, and when fit noise exceeds the item-noise bar read every keep together with its seed spread rather than the bar alone. (evidence: `sweep:fit_noise`, `sweep:item_bootstrap`, E0001)",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "3.  Budget the ablations before a registered multi-lever bundle: decompose it inside the phase cap or its gain stays unattributed, as the E0008 bundle's did. (evidence: E0005, E0006, E0007, E0008)",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "4.  On a MedMNIST official split, run the near-duplicate audit before training, drop cross-split copies from the evaluation partitions (11 items here), and state that the split is image-level rather than patient-grouped. (evidence: `art:data_card`, E0009)",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C16": {
+      "claim": "5.  Report a sealed comparison against a published number in binomial standard errors at the test size, and call a gap under two of them indistinguishable whatever the arithmetic verdict of the rule. (evidence: E0009, `art:summary`)",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C17": {
+      "claim": "6.  Run the label-shuffled harness control the data card asks for during the anchor phase; without it the harness check rests on analytic chance levels alone, as it does in this study. (evidence: `art:data_card`, `art:controls`)",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ2 | primary | refuted | exploratory | empirical-description | E0001, E0002, `sweep:item_bootstrap`, `art:summary` | The recipe two-block CNN scored 0.7189 and cleared the pixel-linear baseline by only +0.0286 macro-F1 (0.65 floors), inside the measured keep bar of 0.0438 and far below the prior of 0.85. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ3 | primary | supported for normalization; inconclusive for depth, schedule and augmentation | exploratory | empirical-description | E0004, E0005, E0006, E0007, `art:summary`, `art:seed_dominance` | Working batch normalization was the only single change to earn a keep (E0004, +0.1771 macro-F1, 4.04 floors over E0001); a third block (+0.0326) and 4000 steps (+0.0280) were positive on every seed but short of the bar by 0.0112 and 0.0158, and flip/rotation augmentation alone (-0.0067) is unresolved at this budget. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ3 | primary | supported for the bundle; not attributable | exploratory | empirical-description | E0004, E0006, E0007, E0008, `art:summary` | The four-lever bundle E0008 (third block, working batch normalization, flip/rotation augmentation, 4000 steps) kept at 0.9461, +0.0501 over E0004 and 0.0062 above the bar, but its margins over the depth-only and schedule-only runs (+0.0175 and +0.0221) are inside the bar, so the gain cannot be attributed to any single lever. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "RQ4 | primary | supported (holds; indistinguishable from the reference) | confirmed | empirical-description | E0009, E0008, `rep:E0008@20261103T090709Z`, `art:summary` | On the sealed official test split (3413 items after near-duplicate removal) the E0008 configuration scored macro-F1 0.9465 and accuracy 0.9527 over three seeds, +0.0004 macro-F1 against development; the accuracy is 0.0053 below the MedMNIST v2 reference of 0.958, about 1.5 binomial standard errors of 0.0034, so the two are indistinguishable at this test size. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "\u2014 | primary | held | confirmed | procedural-verdict | E0001, E0004, E0008, E0009, `rep:E0008@20261103T090709Z`, `art:summary` | The frontier closed with two keeps (E0004, E0008) out of seven candidate-versus-incumbent comparisons, the one sealed access went to the E0008 configuration, the incumbent replicated with difference 0, and headroom h = 1.23 means a further keep would need 0.9899. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "RQ3 | primary | interpretation | exploratory | mechanism-interpretation | E0003, E0004, `art:summary` | E0003's collapse to 0.3005 was an inference bug, not a verdict on batch normalization: the same layers with running statistics recomputed on the training set before evaluation (E0004) scored +0.5955 higher. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "RQ2 | primary | measured | exploratory | empirical-description | E0001, `sweep:fit_noise`, `sweep:item_bootstrap`, `art:summary` | At the anchor the seed-block spread of the three-seed mean (fit noise, sd 0.0472) is 3.94 times the item-bootstrap sd of 0.0120 that sets the bar, and the E0001 block is the highest of four (four-block mean 0.6620), so the anchor's 0.7189 is a favourable draw. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "RQ3, RQ4 | primary | measured | exploratory | empirical-description | E0001, E0004, E0008, E0009, `art:per_class` | Per-class effects are uneven: from E0001 to E0008 basophil recall rose from 0.2562 to 0.9201 and immature-granulocyte recall from 0.7046 to 0.9149, but monocyte recall fell from 0.8345 at E0004 to 0.7949 at E0008 and monocytes remain the weakest class on the sealed test at 0.8582. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "eea959838d1260d3af221d6a11efcca011bf5ed0",
+  "klein_commit": "eea959838d1260d3af221d6a11efcca011bf5ed0",
+  "klein_version": "2.2.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "21-bloodmnist-cnn"
+}
