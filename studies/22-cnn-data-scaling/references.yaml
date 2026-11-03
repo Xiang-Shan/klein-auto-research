@@ -1,0 +1,231 @@
+# The citations a `ref:<key>` evidence id resolves to. Written at the METHOD gate
+# (klein-method-scholar, 2026-11-03). Every row was checked against the record itself:
+# the arXiv API entry (title, authors, first-posted date, journal_ref / comment field)
+# and, for every paper whose content the method card leans on, the full text; DOIs
+# against Crossref; the NeurIPS 1993 paper against the proceedings page, its metadata
+# JSON and the PDF. Nothing below is quoted from memory. `klein refs verify --record`
+# then resolves each DOI / arXiv id mechanically and appends resolved_* fields.
+references:
+  xiao2017:
+    title: "Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine Learning Algorithms"
+    authors: "Xiao, H.; Rasul, K.; Vollgraf, R."
+    year: 2017
+    venue: "arXiv preprint (v2, Sep 2017; first posted Aug 2017)"
+    arxiv: "1708.07747"
+    url: "https://arxiv.org/abs/1708.07747"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + full text)"
+    verified_at: "2026-11-03"
+    why: "The dataset: 60,000 train / 10,000 test 28x28 greyscale images, 10 classes. The paper says examples were sorted by label when stored; the shipped train file is not label-ordered (the data card's per-partition class counts are 955-1,050 per class in the positional development lane), so the positional split is safe. Its sklearn benchmark (logistic regression 0.842, MLP 0.871, RBF SVC 0.897 test accuracy) is the context for what a 24k-parameter CNN should reach."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine Learning Algorithms"
+    resolved_at: "2026-11-03"
+  cortes1993:
+    title: "Learning Curves: Asymptotic Values and Rate of Convergence"
+    authors: "Cortes, C.; Jackel, L. D.; Solla, S. A.; Vapnik, V.; Denker, J. S."
+    year: 1993
+    venue: "Advances in Neural Information Processing Systems 6 (NIPS 1993), pp. 327-334"
+    url: "https://proceedings.neurips.cc/paper/1993/hash/1aa48fc4880bb0c9b8a3bf979d3b917e-Abstract.html"
+    verified: true
+    verified_by: "klein-method-scholar (NeurIPS proceedings page, metadata JSON, PDF)"
+    verified_at: "2026-11-03"
+    why: "The original 'fit on small training sets, extrapolate to the full database' paper. It models test error as a + b/l^alpha and training error as a - c/l^beta, so the asymptote a is pinned from BOTH curves. This study records no training loss, so the Cortes trick for the floor is unavailable here. The card names that as the missing instrument."
+  hestness2017:
+    title: "Deep Learning Scaling is Predictable, Empirically"
+    authors: "Hestness, J.; Narang, S.; Ardalani, N.; Diamos, G.; Jun, H.; Kianinejad, H.; Patwary, M. M. A.; Yang, Y.; Zhou, Y."
+    year: 2017
+    venue: "arXiv preprint"
+    arxiv: "1712.00409"
+    url: "https://arxiv.org/abs/1712.00409"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + full text)"
+    verified_at: "2026-11-03"
+    why: "The seminal empirical data-scaling paper and the source of RQ1's prior. For ImageNet ResNets it fits validation cross-entropy ~ 14.0 m^-0.35 (top-1 2.24 m^-0.31, top-5 3.29 m^-0.52), and across domains it reports exponents between -0.07 and -0.35. Its curves are composites of a BEST-FIT model size per shard (model grown with data). It also names the three regions: small-data, power-law, irreducible-error. This study's model is fixed, so its curve should flatten sooner."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Deep Learning Scaling is Predictable, Empirically"
+    resolved_at: "2026-11-03"
+  rosenfeld2020:
+    title: "A Constructive Prediction of the Generalization Error Across Scales"
+    authors: "Rosenfeld, J. S.; Rosenfeld, A.; Belinkov, Y.; Shavit, N."
+    year: 2020
+    venue: "ICLR 2020 (arXiv v2; first posted Sep 2019)"
+    arxiv: "1909.12673"
+    url: "https://arxiv.org/abs/1909.12673"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record, comment 'ICLR 2020', + full text)"
+    verified_at: "2026-11-03"
+    why: "For a FIXED model size m the data curve is eps(m, n) ~ a(m) n^-alpha(m) + c_n(m): it saturates at a model-dependent floor. That is exactly this study's situation (one 23,946-parameter net). Their joint (m, n) form extrapolates ImageNet from 1/16 of the parameters and 1/8 of the data with mean divergence 4.5% (sd 4.7%). That form has an explicit floor and is fitted on many (m, n) configurations, which is not a 6-point pure power law."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "A Constructive Prediction of the Generalization Error Across Scales"
+    resolved_at: "2026-11-03"
+  kaplan2020:
+    title: "Scaling Laws for Neural Language Models"
+    authors: "Kaplan, J.; McCandlish, S.; Henighan, T.; Brown, T. B.; Chess, B.; Child, R.; Gray, S.; Radford, A.; Wu, J.; Amodei, D."
+    year: 2020
+    venue: "arXiv preprint"
+    arxiv: "2001.08361"
+    url: "https://arxiv.org/abs/2001.08361"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + full text)"
+    verified_at: "2026-11-03"
+    why: "The data-limited law L(D) = (D_c/D)^alpha_D with alpha_D ~ 0.095 is stated 'for large models trained with a limited dataset with early stopping'. Each cell here likewise keeps its best inner-validation checkpoint, so the curve is meant as data-limited rather than compute-limited. The difference: here the model is small and fixed, not large."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Scaling Laws for Neural Language Models"
+    resolved_at: "2026-11-03"
+  hoffmann2022:
+    title: "Training Compute-Optimal Large Language Models"
+    authors: "Hoffmann, J.; Borgeaud, S.; Mensch, A.; Buchatskaya, E.; Cai, T.; et al. (22 authors)"
+    year: 2022
+    venue: "NeurIPS 2022 (proceedings title 'An Empirical Analysis of Compute-Optimal Large Language Model Training'); arXiv 'Chinchilla' preprint"
+    arxiv: "2203.15556"
+    url: "https://arxiv.org/abs/2203.15556"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + full text; NeurIPS 2022 listing via mlanthology -> proceedings.neurips.cc)"
+    verified_at: "2026-11-03"
+    why: "L(N, D) = E + A/N^alpha + B/D^beta with the three terms read as irreducible entropy, model-capacity shortfall and finite-data/optimization shortfall (fitted: E = 1.69, alpha = 0.34, beta = 0.28). Freeze N, as this study does, and the data curve's floor is E + A/N^alpha: label noise PLUS the fixed net's capacity shortfall. This is why the card expects a floor large enough to bend the curve."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Training Compute-Optimal Large Language Models"
+    resolved_at: "2026-11-03"
+  bahri2024:
+    title: "Explaining neural scaling laws"
+    authors: "Bahri, Y.; Dyer, E.; Kaplan, J.; Lee, J.; Sharma, U."
+    year: 2024
+    venue: "Proceedings of the National Academy of Sciences 121(27), e2311878121 (arXiv 2021)"
+    doi: "10.1073/pnas.2311878121"
+    arxiv: "2102.06701"
+    url: "https://doi.org/10.1073/pnas.2311878121"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; arXiv API journal_ref; full text)"
+    verified_at: "2026-11-03"
+    why: "Four regimes. In the VARIANCE-limited regime (fix the model, grow the data) the gap between the finite-data loss and its limit scales as 1/D, an exponent of 1 on the EXCESS loss over a nonzero limit. In the resolution-limited regime the exponents are 0 < alpha < 1. A fixed 24k-parameter net heading toward its own limit is the variance-limited case, so the pure no-floor law is the wrong shape asymptotically."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Explaining neural scaling laws"
+    resolved_at: "2026-11-03"
+  viering2023:
+    title: "The Shape of Learning Curves: A Review"
+    authors: "Viering, T.; Loog, M."
+    year: 2023
+    venue: "IEEE Transactions on Pattern Analysis and Machine Intelligence 45(6), 7799-7819 (DOI registered 2022; issue June 2023)"
+    doi: "10.1109/TPAMI.2022.3220744"
+    arxiv: "2103.10948"
+    url: "https://doi.org/10.1109/TPAMI.2022.3220744"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; arXiv API record; full text)"
+    verified_at: "2026-11-03"
+    why: "The review's verdict: power laws WITH an offset (POW3) are the usual good fit, 'a necessity in any challenging real-world setting'. Exponential and other forms win in some settings. Many deep-net power-law claims rest on eyeballed plots. It also catalogues ill-behaved, non-monotone learning curves. This is the honest prior for how much a 6-point pure power law should be trusted."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "The Shape of Learning Curves: A Review"
+    resolved_at: "2026-11-03"
+  alabdulmohsin2022:
+    title: "Revisiting Neural Scaling Laws in Language and Vision"
+    authors: "Alabdulmohsin, I.; Neyshabur, B.; Zhai, X."
+    year: 2022
+    venue: "NeurIPS 2022 (arXiv journal_ref)"
+    arxiv: "2209.06640"
+    url: "https://arxiv.org/abs/2209.06640"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + full text)"
+    verified_at: "2026-11-03"
+    why: "Argues scaling laws must be judged by EXTRAPOLATION loss, not by the best interpolating fit, and compares M1 (pure power law, this study's registered law), M2 (power law + eps_inf) and their M4. M2 is accurate only when the observed curve lies entirely in the power-law regime. This is the frontier position this study's sealed test instantiates at toy scale."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Revisiting Neural Scaling Laws in Language and Vision"
+    resolved_at: "2026-11-03"
+  caballero2023:
+    title: "Broken Neural Scaling Laws"
+    authors: "Caballero, E.; Gupta, K.; Rish, I.; Krueger, D."
+    year: 2023
+    venue: "ICLR 2023 (arXiv journal_ref)"
+    arxiv: "2210.14891"
+    url: "https://arxiv.org/abs/2210.14891"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + abstract/full text)"
+    verified_at: "2026-11-03"
+    why: "A smoothly broken power law, piecewise-linear on log-log axes, that models and extrapolates curves a single power law cannot (including double descent and sharp inflections). It marks how far the field has moved past the one-exponent law this study registers."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Broken Neural Scaling Laws"
+    resolved_at: "2026-11-03"
+  besiroglu2024:
+    title: "Chinchilla Scaling: A replication attempt"
+    authors: "Besiroglu, T.; Erdil, E.; Barnett, M.; You, J."
+    year: 2024
+    venue: "arXiv preprint"
+    arxiv: "2404.10102"
+    url: "https://arxiv.org/abs/2404.10102"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + full text)"
+    verified_at: "2026-11-03"
+    why: "A cautionary tale about scaling-fit intervals. Refitting Hoffmann et al.'s Approach 3, it finds the reported confidence intervals 'implausibly narrow' (they would need over 600,000 experiments). It motivates the card's synthetic finding that lib/scaling.py's within-N bootstrap interval under-covers."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Chinchilla Scaling: A replication attempt"
+    resolved_at: "2026-11-03"
+  hoiem2021:
+    title: "Learning Curves for Analysis of Deep Networks"
+    authors: "Hoiem, D.; Gupta, T.; Li, Z.; Shlapentokh-Rothman, M. M."
+    year: 2021
+    venue: "ICML 2021, PMLR 139:4287-4296"
+    arxiv: "2010.11029"
+    url: "https://proceedings.mlr.press/v139/hoiem21a.html"
+    verified: true
+    verified_by: "klein-method-scholar (PMLR page; arXiv API record; full text)"
+    verified_at: "2026-11-03"
+    why: "The resonant vision application: CNN learning curves (CIFAR, Places365), fitted as e(n) = alpha + eta n^gamma. They note that 'a log-linear relationship ... holds only when asymptotic error is zero'. They model the per-size variance as sigma_0^2 + sigma^2/n (training noise + data-sampling noise), the model the card's synthetic checks use. Error level and local slope are stable across resamples 'but predicted asymptotic error alpha varies widely'."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Learning Curves for Analysis of Deep Networks"
+    resolved_at: "2026-11-03"
+  nakkiran2020:
+    title: "Deep Double Descent: Where Bigger Models and More Data Hurt"
+    authors: "Nakkiran, P.; Kaplun, G.; Bansal, Y.; Yang, T.; Barak, B.; Sutskever, I."
+    year: 2020
+    venue: "ICLR 2020; also J. Stat. Mech. (2021) 124003, doi:10.1088/1742-5468/ac3a74"
+    arxiv: "1912.02292"
+    url: "https://arxiv.org/abs/1912.02292"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record + full text; ICLR 2020 poster listing; Crossref for the J. Stat. Mech. DOI)"
+    verified_at: "2026-11-03"
+    why: "Sample-wise non-monotonicity: near the critical regime, more data can hurt a fixed model trained to completion. The authors note these effects 'often do not occur with optimal early-stopping'. That is what the best-inner-checkpoint rule approximates, and why the card treats it as part of the method rather than a convenience."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Deep Double Descent: Where Bigger Models and More Data Hurt"
+    resolved_at: "2026-11-03"
+  clauset2009:
+    title: "Power-law distributions in empirical data"
+    authors: "Clauset, A.; Shalizi, C. R.; Newman, M. E. J."
+    year: 2009
+    venue: "SIAM Review 51(4), 661-703"
+    doi: "10.1137/070710111"
+    arxiv: "0706.1062"
+    url: "https://doi.org/10.1137/070710111"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record; arXiv API journal_ref; full text)"
+    verified_at: "2026-11-03"
+    why: "Scoped carefully: the paper is about power-law DISTRIBUTIONS, not learning curves. Its general warnings still transfer: looking roughly straight on log-log axes is 'necessary but not sufficient', and 'high values of r2 cannot be taken as evidence in favor of the power-law form'. That is the card's reading of P2."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Power-Law Distributions in Empirical Data"
+    resolved_at: "2026-11-03"
+  loshchilov2019:
+    title: "Decoupled Weight Decay Regularization"
+    authors: "Loshchilov, I.; Hutter, F."
+    year: 2019
+    venue: "ICLR 2019 (arXiv v3; first posted 2017)"
+    arxiv: "1711.05101"
+    url: "https://arxiv.org/abs/1711.05101"
+    verified: true
+    verified_by: "klein-method-scholar (arXiv API record — comment 'Published as a conference paper at ICLR 2019')"
+    verified_at: "2026-11-03"
+    why: "AdamW, the fixed protocol's optimizer (lr 1e-3, weight decay 1e-4): weight decay is applied to the weights directly, not folded into the gradient as an L2 term."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Decoupled Weight Decay Regularization"
+    resolved_at: "2026-11-03"
+  efron1993:
+    title: "An Introduction to the Bootstrap"
+    authors: "Efron, B.; Tibshirani, R. J."
+    year: 1993
+    venue: "Chapman & Hall, New York (Monographs on Statistics and Applied Probability 57); Springer US digital record"
+    doi: "10.1007/978-1-4899-4541-9"
+    url: "https://doi.org/10.1007/978-1-4899-4541-9"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record: title, authors, 1993; series and publisher via library catalogue records)"
+    verified_at: "2026-11-03"
+    why: "The nonparametric and percentile bootstrap lib/scaling.py implements. The (n-1)/n shortfall the card derives is the plug-in variance of a resampled mean, Var*(xbar*) = (1/n^2) sum (x_i - xbar)^2 = ((n-1)/n) s^2/n. It is cited for the method, not quoted from a page."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "An Introduction to the Bootstrap"
+    resolved_at: "2026-11-03"
