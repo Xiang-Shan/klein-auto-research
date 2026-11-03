@@ -317,3 +317,10 @@ Order: dry runs first, then sealed cot_gain, sealed contamination, replications.
   bar; em_original 0.94, em_twins 0.965; the gap's sign flipped, ci_low outside tolerance).
   E0002 --replay (offline) reproduced, difference 0 (never counts).
 - Note: the CELL left at "twin_dev" from the twins phase is irrelevant to sealed cells.
+
+## Belief-revision decisions (2026-11-03)
+
+- 2026-11-03 — Decision: P1 refuted (E0002, em_direct 0.95 > 0.85); the prior that a small model loses much under number-only answering is dropped for qwen-flash, whose "direct" arm reasons anyway; P1 stays as registered.
+- 2026-11-03 — Decision: P2 refuted (E0002, em_gain 0.01 < 0.10); CoT-over-direct gain on the public sample is treated as absent, not as a small positive effect.
+- 2026-11-03 — Decision: P4 refuted (E0004, em_gain -0.025 < 0.10); the CoT gain does not appear on development twins either.
+- 2026-11-03 — Decision: P5 refuted (E0005, sealed em_gain 0.000 < 0.10); the null gain is confirmed on the sealed twin block, with findings scoped to this model and this registered direct prompt.
