@@ -229,3 +229,16 @@ Chosen: both, in order E0001 (search) then E0002 (llm). Mirrored into playbook.m
   concentrated in the first batch - so the registered recall account of P3 is not supported; matches arrived later,
   after the searcher's feedback (proposals 2-74), though recall of partial structure remains possible. Order 9
   and 10 stayed unmatched. This is development-lane evidence; confirmation orders 12-13 remain unspent.
+
+### Phase confirmation slate (2026-11-03)
+
+Registered track: cells, all run; each sealed access is spent once after its dry run.
+
+| # | Candidate cell (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | search arm sealed orders 12-13 x 3 trials; tests P4 (optima matched = 0/6) | 1 | 3 | 3 | 7 |
+| 2 | llm arm sealed orders 12-13 x 3 trials; tests P5 (>= 3/6) | 3 | 3 | 3 | 9 |
+| 3 | replicate E0001 (deterministic) | 1 | 3 | 2 | 6 |
+| 4 | replicate E0004 (salted re-query, counts for confirmation) | 2 | 3 | 3 | 8 |
+
+Order: dry runs first (search, then llm), real search, wait for study 20 to be idle, real llm, replications.
