@@ -122,5 +122,16 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "21-bloodmnist-cnn",
-  "updated_at": "2026-11-03T05:44:20.178446Z"
+  "sweeps": {
+    "item_bootstrap": {
+      "registered_at": "2026-11-03T05:44:52.697782Z",
+      "rows_crash": 0,
+      "rows_ok": 1000,
+      "script": "sweeps/item_bootstrap.py",
+      "script_sha256": "9f9d47fbc00259b4c0a78dbbeec754ff8bd795186d2e2a3366c6d411a3d85081",
+      "sidecar": "sweeps/item_bootstrap.sidecar.tsv",
+      "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
+    }
+  },
+  "updated_at": "2026-11-03T05:44:52.698806Z"
 }
