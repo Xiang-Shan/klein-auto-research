@@ -11,7 +11,7 @@
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
 | reproduction | E0001 | targets_outside_tolerance = 2 (measured; P1 refuted) | development lane, as-committed anchor cell; 9/11 targets within +-1 | anchor |
-| att | -- | no run yet | estimators phase not started | -- |
+| att | E0006 | att_usd 2683.82 (gap +889.48; measured; P3 supported) | AIPW, dw_psid, selected for the sealed CPS-1 cell by the registered rule | estimators |
 
 ## Ruled out (evidence, not opinion)
 
@@ -20,22 +20,22 @@
 | Reading PSID-1 Table 3 col (2) 731 as the note-a regression | E0001 diag rows | note a gives 217.94 = Panel C col (4) 218; 731 is col (5) |
 | "all covariates" readings (married; married+u) as col (5) | E0001 diag rows | 795.02 and 67.28 vs 731: neither within +-1 |
 | Standard-error formula as a source of misses | E0001 | classical OLS SE matched on all 6 non-PSID-adjusted SE/estimate targets |
+| IPW dw_psid as a sealed candidate | E0002 gap +1244.09 (P2 refuted) | lost the selection to AIPW; heavy single-unit weight 0.135 |
+| 1-NN matching dw_psid | E0005 gap -1234.06, 56 distinct controls (P4 refuted) | lost the selection; wide CI |
+| Dropping RE74 as a harmless simplification | E0007 gap -1809.67 (P5 supported) | RE74 is load-bearing: estimate collapses to about 0 |
 
 ## Open hypotheses
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
-| H1 | P2 IPW (DW PSID-1 logit) within $1,000 of 1794.34 | 0.5 | estimators cell 1 (att, ipw, dw_psid) |
-| H2 | P3 AIPW within $1,000 | 0.55 | cell 2 |
-| H3 | P4 1-NN matching within $1,000 | 0.55 | cell 3 |
-| H4 | P5 no-RE74 IPW misses by > $1,000 | 0.6 | cell 4 |
-| H5 | col (5) covariate set unrecovered by tried readings (impacts P6 CPS-1 adjusted target, expect a miss there too) | 0.8 | not needed before confirmation; note for P6 |
+| H1-H4 | P2 refuted, P3 supported, P4 refuted, P5 supported | resolved | -- |
+| H5 | col (5) covariate set unrecovered (expect P6 CPS-1 adjusted target and SE to miss) | 0.8 | confirmation reproduction cell |
+| H6 | P7: AIPW dw_psid carried unchanged to CPS-1 lands within $1,000 | 0.5 | sealed att cell |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-Estimators phase (att track, PSID-1, one registered cell each; bootstrap 500 reps):
-1. P2 IPW, spec dw_psid (anchors the weights; sets the selection baseline)
-2. P4 1-NN matching with replacement (same score)
-3. P3 AIPW (note a outcome model)
-4. P5 IPW without any RE74 term (sensitivity; RQ4)
-Then apply the registered selection rule (smallest |gap| among P2-P4; ties IPW < matching < AIPW) for the sealed CPS-1 cell. Anchor phase done; do not re-run the reproduction cell.
+Confirmation phase (each sealed access once, each after `--final-test --dry-run`):
+1. reproduction track, CPS-1 sealed (P6), unchanged anchor cell
+2. att track, CPS-1 sealed: AIPW, spec dw_psid, reps 500 (P7); selected at E0006 by the registered rule
+Note: AIPW at 500 reps took about 11 min on PSID-1 under load; CPS-1 has 15,992 rows against max_run_seconds 900 -- check the dry run's wall_seconds before the real run.
+Process: launch with nohup and poll; never wrap run-one in a foreground timeout.

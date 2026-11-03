@@ -192,3 +192,13 @@ E0005: 1-NN matching with replacement, ATT 560.28, bootstrap 95% CI [-619.80, 38
 ### E0006 reflection (att, aipw, dw_psid, 500 reps; adjudicates P3)
 
 ATT 2683.82, bootstrap 95% CI [689.10, 4101.53], gap +889.48 vs 1794.34, n_controls_used 1146, max_weight_share 0.135 (same weights as IPW E0002; the outcome model removes about $355 of the IPW overshoot). |gap| < 1000: P3 supported by the notary. The CI is wide (about $3.4k) and covers the benchmark. After the history repair, `klein predict list` re-checked: P2 refuted (E0002), P3 supported (E0006), P4 refuted (E0005).
+
+### E0007 reflection (att, ipw, no_re74, 500 reps; adjudicates P5)
+
+ATT -15.33, bootstrap 95% CI [-2642.44, 2471.35], gap -1809.67 vs 1794.34, n_controls_used 1092, max_weight_share 0.058. Dropping every RE74 term moves the IPW estimate from +3038 to about zero: the effect vanishes, |gap| 1809.67 > 1000, so P5 is supported by the notary (RQ4: 1974 earnings is load-bearing on PSID-1). No refutation, no Decision line owed.
+
+### Estimators phase selection
+
+|gap| over the P2-P4 cells: IPW E0002 1244.09; 1-NN matching E0005 1234.06; AIPW E0006 889.48. No tie.
+
+- 2026-11-03 — Decision: by the registered rule (smallest |gap| among P2-P4; ties IPW < matching < AIPW), the estimator carried to the sealed CPS-1 cell is AIPW with spec dw_psid unchanged, selected from E0006 (gap +889.48). Recorded before any sealed access (no --final-test, no dry run has been run). Verdicts after the history repair re-read from `klein predict list`: P2 refuted, P3 supported, P4 refuted, P5 supported.
