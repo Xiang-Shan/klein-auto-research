@@ -1,0 +1,2 @@
+lane	estimator	spec	att	ci_low	ci_high	experimental_att	gap	n_treated	n_controls_used	max_weight_share	reps	bootstrap_seed
+psid1	ipw	no_re74	-15.330317	-2642.440956	2471.348426	1794.342382	-1809.672699	185	1092	0.058339	500	20261103

@@ -1,0 +1,97 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1306,
+      "committed": true,
+      "sha256": "9b697cf1956840b8e14783383f84dee828d7148dd4e7c5b976cf38d599b40262"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 247748,
+      "committed": true,
+      "sha256": "8cfd2b383e0836fbdc38acafeffa7ddb1a7ff93cfc3dc92e4a41ed66c92e69ed"
+    },
+    "tables/att_E0007.tsv": {
+      "availability": "recorded",
+      "bytes": 233,
+      "committed": true,
+      "role": "declared",
+      "sha256": "563a1611aecd4ca4baf715b4544f213aba8a960cbe8214eab24545c1486dbff2"
+    }
+  },
+  "base_commit": "9fe9aac5993ff7b61ea9f709808c91508eadd499",
+  "candidate_commit": "86e9748d5764cc27b02a4a90d34760bbf8b79e50",
+  "code_patch_hash": "b964069d95b6e74426f754e64d41c91f3f73ecee2660bc6b1dc3b81b587f8b37",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "estimators: ipw no_re74 500 reps, adjudicates P5; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-11-03T05:37:41.832725Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130",
+    "split_partition": "301cc9c3c8cd54188515afa3f24fa45ec6b75350e5cbe1b111a194ea5392a67c"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 900.0,
+  "metric_goal": "higher",
+  "metric_name": "att_usd",
+  "metrics": {
+    "att_gap_usd": -1809.6726986213052,
+    "ci_high": 2471.348426,
+    "ci_low": -2642.440956,
+    "experimental_att": 1794.3423818563415,
+    "max_weight_share": 0.05833922575889906,
+    "n": 185.0,
+    "n_controls_used": 1092.0,
+    "primary_metric": -15.330317,
+    "runner_exit_code": 0.0,
+    "total_seconds": 388.1,
+    "wall_seconds": 388.071424
+  },
+  "phase": "estimators",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P5": {
+      "explanation": "not(|att_gap_usd| 1809.67269862 <= 1000 (from -1809.67269862) \u2192 refuted) \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P5"
+  ],
+  "primary_metric": -15.330317,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T05:31:12.011184Z",
+  "timed_out": false,
+  "track": "att",
+  "transaction": {
+    "committed_at": "2026-11-03T05:37:42.046097Z",
+    "evidence_commit": "5556e4c926c9c5f93f0cab9ee60149189b041d3a",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 389.821220283
+}

@@ -1,0 +1,223 @@
+{
+  "checks": [
+    {
+      "message": "schema_version 3 contract valid",
+      "name": "study contract",
+      "ok": true
+    },
+    {
+      "message": "track 'reproduction': exactness=exact \u2014 floor waived; minimum_delta 1 is the objective's resolution (exactness_note)",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "track 'att': exactness=exact \u2014 floor waived; minimum_delta 0.01 is the objective's resolution (exactness_note)",
+      "name": "noise floor",
+      "ok": true
+    },
+    {
+      "message": "study_state.json loaded",
+      "name": "study state",
+      "ok": true
+    },
+    {
+      "message": "/home/user/klein-auto-research",
+      "name": "git repository",
+      "ok": true
+    },
+    {
+      "message": "current='confirmation'; ladder consistent",
+      "name": "phase ladder",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate consult",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate data",
+      "ok": true
+    },
+    {
+      "message": "status=recorded",
+      "name": "gate method",
+      "ok": true
+    },
+    {
+      "message": "match",
+      "name": "gate artifact hashes",
+      "ok": true
+    },
+    {
+      "message": "valid",
+      "name": "event chain",
+      "ok": true
+    },
+    {
+      "message": "current=579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a; recorded=579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+      "name": "prepared-data fingerprint",
+      "ok": true
+    },
+    {
+      "message": "current=e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130; recorded=e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130",
+      "name": "split fingerprint",
+      "ok": true
+    },
+    {
+      "message": "analyze.py; registered development=301cc9c3c8cd, final_test=b2409a22372d",
+      "name": "contract-driven split",
+      "ok": true
+    },
+    {
+      "message": "no track declares a verifier",
+      "name": "verifier",
+      "ok": true
+    },
+    {
+      "message": "derived view matches manifests",
+      "name": "ledger integrity",
+      "ok": true
+    },
+    {
+      "message": "none pending",
+      "name": "transactions",
+      "ok": true
+    },
+    {
+      "message": "track 'reproduction': no metric.bound declared \u2014 not audited",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "track 'att': no metric.bound declared \u2014 not audited",
+      "name": "headroom",
+      "ok": true
+    },
+    {
+      "message": "syntax valid",
+      "name": "analyze.py",
+      "ok": true
+    },
+    {
+      "message": "every declared guardrail metric is printed by the evaluator or named in the study's Python sources",
+      "name": "guardrail visibility",
+      "ok": true
+    },
+    {
+      "message": "PASS-WITH-NOTES \u2014 klein-referee round 2 (Claude Code subagent, model: claude-opus-5-5), independent-of-experimenter: yes",
+      "name": "referee gate",
+      "ok": true
+    },
+    {
+      "message": "7 registered prediction(s), all adjudicated",
+      "name": "predictions closure",
+      "ok": true
+    },
+    {
+      "message": "every refuted prediction (P1, P2, P4, P6) has a dated `Decision:` line in program.md",
+      "name": "belief revision",
+      "ok": true
+    },
+    {
+      "message": "lock schema 2: fields and classes valid",
+      "name": "claims shape",
+      "ok": true
+    },
+    {
+      "message": "20 pinned artifacts hash as recorded",
+      "name": "claims artifacts",
+      "ok": true
+    },
+    {
+      "message": "every claim id resolves in findings.md",
+      "name": "claims presence",
+      "ok": true
+    },
+    {
+      "message": "every cited evidence id resolves",
+      "name": "claims evidence",
+      "ok": true
+    },
+    {
+      "message": "every pinned value is found in its artifact and every claim numeral has an alias",
+      "name": "claims numbers",
+      "ok": true
+    },
+    {
+      "message": "no claim or number removed or mutated across git history",
+      "name": "claims append-only",
+      "ok": true
+    },
+    {
+      "message": "git_head is an ancestor of HEAD",
+      "name": "claims ancestry",
+      "ok": true
+    },
+    {
+      "message": "evidence_use_rate 1.00 \u2014 all 9 non-keep run(s) and registered sweep(s) are cited",
+      "name": "evidence use",
+      "ok": true
+    },
+    {
+      "message": "7 confirmed claim(s) cite two or more evidence kinds",
+      "name": "convergent evidence",
+      "ok": true
+    },
+    {
+      "message": "all 805 scanned numerals trace to 31 pinned source(s)",
+      "name": "findings numbers",
+      "ok": true
+    },
+    {
+      "message": "all 142 rendered numerals trace to a pinned source",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
+      "message": "5 figure(s) re-render byte-identically",
+      "name": "figure re-render",
+      "ok": true
+    }
+  ],
+  "evidence_use_rate": 1.0,
+  "git_head": "0c25b2de801a1a0223970bcddfe2aff25f1a50ab",
+  "inputs": {
+    "aux_metrics.tsv": "5984de7f5bf11e72612d91c8f7b4a6630ef6518ad4f4f7b13ea3914d9fd3dd52",
+    "claims.lock": "7f1de77d8bd38c9834a54b406259533a5fe2faa08a0d142b05c874e377e2776b",
+    "events.jsonl": "cd2bef666c75db10ea56d79988d4406e26bb33e1ce813b89899455c64ab3ab44",
+    "findings.md": "7497e8c5e7009f50f364a14ba065d1961882269dec2066715058a102b698d551",
+    "playbook.md": "789b4047d1e608c063016d087ad390182583f745c3a7524ea0dd5c415d2dc819",
+    "program.md": "210fc95be03d2c4ca0db3e3faf1e64e7703016e3b8346a04d421e08f231cc1c2",
+    "referee_report.md": "0ef24875d798d778a3bbf9926bf85df1e2fb998daf5c5991d61a3715b0bfa942",
+    "report/index.html": "7c7a1eb8b4faf1ebeff75dc656f3b01141462da0873c59528758f93698ebb286",
+    "results.tsv": "e2cd869f0447a4c45606ede7b8894a6735cce1b82b770a1fb2fededb251cc51e",
+    "study.yaml": "b8cb958c06c617f35fdc05a7a24ad649ae957077412317072bc0f31436e99b7f",
+    "study_state.json": "d630a919d9cb8b7ae7774509e6a31bdabf62bf3acb62ff4c15bb2e3209c61207"
+  },
+  "klein_commit": "0c25b2de801a1a0223970bcddfe2aff25f1a50ab",
+  "klein_version": "2.2.0",
+  "manifests": {
+    "E0001": "3a749974b6c8efd4a476f26aace8d134bfd5cbeb6bf01c7f6c6f92bd5c943928",
+    "E0002": "f98c05c0c530866e067de94382184b9fa78b77860874df21a1dadd0b96c7e6f2",
+    "E0003": "e91ff5b5171d4be38ce409bea5e89606a3f6906ce1760100a7010d845ee991a8",
+    "E0004": "4a3a9c9fa9fb57fc6dc8ac9fc785205bd70b1b793891144d90f4ab5a73e43edc",
+    "E0005": "e0cb2c7c694994308e72ddee2063525ea9bb585c027d958a78561cd97757b120",
+    "E0006": "ac6288a781f419a33b5c763b9452ce8a961e6cde7219861bcabf65851b76f80c",
+    "E0007": "620c33672ed3f97e894a201a7ed2d168aa6ebcd8f23ad1b825ad95ade6885337",
+    "E0008": "b50fd941da67c94bb21e8149886028524ae4bf185f199c5c237538fade6af10d",
+    "E0009": "d1048433b4fd7af594dc0d5c8da383cec6b0d82b87fb7fb39e5db10a93f75ce3"
+  },
+  "schema": 3,
+  "single_source_claims": [],
+  "study": "23-lalonde-causal-replication",
+  "summary": {
+    "checks": 36,
+    "failed": 0,
+    "warned": 0
+  },
+  "timestamp": "2026-11-03T08:38:51.738276Z",
+  "uncited_evidence": [],
+  "undecided_refutations": []
+}

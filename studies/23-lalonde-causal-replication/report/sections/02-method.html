@@ -1,0 +1,25 @@
+<h3>You already know the core idea</h3>
+<p>If you have trained a domain classifier to tell target rows from source rows and then reweighted the source rows to look like the target, you have done the core of propensity weighting for the effect on the treated. The target population is the 185 men who took the programme. The source is 2,490 survey men (PSID-1) or 15,992 (CPS-1) who did not. What we cannot observe is what the trainees would have earned without training; the survey men, reweighted or matched to look like the trainees, stand in for it.</p>
+
+<h3>The answer key, and the identity that frames the audit</h3>
+<p>The estimand is the average effect on the treated (ATT), and the experiment supplies a benchmark for it:</p>
+<div data-math-display="\tau_{\mathrm{ATT}} = E\big[Y(1)-Y(0)\mid T=1\big],\qquad \hat\tau_{\mathrm{exp}} = \bar Y_{T} - \bar Y_{C^{\mathrm{NSW}}}"></div>
+<p>The study's registered quantity is the <em>gap</em>, an estimator's estimate minus the experimental one, computed in the same run. Every estimator has the form <span data-math="\hat\tau = \bar Y_T - \hat\mu_{0\mid T}"></span>, so the trainees' outcomes cancel and the gap reduces to a pure prediction error:</p>
+<div data-math-display="\mathrm{gap} = \hat\tau - \hat\tau_{\mathrm{exp}} = \bar Y_{C^{\mathrm{NSW}}} - \hat\mu_{0\mid T}"></div>
+<p>In words: can survey men, weighted or matched on the trainees' covariates, predict what the randomised-out controls earned? That reframing is why the audit is meaningful. It tests the counterfactual directly.</p>
+
+<h3>Identification, and what must hold</h3>
+<p>Propensity methods rest on selection on observables and overlap. Given the covariates, treatment is unrelated to untreated earnings, and the score stays below one on the trainees' support:</p>
+<div data-math-display="Y(0)\perp T \mid X,\;\; e(x)<1 \;\Longrightarrow\; E\big[Y(0)\mid T=1\big] = \frac{E\big[w(X)\,Y \mid T=0\big]}{E\big[w(X)\mid T=0\big]},\qquad w(x)=\frac{e(x)}{1-e(x)}"></div>
+<p>Selection on observables cannot be checked from the data; the benchmark checks it from outside. Overlap can be checked, and the study pins two diagnostics for it with every estimate: the largest single weight share, and the number of comparison men used. Specification matters too, which is what Smith and Todd showed.</p>
+
+<h3>Three ways to borrow survey men</h3>
+<p><strong>Odds-weighted IPW</strong> on common support (comparison men scored inside the trainees' range, Table 3 note g) weights each man by <span data-math="\hat w_j"></span>:</p>
+<div data-math-display="\hat\tau_{\mathrm{IPW}} = \frac{1}{N_1}\sum_{i\in T} Y_i - \frac{\sum_{j\in S}\hat w_j\,Y_j}{\sum_{j\in S}\hat w_j}"></div>
+<p><strong>Doubly robust AIPW</strong> adds an outcome model <span data-math="\hat\mu_0"></span> (OLS on the comparison men) and corrects its average error with the same weights. It is consistent if either the score or the regression is right:</p>
+<div data-math-display="\hat\tau_{\mathrm{DR}} = \frac{1}{N_1}\sum_{i\in T}\big(Y_i-\hat\mu_0(X_i)\big) - \frac{\sum_{j\in S}\hat w_j\,\big(Y_j-\hat\mu_0(X_j)\big)}{\sum_{j\in S}\hat w_j}"></div>
+<p><strong>One-nearest-neighbour matching</strong> with replacement gives each trainee the single closest survey man on the score; it is weighting with integer weights:</p>
+<div data-math-display="\hat\tau_{\mathrm{M}} = \frac{1}{N_1}\sum_{i\in T}\big(Y_i - Y_{m(i)}\big) = \bar Y_T - \sum_{j\in S}\frac{K_j}{N_1}\,Y_j"></div>
+
+<h3>What the interval is, and is not</h3>
+<p>Every att cell reports a percentile bootstrap of 500 draws that resamples trainees and comparison men separately and re-fits the logit in each draw, but holds the 260 experimental controls fixed. So it is a range for the ATT estimate with the benchmark held fixed, not a range for the gap. For matching, the standard bootstrap is not valid at all (Abadie and Imbens), so that range is descriptive only. The registered rules read only point gaps, so no verdict depends on an interval.</p>

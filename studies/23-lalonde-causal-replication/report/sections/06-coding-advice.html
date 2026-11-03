@@ -1,0 +1,29 @@
+<h3>The cell you edit: <code>analyze.py</code>, as it ran at E0009</h3>
+<p>The whole mutable surface is one file, and a cell only <em>chooses</em>: which estimator, which propensity specification, how many bootstrap draws. The library computes. Because the notary restores the file after every registered cell, the listing below is the file as the sealed AIPW cell (E0009) executed it, read from that run's recorded candidate commit, not whatever is on disk now. Its <code>CELL</code> block reads AIPW with the PSID-1 specification, the one selected on development.</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0009"></pre>
+<p>Three things in it are worth stealing. The lane is read from the data (<code>comparison["sample"]</code>) rather than passed in, so the same cell runs on PSID-1 and, sealed, on CPS-1 without an edit. The reproduction branch computes the registered targets and also <em>never-counted diagnostic rows</em> that show which published column each value matches. And the att branch pins its table with an <code>artifact:</code> line and prints the point, the bootstrap range and the gap-bearing extras (<code>att_gap_usd</code>, <code>n_controls_used</code>, <code>max_weight_share</code>) so the notary can adjudicate predictions on the printed block. The reproduction cell as it ran at E0001 differs only in <code>CELL</code>, which the reproduction track ignores:</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0001"></pre>
+
+<h3>The estimator library</h3>
+<p>The estimators live outside the mutable surface on purpose, so a cell's diff can never be "changed the estimator". Note the design choices: an unpenalised logit on standardised columns (a logit is invariant to rescaling), common support applied to comparison men only so the estimand stays the ATT over all 185 trainees, weight-concentration reported with every estimate, and a bootstrap that re-fits the score in each draw with a fixed seed.</p>
+<pre data-code="lib/lalonde.py" data-lang="python"></pre>
+<p>No verifier script is declared for this study. The checker is the benchmark itself: the gap is computed in the same run from the experimental controls, and the registered rules read only that gap.</p>
+
+<h3>Analysis-pipeline advice, in order</h3>
+<ol>
+<li><strong>Name the estimand and get a benchmark if one exists</strong> at all: a randomised arm, a pilot, a known-null placebo outcome. Without the answer key nothing above could be judged.</li>
+<li><strong>Cross-read every printed target against the paper's other tables before registering a replication</strong> (claim C14). Here that explained both reproduction refutations before any cell ran, so the anchor's STOP rule could tell a known inconsistency in the paper from a broken pipeline. Put the cross-reads in the cell as never-counted diagnostic rows.</li>
+<li><strong>Print the weight-concentration pair with every weighting or matching estimate</strong>, the largest single weight share and the number of comparison units used, and read it before the point estimate (claim C15).</li>
+<li><strong>Run more than one estimator on the same score and read the spread as uncertainty</strong> (claim C31).</li>
+<li><strong>Write sensitivity predictions against the baseline cell, not the benchmark band</strong> (claim C13), and when a cell drops a covariate, drop only that covariate's terms and hold the support fixed, or report the support change beside the shift (claim C22).</li>
+<li><strong>Say what your interval covers</strong> (claim C17). A bootstrap that re-fits the score but holds the experimental controls fixed is an interval for the estimate, not the gap, and for matching it is descriptive only. Treat a registered selection among estimators as a tie-break, not a ranking (claim C24).</li>
+<li><strong>Call a same-seed re-run determinism</strong> (claim C27). The exact re-executions here show the pipeline is deterministic; they say nothing about robustness to other code, seeds or specifications.</li>
+</ol>
+
+<h3>War stories that bit this study</h3>
+<ul>
+<li><strong>A tool timeout is a driver bug, not a result.</strong> Give the driver's own timeout more room than the run's <code>max_run_seconds</code> and set the cell before launching: two wrapper kills spent two of four estimator slots and forced a budget re-record (claim C18).</li>
+<li><strong>Never commit, cherry-pick or reset in a checkout where a run may be in flight.</strong> It removed a run's filed evidence commits and misnumbered the next cell; the repair is a recovery, not a routine (claim C19).</li>
+<li><strong>Read the sealed rehearsal's exit code as a budget measurement.</strong> The first dry run timed out (exit 124), and the sealed cell later took longer than the old limit (claim C20). Launching at the old limit would most likely have spent the only sealed access on a timeout.</li>
+<li><strong>A numeral in a name is still a numeral.</strong> The lock pins small integers so that names like PSID-1 and Table 3 have an alias, and those pins carry no measurement.</li>
+</ul>

@@ -1,0 +1,284 @@
+# Program — 23-lalonde-causal-replication
+
+## Roster
+
+Who is doing what, and on what. REFEREE cites this table for the independence rung
+(`references/referee-protocol.md`); a blank `experimenter` row caps the achievable
+rung at "fresh session", because no artifact then says what ran the loop. Fill the
+experimenter row at CONSULT and update a row whenever its model, tool or session
+changes.
+
+| Role | Who (model · tool · session) | Since |
+| --- | --- | --- |
+| consultant | lead agent (Claude Code orchestrating session) — drafted the contract | 2026-11-03 |
+| experimenter | `klein-experimenter` subagent (Sonnet tier) · Claude Code · a fresh subagent context per phase | 2026-11-03 |
+| data-gate auditor | `klein-data-auditor` subagent (Sonnet tier; exact model id not recorded) · Claude Code · a subagent context of session `session_01DRcLputoCrDTEvbxp6Rby1` | 2026-11-03 |
+| method scholar | `klein-method-scholar` subagent (Opus tier) · Claude Code | 2026-11-03 |
+| synthesist | `klein-synthesist` subagent, model `claude-opus-5-5` (Opus tier) · Claude Code · a fresh subagent context of session `session_01DRcLputoCrDTEvbxp6Rby1` that read the record only, never the live loop | 2026-11-03 |
+| referee | `klein-referee` subagent (Opus tier) · Claude Code · fresh context that never saw the loop (rung: different model than the experimenter) | 2026-11-03 |
+| lead | lead agent, acting on the repository owner's delegation · Claude Code orchestrating session `session_01DRcLputoCrDTEvbxp6Rby1` (model not recorded in the study's artifacts) | 2026-11-03 |
+
+Session evidence (synthesist, 2026-11-03): every non-engine commit on this branch carries the
+trailer `Claude-Session: …/session_01DRcLputoCrDTEvbxp6Rby1`, so the subagent roles above ran as
+child contexts of that one orchestrating session; the engine's own commits (`Klein Workflow`)
+carry none. The exact model ids of the experimenter, the data-gate auditor and the lead are not
+recorded in any study artifact; only their tiers are.
+
+**Acknowledgements are delegated.** The repository owner approved the Klein 2.3 plan
+that commissions this exhibit, and that approval delegates the CONSULT, DATA, METHOD
+and phase acknowledgements of exhibits 20-24 to the lead agent; each is recorded as
+`--acknowledged-by lead-agent` with this note, the convention studies 10-15 used.
+The referee verdict is never delegated: it is the referee subagent's own.
+
+This is the living lab notebook. `study.yaml` is the machine contract;
+`study_state.json`, `events.jsonl`, and `runs/E####/manifest.json` are generated audit
+state and must not be hand-edited.
+
+## Goal and track contract
+
+- Goal: Does the Dehejia-Wahba NSW experimental benchmark (about $1,794) reproduce from the authors' own files, how far does a naive non-experimental comparison miss it, and do propensity-score estimators recover it on PSID-1 and then, sealed, on CPS-1?
+- Tracks (both registered):
+  - `reproduction` — `targets_outside_tolerance` (exact; resolution one target): how
+    many of Dehejia & Wahba's printed Table 3 (1)-(2) values and Table 1 sizes the
+    cell misses by more than +-1.
+  - `att` — `att_usd`, an ATT point estimate in 1982 dollars with a percentile
+    bootstrap interval; predictions read `att_gap_usd`, its distance from the
+    experimental estimate computed in the same run from the NSW controls.
+- Predictions P1-P7 are registered in study.yaml with arithmetic rules.
+- Results are exploratory until each track's one sealed CPS-1 cell and a
+  replication record confirm them (`confirmation.require: [sealed, replicate]`).
+
+## Data and split
+
+- Sources: `nsw_dw.dta` (data.source) and `psid_controls.dta`, `cps_controls.dta`
+  (data.inputs), each a `url:` pin with sha256, from Dehejia's NBER data page.
+- Predefined lanes (`data.split.kind: predefined`, column `partition`):
+  train = the NSW experimental sample (185 treated + 260 controls),
+  development = PSID-1 (2,490), test = CPS-1 (15,992) — sealed.
+- Adaptive work uses train + development only. CPS-1 is read once per track.
+- Gate 1 records the prepared-data SHA-256 and split-policy fingerprint.
+
+## Phases and registered predictions (mirror of study.yaml)
+
+| Phase | Cells | Predictions |
+| --- | --- | --- |
+| anchor | reproduction · development | P1 — all 11 development targets within +-1 |
+| estimators | att · PSID-1: IPW, AIPW, 1-NN matching, IPW without RE74 | P2-P4 — |gap| <= $1,000; P5 — no-RE74 IPW |gap| > $1,000 |
+| confirmation | reproduction · CPS-1 sealed; att · CPS-1 sealed (selected estimator) | P6 — all 5 CPS-1 targets within +-1; P7 — |gap| <= $1,000 |
+
+Research questions RQ1-RQ5 and their priors are in study.yaml; RQ1 and RQ2 rest on
+values seen at inspection and are labelled `(source: scouted)`.
+
+## Workflow
+
+1. `uv run --locked klein gate record consult --study . --acknowledged-by <name>`
+2. Prepare data and write a `Decision: GO` data card; record the DATA gate.
+3. Write the method card; record the METHOD gate.
+4. Commit gate evidence, switch to `experiments/23-lalonde-causal-replication`, and run
+   `uv run --locked klein preflight --study .`.
+5. Set the cell in `analyze.py` (`CELL`), then
+   `uv run --locked klein run-one --study . --track <reproduction|att> --tests P# --description ...`.
+
+Every candidate is committed before execution. On a registered track the evidence
+transaction always restores `analyze.py`; the candidate commit stays resolvable.
+
+## Decisions (append-only)
+
+- 2026-11-03 — schema-v3 study scaffolded from recipe `ds-causal`, typed
+  replicate · tabular · data-science; the recipe's synthetic `make_data.py` removed.
+- 2026-11-03 — Decision: two registered tracks (reproduction, att) rather than one,
+  so the replication of the published numbers and our own estimators carry separate
+  sealed numbers and separate claims.
+- 2026-11-03 — Decision: CPS-1 is the sealed lane. The estimator is selected on
+  PSID-1 by a registered rule (smallest |gap| among P2-P4; ties to IPW < matching <
+  AIPW) and carried to CPS-1 with its PSID-1 specification unchanged (P7).
+- 2026-11-03 — Decision: estimators and targets live in `lib/lalonde.py`, outside
+  the mutable surface; a cell only selects lane, estimator and specification.
+- 2026-11-03 — Note (after the consult gate): `KLEIN_SMOKE=1` checks of both tracks ran
+  on the real prepared data (the sanctioned off-loop smoke); predictions were already
+  hashed. Smoke output is not evidence.
+- 2026-11-03 — DATA gate: the dataframe-mode leakage audit exposed a harness defect
+  (scalar task and predefined split not reproduced); fixed in `kleinlib/leakage.py`,
+  audit 7/7, recorded GO with cautions.
+- 2026-11-03 — METHOD finding: Table 3 column (2) is not one regression. Its NSW value
+  (1,672) is Table 2 Panel C column (4) — note a's covariates — while its PSID-1 (731)
+  and CPS-1 (972) values are Panel C column (5), "all pre-treatment covariates". P1 and
+  P6 are expected to miss on exactly the adjusted PSID-1 / CPS-1 value and its standard
+  error. Decision: the registered predictions are NOT changed (they were registered
+  before this was known; a refutation for this reason is itself the finding). The
+  reproduction cell gains DIAGNOSTIC rows (never counted) that regress each lane under
+  note a and under two readings of "all pre-treatment covariates", against Panel C
+  columns (4) and (5), so the anchor shows which regression each printed value is.
+  A P1 miss of exactly these targets is therefore explained in advance and does not
+  trigger the anchor's STOP; any other miss does.
+
+- 2026-11-03 — Decision: P1 REFUTED by the notary at E0001 (targets_outside_tolerance = 2;
+  disposition measured). The two misses are exactly the pre-announced ones (psid1_adjusted
+  731 vs 217.94; psid1_adjusted_se 886 vs 866.20), so the anchor's STOP does not fire; the
+  registered prediction stays as registered and the refutation is the finding: Table 3
+  column (2) PSID-1 is not the note-a regression. The anchor phase closes; estimators
+  phase proceeds on lead's ack. No analyze.py or lib edit was made to chase the miss.
+
+- 2026-11-03 — Note (SYNTHESIZE repair, read from the record, no new evidence): the E0007
+  reflection's parenthesis "RQ4: 1974 earnings is load-bearing on PSID-1" overstates what
+  the cell shows. `no_re74` removes the three 1974 terms AND adds `u75`, and the support
+  moves (lib/lalonde.py PROPENSITY; att_E0002.tsv against att_E0007.tsv), and P5's band
+  rule would have been supported even had 1974 earnings been irrelevant. Decision: RQ4 is
+  reported in findings.md as supported as operationalized by P5 and inconclusive on the
+  attribution to 1974 earnings (claims C22, C13). The reflection above stays as written.
+
+## Phase slates
+
+At every phase start, run the slate ritual (references/phase-ritual.md):
+propose 4-6 falsifiable candidates, score novelty / testability / expected
+information 1-3, record the table and the chosen candidate here, and mirror
+the ranked survivors into playbook.md "Next-best candidates".
+
+### Phase anchor slate
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Reproduction cell on the development lane as committed (Table 3 cols (1)-(2) + Table 1 sizes, plus never-counted diagnostic rows): 0 targets missed (P1) | 3 | 3 | 3 | 9 |
+| 2 | Same cell with a HC-robust standard-error formula for the SE targets: only if 1 misses on SEs other than PSID-1 adjusted | 2 | 3 | 2 | 7 |
+| 3 | Re-hash the three pinned files against the NBER page: only if 1 misses on a count or an unadjusted value | 1 | 3 | 2 | 6 |
+| 4 | att cell (IPW, PSID-1) ahead of the anchor | 3 | 2 | 1 | 6 |
+
+Chosen: #1 -- the anchor is the phase's single pre-registered cell (max_experiments 1); 2-3 are contingent follow-ups that the STOP rule forbids anyway, and 4 belongs to the estimators phase.
+
+### Phase anchor reflection (E0001, measured, metric 2)
+
+Notary: P1 refuted (primary_metric 2 <= 0 false). 9 of 11 targets reproduced within +-1:
+NSW unadjusted 1794 / SE 633, NSW adjusted 1672 / SE 638 (diffs 0.15-0.40), PSID-1
+unadjusted -15205 / SE 1154 (diffs 0.22, 0.61), and sizes 185 / 260 / 2490 (exact).
+Experimental ATT 1794.34. Missed: psid1_adjusted 731 vs 217.94 (diff 513.06) and
+psid1_adjusted_se 886 vs 866.20 (diff 19.80) -- exactly the targets the METHOD finding
+predicted. Diagnostic rows (never counted): the PSID-1 note-a regression gives 217.94,
+which matches Panel C column (4) (218, diff 0.06) and not column (5) (731); the two
+"all pre-treatment covariates" readings give 795.02 (diff 64.02 from col 5) and 67.28
+(diff 663.72); neither reading reproduces column (5) within +-1. The NSW lane: note a
+matches col (4) 1672 (diff 0.20); the other NSW readings (1675.86, 1669.84) lie 2-4 from
+col (4) and 15-21 from col (5) 1655. So the mixed-column explanation is confirmed for the
+note-a side, but the exact covariate set behind column (5) is NOT recovered by either
+reading tried; that remains open and costs nothing downstream (att cells use note a).
+Standard-error formula (classical OLS) matched on every non-PSID-adjusted target, so
+RQ1's SE worry did not materialise.
+
+### Phase estimators slate
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | att IPW, dw_psid, 500 reps (P2): |gap| <= $1,000 | 3 | 3 | 3 | 9 |
+| 2 | att 1-NN matching, dw_psid (P4): |gap| <= $1,000 | 3 | 3 | 3 | 9 |
+| 3 | att AIPW, dw_psid (P3): |gap| <= $1,000 | 3 | 3 | 2 | 8 |
+| 4 | att IPW, no_re74 (P5): |gap| > $1,000 | 3 | 3 | 3 | 9 |
+
+Chosen order: P2, P4, P3, P5 (lead's order) -- IPW is the tie-break baseline of the selection rule, then the other two selection candidates, then the RE74 sensitivity, which does not enter selection. All four are pre-registered cells; the slate records order only.
+
+### E0002 reflection (att, ipw, dw_psid, 500 reps; adjudicates P2)
+
+ATT 3038.44, bootstrap 95% CI [976.01, 4501.30], gap +1244.09 vs experimental 1794.34, n_controls_used 1146 of 2490, max_weight_share 0.135 (13.5% of the control weight sits on one unit -- concentrated, as RQ3 feared). The CI covers the experimental value, but the point estimate misses the $1,000 band: P2 refuted by the notary.
+
+- 2026-11-03 — Decision: P2 REFUTED at E0002 (|gap| 1244.09 > 1000). Odds-weighted IPW on DW's PSID-1 logit overshoots by about $1.2k with a heavy single-unit weight; the prediction stays as registered, IPW remains the tie-break baseline of the selection rule.
+
+### E0003-E0005 reflection (att, match, dw_psid; adjudicates P4)
+
+Process note (driver error, recorded as data): E0003 was interrupted when the experimenter's own foreground wrapper timeout killed `klein run-one` mid-run (stale lock removed after confirming no live run; `klein recover` filed it as a crash with NA). E0004 was then launched with `CELL` still on ipw (the notary restores the surface) and was killed by the experimenter before completing: crash, NA. Both are bugs of the loop driver, not bad ideas, and carry no scientific content. E0005 is the real P4 cell.
+
+E0005: 1-NN matching with replacement, ATT 560.28, bootstrap 95% CI [-619.80, 3857.86], gap -1234.06 vs 1794.34, n_controls_used 56 (distinct matched controls), max_weight_share 0.146. The estimate undershoots by more than $1,000: P4 refuted by the notary.
+
+- 2026-11-03 — Decision: P4 REFUTED at E0005 (|gap| 1234.06 > 1000). Matching on DW's PSID-1 logit lands about $1.2k below the benchmark on only 56 distinct controls with a wide CI; direction is opposite to IPW (E0002, +1244). The prediction stays as registered.
+
+- 2026-11-03 — Incident (lead's operator error) and repair: a framework cherry-pick and a
+  `git reset --keep` by the lead while E0005 was finishing removed E0005's evidence
+  commits from the branch; the next cell (AIPW) started misnumbered as E0005. The lead
+  killed that run before it produced any number, reset the unpushed branch to the fully
+  filed E0005 (d25a53e) and re-applied the reflection. Full account and every leftover
+  artifact: `incidents/2026-11-03-e0005-history-repair/`. `klein verify` passes after the
+  repair. The AIPW cell (P3) re-runs as E0006.
+- 2026-11-03 — Decision (lead): the `estimators` phase budget is raised from 4 to 6
+  experiments. E0003 and E0004 were driver crashes (a tool timeout killed `run-one`;
+  a run launched before the cell was set), recorded as crashes with NA; they spent two
+  of the four slots the phase needs for its four PRE-REGISTERED cells, so P3 and P5
+  could not run. Only `phases[estimators].max_experiments` changes — no prediction,
+  rule, track, target or other budget — and the consult gate is re-recorded with this
+  reason. The crashes stay in the ledger as evidence of the driver errors.
+
+### E0006 reflection (att, aipw, dw_psid, 500 reps; adjudicates P3)
+
+ATT 2683.82, bootstrap 95% CI [689.10, 4101.53], gap +889.48 vs 1794.34, n_controls_used 1146, max_weight_share 0.135 (same weights as IPW E0002; the outcome model removes about $355 of the IPW overshoot). |gap| < 1000: P3 supported by the notary. The CI is wide (about $3.4k) and covers the benchmark. After the history repair, `klein predict list` re-checked: P2 refuted (E0002), P3 supported (E0006), P4 refuted (E0005).
+
+### E0007 reflection (att, ipw, no_re74, 500 reps; adjudicates P5)
+
+ATT -15.33, bootstrap 95% CI [-2642.44, 2471.35], gap -1809.67 vs 1794.34, n_controls_used 1092, max_weight_share 0.058. Dropping every RE74 term moves the IPW estimate from +3038 to about zero: the effect vanishes, |gap| 1809.67 > 1000, so P5 is supported by the notary (RQ4: 1974 earnings is load-bearing on PSID-1). No refutation, no Decision line owed.
+
+### Estimators phase selection
+
+|gap| over the P2-P4 cells: IPW E0002 1244.09; 1-NN matching E0005 1234.06; AIPW E0006 889.48. No tie.
+
+- 2026-11-03 — Decision: by the registered rule (smallest |gap| among P2-P4; ties IPW < matching < AIPW), the estimator carried to the sealed CPS-1 cell is AIPW with spec dw_psid unchanged, selected from E0006 (gap +889.48). Recorded before any sealed access (no --final-test, no dry run has been run). Verdicts after the history repair re-read from `klein predict list`: P2 refuted, P3 supported, P4 refuted, P5 supported.
+
+### Phase confirmation slate
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | reproduction cell, sealed CPS-1 (P6): all 5 CPS-1 targets within +-1; expected to miss the adjusted value and SE (column (5) set unrecovered, H5) | 3 | 3 | 3 | 9 |
+| 2 | att cell, sealed CPS-1: AIPW dw_psid unchanged, 500 reps (P7): |gap| <= 1000 | 3 | 3 | 3 | 9 |
+| 3 | replication of E0001 and E0006 on development lanes (confirmation.require replicate) | 2 | 3 | 2 | 7 |
+
+Chosen order: dry run then sealed reproduction (P6), dry run then sealed att (P7), then replications. Both sealed cells are pre-registered; the selection was fixed at E0006 before any sealed access.
+
+### E0008 reflection (reproduction, sealed CPS-1; adjudicates P6)
+
+Sealed access of the reproduction track spent. Primary metric 2: CPS-1 unadjusted -8498 (reproduced -8497.52) and SE 712 (712.02) and size 15992 reproduce; adjusted 972 (reproduced 738.83, diff 233.17) and adjusted SE 550 (547.05, diff 2.95) miss. Diagnostics: note a gives 738.83 = Panel C column (4) 739 (diff 0.17) not column (5) 972; the two "all covariates" readings give 793.59 and 1137.20, neither near 972. Same pattern as PSID-1 (E0001): the mixed-column finding holds on the sealed lane and the covariate set of column (5) remains unrecovered (H5).
+
+- 2026-11-03 — Decision: P6 REFUTED at E0008 (2 targets outside +-1, exactly the CPS-1 adjusted value and SE pre-announced in the METHOD finding). Registered prediction kept as registered; the refutation is itself the finding that Table 3 column (2) mixes Panel C columns (4) and (5). No re-run: the track's sealed access is spent.
+
+### Sealed att dry run (no experiment id; seal intact)
+
+The mandatory `--final-test --dry-run` of the att track (AIPW, dw_psid, 500 reps) printed `sealed_dryrun: 1` but exited 124: the 900 s `max_run_seconds` timeout, on development (PSID-1, 2,490 rows) data under machine load average about 9.6 (E0006 took about 11 min at lower load). The real sealed run on CPS-1 (15,992 rows, about 6x the rows, a heavier logit and bootstrap) cannot be expected to finish inside 900 s. The sealed att run was NOT launched; reported to the lead for a decision (contract change to max_run_seconds, or fewer reps, would both be registered amendments). The dry run spent nothing.
+
+- 2026-11-03 — Decision (lead): the ATT sealed dry run timed out (exit 124) at the 900 s
+  `max_run_seconds` on PSID-1 data under a machine load of about 9 from the sibling
+  exhibits; the real sealed cell runs on CPS-1 (about six times the rows). The seal is
+  intact (a dry run spends nothing). The cell is NOT changed — it is the selected cell
+  (AIPW, dw_psid, 500 reps) exactly — so time is raised instead: `max_run_seconds`
+  900 -> 10800, the att `wall_seconds` guardrail 900 -> 10800, and the confirmation phase's
+  `budget_seconds` 2400 -> 14400. No prediction, rule, target or cell changed; consult
+  re-recorded with this reason. Replications pass `--timeout-seconds` explicitly.
+
+### E0009 reflection (att, sealed CPS-1, AIPW dw_psid 500 reps; adjudicates P7)
+
+Sealed att access spent, after a successful dry run (exit 0, `sealed_dryrun: 1`; the first dry run had timed out at 900 s, the limit was then raised to 10800 s by the lead with the cell unchanged). ATT 1327.54, bootstrap 95% CI [-129.17, 2835.62], gap -466.80 vs 1794.34, n_controls_used 4493 of 15,992, max_weight_share 0.0426 (far less concentrated than PSID-1's 0.135). |gap| < 1000: P7 supported by the notary. The PSID-1 specification transferred unchanged; the CI covers the experimental value and is half the width of the PSID-1 interval's relative reach. The PSID-1 selection margin was small (889 vs 1234/1244), so P7 is one sealed draw, not a ranking of estimators.
+
+### Replications and confirmation close
+
+`klein replicate` E0001 (reproduction): reproduced, difference 0, tolerance 0 (exact), record runs/E0001/replications/20261103T065031Z.json. E0006 (att, AIPW PSID-1): reproduced, difference 0, tolerance 0 (exact), record runs/E0006/replications/20261103T065104Z.json. Both tracks now hold a sealed run (E0008, E0009) and a replication record. P6 refuted (Decision above), P7 supported.
+
+- 2026-11-03 — Referee round 1 returned FAIL on check 1 only: the heading of findings.md
+  §③ item 1 stated the exploratory Table 3 reading (C10) as confirmed. The lead reworded
+  that heading exactly as the referee's clearing condition proposes; no lock, erratum or
+  evidence changed. The study returns to REFEREE in a fresh context.
+
+## Referee notes (round 2, PASS-WITH-NOTES) — answered 2026-11-03
+
+- Referee note 1 (§③ item 1 body says the values "are Panel C column (5)" unhedged; §⑥
+  "documentary finding"): accepted — the locked claims carry the right strengths (C10
+  exploratory, E4); the body sentence is read as the exploratory C10 reading. Findings are
+  not re-edited after the verdict; the tutorial words it as "appears to be".
+- Referee note 2 ("rests on a few people" goes beyond C7): accepted — what was measured is
+  the largest single weight share and the 56 distinct matched controls; the tutorial says
+  exactly that.
+- Referee note 3 (name the controls): the NSW experimental reproduction is the positive
+  control; no placebo (negative) control was run, as declared in method_card §4.
+- Referee note 4: n_comparisons = 4 (the four PSID-1 att cells E0002, E0005, E0006, E0007).
+- Referee note 5 (figures built after the referee): accepted; TUTORIAL builds them from
+  pinned tables only and adds no claim.
+- Referee note 6 (roster tiers, not model ids): the experimenter, auditor and scholar were
+  Claude Code subagents of the Sonnet / Opus tiers named in the Roster; exact ids were not
+  recorded at the time; the lead was the orchestrating Claude Code session.
+- Referee note 7 (overstatements left in program.md; "was not visible at CONSULT" vs S3):
+  program.md is an append-only notebook; the Table 3 reading and E0007's "the effect
+  vanishes" are superseded by findings/claims (C10, C22). S3 is right: Tables 1-3 were
+  read at CONSULT; the column (4)/(5) mismatch was noticed only at METHOD.
+- Referee note 8: neither the tutorial nor knowledge/ writes "replicated sealed result" —
+  the replications are of development cells E0001 and E0006.

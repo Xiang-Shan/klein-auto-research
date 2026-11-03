@@ -1,0 +1,334 @@
+# Citations a `ref:<key>` evidence id resolves to. Written at the METHOD gate
+# (method_card.md §5). Every entry was checked on 2026-11-03 against its Crossref
+# record (title, venue, volume, pages, year) and, where Crossref carries no abstract,
+# a publisher / RePEc / arXiv landing page for the content the card leans on.
+# Nothing here was cited from memory. `klein refs verify --record` adds the
+# mechanical resolved_* fields underneath.
+references:
+
+  lalonde1986:
+    title: "Evaluating the Econometric Evaluations of Training Programs with Experimental Data"
+    authors: "LaLonde, R. J."
+    year: 1986
+    venue: "American Economic Review 76(4):604-620"
+    url: "https://www.jstor.org/stable/1806062"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): RePEc record RePEc:aea:aecrev:v:76:y:1986:i:4:p:604-20 (venue, issue, pages, Sept 1986); JSTOR stable id 1806062 confirmed via the AgroDep bibliographic listing; no DOI exists (Crossref has no record)"
+    verified_at: "2026-11-03"
+    why: >-
+      The original negative result: with the NSW experiment as ground truth, the
+      nonexperimental estimators of the day (regression, fixed effects, selection
+      models) on PSID and CPS comparison groups missed the experimental estimate,
+      some by its whole size. The study's naive PSID-1 contrast (-$15,205 against
+      +$1,794, Dehejia-Wahba Table 3) is LaLonde's lesson in one row.
+
+  dehejia1999:
+    title: "Causal Effects in Nonexperimental Studies: Reevaluating the Evaluation of Training Programs"
+    authors: "Dehejia, R. H.; Wahba, S."
+    year: 1999
+    venue: "Journal of the American Statistical Association 94(448):1053-1062"
+    doi: "10.1080/01621459.1999.10473858"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (title, JASA 94(448) 1053-1062, Dec 1999); citation also listed on Dehejia's NBER data page"
+    verified_at: "2026-11-03"
+    why: >-
+      The paper this study replicates. CAUTION: the card's reading of Table 3, its
+      notes a-g and Table 5 comes from the NBER working-paper version (dehejia1998nber),
+      the authors' own open copy; the JASA article text was NOT accessed, so the claim
+      in lib/lalonde.py that the two Table 3s are identical is not independently
+      checked here.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Causal Effects in Nonexperimental Studies: Reevaluating the Evaluation of Training Programs"
+    resolved_at: "2026-11-03"
+
+  dehejia1998nber:
+    title: "Causal Effects in Non-Experimental Studies: Re-Evaluating the Evaluation of Training Programs"
+    authors: "Dehejia, R. H.; Wahba, S."
+    year: 1998
+    venue: "NBER Working Paper 6586"
+    doi: "10.3386/w6586"
+    url: "https://www.nber.org/system/files/working_papers/w6586/w6586.pdf"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (June 1998); the NBER PDF read in full (pdftotext) on 2026-11-03"
+    verified_at: "2026-11-03"
+    why: >-
+      Source of every published target in lib/lalonde.py:TARGETS (scouting_ledger.md
+      S3) and of the card's load-bearing readings: Table 3 note c (the PSID-1 logit),
+      note g (common support: comparison units outside the treated score range are
+      dropped), column (7) (1-NN matching with replacement: $1,691, s.e. 2,209 on
+      PSID-1), Table 4 (56 distinct matched PSID-1 controls), Section 4 (98 treated vs
+      7 PSID controls above a score of 0.8), Table 5 Panel B (no-RE74 PSID-1 estimates
+      from -$1,023 to $1,727), and the Table 2 / Table 3 cross-check behind the card's
+      P1/P6 expectation (Table 3 column (2) matches Table 2 Panel C column (4) in the
+      NSW row and column (5) in the comparison rows).
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Causal Effects in Non-Experimental Studies: Re-Evaluating the Evaluation of Training Programs"
+    resolved_at: "2026-11-03"
+
+  dehejia2002:
+    title: "Propensity Score-Matching Methods for Nonexperimental Causal Studies"
+    authors: "Dehejia, R. H.; Wahba, S."
+    year: 2002
+    venue: "Review of Economics and Statistics 84(1):151-161"
+    doi: "10.1162/003465302317331982"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (ReStat 84(1) 151-161, Feb 2002); RePEc/IDEAS abstract"
+    verified_at: "2026-11-03"
+    why: >-
+      The matching companion paper on the same NSW/PSID/CPS files: propensity-score
+      matching isolates the small subset of comparison units that resemble the
+      treated. Cited for the matching design the P4 cell imitates.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Propensity Score-Matching Methods for Nonexperimental Causal Studies"
+    resolved_at: "2026-11-03"
+
+  rosenbaum1983:
+    title: "The central role of the propensity score in observational studies for causal effects"
+    authors: "Rosenbaum, P. R.; Rubin, D. B."
+    year: 1983
+    venue: "Biometrika 70(1):41-55"
+    doi: "10.1093/biomet/70.1.41"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (Biometrika 70(1) 41-55, 1983)"
+    verified_at: "2026-11-03"
+    why: >-
+      The balancing property (X independent of T given e(X)) and the result that
+      strong ignorability given X implies it given e(X) — why a 13-covariate
+      adjustment can be done through one scalar. Card §2 eq. (2).
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "The central role of the propensity score in observational studies for causal effects"
+    resolved_at: "2026-11-03"
+
+  smith2005:
+    title: "Does matching overcome LaLonde's critique of nonexperimental estimators?"
+    authors: "Smith, J. A.; Todd, P. E."
+    year: 2005
+    venue: "Journal of Econometrics 125(1-2):305-353"
+    doi: "10.1016/j.jeconom.2004.04.011"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (J. Econometrics 125(1-2) 305-353, March 2005); RePEc/IDEAS abstract"
+    verified_at: "2026-11-03"
+    why: >-
+      The critique: on the same NSW data, matching estimates are highly sensitive to
+      the variables in the score and to the analysis sample; difference-in-differences
+      matching performs best; matching is not a general solution. The literature
+      anchor for the card's specification-sensitivity expectations (P5, P7).
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Does matching overcome LaLonde's critique of nonexperimental estimators?"
+    resolved_at: "2026-11-03"
+
+  dehejia2005:
+    title: "Practical propensity score matching: a reply to Smith and Todd"
+    authors: "Dehejia, R."
+    year: 2005
+    venue: "Journal of Econometrics 125(1-2):355-364"
+    doi: "10.1016/j.jeconom.2004.04.012"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (J. Econometrics 125(1-2) 355-364, March 2005); RePEc/IDEAS listing (no abstract available there)"
+    verified_at: "2026-11-03"
+    why: >-
+      The reply to smith2005, cited so the card presents the debate rather than one
+      side. Only the bibliographic record and its status as the reply were
+      confirmed; the card does not attribute specific arguments to it.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Practical propensity score matching: a reply to Smith and Todd"
+    resolved_at: "2026-11-03"
+
+  abadie2006:
+    title: "Large Sample Properties of Matching Estimators for Average Treatment Effects"
+    authors: "Abadie, A.; Imbens, G. W."
+    year: 2006
+    venue: "Econometrica 74(1):235-267"
+    doi: "10.1111/j.1468-0262.2006.00655.x"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (Econometrica 74(1) 235-267, Jan 2006); RePEc/IDEAS abstract"
+    verified_at: "2026-11-03"
+    why: >-
+      Matching with replacement and a fixed number of matches is a highly nonsmooth
+      function of the data: not root-N consistent in general, not efficient, with a
+      consistent analytic variance estimator offered instead. Why the P4 interval
+      needs a caveat.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Large Sample Properties of Matching Estimators for Average Treatment Effects"
+    resolved_at: "2026-11-03"
+
+  abadie2008:
+    title: "On the Failure of the Bootstrap for Matching Estimators"
+    authors: "Abadie, A.; Imbens, G. W."
+    year: 2008
+    venue: "Econometrica 76(6):1537-1557"
+    doi: "10.3982/ECTA6474"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (Econometrica 76(6) 1537-1557, 2008); Econometric Society article page and RePEc for authors and the result"
+    verified_at: "2026-11-03"
+    why: >-
+      The standard bootstrap is in general not valid for nearest-neighbour matching
+      estimators, even with one continuous covariate where the estimator is root-N
+      consistent and asymptotically normal; the analytic variance of abadie2006 or
+      subsampling are valid alternatives. The P4 cell's percentile-bootstrap
+      interval is therefore descriptive, not a confidence interval.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "On the Failure of the Bootstrap for Matching Estimators"
+    resolved_at: "2026-11-03"
+
+  abadie2016:
+    title: "Matching on the Estimated Propensity Score"
+    authors: "Abadie, A.; Imbens, G. W."
+    year: 2016
+    venue: "Econometrica 84(2):781-807"
+    doi: "10.3982/ECTA11293"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (Econometrica 84(2) 781-807, 2016); RePEc/IDEAS abstract"
+    verified_at: "2026-11-03"
+    why: >-
+      Estimating the score first changes the matching estimator's large-sample
+      variance: for the ATE the adjustment is non-positive, for the ATT its sign
+      depends on the data-generating process, so ignoring it can make intervals too
+      wide or too narrow. Context for why lib/lalonde.py re-fits the score in every
+      bootstrap draw (necessary, not sufficient, for matching).
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Matching on the Estimated Propensity Score"
+    resolved_at: "2026-11-03"
+
+  imbens2004:
+    title: "Nonparametric Estimation of Average Treatment Effects Under Exogeneity: A Review"
+    authors: "Imbens, G. W."
+    year: 2004
+    venue: "Review of Economics and Statistics 86(1):4-29"
+    doi: "10.1162/003465304323023651"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (ReStat 86(1) 4-29, Feb 2004)"
+    verified_at: "2026-11-03"
+    why: >-
+      The standard review of estimators under unconfoundedness (regression,
+      matching, weighting, combinations) with the ATT/ATE distinction; background for
+      card §2's estimator family.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Nonparametric Estimation of Average Treatment Effects Under Exogeneity: A Review"
+    resolved_at: "2026-11-03"
+
+  imbens2015:
+    title: "Matching Methods in Practice: Three Examples"
+    authors: "Imbens, G. W."
+    year: 2015
+    venue: "Journal of Human Resources 50(2):373-419"
+    doi: "10.3368/jhr.50.2.373"
+    url: "https://repec.iza.org/dp8049.pdf"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (JHR 50(2) 373-419, 2015); IZA DP 8049 (the author's working-paper version) read for section 6.3"
+    verified_at: "2026-11-03"
+    why: >-
+      A resonant application on these very data (the Dehejia-Wahba NSW treated
+      against CPS controls): point estimates land fairly close to the experimental
+      ones and are robust to the specification, yet pseudo-outcome (1975 earnings)
+      tests reject unconfoundedness — agreement with a benchmark is not validation.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Matching Methods in Practice: Three Examples"
+    resolved_at: "2026-11-03"
+
+  robins1994:
+    title: "Estimation of Regression Coefficients When Some Regressors are not Always Observed"
+    authors: "Robins, J. M.; Rotnitzky, A.; Zhao, L. P."
+    year: 1994
+    venue: "Journal of the American Statistical Association 89(427):846-866"
+    doi: "10.1080/01621459.1994.10476818"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (JASA 89(427) 846-866, Sept 1994)"
+    verified_at: "2026-11-03"
+    why: >-
+      The origin of augmented inverse-probability weighting — an outcome model plus
+      weighted residuals — the construction behind the P3 cell.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Estimation of Regression Coefficients When Some Regressors are not Always Observed"
+    resolved_at: "2026-11-03"
+
+  bang2005:
+    title: "Doubly Robust Estimation in Missing Data and Causal Inference Models"
+    authors: "Bang, H.; Robins, J. M."
+    year: 2005
+    venue: "Biometrics 61(4):962-973"
+    doi: "10.1111/j.1541-0420.2005.00377.x"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record and abstract (Biometrics 61(4) 962-973, Dec 2005)"
+    verified_at: "2026-11-03"
+    why: >-
+      Double robustness stated plainly: consistent when either the assignment model
+      or the outcome model is correctly specified — "two chances instead of one".
+      Card §2 eq. (4).
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Doubly Robust Estimation in Missing Data and Causal Inference Models"
+    resolved_at: "2026-11-03"
+
+  santanna2020:
+    title: "Doubly robust difference-in-differences estimators"
+    authors: "Sant'Anna, P. H. C.; Zhao, J."
+    year: 2020
+    venue: "Journal of Econometrics 219(1):101-122"
+    doi: "10.1016/j.jeconom.2020.06.003"
+    arxiv: "1812.01723"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (J. Econometrics 219(1) 101-122, Nov 2020); arXiv abstract page for 1812.01723 (title, authors, abstract)"
+    verified_at: "2026-11-03"
+    why: >-
+      Doubly robust estimators for the ATT specifically, with odds-weighted
+      comparison units; the cross-sectional ATT form in card §2 eq. (4) is the same
+      construction with the outcome in place of its change. Cited for the ATT (not
+      ATE) form of the augmentation.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Doubly robust difference-in-differences estimators"
+    resolved_at: "2026-11-03"
+
+  kang2007:
+    title: "Demystifying Double Robustness: A Comparison of Alternative Strategies for Estimating a Population Mean from Incomplete Data"
+    authors: "Kang, J. D. Y.; Schafer, J. L."
+    year: 2007
+    venue: "Statistical Science 22(4):523-539"
+    doi: "10.1214/07-STS227"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record and abstract (Statistical Science 22(4) 523-539, Nov 2007)"
+    verified_at: "2026-11-03"
+    why: >-
+      When both models are wrong and some weights are large, doubly robust
+      estimators can do worse than a plain outcome regression — the reason the card
+      does not expect AIPW to rescue concentrated odds weights.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Demystifying Double Robustness: A Comparison of Alternative Strategies for Estimating a Population Mean from Incomplete Data"
+    resolved_at: "2026-11-03"
+
+  crump2009:
+    title: "Dealing with limited overlap in estimation of average treatment effects"
+    authors: "Crump, R. K.; Hotz, V. J.; Imbens, G. W.; Mitnik, O. A."
+    year: 2009
+    venue: "Biometrika 96(1):187-199"
+    doi: "10.1093/biomet/asn055"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record (Biometrika 96(1) 187-199, 2009); OUP abstract page"
+    verified_at: "2026-11-03"
+    why: >-
+      Limited overlap makes estimates imprecise and specification-sensitive; the
+      rule of thumb keeps units with scores in [0.1, 0.9]. Contrast for card §2: that
+      rule trims TREATED units too and so changes the estimand, while Dehejia-Wahba's
+      note-g rule trims only comparison units and keeps the ATT on all 185 treated.
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Dealing with limited overlap in estimation of average treatment effects"
+    resolved_at: "2026-11-03"
+
+  imbens2025:
+    title: "Comparing Experimental and Nonexperimental Methods: What Lessons Have We Learned Four Decades after LaLonde (1986)?"
+    authors: "Imbens, G. W.; Xu, Y."
+    year: 2025
+    venue: "Journal of Economic Perspectives 39(4):173-201"
+    doi: "10.1257/jep.20251440"
+    arxiv: "2406.00827"
+    verified: true
+    verified_by: "klein-method-scholar (Opus): Crossref record and abstract (JEP 39(4), Nov 2025); arXiv 2406.00827v3 (27 May 2025) read for the LDW-PSID / LDW-CPS results"
+    verified_at: "2026-11-03"
+    why: >-
+      The frontier re-examination of these data with modern estimators (GRF, DML,
+      AIPW, entropy balancing): on the full LDW-PSID sample estimates range from $4 to
+      $2,420 and "modern estimators fail to recover the ATT" there; on LDW-CPS all
+      are positive and near the benchmark, yet placebo tests fail to support
+      unconfoundedness. Positions this replication against the trend (card §4).
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Comparing Experimental and Nonexperimental Methods: What Lessons Have We Learned Four Decades after LaLonde (1986)?"
+    resolved_at: "2026-11-03"
