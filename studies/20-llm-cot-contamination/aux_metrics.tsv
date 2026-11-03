@@ -15,3 +15,16 @@ E0002	calls_cached	599.0
 E0002	calls_tokens_in	75.0
 E0002	calls_tokens_out	107.0
 E0002	calls_cost_usd	0.0
+E0003	ci_low	-0.015000000000000013
+E0003	ci_high	0.05999999999999994
+E0003	n	50
+E0003	wall_seconds	490.54621601104736
+E0003	em_original	0.98
+E0003	em_twins	0.96
+E0003	n_templates	50
+E0003	n_twin_items	200
+E0003	calls_total	250.0
+E0003	calls_cached	0.0
+E0003	calls_tokens_in	22960.0
+E0003	calls_tokens_out	76392.0
+E0003	calls_cost_usd	0.0
