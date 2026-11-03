@@ -1,0 +1,63 @@
+{
+  "artifacts": {},
+  "base_commit": "61524cc1777f18d937f88959323ab0d943d9c74a",
+  "candidate_commit": "96bffa0294a74340a83b432a51c4f8d155060642",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "detached: awaiting collect",
+  "description": "cell N=500",
+  "disposition": "crash",
+  "empty_candidate_diff": true,
+  "ended_at": null,
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "execution": {
+    "mode": "detached",
+    "status": "awaiting_collect"
+  },
+  "exit_code": null,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4"
+  },
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric_goal": "lower",
+  "metric_name": "val_mlogloss",
+  "metrics": {},
+  "phase": "cells",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 6,
+  "predictions_requested": [],
+  "primary_metric": null,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T07:42:44.475765Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "detached_at": "2026-11-03T07:42:44.492042Z",
+    "phase": "awaiting_collect",
+    "status": "pending"
+  }
+}
