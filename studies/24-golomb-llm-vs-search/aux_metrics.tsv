@@ -29,3 +29,9 @@ DRYRUN	calls_cached	2400.0
 DRYRUN	tokens_in	0.0
 DRYRUN	tokens_out	0.0
 DRYRUN	cost_usd	0.0
+E0005	wall_seconds	0.27557897567749023
+E0005	first_batch_matches	0.0
+E0005	pairs	6.0
+E0005	evaluations	12000.0
+E0005	sealed_lane	1.0
+E0005	restarts	54.0

@@ -3,3 +3,4 @@ E0001	search	0	measured	f8efcf87c00e0600f5a3b6f12429d7e8b957c4a1	development: cl
 E0002	llm	NA	crash	c5817ea6e273d77b14d02ae9fe12e73d0f67218a	development: qwen-flash-2025-07-28 proposes rulers, orders 8-11, 3 trials, 200 x 10 proposals; process exit code 1
 E0003	llm	NA	crash	72996a394e3fbec61a9049b71e1d9a6dba96d84f	development: qwen-flash-2025-07-28 proposes rulers, orders 8-11, 3 trials, 200 x 10 proposals (rerun after E0002's rate-limit crash); process exit code 1
 E0004	llm	6	measured	650d11c41ac19a5611fd943dd479e6991c285e10	development: qwen-flash-2025-07-28 proposes rulers, orders 8-11, 3 trials, 200 x 10 proposals (rerun after E0003's dropped-connection crash); registered cell measured
+E0005	search	0	measured	838c86f49f62de5e467924881229181e8cdfea1c	sealed confirmation: classical search, orders 12-13, 3 trials, 2,000 evaluations; registered cell measured

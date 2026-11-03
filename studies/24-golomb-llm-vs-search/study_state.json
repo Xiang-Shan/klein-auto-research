@@ -34,9 +34,9 @@
       "experiment": null
     },
     "search": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-11-03T08:00:03.874749Z",
+      "count": 1,
+      "experiment": "E0005"
     }
   },
   "fingerprints": {
@@ -81,7 +81,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 4,
+  "last_experiment": 5,
   "overrides": [],
   "phase_acknowledgements": {
     "development": {
@@ -151,6 +151,26 @@
       "recorded_at": "2026-11-03T07:58:30.459660Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "primary_metric 0 <= 0 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "primary_metric 0 <= 0 \u2192 supported",
+          "recorded_at": "2026-11-03T08:00:09.124313Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:00:09.124313Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -160,5 +180,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T07:59:40.067689Z"
+  "updated_at": "2026-11-03T08:00:09.147700Z"
 }
