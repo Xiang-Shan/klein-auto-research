@@ -341,7 +341,9 @@
     "C21": {
       "claim": "Call an exact re-execution what it is: the same commit, data, environment and seed reproduced every printed value of E0001 and E0006 with a difference of 0 except the wall time (904.60 seconds against 639.89 for E0006), which shows the pipeline is deterministic and says nothing about robustness to code, seed or specification",
       "class": "research-discipline",
-      "errata": [],
+      "errata": [
+        "E5"
+      ],
       "evidence": [
         "rep:E0001@20261103T065031Z",
         "rep:E0006@20261103T065104Z",
@@ -566,6 +568,13 @@
       ],
       "filed": "2026-11-03",
       "note": "C6 is confirmed, but its 'Table 3 column (2) is two regressions' and 'the printed PSID-1 and CPS-1 values are Panel C column (5)' rest on a single-source pdftotext transcription of NBER w6586 (scouting S3); the JASA text was not accessed and the data-science profile's replicate hint asks for two-source transcription. The same editorial reading is C10 at exploratory, so C6 and C10 asserted one thing at two strengths. C6 is downgraded to exploratory; the confirmed content - the measured equalities with Panel C column (4) on all three lanes and the two failed all-covariates readings - is restated as C26. Raised by the adversarial check of 2026-11-03."
+    },
+    "E5": {
+      "claims": [
+        "C21"
+      ],
+      "filed": "2026-11-03",
+      "note": "C21 says the exact re-executions reproduced every printed value except wall time with difference 0. total_seconds also differs (E0001 0.1 -> 0.4; E0006 639.9 -> 904.6), and the E0001 record (runs/E0001/replications/20261103T065031Z.json) compares only primary_metric, experimental_att, rows, targets (plus the timing fields and runner exit code): the reproduced table values behind C1, C2 and C6/C26 agree only through the identical table sha256 line in the replication log (line 87) and the original run.log (line 15), checked by hand, not by the record. The claim holds with that support. Superseded by C27, which pins both logs. Strength unchanged (exploratory). Raised by the adversarial check of 2026-11-03."
     }
   },
   "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
