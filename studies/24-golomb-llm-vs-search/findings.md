@@ -18,7 +18,7 @@ related: [studies/11-exact-verifier-construction/findings.md]
 > construction plus local search (`search` track) and the model snapshot
 > `qwen-flash-2025-07-28` proposing rulers as JSON data, never code (`llm` track). Each arm
 > got exactly 2000 candidate evaluations per (order, trial) pair. Both were scored by the
-> same declared verifier against the tabulated optimal lengths of OEIS A003022
+> same declared verifier against the tabulated minimum lengths of OEIS A003022
 > (`ref:oeis_a003022`; optimality is the table's, from exhaustive searches by others, never
 > this study's). The development orders are n = 8 to n = 11 with three trials each, so 12
 > pairs per arm. The sealed orders are n = 12 and n = 13, so 6 pairs per arm, each read
@@ -26,7 +26,8 @@ related: [studies/11-exact-verifier-construction/findings.md]
 > `metric.reported` equals `metric.verified` in every measured run).
 >
 > **Vocabulary.** A pair "matched" when its best verified ruler has the tabulated length.
-> Nothing here is "found", "discovered" or "proved": every lane order's answer is public.
+> Because every lane order's answer is public, a match is reported only as a match: never as
+> a new object and never as a certificate.
 >
 > **Derived tables.** Two synthesis tables are new at this stage. `tables/synthesis_pairs.tsv`
 > (`art:synth_pairs`) has one row per pair. `tables/synthesis_summary.tsv`
@@ -49,13 +50,17 @@ were unparsed. Every other reply parsed, but none was a valid Golomb ruler.
 | **[C2]** | RQ2 | llm | refuted (prior "about even that it reaches 9 of 12") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:sol_E0004, art:rep_E0004, ref:oeis_a003022 | On the same development pairs the LLM arm matched the tabulated optimum in 6 of 12 pairs, all three trials of the two orders that matched and none of the other two, and a salted re-query of every call reproduced the count of 6 of 12 but not the pair-level detail: first-batch matches 2 against 1, valid rulers 788 against 719, unparsed replies 531 against 593. |
 | **[C3]** | RQ2 | llm vs search | inconclusive as an inference; the count difference is measured | exploratory | empirical-description | E0001, E0004, art:synth_summary | The development contrast is +6 pairs for the LLM arm over the search arm, with an exact McNemar p of 0.03125 when the 12 pairs are treated as independent, which does not clear the Bonferroni level of 0.025 for the two arm contrasts, and a p of 0.5 when the four orders are the unit, so the advantage is a measured count difference on two orders, not an established rate. |
 | **[C4]** | RQ3 | llm | refuted (prior "yes for most matches") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:synth_pairs | Only 1 of 12 development pairs held a verified optimum in its first proposal batch, and 2 of 12 in the salted re-query; 5 of 6 matched pairs first reached the optimum after verifier feedback, at proposals as late as 74 of 200, so the registered first-batch recall signature was not observed, which does not exclude recall, because a late match can be a resampled or repaired memory. |
-| **[C5]** | RQ4 | search, llm | supported for search (prior 0.85 held); LLM arm did not reach the optimum | confirmed | empirical-description | E0005, E0006, art:sol_E0005, art:sol_E0006, art:synth_summary, ref:robinson1979, ref:robinson1983 | On the sealed orders both arms matched the tabulated optimum in 0 of 6 pairs; the search arm's best verified lengths stayed at least 48 length units above it, and the LLM arm produced no verified ruler at all, with an invalid best in 6 of 6 pairs, 265 of 1200 replies unparsed and none of its candidates a valid Golomb ruler. |
+| **[C5]** | RQ4 | search, llm | supported for search (prior 0.85 held); LLM arm did not reach the optimum | confirmed | empirical-description | E0005, E0006, rep:E0001@20261103T090037Z, rep:E0004@20261103T090054Z, art:sol_E0005, art:sol_E0006, art:synth_summary, ref:robinson1979, ref:robinson1983 | On the sealed orders both arms matched the tabulated optimum in 0 of 6 pairs; the search arm's best verified lengths stayed at least 48 length units above it, and the LLM arm produced no verified ruler at all, with an invalid best in 6 of 6 pairs, 265 of 1200 replies unparsed and none of its candidates a valid Golomb ruler. |
 | **[C6]** | all | search, llm | procedural | confirmed | procedural-verdict | E0001, E0004, E0005, E0006 | The predictions ledger holds 2 supported and 3 refuted of the 5 registered predictions: P1 and P4 supported, P2, P3 and P5 refuted, each refutation answered by a dated Decision line in program.md. |
 
 **Strength labels.** `confirmed` is used only where the track holds both kinds of
 evidence its `confirmation.require: [sealed, replicate]` names *for the statement made*.
 C1 is the search arm's 0 of 12, re-executed with difference 0 (rep:E0001), together with
-the sealed 0 of 6 (E0005). C5 is the sealed evidence itself. C6 is a ledger fact.
+the sealed 0 of 6 (E0005). C5 is the sealed evidence itself, read once per arm by design.
+It also cites each track's development replication (rep:E0001, rep:E0004), because
+`confirmation.require` asks for one per track. Those records re-ran the same code and
+contract on the development orders, not the sealed ones, so they confirm the
+instrument, not the sealed counts. C6 is a ledger fact.
 
 C2 stays `exploratory` for two reasons. The re-query reproduced only the count. The sealed
 lane tests different orders, and there the count did not carry over (0 of 6). C3 and C4
@@ -75,7 +80,7 @@ are exploratory by construction.
      6 of 6 (sealed). Negative controls: planted invalid objects were rejected. Both are
      recorded in the data card. Those control artifacts lived in a scratch directory and
      are not pinned, so the record of them is the card's text.
-2. **The oracle of known optimal lengths.** `verify.py` pins the OEIS A003022 values for
+2. **The oracle of known minimum lengths (OEIS A003022).** `verify.py` pins the OEIS A003022 values for
    orders 8 to 13 (34, 44, 55, 72, 85, 106) in its `ORACLE`, and it refuses an
    `instance.json` that disagrees. Those lengths are the only reference values any count
    is compared against.
@@ -315,8 +320,8 @@ optimality credits for n ≤ 14 rest on the literature, not on a source this stu
 
 ## ⑥ Literature tie-back
 
-- **Classical search.** `ref:dotu2005` reports that a hybrid evolutionary algorithm "quickly
-  finds optimal rulers with up to 11 marks", at a budget stated in time. This study's simpler
+- **Classical search.** `ref:dotu2005` reports, in its abstract, that a hybrid evolutionary algorithm
+  quickly reaches the tabulated rulers up to 11 marks, at a budget stated in time. This study's simpler
   annealer, at 2000 evaluations, matched 0 of 12 at orders 8 to 11. That is not a
   contradiction, because the budgets are not comparable. It does mean that C1 says nothing
   about classical search in general.
