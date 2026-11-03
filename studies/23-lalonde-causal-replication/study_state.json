@@ -89,6 +89,12 @@
       "note": "delegated (program.md Roster). E0001: 9/11 targets reproduce; the 2 misses (PSID-1 adjusted value and SE) are the ones explained in advance by Table 3 mixing Panel C columns (4)/(5); proceed to estimators",
       "playbook_sha256": "728da47b2dc675f64eb21869cb92eecd5def2a8793f6a0cbd8472f287bf586b9"
     },
+    "confirmation": {
+      "acknowledged_at": "2026-11-03T07:07:11.529057Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated (program.md Roster). E0008 sealed reproduction: 2 pre-announced misses (P6 refuted); E0009 sealed AIPW on CPS-1: gap -466.80 (P7 supported); E0001 and E0006 replicated exactly; 7/7 predictions adjudicated",
+      "playbook_sha256": "789b4047d1e608c063016d087ad390182583f745c3a7524ea0dd5c415d2dc819"
+    },
     "estimators": {
       "acknowledged_at": "2026-11-03T05:56:38.982658Z",
       "acknowledged_by": "lead-agent",
@@ -287,5 +293,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T07:06:37.541532Z"
+  "updated_at": "2026-11-03T07:07:11.531894Z"
 }
