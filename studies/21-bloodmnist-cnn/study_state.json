@@ -3,9 +3,14 @@
     "consult": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T04:49:24.727815Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T04:55:28.976992Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "2521cd4d51c7456c2d09203028eebd3fc88789ee1a6882e1d0ef7fb00a5a09a9",
     "research_plan.md": "5c05c8ceb263a1c842d9f6c86dbbe37f501ce0fb56b31836014036cd0403ed3a",
     "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
     "study.yaml": "ffd2118dd4dcab8f815ace451c038b98e3d02804460c387d1d4f3c119afbf305"
@@ -20,8 +25,12 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "42aa1fa107e783ccb4bfff2f570587e8ddd83ad0548581022023f23b5a5536ec"
+    "data": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d",
+    "split": {
+      "development": "29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b",
+      "final_test": "90aaa686f449993dae796c2e445a9b3129c3b1a457c8dfc74d016f19dac8e80e",
+      "policy": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4"
+    }
   },
   "gates": {
     "consult": {
@@ -37,9 +46,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T04:55:28.976992Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "2521cd4d51c7456c2d09203028eebd3fc88789ee1a6882e1d0ef7fb00a5a09a9"
+      },
+      "note": "delegated (program.md Roster). GO with cautions: 11 cross-split near-duplicates removed in prepare.py (audit 8/8); scope limit \u2014 the official split is image-level, not patient-grouped",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -52,10 +65,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/home/user/wt-21/studies/21-bloodmnist-cnn/data/prepared",
-    "sha256": null
+    "sha256": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d"
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "21-bloodmnist-cnn",
-  "updated_at": "2026-11-03T04:49:24.729095Z"
+  "updated_at": "2026-11-03T04:55:30.753497Z"
 }
