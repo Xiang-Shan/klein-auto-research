@@ -181,3 +181,10 @@ E0005: 1-NN matching with replacement, ATT 560.28, bootstrap 95% CI [-619.80, 38
   filed E0005 (d25a53e) and re-applied the reflection. Full account and every leftover
   artifact: `incidents/2026-11-03-e0005-history-repair/`. `klein verify` passes after the
   repair. The AIPW cell (P3) re-runs as E0006.
+- 2026-11-03 — Decision (lead): the `estimators` phase budget is raised from 4 to 6
+  experiments. E0003 and E0004 were driver crashes (a tool timeout killed `run-one`;
+  a run launched before the cell was set), recorded as crashes with NA; they spent two
+  of the four slots the phase needs for its four PRE-REGISTERED cells, so P3 and P5
+  could not run. Only `phases[estimators].max_experiments` changes — no prediction,
+  rule, track, target or other budget — and the consult gate is re-recorded with this
+  reason. The crashes stay in the ledger as evidence of the driver errors.

@@ -93,7 +93,7 @@ phases:
   - id: estimators
     description: "four registered propensity-score cells on PSID-1: IPW (P2), AIPW (P3), 1-NN matching (P4), IPW without 1974 earnings (P5); then select the sealed estimator by the registered rule"
     budget_seconds: 3600
-    max_experiments: 4
+    max_experiments: 6          # was 4; raised after two driver crashes (E0003, E0004) spent two slots — see program.md 2026-11-03
   - id: confirmation
     description: "one sealed CPS-1 cell per track, each after its dry run: reproduction (P6) and the selected estimator (P7)"
     budget_seconds: 2400
