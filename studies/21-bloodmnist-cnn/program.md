@@ -194,3 +194,18 @@ macro-F1 against the incumbent 0.7189; the keep bar is +0.0438.
 
 Chosen to start: 1 (BatchNorm) because the anchor's seed instability is the dominant measured
 noise; then 2 and 3, so the P3 bundle can be decomposed before it runs. 4-6 are the queue.
+
+- 2026-11-03 — Decision (lead, at the anchor/adaptive boundary): `max_run_seconds` and the
+  `wall_seconds` guardrail 1800 -> 5400. Both bound a whole 3-seed array; under CPU
+  contention from the sibling exhibits a seed took 250-500 s, so a 1,800 s cap would turn
+  slow machines into crashes. No prediction, rule, metric or floor changed; consult
+  re-recorded with this reason.
+- 2026-11-03 — Note (lead): the fit noise across seed blocks (std 0.047) is as large as the
+  keep bar (minimum_delta 0.0438, item bootstrap). The bar answers "would this score hold
+  on a re-drawn set of development images"; it does not absorb seed luck, and E0001's
+  seeds were the best of four blocks. A keep in the adaptive phase is therefore read
+  together with its own seed spread, and findings must say so.
+- 2026-11-03 — Framework fix applied before the adaptive phase (fcadacf): the notary now
+  writes a seed array's aux rows as the seed means; E0001/E0002 were filed before it, so
+  their aux_metrics.tsv rows hold the LAST seed's values — their per-seed values are in
+  runs/E000N/seeds.tsv.
