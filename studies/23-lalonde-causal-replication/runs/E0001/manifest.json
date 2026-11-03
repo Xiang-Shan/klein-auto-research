@@ -85,8 +85,10 @@
   "timed_out": false,
   "track": "reproduction",
   "transaction": {
-    "ready_at": "2026-11-03T05:04:48.867753Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T05:04:48.997408Z",
+    "evidence_commit": "97c6a68446bd9048ea39f267e5faba4568dec050",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 2.3290442480010825
 }
