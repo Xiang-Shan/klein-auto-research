@@ -217,3 +217,23 @@ Chosen: #1 (the phase allows one experiment and it is the identity anchor; #2-#3
   to observed outputs. So P1/P2 measure the registered INSTRUCTION, not answering without
   reasoning; findings must say so and report compliance (share of bare-number replies,
   output tokens per arm) from the pinned ledger.
+
+## Anchor rerun outcome (2026-11-03, experimenter)
+
+- E0002 (cot_gain, gsm8k, --tests P1,P2, rerun after E0001's 429 crash): measured. 599 calls
+  were cache hits, 1 new call; usage 182 tokens new (75 in / 107 out); 600 calls total
+  across the two shards. em_gain = 0.01 (paired item bootstrap CI [-0.01, 0.03]),
+  em_direct = 0.95, em_cot = 0.96, McNemar exact p = 0.5078 (6 CoT-only vs 3 direct-only
+  discordant of 300).
+- Decision: P1 REFUTED (em_direct 0.95 > 0.85). The registered number-only instruction
+  is not followed, and the model is strong on this sample; the prior (0.55-0.85) was too low.
+  Prediction left as registered; not rewritten.
+- Decision: P2 REFUTED (em_gain 0.01 < 0.10; the CI excludes 0.10). CoT adds nothing
+  detectable on the public sample because the direct arm already reasons (below) and both
+  arms sit near ceiling. Consequence for the twins phase: P4 (gain >= 0.10 on twins) is
+  now a priori unlikely for the same reason; it stays registered and is run as is.
+- Direct-arm compliance (both pinned shards, 600 unique requests; bare = reply is only a
+  number): direct arm 4/300 bare (1.3%), median output 112.5 tokens (mean 143.5), 4/300
+  cut at max_tokens; CoT arm 0/300 bare, median 243 tokens (mean 265.7), 2/300 cut at
+  max_tokens. So the "direct" arm is a terse CoT (about 0.46x the CoT tokens), which
+  explains the near-zero gain. Reported, prompt not changed (lead decision).

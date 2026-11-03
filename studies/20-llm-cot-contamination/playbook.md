@@ -10,19 +10,22 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
+| cot_gain | E0002 | em_gain 0.01 (CI -0.01..0.03); em_direct 0.95, em_cot 0.96 | gsm8k public 300, registered prompts, qwen-flash-2025-07-28, 2 workers | anchor |
 
 ## Ruled out (evidence, not opinion)
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
-| anchor run as-is (8 workers, no 429 retry) | E0001 crash | HTTP 429 rate limit killed the run at 599/600 calls; harness fault, not a verdict |
+| anchor run as-is (8 workers, no 429 retry) | E0001 crash | HTTP 429 rate limit killed the run at 599/600 calls; fixed by 2 workers, E0002 completed |
+| P1 prior (direct EM <= 0.85) | E0002 | refuted: em_direct 0.95 |
+| P2 (CoT gain >= 0.10 on public sample) | E0002 | refuted: gain 0.01; direct arm already reasons (4/300 bare replies, median 112 tokens) |
 
 ## Open hypotheses
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
-| H1 | The direct arm is non-compliant: qwen-flash reasons despite "final number only" (294/300 responses >25 chars), so em_gain is understated | seen in E0001 shard | lead decides prompt/extraction fix, then re-run anchor |
-| H2 | A retry/backoff or fewer workers avoids 429 | likely | lead fixes calls.py or max_workers, then re-run anchor |
+| H1 | Direct arm non-compliant (4/300 bare), so em_gain measures CoT vs terse-CoT, not CoT vs no reasoning | confirmed E0002 | report only; prompt stays as registered |
+| H2 | Near-ceiling accuracy on twins too, so P4 (gain >= 0.10) likely fails the same way; P3 gap may be small | 0.7 | twins phase cells |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
