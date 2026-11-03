@@ -255,6 +255,26 @@
     "sha256": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9"
   },
   "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20261103T091024Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T09:10:24.393329Z",
+          "tolerance": 0.001
+        }
+      ],
+      "track": "primary"
+    },
     "E0005": {
       "attempts": 1,
       "modes": {
@@ -299,5 +319,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T09:09:34.843711Z"
+  "updated_at": "2026-11-03T09:12:42.453582Z"
 }
