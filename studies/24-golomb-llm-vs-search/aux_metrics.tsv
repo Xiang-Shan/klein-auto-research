@@ -35,3 +35,15 @@ E0005	pairs	6.0
 E0005	evaluations	12000.0
 E0005	sealed_lane	1.0
 E0005	restarts	54.0
+E0006	wall_seconds	3586.9972620010376
+E0006	first_batch_matches	0.0
+E0006	pairs	6.0
+E0006	evaluations	12000.0
+E0006	sealed_lane	1.0
+E0006	valid_rulers	0.0
+E0006	unparsed_replies	265.0
+E0006	calls_total	1200.0
+E0006	calls_cached	0.0
+E0006	tokens_in	951747.0
+E0006	tokens_out	571472.0
+E0006	cost_usd	0.0

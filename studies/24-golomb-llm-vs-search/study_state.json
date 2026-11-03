@@ -24,9 +24,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "llm": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-11-03T08:00:19.314020Z",
+      "count": 1,
+      "experiment": "E0006"
     },
     "primary": {
       "accessed_at": null,
@@ -81,7 +81,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 5,
+  "last_experiment": 6,
   "overrides": [],
   "phase_acknowledgements": {
     "development": {
@@ -171,6 +171,26 @@
       "recorded_at": "2026-11-03T08:00:09.124313Z",
       "source": "run",
       "verdict": "supported"
+    },
+    "P5": {
+      "evidence": [
+        "E0006"
+      ],
+      "explanation": "primary_metric 0 >= 3 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0006"
+          ],
+          "explanation": "primary_metric 0 >= 3 \u2192 refuted",
+          "recorded_at": "2026-11-03T09:00:11.437946Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T09:00:11.437946Z",
+      "source": "run",
+      "verdict": "refuted"
     }
   },
   "prepared_data": {
@@ -180,5 +200,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T08:00:09.147700Z"
+  "updated_at": "2026-11-03T09:00:11.459685Z"
 }

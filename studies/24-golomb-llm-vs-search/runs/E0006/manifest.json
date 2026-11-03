@@ -1,0 +1,144 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1251,
+      "committed": true,
+      "sha256": "0fc849f2a90a38e93b9189634b20cd2d932933adb57b846482d0166b9c059a01"
+    },
+    "calls/E0006-000.jsonl.gz": {
+      "availability": "recorded",
+      "bytes": 322025,
+      "committed": true,
+      "role": "declared",
+      "sha256": "feca45f236ec4a53133da2340521150799e4f5e1f9efc93f14d7ed6a3cfdc13a"
+    },
+    "runs/E0006/run.log": {
+      "availability": "recorded",
+      "bytes": 833,
+      "committed": true,
+      "sha256": "4806fb3fe14a0642a0653afcf7d6225dbdcbec754c05c18b64c1b152609a91ed"
+    },
+    "runs/E0006/usage.json": {
+      "availability": "recorded",
+      "bytes": 133,
+      "committed": true,
+      "role": "usage",
+      "sha256": "533cf22594c80e219df4c6d5dc3a51b8b30731dfd756f758a80eae69094c266b"
+    },
+    "tables/solution_E0006.json": {
+      "availability": "recorded",
+      "bytes": 9804,
+      "committed": true,
+      "role": "declared",
+      "sha256": "116f82debf357d348871c0bb68aa4b8c939218e56ca46b4117d7afbf7757e1b8"
+    }
+  },
+  "base_commit": "58ea58d78aaba2b0f0e2d6184422c1cee40daf27",
+  "candidate_commit": "757976c007798e49f97e90659ce8a47ed7478e38",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed confirmation: qwen-flash-2025-07-28 proposes rulers, orders 12-13, 3 trials, 200 x 10 proposals; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T09:00:09.299889Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0006",
+  "fingerprints": {
+    "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "9d41471b91cd1db926dcb5f5764f94e44fcfdcc7040d8f877fd8a3d19416456a"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric": {
+    "reported": 0.0,
+    "verified": 0.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "optima_matched",
+  "metrics": {
+    "calls_cached": 0.0,
+    "calls_total": 1200.0,
+    "cost_usd": 0.0,
+    "evaluations": 12000.0,
+    "first_batch_matches": 0.0,
+    "invalid_best": 6.0,
+    "pairs": 6.0,
+    "primary_metric": 0.0,
+    "runner_exit_code": 0.0,
+    "sealed_lane": 1.0,
+    "tokens_in": 951747.0,
+    "tokens_out": 571472.0,
+    "total_seconds": 0.0,
+    "unparsed_replies": 265.0,
+    "valid_rulers": 0.0,
+    "wall_seconds": 0.000842
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P5": {
+      "explanation": "primary_metric 0 >= 3 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P5"
+  ],
+  "primary_metric": 0.0,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T08:00:19.323760Z",
+  "timed_out": false,
+  "track": "llm",
+  "transaction": {
+    "ready_at": "2026-11-03T09:00:11.449449Z",
+    "status": "pending"
+  },
+  "usage": {
+    "calls": 1200.0,
+    "calls_cached": 0.0,
+    "tokens": 1523219.0,
+    "tokens_in": 951747.0,
+    "tokens_out": 571472.0,
+    "usd": 0.0
+  },
+  "verifier": {
+    "artifact": "tables/solution_E0006.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "63a60221be1a0b66c36095c804d08799df889156c7299c1129df16f2c0bc903c"
+    },
+    "timed_out": false,
+    "wall_seconds": 2.1346321679993707
+  },
+  "wall_seconds": 3589.9756828909995
+}
