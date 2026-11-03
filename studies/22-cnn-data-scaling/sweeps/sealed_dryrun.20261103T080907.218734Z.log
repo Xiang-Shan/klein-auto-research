@@ -1,0 +1,34 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+split_fingerprint: 90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05
+sealed_dryrun: 1
+---
+primary_metric:    1.926607
+metric_name:       val_mlogloss
+metric_goal:       lower
+training_seconds:  7.2
+total_seconds:     14.6
+train_rows:        45000
+val_rows:          9992
+status:            ok
+--- aux_metrics ---
+val_accuracy: 0.373699
+val_balanced_accuracy: 0.377019
+val_macro_f1: 0.316722
+val_top5_accuracy: 0.882506
+val_mlogloss: 1.926607
+val_ece: 0.183390
+n_classes:         10
+wall_seconds:      14.551633
+n_train: 50000
+n_fit: 45000
+n_inner: 5000
+steps: 60
+eval_every: 50
+best_step: 60
+best_inner_loss: 1.914052
+fit_a: 2.125837465
+fit_alpha: 0.1303601958
+predicted_loss: 0.5187658831668801
+extrapolation_rel_error: 0.7307359958375405
+runner_status: ok
+runner_exit_code: 0
