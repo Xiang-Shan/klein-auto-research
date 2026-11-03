@@ -106,6 +106,13 @@ transaction always restores `analyze.py`; the candidate commit stays resolvable.
   A P1 miss of exactly these targets is therefore explained in advance and does not
   trigger the anchor's STOP; any other miss does.
 
+- 2026-11-03 — Decision: P1 REFUTED by the notary at E0001 (targets_outside_tolerance = 2;
+  disposition measured). The two misses are exactly the pre-announced ones (psid1_adjusted
+  731 vs 217.94; psid1_adjusted_se 886 vs 866.20), so the anchor's STOP does not fire; the
+  registered prediction stays as registered and the refutation is the finding: Table 3
+  column (2) PSID-1 is not the note-a regression. The anchor phase closes; estimators
+  phase proceeds on lead's ack. No analyze.py or lib edit was made to chase the miss.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
@@ -124,3 +131,20 @@ the ranked survivors into playbook.md "Next-best candidates".
 
 Chosen: #1 -- the anchor is the phase's single pre-registered cell (max_experiments 1); 2-3 are contingent follow-ups that the STOP rule forbids anyway, and 4 belongs to the estimators phase.
 
+### Phase anchor reflection (E0001, measured, metric 2)
+
+Notary: P1 refuted (primary_metric 2 <= 0 false). 9 of 11 targets reproduced within +-1:
+NSW unadjusted 1794 / SE 633, NSW adjusted 1672 / SE 638 (diffs 0.15-0.40), PSID-1
+unadjusted -15205 / SE 1154 (diffs 0.22, 0.61), and sizes 185 / 260 / 2490 (exact).
+Experimental ATT 1794.34. Missed: psid1_adjusted 731 vs 217.94 (diff 513.06) and
+psid1_adjusted_se 886 vs 866.20 (diff 19.80) -- exactly the targets the METHOD finding
+predicted. Diagnostic rows (never counted): the PSID-1 note-a regression gives 217.94,
+which matches Panel C column (4) (218, diff 0.06) and not column (5) (731); the two
+"all pre-treatment covariates" readings give 795.02 (diff 64.02 from col 5) and 67.28
+(diff 663.72); neither reading reproduces column (5) within +-1. The NSW lane: note a
+matches col (4) 1672 (diff 0.20); the other NSW readings (1675.86, 1669.84) lie 2-4 from
+col (4) and 15-21 from col (5) 1655. So the mixed-column explanation is confirmed for the
+note-a side, but the exact covariate set behind column (5) is NOT recovered by either
+reading tried; that remains open and costs nothing downstream (att cells use note a).
+Standard-error formula (classical OLS) matched on every non-PSID-adjusted target, so
+RQ1's SE worry did not materialise.
