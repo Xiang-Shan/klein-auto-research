@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	primary	0.829647333333	measured	96bffa0294a74340a83b432a51c4f8d155060642	cell N=500; registered cell measured
