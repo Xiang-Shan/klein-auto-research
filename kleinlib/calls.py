@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import http.client
 import io
 import json
 import os
@@ -126,6 +127,15 @@ def openai_chat(base_url: str, payload: Mapping[str, Any], *, timeout: float = 1
                 delay = min(delay * 2, RETRY_CAP_SECONDS)
                 continue
             raise RuntimeError(f"model endpoint unreachable: {exc.reason}") from exc
+        except (ConnectionError, TimeoutError, http.client.HTTPException) as exc:
+            # A reset or a dropped connection while the RESPONSE is read is raised
+            # bare, not wrapped in URLError (study 24, E0003: ConnectionResetError
+            # after 523 calls). Transient by nature: back off and retry.
+            if not last:
+                time.sleep(delay)
+                delay = min(delay * 2, RETRY_CAP_SECONDS)
+                continue
+            raise RuntimeError(f"model endpoint connection failed: {exc!r}") from exc
     raise RuntimeError("model endpoint: retries exhausted")  # pragma: no cover
 
 
