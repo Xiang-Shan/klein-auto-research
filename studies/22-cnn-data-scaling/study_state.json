@@ -75,7 +75,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 6,
+  "last_experiment": 7,
   "overrides": [],
   "phase_acknowledgements": {
     "cells": {
@@ -85,6 +85,68 @@
       "playbook_sha256": "bae830b4e55b11fdcc19101f4ee6296aed7bb5b12a0d477d2df97ee793fcb256"
     }
   },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "primary_metric 0.13036 in [0.1, 0.6] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "primary_metric 0.13036 in [0.1, 0.6] \u2192 supported",
+          "recorded_at": "2026-11-03T08:08:23.613017Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:08:23.613017Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "fit_r2 0.795532638953 >= 0.98 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "fit_r2 0.795532638953 >= 0.98 \u2192 refuted",
+          "recorded_at": "2026-11-03T08:08:23.619463Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:08:23.619463Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P5": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "primary_metric 0.13036 in [0.15, 0.32] \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "primary_metric 0.13036 in [0.15, 0.32] \u2192 refuted",
+          "recorded_at": "2026-11-03T08:08:23.623765Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:08:23.623765Z",
+      "source": "run",
+      "verdict": "refuted"
+    }
+  },
   "prepared_data": {
     "path": "/home/user/wt-22/studies/22-cnn-data-scaling/data/prepared",
     "sha256": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9"
@@ -92,5 +154,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T08:07:58.078800Z"
+  "updated_at": "2026-11-03T08:08:23.639433Z"
 }
