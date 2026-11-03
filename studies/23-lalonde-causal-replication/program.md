@@ -159,3 +159,9 @@ RQ1's SE worry did not materialise.
 | 4 | att IPW, no_re74 (P5): |gap| > $1,000 | 3 | 3 | 3 | 9 |
 
 Chosen order: P2, P4, P3, P5 (lead's order) -- IPW is the tie-break baseline of the selection rule, then the other two selection candidates, then the RE74 sensitivity, which does not enter selection. All four are pre-registered cells; the slate records order only.
+
+### E0002 reflection (att, ipw, dw_psid, 500 reps; adjudicates P2)
+
+ATT 3038.44, bootstrap 95% CI [976.01, 4501.30], gap +1244.09 vs experimental 1794.34, n_controls_used 1146 of 2490, max_weight_share 0.135 (13.5% of the control weight sits on one unit -- concentrated, as RQ3 feared). The CI covers the experimental value, but the point estimate misses the $1,000 band: P2 refuted by the notary.
+
+- 2026-11-03 — Decision: P2 REFUTED at E0002 (|gap| 1244.09 > 1000). Odds-weighted IPW on DW's PSID-1 logit overshoots by about $1.2k with a heavy single-unit weight; the prediction stays as registered, IPW remains the tie-break baseline of the selection rule.
