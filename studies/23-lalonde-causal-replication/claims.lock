@@ -715,7 +715,8 @@
       "claim": "Carried unchanged to the sealed CPS-1 lane, AIPW with the PSID-1 logit estimates an ATT of 1327.54 with bootstrap interval [-129.17, 2835.62], a gap of -466.80 against the benchmark, on 4493 comparison men whose largest single weight share is 0.0426",
       "class": "empirical-description",
       "errata": [
-        "E6"
+        "E6",
+        "E8"
       ],
       "evidence": [
         "E0009",
@@ -895,6 +896,13 @@
       ],
       "filed": "2026-11-03",
       "note": "C25 lists the pre-weighting standardized mean differences on which CPS-1 is no closer to the trainees (black larger; re74 and re75 about equal) and omits those on which it is closer (married, age, hispanic) or equal (education, nodegree), all in the same data_card.md table; it also calls re74 and re75 'about as much' where CPS-1 is slightly closer. The conclusion (overlap is one candidate, not the favoured mechanism) stands. Superseded by C28, which quotes the full covariate row. Separately, erratum E3's note quotes two percentages that are ratios of pinned counts (n_controls_sealed over n_cps1, n_support_psid over n_psid1), not pinned values; read them as arithmetic on those aliases. Strength unchanged (exploratory). Raised by the second adversarial check of 2026-11-03."
+    },
+    "E8": {
+      "claims": [
+        "C5"
+      ],
+      "filed": "2026-11-03",
+      "note": "C5's 'carried unchanged' and 'AIPW with the PSID-1 logit' mean the specification (the dw_psid covariate list) only: lib/lalonde.py propensity() re-fits the logistic regression on the trainees plus the lane's comparison men, and the AIPW outcome model is re-fit on the CPS-1 men on support; no fitted coefficient is carried from PSID-1. study.yaml P7 says 'specification unchanged'. Content and strength unchanged (confirmed); superseded by C29, which says so in its sentence. Raised by the second adversarial check of 2026-11-03."
     }
   },
   "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
