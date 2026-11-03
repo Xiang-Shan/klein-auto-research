@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	cot_gain	NA	crash	dbe086a1af253cb3b40a5bf9be43870428544375	anchor: CoT vs direct on the 300-item public GSM8K sample; process exit code 1

@@ -81,7 +81,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [
     {
       "acknowledged_at": "2026-11-03T07:41:46.152602Z",
@@ -98,5 +98,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T07:41:48.323691Z"
+  "updated_at": "2026-11-03T07:56:18.235695Z"
 }
