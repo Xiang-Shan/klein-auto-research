@@ -324,3 +324,34 @@ Chosen: 1 then 2 then 3, the order the contract fixes.
   though the arithmetic verdict is "below"). Scope: image-level split, not patient-grouped.
 - 2026-11-03 — `klein replicate E0008`: reproduced, difference 0 (tolerance 0.0438 =
   minimum_delta), evidence rep:E0008@20261103T090709Z. `klein next`: SYNTHESIZE.
+
+## Referee notes — answers (Gate 3 report at 7943e06, Verdict: FAIL on check 1)
+
+- 2026-11-03 — Check 1 (FAIL) cleared by wording only, in findings.md. §③ item 3 now labels the
+  unstable-optimisation mechanism as an untested hypothesis (C11, exploratory) and says the
+  learning-rate schedule was never varied. §③ item 1 marks "colour stencils versus local texture"
+  as an untested interpretation. §⑥'s BN bullet ties "weights still moving" to the off-loop
+  seed-0 diagnostic, which is not evidence. No claim sentence or number in claims.lock changed,
+  so no erratum was filed.
+- 2026-11-03 — Referee note 1: accepted. §② now says the single sealed access bounds the net
+  effect of selection and the train + development refit together, and does not measure selection
+  on its own. This matches §③ item 7.
+- 2026-11-03 — Referee note 2: the data card's leakage row 4 obligation (a constant /
+  label-shuffled harness check reproduced from train.py at EXPERIMENT) is closed as a DISCLOSED
+  GAP, NOT MET. No such run exists in this study. The disclosure stands in findings (controls
+  paragraph, C17, §⑦ item 3). The harness is checked only by the analytic chance levels
+  (art:controls), the notary's near-constant-prediction rejection, and the replication of E0008.
+- 2026-11-03 — Referee note 3: acknowledged for TUTORIAL. Any figure added there is unreviewed at
+  Gate 3. Keep-chain and per-class plots must start their axes at zero or draw the measured bar,
+  so that sub-bar deltas (E0006, E0007) are not visually inflated.
+- 2026-11-03 — Referee note 4: accepted. The §③ item 6 heading now reads "Monocyte recall fell at
+  the bundle, within per-class noise". The body quotes the drop at 1.2 to 1.3 binomial SEs of
+  recall on the development monocytes (tables/per_class_noise.tsv, written by tables/synthesis.py;
+  the earlier synthesis outputs are byte-identical). Locked claim C9 states only the measured
+  recalls, so it was not re-scoped.
+- 2026-11-03 — Referee note 5: acknowledged as a framework item, not a study defect. verify's
+  contract-driven-split detector does not recognise kleinlib.data.load_items, which wraps
+  load_partition. The printed split fingerprints match the frozen one. The fix belongs in
+  kleinlib; nothing in this study works around it.
+- 2026-11-03 — Referee note 6: acknowledged; no change. The E0001/E0002 aux rows hold the last
+  seed's values (pre-fcadacf), and findings and claims read runs/E000N/seeds.tsv.

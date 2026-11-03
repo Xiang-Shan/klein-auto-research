@@ -1,0 +1,7 @@
+quantity	value
+n_dev_monocytes	143
+monocyte_recall_drop_E0004_to_E0008	0.039627
+binomial_se_at_E0004_recall	0.031077
+binomial_se_at_E0008_recall	0.033767
+drop_in_se_at_E0004	1.275106
+drop_in_se_at_E0008	1.173541

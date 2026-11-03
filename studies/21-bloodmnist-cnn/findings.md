@@ -112,8 +112,9 @@ value is 1.54.
 - **7 frontier comparisons** (E0002–E0008, each candidate against its incumbent at the
   fixed bar of 0.0438). No family-wise correction is applied. Reason: the bar is a measured
   per-comparison item-noise floor at 3.66 item sds, and the selection effect of picking
-  the best of 8 development configurations on 1709 images is not corrected for but
-  *measured* — by the single sealed access, which came back +0.0004 against development.
+  the best of 8 development configurations on 1709 images is not corrected for. The single
+  sealed access (+0.0004 against development) bounds the net effect of selection and the
+  train + development refit together; it does not measure selection on its own (§③ item 7).
 - **5 registered predictions** (P1–P5), each one pre-registered threshold adjudicated by
   the notary on one printed block; P1–P3 on development, P4 and P5 on the one sealed run.
   No prediction was reassigned, re-scoped or re-run.
@@ -146,7 +147,8 @@ mostly wrong, and that is the most transferable result of the anchor phase.
    normalization at the same depth and step count lifted it to 0.8960 with a seed sd of
    0.0145 against 0.0255. The two models also fail on different classes: the linear model
    recalls basophils at 0.771 and immature granulocytes at 0.2851, the anchor the reverse
-   (0.2562 and 0.7046) — colour stencils versus local texture (`art:per_class`).
+   (0.2562 and 0.7046) (`art:per_class`). Reading the pattern as "colour stencils versus
+   local texture" is an untested interpretation: no run probed what either model uses.
 2. **Batch normalization first measured as a catastrophe (E0003, 0.3005).** Mechanism
    (C7, exploratory): eval-mode inference used momentum-0.1 running averages that lag
    weights still moving at a constant learning rate; `program.md` records an off-loop
@@ -160,9 +162,11 @@ mostly wrong, and that is the most transferable result of the anchor phase.
    item noise to dominate; at the anchor the block-to-block sd of a three-seed mean
    (0.0472) is 3.94 times the item-bootstrap sd (0.0120). The keep bar (0.0438) therefore
    sits at only 0.93 fit-noise sds, and the E0001 block (0.7189) is the best of four
-   (four-block mean 0.6620, sd 0.0541). Mechanism: an unstable constant-rate optimiser at
-   about 8 epochs; once BN stabilised training, per-candidate seed sds fell to 0.0070–0.0145
-   (E0004–E0008), so the anchor's fit noise does not describe the incumbent's.
+   (four-block mean 0.6620, sd 0.0541). Mechanism: an untested hypothesis (C11,
+   exploratory) — unstable optimisation at about 8 epochs. The learning-rate schedule was
+   never varied, so "constant-rate" names a recipe property, not a measured cause. What is
+   measured: once BN was added, per-candidate seed sds fell to 0.0070–0.0145 (E0004–E0008),
+   so the anchor's fit noise does not describe the incumbent's.
 4. **Depth and schedule were real in sign but sub-bar (E0006, E0007).** Every E0006 seed
    beat every E0004 seed (9 of 9 pairs, paired differences 0.0258 to 0.0393), likewise every
    E0007 seed (paired 0.0048 to 0.0403), yet both fell short of the bar by 0.0112 and
@@ -176,14 +180,13 @@ mostly wrong, and that is the most transferable result of the anchor phase.
    once, so augmentation mainly slows fitting of a two-block network — is a hypothesis
    nobody tested. The margin (-0.15 floors) is inside the incumbent's seed sd 0.0145. The
    lever rides inside E0008, where its contribution is not separated.
-6. **The bundle lowered monocyte recall (C9).** Basophil recall rose from 0.2562 to
+6. **Monocyte recall fell at the bundle, within per-class noise (C9).** Basophil recall rose from 0.2562 to
    0.9201 and immature-granulocyte recall from 0.7046 to 0.9149 (E0001 → E0008), but
    monocyte recall fell from 0.8345 at E0004 to 0.7949 at E0008; in E0008's seed-0 table 33
    of 143 development monocytes were called immature granulocytes. On the sealed test
-   monocytes remain the weakest class (recall 0.8582). Mechanism: **unresolved** — the
-   monocyte/immature-granulocyte boundary is the one the deeper, augmented network moved
-   the wrong way on development, and with 143 development monocytes a shift of this size
-   is close to per-class item noise.
+   monocytes remain the weakest class (recall 0.8582). On 143 development monocytes this
+   drop (0.0396) is 1.2 to 1.3 binomial standard errors of recall (`art:per_class_noise`), so it is within per-class
+   noise and not an established effect. Mechanism: **unresolved**.
 7. **No development-to-test drop after selection (+0.0004).** Picking the best of 8
    configurations on 1709 images should leave selection optimism of order one development
    standard error. Two forces push in opposite directions in E0009 — selection optimism
@@ -254,7 +257,9 @@ fcadacf).
 - **Batch normalization (`ref:ioffe2015`, `ref:santurkar2018`).** The size of the BN gain
   (+0.1771) agrees with BN as an optimisation stabiliser. Ioffe & Szegedy define inference
   with population statistics over the training data; E0004's recomputation is exactly
-  that, and E0003 shows what the momentum shortcut costs when the weights are still moving.
+  that, and E0003 shows what the momentum shortcut cost here. That the cause is lagging
+  averages over weights still moving rests only on the off-loop seed-0 diagnostic in
+  `program.md`, which is not evidence.
 - **Seed variance (`ref:bouthillier2021`, `ref:picard2021`).** Fit noise at 3.94 times item
   noise at the anchor is a concrete instance of their warning: a benchmark difference read
   from one seed, or from one seed block, would have been read from luck.

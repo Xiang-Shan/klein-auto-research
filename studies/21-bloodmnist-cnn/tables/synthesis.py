@@ -9,6 +9,8 @@ sealed label beyond the row sums of E0009's own pinned confusion tables. Writes:
   tables/controls.tsv           chance-level controls on development and sealed test
   tables/per_class.tsv          seed-mean per-class recall and F1 per run (from confusion)
   tables/seed_dominance.tsv     seed-level comparisons between selected run pairs
+  tables/per_class_noise.tsv    binomial SE of the E0004 -> E0008 monocyte recall drop
+                                (added after referee note 4; other outputs unchanged)
 
 Run from anywhere: `uv run --no-sync python studies/21-bloodmnist-cnn/tables/synthesis.py`.
 Deterministic; values rounded to 6 decimals.
@@ -194,7 +196,22 @@ def main() -> None:
                      r6(paired.max())])
     write("seed_dominance.tsv", ["candidate", "reference", "pair_wins", "pairs", "min_minus_max",
                                  "paired_diff_min", "paired_diff_mean", "paired_diff_max"], rows)
-    print("wrote synthesis_summary.tsv, controls.tsv, per_class.tsv, seed_dominance.tsv")
+    # --- per-class noise on the monocyte drop (referee note 4) ------------------
+    n_mono = int(confusion("E0008", 0).sum(1)[5])
+    rec4 = per_class(sum(confusion("E0004", s) for s in range(3)) / 3.0)[0][5]
+    rec8 = per_class(sum(confusion("E0008", s) for s in range(3)) / 3.0)[0][5]
+    drop = rec4 - rec8
+    se4 = math.sqrt(rec4 * (1 - rec4) / n_mono)
+    se8 = math.sqrt(rec8 * (1 - rec8) / n_mono)
+    write("per_class_noise.tsv", ["quantity", "value"], [
+        ["n_dev_monocytes", n_mono],
+        ["monocyte_recall_drop_E0004_to_E0008", r6(drop)],
+        ["binomial_se_at_E0004_recall", r6(se4)],
+        ["binomial_se_at_E0008_recall", r6(se8)],
+        ["drop_in_se_at_E0004", r6(drop / se4)],
+        ["drop_in_se_at_E0008", r6(drop / se8)],
+    ])
+    print("wrote synthesis_summary.tsv, controls.tsv, per_class.tsv, seed_dominance.tsv, per_class_noise.tsv")
 
 
 if __name__ == "__main__":
