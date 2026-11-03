@@ -273,7 +273,9 @@
     "C3": {
       "claim": "The law fitted on the development cells did not predict the sealed full-pool test loss within the registered 0.20: measured 0.3959 against predicted 0.5066, a signed relative error of -0.2802 (P3 refuted).",
       "class": "procedural-verdict",
-      "errata": [],
+      "errata": [
+        "E1"
+      ],
       "evidence": [
         "E0007",
         "E0008",
@@ -402,7 +404,15 @@
       "strength": "exploratory"
     }
   },
-  "errata": {},
+  "errata": {
+    "E1": {
+      "claims": [
+        "C3"
+      ],
+      "filed": "2026-11-03",
+      "note": "Referee note 3 (2026-11-03): the locked signed relative error -0.2802 is the seed mean of the three per-seed signed relative errors against the pinned law (the registered definition); the signed error of the seed-mean loss is -0.2797 (alias rel_error_seed_mean_loss, art:synth). Verdict and strength unchanged."
+    }
+  },
   "git_head": "68dc7756e9194d9b04b738f3e4c79609b3aca2ac",
   "klein_commit": "68dc7756e9194d9b04b738f3e4c79609b3aca2ac",
   "klein_version": "2.2.0",
