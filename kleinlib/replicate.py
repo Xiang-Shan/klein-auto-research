@@ -939,6 +939,77 @@ def _keep_requery_calls(
     return kept
 
 
+#: Every verifier process runs with the script's own directory OFF sys.path: the
+#: searcher has just run with write access to that directory, and a planted
+#: ``json.py`` (or ``kleinlib/``) there would otherwise be imported by the checker
+#: (found at study 24's DATA gate). Python >= 3.11.
+VERIFIER_SAFE_PATH_ENV = {"PYTHONSAFEPATH": "1"}
+
+
+def _replica_verifier(
+    worktree_study: Path,
+    verifier: Mapping[str, Any],
+    manifest: Mapping[str, Any],
+    run_id: str,
+    track: str,
+    log_path: Path,
+    limit: float,
+    echo: bool,
+) -> dict[str, Any]:
+    """Judge the REPLICA's artifact with the track's declared verifier, in the worktree.
+
+    A verifier track's manifest records the VERIFIED number; comparing the replica's
+    self-reported number with it would replicate the searcher, not the run (found at
+    study 24's DATA gate). The verifier of the candidate commit runs on the artifact
+    the replica printed, exactly as ``run-one`` judged the original.
+    """
+    key = str(verifier.get("artifact_key") or "")
+    declared = printed_values(log_path, key) if key else []
+    record: dict[str, Any] = {"command": [str(part) for part in verifier.get("command") or []]}
+    if not declared:
+        record["failure_reason"] = f"the replica printed no `{key}:` artifact line for the verifier"
+        return record
+    artifact = Path(declared[-1])
+    artifact = artifact if artifact.is_absolute() else worktree_study / artifact
+    if not artifact.is_file():
+        record["failure_reason"] = f"the replica's artifact does not exist: {declared[-1]}"
+        return record
+    record["artifact"] = declared[-1]
+    record["artifact_sha256"] = sha256_file(artifact)
+    verify_log = worktree_study / ".klein-replica-verify.log"
+    process = run_logged(
+        record["command"],
+        cwd=worktree_study,
+        log_path=verify_log,
+        timeout_seconds=limit,
+        echo=echo,
+        env_overrides={
+            **_child_env(manifest, run_id, track, KLEIN_ARTIFACT=str(artifact)),
+            **VERIFIER_SAFE_PATH_ENV,
+        },
+    )
+    text = verify_log.read_text(encoding="utf-8", errors="replace") if verify_log.exists() else ""
+    # Kept in the record, NOT appended to the replica's log: that log is parsed for
+    # the searcher's own block afterwards, and the verifier's lines would win.
+    record["log_tail"] = text.splitlines()[-60:]
+    record.update(exit_code=process.exit_code, timed_out=process.timed_out, wall_seconds=process.wall_seconds)
+    if process.exit_code != 0:
+        record["failure_reason"] = (
+            f"verifier timed out after {limit:g}s" if process.timed_out else f"verifier exit code {process.exit_code}"
+        )
+        return record
+    try:
+        primary, _name, _goal, metrics = parse_metric_log(
+            verify_log, scope=str(manifest.get("printed_scope", "log"))
+        )
+    except WorkflowError as exc:
+        record["failure_reason"] = str(exc)
+        return record
+    record["primary"] = primary
+    record["metrics"] = metrics
+    return record
+
+
 def _run_replicate(
     study_dir: Path,
     contract: Mapping[str, Any],
@@ -1035,6 +1106,12 @@ def _run_replicate(
                 exit_code=process.exit_code,
                 timed_out=process.timed_out,
             )
+            track = str(manifest.get("track"))
+            verifier = (normalize_tracks(contract).get(track) or {}).get("verifier")
+            if process.exit_code == 0 and isinstance(verifier, Mapping):
+                out["verifier"] = _replica_verifier(
+                    worktree_study, verifier, manifest, run_id, track, log_path, limit, echo
+                )
     out["environment_match"] = (
         out["environment_fingerprint"] == (manifest.get("fingerprints") or {}).get("environment")
     )
@@ -1077,6 +1154,15 @@ def _run_replicate(
         out["replicate_block"] = {}
         out["failure_reason"] = str(exc)
         return out
+    judged = out.get("verifier")
+    if isinstance(judged, Mapping):
+        out["searcher_block"] = metrics
+        if judged.get("failure_reason"):
+            out["replicate_block"] = {}
+            out["failure_reason"] = str(judged["failure_reason"])
+            return out
+        metrics, primary = dict(judged["metrics"]), float(judged["primary"])
+        out["verifier"] = {k: v for k, v in judged.items() if k != "metrics"}
     out["replicate_block"] = metrics
     out["_replicate_primary"] = primary
     return out
@@ -1117,9 +1203,10 @@ def _run_verify(
         log_path=log_path,
         timeout_seconds=limit,
         echo=echo,
-        env_overrides=_child_env(
-            manifest, run_id, track, KLEIN_ARTIFACT=str(artifact_path)
-        ),
+        env_overrides={
+            **_child_env(manifest, run_id, track, KLEIN_ARTIFACT=str(artifact_path)),
+            **VERIFIER_SAFE_PATH_ENV,
+        },
     )
     out: dict[str, Any] = {
         "command": command,
