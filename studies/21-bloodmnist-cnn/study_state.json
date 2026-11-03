@@ -34,6 +34,22 @@
       "experiment": "E0009"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "primary": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "primary": "E0009"
+    },
+    "timestamp": "2026-11-03T09:59:12.901735Z"
+  },
   "fingerprints": {
     "data": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d",
     "split": {
@@ -232,7 +248,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "21-bloodmnist-cnn",
   "sweeps": {
     "fit_noise": {
@@ -254,5 +270,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T09:58:13.914318Z"
+  "updated_at": "2026-11-03T09:59:12.901762Z"
 }
