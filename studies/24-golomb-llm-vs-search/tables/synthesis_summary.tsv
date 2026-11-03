@@ -1,0 +1,74 @@
+metric	value	note
+E0001_matched	0	pairs matched, recomputed from the solution table
+E0004_matched	6	pairs matched, recomputed from the solution table
+E0005_matched	0	pairs matched, recomputed from the solution table
+E0006_matched	0	pairs matched, recomputed from the solution table
+dev_delta_llm_minus_search	6	pairs, E0004 minus E0001
+sealed_delta_llm_minus_search	0	pairs, E0006 minus E0005
+dev_pair_mcnemar_n10	6	pairs llm matched, search did not (12 pairs)
+dev_pair_mcnemar_n01	0	pairs search matched, llm did not
+dev_pair_mcnemar_p	0.03125	exact two-sided; treats the 12 pairs as independent, which the order clustering contradicts
+dev_order_mcnemar_n10	2	orders (of 4) with any llm match and no search match
+dev_order_mcnemar_n01	0	orders with a search match and no llm match
+dev_order_mcnemar_p	0.5	exact two-sided, 4 orders as the unit
+llm_orders_all_or_none	4	development orders (of 4) where all 3 llm trials agree
+n_comparisons_arm_contrast	2	development (E0004 vs E0001) and sealed (E0006 vs E0005)
+n_comparisons_predictions	5	P1-P5, each a deterministic rule on one cell
+n_comparisons_card_priors	5	method card part 4(b) priors C1-C5, descriptive checks
+bonferroni_alpha_arm_contrast	0.025	0.05 over the 2 arm contrasts
+search_gap_mean_n8	5.667	E0001: mean best_length minus optimum over 3 trials, length units
+search_gap_min_n8	4	E0001: smallest gap over 3 trials
+search_gap_mean_n9	11.333	E0001: mean best_length minus optimum over 3 trials, length units
+search_gap_min_n9	10	E0001: smallest gap over 3 trials
+search_gap_mean_n10	25.0	E0001: mean best_length minus optimum over 3 trials, length units
+search_gap_min_n10	22	E0001: smallest gap over 3 trials
+search_gap_mean_n11	35.333	E0001: mean best_length minus optimum over 3 trials, length units
+search_gap_min_n11	33	E0001: smallest gap over 3 trials
+search_gap_mean_n12	51.333	E0005: mean best_length minus optimum over 3 trials, length units
+search_gap_min_n12	48	E0005: smallest gap over 3 trials
+search_gap_mean_n13	58.667	E0005: mean best_length minus optimum over 3 trials, length units
+search_gap_min_n13	58	E0005: smallest gap over 3 trials
+llm_gap_n10	15	E0004 order 10: every trial best 70 vs optimum 55
+llm_first_match_proposal_min	1	E0004, proposal index (of 200) of the first optimal ruler
+llm_first_match_proposal_max	74	E0004
+llm_matches_after_proposal_1	5	E0004 matched pairs whose first optimum came after the first batch
+card_prior_C4_threshold	3.0	M_llm / 2; prior C4 needs first_batch_matches at or above it
+E0004_fb_prefix_tab8_ge7	8	first-batch rulers sharing the first 7 marks of the tabulated 8-mark ruler
+E0004_fb_prefix_tab11_ge6	0	first-batch rulers sharing at least the first 6 marks of the tabulated 11-mark ruler
+E0004_fb_rulers	120	first-batch slots (10 per pair)
+E0004_fb_valid	1	valid Golomb rulers in the first batches
+E0004_fb_with_n_marks	120	first-batch rulers with the requested number of marks
+E0006_fb_prefix_tab8_ge7	2	first-batch rulers sharing the first 7 marks of the tabulated 8-mark ruler
+E0006_fb_prefix_tab11_ge6	6	first-batch rulers sharing at least the first 6 marks of the tabulated 11-mark ruler
+E0006_fb_rulers	60	first-batch slots (10 per pair)
+E0006_fb_valid	0	valid Golomb rulers in the first batches
+E0006_fb_with_n_marks	60	first-batch rulers with the requested number of marks
+E0006_fb_min_repeated_differences	5	fewest repeated differences in any sealed first-batch ruler with n marks
+E0004_n9_valid_rulers	0	valid 9-mark rulers in 600 proposals
+E0004_best_is_tab11_prefix	6	E0004 pairs whose best ruler is a prefix of the tabulated 11-mark ruler (orders 10 and 11)
+E0004_unparsed_rate	0.2471	unparsed replies / calls
+E0004_valid_rate	0.03	valid rulers / candidate evaluations
+E0006_unparsed_rate	0.2208	unparsed replies / calls
+E0006_valid_rate	0.0	valid rulers / candidate evaluations
+E0004_cached_share	0.4733	share of E0004's requests answered from the E0002/E0003 shards
+wall_ratio_dev_llm_over_search	10234.0	aux wall_seconds, E0004 / E0001
+wall_ratio_sealed_llm_over_search	13016.0	aux wall_seconds, E0006 / E0005
+replication_live_calls	2400	salted re-query of E0004
+replication_tokens	2497144	tokens_in + tokens_out of the salted re-query
+study_live_calls	6000	E0002 + E0003 + E0004 + E0006 + replication, live (uncached) calls
+study_live_tokens	6507285	same scope, tokens in + out
+price_configured	0	1 if study.yaml calls: declares price:, else 0 (usd 0 then means unpriced)
+E0004_ledger_calls_min_per_pair	200	calls in the ledger per (order, trial), minimum
+E0004_ledger_calls_max_per_pair	200	maximum
+E0004_ledger_first_batch_agree	12	pairs (of 12) whose stored first batch equals the ledger's first reply
+E0004_distinct_first_requests_per_order	1	distinct first requests across the 3 trials of an order (max over orders)
+E0006_ledger_calls_min_per_pair	200	calls in the ledger per (order, trial), minimum
+E0006_ledger_calls_max_per_pair	200	maximum
+E0006_ledger_first_batch_agree	6	pairs (of 6) whose stored first batch equals the ledger's first reply
+E0006_distinct_first_requests_per_order	1	distinct first requests across the 3 trials of an order (max over orders)
+E0004_n9_proposals	600	order-9 proposals in E0004 (3 trials x 200)
+card_brier_P1_P5	0.03568	method card P(rule holds) vs ledger outcome, 5 predictions
+card_brier_P2_P5	0.043975	method card, the 4 predictions the CONSULT priors also priced
+consult_brier_P2_P5	0.170625	study.yaml RQ priors, 4 predictions
+predictions_held	2	ledger: supported
+predictions_refuted	3	ledger: refuted
