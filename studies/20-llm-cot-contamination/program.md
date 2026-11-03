@@ -290,3 +290,30 @@ Chosen: #1 then #2 (the phase's two experiments); #3 is read-only. Expectation: 
 | 4 | offline --replay of E0002 (never counts) | 1 | 3 | 1 | 5 |
 
 Order: dry runs first, then sealed cot_gain, sealed contamination, replications. Expectation: P5 refuted (ceiling, as P2/P4), P6 likely supported.
+
+## Confirmation phase outcome (2026-11-03, experimenter)
+
+- Sealed dry runs (both tracks): OK, offline from the ledger, nothing spent.
+- E0005 (cot_gain, sealed twin block C, --tests P5): measured. em_gain = 0.000, cluster CI
+  [-0.055, 0.045]; em_direct 0.97, em_cot 0.97; McNemar p 1.0 (6 vs 6 discordant; overstated
+  by non-independence); 400 calls, 124,877 tokens (34,960 in / 89,917 out).
+- Decision: P5 REFUTED (em_gain 0.00 < 0.10; CI excludes 0.10). The CoT gain is absent on the
+  sealed twins as on the public sample (+0.01), development twins (-0.025): all three cells
+  consistent with no gain from CoT over this model's already-reasoning "direct" arm.
+- E0006 (contamination, sealed twin block C, --tests P6): measured. em_gap = 0.01, CI
+  [-0.040, 0.065]; em_original 0.98, em_twins 0.97. All 250 calls were cache hits
+  (the 50 originals' CoT calls from E0003 and the 200 sealed CoT twins from E0005), 0 new
+  tokens. P6 SUPPORTED (0.01 <= 0.05), though the CI upper end 0.065 exceeds 0.05. The sealed
+  CoT twin answers are the same ledger entries E0005 produced, so the two sealed cells are not
+  independent queries.
+- Descriptive GSM-Symbolic split, sealed: overlap 5 templates original 1.00, twins 1.00, gap
+  0.00; other 45: 0.978 vs 0.967, gap 0.011; excluding t1281, t0466 (n=48): gap 0.010.
+  Imperfect templates: t1183 (twins 0.75), t1046 (original right, twins 0.00), t1179
+  (original wrong, twins 0.75).
+- Replications (tolerance_source minimum_delta for all): E0002 salted re-query reproduced,
+  em_gain -0.0067 vs 0.01, difference 0.0167 vs tol 0.03 (em_direct 0.953, em_cot 0.947;
+  mcnemar_p and discordant counts moved outside tolerance, descriptively). E0003 salted
+  re-query reproduced, em_gap -0.025 vs 0.02, difference 0.045 vs tol 0.05 (close to the
+  bar; em_original 0.94, em_twins 0.965; the gap's sign flipped, ci_low outside tolerance).
+  E0002 --replay (offline) reproduced, difference 0 (never counts).
+- Note: the CELL left at "twin_dev" from the twins phase is irrelevant to sealed cells.
