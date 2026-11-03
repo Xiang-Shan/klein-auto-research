@@ -1,0 +1,25 @@
+<h2>Vision-model coding advice</h2>
+<p>This section walks the source that was actually executed. <code>model.py</code> and <code>train.py</code> are the mutable surface, which the notary restores after every non-keep, so the files on disk are not a reliable witness. Each listing below is read from the candidate commit a named run executed: the incumbent <strong>E0008</strong> (development) and the sealed <strong>E0009</strong> (test). E0009's candidate diff was empty, so its <code>train.py</code> is byte-identical to E0008's; the two provenance lines show the same hash. No verifier script is declared: the metric comes from the library evaluator <code>kleinlib.eval_multiclass.evaluate_multiclass</code>, which refuses non-finite probabilities and collapsed single-class predictions, prints the metric block and pins the confusion table.</p>
+
+<h3>The network: <code>model.py</code> at E0008</h3>
+<p>Three conv-BN-ReLU blocks (32, 64, 128 channels), max-pool after the first two, global average pooling and a linear head. The third block lifts the receptive field to about the whole cell, and global pooling makes the head independent of the image size.</p>
+<pre data-code="model.py" data-lang="python" data-run="E0008"></pre>
+
+<h3>The recipe: <code>train.py</code> at E0008</h3>
+<p>Four things deserve a close read. (1) <code>d4</code> applies the dihedral symmetries to the <em>training batch</em>, inside the loop, from <strong>its own generator</strong> (<code>SEED + 10_000</code>), so the batch order stays identical to the anchor's at the same seed and an augmentation run is a paired comparison. (2) The budget is optimizer steps, not epochs, so runs compare across devices. (3) Batches come from <code>iterate_minibatches</code>, a streamed index shuffle, never a <code>DataLoader</code> over a <code>TensorDataset</code>. (4) After training, the BatchNorm running statistics are reset, set to a cumulative average (<code>momentum = None</code>) and recomputed over one pass of the <strong>training</strong> set in train mode with no gradient, before <code>eval()</code>. That block is the whole difference between E0003 and E0004.</p>
+<pre data-code="train.py" data-lang="python" data-run="E0008"></pre>
+
+<h3>The sealed cell: <code>train.py</code> at E0009</h3>
+<p>The same bytes, run once on the official test split after a dry run. The sealed refit trains on train plus development (13,668 rows against 11,959), a difference that comes from the contract's partition and not from the code.</p>
+<pre data-code="train.py" data-lang="python" data-run="E0009"></pre>
+
+<h3>Pitfalls and war stories that bit this study</h3>
+<ol>
+<li><strong>Default BatchNorm inference cost a candidate.</strong> E0003 added <code>BatchNorm2d</code> and scored 0.3005 because evaluation used momentum-0.1 running averages. An off-loop diagnostic (one seed, not evidence) showed batch-statistics accuracy staying high while eval-mode accuracy collapsed, which points at the inference path. Before calling a normalization candidate a failure, compare train-mode and eval-mode outputs, and recompute the statistics on the training set. The mechanism (averages lagging weights that are still moving at a constant learning rate) is an untested interpretation.</li>
+<li><strong>One bundle, one unattributed gain.</strong> E0008 changed four levers together. Budget the single-lever cells inside the phase cap, or the gain stays unattributed.</li>
+<li><strong>Measure fit noise, not only item noise.</strong> The bar came from an item bootstrap; the seed-block spread was several times larger at the anchor. Read each keep together with its seed spread.</li>
+<li><strong>A near-duplicate audit before training.</strong> Eleven cross-split near-duplicates were removed from the evaluation partitions; state that the official split is image-level, not patient-grouped.</li>
+<li><strong>Compare a sealed number with a published one in standard errors.</strong> A gap under two binomial standard errors is &ldquo;indistinguishable&rdquo; whatever the arithmetic verdict of a rule says.</li>
+<li><strong>Per-seed tables, not one aux row.</strong> The aux rows of the earliest runs hold only the last seed; read <code>runs/E####/seeds.tsv</code> for seed means.</li>
+<li><strong>Run the label-shuffled control.</strong> This study did not; the harness check therefore rests on analytic chance levels alone.</li>
+</ol>

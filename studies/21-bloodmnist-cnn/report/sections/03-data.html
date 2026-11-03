@@ -1,0 +1,13 @@
+<h2>The data story</h2>
+<h3>Shape</h3>
+<p>The source is MedMNIST v2's <code>bloodmnist.npz</code>: uint8 images of shape 28 &times; 28 &times; 3, eight classes of expert-labelled normal blood cells, with the official 7:1:2 partitions kept (<code>data.split.kind: predefined</code>). Train has 11,959 images, development 1,709 and the sealed test split 3,413, after removal of near-duplicates (below). Class imbalance is moderate, about 2.7 to 1 between the largest and smallest class, so macro-F1 is the primary and accuracy is printed beside it. Two development classes (basophil and lymphocyte) have only 122 items, so per-class recall there is coarse.</p>
+
+<h3>Gotchas the audit caught</h3>
+<ul>
+<li><strong>Near-duplicates across partitions (a blocker, repaired).</strong> The dHash audit at 4 bits found 3 of 1,712 development and 7 of 3,421 test images with a copy in train (nine byte-identical groups span splits, and one cross-split pair carries conflicting labels). The decision was to remove them, not tolerate them: <code>prepare.py</code> drops 3 development and 8 test items, and the re-run audit passes 8 of 8. Published MedMNIST numbers are on 1,712 / 3,421 images, a difference every comparison here states.</li>
+<li><strong>The split is image-level.</strong> MedMNIST describes a random 7:1:2 split with no patient or slide identifier, so group overlap is unknown and cannot be audited. Scores answer &ldquo;new cells from the same smears and lab&rdquo;, never &ldquo;a new patient&rdquo;.</li>
+<li><strong>Unnormalized uint8 pixels.</strong> Channel standard deviations differ (blue is far narrower than green); normalization is a training choice, not a data property.</li>
+</ul>
+
+<h3>The call</h3>
+<p>The data card's decision is <strong>GO with cautions</strong>: the one blocker was removed before the gate, and the two cautions (image-level scope, imbalance with coarse per-class estimates) travel with every claim. The data card's clean-room leakage row 4 asked for a label-shuffled harness control to be reproduced from <code>train.py</code>; that control was <strong>never run</strong> and is a disclosed gap (see sections 5 and 7). The harness is checked only by the analytic chance levels and the notary's rejection of near-constant predictions.</p>

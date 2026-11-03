@@ -1,0 +1,26 @@
+<h2>Findings and insights</h2>
+<!--EVIDENCE-->
+<h3>Verdicts</h3>
+<ul>
+<li><strong>RQ1 (C1).</strong> Pixel-linear softmax reached 0.6903 macro-F1 (accuracy 0.7353), far above the chance controls (prior-matched random 0.125, majority class 0.0408) and inside the prior range of 0.50 to 0.85. P1 supported.</li>
+<li><strong>RQ2 (C2).</strong> The recipe CNN cleared pixel-linear by only 0.0286, inside the bar, and far below the prior of 0.85. P2 refuted.</li>
+<li><strong>RQ3 (C3, C4).</strong> Working batch normalization is the only single change to earn a keep; depth and schedule are positive but sub-bar, augmentation alone is unresolved, and the bundle is supported but not attributable. P3 supported (the verdict is about the bundle).</li>
+<li><strong>RQ4 (C5).</strong> On the sealed test split the incumbent configuration scored a macro-F1 of 0.9465 and an accuracy of 0.9527. P4 supported. P5 is supported arithmetically (below 0.958), but the gap of 0.0053 is about 1.5 binomial standard errors, so the honest reading is <strong>indistinguishable from ResNet-18 (28)</strong>. This is the only level the study confirms: development-to-development comparisons stay exploratory.</li>
+</ul>
+
+<h3>Per-class effects are uneven</h3>
+<img data-fig="figures/per_class_recall.png" alt="Grouped bars of per-class recall for E0001, E0004, E0008 and the sealed E0009" data-caption="Per-class recall (three-seed mean) at the anchor, the BN keep, the incumbent (all development) and the sealed test run, bars from zero. Basophil and immature-granulocyte recall rose most; monocyte recall fell from E0004 to E0008 within per-class noise.">
+<p>From E0001 to E0008 basophil recall rose from 0.2562 to 0.9201 and immature-granulocyte recall from 0.7046 to 0.9149. Monocyte recall fell from 0.8345 at E0004 to 0.7949 at E0008, and monocytes remain the weakest class on the sealed test (0.8582). That drop is not an established effect: on 143 development monocytes it is about 1.2 to 1.3 binomial standard errors of one recall (not a test statistic for the difference), and the per-seed recalls of the two runs overlap widely. Its cause is unresolved.</p>
+<img data-fig="figures/confusion_incumbent_sealed.png" alt="Two row-normalised confusion matrices, development incumbent and sealed test" data-caption="Row-normalised confusion matrices summed over three seeds: E0008 on the development split (left) and the sealed E0009 on the test split (right). The one visible off-diagonal mass is monocytes called immature granulocytes, on both partitions.">
+<p>Calibration came along: expected calibration error fell from 0.0828 at the anchor to 0.0125 at E0008 (0.0086 on the sealed test), and log-loss from 0.6660 to 0.1333, so no recalibration step was needed.</p>
+
+<h3>Surprises, with their status</h3>
+<ul>
+<li><strong>Seed luck exceeded item noise.</strong> Measured: fit noise was 3.94 times item noise at the anchor. The mechanism proposed in the findings (unstable, under-trained optimisation, claim C11) is <strong>untested</strong>: the learning-rate schedule was never varied.</li>
+<li><strong>Batch normalization first measured as a catastrophe.</strong> Measured: recomputing the statistics (E0004) scored 0.5955 higher than E0003. The explanation that the default running averages lag weights that are still moving (claim C7) rests on an off-loop seed-0 diagnostic that is <strong>not evidence</strong>, so it stays an untested interpretation.</li>
+<li><strong>Different failure patterns for the linear model and the anchor.</strong> Measured per-class recall differs; reading it as &ldquo;colour stencils versus local texture&rdquo; is an <strong>untested interpretation</strong>, since no run probed what either model uses.</li>
+<li><strong>No development-to-test drop after selection</strong> (+0.0004). Selection optimism and the larger refit push in opposite directions and one sealed number cannot separate them; this is unresolved, not &ldquo;no optimism&rdquo;.</li>
+</ul>
+
+<h3>Scope and the control that does not exist</h3>
+<p>Everything above is <strong>image-level</strong> on the official split, not patient-grouped, and the sealed comparison with MedMNIST is on 3,413 rather than 3,421 test images, a three-seed mean, and a train-plus-development refit. The <strong>label-shuffled harness control was never run</strong>; this is a disclosed gap, the harness resting on analytic chance levels alone. The study counts seven frontier comparisons with no family-wise correction, which is why every development comparison is exploratory. Four of five method-card priors about noise and class difficulty were falsified.</p>
