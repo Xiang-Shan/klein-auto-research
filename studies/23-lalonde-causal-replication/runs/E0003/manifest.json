@@ -1,0 +1,79 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 521,
+      "committed": true,
+      "sha256": "f75c5632c29bbcec2b6a3d7a504bc4866a0646f93f6561a687c0e758d7bdd8f3"
+    },
+    "figures/.gitkeep": {
+      "availability": "recorded",
+      "bytes": 0,
+      "committed": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "models/.gitkeep": {
+      "availability": "recorded",
+      "bytes": 0,
+      "committed": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 54450,
+      "committed": true,
+      "sha256": "526b2d8e07bf59dbf69d346dbaa4639a5ddd9e752f4ba478222dc2bc27932823"
+    }
+  },
+  "base_commit": "307c0f92a0bc9ae45d19046fddeeb79cf759cd5a",
+  "candidate_commit": "80d962a5622ee413b4e52d7e164bc8b3f48b5043",
+  "code_patch_hash": "77b69c23e02fcc58339d6cf924b74360930b074d4c14b6e29cd0043a5410af75",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "recovered interrupted run with no terminal record",
+  "description": "recovered interrupted run with no terminal record",
+  "disposition": "crash",
+  "ended_at": "2026-11-03T05:13:44.103115Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 125,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130"
+  },
+  "incumbent": null,
+  "max_run_seconds": 900.0,
+  "metric_goal": "higher",
+  "metric_name": "att_usd",
+  "metrics": {},
+  "phase": "estimators",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions_requested": [
+    "P4"
+  ],
+  "primary_metric": null,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T05:11:22.169354Z",
+  "timed_out": false,
+  "track": "att",
+  "transaction": {
+    "started_at": "2026-11-03T05:11:22.169431Z",
+    "status": "pending"
+  }
+}

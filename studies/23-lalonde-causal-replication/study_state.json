@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 2,
+  "last_experiment": 3,
   "overrides": [],
   "phase_acknowledgements": {
     "anchor": {
@@ -139,5 +139,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T05:11:08.021989Z"
+  "updated_at": "2026-11-03T05:13:44.125381Z"
 }
