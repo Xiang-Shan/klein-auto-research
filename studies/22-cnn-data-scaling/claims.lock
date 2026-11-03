@@ -1,5 +1,86 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "a7f397322d01c28775169cae30437583a4348c7a2ac3e95836784d2e5a6613be"
+    },
+    "cells_e0001": {
+      "path": "runs/E0001/seeds.tsv",
+      "sha256": "f0dd9d4f2b59a74653ef7a256d56b434d26d2ac553e847be1b928d63512ffba8"
+    },
+    "cells_e0002": {
+      "path": "runs/E0002/seeds.tsv",
+      "sha256": "654aaa07a8eb576205872ebda25b0cbca585ec3d10cbd0bd105d54e14c355edc"
+    },
+    "cells_e0003": {
+      "path": "runs/E0003/seeds.tsv",
+      "sha256": "0cff9448bb8ea6cc4740c956d6d62ff65a3bd15c58f08ffa45502b0b94ec87f4"
+    },
+    "cells_e0004": {
+      "path": "runs/E0004/seeds.tsv",
+      "sha256": "50b265bf089c6089eaa881a65d210627807ad42bc4888012e654a99b0f2bb14d"
+    },
+    "cells_e0005": {
+      "path": "runs/E0005/seeds.tsv",
+      "sha256": "8d72b06d268ede2a8d07a9adf69e5db087110e1ab21835c278b0d506bf69ec53"
+    },
+    "cells_e0006": {
+      "path": "runs/E0006/seeds.tsv",
+      "sha256": "f1cf4d20ac0b75d47ec029de3e4d42494405ff4b490172a4db7534efa5362329"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "b1b7d96b292920a7ad6fb89a5e6d4f791a3d9606f18bf008aca723e428325bd0"
+    },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "b05281868bcb8f0255c206d071b2a9f9738e4383bf75286f518b9ec72ef03c01"
+    },
+    "fit": {
+      "path": "tables/scaling_fit.tsv",
+      "sha256": "c5e3c5e71992eb69383069bf8292dfbe228ed524dae02e4e428f73407cd257c0"
+    },
+    "method_card": {
+      "path": "method_card.md",
+      "sha256": "c9587e8479a3a59f600baaf7534529120452f5ae4eb9c848aba2161ac9a30264"
+    },
+    "program": {
+      "path": "program.md",
+      "sha256": "f5f4785feeaed0181e9a8819e82b9f6c9763f690137604c51496c32744677800"
+    },
+    "refs": {
+      "path": "references.yaml",
+      "sha256": "4ad039d67ff67506080a440b86efa45544b77998fcc07f067e09f9f0b7ea6211"
+    },
+    "rep_e0005": {
+      "path": "runs/E0005/replications/20261103T084144Z.json",
+      "sha256": "ad94e1f62b3246b2adb729767e41055c76c0b5975ea4b3165f3ba4a08dafe4fb"
+    },
+    "rep_e0007": {
+      "path": "runs/E0007/replications/20261103T084735Z.json",
+      "sha256": "866ea8543b2b1e45dd7e41fbd74148fb4392c03f1416784e3825f77f2da684ed"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "2fc44b21e8bc9aaa19763abb2c9b84f03d70ae3ea1702a0589cbf4da31123775"
+    },
+    "sealed_manifest": {
+      "path": "runs/E0008/manifest.json",
+      "sha256": "87cf1d4a56658e5f2cd629418d417336e276e5ffd071f729960a5d5faeeef765"
+    },
+    "sealed_seeds": {
+      "path": "runs/E0008/seeds.tsv",
+      "sha256": "bff34b493c087a35f99a40b8494a40ba6c07a5190f1b02501b0833fa19274794"
+    },
+    "synth": {
+      "path": "tables/synthesis_summary.tsv",
+      "sha256": "20611b45914cfc3252122704ceb913a12920638cfd83d61eab41204697261739"
+    },
+    "synth_script": {
+      "path": "figures/synthesis_summary.py",
+      "sha256": "309454736cd3f8671a16f8d58b5bcfa141bfd8e66e08c53049e1cbbedf3b4eef"
+    }
+  },
   "claims": {
     "C1": {
       "claim": "RQ1 | exponent | **answered (estimate)**: alpha 0.1304, a 2.126 \u2014 inside the prior range 0.1\u20130.6, but BELOW its \"most likely 0.2\u20130.4\" band | confirmed | empirical-description | E0001\u2013E0006, E0007, rep:E0007@20261103T084735Z, art:fit | printed within-N bootstrap 0.1181 to 0.1411 \u2014 descriptive, NOT a calibrated 95% interval (method card \u00a74(c)); post-hoc per-seed-slope t-interval 0.1033 to 0.1569 (art:synth) |",
