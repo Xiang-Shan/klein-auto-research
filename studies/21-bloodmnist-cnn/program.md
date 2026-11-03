@@ -106,7 +106,14 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase anchor slate
 
-| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| # | Candidate (cell, one transaction) | Novelty | Testable | Info | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | E0001 anchor: recipe SmallCNN as committed (width 32, 1,500 steps), 3-seed array; adjudicates P2 (>= 0.85) | 3 | 3 | 3 | 9 |
+| 2 | E0002 pixel-linear softmax (Flatten + Linear), same loop/optimizer/steps; adjudicates P1 (in [0.50, 0.85]); expected discard against E0001 | 3 | 3 | 3 | 9 |
+| 3 | Floor (a): item bootstrap of the anchor's dev macro-F1 (multinomial re-draw of the confusion table, 1,000 draws per seed table), estimand marginal-resplit = the keep bar | 3 | 3 | 3 | 9 |
+| 4 | Floor (b): anchor on three more seed blocks {10,11,12} {20,21,22} {30,31,32}, spread of block means, estimand fit-noise (provenance, never the bar); tests K2 | 2 | 2 | 3 | 7 |
+
+Chosen: 1, 2, 3, 4 in order (the phase is fixed by the contract; the floor needs the anchor's pinned tables). Rationale: the ladder P2 then P1 then the measured bar is the phase plan itself.
+
