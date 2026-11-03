@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 
 import matplotlib
@@ -77,45 +78,68 @@ def read_manifest(study: Path, run: str) -> dict:
     return json.loads((study / "runs" / run / "manifest.json").read_text(encoding="utf-8"))
 
 
+def _lg(value: float) -> float:
+    """log10 by the C library, rounded to 12 significant digits (see scaling_loglog)."""
+    return float(f"{math.log10(float(value)):.12g}")
+
+
+def _mean(values) -> float:
+    """A mean in a fixed summation order (math.fsum), independent of SIMD width."""
+    vals = [float(v) for v in values]
+    return math.fsum(vals) / len(vals)
+
+
 def scaling_loglog(study: Path, out: Path) -> None:
+    """Log-log scaling plot, drawn in log10 space on linear axes.
+
+    matplotlib's log axes transform every vertex with numpy's vectorized log10,
+    which on an AVX-512 machine differs from the C library in the last bit for
+    many inputs; a CI runner on another SIMD path then placed some vertices a hair
+    differently and the antialiased pixels changed. Every coordinate here is
+    computed with math.log10 and rounded to 12 significant digits, so matplotlib
+    only adds and multiplies (exactly rounded on every CPU), and the axes are
+    labelled with the original values.
+    """
     cells, sealed = read_cells(study), read_sealed(study)
     fit = pd.read_csv(study / "tables" / "scaling_fit.tsv", sep="\t")
     a, alpha = float(fit["a"].iloc[0]), float(fit["alpha"].iloc[0])
     n_full = int(sealed["n_train"].iloc[0])
     predicted = float(sealed["predicted_loss"].iloc[0])
-    means = cells.groupby("n_train")["val_mlogloss"].mean()
+    sizes = sorted({int(n) for n in cells["n_train"]})
+    means = {n: _mean(cells.loc[cells["n_train"] == n, "val_mlogloss"]) for n in sizes}
+    sealed_mean = _mean(sealed["val_mlogloss"])
+
+    def _law(lo: float, hi: float) -> tuple[list[float], list[float]]:
+        ns = [lo * (hi / lo) ** (i / 49) for i in range(50)]
+        return [_lg(n) for n in ns], [_lg(a * n ** (-alpha)) for n in ns]
 
     fig, ax = plt.subplots(figsize=(7.6, 5.0))
-    # The curve is computed point by point in Python and rounded to 12 significant
-    # digits: numpy's vectorized power/exp dispatch to CPU-specific code that can
-    # differ in the last bit, which moved antialiased pixels between a workstation
-    # and the CI runner (the re-render must be byte-identical on any machine).
-    def _law(lo: float, hi: float) -> tuple[list[float], list[float]]:
-        ns = [float(f"{lo * (hi / lo) ** (i / 49):.12g}") for i in range(50)]
-        return ns, [float(f"{a * n ** (-alpha):.12g}") for n in ns]
-
-    n_in, loss_in = _law(500.0, 16000.0)
-    n_out, loss_out = _law(16000.0, float(n_full))
-    ax.plot(n_in, loss_in, color=ACCENT, lw=2, label="pinned power law, fitted range (E0007)")
-    ax.plot(n_out, loss_out, color=ACCENT, lw=2, ls="--", label="same law, extrapolated")
-    ax.scatter(cells["n_train"], cells["val_mlogloss"], s=22, facecolors="none", edgecolors=GREY,
-               label="development cells, one seed each (E0001-E0006)")
-    ax.plot(means.index, means.values, "s", color=INK, ms=7, label="development cells, seed mean")
-    ax.scatter(sealed["n_train"], sealed["val_mlogloss"], s=26, facecolors="none", edgecolors=ALERT,
-               label="sealed cell, one seed each (E0008, test set)")
-    ax.plot([n_full], [sealed["val_mlogloss"].mean()], "*", color=ALERT, ms=15, mec=INK,
+    x_in, y_in = _law(500.0, 16000.0)
+    x_out, y_out = _law(16000.0, float(n_full))
+    ax.plot(x_in, y_in, color=ACCENT, lw=2, label="pinned power law, fitted range (E0007)")
+    ax.plot(x_out, y_out, color=ACCENT, lw=2, ls="--", label="same law, extrapolated")
+    ax.scatter([_lg(n) for n in cells["n_train"]], [_lg(v) for v in cells["val_mlogloss"]], s=22,
+               facecolors="none", edgecolors=GREY, label="development cells, one seed each (E0001-E0006)")
+    ax.plot([_lg(n) for n in sizes], [_lg(means[n]) for n in sizes], "s", color=INK, ms=7,
+            label="development cells, seed mean")
+    ax.scatter([_lg(n) for n in sealed["n_train"]], [_lg(v) for v in sealed["val_mlogloss"]], s=26,
+               facecolors="none", edgecolors=ALERT, label="sealed cell, one seed each (E0008, test set)")
+    ax.plot([_lg(n_full)], [_lg(sealed_mean)], "*", color=ALERT, ms=15, mec=INK,
             label="sealed cell, seed mean (measured)")
-    ax.plot([n_full], [predicted], "D", color=ACCENT, ms=8, mec=INK, label="law's prediction at N = 59,992")
-    ax.annotate("", xy=(n_full, sealed["val_mlogloss"].mean()), xytext=(n_full, predicted),
+    ax.plot([_lg(n_full)], [_lg(predicted)], "D", color=ACCENT, ms=8, mec=INK,
+            label="law's prediction at N = 59,992")
+    ax.annotate("", xy=(_lg(n_full), _lg(sealed_mean)), xytext=(_lg(n_full), _lg(predicted)),
                 arrowprops={"arrowstyle": "->", "color": INK, "lw": 1})
-    ax.axvline(16000, color=GREY, ls=":", lw=1)
-    ax.set_xscale("log")
-    ax.set_yscale("log")
-    ax.set_xlabel("Training-set size N (images, log scale)")
-    ax.set_ylabel("Cross-entropy (nats per image, log scale)")
-    ax.set_yticks([0.4, 0.5, 0.6, 0.8, 1.0])
+    ax.axvline(_lg(16000), color=GREY, ls=":", lw=1)
+    x_ticks = [500, 1000, 2000, 4000, 8000, 16000, 60000]
+    ax.set_xticks([_lg(n) for n in x_ticks])
+    ax.set_xticklabels(["500", "1k", "2k", "4k", "8k", "16k", "60k"])
+    y_ticks = [0.4, 0.5, 0.6, 0.8, 1.0]
+    ax.set_yticks([_lg(v) for v in y_ticks])
     ax.set_yticklabels(["0.4", "0.5", "0.6", "0.8", "1.0"])
     ax.minorticks_off()
+    ax.set_xlabel("Training-set size N (images, log scale)")
+    ax.set_ylabel("Cross-entropy (nats per image, log scale)")
     ax.set_title("Six development cells, the pinned law, and the sealed point", fontsize=11)
     ax.legend(fontsize=7.5, loc="lower left", frameon=False)
     fig.tight_layout()
