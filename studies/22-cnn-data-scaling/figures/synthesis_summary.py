@@ -109,6 +109,10 @@ def main() -> None:
     predicted = float(fitted["predicted_loss_at_full"].iloc[0])
     rows["sealed_mean_loss"] = sealed_mean
     rows["predicted_minus_sealed"] = predicted - sealed_mean
+    # The notary's extrapolation_rel_error is the SEED MEAN of per-seed signed errors;
+    # the signed error of the seed-mean loss differs slightly (referee note 3).
+    rows["rel_error_mean_of_seeds"] = float(sealed["extrapolation_rel_error"].mean())
+    rows["rel_error_of_seed_mean_loss"] = (sealed_mean - predicted) / sealed_mean
     rows["n16000_minus_sealed"] = float(means.loc[16000]) - sealed_mean
     rows["alpha_realised_16000_to_full_xpartition"] = slope([16000, N_FULL], [means.loc[16000], sealed_mean])
 

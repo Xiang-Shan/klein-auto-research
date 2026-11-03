@@ -39,6 +39,8 @@ E0008_best_step_share	0.954131
 E0008_heldout_over_inner	1.08771
 sealed_mean_loss	0.395864
 predicted_minus_sealed	0.110726
+rel_error_mean_of_seeds	-0.280152
+rel_error_of_seed_mean_loss	-0.279708
 n16000_minus_sealed	0.16782
 alpha_realised_16000_to_full_xpartition	0.267416
 posthoc_large_a	4.416377
