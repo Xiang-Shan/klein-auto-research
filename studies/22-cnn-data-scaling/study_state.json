@@ -257,10 +257,30 @@
         }
       ],
       "track": "primary"
+    },
+    "E0007": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0007@20261103T084735Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T08:47:35.029832Z",
+          "tolerance": 0.001
+        }
+      ],
+      "track": "exponent"
     }
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T08:46:29.660999Z"
+  "updated_at": "2026-11-03T08:47:56.917669Z"
 }
