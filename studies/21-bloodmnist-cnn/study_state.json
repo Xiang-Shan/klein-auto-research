@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T04:55:28.976992Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T05:17:54.314105Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "2521cd4d51c7456c2d09203028eebd3fc88789ee1a6882e1d0ef7fb00a5a09a9",
+    "method_card.md": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee",
     "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
     "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
     "study.yaml": "671a8e22fec107165100207defb02d38d41c6cc70e95fc25ac64ce15f7c23fb2"
@@ -30,7 +35,8 @@
       "development": "29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b",
       "final_test": "90aaa686f449993dae796c2e445a9b3129c3b1a457c8dfc74d016f19dac8e80e",
       "policy": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -55,9 +61,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T05:17:54.314105Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee"
+      },
+      "note": "delegated (program.md Roster). Card complete (triad all true); refs verify 19 references, 0 failed",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -70,5 +80,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "21-bloodmnist-cnn",
-  "updated_at": "2026-11-03T05:17:53.899534Z"
+  "updated_at": "2026-11-03T05:17:54.318234Z"
 }
