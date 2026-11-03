@@ -279,3 +279,20 @@ Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; 
   they are recorded as "sub-bar, not a keep" rather than null; the keep bar (item noise 0.0438)
   was not cleared by any single lever after BN. Phase experiments used: 5 of 6. Last: P3
   (3 blocks + BN + D4 + 4,000 steps) as its own registered cell.
+- 2026-11-03 — E0008 (P3 bundle: three conv blocks + BN with train-set running statistics + D4
+  augmentation + 4,000 steps, on E0004): `keep`, val_macro_f1 seed-mean 0.9461 (seeds 0.9372 /
+  0.9466 / 0.9544; std 0.0086), accuracy 0.9522 (std 0.0077). Margin vs incumbent 0.8960:
+  +0.0501, which exceeds the bar (+0.0438; needed 0.9398) by 0.0063 and is 5.8 candidate seed
+  stds; the worst E0008 seed (0.9372) beats the best E0004 seed (0.9090) by 0.028. Margin over the
+  best single-lever runs: +0.0175 vs E0006 (depth, 0.9286) and +0.0221 vs E0007 (steps, 0.9240),
+  both inside the bar, so the study cannot say which lever carries the bundle: the levers are
+  not separated at this budget (E0005 shows D4 alone, 2 blocks, 1,500 steps, is null).
+- 2026-11-03 — Decision: P3 supported (0.9461 >= 0.93, notary verdict on E0008). The method
+  card's expectation was a coin flip (central 0.93); the bundle landed 0.016 above it. P3 is a
+  four-lever bundle, so the verdict is about the bundle, not any lever. Incumbent: E0008.
+  Headroom h = (1 - 0.9461) / 0.0438 = 1.23: K5 (h >= 1) still holds, but a further keep
+  would need >= 0.9899, so the frontier is close to arithmetically closed.
+- 2026-11-03 — Phase adaptive closed at 6 of 6 experiments (E0003-E0008): keeps E0004
+  (BN, repaired) and E0008 (P3 bundle); discards E0003 (BN bug), E0005 (D4), E0006 (depth,
+  sub-bar), E0007 (steps, sub-bar). Dev accuracy of the incumbent 0.9522 vs the MedMNIST
+  ResNet-18 (28) test accuracy 0.958 (different split/metric; P5 is read on the sealed test).

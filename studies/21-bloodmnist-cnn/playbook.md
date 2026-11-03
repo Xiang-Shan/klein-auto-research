@@ -6,16 +6,17 @@
 > THIS is the current map. SYNTHESIZE mines both. Swept into the next state
 > commit automatically; its hash is recorded at every phase acknowledgement.
 
-Refreshed after E0004 (adaptive phase).
+Refreshed at the close of phase `adaptive` (E0008).
 
 ## Current best (per track)
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary | E0004 | val_macro_f1 0.8960 (3-seed mean; seeds 0.909 / 0.880 / 0.899; std 0.0145; acc 0.9087) | E0001 recipe + BatchNorm2d after each conv + running stats recomputed on the training set before eval | E0004 |
+| primary | E0008 | val_macro_f1 0.9461 (3-seed mean; seeds 0.937 / 0.947 / 0.954; std 0.0086; acc 0.9522) | 3 conv blocks (32/64/128) + BN (train-set running stats at eval) + D4 aug (own RNG) + 4,000 steps | E0008 |
 
-Keep bar `minimum_delta` 0.0438435 (item bootstrap): a next keep needs >= 0.9398. Fit noise
-(anchor config) 0.047 block std; the BN config's own seed std is 0.0145. h = 2.4.
+Keep bar +0.0438435 (item bootstrap) -> a next keep would need >= 0.9899; headroom h = 1.23.
+Margin of E0008 over E0004 (+0.0501) clears the bar and 5.8 seed stds. Phase `adaptive`
+used 6 of 6 (E0003-E0008). Not separated: which of depth / steps / D4 carries the bundle.
 
 ## Ruled out (evidence, not opinion)
 
@@ -39,10 +40,7 @@ Keep bar `minimum_delta` 0.0438435 (item bootstrap): a next keep needs >= 0.9398
 | H5 | Class 0 (recall 0.26, called class 3) is the largest single loss; any lever must lift it | 0.6 | read per-class recall in aux_metrics after each candidate |
 | H6 | P3's bundle (3 blocks + BN + D4 + 4,000 steps) reaches 0.93 | 0.35 given the anchor at 0.72 | its own registered cell, after single levers |
 
-## Next-best candidates (ranked; incumbent E0004, bar +0.0438 -> 0.9398)
+## Next-best candidates (phase adaptive exhausted: 6 of 6 used)
 
-1. (E0005 done: D4 on E0004 = 0.8893, -0.0067, inside seed spread: NOT RESOLVED at this budget, not ruled out; revisit inside P3.)
-2. (E0006 done: third block on E0004 = 0.9286 +/- 0.0079, +0.0326 vs E0004, 0.0112 short of the bar: discard; real in direction (every seed above every E0004 seed), not a keep.)
-3. (E0007 done: 4,000 steps on E0004 = 0.9240 +/- 0.0132, +0.0280, 0.0158 short of the bar: discard, sub-bar.)
-4. P3 as its own registered cell (3 blocks + BN + D4 + 4,000 steps, `--tests P3`), last. Sum 8.
-5. Width 64: dropped for budget (6 experiments, 3 used by E0004's close).
+For the confirmation phase: the sealed run of E0008 (dry run first, `--final-test --dry-run`).
+Post-study decomposition ideas (not budgeted): E0008 minus D4; E0008 minus steps; width 64.
