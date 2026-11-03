@@ -2,13 +2,13 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T05:04:33.479185Z"
+      "timestamp": "2026-11-03T05:19:15.236151Z"
     }
   },
   "artifact_hashes": {
     "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
-    "scouting_ledger.md": "39411a383164d32507daf53b55ec1f1fe833ba3703babdc8c219bce52cc86a3b",
-    "study.yaml": "1319ed869d10888f9e680b109cacefca7e592521036a2fff48b4b5755fa7b08c"
+    "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
+    "study.yaml": "f358fb41af4e0393d418255b15e9c9ec59b190e97459c22ed0af526937511b07"
   },
   "created_at": "2026-11-03T04:53:53.769673Z",
   "current_phase": "anchor",
@@ -35,15 +35,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T05:04:33.479185Z",
+      "acknowledged_at": "2026-11-03T05:19:15.236151Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "8372cd17d576332cf5e32d92cdfbd7a0e2e23b0b421f42d7697e56d0e768fc1d",
+        "program.md": "88ac2c8349379fabf26c37468e8773a7c3d2d02d40c65edaf6e5919beb60489d",
         "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
-        "scouting_ledger.md": "39411a383164d32507daf53b55ec1f1fe833ba3703babdc8c219bce52cc86a3b",
-        "study.yaml": "1319ed869d10888f9e680b109cacefca7e592521036a2fff48b4b5755fa7b08c"
+        "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
+        "study.yaml": "f358fb41af4e0393d418255b15e9c9ec59b190e97459c22ed0af526937511b07"
       },
-      "note": "delegated by the repository owner's approval of the Klein 2.3 plan (exhibits 20-24); see program.md Roster",
+      "note": "RE-RECORD before any run: budget comments say per-run caps; scouting entry S4 (templates written from 56 GSM8K items); no prediction, rule, track or phase changed",
       "status": "recorded"
     },
     "data": {
@@ -67,5 +67,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T05:04:33.481161Z"
+  "updated_at": "2026-11-03T05:19:15.237932Z"
 }
