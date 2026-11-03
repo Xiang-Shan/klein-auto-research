@@ -15,11 +15,14 @@
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
+| anchor run as-is (8 workers, no 429 retry) | E0001 crash | HTTP 429 rate limit killed the run at 599/600 calls; harness fault, not a verdict |
 
 ## Open hypotheses
 
 | ID | Hypothesis | Prior | Cheapest next test |
 | --- | --- | --- | --- |
+| H1 | The direct arm is non-compliant: qwen-flash reasons despite "final number only" (294/300 responses >25 chars), so em_gain is understated | seen in E0001 shard | lead decides prompt/extraction fix, then re-run anchor |
+| H2 | A retry/backoff or fewer workers avoids 429 | likely | lead fixes calls.py or max_workers, then re-run anchor |
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 

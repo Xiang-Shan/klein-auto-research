@@ -180,3 +180,25 @@ the ranked survivors into playbook.md "Next-best candidates".
 | 4 | salted re-query replication of the anchor | 1 | 3 | 2 | 6 |
 
 Chosen: #1 (the phase allows one experiment and it is the identity anchor; #2-#3 belong to phase twins, #4 to confirmation).
+
+## Anchor phase outcome (2026-11-03, experimenter)
+
+- E0001 (cot_gain, CELL gsm8k, --tests P1,P2): CRASH, not retried. Reason: one request
+  returned HTTP 429 (`limit_requests`, DashScope rate limit) and `kleinlib/calls.py`
+  `openai_chat` raises on it without retry or backoff; 599 of ~600 calls had been made and
+  pinned (`calls/E0001-000.jsonl.gz`; 172,657 tokens), so no em_gain / em_direct / em_cot /
+  mcnemar_p was printed and P1, P2 stay open. This is an infrastructure fault (a bug in
+  the harness path, not a bad idea). max_workers: 8 against this account's request limit.
+- Observation from the pinned shard (direct arm, 300 requests, prompt "Answer with the
+  final number only."): the model does NOT comply. Median direct response is 289 chars,
+  294 of 300 exceed 25 characters, and responses begin with worked reasoning ("Amalia took
+  4 hours ... 4 + 2 = 6 hours"); mean output 144 tokens vs 266 for the CoT arm. Only 6 of
+  300 are bare numbers. So the "direct" arm is closer to a terse CoT, which will shrink
+  em_gain and make P1 (em_direct <= 0.85) likely refuted for an instrument reason, not a
+  model-ability reason. Also 2 CoT responses hit finish_reason=length at max_tokens 1024.
+- Open for the lead (not changed by the experimenter): (a) rate-limit handling (retry with
+  backoff in calls.py, or lower calls.max_workers) before re-running; (b) whether the
+  direct-arm compliance finding warrants a prompt/extraction change (lib/prompts.py) before
+  the anchor is re-run; any such change is a deliberate instrument edit, outside the
+  per-experiment diff. Decision: no prediction is refuted (none adjudicated); no rerun by
+  the experimenter.
