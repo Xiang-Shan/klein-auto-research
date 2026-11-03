@@ -19,7 +19,7 @@ study. Two kinds of file live here.
   `encoder-comparison.md`, and `domains/insurance/best-practices-auto-insurance.md`.
 - **Promoted framework lessons** — `research-discipline.md`: the ten process lessons
   of studies 07–09 with typed claim citations, and the 2.0 mechanism each produced;
-  lesson 11 (study 10) and lessons 12–22 (studies 20–23).
+  lesson 11 (study 10), lessons 12–22 (studies 20–23) and lessons 23–26 (study 24).
 - **Domain knowledge** — `domains/<profile>/`, one directory per audience profile
   (`domains/README.md`); a field's doctrine anchor and its first typed citation live
   there.

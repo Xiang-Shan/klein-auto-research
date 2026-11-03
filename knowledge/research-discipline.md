@@ -1,11 +1,11 @@
 ---
-title: "Research discipline — what studies 07–10 and 20–23 taught the framework"
+title: "Research discipline — what studies 07–10 and 20–24 taught the framework"
 type: synthesis
 domain: science
 status: promoted
 concepts: [noise-floor, estimand, headroom, positive-control, selection-guard, pre-registration, crashes-as-data, errata, materiality, evidence-use]
 related: [README.md, domains/README.md, ../docs/design/klein-2-design.md]
-claims: [07-iris-90years#C12, 07-iris-90years#C13, 07-iris-90years#C14, 07-iris-90years#C15, 07-iris-90years#C16, 07-iris-90years#C17, 07-iris-90years#C18, 07-iris-90years#C19, 08-iris-rematch#C1, 08-iris-rematch#C2, 08-iris-rematch#C6, 08-iris-rematch#C7, 08-iris-rematch#C8, 08-iris-rematch#C13, 08-iris-rematch#C15, 08-iris-rematch#C16, 08-iris-rematch#C17, 08-iris-rematch#C18, 08-iris-rematch#C19, 08-iris-rematch#C20, 08-iris-rematch#C21, 09-iris-first-lesson#C1, 09-iris-first-lesson#C2, 09-iris-first-lesson#C3, 09-iris-first-lesson#C4, 09-iris-first-lesson#C5, 09-iris-first-lesson#C9, 09-iris-first-lesson#C11, 09-iris-first-lesson#C13, 09-iris-first-lesson#C14, 09-iris-first-lesson#C15, 20-llm-cot-contamination#C3, 20-llm-cot-contamination#C5, 20-llm-cot-contamination#C6, 20-llm-cot-contamination#C9, 20-llm-cot-contamination#C10, 20-llm-cot-contamination#C12, 20-llm-cot-contamination#C13, 20-llm-cot-contamination#C16, 20-llm-cot-contamination#C17, 20-llm-cot-contamination#C18, 21-bloodmnist-cnn#C3, 21-bloodmnist-cnn#C7, 21-bloodmnist-cnn#C12, 21-bloodmnist-cnn#C17, 22-cnn-data-scaling#C1, 22-cnn-data-scaling#C3, 22-cnn-data-scaling#C4, 22-cnn-data-scaling#C11, 22-cnn-data-scaling#C14, 23-lalonde-causal-replication#C13, 23-lalonde-causal-replication#C14, 23-lalonde-causal-replication#C18, 23-lalonde-causal-replication#C19, 23-lalonde-causal-replication#C20, 23-lalonde-causal-replication#C26, 23-lalonde-causal-replication#C27, 23-lalonde-causal-replication#C28, 23-lalonde-causal-replication#C30]
+claims: [07-iris-90years#C12, 07-iris-90years#C13, 07-iris-90years#C14, 07-iris-90years#C15, 07-iris-90years#C16, 07-iris-90years#C17, 07-iris-90years#C18, 07-iris-90years#C19, 08-iris-rematch#C1, 08-iris-rematch#C2, 08-iris-rematch#C6, 08-iris-rematch#C7, 08-iris-rematch#C8, 08-iris-rematch#C13, 08-iris-rematch#C15, 08-iris-rematch#C16, 08-iris-rematch#C17, 08-iris-rematch#C18, 08-iris-rematch#C19, 08-iris-rematch#C20, 08-iris-rematch#C21, 09-iris-first-lesson#C1, 09-iris-first-lesson#C2, 09-iris-first-lesson#C3, 09-iris-first-lesson#C4, 09-iris-first-lesson#C5, 09-iris-first-lesson#C9, 09-iris-first-lesson#C11, 09-iris-first-lesson#C13, 09-iris-first-lesson#C14, 09-iris-first-lesson#C15, 20-llm-cot-contamination#C3, 20-llm-cot-contamination#C5, 20-llm-cot-contamination#C6, 20-llm-cot-contamination#C9, 20-llm-cot-contamination#C10, 20-llm-cot-contamination#C12, 20-llm-cot-contamination#C13, 20-llm-cot-contamination#C16, 20-llm-cot-contamination#C17, 20-llm-cot-contamination#C18, 21-bloodmnist-cnn#C3, 21-bloodmnist-cnn#C7, 21-bloodmnist-cnn#C12, 21-bloodmnist-cnn#C17, 22-cnn-data-scaling#C1, 22-cnn-data-scaling#C3, 22-cnn-data-scaling#C4, 22-cnn-data-scaling#C11, 22-cnn-data-scaling#C14, 23-lalonde-causal-replication#C13, 23-lalonde-causal-replication#C14, 23-lalonde-causal-replication#C18, 23-lalonde-causal-replication#C19, 23-lalonde-causal-replication#C20, 23-lalonde-causal-replication#C26, 23-lalonde-causal-replication#C27, 23-lalonde-causal-replication#C28, 23-lalonde-causal-replication#C30, 24-golomb-llm-vs-search#C1, 24-golomb-llm-vs-search#C2, 24-golomb-llm-vs-search#C5, 24-golomb-llm-vs-search#C10, 24-golomb-llm-vs-search#C12, 24-golomb-llm-vs-search#C13, 24-golomb-llm-vs-search#C14]
 ---
 
 # Research discipline — the lessons that transfer
@@ -296,6 +296,66 @@ set the cell before launching, and never commit, cherry-pick or reset in a check
 run-one in flight. **Mechanism:** retained `crash` rows; `klein recover`; the mandatory sealed
 dry-run, whose exit code is a budget measurement.
 
+## Lessons from study 24
+
+> Promoted 2026-11-03 from the findings and claims lock of study 24
+> (`24-golomb-llm-vs-search`): an LLM proposer against classical search on Golomb rulers,
+> one exact verifier, one development cell and one sealed cell per arm, and two crashed
+> attempts at the LLM arm's development cell. Its field lessons
+> live in `domains/math/`. The referee passed it with notes at the "different model" rung.
+> One lesson it reinforces is already here: lesson 14's crash-and-rerun coupling now has a
+> claim of its own. The development cell's completed run answered 1136 requests from the
+> two crashed attempts' shards, a share of 0.4733, so only the salted re-query is an
+> independent second draw from the model (supports 24-golomb-llm-vs-search#C12).
+
+### 23. An unrecorded cost is not a zero cost — declare the price before a model-calling run
+Study 24's `calls:` block declared no `price`, so every recorded `usd` reads 0 and the dollar
+cost of its 6000 live calls is unrecorded, not zero (supports 24-golomb-llm-vs-search#C13). A
+0 in a usage column reads as "free" to anyone who did not write it. The tokens were recorded
+— 6507285 of them — so a price applied later can still be computed, but the study's own record
+cannot say what it spent (supports 24-golomb-llm-vs-search#C10). Declare `calls.price` at
+CONSULT, beside the call budget, and say "unpriced" wherever a 0 would otherwise stand.
+**Mechanism:** `kleinlib.calls.CallLedger._cost` returns 0.0 when no price is declared, and
+the contract refuses `budget_usd` without `price`. Nothing refuses a priceless run, so the
+disclosure is by hand.
+
+### 24. A sealed run cannot be re-verified by design, so its confirmation rests on development replications — say what they confirm
+`klein replicate` refuses a sealed final test with no override: replicating it would be a
+second look at the sealed partition. Study 24's two empirical `confirmed` claims therefore cite each
+track's development replication, which re-ran the same code and contract on the development
+orders. Those records confirm the instrument, not the sealed counts (supports
+24-golomb-llm-vs-search#C5; supports 24-golomb-llm-vs-search#C1). What stands in for a second
+pass on the sealed artifacts is the notary's own verifier run on each one (`metric.reported`
+equals `metric.verified`) and an offline recount from the pinned call shard. Plan for this at
+CONSULT: a track whose `confirmation.require` names `replicate` must replicate a development
+run that exercises the same instrument, and the findings must say the replication does not
+bind the sealed artifact. **Mechanism:** `_refuse_unreplicable` in `kleinlib/replicate.py`;
+the verifier pass the notary records inside every sealed run.
+
+### 25. The extraction rule decides the count — pin a strict and a generous recount from the raw replies
+When a model's replies are parsed into candidates, the parser is part of the measurement. Study
+24 recounted both LLM cells from the pinned call shards with its own Golomb check, sharing no
+code with the searcher. On the sealed cell the generous reading — every bracketed integer list
+in every reply — found 11395 lists with the requested number of marks, and none of them was a
+valid Golomb ruler; the declared strict reading also found none (supports
+24-golomb-llm-vs-search#C5). On the development cell the strict recount reproduced the
+searcher's 719 valid rulers (supports 24-golomb-llm-vs-search#C2). The pair of readings turns
+"the arm produced nothing valid" from a property of one parser into a property of the replies.
+Pin both counts whenever a headline rests on parsed output, and name the declared rule in the
+claim. **Mechanism:** none in the engine; the call ledger makes the recount an offline pass over
+pinned replies, and study 11's dumb-checker discipline applies to the recount too.
+
+### 26. A re-query that keeps only its metric block can confirm a count and nothing finer
+Study 24's salted re-query of the development cell reproduced the count of 6 of 12 matched
+pairs, but its first-batch matches moved from 1 to 2 (supports 24-golomb-llm-vs-search#C2). The
+replication record kept its call shards and its metric block, not its per-pair artifact, so
+whether the same pairs matched cannot be read from the record (supports
+24-golomb-llm-vs-search#C14). A claim that the replication reproduced the result is then a claim
+about the count only. When an LLM cell is re-queried, keep the replica's per-pair table beside
+its metric block, or rebuild it by an offline replay against the kept shards before synthesis.
+**Mechanism:** replication records keep the salted shards under
+`runs/E####/replications/<ts>-calls/`; the per-pair table is not kept, so the rebuild is by hand.
+
 ## Lesson → mechanism, in one table
 
 | Lesson | Mechanism in Klein 2.0 |
@@ -321,3 +381,7 @@ dry-run, whose exit code is a budget measurement.
 | 20 single-source targets | the profile's two-source replicate hint; errata re-scope |
 | 21 rules that can fail | none in the engine — the check precedes the consult-gate hash |
 | 22 driver failures | retained `crash`; `klein recover`; sealed dry-run exit code |
+| 23 unrecorded cost | `calls.price`; `CallLedger._cost` reads 0.0 without it; `budget_usd` needs `price` |
+| 24 sealed runs are not replicable | `_refuse_unreplicable`; the notary's verifier pass inside each sealed run |
+| 25 extraction rule decides the count | none in the engine — an offline strict-and-generous recount over the call ledger |
+| 26 replica keeps only a metric block | salted shards kept under `replications/<ts>-calls/`; the per-pair table rebuilt by hand |
