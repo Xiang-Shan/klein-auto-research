@@ -105,7 +105,7 @@ nothing here is re-decided.
 3413-image test size (1.45 at this study's own accuracy; 1.05 if the reference's own
 sampling error is added, `art:summary`). One of the three sealed seeds (0.9587) is above
 0.958. The honest reading is "indistinguishable from ResNet-18 (28) at this test size",
-and C5 says so. `program.md`'s log rounded the same ratio to "about 1.6"; the recomputed
+and C5 says so. `program.md`'s log rounded the same ratio to "about 1.6"; the recomputed <!-- klein:numbers-ok: quotes program.md's own rounding of gap_in_binomial_se_at_0958 (1.535063, art:summary) in order to correct it -->
 value is 1.54.
 
 **`n_comparisons` — stated with its reason.**
