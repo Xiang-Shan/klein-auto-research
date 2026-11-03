@@ -123,6 +123,15 @@
   "status": "active",
   "study_id": "21-bloodmnist-cnn",
   "sweeps": {
+    "fit_noise": {
+      "registered_at": "2026-11-03T05:49:48.899039Z",
+      "rows_crash": 0,
+      "rows_ok": 3,
+      "script": "sweeps/fit_noise.py",
+      "script_sha256": "a0eff45557fa5f41ba5272578668cc95966ac52b39a1b5a10b474919eb687e5a",
+      "sidecar": "sweeps/fit_noise.sidecar.tsv",
+      "sidecar_sha256": "ad4f3cf051b691f0529c84c10e7832ca9beec87c565cb3f5cc604601f2efcb81"
+    },
     "item_bootstrap": {
       "registered_at": "2026-11-03T05:44:52.697782Z",
       "rows_crash": 0,
@@ -133,5 +142,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T05:44:52.698806Z"
+  "updated_at": "2026-11-03T05:49:48.899784Z"
 }
