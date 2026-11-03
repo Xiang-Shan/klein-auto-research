@@ -7,3 +7,4 @@ E0005	att	560.281374	measured	6f6ec261e52f2213201324a7c1d0d800a29fdd7f	estimator
 E0006	att	2683.81822	measured	5262850313fe73de22cc8e50ce59679088b26e92	estimators: aipw dw_psid 500 reps, adjudicates P3; registered cell measured
 E0007	att	-15.330317	measured	86e9748d5764cc27b02a4a90d34760bbf8b79e50	estimators: ipw no_re74 500 reps, adjudicates P5; registered cell measured
 E0008	reproduction	2	measured	64f19fd8eafb0445fd9b790033712107442748b7	sealed CPS-1 reproduction of DW Table 3 cols (1)-(2) and Table 1 size; registered cell measured
+E0009	att	1327.53819	measured	ac09d5612389ab4141a4a778e1312dbf83c762c9	sealed CPS-1: AIPW dw_psid 500 reps, the cell selected at E0006; registered cell measured

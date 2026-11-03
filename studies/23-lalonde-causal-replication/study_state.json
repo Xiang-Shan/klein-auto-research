@@ -24,9 +24,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "att": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-11-03T06:29:18.984332Z",
+      "count": 1,
+      "experiment": "E0009"
     },
     "primary": {
       "accessed_at": null,
@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 8,
+  "last_experiment": 9,
   "overrides": [],
   "phase_acknowledgements": {
     "anchor": {
@@ -216,6 +216,26 @@
       "recorded_at": "2026-11-03T05:58:22.038856Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P7": {
+      "evidence": [
+        "E0009"
+      ],
+      "explanation": "|att_gap_usd| 466.804191717 <= 1000 (from -466.804191717) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0009"
+          ],
+          "explanation": "|att_gap_usd| 466.804191717 <= 1000 (from -466.804191717) \u2192 supported",
+          "recorded_at": "2026-11-03T06:49:48.828300Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T06:49:48.828300Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -225,5 +245,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T06:15:31.255660Z"
+  "updated_at": "2026-11-03T06:49:48.847671Z"
 }
