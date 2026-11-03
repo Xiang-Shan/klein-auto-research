@@ -128,7 +128,9 @@
     "C11": {
       "claim": "An easier test set is an unlikely explanation of the over-prediction: the sealed cell's test loss is 1.0877 times its own inner-validation loss against 1.0158 and 1.0161 for the two largest development cells, so the test partition looks slightly harder, not easier.",
       "class": "mechanism-interpretation",
-      "errata": [],
+      "errata": [
+        "E2"
+      ],
       "evidence": [
         "E0005",
         "E0006",
@@ -411,6 +413,13 @@
       ],
       "filed": "2026-11-03",
       "note": "Referee note 3 (2026-11-03): the locked signed relative error -0.2802 is the seed mean of the three per-seed signed relative errors against the pinned law (the registered definition); the signed error of the seed-mean loss is -0.2797 (alias rel_error_seed_mean_loss, art:synth). Verdict and strength unchanged."
+    },
+    "E2": {
+      "claims": [
+        "C11"
+      ],
+      "filed": "2026-11-03",
+      "note": "Referee note 5 (2026-11-03): 'unlikely' overstates the evidence. The locked contrast used only the two largest development cells; the full held-out/inner ratio row (E0001-E0006: 1.2245, 1.0801, 1.0159, 1.0813, 1.0158, 1.0161) is not monotone and E0008's 1.0877 sits close to E0004's 1.0813, with differing inner-set sizes. The evidence fails to show the test partition easier but does not show it harder. C4 does not depend on this interpretation. Strength stays exploratory."
     }
   },
   "git_head": "68dc7756e9194d9b04b738f3e4c79609b3aca2ac",
