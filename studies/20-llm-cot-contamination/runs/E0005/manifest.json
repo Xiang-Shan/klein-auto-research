@@ -111,8 +111,10 @@
   "timed_out": false,
   "track": "cot_gain",
   "transaction": {
-    "ready_at": "2026-11-03T08:26:59.797491Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T08:27:00.035220Z",
+    "evidence_commit": "fa37dcb87cc1385faaabbebd642dfb4a729dd500",
+    "recovered": false,
+    "status": "complete"
   },
   "usage": {
     "calls": 400.0,
