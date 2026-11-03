@@ -1,0 +1,71 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T05:04:33.479185Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
+    "scouting_ledger.md": "39411a383164d32507daf53b55ec1f1fe833ba3703babdc8c219bce52cc86a3b",
+    "study.yaml": "1319ed869d10888f9e680b109cacefca7e592521036a2fff48b4b5755fa7b08c"
+  },
+  "created_at": "2026-11-03T04:53:53.769673Z",
+  "current_phase": "anchor",
+  "final_holdout_access": {
+    "contamination": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "cot_gain": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-11-03T05:04:33.479185Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "8372cd17d576332cf5e32d92cdfbd7a0e2e23b0b421f42d7697e56d0e768fc1d",
+        "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
+        "scouting_ledger.md": "39411a383164d32507daf53b55ec1f1fe833ba3703babdc8c219bce52cc86a3b",
+        "study.yaml": "1319ed869d10888f9e680b109cacefca7e592521036a2fff48b4b5755fa7b08c"
+      },
+      "note": "delegated by the repository owner's approval of the Klein 2.3 plan (exhibits 20-24); see program.md Roster",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/home/user/wt-20/studies/20-llm-cot-contamination/data/prepared",
+    "sha256": null
+  },
+  "schema_version": 3,
+  "status": "active",
+  "study_id": "20-llm-cot-contamination",
+  "updated_at": "2026-11-03T05:04:33.481161Z"
+}
