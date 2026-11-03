@@ -166,7 +166,8 @@ held; the per-seed slopes are 0.1423, 0.1260 and 0.1219 (E0001–E0007, art:synt
 losses, top-5 accuracy is at least 0.987 in every cell (aux). Calibration improves along
 the curve — val_ece 0.0516 at N=500, 0.0261 at N=16000, 0.0104 at the full pool (E0001,
 E0006, E0008, aux; the last on the test partition) — so rank and calibration did not trade
-off: lower cross-entropy came with lower ECE at every size above N=1000. No crashes, no
+off from N=2000 upward, where lower cross-entropy came with lower ECE at every step; the one
+exception is N=1000 to N=2000, where loss fell but val_ece rose from 0.0824 to 0.0876. No crashes, no
 discards and no sweeps exist; the two `sweeps/sealed_dryrun.*.log` files are the sealed dry
 runs, which spent nothing.
 
