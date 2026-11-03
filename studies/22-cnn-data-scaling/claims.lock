@@ -1,0 +1,149 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | exponent | **answered (estimate)**: alpha 0.1304, a 2.126 \u2014 inside the prior range 0.1\u20130.6, but BELOW its \"most likely 0.2\u20130.4\" band | confirmed | empirical-description | E0001\u2013E0006, E0007, rep:E0007@20261103T084735Z, art:fit | printed within-N bootstrap 0.1181 to 0.1411 \u2014 descriptive, NOT a calibrated 95% interval (method card \u00a74(c)); post-hoc per-seed-slope t-interval 0.1033 to 0.1569 (art:synth) |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "A post-hoc pure-law refit over the three largest cells alone gives alpha 0.2127",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "Mechanism \u2014 interpretation.* An easier test set is an unlikely explanation of",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "The printed within-N bootstrap width is 0.0230 exponent units and the",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "1.  Before fitting a data-scaling exponent, make the step budget grow with N",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "2.  Do not accept a fitted law on its in-range R\u00b2 or its interval; hold it to a",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "3.  Report the per-seed-slope t-interval beside any within-N bootstrap: with nested",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C16": {
+      "claim": "4.  Score the fit cells and the extrapolation point on the same distribution, or",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C17": {
+      "claim": "5.  Do not assume a pure law is optimistic for a fixed small model: the",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ2 | exponent | **refuted**: a pure power law is not adequate over N=500 to 16000 | confirmed | empirical-description | E0001\u2013E0006, E0007, rep:E0007@20261103T084735Z, art:fit | log-log R\u00b2 0.7955 vs the registered 0.98; the three smallest cells are flat (0.8296, 0.9492, 0.8408) where the law needs a decline |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ3 | primary | **refuted**: the law did not predict the full-pool loss within 0.20 | confirmed | procedural-verdict | E0007, E0008, art:fit | measured 0.3959 (seed sd 0.0090) vs predicted 0.5066; signed relative error -0.2802 (per seed -0.2819, -0.2502, -0.3084) |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ4 | primary | **refuted \u2014 opposite sign**: the measured loss is BELOW the prediction; the law was pessimistic | confirmed | procedural-verdict | E0007, E0008, art:synth | predicted minus measured +0.1107 nats; partition caveat \u2014 cells on development, sealed cell on t10k |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "P7 held: the full-pool cell's best inner-validation checkpoint came at seed-mean",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "Every cell's best checkpoint fell in the last 5% of its step budget (best_step",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "The method card's flattening prior MC2 is contradicted: the local exponent over",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "N=1000 sits above N=500 in all three seeds \u2014 paired, because subsamples are",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "Mechanism \u2014 a hypothesis, not tested.* The flat left end may be compute-limited:",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "68dc7756e9194d9b04b738f3e4c79609b3aca2ac",
+  "klein_commit": "68dc7756e9194d9b04b738f3e4c79609b3aca2ac",
+  "klein_version": "2.2.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "22-cnn-data-scaling"
+}
