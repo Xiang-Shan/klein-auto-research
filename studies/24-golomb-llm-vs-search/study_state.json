@@ -1,0 +1,71 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T05:05:06.365036Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
+    "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
+    "study.yaml": "32569c85f08e7d843999877eebe807ff4ff86c2b1576512f1536f0d2b243fa8d"
+  },
+  "created_at": "2026-11-03T05:00:23.311898Z",
+  "current_phase": "development",
+  "final_holdout_access": {
+    "llm": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "search": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    }
+  },
+  "fingerprints": {
+    "data": null,
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-11-03T05:05:06.365036Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "c8a1f7dd69b9ef5da68e91f30eddb246058d95a69c6076ddb0b11b03f68ec553",
+        "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
+        "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
+        "study.yaml": "32569c85f08e7d843999877eebe807ff4ff86c2b1576512f1536f0d2b243fa8d"
+      },
+      "note": "delegated by the repository owner's approval of the Klein 2.3 plan (exhibits 20-24); see program.md Roster",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    },
+    "method": {
+      "acknowledged_at": null,
+      "acknowledged_by": null,
+      "status": "pending"
+    }
+  },
+  "last_experiment": 0,
+  "overrides": [],
+  "phase_acknowledgements": {},
+  "prepared_data": {
+    "path": "/home/user/wt-24/studies/24-golomb-llm-vs-search/data/prepared/instance.json",
+    "sha256": null
+  },
+  "schema_version": 3,
+  "status": "active",
+  "study_id": "24-golomb-llm-vs-search",
+  "updated_at": "2026-11-03T05:05:06.368207Z"
+}
