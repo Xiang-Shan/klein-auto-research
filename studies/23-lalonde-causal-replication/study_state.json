@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T04:42:40.398344Z"
+      "timestamp": "2026-11-03T05:18:40.202054Z"
     },
     "data": {
       "by": "lead-agent",
@@ -18,7 +18,7 @@
     "method_card.md": "058fb9f47afa5bd1f5450cfaf0f45457a2f099b4281d1a142d8b8a78456c0e85",
     "research_plan.md": "efb81b07f8ecacbd13cdb2ef70ee51e8e836e0acc6a805505b08c46cb0838973",
     "scouting_ledger.md": "ab1fce365d651104bbe24a6d8f1b38b6dcf061e912187bb7cca459bc0cede43b",
-    "study.yaml": "893769d6c9d1f7bae6e438c4cd3396800b85f384a313856b5b2dea586b5c0cc9"
+    "study.yaml": "bf11c6566967877fab07db7770a0f7c20687b9bffac23e80e7b719c93343c80a"
   },
   "created_at": "2026-11-03T04:41:22.375465Z",
   "current_phase": "estimators",
@@ -50,15 +50,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T04:42:40.398344Z",
+      "acknowledged_at": "2026-11-03T05:18:40.202054Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "5a3eefa503eefc091d456647dca8a8d17ccf48ff204de027e0d4a07290cdf80a",
+        "program.md": "4ce004248bd10c9792a131c04eca32a8f3d048d9fa8790eb2ec88fbee77295b2",
         "research_plan.md": "efb81b07f8ecacbd13cdb2ef70ee51e8e836e0acc6a805505b08c46cb0838973",
         "scouting_ledger.md": "ab1fce365d651104bbe24a6d8f1b38b6dcf061e912187bb7cca459bc0cede43b",
-        "study.yaml": "893769d6c9d1f7bae6e438c4cd3396800b85f384a313856b5b2dea586b5c0cc9"
+        "study.yaml": "bf11c6566967877fab07db7770a0f7c20687b9bffac23e80e7b719c93343c80a"
       },
-      "note": "delegated by the repository owner's approval of the Klein 2.3 plan (exhibits 20-24); see program.md Roster",
+      "note": "RE-RECORD: phases[estimators].max_experiments 4 -> 6 only, because driver crashes E0003/E0004 spent two slots of the four pre-registered cells (P3, P5 not yet run); no prediction, rule, track or target changed",
       "status": "recorded"
     },
     "data": {
@@ -159,5 +159,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T05:15:08.270974Z"
+  "updated_at": "2026-11-03T05:18:40.206255Z"
 }
