@@ -124,10 +124,23 @@ def _split_partitions(df: pd.DataFrame, *, target: str, contract: Mapping[str, A
             if column not in df.columns:
                 raise ValueError(f"{option} {column!r} is not a prepared-artifact column")
             kwargs[argument] = df[column]
+    if kind == "predefined":
+        # Official partitions (Klein 2.3): the split IS a column of the data, so
+        # reproducing it means reading that column — exactly what contract_split does.
+        from .data import PREDEFINED_VALUES
+
+        column = str(split.get("split_column") or "split")
+        if column not in df.columns:
+            raise ValueError(f"predefined split column {column!r} is not a prepared-artifact column")
+        values = df[column].astype(str)
+        parts = [df[values == name] for name in PREDEFINED_VALUES]
+        drop = [target, column]
+        return (*(part.drop(columns=drop) for part in parts), *(part[target] for part in parts))
     task = contract.get("task_type")
-    if task == "simulation":
-        # three_way_split deliberately refuses "simulation": a simulation lab's
-        # REAL split reproduces as an unstratified regression-shaped split.
+    if task != "classification":
+        # three_way_split refuses anything but classification / regression: a
+        # simulation lab's or a scalar estimand's REAL split reproduces as the
+        # unstratified regression-shaped split data._split_task gives it.
         task = "regression"
     return three_way_split(
         df.drop(columns=[target]),
