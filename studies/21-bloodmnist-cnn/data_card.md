@@ -134,4 +134,4 @@ Re-run by the lead after `prepare.py` dropped them (same command), verbatim:
 The development-vs-test pair is not an audit row; `prepare.py` removes it by construction
 (test is compared against train plus the kept development items).
 
-> **Decision:** **GO** (with the cautions WARN 2 and WARN 3)
+> **Decision:** **GO-WITH-CAUTIONS**
