@@ -1,0 +1,95 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 781,
+      "committed": true,
+      "sha256": "99622baef19b8483a0246f3d32bcae5b646aa55e08a85fe1e80c171fe5978b97"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 247742,
+      "committed": true,
+      "sha256": "af4ad576719ffa74a068ce6fc2794bb707583424c0758ce75e8c3fa1508b8420"
+    },
+    "tables/att_E0005.tsv": {
+      "availability": "recorded",
+      "bytes": 232,
+      "committed": true,
+      "role": "declared",
+      "sha256": "b0c56f0b37c3299bfb2636fa32ee82b7db0f20816a5a73d8bd20167a8798d416"
+    }
+  },
+  "base_commit": "5c17e1d7059d153992ef6a3c47f878eaa06209a7",
+  "candidate_commit": "6f6ec261e52f2213201324a7c1d0d800a29fdd7f",
+  "code_patch_hash": "77b69c23e02fcc58339d6cf924b74360930b074d4c14b6e29cd0043a5410af75",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "estimators: match dw_psid 500 reps, adjudicates P4 (E0003/E0004 were driver errors); registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-11-03T05:15:08.264117Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130",
+    "split_partition": "301cc9c3c8cd54188515afa3f24fa45ec6b75350e5cbe1b111a194ea5392a67c"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 900.0,
+  "metric_goal": "higher",
+  "metric_name": "att_usd",
+  "metrics": {
+    "att_gap_usd": -1234.061007921206,
+    "ci_high": 3857.859271,
+    "ci_low": -619.796673,
+    "experimental_att": 1794.3423818563415,
+    "max_weight_share": 0.14594594594594595,
+    "n": 185.0,
+    "n_controls_used": 56.0,
+    "primary_metric": 560.281374,
+    "runner_exit_code": 0.0,
+    "total_seconds": 24.3,
+    "wall_seconds": 24.281181
+  },
+  "phase": "estimators",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P4": {
+      "explanation": "|att_gap_usd| 1234.06100792 <= 1000 (from -1234.06100792) \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P4"
+  ],
+  "primary_metric": 560.281374,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T05:14:42.286899Z",
+  "timed_out": false,
+  "track": "att",
+  "transaction": {
+    "ready_at": "2026-11-03T05:15:08.268871Z",
+    "status": "pending"
+  },
+  "wall_seconds": 25.97689308599911
+}
