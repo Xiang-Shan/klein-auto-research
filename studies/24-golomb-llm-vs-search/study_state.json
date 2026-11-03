@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T06:19:04.021502Z"
+      "timestamp": "2026-11-03T06:33:44.874327Z"
     },
     "data": {
       "by": "lead-agent",
@@ -18,7 +18,7 @@
     "method_card.md": "28b4ab4617e0a798054032ef9750eb9c07f2513f3945fcd47a891d0a0f00b077",
     "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
     "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
-    "study.yaml": "5b79823a4707645dd6934fbcf4d8091639842479b7130642e459ca4e8071c282"
+    "study.yaml": "d475c62bcae72cc89213e4e996044c4861f08a6ed7f979a2e1de1ac47a0e8157"
   },
   "created_at": "2026-11-03T05:00:23.311898Z",
   "current_phase": "development",
@@ -51,15 +51,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T06:19:04.021502Z",
+      "acknowledged_at": "2026-11-03T06:33:44.874327Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "230108c72a646cb33e6a9033cf38d4ca9504c8f20368081ef3112f38647b3b63",
+        "program.md": "7acb8bbb98be0a9f4e392104df97204c90ff86f99857c58fcd1d418a73ec0130",
         "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
         "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
-        "study.yaml": "5b79823a4707645dd6934fbcf4d8091639842479b7130642e459ca4e8071c282"
+        "study.yaml": "d475c62bcae72cc89213e4e996044c4861f08a6ed7f979a2e1de1ac47a0e8157"
       },
-      "note": "RE-RECORD before any run: model pinned to the snapshot qwen-flash-2025-07-28; budget_calls comment says per run; no prediction, rule, track or phase changed",
+      "note": "RE-RECORD: E0002 crashed on a provider rate limit; calls.max_workers 6 -> 2, development max_experiments 2 -> 3, budget_seconds 7200 -> 10800 so the pre-registered LLM cell runs once more; no prediction, rule, track or cell changed",
       "status": "recorded"
     },
     "data": {
@@ -113,5 +113,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T06:30:06.207671Z"
+  "updated_at": "2026-11-03T06:33:44.878348Z"
 }
