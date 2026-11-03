@@ -81,9 +81,31 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 0,
+  "last_experiment": 1,
   "overrides": [],
   "phase_acknowledgements": {},
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 0 <= 6 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 0 <= 6 \u2192 supported",
+          "recorded_at": "2026-11-03T06:19:40.191507Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T06:19:40.191507Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
   "prepared_data": {
     "path": "/home/user/wt-24/studies/24-golomb-llm-vs-search/data/prepared/instance.json",
     "sha256": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32"
@@ -91,5 +113,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T06:19:06.688590Z"
+  "updated_at": "2026-11-03T06:19:40.211674Z"
 }

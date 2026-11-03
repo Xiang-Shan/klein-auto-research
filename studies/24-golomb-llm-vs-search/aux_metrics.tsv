@@ -1,1 +1,7 @@
 experiment	metric	value
+E0001	wall_seconds	0.32167577743530273
+E0001	first_batch_matches	0.0
+E0001	pairs	12.0
+E0001	evaluations	24000.0
+E0001	sealed_lane	0.0
+E0001	restarts	94.0
