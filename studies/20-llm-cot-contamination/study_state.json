@@ -21,7 +21,7 @@
     "study.yaml": "d1aa5eba455a7dbd3fd5155074bfcdc10426a49565eb3c03c83d56546b906f46"
   },
   "created_at": "2026-11-03T04:53:53.769673Z",
-  "current_phase": "anchor",
+  "current_phase": "twins",
   "final_holdout_access": {
     "contamination": {
       "accessed_at": null,
@@ -90,7 +90,14 @@
       "reason": "Mechanized text near-dup FAIL is by design: index sha256 a36b5e35...; dev vs train 179/500 and test vs train+development 188/200 hits are ALL own-template (a twin vs its own template's original or twins; 0 cross-template, 0 vs public GSM8K), proven by the auditor's block-pair matrix and an adversarial re-check. Delegated (program.md Roster)."
     }
   ],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "anchor": {
+      "acknowledged_at": "2026-11-03T08:00:10.886518Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated. E0002: em_gain 0.01 [-0.01, 0.03], em_direct 0.95, em_cot 0.96 (P1, P2 refuted); direct arm non-compliant (1.3% bare numbers) \u2014 P1/P2 measure the registered instruction; E0001 rate-limit crash",
+      "playbook_sha256": "734bea667566210d5fe051129eb894ec11e1ec12b14588d855ed803a3a9e1ca2"
+    }
+  },
   "predictions": {
     "P1": {
       "evidence": [
@@ -140,5 +147,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T07:58:59.567011Z"
+  "updated_at": "2026-11-03T08:00:10.895658Z"
 }
