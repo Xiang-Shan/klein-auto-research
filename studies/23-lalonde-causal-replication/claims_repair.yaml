@@ -1,0 +1,256 @@
+# Study 23 claims repair, applied with `klein claims apply` after errata E1-E6
+# (SYNTHESIZE repair, 2026-11-03). Adds the pins, numbers and superseding claims
+# C22-C27; claims.yaml (the first application) is left as it was applied.
+# Claim sentences are copied verbatim from findings.md.
+artifacts:
+  rep_e0001_log: runs/E0001/replications/20261103T065031Z.log
+  run_e0001_log: runs/E0001/run.log
+numbers:
+  n_support_no_re74:
+    value: 1092
+    art: att_e0007
+    claim: C22
+    precision: 0
+    note: PSID-1 comparison men on common support, no_re74 (E0007)
+  share_no_re74:
+    value: 0.0583
+    art: att_e0007
+    claim: C22
+    precision: 4
+    note: largest single odds-weight share, no_re74 (E0007)
+  n_nsw_control:
+    value: 260
+    art: repro_psid1
+    claim: C23
+    precision: 0
+    note: NSW experimental controls, held fixed in every bootstrap draw
+  ci_low_ipw:
+    value: 976.01
+    art: att_e0002
+    claim: C23
+    precision: 2
+    note: IPW dw_psid percentile-bootstrap lower bound (E0002)
+  ci_high_ipw:
+    value: 4501.3
+    art: att_e0002
+    claim: C23
+    precision: 2
+    note: IPW dw_psid upper bound (E0002)
+  ci_low_match:
+    value: -619.8
+    art: att_e0005
+    claim: C23
+    precision: 2
+    note: 1-NN matching lower bound, descriptive only (E0005)
+  ci_high_match:
+    value: 3857.86
+    art: att_e0005
+    claim: C23
+    precision: 2
+    note: 1-NN matching upper bound, descriptive only (E0005)
+  ci_low_aipw:
+    value: 689.1
+    art: att_e0006
+    claim: C23
+    precision: 2
+    note: AIPW dw_psid lower bound (E0006)
+  ci_high_aipw:
+    value: 4101.53
+    art: att_e0006
+    claim: C23
+    precision: 2
+    note: AIPW dw_psid upper bound (E0006)
+  n_cps1:
+    value: 15992
+    art: repro_cps1
+    claim: C25
+    precision: 0
+    note: CPS-1 comparison men in the file (E0008 n_cps1)
+  smd_black_psid:
+    value: 1.48
+    art: data_card
+    claim: C25
+    precision: 2
+    note: pre-weighting SMD for black, NSW treated vs PSID-1
+  smd_black_cps:
+    value: 2.43
+    art: data_card
+    claim: C25
+    precision: 2
+    note: pre-weighting SMD for black, NSW treated vs CPS-1
+  smd_re74_psid:
+    value: -1.72
+    art: data_card
+    claim: C25
+    precision: 2
+    note: pre-weighting SMD for re74 vs PSID-1
+  smd_re74_cps:
+    value: -1.57
+    art: data_card
+    claim: C25
+    precision: 2
+    note: pre-weighting SMD for re74 vs CPS-1
+  smd_re75_psid:
+    value: -1.77
+    art: data_card
+    claim: C25
+    precision: 2
+    note: pre-weighting SMD for re75 vs PSID-1
+  smd_re75_cps:
+    value: -1.75
+    art: data_card
+    claim: C25
+    precision: 2
+    note: pre-weighting SMD for re75 vs CPS-1
+claims:
+  C22:
+    class: empirical-description
+    strength: exploratory
+    claim: Replacing the PSID-1 logit with the specification without 1974 earnings, which removes all three 1974-earnings terms and adds a 1975 zero-earnings flag, moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67) and changes the common support from 1146 to 1092 men and the largest weight share from 0.135 to 0.0583; the shift belongs to that whole specification change, not to 1974 earnings alone, and the bootstrap interval [-2642.44, 2471.35] still contains the benchmark
+    numbers:
+    - name_one
+    - att_ipw
+    - att_no_re74
+    - gap_no_re74
+    - n_support_psid
+    - n_support_no_re74
+    - share_psid
+    - share_no_re74
+    - ci_low_no_re74
+    - ci_high_no_re74
+    evidence:
+    - E0007
+    - E0002
+    - art:att_e0007
+    - art:att_e0002
+    - P5
+  C23:
+    class: empirical-description
+    strength: exploratory
+    claim: On PSID-1 with the Dehejia-Wahba logit only AIPW lands within 1000 dollars of the experimental estimate, with gaps of +1244.09 (IPW), -1234.06 (1-NN matching) and +889.48 (AIPW); the percentile-bootstrap ranges [976.01, 4501.30], [-619.80, 3857.86] and [689.10, 4101.53] each contain 1794.34, but they hold the 260 NSW controls fixed, so they are ranges for the ATT estimate and not for the gap, the matching range is descriptive only, and no inference that an estimator recovers the benchmark rests on them
+    numbers:
+    - name_one
+    - band_usd
+    - gap_ipw
+    - gap_match
+    - gap_aipw
+    - ci_low_ipw
+    - ci_high_ipw
+    - ci_low_match
+    - ci_high_match
+    - ci_low_aipw
+    - ci_high_aipw
+    - experimental_att
+    - n_nsw_control
+    evidence:
+    - E0002
+    - E0005
+    - E0006
+    - rep:E0006@20261103T065104Z
+    - art:att_e0002
+    - art:att_e0005
+    - art:att_e0006
+    - ref:abadie2008
+    - P2
+    - P3
+    - P4
+  C24:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Treat a registered selection among estimators as a tie-break, not a ranking: AIPW won on PSID-1 at a gap of +889.48 against +1244.09 and -1234.06, an order the study''s own bootstrap cannot test because it holds the experimental controls fixed and is no valid interval for matching, and only the sealed cell at -466.80 speaks for the selected estimator, once'
+    numbers:
+    - name_one
+    - gap_aipw
+    - gap_ipw
+    - gap_match
+    - gap_sealed
+    evidence:
+    - E0002
+    - E0005
+    - E0006
+    - E0009
+    - art:att_e0002
+    - art:att_e0005
+    - art:att_e0006
+    - art:att_e0009
+    - ref:abadie2008
+  C25:
+    class: mechanism-interpretation
+    strength: exploratory
+    claim: 'The sealed AIPW gap (-466.80) differs from its development gap (+889.48), and better CPS-1 overlap is only one candidate reason: CPS-1 puts more men on support in absolute terms (4493 against 1146) with a smaller largest weight share (0.0426 against 0.135), but a smaller fraction of its pool (4493 of 15992 against 1146 of 2490), and before weighting the trainees differ from CPS-1 more in black (standardized mean difference 2.43 against 1.48) and about as much in 1974 and 1975 earnings (-1.57 and -1.75 against -1.72 and -1.77); each lane''s estimate lies inside the other''s bootstrap range ([689.10, 4101.53] and [-129.17, 2835.62]), so one sealed draw cannot separate any mechanism from luck, and agreement with the benchmark does not show that selection on observables holds'
+    numbers:
+    - gap_sealed
+    - gap_aipw
+    - name_one
+    - n_controls_sealed
+    - n_support_psid
+    - share_sealed
+    - share_psid
+    - n_cps1
+    - n_psid1
+    - smd_black_cps
+    - smd_black_psid
+    - smd_re74_cps
+    - smd_re75_cps
+    - smd_re74_psid
+    - smd_re75_psid
+    - ci_low_aipw
+    - ci_high_aipw
+    - ci_low_sealed
+    - ci_high_sealed
+    evidence:
+    - E0006
+    - E0009
+    - art:att_e0006
+    - art:att_e0009
+    - art:repro_cps1
+    - art:repro_psid1
+    - art:data_card
+    - ref:imbens2025
+  C26:
+    class: empirical-description
+    strength: confirmed
+    claim: Note a's covariate list reproduces Table 2 Panel C column (4) on all three lanes (1672.20, 217.94 and 738.83 against 1672, 218 and 739), and neither all-covariates reading recovers the printed Table 3 column (2) comparison values 731 and 972 (PSID-1 795.02 or 67.28; CPS-1 793.59 or 1137.20); every printed value was transcribed from the NBER working paper alone
+    numbers:
+    - table_two
+    - column_four
+    - table_three
+    - name_one
+    - nsw_note_a
+    - psid1_adjusted
+    - cps1_adjusted
+    - panel_c4_nsw
+    - panel_c4_psid1
+    - panel_c4_cps1
+    - psid1_adjusted_published
+    - cps1_adjusted_published
+    - diag_psid1_married
+    - diag_psid1_married_u
+    - diag_cps1_married
+    - diag_cps1_married_u
+    evidence:
+    - E0001
+    - E0008
+    - rep:E0001@20261103T065031Z
+    - art:repro_psid1
+    - art:repro_cps1
+    - art:rep_e0001_log
+    - art:run_e0001_log
+    - ref:dehejia1998nber
+    - P1
+    - P6
+  C27:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Call an exact re-execution what it is: the same commit, data, environment and seed reproduced E0001 and E0006 with a difference of 0 on every key the records compare except the two timing fields (E0006 wall time 904.60 seconds against 639.89), E0001''s record compares only its four summary keys and its table values agree through the identical table hash in the two logs, and that shows the pipeline is deterministic and says nothing about robustness to code, seed or specification'
+    numbers:
+    - rep_diff
+    - rep_wall
+    - orig_wall
+    evidence:
+    - rep:E0001@20261103T065031Z
+    - rep:E0006@20261103T065104Z
+    - art:rep_e0001
+    - art:rep_e0006
+    - art:rep_e0001_log
+    - art:run_e0001_log
