@@ -170,7 +170,13 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase anchor slate (2026-11-03)
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | cot_gain on the 300-item public GSM8K sample, CELL gsm8k, tests P1 (em_direct <= 0.85) and P2 (gain >= 0.10) | 2 | 3 | 3 | 8 |
+| 2 | cot_gain on development twin block A (CELL twin_dev; P4) | 2 | 3 | 2 | 7 |
+| 3 | contamination, originals vs twin block A (P3) | 3 | 3 | 3 | 9 |
+| 4 | salted re-query replication of the anchor | 1 | 3 | 2 | 6 |
+
+Chosen: #1 (the phase allows one experiment and it is the identity anchor; #2-#3 belong to phase twins, #4 to confirmation).

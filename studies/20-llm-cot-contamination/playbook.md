@@ -23,4 +23,6 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. (fill at the phase-start slate ritual)
+1. twins phase: contamination originals vs twin block A (P3); cot_gain on twin block A (P4)
+2. confirmation: sealed dry runs, then sealed twin block C (P5, P6)
+3. salted re-query replication of the cot_gain anchor
