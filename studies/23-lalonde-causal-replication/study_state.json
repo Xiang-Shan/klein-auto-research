@@ -44,6 +44,24 @@
       "experiment": "E0008"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "att": 1,
+      "reproduction": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee round 2 (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "att": "E0009",
+      "reproduction": "E0008"
+    },
+    "timestamp": "2026-11-03T08:34:35.654758Z"
+  },
   "fingerprints": {
     "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
     "split": {
@@ -368,7 +386,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T08:34:34.908415Z"
+  "updated_at": "2026-11-03T08:34:35.654795Z"
 }
