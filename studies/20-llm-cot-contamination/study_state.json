@@ -44,6 +44,24 @@
       "experiment": null
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "contamination": 1,
+      "cot_gain": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "contamination": "E0006",
+      "cot_gain": "E0005"
+    },
+    "timestamp": "2026-11-03T10:35:59.428306Z"
+  },
   "fingerprints": {
     "data": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62",
     "split": {
@@ -322,7 +340,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T10:35:58.763421Z"
+  "updated_at": "2026-11-03T10:35:59.428339Z"
 }
