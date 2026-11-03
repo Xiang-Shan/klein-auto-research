@@ -3,9 +3,14 @@
     "consult": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T07:41:45.666856Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T07:41:46.152602Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "32125100183b0ac2d42c50461523c1efdbb7a2c5b30f13b0cf727b1f3d8bba27",
     "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
     "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
     "study.yaml": "fb65806975ed3af9db6fe5f3cec0717b2bc0f591b59393942e326ba25a6dcf57"
@@ -30,8 +35,12 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    "data": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62",
+    "split": {
+      "development": "bf49493a7990426baf50e73ce8657f84d6a17d917e10063e0edb31aef795d13d",
+      "final_test": "788ee7164fe4a148411d3dbb8858145c20cd9abf8e88b4c407aba870c29c0397",
+      "policy": "98bc8a1ab69b3cdb20246ce29d16279df7e19687129b966592b21291e6948d29"
+    }
   },
   "gates": {
     "consult": {
@@ -47,9 +56,14 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T07:41:46.152602Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "32125100183b0ac2d42c50461523c1efdbb7a2c5b30f13b0cf727b1f3d8bba27"
+      },
+      "note": "",
+      "reason": "Mechanized text near-dup FAIL is by design: index sha256 a36b5e35...; dev vs train 179/500 and test vs train+development 188/200 hits are ALL own-template (a twin vs its own template's original or twins; 0 cross-template, 0 vs public GSM8K), proven by the auditor's block-pair matrix and an adversarial re-check. Delegated (program.md Roster).",
+      "status": "overridden"
     },
     "method": {
       "acknowledged_at": null,
@@ -58,14 +72,21 @@
     }
   },
   "last_experiment": 0,
-  "overrides": [],
+  "overrides": [
+    {
+      "acknowledged_at": "2026-11-03T07:41:46.152602Z",
+      "acknowledged_by": "lead-agent",
+      "gate": "data",
+      "reason": "Mechanized text near-dup FAIL is by design: index sha256 a36b5e35...; dev vs train 179/500 and test vs train+development 188/200 hits are ALL own-template (a twin vs its own template's original or twins; 0 cross-template, 0 vs public GSM8K), proven by the auditor's block-pair matrix and an adversarial re-check. Delegated (program.md Roster)."
+    }
+  ],
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/home/user/wt-20/studies/20-llm-cot-contamination/data/prepared",
-    "sha256": null
+    "sha256": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62"
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T07:41:45.671717Z"
+  "updated_at": "2026-11-03T07:41:47.452371Z"
 }
