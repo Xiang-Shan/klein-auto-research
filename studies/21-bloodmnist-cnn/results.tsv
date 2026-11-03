@@ -1,1 +1,2 @@
 experiment	track	primary_metric	status	commit	description
+E0001	primary	0.718932	keep	93c58ef2907017d6c3ec09f9266fcbb78a8046bf	anchor: recipe SmallCNN, width 32, 1,500 steps; first valid result on this track
