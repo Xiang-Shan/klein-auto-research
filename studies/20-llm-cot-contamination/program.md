@@ -247,3 +247,30 @@ Chosen: #1 (the phase allows one experiment and it is the identity anchor; #2-#3
 | 3 | descriptive splits of the P3 table (GSM-Symbolic overlap 5 vs 45; magnitude-matched) | 2 | 2 | 2 | 6 (not a run; read from the pinned table) |
 
 Chosen: #1 then #2 (the phase's two experiments); #3 is read-only. Expectation: both arms near ceiling, so P3 likely supported and P4 likely refuted.
+
+## Twins phase outcome (2026-11-03, experimenter)
+
+- E0003 (contamination, CoT, 50 originals vs 200 development twins, --tests P3): measured.
+  em_gap = 0.02, bootstrap-over-templates CI [-0.015, 0.060]; em_original 0.98, em_twins 0.96;
+  250 calls (0 cached), 99,352 tokens (22,960 in / 76,392 out). P3 SUPPORTED (0.02 <= 0.05),
+  but the CI upper end 0.06 exceeds 0.05, so the data do not exclude a gap above the bound.
+  Only 5 of 50 templates differ between original and twin mean (t0906, t1088, t1183, t1046:
+  original right, twins 0.5-0.75; t1179: original wrong, twins 0.5).
+- Descriptive splits from tables/contamination_E0003.tsv (no new predictions):
+  GSM-Symbolic overlap (t1264, t0116, t0976, t1031, t1088; n=5): original 1.00, twins 0.95,
+  gap 0.05 (one template, t1088, drives it). Other 45: original 0.978, twins 0.961, gap
+  0.017. Magnitude-matched (excluding t1281, t0466; n=48): original 0.979, twins 0.958, gap
+  0.021; excluding both the 5 and the 2 (n=43): gap 0.017. No split moves the gap beyond
+  0.05; n=5 is too small to test.
+- E0004 (cot_gain, CELL twin_dev, 200 twins, --tests P4): measured. em_gain = -0.025,
+  cluster-bootstrap CI [-0.065, 0.005]; em_direct 0.985, em_cot 0.96; McNemar p 0.125 (treats
+  twins as independent, overstated); discordant CoT-only 1, direct-only 6. 200 calls (200
+  cached CoT hits from E0003, 200 new direct), 48,642 tokens. Direct arm on twins: 0/200 bare
+  replies, median output 120.5 tokens, 2/200 cut at max_tokens.
+- Decision: P4 REFUTED (em_gain -0.025 < 0.10; CI excludes 0.10). CoT does not raise EM on
+  twins; the point estimate is slightly negative (direct 0.985 vs CoT 0.96), the direct arm
+  again reasons freely and both arms are at ceiling. The gain null of the anchor (0.01)
+  replicates in direction on fresh items. P5 is expected to fail the same way.
+- Note: CELL in analyze.py now stays "twin_dev" at HEAD (committed before E0004 so the run
+  was not on an unchanged surface); the lead should reset it deliberately if a gsm8k cell is
+  needed again. Sealed cells ignore CELL.
