@@ -1,0 +1,4 @@
+seed	n_classes	primary_metric	runner_exit_code	steps	total_seconds	train_rows	training_seconds	val_accuracy	val_balanced_accuracy	val_ece	val_macro_f1	val_mlogloss	val_rows	val_top5_accuracy	wall_seconds
+0.0	8	0.713391	0	1500	3.6	11959	1.5	0.760094	0.73119	0.03654	0.713391	0.706631	1709	0.985372	3.568765
+1.0	8	0.709221	0	1500	3.2	11959	1.4	0.739029	0.749538	0.038421	0.709221	0.741162	1709	0.992393	3.174096
+2.0	8	0.648348	0	1500	2.8	11959	1.5	0.706846	0.689397	0.065289	0.648348	0.827843	1709	0.986542	2.782412

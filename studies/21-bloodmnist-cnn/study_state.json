@@ -70,10 +70,30 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 1,
+  "last_experiment": 2,
   "overrides": [],
   "phase_acknowledgements": {},
   "predictions": {
+    "P1": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "primary_metric 0.69032 in [0.5, 0.85] \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "primary_metric 0.69032 in [0.5, 0.85] \u2192 supported",
+          "recorded_at": "2026-11-03T05:44:20.173744Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:44:20.173744Z",
+      "source": "run",
+      "verdict": "supported"
+    },
     "P2": {
       "evidence": [
         "E0001"
@@ -102,5 +122,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "21-bloodmnist-cnn",
-  "updated_at": "2026-11-03T05:37:53.906186Z"
+  "updated_at": "2026-11-03T05:44:20.178446Z"
 }
