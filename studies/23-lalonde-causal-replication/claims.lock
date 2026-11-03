@@ -411,7 +411,9 @@
     "C5": {
       "claim": "Carried unchanged to the sealed CPS-1 lane, AIPW with the PSID-1 logit estimates an ATT of 1327.54 with bootstrap interval [-129.17, 2835.62], a gap of -466.80 against the benchmark, on 4493 comparison men whose largest single weight share is 0.0426",
       "class": "empirical-description",
-      "errata": [],
+      "errata": [
+        "E6"
+      ],
       "evidence": [
         "E0009",
         "E0006",
@@ -575,6 +577,13 @@
       ],
       "filed": "2026-11-03",
       "note": "C21 says the exact re-executions reproduced every printed value except wall time with difference 0. total_seconds also differs (E0001 0.1 -> 0.4; E0006 639.9 -> 904.6), and the E0001 record (runs/E0001/replications/20261103T065031Z.json) compares only primary_metric, experimental_att, rows, targets (plus the timing fields and runner exit code): the reproduced table values behind C1, C2 and C6/C26 agree only through the identical table sha256 line in the replication log (line 87) and the original run.log (line 15), checked by hand, not by the record. The claim holds with that support. Superseded by C27, which pins both logs. Strength unchanged (exploratory). Raised by the adversarial check of 2026-11-03."
+    },
+    "E6": {
+      "claims": [
+        "C5"
+      ],
+      "filed": "2026-11-03",
+      "note": "Scope note, no change of content or strength: C5's confirmed strength meets confirmation.require [sealed, replicate] with the sealed run E0009 plus rep:E0006@20261103T065104Z, a same-seed re-execution of the PSID-1 development cell E0006. E0009 itself was never re-executed (no runs/E0009/replications/), so confirmed here means a sealed run plus pipeline determinism, not a reproduced sealed value. The same holds for the sealed half (E0008) of C1, C2 and C26, which rest on rep:E0001. Raised by the adversarial check of 2026-11-03."
     }
   },
   "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
