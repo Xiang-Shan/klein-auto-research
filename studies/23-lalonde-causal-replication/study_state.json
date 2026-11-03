@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T04:47:19.679970Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T05:02:33.625631Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "1ecc6c86f43b910e1fabcf53e87be637157ee1dc114b052d2fbb88b48b3287d0",
+    "method_card.md": "058fb9f47afa5bd1f5450cfaf0f45457a2f099b4281d1a142d8b8a78456c0e85",
     "research_plan.md": "efb81b07f8ecacbd13cdb2ef70ee51e8e836e0acc6a805505b08c46cb0838973",
     "scouting_ledger.md": "ab1fce365d651104bbe24a6d8f1b38b6dcf061e912187bb7cca459bc0cede43b",
     "study.yaml": "893769d6c9d1f7bae6e438c4cd3396800b85f384a313856b5b2dea586b5c0cc9"
@@ -40,7 +45,8 @@
       "development": "301cc9c3c8cd54188515afa3f24fa45ec6b75350e5cbe1b111a194ea5392a67c",
       "final_test": "b2409a22372d6caee501b263c218947569e4f3b2b827a227c10b0008831680a4",
       "policy": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -65,9 +71,13 @@
       "status": "recorded"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T05:02:33.625631Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "058fb9f47afa5bd1f5450cfaf0f45457a2f099b4281d1a142d8b8a78456c0e85"
+      },
+      "note": "delegated (program.md Roster). Card complete (triad theory/papers/practice); refs verify 18 references, 0 failed",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -80,5 +90,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T04:47:20.965202Z"
+  "updated_at": "2026-11-03T05:02:33.630936Z"
 }
