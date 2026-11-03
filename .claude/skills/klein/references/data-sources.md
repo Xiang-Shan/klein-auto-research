@@ -18,9 +18,28 @@ Role: the consultant at CONSULT, the data auditor at DATA, `klein doctor` any ti
 | `sklearn:<loader>` | a `load_*` function shipped inside scikit-learn (an offline allowlist; `fetch_*` is refused) | yes | no | — |
 | `openml:<id>` | an OpenML dataset by numeric id | **no** | `data.sha256` **mandatory**; an unpinned tag is refused and the digest printed | `data/raw/openml/<id>/<id>.csv` |
 | `url:<https://…>` | an https download, streamed, digest verified before use | **no** | `data.sha256` **mandatory** | `data/raw/url/<sha256[:12]>/` |
+| `hf:<owner>/<repo>@<40-hex commit>/<path>` | one file of a Hugging Face **dataset** repository at an immutable commit — sugar over `url:` (`https://huggingface.co/datasets/<owner>/<repo>/resolve/<commit>/<path>`); a branch name such as `main` is refused because it moves | **no** | `data.sha256` **mandatory** | as `url:` |
 
 Every resolution prints a `data source:` provenance line naming the path it used; the
 line is in the run log and therefore in the evidence.
+
+## More than one input file: `data.inputs`
+
+A study whose evidence needs several files — an experimental sample and its
+observational controls, a benchmark and its few-shot exemplar pool — keeps the primary
+file in `data.source` and lists the rest, each pinned exactly like `data.source`:
+
+```yaml
+data:
+  source: "url:https://users.nber.org/~rdehejia/data/nsw_dw.dta"
+  sha256: "<64 hex>"
+  inputs:
+    - {source: "url:https://users.nber.org/~rdehejia/data/psid_controls.dta", sha256: "<64 hex>"}
+```
+
+`prepare.py` reads them with `kleinlib.sources.resolve_inputs(contract, study_dir=…,
+offline=…)`; `klein doctor --study` reports one `data source` line per file, and
+`KLEIN_OFFLINE=1` refuses any of them that is not already cached.
 
 ## The pinning rule
 
@@ -31,7 +50,7 @@ number computed on data nobody can re-obtain is not evidence.
 
 ## Offline and doctor
 
-`KLEIN_OFFLINE=1` (set in CI) makes the network tags refuse before any request.
+`KLEIN_OFFLINE=1` (set in CI) makes the network tags (`openml:`, `url:`, `hf:`) refuse before any request.
 `klein doctor [--study <dir>] [--json]` reports, without fetching anything: python, uv
 and git versions; which extras are installed; the tutorial renderer dependencies; the
 device `pick_device` would choose; whether `$DATA_HUB` is set and importable; and,

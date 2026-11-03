@@ -1,0 +1,53 @@
+"""Prepare the table the entrypoint sees (recipe tabular-predict).
+
+Default source: `sklearn:load_breast_cancer` (offline) so the study runs the minute it
+exists. For your own data, change `data.source` in study.yaml (csv:, parquet:,
+openml:, url:, hf: — pinned by sha256 where the bytes can change) and replace
+`load_frame()`. Never read the sealed partition here: the split is the contract's.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pandas as pd
+import yaml
+
+HERE = Path(__file__).resolve().parent
+TARGET = "target"
+
+
+def load_frame() -> pd.DataFrame:
+    contract = yaml.safe_load((HERE / "study.yaml").read_text(encoding="utf-8"))
+    source = contract["data"]["source"]
+    if source == "sklearn:load_breast_cancer":
+        from sklearn.datasets import load_breast_cancer
+
+        bunch = load_breast_cancer(as_frame=True)
+        frame = bunch.frame.rename(columns={"target": TARGET})
+        frame.columns = [c.replace(" ", "_") for c in frame.columns]
+        return frame
+    from kleinlib.sources import resolve
+
+    resolved = resolve(
+        source,
+        study_dir=HERE,
+        offline=False,
+        expected_sha256=contract["data"].get("sha256"),
+    )
+    raise SystemExit(
+        f"write the loader for {source} in prepare.py:load_frame() (resolved to {resolved.path}); "
+        f"return one row per unit with a {TARGET!r} column"
+    )
+
+
+def main() -> None:
+    frame = load_frame()
+    out = HERE / "data" / "prepared" / "prepared.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(out, index=False, lineterminator="\n")
+    print(f"prepared {len(frame)} rows x {frame.shape[1]} columns -> {out.relative_to(HERE)}")
+
+
+if __name__ == "__main__":
+    main()

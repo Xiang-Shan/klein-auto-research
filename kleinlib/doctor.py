@@ -202,14 +202,21 @@ def _probe_study_source(study_dir: Path) -> list[dict[str, Any]]:
     source = data_block.get("source") if isinstance(data_block, dict) else None
     if not source:
         return [{"name": "data source", "ok": True, "message": "no data.source declared in study.yaml"}]
-    expected_sha256 = data_block.get("sha256") if isinstance(data_block, dict) else None
-    report = sources.describe(source, study_dir=study_dir, expected_sha256=expected_sha256)
-    pin_note = f"; pin present={report['pin_present']}" if report["pin_required"] else ""
-    scheme = report["scheme"] or "unparsed"
-    return [
-        {
-            "name": "data source",
-            "ok": bool(report["resolvable"]),
-            "message": f"{source!r} ({scheme}): {report['detail']}{pin_note}",
-        }
-    ]
+    entries = [(source, data_block.get("sha256") if isinstance(data_block, dict) else None)]
+    inputs = data_block.get("inputs") if isinstance(data_block, dict) else None
+    for entry in inputs if isinstance(inputs, list) else []:
+        if isinstance(entry, dict) and entry.get("source"):
+            entries.append((entry["source"], entry.get("sha256")))
+    checks: list[dict[str, Any]] = []
+    for tag, expected_sha256 in entries:
+        report = sources.describe(tag, study_dir=study_dir, expected_sha256=expected_sha256)
+        pin_note = f"; pin present={report['pin_present']}" if report["pin_required"] else ""
+        scheme = report["scheme"] or "unparsed"
+        checks.append(
+            {
+                "name": "data source",
+                "ok": bool(report["resolvable"]),
+                "message": f"{tag!r} ({scheme}): {report['detail']}{pin_note}",
+            }
+        )
+    return checks

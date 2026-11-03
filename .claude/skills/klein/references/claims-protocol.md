@@ -206,6 +206,14 @@ receipt, never hand-edited after `init`); `erratum` also appends the event
 `erratum_filed`. A lock with a `null` class fails verification, so `init` cannot be
 mistaken for a finished lock.
 
+**Batch form (2.3).** A lock with forty numbers need not be forty commands:
+`klein claims apply --study studies/NN-slug claims.yaml` reads one YAML file with
+`artifacts:` (alias → path), `numbers:` (alias → `{value, art, claim, precision, note}`)
+and `claims:` (`Cn` → `{class, strength, claim, numbers, evidence, scope}`), calls the
+same `pin` / `number` / `add` code in that order, and files ONE commit. It is all or
+nothing — any refused item restores the lock's previous bytes — and it accepts no
+errata: re-scoping a claim stays a single, separately recorded `erratum`.
+
 That self-commit carries the lock and nothing else. Verify, claims, predict,
 replicate, sweep, stop and headroom commit only the files they wrote — an
 in-progress `findings.md` beside them stays yours, and is named on stdout rather

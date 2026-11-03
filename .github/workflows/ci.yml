@@ -219,7 +219,7 @@ jobs:
     # A sync, one doctor report, the shipped sweep, then per exhibit: prepare, verify
     # with the figure re-render (study 12's takes minutes on a two-vCPU runner), the
     # claims law, and one replicate / one --verify-only.
-    timeout-minutes: 25
+    timeout-minutes: 45
     env:
       # The exhibits must resolve their evidence from the repository alone — no
       # data hub on the box, no network — which is the promise a stranger cloning
@@ -295,13 +295,22 @@ jobs:
           shopt -s nullglob
           unset DATA_HUB
           found=0
-          for study in studies/00-* studies/1[0-3]-*; do
+          for study in studies/[0-9][0-9]-*; do
             [ -f "$study/study.yaml" ] || continue
             grep -qE '^schema_version:[[:space:]]*3[[:space:]]*$' "$study/study.yaml" || continue
             found=1
             echo "::group::$study"
             if [ -f "$study/prepare.py" ]; then
-              ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
+              # A pinned network source (url:, openml:, hf:) is refused under
+              # KLEIN_OFFLINE=1 unless cached; such an exhibit renders its figures
+              # from committed tables only, so prepare is skipped here and re-run by
+              # the weekly network job (scheduled.yml) instead.
+              if uv run --no-sync klein doctor --study "$study" --json \
+                  | python -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if all(c["ok"] for c in d["checks"] if c["name"]=="data source") else 1)'; then
+                ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
+              else
+                echo "note: $study's pinned source is not available offline — prepare skipped (weekly network job covers it)"
+              fi
             fi
             report="$RUNNER_TEMP/verify-$(basename "$study").log"
             uv run --no-sync klein verify --study "$study" --numbers --evidence-use --no-receipt | tee "$report"
@@ -320,7 +329,7 @@ jobs:
             echo "::endgroup::"
           done
           if [ "$found" = 0 ]; then
-            echo "note: no schema-3 exhibit present yet (studies/00-*, studies/1[0-3]-*) — nothing to verify"
+            echo "note: no schema-3 exhibit present yet (studies/NN-*) — nothing to verify"
           fi
       - name: Study 10 — a development cell replicates in a detached worktree (E0002)
         shell: bash

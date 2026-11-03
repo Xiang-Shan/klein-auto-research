@@ -194,7 +194,15 @@ def test_profile_is_a_shipped_name_or_a_repo_local_document(tmp_path: Path) -> N
     study.mkdir(parents=True)
     (tmp_path / "pyproject.toml").write_text("", encoding="utf-8")
     (study / "train.py").write_text("", encoding="utf-8")
-    assert KNOWN_PROFILES == ("generic", "ml-research", "math", "insurance")
+    assert KNOWN_PROFILES == (
+        "generic",
+        "ml-research",
+        "math",
+        "insurance",
+        "llm",
+        "cv",
+        "data-science",
+    )
 
     contract = base()
     contract["profile"] = "climate"

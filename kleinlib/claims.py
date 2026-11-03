@@ -49,6 +49,7 @@ __all__ = [
     "STRENGTH_RANK",
     "add_claim",
     "add_number",
+    "apply_claims_file",
     "canonical_lock_text",
     "claims_checks",
     "detect_lock_schema",
@@ -98,7 +99,7 @@ FINDINGS_MARKER_RE = re.compile(r"\*\*\[(C\d+)\]\*\*")
 RUN_ID_RE = re.compile(r"^E\d{4}$")
 PREDICTION_ID_RE = re.compile(r"^P\d+$")
 CROSS_STUDY_RE = re.compile(r"^(?P<study>[A-Za-z0-9._-]+)#(?P<claim>C\d+)$")
-REPLICATION_RE = re.compile(r"^(?P<mode>rep|verify):(?P<run>E\d{4})@(?P<stamp>.+)$")
+REPLICATION_RE = re.compile(r"^(?P<mode>rep|verify|replay):(?P<run>E\d{4})@(?P<stamp>.+)$")
 
 #: Numeric literals in a text artifact or a claim sentence.
 #:
@@ -618,15 +619,16 @@ def _resolve_evidence(
         record = study_dir / "runs" / run / "replications" / f"{stamp}.json"
         if not record.is_file():
             return _fail(f"evidence {evidence!r}: no runs/{run}/replications/{stamp}.json")
-        if replication.group("mode") == "verify":
+        if replication.group("mode") in {"verify", "replay"}:
+            expected = replication.group("mode")
             try:
                 payload = json.loads(record.read_text(encoding="utf-8"))
             except json.JSONDecodeError:
                 return _warn(f"evidence {evidence!r}: replication record is not valid JSON")
-            if isinstance(payload, Mapping) and payload.get("mode") != "verify":
+            if isinstance(payload, Mapping) and payload.get("mode") != expected:
                 return _warn(
                     f"evidence {evidence!r}: record exists but its mode is "
-                    f"{payload.get('mode')!r}, not 'verify'"
+                    f"{payload.get('mode')!r}, not {expected!r}"
                 )
         return None
 
@@ -1573,3 +1575,86 @@ def file_erratum(
     if commit:
         _commit(study_dir, f"claims: erratum {erratum_id} re-scopes {', '.join(named)}")
     return entry
+
+
+def apply_claims_file(study_dir: Path, spec_path: Path, *, commit: bool = True) -> dict[str, int]:
+    """Apply one YAML file of pins, numbers and claims to ``claims.lock`` in one transaction.
+
+    The per-item verbs (``pin``, ``number``, ``add``) stay the source of truth —
+    this only calls them in order with ``commit=False`` and files ONE commit at
+    the end, so a lock with forty numbers is one reviewable diff instead of
+    forty.  Shape (every section optional)::
+
+        artifacts:            # alias -> study-relative path
+          results: results.tsv
+        numbers:              # alias -> {value, art, claim?, precision?, note?}
+          k_free: {value: 454.16, art: boot_k, claim: C2, precision: 2}
+        claims:               # Cn -> {class, strength, claim, numbers?, evidence?, scope?}
+          C2: {class: empirical-description, strength: confirmed, claim: "…",
+               numbers: [k_free], evidence: [E0003]}
+
+    All or nothing: if any item is refused, the lock is restored to the bytes it
+    had before the call and the refusal is raised — a half-applied file is never
+    left behind.  Errata are deliberately NOT accepted here: re-scoping a claim is
+    a single, separately recorded act (``klein claims erratum``).
+    """
+    import yaml
+
+    data = yaml.safe_load(Path(spec_path).read_text(encoding="utf-8")) or {}
+    if not isinstance(data, Mapping):
+        raise WorkflowError(f"claims apply: {spec_path} must hold a mapping")
+    unknown = set(data) - {"artifacts", "numbers", "claims"}
+    if unknown:
+        raise WorkflowError(
+            f"claims apply: unknown sections {sorted(unknown)} — artifacts, numbers and claims "
+            "only (file errata with `klein claims erratum`)"
+        )
+    path = lock_path(study_dir)
+    before = path.read_bytes() if path.is_file() else None
+    counts = {"artifacts": 0, "numbers": 0, "claims": 0}
+    try:
+        for alias, rel in (data.get("artifacts") or {}).items():
+            pin_artifact(study_dir, str(alias), str(rel), commit=False)
+            counts["artifacts"] += 1
+        for alias, entry in (data.get("numbers") or {}).items():
+            if not isinstance(entry, Mapping) or "value" not in entry or "art" not in entry:
+                raise WorkflowError(f"claims apply: number {alias!r} needs value and art")
+            add_number(
+                study_dir,
+                str(alias),
+                value=entry["value"],
+                art=str(entry["art"]),
+                claim=None if entry.get("claim") is None else str(entry["claim"]),
+                precision=None if entry.get("precision") is None else int(entry["precision"]),
+                note=None if entry.get("note") is None else str(entry["note"]),
+                commit=False,
+            )
+            counts["numbers"] += 1
+        for claim_id, entry in (data.get("claims") or {}).items():
+            if not isinstance(entry, Mapping):
+                raise WorkflowError(f"claims apply: claim {claim_id!r} must be a mapping")
+            add_claim(
+                study_dir,
+                str(claim_id),
+                claim_class=str(entry.get("class")),
+                strength=str(entry.get("strength")),
+                claim=str(entry.get("claim", "")),
+                numbers=[str(n) for n in entry.get("numbers") or []],
+                evidence=[str(e) for e in entry.get("evidence") or []],
+                scope=None if entry.get("scope") is None else str(entry["scope"]),
+                commit=False,
+            )
+            counts["claims"] += 1
+    except Exception:
+        if before is None:
+            path.unlink(missing_ok=True)
+        else:
+            path.write_bytes(before)
+        raise
+    if commit and any(counts.values()):
+        _commit(
+            study_dir,
+            f"claims: apply {Path(spec_path).name} — {counts['artifacts']} pins, "
+            f"{counts['numbers']} numbers, {counts['claims']} claims",
+        )
+    return counts

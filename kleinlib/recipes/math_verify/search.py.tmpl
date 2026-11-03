@@ -1,0 +1,70 @@
+"""The search (mutable surface, recipe math-verify) — a Golomb-ruler search by default.
+
+A Golomb ruler with n marks is a set of integers 0 = a1 < ... < an whose pairwise
+differences are all distinct; the objective is its length an (lower is better). The
+search may be anything — random restarts, local search, a language model proposing
+mark lists AS DATA — because the declared verifier (verify.py, outside this file,
+hashed at the METHOD gate) recomputes the objective from the artifact and decides.
+Budget: a fixed number of candidate evaluations, printed as `evaluations`.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import time
+from pathlib import Path
+
+import numpy as np
+
+from kleinlib.eval import evaluate_scalar
+
+SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
+EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
+KIND = os.environ.get("KLEIN_EVALUATION_KIND", "development")
+BUDGET = 2_000 if SMOKE else 200_000
+
+
+def is_golomb(marks: list[int]) -> bool:
+    diffs = [b - a for i, a in enumerate(marks) for b in marks[i + 1:]]
+    return len(diffs) == len(set(diffs))
+
+
+def search(n: int, rng: np.random.Generator) -> tuple[list[int] | None, int]:
+    best: list[int] | None = None
+    for evaluation in range(1, BUDGET + 1):
+        length = int(rng.integers(n * (n - 1) // 2, 3 * n * n))
+        if best is not None and length >= best[-1]:
+            length = best[-1] - 1
+        if length < n - 1:
+            return best, evaluation
+        inner = sorted(rng.choice(np.arange(1, length), size=n - 2, replace=False).tolist())
+        marks = [0, *inner, length]
+        if is_golomb(marks):
+            best = marks
+    return best, BUDGET
+
+
+def main() -> None:
+    if EXPERIMENT_ID is None:
+        raise SystemExit("run through `klein run-one` (or KLEIN_SMOKE=1 for a shape check)")
+    t0 = time.time()
+    instance = json.loads(Path("data/prepared/instance.json").read_text(encoding="utf-8"))
+    block = "sealed" if KIND == "final_test" else "development"
+    rng = np.random.default_rng(instance["seed_blocks"][block])
+    best, evaluations = search(int(instance["marks"]), rng)
+    if best is None:
+        raise SystemExit("no valid ruler found within the budget")
+    out = Path("models") / f"solution_{EXPERIMENT_ID}.json"
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(json.dumps({"marks": best}) + "\n", encoding="utf-8")
+    print(f"solution: {out.as_posix()}")
+    print(f"artifact: {out.as_posix()}")
+    evaluate_scalar(
+        float(best[-1]), exp_id=EXPERIMENT_ID, metric_name="{{METRIC_NAME}}", metric_goal="lower",
+        extra={"evaluations": evaluations}, t0=t0, study_dir=None if SMOKE else ".",
+    )
+
+
+if __name__ == "__main__":
+    main()

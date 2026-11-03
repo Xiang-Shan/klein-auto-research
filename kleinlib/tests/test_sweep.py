@@ -241,3 +241,21 @@ def test_resume_rejects_changed_parameters(tmp_path):
     )
     with pytest.raises(ValueError, match="parameters changed"):
         runner.run()
+
+
+def _square_trial(params):
+    if params["x"] == 3:
+        raise RuntimeError("planted failure")
+    return {"primary_metric": params["x"] ** 2}
+
+
+def test_parallel_workers_write_the_sidecar_in_trial_order(tmp_path) -> None:
+    from kleinlib.sweep import SweepRunner
+
+    params = [{"x": i} for i in range(6)]
+    serial = SweepRunner("serial", tmp_path, _square_trial, params).run()
+    parallel = SweepRunner("parallel", tmp_path, _square_trial, params, workers=3).run()
+    assert [t.primary_metric for t in parallel.trials] == [t.primary_metric for t in serial.trials]
+    assert [t.status for t in parallel.trials][3] == "crash"
+    lines = (tmp_path / "sweeps" / "parallel.sidecar.tsv").read_text().splitlines()[1:]
+    assert [int(line.split("\t")[0]) for line in lines] == list(range(1, 7))

@@ -3,7 +3,8 @@
 A **profile** adapts Klein's human surface to an audience without touching what the
 engine checks. The same contract, ledger, claims law, and referee rubric apply to every
 profile; a profile only decides *headings, audience sentences, figure sets, doctrine
-anchors, budgets, and vocabulary*. Four ship with Klein 2.0:
+anchors, budgets, and vocabulary*. Four shipped with Klein 2.0; Klein 2.3 adds three
+for the fields its domain packs serve:
 
 | profile | File | Audience | Reference exhibit |
 |---|---|---|---|
@@ -11,6 +12,9 @@ anchors, budgets, and vocabulary*. Four ship with Klein 2.0:
 | `ml-research` | `profiles/ml-research.md` | an ML / deep-learning researcher | `13-charlm-fixed-budget` |
 | `math` | `profiles/math.md` | a mathematician or algorithm designer | `11-exact-verifier-construction` |
 | `insurance` | `profiles/insurance.md` | an actuary or pricing analyst | `12-insurance-claims-frequency`, studies 05–09 |
+| `llm` | `profiles/llm.md` | an ML / NLP researcher evaluating or prompting language models | `20-llm-cot-contamination` |
+| `cv` | `profiles/cv.md` | a computer-vision researcher or a scientist with images | `21-bloodmnist-cnn` |
+| `data-science` | `profiles/data-science.md` | a data scientist, economist or epidemiologist estimating effects | `23-lalonde-causal-replication` |
 
 `generic` is the default. Insurance is a *reference* profile — the discipline was first
 proven on insurance data and its vocabulary is the most developed — but it is not the

@@ -62,14 +62,18 @@ from .contract import (
     _phase_ids,
     _phase_spec,
     _placeholder_locations,  # noqa: F401  (re-export)
+    calls_dirs,
     entrypoint_spec,
     load_contract,
     mutable_surface,
     normalize_tracks,
+    policy,
     prepared_data_path,
+    printed_scope,
     registered_predictions,
     resolve_study,
     schema_version,
+    seed_array,
     split_fingerprint,
     validate_contract,
 )
@@ -85,6 +89,7 @@ from .decision import (
     parse_metric_log,
     parse_printed_lines,  # noqa: F401  (re-export)
     parse_printed_strings,
+    parse_seed_array_log,
     printed_values,
     registered_guardrails,
     track_headroom,
@@ -440,7 +445,9 @@ def _run_declared_verifier(
             + (" (timeout)" if process.timed_out else "")
         )
     try:
-        verified, _, _, verified_metrics = parse_metric_log(log_path)
+        verified, _, _, verified_metrics = parse_metric_log(
+            log_path, scope=str(manifest.get("printed_scope", "log"))
+        )
     except WorkflowError as exc:
         raise WorkflowError(f"{VERIFIER_FAILED}: {exc}") from exc
 
@@ -464,6 +471,7 @@ def _assert_registered_partition(
     evaluation_kind: str,
     manifest: dict[str, Any],
     echo: bool,
+    required: bool = False,
 ) -> None:
     """Refuse a number measured on a partition the DATA gate never froze.
 
@@ -481,6 +489,12 @@ def _assert_registered_partition(
     expected = registered.get(evaluation_kind)
     if printed:
         manifest.setdefault("fingerprints", {})["split_partition"] = printed[-1]
+    if required and not printed:
+        raise WorkflowError(
+            f"{SPLIT_FINGERPRINT_MISMATCH}: policy.realized_split: required, but the run "
+            "printed no split_fingerprint — load the data through kleinlib.data "
+            "(load_partition / load_items), which prints it"
+        )
     if not printed or expected is None:
         if echo:
             missing = "the run printed no split_fingerprint" if not printed else (
@@ -696,6 +710,111 @@ def sealed_dry_run(
     return exit_code
 
 
+def _run_seed_array(
+    command: Sequence[str],
+    seeds: Sequence[int],
+    *,
+    cwd: Path,
+    log_path: Path,
+    timeout_seconds: float,
+    echo: bool,
+    env_overrides: Mapping[str, str],
+) -> ProcessResult:
+    """One candidate, N seeds, one log (``entrypoint.seeds``) — see ``runner.run_seed_array``."""
+    from .runner import run_seed_array
+
+    started_at = utc_now()
+    result = run_seed_array(
+        command,
+        seeds,
+        cwd=cwd,
+        log_path=log_path,
+        timeout_seconds=timeout_seconds,
+        echo=echo,
+        env_overrides=env_overrides,
+    )
+    return ProcessResult(
+        command=tuple(command),
+        exit_code=result.exit_code,
+        timed_out=result.timed_out,
+        started_at=started_at,
+        ended_at=utc_now(),
+        wall_seconds=result.wall_seconds,
+    )
+
+
+def _artifact_meta(path: Path, role: str) -> dict[str, Any]:
+    size = path.stat().st_size
+    return {
+        "sha256": sha256_file(path),
+        "bytes": size,
+        "committed": size <= 10 * 1024 * 1024,
+        "role": role,
+    }
+
+
+def _write_seed_table(
+    study_dir: Path, run_dir: Path, per_seed: Sequence[Mapping[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    """Pin every seed's block as ``runs/E####/seeds.tsv`` — the array's evidence."""
+    keys = sorted({key for row in per_seed for key in row} - {"seed"})
+    lines = ["\t".join(["seed", *keys])]
+    for row in per_seed:
+        lines.append(
+            "\t".join([str(row["seed"]), *(format(float(row[k]), ".12g") if k in row else "NA" for k in keys)])
+        )
+    path = run_dir / "seeds.tsv"
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return {path.relative_to(study_dir).as_posix(): _artifact_meta(path, "seeds")}
+
+
+#: ``phases[].budget_*`` keys (Klein 2.3) and the usage field each one sums.
+PHASE_USAGE_BUDGETS: dict[str, str] = {
+    "budget_usd": "usd",
+    "budget_tokens": "tokens",
+    "budget_steps": "steps",
+}
+
+#: Numeric usage fields a child may report and a phase may budget (Klein 2.3).
+USAGE_FIELDS: tuple[str, ...] = (
+    "tokens_in",
+    "tokens_out",
+    "tokens",
+    "calls",
+    "calls_cached",
+    "usd",
+    "steps",
+    "gpu_seconds",
+)
+
+
+def _record_usage(study_dir: Path, run_dir: Path, manifest: dict[str, Any]) -> None:
+    """Fold ``runs/E####/usage.json`` (if a child wrote one) into the manifest."""
+    path = run_dir / "usage.json"
+    if not path.is_file():
+        return
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        manifest["usage"] = {"unreadable": True}
+        return
+    usage = {
+        key: float(raw[key])
+        for key in USAGE_FIELDS
+        if isinstance(raw.get(key), (int, float)) and math.isfinite(float(raw[key]))
+    }
+    if "tokens" not in usage and ("tokens_in" in usage or "tokens_out" in usage):
+        usage["tokens"] = usage.get("tokens_in", 0.0) + usage.get("tokens_out", 0.0)
+    manifest["usage"] = usage
+    hardware = raw.get("hardware")
+    if isinstance(hardware, Mapping):
+        manifest.setdefault("execution", {"mode": "local"})["hardware"] = dict(hardware)
+    manifest["artifacts"][path.relative_to(study_dir).as_posix()] = {
+        **_artifact_meta(path, "usage"),
+        "availability": "recorded",
+    }
+
+
 def run_one(
     study_dir: Path,
     *,
@@ -802,6 +921,30 @@ def run_one(
         remaining_budget = phase_budget - spent
         if remaining_budget <= 0:
             raise WorkflowError(f"phase {phase_id} exhausted budget_seconds")
+        for key, field in PHASE_USAGE_BUDGETS.items():
+            if key in phase:
+                used = sum(
+                    float((m.get("usage") or {}).get(field, 0.0) or 0.0) for m in phase_runs
+                )
+                if used >= float(phase[key]):
+                    raise WorkflowError(
+                        f"phase {phase_id} exhausted {key}: {used:.6g} of {float(phase[key]):.6g} "
+                        "recorded in this phase's manifests (usage is recorded for every exit "
+                        "status, crashes included)"
+                    )
+        if (
+            not final_test
+            and policy(contract, "noise_floor") == "required"
+            and str(tracks[track].get("mode", "frontier")) == "frontier"
+            and phase_id != _phase_ids(contract)[0]
+            and tracks[track]["metric"].get("exactness") != "exact"
+            and not isinstance(tracks[track]["metric"].get("noise_floor"), Mapping)
+        ):
+            raise WorkflowError(
+                f"policy.noise_floor: required — track {track!r} has no measured noise_floor "
+                "block and phase 1 is over; measure it (klein noise-floor --recipe …), record "
+                "the consult gate again with a note, then continue"
+            )
 
         configured_timeout = float(contract["max_run_seconds"])
         timeout = configured_timeout if timeout_seconds is None else float(timeout_seconds)
@@ -832,6 +975,12 @@ def run_one(
         surface = mutable_surface(contract)
         surface_rels = [_relative(repo, study_dir / name) for name in surface]
         surface_names = ", ".join(surface)
+        seeds = seed_array(contract) if schema_version(contract) >= 3 else None
+        if seeds is not None and isinstance(tracks[track].get("verifier"), Mapping):
+            raise WorkflowError(
+                "entrypoint.seeds cannot be combined with a declared verifier in Klein 2.3 "
+                "(the checker would re-score one artifact per seed); drop one of the two"
+            )
         # Schema 2 always ran train.py; schema 3 names its entrypoint by kind
         # (a Hubble regression is not "trained"), so the default command comes
         # from the contract.  ``--command`` still overrides either.
@@ -919,6 +1068,14 @@ def run_one(
         }
         if empty_diff:
             manifest["empty_candidate_diff"] = True
+        if seeds is not None:
+            manifest["seeds"] = list(seeds)
+        if printed_scope(contract) == "block":
+            # The receipt of the rule the run was judged under — recorded only
+            # when it is not the default, so every pre-2.3 manifest shape is
+            # unchanged, and `klein replicate` re-parses by THIS, not by
+            # whatever the contract says later.
+            manifest["printed_scope"] = "block"
         atomic_write_json(run_dir / "manifest.json", manifest)
         append_event(
             study_dir,
@@ -929,7 +1086,8 @@ def run_one(
             candidate_commit=candidate_commit,
             **({"empty_diff": True} if empty_diff else {}),
         )
-        artifacts_before = artifact_inventory(study_dir)
+        watched_dirs = calls_dirs(contract)
+        artifacts_before = artifact_inventory(study_dir, watched_dirs)
         if final_test:
             state["final_holdout_access"][track] = {
                 "count": 1,
@@ -939,22 +1097,37 @@ def run_one(
             save_state(study_dir, state)
 
         cmd = tuple(command or default_command)
-        process = run_subprocess(
-            cmd,
-            cwd=study_dir,
-            log_path=log_path,
-            timeout_seconds=timeout,
-            echo=echo,
-            env_overrides={
-                "KLEIN_EVALUATION_KIND": "final_test" if final_test else "development",
-                "KLEIN_EXPERIMENT_ID": run_id,
-                "KLEIN_TRACK": track,
-                # A real run force-clears ambient smoke mode: an exported
-                # KLEIN_SMOKE=1 in the driving shell must never silently
-                # suppress evidence writes.
-                "KLEIN_SMOKE": "",
-            },
-        )
+        child_env = {
+            "KLEIN_EVALUATION_KIND": "final_test" if final_test else "development",
+            "KLEIN_EXPERIMENT_ID": run_id,
+            "KLEIN_TRACK": track,
+            # A real run force-clears ambient smoke mode: an exported
+            # KLEIN_SMOKE=1 in the driving shell must never silently
+            # suppress evidence writes.
+            "KLEIN_SMOKE": "",
+            # Where a child may leave its usage record (kleinlib.dl.report_usage,
+            # kleinlib.calls): read back below for every exit status.
+            "KLEIN_RUN_DIR": str(run_dir),
+        }
+        if seeds is not None:
+            process = _run_seed_array(
+                cmd,
+                seeds,
+                cwd=study_dir,
+                log_path=log_path,
+                timeout_seconds=timeout,
+                echo=echo,
+                env_overrides=child_env,
+            )
+        else:
+            process = run_subprocess(
+                cmd,
+                cwd=study_dir,
+                log_path=log_path,
+                timeout_seconds=timeout,
+                echo=echo,
+                env_overrides=child_env,
+            )
         manifest.update(
             {
                 "started_at": process.started_at,
@@ -967,7 +1140,15 @@ def run_one(
         declared_artifacts: dict[str, dict[str, Any]] = {}
         if process.exit_code == 0:
             try:
-                primary, printed_name, printed_goal, metrics = parse_metric_log(log_path)
+                if seeds is not None:
+                    primary, printed_name, printed_goal, metrics, per_seed = parse_seed_array_log(
+                        log_path, seeds
+                    )
+                    declared_artifacts.update(_write_seed_table(study_dir, run_dir, per_seed))
+                else:
+                    primary, printed_name, printed_goal, metrics = parse_metric_log(
+                        log_path, scope=str(manifest.get("printed_scope", "log"))
+                    )
                 expected_metric = tracks[track]["metric"]
                 if printed_name != expected_metric["name"]:
                     raise WorkflowError(
@@ -983,12 +1164,13 @@ def run_one(
                     evaluation_kind=manifest["evaluation_kind"],
                     manifest=manifest,
                     echo=echo,
+                    required=policy(contract, "realized_split") == "required",
                 )
                 if schema_version(contract) >= 3:
                     # Schema-3 only: a schema-2 study never printed `artifact:`
                     # lines, so its manifests keep exactly the artifacts the
                     # before/after inventory diff always recorded.
-                    declared_artifacts = _declared_artifacts(study_dir, log_path)
+                    declared_artifacts.update(_declared_artifacts(study_dir, log_path))
                 verifier = tracks[track].get("verifier")
                 if isinstance(verifier, Mapping):
                     # The checker is never the searcher: the disposition is
@@ -1068,7 +1250,7 @@ def run_one(
             manifest["decision_reason"] = (
                 f"timeout after {timeout:g}s" if process.timed_out else f"process exit code {process.exit_code}"
             )
-        artifacts_after = artifact_inventory(study_dir)
+        artifacts_after = artifact_inventory(study_dir, watched_dirs)
         manifest["artifacts"] = {
             rel: meta
             for rel, meta in artifacts_after.items()
@@ -1085,6 +1267,9 @@ def run_one(
         manifest["artifacts"][f"runs/{run_id}/run.log"] = _run_log_evidence(
             study_dir, run_id
         )
+        # Usage (tokens, dollars, steps, hardware) is recorded for EVERY exit
+        # status: a crashed $3 run still spent $3, and budgets sum it.
+        _record_usage(study_dir, run_dir, manifest)
         manifest["transaction"] = {"status": "pending", "ready_at": utc_now()}
         if manifest["decision_reason"] and description:
             manifest["description"] = f"{description}; {manifest['decision_reason']}"

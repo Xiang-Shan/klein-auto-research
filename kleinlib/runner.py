@@ -136,3 +136,59 @@ def run_logged(
         timed_out=timed_out,
         wall_seconds=time.monotonic() - started,
     )
+
+
+def run_seed_array(
+    command: Sequence[str],
+    seeds: Sequence[int],
+    *,
+    cwd: Path | None,
+    log_path: Path,
+    timeout_seconds: float,
+    echo: bool = True,
+    env_overrides: Mapping[str, str] | None = None,
+    append: bool = False,
+) -> LoggedRun:
+    """Run *command* once per seed into ONE log (Klein 2.3 ``entrypoint.seeds``).
+
+    Each child gets ``KLEIN_SEED`` and is preceded in the log by the header
+    ``[KLEIN] seed i/N (KLEIN_SEED=s)`` the notary parses back.  The array shares
+    one ``timeout_seconds`` (it is one transaction); the first failing seed stops
+    the array and its exit code is the array's.
+    """
+    started = time.monotonic()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if not append:
+        log_path.write_text("", encoding="utf-8")
+    exit_code = 0
+    timed_out = False
+    total = len(seeds)
+    for position, seed in enumerate(seeds, start=1):
+        remaining = timeout_seconds - (time.monotonic() - started)
+        if remaining <= 0:
+            exit_code, timed_out = TIMEOUT_EXIT_CODE, True
+            break
+        header = f"[KLEIN] seed {position}/{total} (KLEIN_SEED={int(seed)})\n"
+        with log_path.open("a", encoding="utf-8") as log:
+            log.write(header)
+        if echo:
+            sys.stdout.write(header)
+            sys.stdout.flush()
+        result = run_logged(
+            command,
+            cwd=cwd,
+            log_path=log_path,
+            timeout_seconds=remaining,
+            echo=echo,
+            env_overrides={**(env_overrides or {}), "KLEIN_SEED": str(int(seed))},
+            append=True,
+        )
+        if result.exit_code != 0:
+            exit_code, timed_out = result.exit_code, result.timed_out
+            break
+    return LoggedRun(
+        command=tuple(command),
+        exit_code=exit_code,
+        timed_out=timed_out,
+        wall_seconds=time.monotonic() - started,
+    )

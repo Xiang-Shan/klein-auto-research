@@ -1,0 +1,26 @@
+"""The scorer — answer extraction and exact match (recipe llm-eval).
+
+Part of the measuring instrument, so it lives OUTSIDE `entrypoint.mutable`: a prompt
+cell must never be able to change how answers are graded. The rule: the last integer
+in the response (after an optional "Answer:" / "####" marker) must equal the key.
+"""
+
+from __future__ import annotations
+
+import re
+
+_MARKER = re.compile(r"(?:####|answer\s*[:=])\s*(-?[\d,]+)", re.IGNORECASE)
+_NUMBER = re.compile(r"-?\d[\d,]*")
+
+
+def extract(response: str) -> str | None:
+    marked = _MARKER.findall(response or "")
+    if marked:
+        return marked[-1].replace(",", "")
+    numbers = _NUMBER.findall(response or "")
+    return numbers[-1].replace(",", "") if numbers else None
+
+
+def exact_match(response: str, answer: str) -> int:
+    got = extract(response)
+    return int(got is not None and got.lstrip("+") == str(answer).strip())

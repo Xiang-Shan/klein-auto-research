@@ -1,0 +1,51 @@
+"""Prepare image items: a payload array + an index table (recipe cv-classify).
+
+Writes `data/prepared/images.npy` (row i = the image of index row i, float32 in
+[0, 1], shape (N, H, W) or (N, H, W, C)) and `data/prepared/index.csv`
+(`id, label[, group]`). The contract splits the INDEX (`data.split.index`), so the
+DATA gate freezes partition fingerprints over item ids and every run is held to
+them. Add a `group` column for the unit that would leak (patient, slide, scene)
+and switch `data.split.kind` to `group`; for a dataset's official partitions add a
+`split` column (train | development | test) and use `kind: predefined`.
+
+Default source: `sklearn:load_digits` (1,797 8x8 grey digits, offline).
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import yaml
+
+HERE = Path(__file__).resolve().parent
+OUT = HERE / "data" / "prepared"
+
+
+def load_images() -> tuple[np.ndarray, np.ndarray]:
+    contract = yaml.safe_load((HERE / "study.yaml").read_text(encoding="utf-8"))
+    source = contract["data"]["source"]
+    if source == "sklearn:load_digits":
+        from sklearn.datasets import load_digits
+
+        digits = load_digits()
+        return (digits.images / 16.0).astype(np.float32), digits.target.astype(np.int64)
+    raise SystemExit(
+        f"write the loader for {source} in prepare.py:load_images(): return "
+        "(images float32 in [0, 1], labels int) — resolve the bytes with "
+        "kleinlib.sources.resolve(..., expected_sha256=...)"
+    )
+
+
+def main() -> None:
+    images, labels = load_images()
+    OUT.mkdir(parents=True, exist_ok=True)
+    np.save(OUT / "images.npy", images)
+    ids = [f"img{i:06d}" for i in range(len(labels))]
+    pd.DataFrame({"id": ids, "label": labels}).to_csv(OUT / "index.csv", index=False, lineterminator="\n")
+    print(f"prepared {len(ids)} images of shape {images.shape[1:]} in {len(set(labels.tolist()))} classes")
+
+
+if __name__ == "__main__":
+    main()

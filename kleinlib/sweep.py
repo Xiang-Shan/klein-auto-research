@@ -121,6 +121,7 @@ class SweepRunner:
         metric_goal: str = "higher",
         resume: bool = False,
         overwrite: bool = False,
+        workers: int = 1,
     ) -> None:
         if metric_goal not in _VALID_GOALS:
             raise ValueError(
@@ -133,6 +134,9 @@ class SweepRunner:
         self.metric_goal = metric_goal
         self.resume = resume
         self.overwrite = overwrite
+        if int(workers) < 1:
+            raise ValueError("workers must be >= 1")
+        self.workers = int(workers)
         if resume and overwrite:
             raise ValueError("resume and overwrite are mutually exclusive")
         self._params_json = [self._serialize_params(params) for params in self.params_list]
@@ -166,11 +170,27 @@ class SweepRunner:
             path.write_text("\t".join(SIDECAR_COLUMNS) + "\n", encoding="utf-8")
             trials = []
 
-        for i in range(len(trials) + 1, len(self.params_list) + 1):
-            params = self.params_list[i - 1]
-            record = self._run_one(i, dict(params))
-            trials.append(record)
-            self._append_row(path, record)
+        pending = list(range(len(trials) + 1, len(self.params_list) + 1))
+        if self.workers == 1 or len(pending) < 2:
+            for i in pending:
+                record = self._run_one(i, dict(self.params_list[i - 1]))
+                trials.append(record)
+                self._append_row(path, record)
+        else:
+            # Klein 2.3: trials run in a process pool, but the sidecar is written
+            # in TRIAL ORDER by this process alone — the row a resume validates
+            # is always the contiguous prefix, whatever finished first.
+            from concurrent.futures import ProcessPoolExecutor
+
+            with ProcessPoolExecutor(max_workers=self.workers) as pool:
+                futures = [
+                    pool.submit(_timed_trial, self.trial_fn, dict(self.params_list[i - 1]))
+                    for i in pending
+                ]
+                for i, future in zip(pending, futures, strict=True):
+                    record = self._record_from(i, dict(self.params_list[i - 1]), *future.result())
+                    trials.append(record)
+                    self._append_row(path, record)
         return SweepSummary(name=self.name, metric_goal=self.metric_goal, trials=trials)
 
     @staticmethod
@@ -253,9 +273,16 @@ class SweepRunner:
 
     def _run_one(self, trial: int, params: dict[str, Any]) -> TrialRecord:
         """Call `trial_fn` once; a normal exception becomes a `crash` row, not a raise."""
-        t0 = time.time()
+        return self._record_from(trial, params, *_timed_trial(self.trial_fn, params))
+
+    @staticmethod
+    def _record_from(
+        trial: int, params: dict[str, Any], result: Any, error: str | None, wall_seconds: float
+    ) -> TrialRecord:
+        """Validate one trial_fn result into a row; any problem is a ``crash`` row."""
         try:
-            result = self.trial_fn(params)
+            if error is not None:
+                raise _TrialFailed(error)
             if not isinstance(result, dict):
                 raise TypeError(
                     f"trial_fn must return a dict, got {type(result).__name__}"
@@ -273,10 +300,12 @@ class SweepRunner:
                 metric = float(metric)
                 if not math.isfinite(metric):
                     raise ValueError(f"primary_metric must be finite, got {metric!r}")
+        except _TrialFailed as exc:
+            status, metric = "crash", None
+            extra = {"error": str(exc)}
         except Exception as exc:
             status, metric = "crash", None
             extra = {"error": f"{type(exc).__name__}: {exc}"}
-        wall_seconds = time.time() - t0
 
         if status != "ok" or metric is None:
             status, metric = "crash", None  # NA metric pairs only with crash
@@ -304,3 +333,17 @@ class SweepRunner:
         )
         with path.open("a", encoding="utf-8") as f:
             f.write(line + "\n")
+
+
+class _TrialFailed(Exception):
+    """A trial_fn exception, carried across a process boundary as its text."""
+
+
+def _timed_trial(trial_fn: Callable[[dict[str, Any]], dict[str, Any]], params: dict[str, Any]) -> tuple[Any, str | None, float]:
+    """``(result, error, wall_seconds)`` for one trial — picklable for a process pool."""
+    t0 = time.time()
+    try:
+        return trial_fn(params), None, time.time() - t0
+    except Exception as exc:  # noqa: BLE001 — a trial's failure is a crash row, never a raise
+        return None, f"{type(exc).__name__}: {exc}", time.time() - t0
+

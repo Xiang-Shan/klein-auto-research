@@ -65,7 +65,7 @@ CONFIRMS them in its summary — they are never a seventh interview question.
   sequence | graph | text | simulation | none`. It selects the Gate-1 card template
   and the split vocabulary (`data-gate-protocol.md`).
 - **`profile`** — who reads the study and what vocabulary is honest there:
-  `generic | ml-research | math | insurance`, or a repo-local `profile_doc:`. A profile
+  `generic | ml-research | math | insurance | llm | cv | data-science`, or a repo-local `profile_doc:`. A profile
   never changes what the engine checks; it changes headings, audience sentences,
   figure sets, doctrine anchors, budgets, and banned words (`profiles/README.md`).
 

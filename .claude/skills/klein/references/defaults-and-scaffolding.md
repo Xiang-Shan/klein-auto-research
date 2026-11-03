@@ -24,7 +24,7 @@ uv run --locked klein new 05-my-study \
     --track primary [--track control:registered] [--split-seed 20260912]
 ```
 
-`--kind` (seven values), `--modality` (eight), `--profile` (four shipped, or
+`--kind` (seven values), `--modality` (eight), `--profile` (seven shipped, or
 `--profile-doc <path>`), `--audience`, repeatable `--track NAME[:MODE]`, `--split-seed`,
 and `--schema-version {2,3}` (3 is the default) are the schema-3 flags; the
 scaffolded entrypoint is named by kind — `train.py` (predict), `analyze.py` (estimate,

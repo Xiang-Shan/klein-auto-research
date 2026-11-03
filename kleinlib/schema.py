@@ -56,7 +56,15 @@ VALID_STATUSES: frozenset[str] = frozenset({"keep", "discard", "measured", "cras
 #: Audience profiles that ship with Klein.  A repo that needs its own writes a
 #: markdown profile and points ``profile_doc:`` at it — the ENGINE never reads
 #: the skill directory, so a wheel installed in a foreign repo keeps working.
-KNOWN_PROFILES: tuple[str, ...] = ("generic", "ml-research", "math", "insurance")
+KNOWN_PROFILES: tuple[str, ...] = (
+    "generic",
+    "ml-research",
+    "math",
+    "insurance",
+    "llm",
+    "cv",
+    "data-science",
+)
 
 #: The evidence source's shape.  Selects the Gate-1 card variant and the split
 #: vocabulary; it never changes what the engine checks.
@@ -94,6 +102,20 @@ MODALITY_CARD_SECTIONS: dict[str, tuple[str, ...]] = {
     "text": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
     "simulation": _CARD_SECTIONS_EVERY + ("DGP card",),
     "none": _CARD_SECTIONS_EVERY + ("Verifier card",),
+}
+
+#: Headings a study that sets ``policy.card_sections: enforce`` (Klein 2.3) must
+#: ALSO carry, beyond :data:`MODALITY_CARD_SECTIONS`.  Kept separate so that
+#: registry — and every card written before 2.3 — is unchanged: enforcement is
+#: opt-in and never retroactive.  Keyed by modality, then by profile.
+POLICY_CARD_SECTIONS: dict[str, tuple[str, ...]] = {
+    "image": ("Near-duplicate audit",),
+    "sequence": ("Near-duplicate audit",),
+    "graph": ("Near-duplicate audit",),
+    "text": ("Near-duplicate audit",),
+}
+PROFILE_CARD_SECTIONS: dict[str, tuple[str, ...]] = {
+    "llm": ("Contamination audit",),
 }
 
 #: Placeholder in the commit field for a row with no surviving commit.
@@ -263,6 +285,32 @@ EVALUATOR_PRINTED_KEYS: dict[str, frozenset[str]] = {
     # `effect` print NA when non-finite (an infinite t is real), and `artifact`
     # / `sha256` are text, so none of them may be blessed here.
     "evaluate_estimate": frozenset({"ci_low", "ci_high", "n"}),
+    # Klein 2.3 evaluators — keys numeric on every successful run only.
+    "evaluate_multiclass": frozenset({
+        "val_rows",
+        "val_accuracy",
+        "val_balanced_accuracy",
+        "val_macro_f1",
+        "n_classes",
+    }),
+    "evaluate_items": frozenset({"val_rows", "ci_low", "ci_high", "n_items"}),
+    "evaluate_ranking": frozenset({
+        "val_rows",
+        "val_ndcg_at_k",
+        "val_mrr",
+        "val_recall_at_k",
+        "rank_k",
+        "n_queries",
+        "n_queries_without_relevant",
+    }),
+    "evaluate_survival": frozenset({"val_rows", "n_events", "comparable_pairs"}),
+    "evaluate_segmentation": frozenset({
+        "val_rows",
+        "val_miou",
+        "val_dice",
+        "pixel_accuracy",
+        "n_classes_present",
+    }),
     "evaluate_test": frozenset({
         "p_value",
         "n",

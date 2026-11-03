@@ -54,6 +54,22 @@ the leakage-through-time check that was run.
 cluster at what similarity, scaffold, document, source), why that unit is the right
 one for the question, and the group-overlap check on the index table.
 
+## Near-duplicate audit
+
+(image, sequence, graph, text — required under `policy.card_sections: enforce`) The
+`python -m kleinlib.leakage --index … --near-dup image|text` rows copied verbatim: the
+method (dHash bits / n-gram length), the threshold, the rate per held-out partition,
+the maximum rate the study accepts and why, and what was done about each hit.
+
+## Contamination audit
+
+(profile `llm` — required under `policy.card_sections: enforce`) The benchmark's
+publication date against the model's stated training cutoff; n-gram overlap of the
+evaluated items with every text the prompt carries (`--against <pool>`); the
+fresh-item control that is the sealed comparison and the exact-answer check of its
+generator; any perturbation probe; the answer key's provenance and normalization; the
+licence of the items and of the model outputs the call ledger will commit.
+
 ## DGP card
 
 (simulation) The declared truth in full: the generating equations or process, every

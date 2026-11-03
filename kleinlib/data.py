@@ -452,6 +452,8 @@ def contract_split(
             "declared seed blocks, not from row partitions — build them in the "
             "entrypoint and print split_fingerprint yourself"
         )
+    if split.get("index") or kind == PREDEFINED_SPLIT:
+        return _index_split(study, contract, split, target=target)
     column = target or contract.get("target")
     if not isinstance(column, str) or not column.strip():
         raise ValueError("study.yaml:target is required to split the prepared data")
@@ -472,6 +474,144 @@ def contract_split(
         groups=frame[split["group_column"]] if kind == "group" else None,
         time_values=frame[split["time_column"]] if kind == "time" else None,
     )
+
+
+#: ``data.split.kind: predefined`` — the partitions are a column of the data
+#: (official splits: MedMNIST, GSM8K, a benchmark's own test set).  Its values
+#: must be exactly these three words; ``prepare.py`` maps a source's own names.
+PREDEFINED_SPLIT = "predefined"
+PREDEFINED_VALUES: tuple[str, ...] = ("train", "development", "test")
+
+
+def index_path(study_dir: str | Path, contract: Mapping[str, Any]) -> Path | None:
+    """The split index table ``data.split.index`` names, or None.
+
+    The index lives INSIDE the prepared directory (``data.prepared_path``), so
+    the DATA gate's prepared-data fingerprint covers it together with the
+    payload it indexes (image arrays, text items, graphs).
+    """
+    from .contract import prepared_data_path
+
+    data = contract.get("data")
+    split = data.get("split") if isinstance(data, Mapping) else None
+    if not isinstance(split, Mapping) or not split.get("index"):
+        return None
+    prepared = prepared_data_path(Path(study_dir), contract)
+    base = prepared if prepared.is_dir() or not prepared.suffix else prepared.parent
+    return base / str(split["index"])
+
+
+def _read_index(path: Path, id_column: str | None) -> pd.DataFrame:
+    suffix = path.suffix.lower()
+    if suffix == ".csv":
+        dtype = {id_column: str} if id_column else None
+        return pd.read_csv(path, dtype=dtype, keep_default_na=False, na_values=[""])
+    frame = load_prepared(path)
+    if id_column and id_column in frame.columns:
+        frame[id_column] = frame[id_column].astype(str)
+    return frame
+
+
+def _index_split(
+    study: Path,
+    contract: Mapping[str, Any],
+    split: Mapping[str, Any],
+    *,
+    target: str | None,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.Series, pd.Series, pd.Series]:
+    """The index-table / predefined branch of :func:`contract_split`.
+
+    An image, text, sequence or graph study cannot hand a dataframe of features
+    to the splitter; it hands an INDEX — one row per item, ``id`` plus an
+    optional label, group, time and (for ``predefined``) split column.  The
+    frames returned are indexed by the item ids, so the realized
+    ``split_fingerprint`` hashes ids, not row positions, and the entrypoint
+    loads each partition's payload by id.  ``three_way_split`` is unchanged.
+    """
+    from .contract import prepared_data_path
+
+    kind = split.get("kind")
+    path = index_path(study, contract)
+    id_column = str(split.get("id_column") or "id") if split.get("index") else split.get("id_column")
+    if path is None:
+        path = prepared_data_path(study, contract)
+    frame = _read_index(path, id_column)
+    if id_column:
+        if id_column not in frame.columns:
+            raise ValueError(f"split index {path.name} has no id column {id_column!r}")
+        ids = frame[id_column]
+        if ids.isna().any() or (ids.astype(str).str.strip() == "").any():
+            raise ValueError(f"split index {path.name}: empty ids in column {id_column!r}")
+        duplicated = ids[ids.duplicated()].astype(str).unique().tolist()
+        if duplicated:
+            raise ValueError(
+                f"split index {path.name}: duplicate ids {duplicated[:5]} — an item that "
+                "appears twice can straddle partitions"
+            )
+        frame = frame.set_index(id_column, drop=True)
+        frame.index = frame.index.astype(str)
+    label = target or split.get("label_column") or None
+    if label is None and split.get("index") is None:
+        label = contract.get("target")
+    if label is not None and label not in frame.columns:
+        raise ValueError(f"label column {label!r} is not in {path.name}")
+    if kind == PREDEFINED_SPLIT:
+        column = str(split.get("split_column") or "split")
+        if column not in frame.columns:
+            raise ValueError(f"predefined split: column {column!r} is not in {path.name}")
+        values = frame[column].astype(str)
+        unknown = sorted(set(values) - set(PREDEFINED_VALUES))
+        if unknown:
+            raise ValueError(
+                f"predefined split: column {column!r} holds {unknown[:5]}; "
+                f"only {list(PREDEFINED_VALUES)} are allowed — map the source's names in prepare.py"
+            )
+        parts = []
+        for name in PREDEFINED_VALUES:
+            part = frame[values == name]
+            if part.empty:
+                raise ValueError(f"predefined split: no {name!r} rows in {path.name}")
+            parts.append(part)
+        drop = [column] + ([label] if label else [])
+        Xs = [part.drop(columns=drop) for part in parts]
+        ys = [
+            part[label] if label else pd.Series(0, index=part.index, name="label")
+            for part in parts
+        ]
+        return Xs[0], Xs[1], Xs[2], ys[0], ys[1], ys[2]
+    X = frame.drop(columns=[label]) if label else frame
+    y = frame[label] if label else pd.Series(0, index=frame.index, name="label")
+    task = _split_task(contract) if label else "regression"
+    if kind == "stratified" and not label:
+        raise ValueError("a stratified index split needs data.split.label_column")
+    return three_way_split(
+        X,
+        y,
+        task=task,
+        strategy=kind,
+        development_size=float(split.get("development_size", 0.2)),
+        test_size=float(split.get("test_size", 0.2)),
+        seed=int(split.get("seed", RANDOM_SEED)),
+        groups=X[split["group_column"]] if kind == "group" else None,
+        time_values=X[split["time_column"]] if kind == "time" else None,
+    )
+
+
+def load_items(
+    kind: str | None = None,
+    *,
+    study_dir: str | Path = ".",
+    echo: bool = True,
+) -> tuple[list[str], list[str]]:
+    """``(fit_ids, eval_ids)`` for one evaluation kind; prints its fingerprint.
+
+    The index-table counterpart of :func:`load_partition` for studies whose
+    items are not rows of a feature frame: the entrypoint gets item ids and
+    loads the payload (arrays, text, graphs) itself.  Same evaluation-kind and
+    sealed dry-run semantics as :func:`load_partition`.
+    """
+    fit_X, eval_X, _fit_y, _eval_y = load_partition(kind, study_dir=study_dir, echo=echo)
+    return [str(i) for i in fit_X.index], [str(i) for i in eval_X.index]
 
 
 def partition_fingerprints(study_dir: str | Path = ".") -> dict[str, str]:

@@ -1,0 +1,52 @@
+"""The per-candidate mutable surface (recipe tabular-predict).
+
+ONE falsifiable idea per candidate: change `build_model()` (or the features it
+sees), run `klein run-one`, reflect in program.md. The partition always comes from
+the contract (`load_partition`), never from a seed in this file.
+"""
+
+from __future__ import annotations
+
+import os
+import time
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+from kleinlib.data import load_partition
+from kleinlib.eval import evaluate
+
+SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
+EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
+
+
+def build_model():
+    return make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000))
+
+
+def main() -> None:
+    if EXPERIMENT_ID is None:
+        raise SystemExit("run through `klein run-one` (or KLEIN_SMOKE=1 for a shape check)")
+    t0 = time.time()
+    X_fit, X_eval, y_fit, y_eval = load_partition(target="target")
+    model = build_model()
+    fit_start = time.time()
+    model.fit(X_fit, y_fit)
+    evaluate(
+        model,
+        X_eval,
+        y_eval,
+        exp_id=EXPERIMENT_ID,
+        t0=t0,
+        fit_seconds=time.time() - fit_start,
+        train_n=len(X_fit),
+        val_n=len(X_eval),
+        metric_name="{{METRIC_NAME}}",
+        metric_goal="higher",
+        study_dir=".",
+    )
+
+
+if __name__ == "__main__":
+    main()

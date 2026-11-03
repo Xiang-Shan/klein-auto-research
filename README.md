@@ -83,7 +83,7 @@ A study is typed on three orthogonal axes; the same trust kernel serves all of t
 |---|---|---|
 | **kind** — the question's shape | `predict` · `estimate` · `test` · `simulate` · `replicate` · `discover` · `optimize` | track mode, what "sealed" means, what `confirmed` requires |
 | **modality** — the evidence source | `tabular` · `timeseries` · `image` · `sequence` · `graph` · `text` · `simulation` · `none` | which data-gate card the DATA gate demands |
-| **profile** — the audience | `generic` · `ml-research` · `math` · `insurance` · your own `profile_doc` | headings, doctrine, figures, budgets, banned words |
+| **profile** — the audience | `generic` · `ml-research` · `math` · `insurance` · `llm` · `cv` · `data-science` · your own `profile_doc` | headings, doctrine, figures, budgets, banned words |
 
 A mathematician's keep means "beat the best known value"; a deep-learning researcher's
 means "clear a five-seed noise floor". The engine does not know the difference; the

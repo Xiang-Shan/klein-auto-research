@@ -53,7 +53,7 @@ def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
     top = capsys.readouterr().out
     for verb in ("new", "gate", "preflight", "run-one", "recover", "status",
                  "finalize", "noise-floor", "verify", "headroom", "predict",
-                 "generation"):
+                 "generation", "next"):
         assert verb in top
 
     for argv, attr, expected in (
@@ -236,7 +236,7 @@ def test_cli_crash_exit_and_workflow_error(monkeypatch, study: Path, capsys) -> 
     assert "klein: error: nope" in capsys.readouterr().err
 
 
-CLAIMS_VERBS = ("init", "pin", "number", "add", "erratum", "verify")
+CLAIMS_VERBS = ("init", "pin", "number", "add", "erratum", "apply", "verify")
 
 
 def test_cli_claims_verbs_are_registered_with_help(capsys) -> None:
@@ -381,6 +381,7 @@ def _required(verb: str) -> list[str]:
         "number": ["alias", "--value", "1", "--art", "a"],
         "add": ["C1", "--class", "procedural-verdict", "--strength", "exploratory", "--claim", "x"],
         "erratum": ["E1", "--claims", "C1", "--note", "n"],
+        "apply": ["claims.yaml"],
     }.get(verb, [])
 
 

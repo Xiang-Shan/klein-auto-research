@@ -25,10 +25,12 @@ __all__ = [
     "ENTRYPOINT_BY_KIND",
     "GATE_ARTIFACTS",
     "GATE_OPTIONAL_ARTIFACTS",
+    "ENTRYPOINT_KEYS",
     "IDENTIFIER_RE",
     "KNOWN_KINDS",
     "MODELING_GATES",
     "PLACEHOLDER_RE",
+    "PRINTED_SCOPES",
     "PREDICTION_ID_RE",
     "SCHEMA_VERSION",
     "SOURCE_TAG_RE",
@@ -41,6 +43,11 @@ __all__ = [
     "VALID_TRACK_MODES",
     "confirmation_require",
     "entrypoint_spec",
+    "calls_dirs",
+    "execution_modes",
+    "policy",
+    "printed_scope",
+    "seed_array",
     "load_contract",
     "mutable_surface",
     "normalize_tracks",
@@ -65,17 +72,33 @@ SUPPORTED_SCHEMA_VERSIONS: frozenset[int] = frozenset({2, 3})
 STUDY_ID_RE = re.compile(r"^\d{2}-[a-z0-9][a-z0-9-]*$")
 IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
 PLACEHOLDER_RE = re.compile(r"\{\{[^{}]+\}\}")
+
+#: Keys an ``entrypoint`` block may carry.  The block is allowlisted on purpose:
+#: a key that changes how a run is JUDGED (``printed``, and from Klein 2.3 on the
+#: seed array and the execution modes) makes an older engine refuse the study
+#: loudly instead of silently judging it under the old rule.
+ENTRYPOINT_KEYS: frozenset[str] = frozenset(
+    {"command", "mutable", "printed", "seeds", "execution"}
+)
+
+#: ``entrypoint.printed`` — where the notary reads a run's metrics from.
+PRINTED_SCOPES: tuple[str, ...] = ("log", "block")
+
+#: ``entrypoint.execution`` — where a run may execute: ``local`` (the notary's own
+#: foreground subprocess) and ``detached`` (a job the notary hands to a host and
+#: later collects; attested, not observed).
+EXECUTION_MODES: tuple[str, ...] = ("local", "detached")
 PREDICTION_ID_RE = re.compile(r"^P\d+$")
 
-#: The eight source schemes ``data.source`` may name.  Only the SHAPE is checked
+#: The nine source schemes ``data.source`` may name.  Only the SHAPE is checked
 #: here: resolution (and the offline / cache / pin machinery behind it) belongs
 #: to ``kleinlib.sources`` and ``references/data-sources.md``.
 SOURCE_TAG_RE = re.compile(
-    r"^(csv|parquet|synthetic|bundled|hub|sklearn|openml|url):\s*(?P<rest>\S.*)$"
+    r"^(csv|parquet|synthetic|bundled|hub|sklearn|openml|url|hf):\s*(?P<rest>\S.*)$"
 )
 
 #: The schemes whose bytes can change under you — those need ``data.sha256``.
-PINNED_SOURCE_SCHEMES: frozenset[str] = frozenset({"openml", "url"})
+PINNED_SOURCE_SCHEMES: frozenset[str] = frozenset({"openml", "url", "hf"})
 
 VALID_GOALS = frozenset({"higher", "lower"})
 
@@ -283,6 +306,86 @@ def mutable_surface(contract: Mapping[str, Any]) -> tuple[str, ...]:
         return ("train.py",)
     mutable = entrypoint_spec(contract)["mutable"]
     return tuple(str(item) for item in mutable) or ("train.py",)
+
+
+#: ``calls:`` (Klein 2.3) — the model-call ledger a study's entrypoint uses.
+CALLS_KEYS: frozenset[str] = frozenset(
+    {"dir", "base_url", "model", "budget_usd", "budget_calls", "budget_tokens", "price", "namespace", "max_workers"}
+)
+
+
+def calls_dirs(contract: Mapping[str, Any]) -> tuple[str, ...]:
+    """Study-relative directories the notary watches for call shards (``calls.dir``)."""
+    block = contract.get("calls")
+    if not isinstance(block, Mapping):
+        return ()
+    return (str(block.get("dir") or "calls"),)
+
+
+def _calls_problems(block: Any) -> list[str]:
+    if block is None:
+        return []
+    if not isinstance(block, Mapping):
+        return ["calls must be a mapping"]
+    problems: list[str] = []
+    unknown = set(block) - CALLS_KEYS
+    if unknown:
+        problems.append(f"calls has unknown keys: {sorted(unknown)}")
+    if "dir" in block:
+        problem = _relative_study_path_problem(block["dir"], "calls.dir")
+        if problem:
+            problems.append(problem)
+    for key in ("budget_usd", "budget_calls", "budget_tokens"):
+        if key in block:
+            try:
+                if float(block[key]) <= 0 or isinstance(block[key], bool):
+                    raise ValueError
+            except (TypeError, ValueError):
+                problems.append(f"calls.{key} must be a positive number")
+    price = block.get("price")
+    if price is not None:
+        if not isinstance(price, Mapping) or set(price) - {"input_per_mtok", "output_per_mtok"}:
+            problems.append("calls.price must be {input_per_mtok, output_per_mtok}")
+    if "budget_usd" in block and not isinstance(price, Mapping):
+        problems.append("calls.budget_usd needs calls.price (input_per_mtok, output_per_mtok) to count dollars")
+    base_url = block.get("base_url")
+    if base_url is not None and (not isinstance(base_url, str) or not base_url.startswith("https://")):
+        problems.append("calls.base_url must be an https:// URL")
+    return problems
+
+
+def seed_array(contract: Mapping[str, Any]) -> list[int] | None:
+    """``entrypoint.seeds`` when declared (Klein 2.3), else None (one run per candidate)."""
+    raw = contract.get("entrypoint")
+    seeds = raw.get("seeds") if isinstance(raw, Mapping) else None
+    if isinstance(seeds, list) and len(seeds) >= 2:
+        return [int(s) for s in seeds]
+    return None
+
+
+def execution_modes(contract: Mapping[str, Any]) -> tuple[str, ...]:
+    """``entrypoint.execution`` (default: local only)."""
+    raw = contract.get("entrypoint")
+    modes = raw.get("execution") if isinstance(raw, Mapping) else None
+    return tuple(modes) if isinstance(modes, list) and modes else ("local",)
+
+
+def printed_scope(contract: Mapping[str, Any]) -> str:
+    """Where a run's metric block is read from: ``"log"`` (default) or ``"block"``.
+
+    ``log`` is the rule every study before Klein 2.3 was judged under: every
+    ``key: value`` line of the whole run log is a metric.  ``block`` (opt-in,
+    ``entrypoint.printed: block``) reads metrics only from the final canonical
+    block — the last line that is exactly ``---`` to the end of the log — so
+    training chatter (``loss: nan``, ``epoch: 3``) can neither crash nor pollute
+    a run.  The reserved evidence keys (``split_fingerprint``, ``artifact``,
+    ``sealed_dryrun``, a verifier's artifact key) are read from the whole log
+    under either scope.
+    """
+    raw = contract.get("entrypoint")
+    if isinstance(raw, Mapping) and raw.get("printed") == "block":
+        return "block"
+    return "log"
 
 
 def entrypoint_spec(contract: Mapping[str, Any]) -> dict[str, Any]:
@@ -511,14 +614,15 @@ def _common_problems(
         problems.append("data.split is required")
     else:
         split_kind = split.get("kind")
-        allowed_kinds = {"stratified", "random", "group", "time"}
+        allowed_kinds = {"stratified", "random", "group", "time", "predefined"}
         if scalar_family:
             allowed_kinds = allowed_kinds | {"none"}
         if split_kind not in allowed_kinds:
             problems.append(
-                "data.split.kind must be stratified, random, group, or time"
+                "data.split.kind must be stratified, random, group, time, or predefined"
                 + (" (or none)" if scalar_family else "")
             )
+        problems.extend(_index_split_problems(split))
         if split_kind == "none" and not scalar_family:
             problems.append("data.split.kind none is valid only for simulation studies")
         if split_kind == "stratified" and contract.get("task_type") == "regression":
@@ -527,7 +631,7 @@ def _common_problems(
             problems.append("data.split.group_column is required for a group split")
         if split_kind == "time" and not split.get("time_column"):
             problems.append("data.split.time_column is required for a time split")
-        if split_kind != "none":
+        if split_kind not in {"none", "predefined"}:
             try:
                 dev = float(split.get("development_size"))
                 test = float(split.get("test_size"))
@@ -564,6 +668,16 @@ def _common_problems(
             except (TypeError, ValueError):
                 problems.append(f"phase {phase_id or index}: budget_seconds must be positive")
             try:
+                for budget_key in ("budget_usd", "budget_tokens", "budget_steps"):
+                    if budget_key in phase:
+                        try:
+                            amount = float(phase[budget_key])
+                            if isinstance(phase[budget_key], bool) or not math.isfinite(amount) or amount <= 0:
+                                raise ValueError
+                        except (TypeError, ValueError):
+                            problems.append(
+                                f"phase {phase_id or index}: {budget_key} must be a positive number"
+                            )
                 raw_max_experiments = phase.get("max_experiments", 0)
                 max_experiments = int(raw_max_experiments)
                 if (
@@ -633,14 +747,75 @@ def _script_paths(command: Sequence[Any]) -> list[str]:
     return scripts
 
 
+#: Optional ``data.split`` keys for studies whose items are not rows of a
+#: feature frame (Klein 2.3).  They live INSIDE ``data.split`` so the split
+#: policy hash covers them.
+INDEX_SPLIT_KEYS: tuple[str, ...] = ("index", "id_column", "label_column", "split_column")
+
+
+def _index_split_problems(split: Mapping[str, Any]) -> list[str]:
+    problems: list[str] = []
+    for key in INDEX_SPLIT_KEYS:
+        value = split.get(key)
+        if value is not None and (not isinstance(value, str) or not value.strip()):
+            problems.append(f"data.split.{key} must be a non-empty string")
+    index = split.get("index")
+    if isinstance(index, str) and index.strip():
+        problem = _relative_study_path_problem(index, "data.split.index")
+        if problem:
+            problems.append(problem)
+        if split.get("kind") == "stratified" and not split.get("label_column"):
+            problems.append(
+                "data.split.label_column is required for a stratified index split"
+            )
+    if split.get("kind") == "predefined" and not split.get("split_column"):
+        problems.append(
+            "data.split.split_column is required for a predefined split (its values: "
+            "train, development, test)"
+        )
+    return problems
+
+
 def _entrypoint_problems(contract: Mapping[str, Any], study_dir: Path | None) -> list[str]:
     problems: list[str] = []
     raw = contract.get("entrypoint")
     if not isinstance(raw, Mapping):
         return ["entrypoint is required: {command: [...], mutable: [...]}"]
-    unknown = set(raw) - {"command", "mutable"}
+    unknown = set(raw) - ENTRYPOINT_KEYS
     if unknown:
         problems.append(f"entrypoint has unknown keys: {sorted(unknown)}")
+    printed = raw.get("printed", "log")
+    if printed not in PRINTED_SCOPES:
+        problems.append(
+            f"entrypoint.printed must be one of {list(PRINTED_SCOPES)}, got {printed!r}"
+        )
+    seeds = raw.get("seeds")
+    if seeds is not None:
+        if (
+            not isinstance(seeds, list)
+            or len(seeds) < 2
+            or not all(isinstance(s, int) and not isinstance(s, bool) for s in seeds)
+            or len(set(seeds)) != len(seeds)
+        ):
+            problems.append(
+                "entrypoint.seeds must be a list of at least two distinct integers "
+                "(one candidate = one seed array)"
+            )
+        if printed != "block":
+            problems.append(
+                "entrypoint.seeds requires entrypoint.printed: block — the notary reads "
+                "one final block per seed"
+            )
+    execution = raw.get("execution")
+    if execution is not None:
+        if (
+            not isinstance(execution, list)
+            or not execution
+            or any(mode not in EXECUTION_MODES for mode in execution)
+        ):
+            problems.append(
+                f"entrypoint.execution must be a non-empty list drawn from {list(EXECUTION_MODES)}"
+            )
     command = raw.get("command")
     if (
         not isinstance(command, Sequence)
@@ -896,7 +1071,7 @@ def _data_source_problems(data: Mapping[str, Any]) -> list[str]:
     if SOURCE_TAG_RE.match(tag) is None:
         return [
             "data.source must be a source tag: csv: | parquet: | synthetic: | bundled: "
-            f"| hub: | sklearn: | openml: | url: (got {source!r})"
+            f"| hub: | sklearn: | openml: | url: | hf: (got {source!r})"
         ]
     try:
         scheme = str(parse_source(tag).kind)
@@ -911,6 +1086,59 @@ def _data_source_problems(data: Mapping[str, Any]) -> list[str]:
         )
     elif sha256 is not None and not pinned:
         problems.append("data.sha256 must be 64 lowercase hex characters")
+    return problems
+
+
+#: ``policy:`` (Klein 2.3) — strictness knobs.  Each only ADDS a requirement, so
+#: an engine that ignores the block is merely less strict, never wrong.
+POLICY_VALUES: dict[str, tuple[str, ...]] = {
+    "card_sections": ("enforce", "advise"),
+    "realized_split": ("required", "advisory"),
+    "noise_floor": ("required", "advisory"),
+}
+
+
+def policy(contract: Mapping[str, Any], key: str) -> str:
+    """The study's ``policy.<key>`` value, or the lenient default (the 2.2 behaviour)."""
+    block = contract.get("policy")
+    value = block.get(key) if isinstance(block, Mapping) else None
+    return str(value) if value in POLICY_VALUES.get(key, ()) else POLICY_VALUES[key][1]
+
+
+def _policy_problems(block: Any) -> list[str]:
+    if block is None:
+        return []
+    if not isinstance(block, Mapping):
+        return ["policy must be a mapping"]
+    problems: list[str] = []
+    unknown = set(block) - set(POLICY_VALUES)
+    if unknown:
+        problems.append(f"policy has unknown keys: {sorted(unknown)}")
+    for key, allowed in POLICY_VALUES.items():
+        if key in block and block[key] not in allowed:
+            problems.append(f"policy.{key} must be one of {list(allowed)}, got {block[key]!r}")
+    return problems
+
+
+def _data_inputs_problems(data: Mapping[str, Any]) -> list[str]:
+    """``data.inputs`` (Klein 2.3): extra input files, each a pinned source tag."""
+    inputs = data.get("inputs")
+    if inputs is None:
+        return []
+    if not isinstance(inputs, list) or not inputs:
+        return ["data.inputs must be a non-empty list of {source, sha256}"]
+    problems: list[str] = []
+    for index, entry in enumerate(inputs):
+        if not isinstance(entry, Mapping):
+            problems.append(f"data.inputs[{index}] must be a mapping {{source, sha256}}")
+            continue
+        unknown = set(entry) - {"source", "sha256", "note"}
+        if unknown:
+            problems.append(f"data.inputs[{index}] has unknown keys: {sorted(unknown)}")
+        problems.extend(
+            f"data.inputs[{index}]: " + problem.removeprefix("data.")
+            for problem in _data_source_problems(entry)
+        )
     return problems
 
 
@@ -953,6 +1181,9 @@ def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> li
         if modality not in KNOWN_MODALITIES:
             problems.append(f"data.modality is required and must be one of {list(KNOWN_MODALITIES)}")
         problems.extend(_data_source_problems(data))
+        problems.extend(_data_inputs_problems(data))
+    problems.extend(_policy_problems(contract.get("policy")))
+    problems.extend(_calls_problems(contract.get("calls")))
 
     for name, spec in normalize_tracks(contract).items():
         label = f"track {name!r}"

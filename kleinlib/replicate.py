@@ -63,6 +63,7 @@ from typing import Any
 
 from .contract import (
     CONFIRMATION_DEFAULTS,
+    calls_dirs,
     confirmation_require,
     load_contract,
     normalize_tracks,
@@ -70,7 +71,7 @@ from .contract import (
     track_kind,
     validate_contract,
 )
-from .decision import _incumbent, parse_metric_log, printed_values
+from .decision import _incumbent, parse_metric_log, parse_seed_array_log, printed_values
 from .errors import WorkflowError
 from .events import append_event
 from .manifest import RUN_ID_RE, _artifact_path, load_manifests
@@ -81,7 +82,7 @@ from .primitives import (
     sha256_file,
     utc_now,
 )
-from .runner import run_logged
+from .runner import run_logged, run_seed_array
 from .state import load_state, save_state
 from .transaction import (
     commit_state_writes,
@@ -105,14 +106,21 @@ __all__ = [
 ]
 
 #: The two record modes and the evidence-id prefix each one stamps.
-MODES: dict[str, str] = {"replicate": "rep", "verify": "verify"}
+MODES: dict[str, str] = {"replicate": "rep", "verify": "verify", "replay": "replay"}
+
+#: Klein 2.3: ``replay`` re-runs a call-ledger run OFFLINE against its own pinned
+#: call shards.  It re-derives the pipeline (parsing, scoring, aggregation) from
+#: the recorded model answers; it says nothing about whether the model would
+#: answer the same way again, so a replay record NEVER satisfies
+#: ``confirmation.require: [replicate]`` — only a re-query (plain ``klein
+#: replicate``, salted so every call is made afresh) does.
 
 #: Printed keys that measure the MACHINE rather than the result.  A replication
 #: run on another day never reproduces a wall time; listing those as mismatches
 #: would drown the signal, so they are reported in ``block_differences`` but kept
 #: out of ``mismatched_keys``.
 _MACHINE_KEY_SUFFIXES = ("_seconds", "_ms", "_bytes")
-_MACHINE_KEY_PREFIXES = ("runner_",)
+_MACHINE_KEY_PREFIXES = ("runner_", "calls_")
 
 #: The environment-setup step's own clock, in seconds.  Building a project's
 #: dependencies is not the experiment, so it is never charged to the run's
@@ -768,10 +776,11 @@ def replicate_run(
     *,
     tolerance: float | None = None,
     verify_only: bool = False,
+    replay: bool = False,
     timeout_seconds: float | None = None,
     echo: bool = True,
 ) -> dict[str, Any]:
-    """Replicate one development run (or re-verify its pinned artifact).
+    """Replicate one development run (or re-verify its pinned artifact, or replay its calls).
 
     Returns the record it wrote.  Raises :class:`WorkflowError` for the
     refusals — a sealed run, a crash, a missing input — which happen BEFORE any
@@ -792,7 +801,14 @@ def replicate_run(
         raise WorkflowError(
             f"{run_id} ran on track {track!r}, which study.yaml no longer declares"
         )
-    mode = "verify" if verify_only else "replicate"
+    if verify_only and replay:
+        raise WorkflowError("--verify-only and --replay are different records; pick one")
+    if replay and not calls_dirs(contract):
+        raise WorkflowError(
+            "--replay re-runs a run against its pinned model-call ledger; this study "
+            "declares no calls: block"
+        )
+    mode = "verify" if verify_only else ("replay" if replay else "replicate")
     limit = float(
         timeout_seconds
         if timeout_seconds is not None
@@ -831,7 +847,10 @@ def replicate_run(
             record.update(_run_verify(study_dir, manifest, track_spec, run_id, log_path, limit, echo))
         else:
             record.update(
-                _run_replicate(study_dir, contract, manifest, run_id, log_path, limit, echo)
+                _run_replicate(
+                    study_dir, contract, manifest, run_id, log_path, limit, echo,
+                    mode=mode, stamp=stamp,
+                )
             )
 
         baseline = float(record.pop("_baseline", manifest["primary_metric"]))
@@ -878,6 +897,48 @@ def replicate_run(
     return record
 
 
+def _copy_pinned_calls(
+    study_dir: Path, worktree_study: Path, manifest: Mapping[str, Any], dirs: Sequence[str]
+) -> list[str]:
+    """Copy every call shard the study pinned into the worktree, hash-checked.
+
+    The run's own shards were committed in ITS evidence commit, after the candidate
+    commit the worktree checks out — so replay brings them in explicitly, and only
+    shards whose bytes still match a manifest's recorded sha256.
+    """
+    pinned: dict[str, str] = {}
+    for other in load_manifests(study_dir):
+        for rel, meta in (other.get("artifacts") or {}).items():
+            if any(rel.startswith(f"{d.rstrip('/')}/") for d in dirs) and isinstance(meta, Mapping):
+                pinned[rel] = str(meta.get("sha256"))
+    copied: list[str] = []
+    for rel, digest in sorted(pinned.items()):
+        source = study_dir / rel
+        if not source.is_file():
+            raise WorkflowError(f"replay: pinned call shard {rel} is missing from the study")
+        if sha256_file(source) != digest:
+            raise WorkflowError(f"replay: call shard {rel} no longer matches its pinned sha256")
+        target = worktree_study / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source, target)
+        copied.append(rel)
+    return copied
+
+
+def _keep_requery_calls(
+    worktree_study: Path, study_dir: Path, run_id: str, stamp: str, dirs: Sequence[str]
+) -> list[str]:
+    """Keep the shards a re-query wrote beside its record (they are its evidence)."""
+    kept: list[str] = []
+    target_dir = study_dir / "runs" / run_id / "replications" / f"{stamp}-calls"
+    for directory in dirs:
+        for shard in sorted((worktree_study / directory).glob("*.jsonl.gz")):
+            target_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(shard, target_dir / shard.name)
+            kept.append((target_dir / shard.name).relative_to(study_dir).as_posix())
+    return kept
+
+
 def _run_replicate(
     study_dir: Path,
     contract: Mapping[str, Any],
@@ -886,6 +947,9 @@ def _run_replicate(
     log_path: Path,
     limit: float,
     echo: bool,
+    *,
+    mode: str = "replicate",
+    stamp: str = "",
 ) -> dict[str, Any]:
     """Re-execute the run in a detached worktree at its candidate commit."""
     repo = repo_root_for(study_dir)
@@ -914,6 +978,15 @@ def _run_replicate(
         _, data_fingerprint, copied_root = _copy_prepared_data(
             study_dir, worktree_study, contract, data_expected
         )
+        extra_env: dict[str, str] = {}
+        ledger_dirs = calls_dirs(contract)
+        if ledger_dirs and mode == "replay":
+            out["calls_copied"] = _copy_pinned_calls(study_dir, worktree_study, manifest, ledger_dirs)
+            extra_env["KLEIN_OFFLINE"] = "1"
+        elif ledger_dirs:
+            # A re-query: salt every call so the model is asked afresh, and keep
+            # what it answered beside the record.
+            extra_env["KLEIN_CALLS_NAMESPACE"] = f"rep:{run_id}@{stamp}"
         environment, environment_details = environment_fingerprint(worktree)
         setup = _prepare_environment(command, worktree, log_path, echo=echo)
         out.update(
@@ -927,15 +1000,34 @@ def _run_replicate(
         )
         if setup.failure_reason is None:
             started_at = utc_now()
-            process = run_logged(
-                command,
-                cwd=worktree_study,
-                log_path=log_path,
-                timeout_seconds=limit,
-                echo=echo,
-                env_overrides=_child_env(manifest, run_id, str(manifest.get("track"))),
-                append=setup.ran,
-            )
+            seeds = manifest.get("seeds")
+            child_env = {**_child_env(manifest, run_id, str(manifest.get("track"))), **extra_env}
+            if isinstance(seeds, list) and seeds:
+                # A seed-array run replicates as a seed array: every seed again.
+                process = run_seed_array(
+                    command,
+                    [int(s) for s in seeds],
+                    cwd=worktree_study,
+                    log_path=log_path,
+                    timeout_seconds=limit,
+                    echo=echo,
+                    env_overrides=child_env,
+                    append=setup.ran,
+                )
+            else:
+                process = run_logged(
+                    command,
+                    cwd=worktree_study,
+                    log_path=log_path,
+                    timeout_seconds=limit,
+                    echo=echo,
+                    env_overrides=child_env,
+                    append=setup.ran,
+                )
+            if ledger_dirs and mode == "replicate":
+                out["calls_kept"] = _keep_requery_calls(
+                    worktree_study, study_dir, run_id, stamp, ledger_dirs
+                )
             out.update(
                 started_at=started_at,
                 ended_at=utc_now(),
@@ -972,7 +1064,15 @@ def _run_replicate(
         )
         return out
     try:
-        primary, _name, _goal, metrics = parse_metric_log(log_path)
+        seeds = manifest.get("seeds")
+        if isinstance(seeds, list) and seeds:
+            primary, _name, _goal, metrics, _rows = parse_seed_array_log(
+                log_path, [int(s) for s in seeds]
+            )
+        else:
+            primary, _name, _goal, metrics = parse_metric_log(
+                log_path, scope=str(manifest.get("printed_scope", "log"))
+            )
     except WorkflowError as exc:
         out["replicate_block"] = {}
         out["failure_reason"] = str(exc)
@@ -1049,7 +1149,9 @@ def _run_verify(
         )
         return out
     try:
-        primary, _name, _goal, metrics = parse_metric_log(log_path)
+        primary, _name, _goal, metrics = parse_metric_log(
+            log_path, scope=str(manifest.get("printed_scope", "log"))
+        )
     except WorkflowError as exc:
         out["replicate_block"] = {}
         out["failure_reason"] = str(exc)

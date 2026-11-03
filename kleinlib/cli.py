@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -16,7 +17,8 @@ from .cli_stop import register as register_stop
 from .cli_sweep import register as register_sweep
 from .contract import KNOWN_KINDS, load_contract, mutable_surface
 from .noise_floor import add_recipe_arguments
-from .scaffold import scaffold_study
+from .recipes import RECIPES, apply_recipe, recipe_defaults
+from .scaffold import apply_runner, scaffold_study
 from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
 from .workflow import (
     WorkflowError,
@@ -48,7 +50,22 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--goal", help="one-sentence falsifiable study goal")
     new.add_argument("--domain", help="problem domain, e.g. insurance, optimization")
     new.add_argument("--target", help="target column (or 'synthetic' for known-truth labs)")
-    new.add_argument("--task-type", choices=("classification", "regression", "simulation", "scalar"), default="classification", help="evaluator shape for the study (scalar = known-truth labs and closed-form objectives; simulation is its schema-2 spelling)")
+    new.add_argument("--task-type", choices=("classification", "regression", "simulation", "scalar"), default=None, help="evaluator shape for the study (default: classification, or the recipe's; scalar = known-truth labs, closed-form objectives and item/benchmark scores; simulation is its schema-2 spelling)")
+    new.add_argument(
+        "--recipe",
+        choices=sorted(RECIPES),
+        help="a domain recipe (Klein 2.3): pre-fills kind / modality / profile / metric / split, "
+        "writes working example code on an offline default source and the 2.3 contract "
+        "blocks (printed block, seeds, policy). Explicit flags still win. Judgment stays "
+        "{{placeholders}} the gates refuse",
+    )
+    new.add_argument(
+        "--runner",
+        choices=("uv", "python"),
+        default="uv",
+        help="how the entrypoint is launched: `uv run --locked python` (default) or plain "
+        "`python` for hosts without uv (conda envs, Claude Science task environments)",
+    )
     new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
     new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
     new.add_argument(
@@ -102,7 +119,7 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--group-column", help="grouping column for split-kind=group")
     new.add_argument("--time-column", help="timestamp column for split-kind=time")
     new.add_argument("--split-seed", type=int, default=42, help="seed written into data.split (default: 42)")
-    new.add_argument("--max-run-seconds", type=int, default=600, help="hard per-run timeout enforced by run-one (default: 600)")
+    new.add_argument("--max-run-seconds", type=int, default=None, help="hard per-run timeout enforced by run-one (default: 600, or the recipe's)")
 
     gate = sub.add_parser("gate", help="record or explicitly override a gate")
     gate_sub = gate.add_subparsers(dest="gate_action", required=True)
@@ -189,6 +206,13 @@ def build_parser() -> argparse.ArgumentParser:
     _study_arg(recovery)
     status = sub.add_parser("status", help="show gates, frontiers, transactions, and sealed-test use")
     _study_arg(status)
+    status.add_argument("--json", action="store_true", help="machine-readable status")
+    nxt = sub.add_parser(
+        "next",
+        help="the ONE next action this study needs, with the exact command (read-only)",
+    )
+    _study_arg(nxt)
+    nxt.add_argument("--json", action="store_true", help="machine-readable output")
     final = sub.add_parser("finalize", help="mark findings exploratory or confirmed")
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
@@ -357,35 +381,48 @@ def main(argv: list[str] | None = None) -> int:
         if (handler := getattr(args, "handler", None)) is not None:
             return handler(args)  # a cli_<group> module's verb, dispatched generically
         if args.command_name == "new":
+            defaults: dict[str, object] = {}
+            if args.recipe:
+                if args.schema_version != 3:
+                    raise WorkflowError("--recipe scaffolds a schema-3 study")
+                defaults = recipe_defaults(args.recipe)
+            def pick(name: str, value: object, fallback: object = None) -> object:
+                return value if value is not None else defaults.get(name, fallback)
+            explicit_profile_doc = args.profile_doc is not None
             study = scaffold_study(
                 args.root,
                 args.slug,
                 goal=args.goal,
                 domain=args.domain,
-                target=args.target,
-                task_type=args.task_type,
+                target=pick("target", args.target),
+                task_type=pick("task_type", args.task_type, "classification"),
                 method_depth=args.method_depth,
-                family=args.family,
+                family=pick("family", args.family),
                 tracks=args.track,
-                metric_name=args.metric,
-                metric_goal=args.goal_direction,
+                metric_name=pick("metric_name", args.metric),
+                metric_goal=pick("metric_goal", args.goal_direction),
                 minimum_delta=args.minimum_delta,
-                data_source=args.data,
-                data_path=args.prepared_path,
-                split_kind=args.split_kind,
+                data_source=pick("data_source", args.data),
+                data_path=pick("data_path", args.prepared_path),
+                split_kind=pick("split_kind", args.split_kind),
                 split_seed=args.split_seed,
                 group_column=args.group_column,
                 time_column=args.time_column,
-                max_run_seconds=args.max_run_seconds,
+                max_run_seconds=pick("max_run_seconds", args.max_run_seconds, 600),
                 schema_version=args.schema_version,
-                kind=args.kind,
-                modality=args.modality,
-                profile=args.profile,
+                kind=pick("kind", args.kind),
+                modality=pick("modality", args.modality),
+                profile=None if explicit_profile_doc else pick("profile", args.profile),
                 profile_doc=args.profile_doc,
                 audience=args.audience,
             )
+            if args.recipe:
+                written = apply_recipe(study, args.recipe, split_seed=args.split_seed)
+                print(f"recipe {args.recipe}: wrote {', '.join(written)}")
+            if args.runner == "python":
+                apply_runner(study, "python")
             print(f"scaffolded {study}")
-            print(f"next: git switch -c experiments/{args.slug}")
+            print(f"next: git switch -c experiments/{args.slug}   # then: klein next --study {study}")
             return 0
         if args.command_name == "noise-floor":
             from .noise_floor import (
@@ -520,7 +557,21 @@ def main(argv: list[str] | None = None) -> int:
             print("recovered: " + (", ".join(recovered) if recovered else "none"))
             return 0
         if args.command_name == "status":
+            if args.json:
+                from .next_step import status_data
+
+                print(json.dumps(status_data(study), indent=2, sort_keys=True))
+                return 0
             print(status_summary(study), end="")
+            return 0
+        if args.command_name == "next":
+            from .next_step import format_next, next_step
+
+            result = next_step(study)
+            if args.json:
+                print(json.dumps(result, indent=2, sort_keys=True))
+            else:
+                print(format_next(result), end="")
             return 0
         if args.command_name == "finalize":
             label = finalize(

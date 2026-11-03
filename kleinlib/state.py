@@ -35,6 +35,7 @@ from .contract import (
     schema_version,
     split_fingerprint,
 )
+from .contract import policy as contract_policy
 from .decision import _headroom_context, _incumbent, _seed_external_incumbent
 from .errors import WorkflowError
 from .events import append_event
@@ -267,6 +268,14 @@ def _freeze_split(study_dir: Path, contract: Mapping[str, Any], state: dict[str,
 
         frozen.update(partition_fingerprints(study_dir))
     except Exception as exc:  # noqa: BLE001 — any prepare-side failure is a note
+        if contract_policy(contract, "realized_split") == "required":
+            # Klein 2.3 opt-in: a study that declared it needs a realized split
+            # check never proceeds on "partition not verified".
+            raise WorkflowError(
+                "policy.realized_split: required — the realized split could not be "
+                f"computed ({type(exc).__name__}: {exc}); fix prepare.py / data.split "
+                "(an image or text study declares data.split.index) before recording DATA"
+            ) from exc
         frozen["note"] = (
             f"[WARN] realized split fingerprints not recorded ({type(exc).__name__}: {exc}); "
             "run-one will proceed with a printed notice instead of comparing"
@@ -351,6 +360,34 @@ def referee_gate(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
     ):
         return entry
     return None
+
+
+def required_card_sections(contract: Mapping[str, Any]) -> tuple[str, ...]:
+    """Headings ``data_card.md`` must carry under ``policy.card_sections: enforce``."""
+    from .schema import MODALITY_CARD_SECTIONS, POLICY_CARD_SECTIONS, PROFILE_CARD_SECTIONS
+
+    data = contract.get("data")
+    modality = str(data.get("modality")) if isinstance(data, Mapping) else "tabular"
+    profile = str(contract.get("profile") or "")
+    return (
+        *MODALITY_CARD_SECTIONS.get(modality, ()),
+        *POLICY_CARD_SECTIONS.get(modality, ()),
+        *PROFILE_CARD_SECTIONS.get(profile, ()),
+    )
+
+
+def missing_card_sections(contract: Mapping[str, Any], card_text: str) -> list[str]:
+    """Required headings absent from the card (a markdown heading line containing the name)."""
+    headings = [
+        line.lstrip("#").strip().lower()
+        for line in card_text.splitlines()
+        if line.lstrip().startswith("#")
+    ]
+    return [
+        name
+        for name in required_card_sections(contract)
+        if not any(name.lower() in heading for heading in headings)
+    ]
 
 
 def record_gate(
@@ -481,6 +518,16 @@ def record_gate(
                         "gate only makes it explicit)."
                     )
         if gate == "data":
+            if contract_policy(contract, "card_sections") == "enforce":
+                missing = missing_card_sections(
+                    contract, (study_dir / "data_card.md").read_text(encoding="utf-8")
+                )
+                if missing:
+                    raise WorkflowError(
+                        "policy.card_sections: enforce — data_card.md lacks the heading(s) "
+                        + ", ".join(repr(name) for name in missing)
+                        + " its modality/profile requires (references/data-gate-protocol.md)"
+                    )
             if override_reason is None:
                 text = (study_dir / "data_card.md").read_text(encoding="utf-8")
                 plain = re.sub(r"[>*_`#]", "", text)

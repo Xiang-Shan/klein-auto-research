@@ -233,6 +233,65 @@ def _has_chance_scorer(spec) -> bool:
     )
 
 
+#: Multiclass metrics (``kleinlib.eval_multiclass``).  Their chance rows are
+#: audited on BALANCED ACCURACY, whose no-information value is exactly 1/K for a
+#: constant predictor and ~1/K for a label-shuffled one, whatever the track's own
+#: primary metric is.
+MULTICLASS_METRICS = frozenset(
+    {"val_accuracy", "val_balanced_accuracy", "val_macro_f1", "val_top5_accuracy",
+     "val_mlogloss", "val_ece"}
+)
+
+
+def _multiclass_chance_checks(
+    track: str,
+    parts: tuple,
+    *,
+    rng: np.random.Generator,
+    shuffled_predictor: ShuffledPredictor | None,
+    margin: float,
+) -> list[Check]:
+    from .eval_multiclass import multiclass_metrics
+
+    X_tr, X_dev, _X_te, y_tr, y_dev, _y_te = parts
+    labels = sorted(set(np.asarray(y_tr).tolist()) | set(np.asarray(y_dev).tolist()), key=str)
+    k = len(labels)
+    if k < 2:
+        return [Check(f"chance-level[{track}]", False, "fewer than two classes in train + development")]
+    chance = 1.0 / k
+    majority = pd.Series(np.asarray(y_tr)).value_counts().index[0]
+    constant = np.full(len(y_dev), majority, dtype=object)
+    if shuffled_predictor is None:
+        shuffled = rng.permutation(np.asarray(y_dev, dtype=object))
+    else:
+        y_shuffled = pd.Series(rng.permutation(np.asarray(y_tr)), index=y_tr.index, name=y_tr.name)
+        shuffled = np.asarray(shuffled_predictor(X_tr, y_shuffled, X_dev), dtype=object)
+    out: list[Check] = []
+    for label, pred in (("constant", constant), ("label-shuffled", shuffled)):
+        name = f"{'constant' if label == 'constant' else 'shuffled'}-chance[{track}]"
+        try:
+            if label == "constant":
+                # A constant predictor's balanced accuracy is 1/K by construction.
+                truth = np.asarray(y_dev, dtype=object)
+                recalls = [float(np.mean(pred[truth == c] == c)) for c in labels if np.any(truth == c)]
+                value = float(np.mean(recalls))
+            else:
+                value = multiclass_metrics(
+                    np.asarray(y_dev, dtype=object), y_pred=pred, labels=labels
+                )[0]["val_balanced_accuracy"]
+        except (RuntimeError, ValueError) as exc:
+            out.append(Check(name, False, f"cannot score balanced accuracy: {exc}"))
+            continue
+        ok = abs(value - chance) <= margin
+        verdict = "" if ok else " — the harness is leaking labels"
+        out.append(Check(
+            name, ok,
+            f"balanced accuracy {value:.4f} for the {label} predictor vs chance 1/K = {chance:.4f} "
+            f"(margin {margin:g}){verdict}",
+        ))
+    return out
+
+
 def _chance_check(name: str, spec, value: float, *, baseline: float | None,
                   margin: float) -> Check:
     anchor = CHANCE_ANCHORS.get(spec.name)
@@ -299,6 +358,14 @@ def _track_checks(contract: Mapping[str, Any], parts: tuple | None, *,
         checks.append(Check(f"metric-direction[{track}]", True, direction_message))
         if parts is None:
             checks.append(Check(f"chance-level[{track}]", True, no_parts_reason))
+            continue
+        if spec.name in MULTICLASS_METRICS:
+            checks.extend(
+                _multiclass_chance_checks(
+                    track, parts, rng=rng, shuffled_predictor=shuffled_predictor,
+                    margin=chance_margin,
+                )
+            )
             continue
         if not _has_chance_scorer(spec):
             checks.append(Check(
@@ -536,10 +603,111 @@ def _index_time_check(
     return Check("time-order", True, f"partitions are ordered in time — {shown}")
 
 
+def _derive_split_column(index: pd.DataFrame, study: Path) -> pd.DataFrame:
+    """Give an index without a ``split`` column the partitions the CONTRACT realizes.
+
+    Klein 2.3 index studies (``data.split.index``) never write a ``split`` column
+    of their own: the contract IS the split.  Auditing a column a script wrote
+    would audit the script; deriving it from :func:`kleinlib.data.contract_split`
+    audits the partitions every run is held to.
+    """
+    from .data import contract_split
+
+    X_tr, X_dev, X_te, *_ = contract_split(study)
+    labels: dict[str, str] = {}
+    for name, part in (("train", X_tr), ("development", X_dev), ("test", X_te)):
+        for item in part.index:
+            labels[str(item)] = name
+    out = index.copy()
+    out["split"] = [labels.get(str(item), "") for item in out["id"]]
+    return out
+
+
+def _near_dup_checks(
+    index: pd.DataFrame,
+    positions: Mapping[str, np.ndarray],
+    *,
+    kind: str,
+    payload: str | Path | None,
+    text_column: str | None,
+    against: str | Path | None,
+    threshold: float | None,
+    max_rate: float,
+) -> list[Check]:
+    from . import neardup
+
+    checks: list[Check] = []
+    train = positions.get("train", np.array([], dtype=int))
+    held = {name: positions[name] for name in ("development", "test") if positions.get(name) is not None}
+    if kind == "image":
+        if payload is None:
+            return [Check("near-duplicates (image)", False, "--payload <images.npy> is required")]
+        images = np.load(payload, mmap_mode="r")
+        if len(images) != len(index):
+            return [
+                Check(
+                    "near-duplicates (image)",
+                    False,
+                    f"payload has {len(images)} images but the index has {len(index)} rows "
+                    "(row i of the payload must be the item of index row i)",
+                )
+            ]
+        bits = int(threshold if threshold is not None else neardup.DEFAULT_THRESHOLD)
+        hashes = neardup.dhash_many(np.asarray(images))
+        for name, pos in held.items():
+            report = neardup.cross_partition_image_dups(hashes[pos], hashes[train], threshold=bits)
+            checks.append(
+                Check(
+                    f"near-duplicates (image, {name} vs train)",
+                    report.rate <= max_rate,
+                    f"{report.hits}/{report.query_n} {name} images ({report.rate:.2%}) have a train "
+                    f"image within {bits} bits of dHash (max rate {max_rate:.2%})",
+                )
+            )
+        return checks
+    if kind == "text":
+        if not text_column or text_column not in index.columns:
+            return [Check("near-duplicates (text)", False, "--text-column naming an index column is required")]
+        n = int(threshold if threshold is not None else neardup.DEFAULT_NGRAM)
+        texts = index[text_column].astype(str).tolist()
+        reference = [texts[i] for i in train]
+        for name, pos in held.items():
+            report = neardup.text_contamination([texts[i] for i in pos], reference, n=n)
+            checks.append(
+                Check(
+                    f"near-duplicates (text, {name} vs train)",
+                    report.rate <= max_rate,
+                    f"{report.hits}/{report.query_n} {name} items ({report.rate:.2%}) share a "
+                    f"{n}-gram with train (max rate {max_rate:.2%})",
+                )
+            )
+        if against is not None:
+            pool_path = Path(against)
+            pool = [line for line in pool_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+            evaluated = np.concatenate([pos for pos in held.values()]) if held else np.array([], dtype=int)
+            report = neardup.text_contamination([texts[i] for i in evaluated], pool, n=n)
+            checks.append(
+                Check(
+                    f"contamination (text vs {pool_path.name})",
+                    report.rate <= max_rate,
+                    f"{report.hits}/{report.query_n} evaluated items ({report.rate:.2%}) share a "
+                    f"{n}-gram with {pool_path.name} ({len(pool)} lines; max rate {max_rate:.2%})",
+                )
+            )
+        return checks
+    return [Check("near-duplicates", False, f"unknown --near-dup kind {kind!r} (image | text)")]
+
+
 def audit_index(
     index_path: str | Path,
     *,
     study_dir: str | Path,
+    near_dup: str | None = None,
+    payload: str | Path | None = None,
+    text_column: str | None = None,
+    against: str | Path | None = None,
+    threshold: float | None = None,
+    max_rate: float = 0.0,
 ) -> list[Check]:
     """Audit a SPLIT INDEX TABLE — the modality-agnostic form of checklist row 3.
 
@@ -556,8 +724,22 @@ def audit_index(
     an index does not carry, so its rows report N/A with that reason while the
     metric-direction row still runs off the contract.
     """
-    contract = load_contract(resolve_study(study_dir))
-    index = load_prepared(index_path).reset_index(drop=True)
+    study = resolve_study(study_dir)
+    contract = load_contract(study)
+    from .data import _read_index
+
+    split_block = (contract.get("data") or {}).get("split") if isinstance(contract.get("data"), Mapping) else None
+    id_column = (split_block or {}).get("id_column") if isinstance(split_block, Mapping) else None
+    # Ids are read as TEXT: "007" and "7" are different items.
+    index = _read_index(Path(index_path), str(id_column or "id")).reset_index(drop=True)
+    if id_column and id_column != "id" and id_column in index.columns and "id" not in index.columns:
+        index = index.rename(columns={id_column: "id"})
+    if "split" not in index.columns and isinstance(split_block, Mapping) and (
+        split_block.get("index") or split_block.get("kind") == "predefined"
+    ):
+        index = _derive_split_column(index, study)
+    elif "split" not in index.columns and isinstance(split_block, Mapping) and split_block.get("split_column") in index.columns:
+        index = index.rename(columns={split_block["split_column"]: "split"})
     positions, shape = _index_shape_check(index)
     checks = [shape]
     if positions is None:
@@ -578,6 +760,17 @@ def audit_index(
             "checklist row 4 from the study's own evaluation path"
         ),
     )
+    if near_dup:
+        checks += _near_dup_checks(
+            index,
+            positions,
+            kind=near_dup,
+            payload=payload,
+            text_column=text_column,
+            against=against,
+            threshold=threshold,
+            max_rate=max_rate,
+        )
     return checks
 
 
@@ -599,6 +792,30 @@ def main(argv: list[str] | None = None) -> int:
         "for any modality whose items are not rows of a frame",
     )
     parser.add_argument("--study", required=True, help="study directory containing study.yaml")
+    parser.add_argument(
+        "--near-dup",
+        choices=("image", "text"),
+        help="(index mode) add the cross-partition near-duplicate audit: image = dHash on "
+        "--payload, text = word n-gram overlap on --text-column",
+    )
+    parser.add_argument("--payload", help="(image) .npy array whose row i is index row i's image")
+    parser.add_argument("--text-column", help="(text) the index column holding each item's text")
+    parser.add_argument(
+        "--against",
+        help="(text) a pool file, one item per line (few-shot exemplars, prompt templates): "
+        "evaluated items sharing an n-gram with it are contaminated",
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        help="image: max dHash bits apart (default 4); text: n-gram length (default 13)",
+    )
+    parser.add_argument(
+        "--max-rate",
+        type=float,
+        default=0.0,
+        help="near-duplicate rate above which the row FAILs (default 0: state any you accept)",
+    )
     parser.add_argument("--chance-margin", type=float, default=0.15,
                         help="tolerance around chance (default 0.15)")
     parser.add_argument("--seed", type=int, default=0,
@@ -612,7 +829,16 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--target is required in dataframe mode")
     try:
         if args.index:
-            checks = audit_index(args.index, study_dir=args.study)
+            checks = audit_index(
+                args.index,
+                study_dir=args.study,
+                near_dup=args.near_dup,
+                payload=args.payload,
+                text_column=args.text_column,
+                against=args.against,
+                threshold=args.threshold,
+                max_rate=args.max_rate,
+            )
         else:
             checks = audit_split(args.prepared, target=args.target, study_dir=args.study,
                                  chance_margin=args.chance_margin, seed=args.seed)

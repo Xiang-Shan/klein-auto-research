@@ -184,10 +184,18 @@ def derive_results(study_dir: Path) -> str:
 
 
 
-def artifact_inventory(study_dir: Path) -> dict[str, dict[str, Any]]:
+def artifact_inventory(
+    study_dir: Path, extra_dirs: tuple[str, ...] = ()
+) -> dict[str, dict[str, Any]]:
+    """Hash every file the notary watches: ``models/``, ``figures/``, the aux sidecar.
+
+    ``extra_dirs`` (Klein 2.3) adds study-relative directories a contract declares
+    — the model-call ledger's ``calls/`` — so files a run writes there are pinned
+    and committed for EVERY exit status, a crashed run included.
+    """
     inventory: dict[str, dict[str, Any]] = {}
     candidates: list[Path] = []
-    for dirname in ("models", "figures"):
+    for dirname in ("models", "figures", *extra_dirs):
         root = study_dir / dirname
         if root.exists():
             candidates.extend(p for p in root.rglob("*") if p.is_file())

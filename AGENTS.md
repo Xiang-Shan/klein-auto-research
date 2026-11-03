@@ -102,11 +102,12 @@ this same table routed as the `/klein` skill.)
 | METHOD | `references/method-gate-protocol.md` | method_card.md, references.yaml, the verifier script | — |
 | EXPERIMENT | loop contract below + `SKILL.md` Hard Rules; `references/registered-mode.md` | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one [--tests P#]`; `klein run-one --final-test --dry-run` before every sealed run |
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction; measurement sweeps registered as `sweep:<name>` | `kleinlib.sweep.SweepRunner`, `klein sweep register` |
-| REPLICATE (any time after a run) | `references/replication-protocol.md` | `runs/E####/replications/<ts>.json` | `klein replicate E#### [--verify-only]` |
+| REPLICATE (any time after a run) | `references/replication-protocol.md` | `runs/E####/replications/<ts>.json` | `klein replicate E#### [--verify-only \| --replay]` |
+| MODEL CALLS (studies that query a model) | `references/model-calls-protocol.md` | `calls/E####-NNN.jsonl.gz`, `manifest.usage` | `kleinlib.calls.CallLedger`; `klein replicate --replay` |
 | SYNTHESIZE | `references/synthesis-protocol.md` + `references/claims-protocol.md` | findings.md, claims.lock | `.claude/skills/klein/scripts/summarize_results.py`, `klein predict list`, `klein claims …` |
 | REFEREE | `references/referee-protocol.md` | referee_report.md | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after |
 | TUTORIAL | `references/tutorial-spec.md` + `references/profiles/<profile>.md` | report/index.html | `.claude/skills/klein/scripts/build_tutorial.py`, `figures/make_figures.py` |
-| status / verify (any time) | — | results_summary.md, progress.svg, verify_receipt.json | `klein status`, `klein verify`, `summarize_results.py` |
+| status / next / verify (any time) | — | results_summary.md, progress.svg, verify_receipt.json | `klein next` (the one next action, read-only), `klein status [--json]`, `klein verify`, `summarize_results.py` |
 
 (`references/…` paths above live under `.claude/skills/klein/`; a bare `scripts/…`
 path means the repo root. Every helper is a plain CLI:
@@ -120,7 +121,7 @@ the track mode, what "sealed" means, what confirmation requires
 (`confirmation.require ⊆ {sealed, replicate, verify}`), and the strength a claim can
 reach. **`modality`** is the evidence source — `tabular | timeseries | image |
 sequence | graph | text | simulation | none` — and selects the data-gate card.
-**`profile`** is the audience — `generic | ml-research | math | insurance`, or a
+**`profile`** is the audience — `generic | ml-research | math | insurance | llm | cv | data-science`, or a
 repo-local `profile_doc` — and changes headings, doctrine anchors, figure sets,
 budgets and banned words, never what the engine checks. Five objects thread through
 every study: a Question, a Prediction (registered, with a rule), Evidence (manifests,
@@ -249,6 +250,9 @@ The standing rules around those layers:
   when one is declared): `wall_seconds` is printed by every evaluator; any other
   declared key must be printed via `evaluate*(..., extra={...})` — `klein preflight`
   warns when a declared key is neither auto-printed nor named in the study's sources.
+  `entrypoint.printed: block` (Klein 2.3, opt-in) reads the metric block only from the
+  last line that is exactly `---` to the end of the log, so training chatter cannot
+  crash or pollute a run; the manifest records the scope and replication follows it.
 - Everything that is not the one primary metric goes to `aux_metrics.tsv` in long
   format (`experiment  metric  value`), never into extra results columns; tables a
   cell produces are pinned with `artifact:` lines and cited as `art:<alias>`.
@@ -318,9 +322,12 @@ protocols always spell out both paths.
   here.
 - **Model backends.** Any driver above runs over any backend that speaks its
   protocol — a subscription agent CLI, or a **local model** behind an
-  OpenAI-compatible or Anthropic-Messages-compatible server. Klein itself calls no
-  model APIs and requires no API keys — the framework is plain Python + git; the
-  driving agent brings its own model.
+  OpenAI-compatible or Anthropic-Messages-compatible server. No Klein verb calls a
+  model API or needs an API key — the framework is plain Python + git; the driving
+  agent brings its own model. A study's ENTRYPOINT may query a model (an LLM
+  evaluation, an LLM proposer judged by a verifier) through the call ledger
+  (`references/model-calls-protocol.md`), which pins every request and response so
+  the study re-verifies offline.
 - **No agent at all**: follow the stage map by hand — each protocol is a
   human-readable runbook and each helper is a plain CLI.
 

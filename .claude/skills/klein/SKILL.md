@@ -44,7 +44,7 @@ accelerators; a solo session follows the protocols directly.
 | `synthesize` | Mine trajectory + predictions ledger → 7-section findings + claims.lock | `references/synthesis-protocol.md`, `references/claims-protocol.md` | `klein predict list`, `klein claims init\|pin\|number\|add\|verify`; generation-enabled: `klein generation label` (after both verifies pass at one HEAD) and `klein generation knowledge promote\|contest\|resolve` | klein-synthesist |
 | `referee` | Gate 3: fresh context, different model; verifiers + ten-check rubric → referee_report.md | `references/referee-protocol.md` | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after; generation-enabled: read `generation/verify_receipt.json` and `generation/label.json` and write the report's `Generation:` line — never re-derive a machine verdict | klein-referee |
 | `tutorial` | Build self-contained teaching HTML, numbers from the lock | `references/tutorial-spec.md`, `references/profiles/<profile>.md` | — (`.claude/skills/klein/scripts/build_tutorial.py`) | klein-tutor |
-| `status` | Summarize results, predictions, evidence use | `.claude/skills/klein/scripts/summarize_results.py` | `klein status`; `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation-protocol.md`) | — |
+| `status` | Summarize results, predictions, evidence use — and name the next action | `.claude/skills/klein/scripts/summarize_results.py` | `klein next` (read-only: the stage, what is done, the ONE next action and its exact command); `klein status [--json]`; `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation-protocol.md`) | — |
 
 War stories behind the guards: `references/war-stories.md`. Schema authority:
 `kleinlib/schema.py` — never restate columns anywhere. The five objects and three axes
@@ -244,6 +244,14 @@ The workflow runs one unbuffered subprocess, streams and stores its output, enfo
 process group on timeout, runs the declared verifier as a second subprocess, and
 records crashes. Never use a `command | tee` pipeline. A printed `split_fingerprint:`
 that differs from the one frozen at the DATA gate is a crash by design.
+
+**Where the metrics are read from.** By default every `key: value` line of the whole
+log is a metric (the rule every pre-2.3 study was judged under). A study that declares
+`entrypoint.printed: block` has its metrics read only from the final canonical block —
+the last line that is exactly `---` to the end — so a training loop may print
+`epoch: 3` or `loss: nan` freely; `split_fingerprint`, `artifact` and `sealed_dryrun`
+are read from the whole log either way, and the run's manifest records the scope it
+was judged under. New studies scaffolded by `klein new --recipe …` declare it.
 
 ### 3. Gates and acknowledgements are machine state
 

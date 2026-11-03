@@ -19,6 +19,7 @@ from .contract import _guardrail_entries
 from .errors import WorkflowError
 
 __all__ = [
+    "BLOCK_OPENER",
     "COMBINATOR_KEYS",
     "INCONCLUSIVE",
     "MAX_RULE_DEPTH",
@@ -29,6 +30,7 @@ __all__ = [
     "SUPPORTED",
     "VALID_VERDICTS",
     "adjudicate",
+    "block_lines",
     "choose_disposition",
     "evaluate_rule",
     "parse_metric_log",
@@ -378,12 +380,54 @@ def adjudicate(
     return evaluate_rule(rule, printed)
 
 
-def parse_metric_log(path: Path) -> tuple[float, str | None, str | None, dict[str, float]]:
+#: The canonical block's opening line (``kleinlib.eval._print_canonical_block``).
+BLOCK_OPENER = "---"
+
+
+def block_lines(lines: list[str]) -> list[str] | None:
+    """The lines of the LAST canonical block: after the last line that is exactly ``---``.
+
+    ``--- aux_metrics ---`` and the runner footer (``runner_status:``) sit after the
+    opener and stay inside the block.  ``None`` when no opener was printed.
+    """
+    start: int | None = None
+    for index, line in enumerate(lines):
+        if line.rstrip() == BLOCK_OPENER:
+            start = index
+    if start is None:
+        return None
+    return lines[start + 1 :]
+
+
+def parse_metric_log(
+    path: Path, *, scope: str = "log"
+) -> tuple[float, str | None, str | None, dict[str, float]]:
+    """``(primary, metric_name, metric_goal, metrics)`` from a run log.
+
+    ``scope="log"`` (every study before Klein 2.3, and the default) reads every
+    ``key: value`` line of the whole log — frozen by
+    ``kleinlib/tests/test_legacy_parse_golden.py``.  ``scope="block"``
+    (``entrypoint.printed: block``) reads only the final canonical block, so a
+    training line such as ``loss: nan`` or ``epoch: 3`` printed before it is
+    neither a crash nor a metric; a block-scoped log with no ``---`` opener is a
+    crash.
+    """
+    if scope not in {"log", "block"}:
+        raise ValueError(f"scope must be 'log' or 'block', got {scope!r}")
     primary: float | None = None
     metric_name: str | None = None
     metric_goal: str | None = None
     metrics: dict[str, float] = {}
-    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+    lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
+    if scope == "block":
+        scoped = block_lines(lines)
+        if scoped is None:
+            raise WorkflowError(
+                "block-scoped run printed no canonical block: no line is exactly "
+                f"{BLOCK_OPENER!r} (entrypoint.printed: block reads metrics only after it)"
+            )
+        lines = scoped
+    for line in lines:
         match = METRIC_LINE_RE.match(line)
         if not match:
             continue
@@ -689,3 +733,97 @@ def _enforce_headroom(
             else "; on_infeasible: warn"
         )
         print(f"[headroom] {detail}{suffix}")
+
+
+# ---------------------------------------------------------------------------
+# Seed arrays (Klein 2.3): one candidate = N seeds, one aggregated block
+# ---------------------------------------------------------------------------
+
+#: The header the notary writes into run.log before each seed's output.
+SEED_HEADER_RE = re.compile(r"^\[KLEIN\] seed (\d+)/(\d+) \(KLEIN_SEED=(-?\d+)\)\s*$")
+
+
+def seed_segments(path: Path) -> list[tuple[int, list[str]]]:
+    """``[(seed, lines)]`` — the log split at each seed header the notary wrote."""
+    segments: list[tuple[int, list[str]]] = []
+    current: list[str] | None = None
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = SEED_HEADER_RE.match(line)
+        if match:
+            current = []
+            segments.append((int(match.group(3)), current))
+        elif current is not None:
+            current.append(line)
+    return segments
+
+
+def parse_seed_array_log(
+    path: Path, seeds: Sequence[int]
+) -> tuple[float, str | None, str | None, dict[str, float], list[dict[str, Any]]]:
+    """Aggregate one block per seed into the run's block.
+
+    Every seed's final canonical block is parsed (block scope); the run's
+    ``primary_metric`` is the MEAN over seeds and every key printed by every seed
+    is averaged too; ``primary_metric_std`` / ``_min`` / ``_max`` and ``seeds_n``
+    are added.  A seed that printed no block, a different ``metric_name``, or a
+    different ``split_fingerprint`` makes the whole run a crash — an array whose
+    members measured different things is not one measurement.
+    """
+    segments = seed_segments(path)
+    found = [seed for seed, _ in segments]
+    if found != [int(s) for s in seeds]:
+        raise WorkflowError(f"seed array: expected seeds {list(seeds)} in the log, found {found}")
+    per_seed: list[dict[str, Any]] = []
+    names: set[str | None] = set()
+    goals: set[str | None] = set()
+    fingerprints: set[str] = set()
+    for seed, lines in segments:
+        block = block_lines(lines)
+        if block is None:
+            raise WorkflowError(f"seed {seed} printed no canonical block (no line is exactly '---')")
+        metrics: dict[str, float] = {}
+        name = goal = None
+        for line in block:
+            match = METRIC_LINE_RE.match(line)
+            if not match:
+                continue
+            key, raw = match.groups()
+            if key == "metric_name":
+                name = raw
+                continue
+            if key == "metric_goal":
+                goal = raw
+                continue
+            try:
+                value = float(raw)
+            except ValueError:
+                continue
+            if not math.isfinite(value):
+                raise WorkflowError(f"seed {seed}: non-finite metric in its block: {key}={raw}")
+            metrics[key] = value
+        if "primary_metric" not in metrics:
+            raise WorkflowError(f"seed {seed} completed without a finite primary_metric")
+        for line in lines:
+            match = METRIC_LINE_RE.match(line)
+            if match and match.group(1) == "split_fingerprint":
+                fingerprints.add(match.group(2))
+        names.add(name)
+        goals.add(goal)
+        per_seed.append({"seed": seed, **metrics})
+    if len(names) != 1 or len(goals) != 1:
+        raise WorkflowError(f"seed array: seeds printed different metric names/goals {sorted(map(str, names))}")
+    if len(fingerprints) > 1:
+        raise WorkflowError(
+            "split_fingerprint_mismatch: the seeds of one array measured different partitions"
+        )
+    common = set.intersection(*(set(row) - {"seed"} for row in per_seed))
+    aggregate = {key: float(sum(row[key] for row in per_seed) / len(per_seed)) for key in sorted(common)}
+    values = [row["primary_metric"] for row in per_seed]
+    mean = aggregate["primary_metric"]
+    aggregate["primary_metric_std"] = (
+        float(math.sqrt(sum((v - mean) ** 2 for v in values) / (len(values) - 1))) if len(values) > 1 else 0.0
+    )
+    aggregate["primary_metric_min"] = float(min(values))
+    aggregate["primary_metric_max"] = float(max(values))
+    aggregate["seeds_n"] = float(len(values))
+    return mean, names.pop(), goals.pop(), aggregate, per_seed

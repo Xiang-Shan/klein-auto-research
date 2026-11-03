@@ -69,6 +69,13 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
         "in a fresh process (no worktree, no search re-run); records mode: verify",
     )
     parser.add_argument(
+        "--replay",
+        action="store_true",
+        help="call-ledger studies (Klein 2.3): re-run OFFLINE against the run's pinned model "
+        "answers (exact; evidence id replay:E####@<ts>). Re-derives the pipeline, says "
+        "nothing about the model — never satisfies confirmation.require: [replicate]",
+    )
+    parser.add_argument(
         "--list",
         action="store_true",
         dest="list_records",
@@ -100,6 +107,7 @@ def _run(args: argparse.Namespace) -> int:
         args.experiment,
         tolerance=args.tolerance,
         verify_only=args.verify_only,
+        replay=args.replay,
         timeout_seconds=args.timeout_seconds,
         echo=not args.quiet,
     )
