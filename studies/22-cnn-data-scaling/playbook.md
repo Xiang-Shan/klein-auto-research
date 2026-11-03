@@ -10,6 +10,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
+| primary (registered, no incumbent) | cells measured so far: E0001 N=500 | val_mlogloss 0.8296 (sd 0.035) | detached 3-seed array | - |
 
 ## Ruled out (evidence, not opinion)
 

@@ -152,3 +152,4 @@ Order chosen: ascending N (cheapest first, fail-fast on the detached path). All 
 required by the fit phase, so none is dropped. No cell adjudicates a prediction.
 
 ### Cell journal
+- 2026-11-03 — E0001 N 500 mean 0.8296 sd(ddof1) 0.0349 seeds [0.853675, 0.789615, 0.845652] best_step [400, 400, 350] wall 110.965 detached False 4 cpu x86_64 measured; hardware: 4-cpu x86_64 Linux VM, no GPU, torch 2.13 cpu path; local-executor worktree, attested (observed_by_notary false).
