@@ -21,17 +21,22 @@ related: [program.md, playbook.md, data_card.md, method_card.md, scouting_ledger
 randomised-out controls give an experimental ATT of 1794.34 (1982 dollars) for the 185
 trainees. Nine run ids (seven measured cells and two driver crashes) asked three questions of it. Do the published numbers come back
 out of the authors' own files? Mostly: 9 of 11 development targets and 3 of 5 sealed
-CPS-1 targets reproduce within ±1, and the four misses trace to one inconsistency in
-the paper's own Table 3 as transcribed from the working paper, found at METHOD before
-any cell ran (**[C1]**, **[C26]**). How
+CPS-1 targets reproduce within ±1, and the four misses are exactly the comparison-group
+adjusted values and their standard errors, against targets transcribed from the working
+paper alone (**[C30]**, **[C26]**). The likeliest reason, an exploratory reading found at
+METHOD before any cell ran, is that the working paper's Table 3 mixes two Table 2 columns
+(**[C10]**). How
 far does a naive contrast miss? By more than the benchmark itself, with the wrong sign:
 -15204.78 against PSID-1 (**[C2]**). Do 1999-vintage propensity-score estimators
 recover the benchmark? On PSID-1 one of three lands within $1000 (AIPW, gap +889.48);
 IPW and 1-NN matching miss by almost the same amount on opposite sides (**[C23]**,
-**[C11]**). Carried unchanged to the sealed CPS-1 lane, the selected AIPW lands at a gap
-of -466.80 (**[C5]**). That last number is one sealed draw under one specification,
-inside a bootstrap interval that also contains zero: it is consistency with the
-benchmark, not evidence that selection on observables holds.
+**[C11]**). Carried to the sealed CPS-1 lane with its specification unchanged (the
+covariate list fixed, the models re-fit), the selected AIPW lands at a gap of -466.80
+(**[C29]**). That gap is one sealed draw under one specification. The bootstrap range
+behind it, [-129.17, 2835.62], is a range for the ATT estimate, not for the gap (scope
+item 2), and it includes zero, so the estimate itself is not distinguished from no
+effect. The result is consistency with the benchmark, not evidence that selection on
+observables holds.
 
 **Scope — read before any claim.**
 
@@ -83,8 +88,8 @@ benchmark, not evidence that selection on observables holds.
    hand, not by the record (erratum E5, **[C27]**). They establish that the pipeline is
    deterministic, not that the results are stable under other code, seeds or
    specifications. Neither sealed cell (E0008, E0009) was re-executed, so the
-   `confirmed` strength of **[C5]** and of the sealed half of **[C1]**, **[C2]** and
-   **[C26]** means a sealed run plus a re-execution of a development cell of the same
+   `confirmed` strength of **[C5]**/**[C29]** and of the sealed half of **[C1]**/**[C30]**,
+   **[C2]** and **[C26]** means a sealed run plus a re-execution of a development cell of the same
    pipeline, not a reproduced sealed value (erratum E6).
 7. **Where the targets come from.** Every published value was transcribed from the NBER
    working paper (`ref:dehejia1998nber`, `w6586`). The JASA article text was not
@@ -93,7 +98,14 @@ benchmark, not evidence that selection on observables holds.
    transcription (the profile's replicate hint asks for two). **[C6]**'s locked sentence
    states that reading at `confirmed`; erratum E4 downgrades it to exploratory, and the
    confirmed statement is now **[C26]**, which asserts only the measured equalities and
-   misses. The editorial reading itself is **[C10]**, exploratory.
+   misses. The editorial reading itself is **[C10]**, exploratory. The same single source
+   stands behind every registered target that **[C1]** compares against (731, 886, 972,
+   550 among them): **[C1]**'s locked sentence does not say so, so erratum E9 tags it and
+   **[C30]** restates it with the source named. **[C30]** and **[C26]** stay `confirmed`
+   because they assert measured values set against the registered targets as
+   transcribed; **[C6]** was downgraded because it asserted which Table 2 column the
+   paper printed, the editorial reading. A transcription error in a target would read
+   as a miss, and only a second source can rule that out (⑦, item 4).
 8. **Two budget re-records, both before the evidence they enabled, neither touching a
    prediction, rule, target or cell.** `estimators.max_experiments` 4 → 6 after the two
    crashes; `max_run_seconds` and the att `wall_seconds` guardrail 900 → 10800 and the
@@ -108,11 +120,16 @@ benchmark, not evidence that selection on observables holds.
    the claim-sentence scan by the law's own "k of n" rule, not by these pins, and each is
    traced in its sentence's evidence; a referee checking small integers by hand should
    not count a name pin as a source for any of them.
-10. **Re-scoping at the repair (2026-11-03).** An adversarial check after the first
+10. **Re-scoping at the repairs (2026-11-03).** An adversarial check after the first
    lock found six defects; they were fixed by errata E1-E6 and the superseding claims
-   **[C22]**-**[C27]**, never by rewriting a locked sentence (`claims-protocol.md`,
-   errata re-scope). Each original claim keeps its locked sentence below, tagged with
-   its erratum.
+   **[C22]**-**[C27]**. A second check found further defects, fixed by errata E7-E9 and
+   the superseding claims **[C28]**-**[C30]**, plus **[C31]**, which gives the three
+   PSID-1 estimates a claim of their own. None was fixed by rewriting a locked sentence
+   (`claims-protocol.md`, errata re-scope). Each original claim keeps its locked
+   sentence below, tagged with its erratum. Erratum E3's note quotes two percentages
+   that are ratios of pinned counts (4493 of 15992 and 1146 of 2490), not pinned
+   values; the append-only lock keeps them, erratum E7 records that, and no sentence
+   here uses them.
 
 ## ① Research-question verdicts
 
@@ -124,39 +141,51 @@ keep their locked sentence; the superseding statement follows the two tables.
 
 | Claim | RQ | Track | Verdict | Strength | Class | Evidence | Result + uncertainty |
 |---|---|---|---|---|---|---|---|
-| **[C1]** | RQ1 | reproduction | **refuted** (as registered) | confirmed | empirical-description | E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1 | The published targets do not all reproduce within the registered tolerance of 1 dollar: 9 of 11 development targets and 3 of 5 sealed CPS-1 targets do, and the four misses are exactly the comparison-group adjusted estimates and their standard errors (PSID-1 217.94 and 866.20 against a printed 731 and 886; CPS-1 738.83 and 547.05 against 972 and 550) |
+| **[C1]** | RQ1 | reproduction | **refuted** (as registered, against single-source targets) | confirmed | empirical-description | E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1 | The published targets do not all reproduce within the registered tolerance of 1 dollar: 9 of 11 development targets and 3 of 5 sealed CPS-1 targets do, and the four misses are exactly the comparison-group adjusted estimates and their standard errors (PSID-1 217.94 and 866.20 against a printed 731 and 886; CPS-1 738.83 and 547.05 against 972 and 550). *Erratum E9: every target was transcribed from the working paper alone, which this sentence does not say — read **[C30]**.* |
 | **[C2]** | RQ2 | reproduction | **supported** (the scouted prior, a miss of about $17,000, held) | confirmed | empirical-description | E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1 | The naive difference in means against PSID-1 is -15204.78 (s.e. 1154.61) against the experimental 1794.34 (s.e. 632.85), the wrong sign and a miss larger than the benchmark itself; against the sealed CPS-1 lane it is -8497.52 (s.e. 712.02) |
 | **[C3]** | RQ3 | att | **refuted for IPW and matching, supported for AIPW** | exploratory | empirical-description | E0002, E0005, E0006, rep:E0006@20261103T065104Z, art:att_e0002, art:att_e0005, art:att_e0006 | On PSID-1 with the Dehejia-Wahba logit only AIPW lands within 1000 dollars of the experimental estimate: the gaps are +1244.09 (IPW), -1234.06 (1-NN matching) and +889.48 (AIPW), and all three percentile-bootstrap intervals contain the benchmark 1794.34. *Erratum E2: these ranges hold the NSW controls fixed and are descriptive for matching, so containment is not inference — read **[C23]**.* |
-| **[C4]** | RQ4 | att | **supported** | exploratory | empirical-description | E0007, E0002, art:att_e0007, art:att_e0002 | Dropping every 1974-earnings term moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67), yet its bootstrap interval [-2642.44, 2471.35] still contains the benchmark: 1974 earnings is load-bearing for the point estimate under this one specification, not demonstrably for the interval. *Erratum E1: the cell also adds a 1975 flag and changes the support, so the shift is not 1974 earnings' alone — read **[C22]**.* |
-| **[C5]** | RQ5 | att | **supported** | confirmed | empirical-description | E0009, E0006, rep:E0006@20261103T065104Z, art:att_e0009 | Carried unchanged to the sealed CPS-1 lane, AIPW with the PSID-1 logit estimates an ATT of 1327.54 with bootstrap interval [-129.17, 2835.62], a gap of -466.80 against the benchmark, on 4493 comparison men whose largest single weight share is 0.0426. *Erratum E6: `confirmed` = this sealed run plus a re-execution of the development cell E0006; E0009 itself was not re-executed.* |
+| **[C4]** | RQ4 | att | **supported as operationalized by P5; inconclusive on whether 1974 earnings is load-bearing** | exploratory | empirical-description | E0007, E0002, art:att_e0007, art:att_e0002 | Dropping every 1974-earnings term moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67), yet its bootstrap interval [-2642.44, 2471.35] still contains the benchmark: 1974 earnings is load-bearing for the point estimate under this one specification, not demonstrably for the interval. *Erratum E1: the cell also adds a 1975 flag and changes the support, so the shift is not 1974 earnings' alone — read **[C22]**.* |
+| **[C5]** | RQ5 | att | **supported** | confirmed | empirical-description | E0009, E0006, rep:E0006@20261103T065104Z, art:att_e0009 | Carried unchanged to the sealed CPS-1 lane, AIPW with the PSID-1 logit estimates an ATT of 1327.54 with bootstrap interval [-129.17, 2835.62], a gap of -466.80 against the benchmark, on 4493 comparison men whose largest single weight share is 0.0426. *Erratum E6: `confirmed` = this sealed run plus a re-execution of the development cell E0006; E0009 itself was not re-executed. Erratum E8: "unchanged" and "the PSID-1 logit" mean the covariate list; the logit and the outcome model were re-fit on CPS-1 — read **[C29]**.* |
 
 Two further measured verdicts, from the same cells, that no single RQ asks for:
 
 | Claim | Track | Strength | Class | Evidence | Statement |
 |---|---|---|---|---|---|
-| **[C6]** | reproduction | confirmed | empirical-description | E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1, ref:dehejia1998nber | Table 3 column (2) is two regressions: note a's covariate list reproduces Table 2 Panel C column (4) on all three lanes (1672.20, 217.94 and 738.83 against 1672, 218 and 739), which is the printed NSW value, while the printed PSID-1 and CPS-1 values (731, 972) are Panel C column (5), which neither all-covariates reading recovers (PSID-1 795.02 or 67.28; CPS-1 793.59 or 1137.20). *Erratum E4: downgraded to exploratory — "is two regressions" rests on a one-source transcription and duplicates **[C10]**; the confirmed content is **[C26]**.* |
+| **[C6]** | reproduction | exploratory (erratum E4; was confirmed) | empirical-description | E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1, ref:dehejia1998nber | Table 3 column (2) is two regressions: note a's covariate list reproduces Table 2 Panel C column (4) on all three lanes (1672.20, 217.94 and 738.83 against 1672, 218 and 739), which is the printed NSW value, while the printed PSID-1 and CPS-1 values (731, 972) are Panel C column (5), which neither all-covariates reading recovers (PSID-1 795.02 or 67.28; CPS-1 793.59 or 1137.20). *Erratum E4: downgraded to exploratory — "is two regressions" rests on a one-source transcription and duplicates **[C10]**; the confirmed content is **[C26]**.* |
 | **[C7]** | att | exploratory | empirical-description | E0002, E0005, E0006, E0009, art:att_e0002, art:att_e0005, art:att_e0006, art:att_e0009 | On PSID-1 the common-support trim keeps 1146 of 2490 comparison men and one of them carries 0.135 of the odds-weight mass (IPW and AIPW), while 1-NN matching uses 56 distinct men with one matched to a 0.146 share of the trainees; on sealed CPS-1 the trim keeps 4493 men and the largest share is 0.0426 |
 
-**Re-scoped statements (repair of 2026-11-03).** These supersede the tagged rows above
-for every use downstream; the RQ verdicts themselves do not change, because no
-registered rule reads an interval or a covariate attribution.
+**Re-scoped statements (repairs of 2026-11-03).** These supersede the tagged rows above
+for every use downstream. No registered rule reads an interval, so the RQ1, RQ3 and RQ5
+verdicts do not change. RQ4 is different. It asks two things: whether 1974 earnings is
+the load-bearing covariate, and whether IPW without any 1974-earnings term misses by
+more than $1,000. P5 registered only the second, and the notary supported it. The
+first is not answered. The `no_re74` cell changed the whole specification (the three
+1974 terms out, a 1975 flag in, the support moved; **[C22]**), and the band rule would
+have been supported even if 1974 earnings were irrelevant (**[C13]**). RQ4's verdict is
+therefore "supported as operationalized by P5, inconclusive on the attribution to 1974
+earnings", in the same way that RQ1's is "refuted as registered".
 
 | Claim | Supersedes | Track | Strength | Class | Evidence | Statement |
 |---|---|---|---|---|---|---|
 | **[C22]** | C4 (E1) | att | exploratory | empirical-description | E0007, E0002, art:att_e0007, art:att_e0002, P5 | Replacing the PSID-1 logit with the specification without 1974 earnings, which removes all three 1974-earnings terms and adds a 1975 zero-earnings flag, moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67) and changes the common support from 1146 to 1092 men and the largest weight share from 0.135 to 0.0583; the shift belongs to that whole specification change, not to 1974 earnings alone, and the bootstrap interval [-2642.44, 2471.35] still contains the benchmark |
 | **[C23]** | C3 (E2) | att | exploratory | empirical-description | E0002, E0005, E0006, rep:E0006@20261103T065104Z, art:att_e0002, art:att_e0005, art:att_e0006, ref:abadie2008, P2, P3, P4 | On PSID-1 with the Dehejia-Wahba logit only AIPW lands within 1000 dollars of the experimental estimate, with gaps of +1244.09 (IPW), -1234.06 (1-NN matching) and +889.48 (AIPW); the percentile-bootstrap ranges [976.01, 4501.30], [-619.80, 3857.86] and [689.10, 4101.53] each contain 1794.34, but they hold the 260 NSW controls fixed, so they are ranges for the ATT estimate and not for the gap, the matching range is descriptive only, and no inference that an estimator recovers the benchmark rests on them |
+| **[C29]** | C5 (E8) | att | confirmed | empirical-description | E0009, E0006, rep:E0006@20261103T065104Z, art:att_e0009, P7 | Carried to the sealed CPS-1 lane with its specification unchanged, AIPW on the PSID-1 covariate list, its logit and outcome model re-fit on the trainees and the CPS-1 men, estimates an ATT of 1327.54 with bootstrap interval [-129.17, 2835.62], a gap of -466.80 against the benchmark, on 4493 comparison men whose largest single weight share is 0.0426 |
+| **[C30]** | C1 (E9) | reproduction | confirmed | empirical-description | E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1, ref:dehejia1998nber, P1, P6 | The registered targets, all transcribed from the NBER working paper alone, do not all reproduce within the registered tolerance of 1 dollar: 9 of 11 development targets and 3 of 5 sealed CPS-1 targets do, and the four misses are exactly the comparison-group adjusted estimates and their standard errors (PSID-1 217.94 and 866.20 against a printed 731 and 886; CPS-1 738.83 and 547.05 against 972 and 550), so a transcription error in those four values would read as a miss |
+| **[C31]** | — (new) | att | exploratory | empirical-description | E0002, E0005, E0006, art:att_e0002, art:att_e0005, art:att_e0006 | On PSID-1 with the Dehejia-Wahba logit the three estimators give ATT estimates of 3038.44 (IPW), 2683.82 (AIPW) and 560.28 (1-NN matching), a spread from lowest to highest larger than the experimental 1794.34 |
 | **[C26]** | C6 (E4) | reproduction | confirmed | empirical-description | E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1, art:rep_e0001_log, art:run_e0001_log, ref:dehejia1998nber | Note a's covariate list reproduces Table 2 Panel C column (4) on all three lanes (1672.20, 217.94 and 738.83 against 1672, 218 and 739), and neither all-covariates reading recovers the printed Table 3 column (2) comparison values 731 and 972 (PSID-1 795.02 or 67.28; CPS-1 793.59 or 1137.20); every printed value was transcribed from the NBER working paper alone |
 
 **Reading the verdicts together.** The reproduction track says the files are the
 paper's files: every unadjusted value, every count and the whole NSW row reproduce to
 within a dollar, and the classical OLS standard-error formula matches on every target it
 can be checked on (E0001, E0008), so RQ1's prior worry about the SE formula did not
-materialise. What fails is the paper's table as transcribed, not the pipeline (**[C26]**; the
-editorial reading is **[C10]**). The att
+materialise. What fails is the match to four transcribed targets, not the pipeline: the
+same code reproduces Table 2's column (4) on every lane (**[C30]**, **[C26]**). Why the
+transcribed Table 3 prints other values is the exploratory editorial reading
+(**[C10]**). The att
 track says the opposite of "propensity methods recover the benchmark" on PSID-1 and
 something weaker than it on CPS-1: three estimators on one score span 560.28 to 3038.44
-on PSID-1 (E0005, E0002), each resting on a handful of men (**[C7]**), and the selected
-one transfers to CPS-1 within the band (**[C5]**).
+on PSID-1 (**[C31]**), each resting on a handful of men (**[C7]**), and the selected
+specification, re-fit on CPS-1, lands within the band (**[C29]**).
 
 ## ② Registered predictions (from the ledger)
 
@@ -239,18 +268,27 @@ inside the other's bootstrap range ([689.10, 4101.53] and [-129.17, 2835.62]). T
 M8 named overlap as the dimension in which the lanes differ, and the weight
 concentration did fall (0.0426 against 0.135). But the overlap indicators disagree:
 CPS-1 has more men on support in absolute terms and fewer as a fraction of its pool
-(4493 of 15992 against 1146 of 2490), and before weighting the trainees differ from
-CPS-1 more in `black` (2.43 against 1.48) and about as much in `re74` and `re75` (-1.57
-and -1.75 against -1.72 and -1.77; data card). Better overlap is a candidate, not the
-favoured mechanism (erratum E3, **[C25]**).
+(4493 of 15992 against 1146 of 2490). Before weighting, the trainees' standardized mean
+differences (CPS-1 against PSID-1, data card) are larger in `black` (2.43 against 1.48),
+smaller in `married` (-1.23 against -1.84), `age` (-0.80 against -1.01) and `hispanic`
+(-0.05 against 0.13), slightly smaller in `re74` and `re75` (-1.57 and -1.75 against
+-1.72 and -1.77) and about equal in `education` (-0.68 on both) and `nodegree` (0.90
+against 0.88). Pre-weighting balance points both ways. Better overlap is a candidate,
+not the favoured mechanism (errata E3 and E7, **[C28]**).
 
 **[C12]** *(mechanism-interpretation, exploratory; locked sentence, re-scoped by erratum
-E3 — it omits the counter-indicators; read **[C25]**; evidence E0006, E0009,
+E3 — it omits the counter-indicators; read **[C28]**, which supersedes **[C25]**; evidence E0006, E0009,
 art:att_e0006, art:att_e0009, ref:imbens2025, ref:dehejia1998nber)* — The sealed AIPW gap (-466.80) is smaller than its development gap (+889.48) most plausibly because CPS-1 overlaps the trainees better, with 4493 men on support against 1146 and a largest weight share of 0.0426 against 0.135, so the counterfactual rests on many men instead of a few; one sealed draw cannot separate this from luck, and agreement with the benchmark does not show that selection on observables holds
 
-**[C25]** *(mechanism-interpretation, exploratory; supersedes C12; evidence E0006, E0009,
+**[C25]** *(mechanism-interpretation, exploratory; supersedes C12; locked sentence,
+re-scoped by erratum E7 — it lists the covariates on which CPS-1 is no closer and omits
+married, age and hispanic, on which it is closer; read **[C28]**; evidence E0006, E0009,
 art:att_e0006, art:att_e0009, art:repro_cps1, art:repro_psid1, art:data_card,
 ref:imbens2025)* — The sealed AIPW gap (-466.80) differs from its development gap (+889.48), and better CPS-1 overlap is only one candidate reason: CPS-1 puts more men on support in absolute terms (4493 against 1146) with a smaller largest weight share (0.0426 against 0.135), but a smaller fraction of its pool (4493 of 15992 against 1146 of 2490), and before weighting the trainees differ from CPS-1 more in black (standardized mean difference 2.43 against 1.48) and about as much in 1974 and 1975 earnings (-1.57 and -1.75 against -1.72 and -1.77); each lane's estimate lies inside the other's bootstrap range ([689.10, 4101.53] and [-129.17, 2835.62]), so one sealed draw cannot separate any mechanism from luck, and agreement with the benchmark does not show that selection on observables holds
+
+**[C28]** *(mechanism-interpretation, exploratory; supersedes C25; evidence E0006, E0009,
+art:att_e0006, art:att_e0009, art:repro_cps1, art:repro_psid1, art:data_card,
+ref:imbens2025)* — The sealed AIPW gap (-466.80) differs from its development gap (+889.48), and better CPS-1 overlap is only one candidate reason: CPS-1 puts more men on support in absolute terms (4493 against 1146) with a smaller largest weight share (0.0426 against 0.135), but a smaller fraction of its pool (4493 of 15992 against 1146 of 2490); before weighting, the trainees' standardized mean differences from CPS-1 against those from PSID-1 are larger in black (2.43 against 1.48), smaller in married (-1.23 against -1.84), age (-0.80 against -1.01) and hispanic (-0.05 against 0.13), slightly smaller in 1974 and 1975 earnings (-1.57 and -1.75 against -1.72 and -1.77) and about equal in education (-0.68 on both) and no degree (0.90 against 0.88), so pre-weighting balance points both ways; each lane's estimate lies inside the other's bootstrap range ([689.10, 4101.53] and [-129.17, 2835.62]), so one sealed draw cannot separate any mechanism from luck, and agreement with the benchmark does not show that selection on observables holds
 
 **5. P5 was supported, but its rule could not have failed for the reason it was
 written.** RQ4 asks whether 1974 earnings is load-bearing. P5 scores that as "the
@@ -262,7 +300,8 @@ against 3038.44 (E0002), lower by more than the card's 1,000-dollar margin. What
 shows is that the `no_re74` specification matters, and that specification is more than
 1974 earnings removed: it also adds `u75`, and the support moves from 1146 to 1092 men
 (scope item 1, **[C22]**). Whether 1974 earnings alone is load-bearing needs a cell that
-drops only the three 1974 terms.
+drops only the three 1974 terms. RQ4's first half is therefore open, and its verdict in
+① is qualified to match.
 
 **[C13]** *(research-discipline, exploratory; tagged by erratum E1 — "without them" means the `no_re74` specification, which also adds a 1975 flag; the lesson stands; evidence E0002, E0007, P5, art:card)* — A sensitivity prediction scored against the benchmark band cannot separate the covariate mattering from the estimator missing anyway: IPW missed the 1000-dollar band both with 1974 earnings (gap +1244.09) and without them (estimate -15.33 against 1794.34), so P5 would have been supported had 1974 earnings been irrelevant; a rule stated against the baseline cell, as the card's own prior was, is the test that discriminates
 
@@ -305,7 +344,7 @@ quantity (a robustness table, an appendix, a text sentence) and record which col
 equals. Put the cross-reads in the reproduction cell as never-counted diagnostic rows, as
 `lib/lalonde.py:PANEL_C` does here.
 
-**[C15]** *(research-discipline, exploratory; tagged by erratum E3 — the share and the count used are absolute; read them against the pool size and pre-weighting balance too, as **[C25]** does; evidence E0002, E0005, E0006, E0009,
+**[C15]** *(research-discipline, exploratory; tagged by erratum E3 — the share and the count used are absolute; read them against the pool size and pre-weighting balance too, as **[C28]** does; evidence E0002, E0005, E0006, E0009,
 art:att_e0002, art:att_e0005, art:att_e0006, art:att_e0009)* — Print the weight-concentration pair, the largest single weight share and the number of comparison units used, with every weighting or matching estimate and read it before the point estimate: PSID-1 shares of 0.135 (IPW, AIPW) and 0.146 (matching) said each estimate rested on a few men, which the 0.0426 share on CPS-1 did not
 
 **[C16]** *(research-discipline, exploratory; locked sentence, re-scoped by erratum E2 —
@@ -346,7 +385,7 @@ For an analyst on their own observational data, in order:
    count (1146 of 2490 on PSID-1, **[C7]**). If one unit carries a share of the weight like
    PSID-1's 0.135, report the estimate as "a few people", not as a population quantity.
 3. Run more than one estimator on the same score and read the spread as uncertainty:
-   560.28, 2683.82 and 3038.44 on PSID-1 (**[C23]**) is a range, not three candidates for
+   560.28, 2683.82 and 3038.44 on PSID-1 (**[C31]**) is a range, not three candidates for
    the answer.
 4. Write sensitivity predictions against the baseline cell, not the benchmark band
    (**[C13]**).
@@ -378,7 +417,7 @@ number every other row is judged against.
 | AIPW, PSID-1 logit | PSID-1 | 2683.82 | [689.10, 4101.53] | +889.48 | E0006 |
 | 1-NN matching, PSID-1 logit | PSID-1 | 560.28 | [-619.80, 3857.86] (descriptive only) | -1234.06 | E0005 |
 | IPW, logit without 1974 earnings | PSID-1 | -15.33 | [-2642.44, 2471.35] | -1809.67 | E0007 |
-| AIPW, PSID-1 logit unchanged | CPS-1 (sealed) | 1327.54 | [-129.17, 2835.62] | -466.80 | E0009 |
+| AIPW, PSID-1 specification, re-fit on CPS-1 | CPS-1 (sealed) | 1327.54 | [-129.17, 2835.62] | -466.80 | E0009 |
 
 **The assumption every propensity row rests on.** Selection on observables: given age,
 schooling, race, marriage, degree and earnings in 1974 and 1975, whether a man is a
@@ -392,15 +431,15 @@ whether a given estimate happened to agree.
 **What to take from it.**
 
 - With only PSID-1 and these tools you could not have told which of 560.28, 2683.82
-  and 3038.44 was right. Their bootstrap ranges overlap, but those ranges hold the
+  and 3038.44 was right (**[C31]**). Their bootstrap ranges overlap, but those ranges hold the
   experimental controls fixed and the matching one is no valid interval, so they say
   nothing about which estimate is near the truth (**[C23]**).
   Report such a set as "under unconfoundedness the estimated ATT lies between 560.28 and
   3038.44 depending on the estimator, and each estimate rests on a few people"
   (**[C7]**), never as one number.
-- With the larger CPS-1 pool the selected estimator, under unconfoundedness, gives an
-  estimated ATT of 1327.54 with an interval that runs from -129.17 to 2835.62
-  (**[C5]**): it lands within the registered $1000 band of the experimental benchmark,
+- With the larger CPS-1 pool the selected estimator, its specification re-fit on CPS-1,
+  under unconfoundedness gives an estimated ATT of 1327.54 with an interval that runs
+  from -129.17 to 2835.62 (**[C29]**): it lands within the registered $1000 band of the experimental benchmark,
   once, for an estimator chosen with the development answer key, and the interval does
   not exclude zero — consistency, not validation.
 - Changing the score's specification — removing the three 1974-earnings terms and
@@ -420,7 +459,7 @@ block, so no claim asserts value beyond the registered $1000 band it cleared or 
 
 All 18 rows of `references.yaml` were verified at METHOD (2026-11-03, `klein refs
 verify`: 0 failed). The references behind `confirmed` claims are `ref:dehejia1998nber`
-(**[C26]**; **[C6]** was downgraded by erratum E4); every other reference sits behind exploratory claims or appears in prose
+(**[C26]**, **[C30]**; **[C6]** was downgraded by erratum E4); every other reference sits behind exploratory claims or appears in prose
 only. Literature values below are copied from the method card's §4, which cites them.
 
 - **`ref:lalonde1986` — matched.** The naive contrast misses by more than the
@@ -430,17 +469,18 @@ only. Literature values below are copied from the method card's §4, which cites
   propensity numbers do not.** Dehejia-Wahba report propensity estimates from $1,473 to
   $1,774 on these files, and on PSID-1 specifically $1,608 (stratification) and $1,691
   (1-NN matching). This study's 1999-style estimators on their PSID-1 logit gave 3038.44
-  (IPW), 2683.82 (AIPW) and 560.28 (matching) — none inside their range — while using
+  (IPW), 2683.82 (AIPW) and 560.28 (matching) (**[C31]**) — none inside their range — while using
   the same 56 matched men their Table 4 reports (③, item 3; unresolved). On CPS-1 they report
-  $1,713 / $1,582 with a CPS-specific logit (note e); with the PSID-1 logit held fixed,
-  a deliberately harder transfer, this study's AIPW gave 1327.54 (**[C5]**). Separately,
+  $1,713 / $1,582 with a CPS-specific logit (note e); with the PSID-1 covariate list
+  held fixed and the logit and outcome model re-fit on CPS-1 (not the CPS-specific
+  covariate list), this study's AIPW gave 1327.54 (**[C29]**). Separately,
   their Table 3 column (2), as transcribed from the working paper, appears to mix two of
   their Table 2 columns (**[C26]**, **[C10]**).
 - **`ref:smith2005` — matched.** Smith and Todd's point that agreement with the
   benchmark depends on the specification and the estimator holds in miniature: one
   specification change (the three 1974 terms out, a 1975 flag in) moved IPW by more than
   the benchmark's size (**[C22]**), and three estimators
-  on one score spread over more than the benchmark's size (**[C3]**).
+  on one score spread over more than the benchmark's size (**[C31]**).
 - **Dehejia-Wahba's own no-RE74 sensitivity (Table 5 Panel B, card §4) — direction
   matched, magnitude did not.** Their weighting-type estimates fell to −$869 / −$1,023
   while matching held at $1,727 / $1,340; this study's no-RE74 IPW fell to -15.33
@@ -448,7 +488,7 @@ only. Literature values below are copied from the method card's §4, which cites
   so this is a comparison of directions only.
 - **`ref:kang2007` — not triggered here.** Double robustness was no rescue in Kang and
   Schafer's design; here AIPW moved IPW toward the benchmark (3038.44 to 2683.82,
-  **[C23]**) and was the only PSID-1 estimator within the band, but its interval is as
+  **[C31]**; gaps in **[C23]**) and was the only PSID-1 estimator within the band, but its interval is as
   wide as IPW's, so "AIPW is better" is not a conclusion this study can draw (**[C24]**).
 - **`ref:abadie2008`, `ref:abadie2006`, `ref:abadie2016` — honoured by disclosure.** The
   matching interval is descriptive (**[C17]**); no valid matching variance was
@@ -457,7 +497,7 @@ only. Literature values below are copied from the method card's §4, which cites
   LDW-PSID from $4 to $2,420 across ten modern estimators, which "fail to recover the
   ATT" there, and CPS estimates near the benchmark with failing placebo tests. This
   study's PSID-1 spread (-15.33 to 3038.44 across four cells) and its CPS-1 agreement
-  (**[C5]**) sit on the same pattern; no placebo was run (⑦, item 1).
+  (**[C29]**) sit on the same pattern; no placebo was run (⑦, item 1).
 - **`ref:crump2009` — the road not taken.** Trimming treated men by score would change
   the estimand (Imbens-Xu's trimmed LDW-PSID benchmark is $306, not 1794.34); note g's
   comparison-only trim kept the benchmark comparable.
@@ -477,19 +517,21 @@ regressions.
 
 | RQ | Prior | Source | Outcome | In the scorecard? |
 |---|---|---|---|---|
-| RQ1 | likely, about 0.7 | scouted (two of the targets were seen) | refuted at ±1 (**[C1]**) | no — scouted |
+| RQ1 | likely, about 0.7 | scouted (two of the targets were seen) | refuted at ±1 against single-source targets (**[C30]**) | no — scouted |
 | RQ2 | a miss of about $17,000 | scouted | held (**[C2]**) | no — scouted |
 | RQ3 | about even, 0.5-0.6 for each estimator | knowledge (recalled, verified at METHOD) | 1 of 3 held (AIPW) | yes |
-| RQ4 | likely, about 0.6 | knowledge (recalled, verified at METHOD) | held (**[C4]**), though the rule could not discriminate (**[C13]**) | yes |
-| RQ5 | about even, 0.55 | uninformed | held (**[C5]**) | yes |
+| RQ4 | likely, about 0.6 | knowledge (recalled, verified at METHOD) | held as P5 operationalized it (**[C22]**); the attribution to 1974 earnings is inconclusive, and the rule could not discriminate (**[C13]**) | yes |
+| RQ5 | about even, 0.55 | uninformed | held (**[C29]**) | yes |
 
-Knowledge-sourced priors: 2 of 4 forecasts held, each made at about even to "likely".
+Knowledge-sourced priors: 2 of 4 forecasts held (one of them, RQ4, only as P5
+operationalized it), each made at about even to "likely".
 The one uninformed prior held at 0.55. On four knowledge forecasts and one uninformed
 one, neither source outpredicted the other in any sense a later study could lean on.
 The knowledge priors were recalled from the literature rather than read from a
 `knowledge/` document; the repository's seed card
-(`knowledge/method_cards/causal-propensity-methods.md`) says that under poor overlap
-"estimates are driven by a few heavily weighted units", which **[C7]** bears out.
+(`knowledge/method_cards/causal-propensity-methods.md`) warns that under poor overlap a
+few heavily weighted units dominate the estimates (paraphrased), which **[C7]** bears
+out.
 
 ## ⑦ What to try next
 
@@ -517,7 +559,7 @@ The knowledge priors were recalled from the literature rather than read from a
    or the JASA text; and an independent re-implementation (different code, a different
    bootstrap seed) so that "replicated" means robust, not only deterministic.
 
-*Candidates for `knowledge/` (not promoted at this stage):* **[C26]** and **[C7]** to a
+*Candidates for `knowledge/` (not promoted at this stage):* **[C26]**, **[C30]** and **[C7]** to a
 future `knowledge/domains/data-science/`; **[C13]**, **[C18]**, **[C19]**, **[C20]** and
 **[C27]** to `knowledge/research-discipline.md`, each with its typed citation
 `(supports 23-lalonde-causal-replication#Cn)`.

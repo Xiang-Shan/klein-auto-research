@@ -1,0 +1,41 @@
+# Study 23 second claims repair (SYNTHESIZE, 2026-11-03), applied with `klein claims
+# apply` alongside errata E7-E9. Adds the numbers and the superseding claims C28-C31;
+# claims.yaml and claims_repair.yaml stay as they were applied.
+# Claim sentences are copied verbatim from findings.md.
+numbers:
+  smd_age_psid: {value: -1.01, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for age vs PSID-1}
+  smd_age_cps: {value: -0.80, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for age vs CPS-1}
+  smd_educ: {value: -0.68, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for education, equal vs PSID-1 and CPS-1}
+  smd_hisp_psid: {value: 0.13, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for hispanic vs PSID-1}
+  smd_hisp_cps: {value: -0.05, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for hispanic vs CPS-1}
+  smd_married_psid: {value: -1.84, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for married vs PSID-1}
+  smd_married_cps: {value: -1.23, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for married vs CPS-1}
+  smd_nodegree_psid: {value: 0.88, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for nodegree vs PSID-1}
+  smd_nodegree_cps: {value: 0.90, art: data_card, claim: C28, precision: 2, note: pre-weighting SMD for nodegree vs CPS-1}
+  att_aipw: {value: 2683.82, art: att_e0006, claim: C31, precision: 2, note: AIPW dw_psid ATT on PSID-1 (E0006)}
+  att_match: {value: 560.28, art: att_e0005, claim: C31, precision: 2, note: 1-NN matching dw_psid ATT on PSID-1 (E0005)}
+claims:
+  C28:
+    class: mechanism-interpretation
+    strength: exploratory
+    claim: "The sealed AIPW gap (-466.80) differs from its development gap (+889.48), and better CPS-1 overlap is only one candidate reason: CPS-1 puts more men on support in absolute terms (4493 against 1146) with a smaller largest weight share (0.0426 against 0.135), but a smaller fraction of its pool (4493 of 15992 against 1146 of 2490); before weighting, the trainees' standardized mean differences from CPS-1 against those from PSID-1 are larger in black (2.43 against 1.48), smaller in married (-1.23 against -1.84), age (-0.80 against -1.01) and hispanic (-0.05 against 0.13), slightly smaller in 1974 and 1975 earnings (-1.57 and -1.75 against -1.72 and -1.77) and about equal in education (-0.68 on both) and no degree (0.90 against 0.88), so pre-weighting balance points both ways; each lane's estimate lies inside the other's bootstrap range ([689.10, 4101.53] and [-129.17, 2835.62]), so one sealed draw cannot separate any mechanism from luck, and agreement with the benchmark does not show that selection on observables holds"
+    numbers: [gap_sealed, gap_aipw, name_one, n_controls_sealed, n_support_psid, share_sealed, share_psid, n_cps1, n_psid1, smd_black_cps, smd_black_psid, smd_married_cps, smd_married_psid, smd_age_cps, smd_age_psid, smd_hisp_cps, smd_hisp_psid, smd_re74_cps, smd_re75_cps, smd_re74_psid, smd_re75_psid, smd_educ, smd_nodegree_cps, smd_nodegree_psid, ci_low_aipw, ci_high_aipw, ci_low_sealed, ci_high_sealed]
+    evidence: [E0006, E0009, art:att_e0006, art:att_e0009, art:repro_cps1, art:repro_psid1, art:data_card, ref:imbens2025]
+  C29:
+    class: empirical-description
+    strength: confirmed
+    claim: "Carried to the sealed CPS-1 lane with its specification unchanged, AIPW on the PSID-1 covariate list, its logit and outcome model re-fit on the trainees and the CPS-1 men, estimates an ATT of 1327.54 with bootstrap interval [-129.17, 2835.62], a gap of -466.80 against the benchmark, on 4493 comparison men whose largest single weight share is 0.0426"
+    numbers: [name_one, att_sealed, ci_low_sealed, ci_high_sealed, gap_sealed, n_controls_sealed, share_sealed]
+    evidence: [E0009, E0006, rep:E0006@20261103T065104Z, art:att_e0009, P7]
+  C30:
+    class: empirical-description
+    strength: confirmed
+    claim: "The registered targets, all transcribed from the NBER working paper alone, do not all reproduce within the registered tolerance of 1 dollar: 9 of 11 development targets and 3 of 5 sealed CPS-1 targets do, and the four misses are exactly the comparison-group adjusted estimates and their standard errors (PSID-1 217.94 and 866.20 against a printed 731 and 886; CPS-1 738.83 and 547.05 against 972 and 550), so a transcription error in those four values would read as a miss"
+    numbers: [tolerance, name_one, psid1_adjusted, psid1_adjusted_se, psid1_adjusted_published, psid1_adjusted_se_published, cps1_adjusted, cps1_adjusted_se, cps1_adjusted_published, cps1_adjusted_se_published]
+    evidence: [E0001, E0008, rep:E0001@20261103T065031Z, art:repro_psid1, art:repro_cps1, ref:dehejia1998nber, P1, P6]
+  C31:
+    class: empirical-description
+    strength: exploratory
+    claim: "On PSID-1 with the Dehejia-Wahba logit the three estimators give ATT estimates of 3038.44 (IPW), 2683.82 (AIPW) and 560.28 (1-NN matching), a spread from lowest to highest larger than the experimental 1794.34"
+    numbers: [name_one, att_ipw, att_aipw, att_match, experimental_att]
+    evidence: [E0002, E0005, E0006, art:att_e0002, art:att_e0005, art:att_e0006]

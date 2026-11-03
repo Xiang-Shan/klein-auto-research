@@ -119,6 +119,14 @@ transaction always restores `analyze.py`; the candidate commit stays resolvable.
   column (2) PSID-1 is not the note-a regression. The anchor phase closes; estimators
   phase proceeds on lead's ack. No analyze.py or lib edit was made to chase the miss.
 
+- 2026-11-03 — Note (SYNTHESIZE repair, read from the record, no new evidence): the E0007
+  reflection's parenthesis "RQ4: 1974 earnings is load-bearing on PSID-1" overstates what
+  the cell shows. `no_re74` removes the three 1974 terms AND adds `u75`, and the support
+  moves (lib/lalonde.py PROPENSITY; att_E0002.tsv against att_E0007.tsv), and P5's band
+  rule would have been supported even had 1974 earnings been irrelevant. Decision: RQ4 is
+  reported in findings.md as supported as operationalized by P5 and inconclusive on the
+  attribution to 1974 earnings (claims C22, C13). The reflection above stays as written.
+
 ## Phase slates
 
 At every phase start, run the slate ritual (references/phase-ritual.md):
