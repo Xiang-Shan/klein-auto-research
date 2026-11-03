@@ -148,3 +148,14 @@ note-a side, but the exact covariate set behind column (5) is NOT recovered by e
 reading tried; that remains open and costs nothing downstream (att cells use note a).
 Standard-error formula (classical OLS) matched on every non-PSID-adjusted target, so
 RQ1's SE worry did not materialise.
+
+### Phase estimators slate
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | att IPW, dw_psid, 500 reps (P2): |gap| <= $1,000 | 3 | 3 | 3 | 9 |
+| 2 | att 1-NN matching, dw_psid (P4): |gap| <= $1,000 | 3 | 3 | 3 | 9 |
+| 3 | att AIPW, dw_psid (P3): |gap| <= $1,000 | 3 | 3 | 2 | 8 |
+| 4 | att IPW, no_re74 (P5): |gap| > $1,000 | 3 | 3 | 3 | 9 |
+
+Chosen order: P2, P4, P3, P5 (lead's order) -- IPW is the tie-break baseline of the selection rule, then the other two selection candidates, then the RE74 sensitivity, which does not enter selection. All four are pre-registered cells; the slate records order only.
