@@ -1,0 +1,157 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 6006,
+      "committed": true,
+      "sha256": "6d1746c6a58c866f49461444254a65b4e97a3d7853e8e0df0c184b0533b4625d"
+    },
+    "runs/E0009/run.log": {
+      "availability": "recorded",
+      "bytes": 3480,
+      "committed": true,
+      "sha256": "a7c40ab2a770dd5defc6b64f89298c7a255397cba993bd6b82dbaa43d40a7e1f"
+    },
+    "runs/E0009/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 524,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "a3036a9b04865d8f12ec468902c729e532ca7da39e64452cfb3e5d6704fc9f4f"
+    },
+    "runs/E0009/usage.json": {
+      "availability": "recorded",
+      "bytes": 251,
+      "committed": true,
+      "role": "usage",
+      "sha256": "f491d59c69fb628cf4196862dc7e0f8797d477ba5cd0afcfa82e9b10fbcf530b"
+    },
+    "tables/confusion_E0009_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 191,
+      "committed": true,
+      "role": "declared",
+      "sha256": "df948862396c8826dd6f2bbbd21a144cbd85e6f0cbc9972970e6abb3fb3ec3cd"
+    },
+    "tables/confusion_E0009_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 191,
+      "committed": true,
+      "role": "declared",
+      "sha256": "2ff9a54c201cb3269603d02fbad8a09fc1fe5cab5ac469f1cf47893aaa534158"
+    },
+    "tables/confusion_E0009_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 191,
+      "committed": true,
+      "role": "declared",
+      "sha256": "d5e01ff642e26e58aaf213345f2d22659126fae40c169f30e324dbd2c02c4d5c"
+    }
+  },
+  "base_commit": "cdadf226b1827ba6eadcd56ae380a77872b48c51",
+  "candidate_commit": "4507eae87522dc43a6c51cedf06856c9643831ec",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "sealed final-test evidence; excluded from the adaptive frontier",
+  "description": "sealed confirmation of the selected incumbent E0008 config (3 blocks + BN + D4 + 4,000 steps); sealed final-test evidence; excluded from the adaptive frontier",
+  "disposition": "discard",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T09:05:19.580544Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "final_test",
+  "execution": {
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "mode": "local"
+  },
+  "exit_code": 0,
+  "experiment": "E0009",
+  "fingerprints": {
+    "data": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "90aaa686f449993dae796c2e445a9b3129c3b1a457c8dfc74d016f19dac8e80e"
+  },
+  "incumbent": "E0008",
+  "max_run_seconds": 1800.0,
+  "metric_goal": "higher",
+  "metric_name": "val_macro_f1",
+  "metrics": {
+    "n_classes": 8.0,
+    "primary_metric": 0.9465196666666666,
+    "primary_metric_max": 0.954278,
+    "primary_metric_min": 0.939948,
+    "primary_metric_std": 0.0072383256581431184,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 4000.0,
+    "total_seconds": 171.5666666666667,
+    "train_rows": 13668.0,
+    "training_seconds": 168.79999999999998,
+    "val_accuracy": 0.9527293333333334,
+    "val_balanced_accuracy": 0.9461336666666668,
+    "val_ece": 0.008610999999999999,
+    "val_macro_f1": 0.9465196666666666,
+    "val_mlogloss": 0.129058,
+    "val_rows": 3413.0,
+    "val_top5_accuracy": 0.9998046666666666,
+    "wall_seconds": 171.549229
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 1800.0,
+  "phase_experiment_limit": 1,
+  "predictions": {
+    "P4": {
+      "explanation": "primary_metric 0.946519666667 >= 0.9 \u2192 supported",
+      "verdict": "supported"
+    },
+    "P5": {
+      "explanation": "val_accuracy 0.952729333333 < 0.958 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P4",
+    "P5"
+  ],
+  "primary_metric": 0.9465196666666666,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T08:56:29.857172Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "ready_at": "2026-11-03T09:05:19.589602Z",
+    "status": "pending"
+  },
+  "usage": {
+    "steps": 12000.0
+  },
+  "wall_seconds": 529.723328166001
+}
