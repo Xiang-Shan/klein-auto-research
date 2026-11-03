@@ -3,9 +3,14 @@
     "consult": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T06:19:04.021502Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T06:19:04.608560Z"
     }
   },
   "artifact_hashes": {
+    "data_card.md": "d191937cd21d1f9cca3eca39d3d205cadcd95b3c183fd9258221738f411148df",
     "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
     "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
     "study.yaml": "5b79823a4707645dd6934fbcf4d8091639842479b7130642e459ca4e8071c282"
@@ -30,8 +35,11 @@
     }
   },
   "fingerprints": {
-    "data": null,
-    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+    "split": {
+      "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
+      "policy": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    }
   },
   "gates": {
     "consult": {
@@ -47,9 +55,13 @@
       "status": "recorded"
     },
     "data": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T06:19:04.608560Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "d191937cd21d1f9cca3eca39d3d205cadcd95b3c183fd9258221738f411148df"
+      },
+      "note": "delegated (program.md Roster). GO with cautions WARN 1-4 (self-reported budget parity, memorizable public optima, optimality from literature, candidate-count budget matching); both verifier holes found in review closed and tested",
+      "status": "recorded"
     },
     "method": {
       "acknowledged_at": null,
@@ -62,10 +74,10 @@
   "phase_acknowledgements": {},
   "prepared_data": {
     "path": "/home/user/wt-24/studies/24-golomb-llm-vs-search/data/prepared/instance.json",
-    "sha256": null
+    "sha256": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32"
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T06:19:04.031653Z"
+  "updated_at": "2026-11-03T06:19:05.896233Z"
 }
