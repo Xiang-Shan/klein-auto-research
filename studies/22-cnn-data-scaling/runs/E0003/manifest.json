@@ -1,5 +1,88 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2206,
+      "committed": true,
+      "sha256": "29244d61fddfcaeac1e3b0586670790558eb260a28e640a341efd18e070b59e3"
+    },
+    "runs/E0003/job.json": {
+      "availability": "recorded",
+      "bytes": 1112,
+      "committed": true,
+      "role": "job",
+      "sha256": "3be160bedbe4e2dae79a8806109b3d649312f6d32a4a18b24d980eb8e3f20043"
+    },
+    "runs/E0003/job_receipt.json": {
+      "availability": "recorded",
+      "bytes": 1644,
+      "committed": true,
+      "role": "receipt",
+      "sha256": "5ab065b51094a4fad7d34465f3e6aae3fe144da392af80a4b4e2d2f5d1ee9aed"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 4684,
+      "committed": true,
+      "sha256": "4d73e74d59a5699930ad84fc3326d9662ebee05b6354206fca60dbd1a5591328"
+    },
+    "runs/E0003/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 660,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "0cff9448bb8ea6cc4740c956d6d62ff65a3bd15c58f08ffa45502b0b94ec87f4"
+    },
+    "runs/E0003/usage.json": {
+      "availability": "recorded",
+      "bytes": 250,
+      "committed": true,
+      "role": "usage",
+      "sha256": "0b5683c0c8c51212be95d09faa7bec806b6d223b90194d917e28273f235f9813"
+    },
+    "tables/cell_E0003_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 66,
+      "committed": true,
+      "role": "declared",
+      "sha256": "277f385f033769ab4b7fce72339cd5026d9c4af41bc6e31eb5805db53cfd5c47"
+    },
+    "tables/cell_E0003_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 66,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1edfdf0754492ee2e1714055a3a8ba96ef6c42dc4c27e722608edb9d39d72a77"
+    },
+    "tables/cell_E0003_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 66,
+      "committed": true,
+      "role": "declared",
+      "sha256": "7787ce444ccbdcf7bc783a8de67b3f6a64b95bf8c4de01574211d6618d9c0291"
+    },
+    "tables/confusion_E0003_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 319,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1fc94e2f48e71618480815b1704934df7eae513135c35eeb46f1bfd6879f4267"
+    },
+    "tables/confusion_E0003_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 324,
+      "committed": true,
+      "role": "declared",
+      "sha256": "50bb5bb60ab83df5175c784cbbc6fe73cdd636016549fc4dd89a444fb1619f24"
+    },
+    "tables/confusion_E0003_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 326,
+      "committed": true,
+      "role": "declared",
+      "sha256": "da70918fc6e60fde33c4805202928b9cc6b52df977a05c578a3d18c0b7cee3de"
+    }
+  },
   "base_commit": "e73b3f8c3ccf8ef97eeddfc8ae32a819fc938339",
   "candidate_commit": "a916b2b88ace8c631effd843790654171d323b7c",
   "code_patch_hash": "bb2c943cba49b7685d2fc542d71a590a7e62ec704a498411b98b3545f32b65f1",
@@ -11,10 +94,10 @@
     "-u",
     "analyze.py"
   ],
-  "decision_reason": "detached: awaiting collect",
-  "description": "cell N=2000",
-  "disposition": "crash",
-  "ended_at": null,
+  "decision_reason": "registered cell measured",
+  "description": "cell N=2000; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-11-03T07:49:33.242299Z",
   "environment": {
     "implementation": "CPython",
     "machine": "x86_64",
@@ -24,26 +107,67 @@
   },
   "evaluation_kind": "development",
   "execution": {
+    "executor": "local",
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "host": "vm",
     "mode": "detached",
-    "status": "awaiting_collect"
+    "observed_by_notary": false,
+    "receipt_sha256": "5ab065b51094a4fad7d34465f3e6aae3fe144da392af80a4b4e2d2f5d1ee9aed"
   },
-  "exit_code": null,
+  "exit_code": 0,
   "experiment": "E0003",
   "fingerprints": {
     "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
     "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
-    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4"
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05"
   },
+  "guardrails_ok": true,
   "incumbent": null,
   "max_run_seconds": 5400.0,
   "metric_goal": "lower",
   "metric_name": "val_mlogloss",
-  "metrics": {},
+  "metrics": {
+    "best_inner_loss": 0.8275676666666666,
+    "best_step": 400.0,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 1800.0,
+    "n_inner": 200.0,
+    "n_train": 2000.0,
+    "primary_metric": 0.8407586666666668,
+    "primary_metric_max": 0.863479,
+    "primary_metric_min": 0.812273,
+    "primary_metric_std": 0.02608530065637222,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 400.0,
+    "total_seconds": 30.233333333333334,
+    "train_rows": 1800.0,
+    "training_seconds": 23.3,
+    "val_accuracy": 0.7032293333333334,
+    "val_balanced_accuracy": 0.7038086666666666,
+    "val_ece": 0.08756833333333335,
+    "val_macro_f1": 0.6986736666666666,
+    "val_mlogloss": 0.8407586666666668,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9889246666666667,
+    "wall_seconds": 30.244175333333335
+  },
   "phase": "cells",
   "phase_budget_seconds": 7200.0,
   "phase_experiment_limit": 6,
   "predictions_requested": [],
-  "primary_metric": null,
+  "primary_metric": 0.8407586666666668,
   "printed_scope": "block",
   "schema_version": 3,
   "seeds": [
@@ -51,12 +175,15 @@
     1,
     2
   ],
-  "started_at": "2026-11-03T07:47:38.552087Z",
+  "started_at": "2026-11-03T07:47:42.015719Z",
   "timed_out": false,
   "track": "primary",
   "transaction": {
-    "detached_at": "2026-11-03T07:47:38.567938Z",
-    "phase": "awaiting_collect",
+    "ready_at": "2026-11-03T07:49:40.222888Z",
     "status": "pending"
-  }
+  },
+  "usage": {
+    "steps": 1200.0
+  },
+  "wall_seconds": 111.227
 }
