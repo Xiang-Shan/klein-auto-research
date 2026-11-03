@@ -18,13 +18,15 @@ Metrics (all registered in ``kleinlib.eval`` with task ``classification``):
 * ``val_ece`` — expected calibration error of the top-class confidence,
   equal-width bins (needs ``proba``)
 
-The confusion matrix is written to ``tables/confusion_<exp>.tsv`` and pinned
+The confusion matrix is written to ``tables/confusion_<exp>.tsv`` (``…_s<seed>.tsv``
+under a seed array, one per seed) and pinned
 with an ``artifact:`` line, so a claim about which classes are confused has a
 hashed home.
 """
 
 from __future__ import annotations
 
+import os
 import time
 from collections.abc import Sequence
 from pathlib import Path
@@ -194,7 +196,10 @@ def evaluate_multiclass(
     table_rel: str | None = None
     writing = study_dir is not None and not _smoke_mode()
     if writing:
-        table_rel = f"tables/confusion_{exp_id}.tsv"
+        # Under a seed array (KLEIN_SEED set by the notary) every seed pins its own
+        # table; without one the name is unchanged.
+        seed = os.environ.get("KLEIN_SEED")
+        table_rel = f"tables/confusion_{exp_id}{f'_s{seed}' if seed is not None else ''}.tsv"
         path = Path(study_dir) / table_rel
         path.parent.mkdir(parents=True, exist_ok=True)
         header = "true\\pred\t" + "\t".join(str(label) for label in label_list)
