@@ -82,6 +82,10 @@ base commit.
 - 2026-11-03 — Decision: primary metric macro-F1 (the CV profile's rule for imbalanced
   classes); accuracy is printed beside it and P5 reads it, because MedMNIST reports
   accuracy.
+- 2026-11-03 — Decision (DATA gate): the official split carries 11 cross-split
+  near-duplicates (dHash <= 4 bits); `prepare.py` drops them from development (3) and
+  test (8). Scope limit on every claim: the official split is image-level, not grouped
+  by patient or slide, so all scores are image-level.
 - 2026-11-03 — Decision: `prepare.py` stores the source's uint8 pixels; the training
   loader scales them (the payload stays byte-faithful to the source).
 

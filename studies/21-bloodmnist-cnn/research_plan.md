@@ -33,6 +33,9 @@ exploratory or confirmed.
 
 ## What would change the conclusion
 
+- Scope: MedMNIST's BloodMNIST split is image-level (not patient-grouped); every score
+  is an image-level score, never a new-patient one.
+
 - Near-duplicate images across the official partitions (the DATA gate's audit) would
   make every development number optimistic.
 - A keep whose gain sits inside the floor is not a keep; the floor decides, not the
