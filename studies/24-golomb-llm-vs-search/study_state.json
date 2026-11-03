@@ -21,7 +21,7 @@
     "study.yaml": "467cbc8fe64c6399648b955e85d68015bc7bd53a7763dcc631512eeed10ce1b4"
   },
   "created_at": "2026-11-03T05:00:23.311898Z",
-  "current_phase": "development",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "llm": {
       "accessed_at": null,
@@ -83,7 +83,14 @@
   },
   "last_experiment": 4,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "development": {
+      "acknowledged_at": "2026-11-03T07:59:40.058265Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated. E0001 search 0/12 (P1 supported); E0004 LLM 6/12, first-batch 1 (P2, P3 refuted); E0002/E0003 transport crashes, fixed in the ledger",
+      "playbook_sha256": "9589b6edccf001ae86e5f2d095286136dd54a69d683780f85860091b4be33d1a"
+    }
+  },
   "predictions": {
     "P1": {
       "evidence": [
@@ -153,5 +160,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T07:58:30.479719Z"
+  "updated_at": "2026-11-03T07:59:40.067689Z"
 }
