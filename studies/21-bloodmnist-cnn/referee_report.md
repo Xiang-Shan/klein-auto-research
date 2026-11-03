@@ -1,67 +1,111 @@
-Verdict: FAIL
+Verdict: PASS-WITH-NOTES
 Referee: klein-referee (Claude Code subagent, model: claude-opus-5-5) · fresh context · independent-of-experimenter: yes
 Generation: n/a
 
-# Referee report — 21-bloodmnist-cnn
+# Referee report — 21-bloodmnist-cnn (round 2)
 
-> Gate 3 (REFEREE). Written in a fresh context, from `findings.md` first and
+> Gate 3 (REFEREE), round 2. Written in a fresh context, from `findings.md` first and
 > `program.md` last. Protocol: `.claude/skills/klein/references/referee-protocol.md`.
 > The first two lines above are machine-read by `klein gate record referee`; the
 > third is read by people. The study has no `generation/manifest.yaml`, so
 > `Generation:` is `n/a`.
+>
+> **Round 1** (this file as committed at 7943e06) returned **FAIL** on check 1:
+> untested mechanisms were stated as fact in findings §③ item 1, §③ item 3 and §⑥.
+> The synthesist revised the study in 039c66e and 64be92d (7943e06..HEAD). This
+> round re-applies all ten checks from the start. It does not limit itself to the
+> round-1 items. The section "Round-1 items" below states, item by item, whether
+> each clearing condition and note was addressed.
 
 ## Independence
 
-Rung reached (person > tool > model > backend > fresh session): **model**. Both seats
-use the same tool (Claude Code) but different models.
+Rung reached (person > tool > model > backend > fresh session): **model**.
 Experimenter: `klein-experimenter` subagent (Sonnet tier) · Claude Code · a fresh
-subagent context per phase (`program.md` `## Roster`, experimenter row, filled). The
-referee runs on Opus (claude-opus-5-5), which differs from the experimenter's model, so
-`independent-of-experimenter: yes` matches the roster. The synthesist (Opus tier) was a
-separate subagent; this referee did not write findings.md. The roster is complete, so
-the rung is not capped.
+subagent context per phase (`program.md` `## Roster`, experimenter row, filled). This
+referee runs on Opus (claude-opus-5-5), a different model from the experimenter's, so
+`independent-of-experimenter: yes` agrees with the roster. Both seats use the same
+tool, so the rung is "model", not "tool". The synthesist was a separate Opus-tier
+subagent, and this referee wrote no part of findings.md. Round 1 ran in a different
+fresh context, and nothing from that context was carried here except its committed
+report. The roster is complete, so the rung is not capped.
 
 ## Mechanical verifiers run
 
 All commands were run from the worktree root `/home/user/wt-21` with `uv run --no-sync`.
+Nothing was recorded or committed by them (`git status` stayed clean).
 
 | Command | Result |
 |---|---|
-| `klein verify --numbers --evidence-use --no-receipt` | 34 checks, 0 failed. Two `[WARN]`s inside OK rows: (a) contract-driven split: "no study source calls kleinlib.data.contract_split / load_partition". This is a false positive: `train.py` and `sweeps/fit_noise.py` call `kleinlib.data.load_items`, which wraps `load_partition` (kleinlib/data.py:600-614), and every run.log prints `split_fingerprint: 29130f0c…`, which matches the frozen development fingerprint. (b) The referee gate has not been recorded yet, which is expected. evidence_use_rate 1.00 (8/8). Findings numbers: 317 numerals trace to 34 pinned sources. Headroom h = 1.230. |
-| `klein claims verify` | 7 checks, 0 failed (23 pinned artifacts hash as recorded; append-only; ancestry OK) |
+| `klein verify --numbers --evidence-use --no-receipt` | 34 checks, 0 failed. evidence_use_rate 1.00 (all 8 non-keep runs and registered sweeps cited). Findings numbers: all 320 scanned numerals trace to 35 pinned sources (317 / 34 in round 1; the new pin is `art:per_class_noise`). Headroom h = 1.230. Two `[WARN]`s inside OK rows. (a) contract-driven split: a known framework false positive, because the detector did not recognise `kleinlib.data.load_items`. Per the orchestrator, this is fixed on the deliverable branch, and it is not counted against the study. The split fingerprint check is OK. (b) The referee gate is not recorded yet, which is expected. |
+| `klein claims verify` | 7 checks, 0 failed. 24 pinned artifacts hash as recorded, the lock is append-only across history (no claim or number removed or mutated), and ancestry is OK. |
 | `klein predict list` | 4 supported, 1 refuted (P2), 0 inconclusive, 0 open |
-| `klein status` | 9 experiments (keep 3, discard 6, measured 0, crash 0); final holdout 1/1 (E0009); 0 single-source confirmed claims |
-| figure re-render (`make_figures.py` → temp dir, byte compare) | Not applicable. `figures/` holds only `.gitkeep`, there is no `figures/make_figures.py`, and findings.md cites no figure. |
+| `klein status` | 9 experiments (keep 3, discard 6, measured 0, crash 0); final holdout 1/1 (E0009); evidence use 1.00; 0 refutations without a decision; 0 single-source confirmed claims |
+| figure re-render (`make_figures.py` → temp dir, byte compare) | Not applicable. `figures/` and `report/` hold only `.gitkeep`, no `figures/make_figures.py` exists, and findings.md cites no figure. |
+| derived-table re-render (`tables/synthesis.py` on a scratch copy of the study, with its five outputs deleted first) | All five outputs are byte-identical to the committed ones: `synthesis_summary.tsv`, `controls.tsv`, `per_class.tsv`, `seed_dominance.tsv` and the new `per_class_noise.tsv`. This confirms the program.md statement that "the earlier synthesis outputs are byte-identical". |
 
 ## The ten checks
 
 | # | Check | Result | Evidence rested on |
 |---|---|---|---|
-| 1 | strength matches evidence | **FAIL** | Both confirmed claims have the evidence their track requires. C5 rests on the sealed run E0009 (`evaluation_kind: final_test`, `execution.mode: local`, so it was observed, not attested) and on `rep:E0008@20261103T090709Z` (difference 0). C6 is procedural and rests on the same records. `confirmation.require: [sealed, replicate]` is therefore met. Every comparison between development candidates is labelled exploratory. **The FAIL is in the prose.** §③ item 3 states an untested mechanism as fact, with no exploratory label and no claim id: "Mechanism: an unstable constant-rate optimiser at about 8 epochs". The study never varied the learning-rate schedule, and §⑦ item 3 says so ("the one recipe difference … the study never varied"). Constancy of the rate is therefore a hypothesis, not a measured cause. Two smaller unqualified interpretations ride along. §③ item 1 ends with "colour stencils versus local texture" as the explanation of the per-class pattern in `art:per_class`, with no test behind it. §⑥ (batch-normalization bullet) says "E0003 shows what the momentum shortcut costs when the weights are still moving". Weights still moving is backed only by the off-loop seed-0 diagnostic, which program.md and §③ item 2 themselves call "not evidence". Contrast §③ items 1, 2, 5 and 6, which label their mechanisms "(C11, exploratory)", "(C7, exploratory)" or "unresolved". |
-| 2 | predictions adjudicated and reported | PASS | Every one of P1–P5 has a run-sourced verdict in `study_state.json` (events seq 7, 11, 35, 41, 42). The §② table matches `klein predict list` row for row. The refuted P2 has its dated `Decision:` line in program.md ("Decision: P2 refuted (anchor 0.7189 < 0.85 …"), and verify's belief-revision row is OK. P5's arithmetic "below" is reported alongside the honest "indistinguishable" reading, not replaced by it. |
-| 3 | negative evidence reported | PASS | evidence_use_rate is 1.00 and every discard is in the keep-chain paragraph: E0002, E0003, E0005, E0006, E0007, plus E0009 as the by-design sealed discard row. The discard cluster (single levers after BN that were sub-bar) is written up as a finding in C3 and §③ item 4, and recorded as "positive, below the bar", not as null. E0003 is correctly read as a broken inference path, not as a ruled-out lever. The diff between candidates 3b9a5e5 and e03ed76 is only the running-statistics pass, so C7's +0.5955 is a direct one-edit measurement. No crash occurred. |
-| 4 | controls | PASS (note) | Negative control: analytic chance levels (`art:controls`: majority, uniform and prior-matched on both partitions). Positive or reference control: the pixel-linear softmax E0002, plus agreement of the sealed level with the published MedMNIST v2 number. The label-shuffled harness control that data card leakage row 4 required "at EXPERIMENT" was never run. Findings declares this absence openly (controls paragraph, C17, §⑦ item 3), so the FAIL condition "neither present nor declared" does not hold. See note 2. |
-| 5 | multiple comparisons | PASS (note) | Every family states `n_comparisons`: 7 frontier comparisons, 5 predictions, 5 card priors, 7 post-hoc seed-dominance pairs. No family-wise guard was applied. Every claim drawn from the frontier family (C2–C4, C7–C11) is exploratory. The confirmed C5 is the level of the selected configuration, measured on the untouched sealed split. It is not one of the seven comparisons, so no confirmed claim comes from an unguarded family. E0008 was the pre-registered P3 cell (registered at d961250, 04:49Z, before any run), not a post-hoc bundle. See note 1 for a wording conflict about selection optimism. |
-| 6 | pre-registration integrity | PASS | `events.jsonl` shows four CONSULT records: seq 2 (initial) and three re-records. Seq 4 was before any run (RQ1/RQ4 prior text). Seq 16 set `minimum_delta` from the measured floor, the sanctioned Phase-0 step after E0001 and E0002. Seq 17 raised the run limit from 1800 s to 5400 s before E0003. Each re-record has a reason in its gate note and a dated line in program.md. `git diff d961250 HEAD -- study.yaml` leaves the `predictions:` block untouched, so no rule post-dates its evidence. Raising the delta after E0002 changed no disposition: E0002 is below the incumbent at any delta. |
-| 7 | numbers traceable (five hand-checked: see below) | PASS | `klein verify --numbers` passes. Hand-checks: (i) E0009 macro-F1 0.9465 is the mean of seeds 0.945333, 0.954278 and 0.939948 in `runs/E0009/seeds.tsv`, which gives 0.946520. (ii) E0009 accuracy 0.9527 is the mean of 0.951655, 0.958687 and 0.947846, which gives 0.952729. (iii) The binomial SE sqrt(0.958·0.042/3413) = 0.003434, and the gap (0.958 − 0.952729)/0.003434 = 1.535, as in `art:summary`. (iv) `minimum_delta` = max(2·0.0119694, 0.087687/2) = 0.0438435, and h = (1 − 0.946093)/0.0438435 = 1.2295. (v) Fit-noise sd of block means 0.671912, 0.588594 and 0.668756 is 0.047219 (sample sd), and its ratio to 0.0119694 is 3.945. The four-block mean is 0.662049. Also checked: the C9 recalls 0.2562, 0.9201, 0.7949, 0.8582 and 0.8345 were recomputed from the pinned per-seed confusion tables. "33 of 143" monocytes is row 5, column 3 of `tables/confusion_E0008_s0.tsv`. The one `klein:numbers-ok` marker (findings.md line 108) quotes program.md's "about 1.6" (program.md line 322) in order to correct it to 1.54. The reason holds. |
-| 8 | references | PASS | All 8 `ref:` ids cited in findings are rows in `references.yaml`, and all 19 rows there are `verified: true`. The method card's `refs_verified: true` comment honestly discloses 18 resolved and 1 url-only (`medmnist_info`). No confirmed claim rests on an unverified reference. The comparator 0.958 is in `yang2023medmnist.why` (Table 3). |
-| 9 | figures | PASS (vacuous) | No committed figure exists, so none can fail to re-render and no axis can be truncated. See note 3. |
-| 10 | vocabulary and scope | PASS | The cv profile bans "SOTA", "state of the art", "human-level" and "superhuman", and requires qualification of "accurate", "generalizes" and "robust". A grep of findings.md and claims.lock finds none of these. The floor estimands are named (`marginal-resplit` for the bar, `fit-noise` for provenance). The study is not a simulation. No materiality is claimed, and findings §⑤ says so explicitly. The image-level, not-patient-grouped scope is stated with every claim. |
+| 1 | strength matches evidence | PASS | `confirmation.require: [sealed, replicate]`. **C5** (confirmed) rests on E0009 (`evaluation_kind: final_test`, `execution.mode: local`, so the run was observed, not attested) and on `rep:E0008@20261103T090709Z` (difference 0). **C6** (confirmed, procedural) rests on the same records. All 15 other claims are `exploratory` in `claims.lock`. C7 and C11 are `mechanism-interpretation` and are labelled exploratory wherever the prose uses them. I re-read the prose afresh for mechanisms stated as fact. The round-1 items are now qualified: §③ item 1 ("an untested interpretation: no run probed what either model uses"), §③ item 3 ("an untested hypothesis (C11, exploratory) … 'constant-rate' names a recipe property, not a measured cause") and §⑥ BN ("rests only on the off-loop seed-0 diagnostic … which is not evidence"). The other mechanism statements are also qualified: §③ item 2 (C7, exploratory, diagnostic "not evidence"), §③ item 5 ("unresolved … a hypothesis nobody tested"), §③ item 6 ("unresolved") and §③ item 7 ("unresolved, not 'no optimism'"). "Its loss was still noisy at step 1500" (§③ item 1) is an observation, not a mechanism: `runs/E0001/run.log` prints loss 0.9898, 1.0223, 1.0674 and 0.6497 at steps 750–1500. The one remaining soft premise, in §③ item 4, is hedged in its conclusion ("probably … unmeasured"). It is note 2, not a FAIL. |
+| 2 | predictions adjudicated and reported | PASS | P1–P5 all have notary verdicts in state (events `prediction_adjudicated` P2 at 05:37Z, P1 at 05:44Z, P3 at 08:33Z, P4 and P5 at 09:05Z, each inside its run's transaction). §② matches `klein predict list` row for row (observed values 0.69032, 0.718932, 0.946093, 0.946520, 0.952729). The refuted P2 has its dated `Decision:` line (program.md line 131), and verify's belief-revision row is OK. P5's arithmetic "below" is kept alongside the "indistinguishable" reading and is not replaced by it. |
+| 3 | negative evidence reported | PASS | evidence_use_rate is 1.00. The keep-chain paragraph cites every discard (E0002, E0003, E0005, E0006, E0007) and the by-design sealed discard row E0009. The sub-bar cluster after BN (E0006, E0007) is written up as a finding: C3 and §③ item 4 call it "positive, below the bar", not null. E0003 is read as a broken inference path, not as a ruled-out lever (C7). No run crashed. |
+| 4 | controls | PASS (note 4) | Negative controls: analytic chance levels on development and test (`art:controls`: majority, uniform and prior-matched). Positive / reference control: the pixel-linear E0002, plus agreement of the sealed level with the published MedMNIST v2 number. The label-shuffled harness control is declared absent, with its reason, in the controls paragraph, C17 and §⑦ item 3. program.md now closes the data-card leakage-row-4 obligation as "a DISCLOSED GAP, NOT MET". The FAIL condition "neither present nor declared" does not hold. |
+| 5 | multiple comparisons | PASS | `n_comparisons` is stated for all four families: 7 frontier comparisons, 5 predictions, 5 card priors and 7 post-hoc seed-dominance pairs. No family-wise guard was applied, and every frontier-derived claim is exploratory. The confirmed C5 is a level measured on the untouched sealed split, not a member of an unguarded family. The §② selection-optimism sentence now says the sealed access "bounds the net effect of selection and the train + development refit together; it does not measure selection on its own". This agrees with §③ item 7, so round-1 note 1 is cleared. |
+| 6 | pre-registration integrity | PASS | `events.jsonl` has four CONSULT records. 04:49Z is the initial record, with P1–P5 registered at d961250. 05:17Z is a re-record before any run, which corrected the prior text of RQ1 and RQ4. 05:50Z set `minimum_delta` from the measured floor after E0001 and E0002, the sanctioned Phase-0 step. 05:51Z raised the run limit from 1800 s to 5400 s before E0003. Each re-record has a reason in its gate note and in program.md. `git diff d961250 HEAD -- study.yaml` changes only `minimum_delta`, `noise_floor`/`fit_noise`, the run limit and the two prior strings, never a `predictions:` rule. The first run started at 05:19Z, after every rule was registered. 7943e06..HEAD touched neither `study.yaml` nor `events.jsonl`. |
+| 7 | numbers traceable (five hand-checked, all different from round 1's: see below) | PASS | `klein verify --numbers` passes, with 320 numerals and 35 sources. Five numerals were recomputed from pinned artifacts. (i) E0008 ECE 0.0125 and log-loss 0.1333 (C10) are the means of `runs/E0008/seeds.tsv` val_ece (0.015485, 0.011618, 0.010443 → 0.012515) and val_mlogloss (→ 0.133349). (ii) E0008 seed sd 0.0086 is the sample sd of 0.937187, 0.946645 and 0.954448, which gives 0.008644. (iii) The E0008 wall-clock factor of 17.8 is 2885.578585 / 162.475863 = 17.760. (iv) The sealed seed sds 0.0072 (macro-F1) and 0.0055 (accuracy) and the mean wall time of 171.5 s match `runs/E0009/seeds.tsv` (0.007238, 0.005500, 171.549). (v) The new §③ item 6 figure "1.2 to 1.3 binomial standard errors": recall 0.834499 → 0.794872 on n = 143 gives SEs of sqrt(0.8345·0.1655/143) = 0.031077 and 0.033767. The drop of 0.039627 is then 1.275 and 1.174 SEs, as in `tables/per_class_noise.tsv`. Also checked: the sealed monocyte recall 0.8582 (`per_class.tsv`, 0.858156); C4's margin over the bar, 0.050088 − 0.0438435 = 0.006244; and the E0008-over-E0004 seed dominance of 9/9 (`seed_dominance.tsv`). The one `klein:numbers-ok` marker (findings.md line 108) quotes program.md's "about 1.6" (program.md line 322) in order to correct it to 1.54 (`gap_in_binomial_se_at_0958` 1.535063). Its reason holds. |
+| 8 | references | PASS | All 8 `ref:` ids that findings cites (yang2023medmnist, acevedo2019, ioffe2015, santurkar2018, bouthillier2021, picard2021, cohen2016, veeling2018) are rows in `references.yaml`, and all 19 rows there are `verified: true`. The method card's `refs_verified` comment discloses the one url-only row (`medmnist_info`), which supports no claim. No confirmed claim rests on an unverified reference. |
+| 9 | figures | PASS (vacuous; note 3) | No committed figure exists, so none can fail to re-render and no axis can be truncated. |
+| 10 | vocabulary and scope | PASS | The cv profile bans "SOTA", "state of the art", "human-level" and "superhuman", and requires "accurate", "generalizes" and "robust" to be qualified. A grep of findings.md and claims.lock finds none of these. The estimands are named: `marginal-resplit` for the bar and `fit-noise` for the seed sweep. The study is not a simulation. No materiality is claimed (§⑤ says so). The image-level, not-patient-grouped scope is stated as travelling with every claim. |
 
-## Notes (each needs a dated `Referee note:` answer in program.md once the FAIL is cleared)
+## Round-1 items — were they really addressed?
 
-1. **Selection optimism is described two ways (check 5).** §② says the selection effect of picking the best of 8 configurations is "not corrected for but *measured* — by the single sealed access, which came back +0.0004". §③ item 7 says that selection optimism and the train+development refit (13668 against 11959 rows) push in opposite directions, and that "one sealed number cannot separate them … not as 'no optimism'". §③ item 7 is right. The §② sentence should say the sealed access *bounds the net effect* of selection and refit, not that it measures selection.
-2. **Data-card obligation left open (check 4).** Data card leakage row 4 deferred the constant / label-shuffled harness check "to be reproduced from train.py at EXPERIMENT". It was never run. Findings discloses this (C17, §⑦ item 3). Before finalize, program.md should state that the obligation is closed as a disclosed gap, not met.
-3. **No figures at Gate 3 (check 9).** The TUTORIAL stage needs captioned figures that re-render byte-identically. None exist yet, so check 9 could not exercise anything. Any figure added later (for example a keep-chain or per-class plot) is unreviewed. Its axes must start at zero, or the plot must show the 0.0438 bar, so that sub-bar deltas such as E0006 (+0.0326) and E0007 (+0.0280) are not inflated.
-4. **The §③ item 6 heading overreads per-class noise.** "The bundle lowered monocyte recall" is a 0.0396 drop on 143 development monocytes, about 1.2 binomial SEs. The body says this is "close to per-class item noise", but the heading states it as an effect. Suggest "monocyte recall fell (within per-class noise)".
-5. **Framework WARN, not a study defect.** verify's contract-driven-split detector does not recognise `kleinlib.data.load_items` as a contract-driven loader. The printed fingerprints match, so the split is checked in substance. The detector should be fixed in kleinlib, not worked around in the study.
-6. **Disclosed aux caveat.** The E0001 and E0002 rows in `aux_metrics.tsv` hold last-seed values, filed before framework fix fcadacf. Findings discloses this, and claims correctly read `seeds.tsv`. Nothing needs to change.
+| Round-1 item | Status | Where |
+|---|---|---|
+| Clearing condition, §③ item 3 | **Cleared.** It is now labelled an untested hypothesis (C11, exploratory) and states that the learning-rate schedule was never varied. | findings §③ item 3; diff 7943e06..039c66e |
+| Clearing condition, §③ item 1 | **Cleared.** "Colour stencils versus local texture" is now marked an untested interpretation. | findings §③ item 1 |
+| Clearing condition, §⑥ BN bullet | **Cleared.** "Weights still moving" is tied to the off-loop diagnostic, which is explicitly called not evidence. | findings §⑥ |
+| "No numeral or claim sentence in claims.lock changes" | **Held.** `klein claims verify` append-only check is OK. The lock diff only adds the pin `per_class_noise` and repins `synthesis_script` (64be92d). No claim or number changed, so no erratum was needed. | `git diff 7943e06..HEAD -- claims.lock` |
+| Note 1 (selection optimism described two ways) | **Addressed.** §② now matches §③ item 7. | findings §② `n_comparisons` |
+| Note 2 (harness-control obligation) | **Addressed.** It is closed in program.md as a disclosed gap, not met. | program.md, "Referee notes — answers" |
+| Note 3 (no figures at Gate 3) | **Acknowledged** for TUTORIAL. It still applies, so it is carried forward as note 3 below. | program.md, same section |
+| Note 4 (monocyte heading overread) | **Addressed.** The heading now reads "within per-class noise", and the body gives 1.2 to 1.3 SEs from the new pinned table. See note 1 below for a method caveat. | findings §③ item 6; `tables/per_class_noise.tsv` |
+| Note 5 (framework WARN) | **Acknowledged.** It is a framework item, fixed on the deliverable branch per the orchestrator, and not counted. | program.md |
+| Note 6 (aux last-seed caveat) | **Acknowledged.** No change was needed. | program.md |
+
+## Notes (PASS-WITH-NOTES)
+
+Notes 1 and 2 are new. Each needs a dated `Referee note:` answer in program.md before
+`klein finalize`. Notes 3–5 carry round-1 items forward. Their existing dated answers
+in program.md's "Referee notes — answers" section suffice, unless the orchestrator
+wants to restate them.
+
+1. **The monocyte noise figure uses a single-recall SE, not the SE of a difference
+   (check 7 / §③ item 6).** `tables/per_class_noise.tsv` divides the E0004 → E0008 drop
+   by the binomial SE of one recall. The drop is a difference of two recalls measured
+   on the same 143 development monocytes. An independent-samples SE would be about 0.046,
+   putting the drop near 0.86 SE. A paired SE could be smaller than either. The
+   conclusion "not an established effect" is independently supported by the per-seed
+   recalls in the pinned confusion tables: E0004 gives 0.825, 0.909 and 0.769, and
+   E0008 gives 0.755, 0.727 and 0.902, so the two ranges overlap widely. The wording
+   therefore stands. A future revision should say "SE of one recall" or quote the seed
+   ranges, so that the reader does not take 1.2–1.3 as a test statistic for the
+   difference.
+2. **One unmeasured premise in §③ item 4.** "where macro-F1 is noisier per item than
+   near 0.93" is stated as fact. It is a reasonable binomial expectation, and the
+   sentence's conclusion is correctly hedged ("probably wider … unmeasured — ⑦ item 2").
+   But the item bootstrap was never run at the incumbent. Suggested wording: "expected
+   to be noisier per item". This does not change any claim.
+3. **Still no figures (check 9, carried forward from round-1 note 3).** TUTORIAL will
+   add the study's first figures, and Gate 3 has not reviewed any of them. Keep-chain
+   and per-class plots must start their axes at zero or draw the 0.0438 bar, so that
+   sub-bar deltas (E0006 +0.0326, E0007 +0.0280) are not visually inflated.
+4. **Harness control remains a disclosed gap (check 4, carried forward from round-1
+   note 2).** This is answered in program.md. C17 and §⑦ item 3 carry it forward.
+5. **Framework WARN (carried forward from round-1 note 5).** The contract-driven-split
+   detector WARN is a framework false positive, fixed on the deliverable branch. It is
+   not counted against this study.
 
 ## Clearing conditions (FAIL only)
 
-- **Check 1.** Return to SYNTHESIZE and qualify each untested mechanism stated as fact:
-  - §③ item 3: label "an unstable constant-rate optimiser at about 8 epochs" as exploratory and cite C11, or write it as a hypothesis. It should say that the learning-rate schedule was never varied, so "constant-rate" is not a measured cause.
-  - §③ item 1: mark "colour stencils versus local texture" as an untested interpretation.
-  - §⑥ batch-normalization bullet: state that "when the weights are still moving" rests on the off-loop diagnostic, which is not evidence, or drop the clause.
-
-  The rewording must not change any numeral or claim sentence in `claims.lock`. If it does, append claims with `klein claims` rather than editing them. Then re-run `klein verify --numbers --evidence-use` and `klein claims verify`, and hand the study to a fresh referee. Fixing note 1 in the same pass is recommended.
+None. No FAIL condition holds.

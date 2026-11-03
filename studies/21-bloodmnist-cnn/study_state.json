@@ -11,11 +11,16 @@
     "method": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T05:17:54.314105Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T09:58:13.913168Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "2521cd4d51c7456c2d09203028eebd3fc88789ee1a6882e1d0ef7fb00a5a09a9",
     "method_card.md": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee",
+    "referee_report.md": "8cf9d75a831e0ae4bfa3143406bf31e46f530ac9d5349417209c0dd4a2180555",
     "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
     "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
     "study.yaml": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
@@ -68,6 +73,18 @@
       },
       "note": "delegated (program.md Roster). Card complete (triad all true); refs verify 19 references, 0 failed",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-11-03T09:58:13.913168Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "8cf9d75a831e0ae4bfa3143406bf31e46f530ac9d5349417209c0dd4a2180555"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "last_experiment": 9,
@@ -237,5 +254,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T09:32:22.953549Z"
+  "updated_at": "2026-11-03T09:58:13.914318Z"
 }
