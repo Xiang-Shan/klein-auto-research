@@ -39,6 +39,24 @@
       "experiment": "E0008"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "exponent": 0,
+      "primary": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "exponent": null,
+      "primary": "E0008"
+    },
+    "timestamp": "2026-11-03T10:09:34.033537Z"
+  },
   "fingerprints": {
     "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
     "split": {
@@ -397,7 +415,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T09:30:10.220405Z"
+  "updated_at": "2026-11-03T10:09:34.033562Z"
 }
