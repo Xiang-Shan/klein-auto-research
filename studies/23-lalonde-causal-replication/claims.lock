@@ -85,7 +85,9 @@
     "C1": {
       "claim": "The published targets do not all reproduce within the registered tolerance of 1 dollar: 9 of 11 development targets and 3 of 5 sealed CPS-1 targets do, and the four misses are exactly the comparison-group adjusted estimates and their standard errors (PSID-1 217.94 and 866.20 against a printed 731 and 886; CPS-1 738.83 and 547.05 against 972 and 550)",
       "class": "empirical-description",
-      "errata": [],
+      "errata": [
+        "E9"
+      ],
       "evidence": [
         "E0001",
         "E0008",
@@ -903,6 +905,13 @@
       ],
       "filed": "2026-11-03",
       "note": "C5's 'carried unchanged' and 'AIPW with the PSID-1 logit' mean the specification (the dw_psid covariate list) only: lib/lalonde.py propensity() re-fits the logistic regression on the trainees plus the lane's comparison men, and the AIPW outcome model is re-fit on the CPS-1 men on support; no fitted coefficient is carried from PSID-1. study.yaml P7 says 'specification unchanged'. Content and strength unchanged (confirmed); superseded by C29, which says so in its sentence. Raised by the second adversarial check of 2026-11-03."
+    },
+    "E9": {
+      "claims": [
+        "C1"
+      ],
+      "filed": "2026-11-03",
+      "note": "Every registered target C1 compares against was transcribed from the NBER working paper w6586 alone (scouting S3; the JASA text was not accessed), the same single source erratum E4 cited against C6, and C1's sentence does not say so, so a transcription error would read as a miss. C1 keeps confirmed because it asserts measured values against the registered targets as transcribed, which the notary adjudicated (P1, P6); C6 was downgraded because it asserted which Table 2 column the paper printed, the editorial reading that C10 holds at exploratory. Superseded by C30, which names the single source in its sentence. Strength unchanged (confirmed). Raised by the second adversarial check of 2026-11-03."
     }
   },
   "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
