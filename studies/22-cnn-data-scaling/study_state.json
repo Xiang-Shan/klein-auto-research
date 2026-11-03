@@ -21,7 +21,7 @@
     "study.yaml": "b1b7d96b292920a7ad6fb89a5e6d4f791a3d9606f18bf008aca723e428325bd0"
   },
   "created_at": "2026-11-03T04:57:31.016139Z",
-  "current_phase": "fit",
+  "current_phase": "confirmation",
   "final_holdout_access": {
     "exponent": {
       "accessed_at": null,
@@ -83,6 +83,12 @@
       "acknowledged_by": "lead-agent",
       "note": "delegated. Six detached cells E0001-E0006 collected (attested); N=500 lower than N=1000 (step floor), noted; all cells compute-limited at their budgets",
       "playbook_sha256": "bae830b4e55b11fdcc19101f4ee6296aed7bb5b12a0d477d2df97ee793fcb256"
+    },
+    "fit": {
+      "acknowledged_at": "2026-11-03T08:09:01.587433Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated. E0007 fit: alpha 0.1304 (P1 supported, P5 refuted), fit_r2 0.7955 (P2 refuted); law pinned, predicted loss at 59,992 = 0.5066; proceed to the sealed extrapolation",
+      "playbook_sha256": "56ea86eaa27e149d672c1ded1e4970d66597d85f639b6e79d6fd245290f8cce7"
     }
   },
   "predictions": {
@@ -154,5 +160,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T08:08:23.639433Z"
+  "updated_at": "2026-11-03T08:09:01.595687Z"
 }
