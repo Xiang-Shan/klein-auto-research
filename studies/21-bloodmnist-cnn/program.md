@@ -252,3 +252,11 @@ Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; 
   one lever (a working BN), because E0003 showed the first is not measurable without the second.
   Experiments used in the phase: 3 of 6, so the slate drops its lowest-scored candidate (width 64);
   order now D4, third block, 4,000 steps, then P3 last.
+- 2026-11-03 — E0005 (D4 flip / rot90 augmentation on the training batch, own RNG, on the E0004
+  incumbent): `discard`, val_macro_f1 seed-mean 0.8893 (seeds 0.8971 / 0.8834 / 0.8875; std
+  0.0070), accuracy 0.9031 (std 0.0070). Margin vs incumbent 0.8960: -0.0067, inside the
+  incumbent's seed spread (std 0.0145) and far inside the bar (+0.0438 needed). Reading: at 1,500
+  steps and two blocks, D4 does not help (it cannot beat 0.9398); 1,500 steps see each augmented
+  orbit member only ~once, so a null here says nothing about D4 with a longer schedule or a deeper
+  network (it still rides inside P3). Not resolved at this budget, not ruled out. Seed std
+  0.0070 is the lowest of any run so far. Phase experiments used: 3 of 6 (E0003-E0005).
