@@ -12,11 +12,17 @@ changes.
 | --- | --- | --- |
 | consultant | lead agent (Claude Code orchestrating session) — drafted the contract | 2026-11-03 |
 | experimenter | `klein-experimenter` subagent (Sonnet tier) · Claude Code · a fresh subagent context per phase | 2026-11-03 |
-| data-gate auditor | `klein-data-auditor` subagent (Sonnet tier) · Claude Code | 2026-11-03 |
+| data-gate auditor | `klein-data-auditor` subagent (Sonnet tier; exact model id not recorded) · Claude Code · a subagent context of session `session_01DRcLputoCrDTEvbxp6Rby1` | 2026-11-03 |
 | method scholar | `klein-method-scholar` subagent (Opus tier) · Claude Code | 2026-11-03 |
-| synthesist | `klein-synthesist` subagent (Opus tier) · Claude Code | 2026-11-03 |
+| synthesist | `klein-synthesist` subagent, model `claude-opus-5-5` (Opus tier) · Claude Code · a fresh subagent context of session `session_01DRcLputoCrDTEvbxp6Rby1` that read the record only, never the live loop | 2026-11-03 |
 | referee | `klein-referee` subagent (Opus tier) · Claude Code · fresh context that never saw the loop (rung: different model than the experimenter) | 2026-11-03 |
-| lead | lead agent, acting on the repository owner's delegation | 2026-11-03 |
+| lead | lead agent, acting on the repository owner's delegation · Claude Code orchestrating session `session_01DRcLputoCrDTEvbxp6Rby1` (model not recorded in the study's artifacts) | 2026-11-03 |
+
+Session evidence (synthesist, 2026-11-03): every non-engine commit on this branch carries the
+trailer `Claude-Session: …/session_01DRcLputoCrDTEvbxp6Rby1`, so the subagent roles above ran as
+child contexts of that one orchestrating session; the engine's own commits (`Klein Workflow`)
+carry none. The exact model ids of the experimenter, the data-gate auditor and the lead are not
+recorded in any study artifact; only their tiers are.
 
 **Acknowledgements are delegated.** The repository owner approved the Klein 2.3 plan
 that commissions this exhibit, and that approval delegates the CONSULT, DATA, METHOD

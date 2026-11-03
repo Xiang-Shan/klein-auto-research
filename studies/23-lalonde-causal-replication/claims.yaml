@@ -1,0 +1,723 @@
+# Study 23 claims, applied with `klein claims apply` (SYNTHESIZE, 2026-11-03).
+# Claim sentences are copied verbatim from findings.md.
+artifacts:
+  results: results.tsv
+  aux: aux_metrics.tsv
+  contract: study.yaml
+  card: method_card.md
+  data_card: data_card.md
+  repro_psid1: tables/reproduction_psid1.tsv
+  repro_cps1: tables/reproduction_cps1.tsv
+  att_e0002: tables/att_E0002.tsv
+  att_e0005: tables/att_E0005.tsv
+  att_e0006: tables/att_E0006.tsv
+  att_e0007: tables/att_E0007.tsv
+  att_e0009: tables/att_E0009.tsv
+  att_dryrun: tables/att_DRYRUN.tsv
+  dryrun_att_timeout: sweeps/sealed_dryrun.20261103T055915.558242Z.log
+  dryrun_att_ok: sweeps/sealed_dryrun.20261103T061544.862214Z.log
+  rep_e0001: runs/E0001/replications/20261103T065031Z.json
+  rep_e0006: runs/E0006/replications/20261103T065104Z.json
+  incident: incidents/2026-11-03-e0005-history-repair/README.md
+numbers:
+  name_one:
+    value: 1
+    art: contract
+    claim: C1
+    precision: 0
+    note: the numeral in the names PSID-1, CPS-1 and 1-NN - a name, not a measurement
+  tolerance:
+    value: 1
+    art: repro_psid1
+    claim: C1
+    precision: 0
+    note: registered reproduction tolerance, dollars (tolerance column; lib/lalonde.py TOLERANCE)
+  psid1_adjusted:
+    value: 217.94
+    art: repro_psid1
+    claim: C1
+    precision: 2
+    note: PSID-1 note-a adjusted estimate reproduced (E0001)
+  psid1_adjusted_se:
+    value: 866.2
+    art: repro_psid1
+    claim: C1
+    precision: 2
+    note: its classical OLS standard error (E0001)
+  psid1_adjusted_published:
+    value: 731
+    art: repro_psid1
+    claim: C1
+    precision: 0
+    note: Table 3 column (2) PSID-1 value as printed
+  psid1_adjusted_se_published:
+    value: 886
+    art: repro_psid1
+    claim: C1
+    precision: 0
+    note: Table 3 column (2) PSID-1 s.e. as printed
+  cps1_adjusted:
+    value: 738.83
+    art: repro_cps1
+    claim: C1
+    precision: 2
+    note: CPS-1 note-a adjusted estimate reproduced (E0008, sealed)
+  cps1_adjusted_se:
+    value: 547.05
+    art: repro_cps1
+    claim: C1
+    precision: 2
+    note: its classical OLS standard error (E0008)
+  cps1_adjusted_published:
+    value: 972
+    art: repro_cps1
+    claim: C1
+    precision: 0
+    note: Table 3 column (2) CPS-1 value as printed
+  cps1_adjusted_se_published:
+    value: 550
+    art: repro_cps1
+    claim: C1
+    precision: 0
+    note: Table 3 column (2) CPS-1 s.e. as printed
+  psid1_naive:
+    value: -15204.78
+    art: repro_psid1
+    claim: C2
+    precision: 2
+    note: naive difference in means, NSW treated minus PSID-1 (E0001)
+  psid1_naive_se:
+    value: 1154.61
+    art: repro_psid1
+    claim: C2
+    precision: 2
+    note: its classical OLS standard error (E0001)
+  experimental_att:
+    value: 1794.34
+    art: repro_psid1
+    claim: C2
+    precision: 2
+    note: 'experimental benchmark: NSW treated minus NSW controls (E0001; printed by every cell)'
+  experimental_se:
+    value: 632.85
+    art: repro_psid1
+    claim: C2
+    precision: 2
+    note: its classical OLS standard error (E0001)
+  cps1_naive:
+    value: -8497.52
+    art: repro_cps1
+    claim: C2
+    precision: 2
+    note: naive difference in means against CPS-1 (E0008, sealed)
+  cps1_naive_se:
+    value: 712.02
+    art: repro_cps1
+    claim: C2
+    precision: 2
+    note: its classical OLS standard error (E0008)
+  band_usd:
+    value: 1000
+    art: contract
+    claim: C3
+    precision: 0
+    note: the registered band of P2-P5 and P7 (abs_le 1000)
+  gap_ipw:
+    value: 1244.09
+    art: att_e0002
+    claim: C3
+    precision: 2
+    note: IPW dw_psid gap to the benchmark, PSID-1 (E0002)
+  gap_match:
+    value: -1234.06
+    art: att_e0005
+    claim: C3
+    precision: 2
+    note: 1-NN matching dw_psid gap, PSID-1 (E0005)
+  gap_aipw:
+    value: 889.48
+    art: att_e0006
+    claim: C3
+    precision: 2
+    note: AIPW dw_psid gap, PSID-1 (E0006)
+  att_ipw:
+    value: 3038.44
+    art: att_e0002
+    claim: C4
+    precision: 2
+    note: IPW dw_psid ATT, PSID-1 (E0002)
+  att_no_re74:
+    value: -15.33
+    art: att_e0007
+    claim: C4
+    precision: 2
+    note: IPW no_re74 ATT, PSID-1 (E0007)
+  gap_no_re74:
+    value: -1809.67
+    art: att_e0007
+    claim: C4
+    precision: 2
+    note: its gap to the benchmark (E0007)
+  ci_low_no_re74:
+    value: -2642.44
+    art: att_e0007
+    claim: C4
+    precision: 2
+    note: percentile-bootstrap lower bound, 500 draws (E0007)
+  ci_high_no_re74:
+    value: 2471.35
+    art: att_e0007
+    claim: C4
+    precision: 2
+    note: percentile-bootstrap upper bound (E0007)
+  att_sealed:
+    value: 1327.54
+    art: att_e0009
+    claim: C5
+    precision: 2
+    note: AIPW dw_psid ATT on sealed CPS-1 (E0009)
+  ci_low_sealed:
+    value: -129.17
+    art: att_e0009
+    claim: C5
+    precision: 2
+    note: percentile-bootstrap lower bound, 500 draws (E0009)
+  ci_high_sealed:
+    value: 2835.62
+    art: att_e0009
+    claim: C5
+    precision: 2
+    note: percentile-bootstrap upper bound (E0009)
+  gap_sealed:
+    value: -466.8
+    art: att_e0009
+    claim: C5
+    precision: 2
+    note: sealed gap to the benchmark (E0009)
+  n_controls_sealed:
+    value: 4493
+    art: att_e0009
+    claim: C5
+    precision: 0
+    note: CPS-1 comparison men on common support (E0009)
+  share_sealed:
+    value: 0.0426
+    art: att_e0009
+    claim: C5
+    precision: 4
+    note: largest single odds-weight share on CPS-1 (E0009)
+  table_three:
+    value: 3
+    art: card
+    claim: C6
+    precision: 0
+    note: the numeral in 'Table 3' - it names a table of the paper, not a measurement
+  table_two:
+    value: 2
+    art: card
+    claim: C6
+    precision: 0
+    note: the numeral in 'Table 2' and 'column (2)' - names, not measurements
+  column_four:
+    value: 4
+    art: card
+    claim: C6
+    precision: 0
+    note: the numeral in 'Panel C column (4)' - a name, not a measurement
+  column_five:
+    value: 5
+    art: card
+    claim: C6
+    precision: 0
+    note: the numeral in 'Panel C column (5)' - a name, not a measurement
+  nsw_note_a:
+    value: 1672.2
+    art: repro_psid1
+    claim: C6
+    precision: 2
+    note: NSW note-a adjusted estimate reproduced (E0001)
+  panel_c4_nsw:
+    value: 1672
+    art: repro_psid1
+    claim: C6
+    precision: 0
+    note: Table 2 Panel C column (4), NSW, as printed
+  panel_c4_psid1:
+    value: 218
+    art: repro_psid1
+    claim: C6
+    precision: 0
+    note: Table 2 Panel C column (4), PSID-1, as printed
+  panel_c4_cps1:
+    value: 739
+    art: repro_cps1
+    claim: C6
+    precision: 0
+    note: Table 2 Panel C column (4), CPS-1, as printed
+  diag_psid1_married:
+    value: 795.02
+    art: repro_psid1
+    claim: C6
+    precision: 2
+    note: 'PSID-1 ''all covariates'' reading: note a + married (E0001 diagnostic)'
+  diag_psid1_married_u:
+    value: 67.28
+    art: repro_psid1
+    claim: C6
+    precision: 2
+    note: 'PSID-1 reading: note a + married + u74 + u75 (E0001 diagnostic)'
+  diag_cps1_married:
+    value: 793.59
+    art: repro_cps1
+    claim: C6
+    precision: 2
+    note: 'CPS-1 reading: note a + married (E0008 diagnostic)'
+  diag_cps1_married_u:
+    value: 1137.2
+    art: repro_cps1
+    claim: C6
+    precision: 2
+    note: 'CPS-1 reading: note a + married + u74 + u75 (E0008 diagnostic)'
+  n_support_psid:
+    value: 1146
+    art: att_e0002
+    claim: C7
+    precision: 0
+    note: PSID-1 comparison men on common support, dw_psid (E0002, E0006)
+  n_psid1:
+    value: 2490
+    art: repro_psid1
+    claim: C7
+    precision: 0
+    note: PSID-1 comparison men in the file (Table 1 size)
+  share_psid:
+    value: 0.135
+    art: att_e0002
+    claim: C7
+    precision: 3
+    note: largest single odds-weight share on PSID-1, dw_psid (E0002; identical in E0006)
+  n_match_controls:
+    value: 56
+    art: att_e0005
+    claim: C7
+    precision: 0
+    note: distinct PSID-1 men used by 1-NN matching (E0005)
+  share_match:
+    value: 0.146
+    art: att_e0005
+    claim: C7
+    precision: 3
+    note: largest share of trainees matched to one PSID-1 man (E0005)
+  card_p4_prior:
+    value: 0.6
+    art: card
+    claim: C9
+    precision: 2
+    note: method card section 4 P(holds) for P4
+  exit_e0004:
+    value: 143
+    art: results
+    claim: C18
+    precision: 0
+    note: E0004 process exit code (SIGTERM from the driver)
+  limit_old:
+    value: 900
+    art: contract
+    claim: C20
+    precision: 0
+    note: max_run_seconds before the re-record (study.yaml comment 'was 900')
+  exit_dryrun:
+    value: 124
+    art: dryrun_att_timeout
+    claim: C20
+    precision: 0
+    note: exit code of the first sealed att dry run (timeout)
+  wall_sealed:
+    value: 1227.74
+    art: aux
+    claim: C20
+    precision: 2
+    note: E0009 wall_seconds on sealed CPS-1
+  rep_diff:
+    value: 0
+    art: rep_e0006
+    claim: C21
+    precision: 0
+    note: replication difference on the primary metric (both records)
+  rep_wall:
+    value: 904.6
+    art: rep_e0006
+    claim: C21
+    precision: 2
+    note: E0006 replication wall_seconds
+  orig_wall:
+    value: 639.89
+    art: rep_e0006
+    claim: C21
+    precision: 2
+    note: E0006 original wall_seconds
+claims:
+  C1:
+    class: empirical-description
+    strength: confirmed
+    claim: 'The published targets do not all reproduce within the registered tolerance of 1 dollar: 9 of 11 development targets and 3 of 5 sealed CPS-1 targets do, and the four misses are exactly the comparison-group adjusted estimates and their standard errors (PSID-1 217.94 and 866.20 against a printed 731 and 886; CPS-1 738.83 and 547.05 against 972 and 550)'
+    numbers:
+    - tolerance
+    - name_one
+    - psid1_adjusted
+    - psid1_adjusted_se
+    - psid1_adjusted_published
+    - psid1_adjusted_se_published
+    - cps1_adjusted
+    - cps1_adjusted_se
+    - cps1_adjusted_published
+    - cps1_adjusted_se_published
+    evidence:
+    - E0001
+    - E0008
+    - rep:E0001@20261103T065031Z
+    - art:repro_psid1
+    - art:repro_cps1
+    - P1
+    - P6
+  C2:
+    class: empirical-description
+    strength: confirmed
+    claim: The naive difference in means against PSID-1 is -15204.78 (s.e. 1154.61) against the experimental 1794.34 (s.e. 632.85), the wrong sign and a miss larger than the benchmark itself; against the sealed CPS-1 lane it is -8497.52 (s.e. 712.02)
+    numbers:
+    - name_one
+    - psid1_naive
+    - psid1_naive_se
+    - experimental_att
+    - experimental_se
+    - cps1_naive
+    - cps1_naive_se
+    evidence:
+    - E0001
+    - E0008
+    - rep:E0001@20261103T065031Z
+    - art:repro_psid1
+    - art:repro_cps1
+  C3:
+    class: empirical-description
+    strength: exploratory
+    claim: 'On PSID-1 with the Dehejia-Wahba logit only AIPW lands within 1000 dollars of the experimental estimate: the gaps are +1244.09 (IPW), -1234.06 (1-NN matching) and +889.48 (AIPW), and all three percentile-bootstrap intervals contain the benchmark 1794.34'
+    numbers:
+    - name_one
+    - band_usd
+    - gap_ipw
+    - gap_match
+    - gap_aipw
+    - experimental_att
+    evidence:
+    - E0002
+    - E0005
+    - E0006
+    - rep:E0006@20261103T065104Z
+    - art:att_e0002
+    - art:att_e0005
+    - art:att_e0006
+    - P2
+    - P3
+    - P4
+  C4:
+    class: empirical-description
+    strength: exploratory
+    claim: 'Dropping every 1974-earnings term moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67), yet its bootstrap interval [-2642.44, 2471.35] still contains the benchmark: 1974 earnings is load-bearing for the point estimate under this one specification, not demonstrably for the interval'
+    numbers:
+    - name_one
+    - att_ipw
+    - att_no_re74
+    - gap_no_re74
+    - ci_low_no_re74
+    - ci_high_no_re74
+    evidence:
+    - E0007
+    - E0002
+    - art:att_e0007
+    - art:att_e0002
+    - P5
+  C5:
+    class: empirical-description
+    strength: confirmed
+    claim: Carried unchanged to the sealed CPS-1 lane, AIPW with the PSID-1 logit estimates an ATT of 1327.54 with bootstrap interval [-129.17, 2835.62], a gap of -466.80 against the benchmark, on 4493 comparison men whose largest single weight share is 0.0426
+    numbers:
+    - name_one
+    - att_sealed
+    - ci_low_sealed
+    - ci_high_sealed
+    - gap_sealed
+    - n_controls_sealed
+    - share_sealed
+    evidence:
+    - E0009
+    - E0006
+    - rep:E0006@20261103T065104Z
+    - art:att_e0009
+    - P7
+  C6:
+    class: empirical-description
+    strength: confirmed
+    claim: 'Table 3 column (2) is two regressions: note a''s covariate list reproduces Table 2 Panel C column (4) on all three lanes (1672.20, 217.94 and 738.83 against 1672, 218 and 739), which is the printed NSW value, while the printed PSID-1 and CPS-1 values (731, 972) are Panel C column (5), which neither all-covariates reading recovers (PSID-1 795.02 or 67.28; CPS-1 793.59 or 1137.20)'
+    numbers:
+    - table_three
+    - table_two
+    - column_four
+    - column_five
+    - name_one
+    - nsw_note_a
+    - psid1_adjusted
+    - cps1_adjusted
+    - panel_c4_nsw
+    - panel_c4_psid1
+    - panel_c4_cps1
+    - psid1_adjusted_published
+    - cps1_adjusted_published
+    - diag_psid1_married
+    - diag_psid1_married_u
+    - diag_cps1_married
+    - diag_cps1_married_u
+    evidence:
+    - E0001
+    - E0008
+    - rep:E0001@20261103T065031Z
+    - art:repro_psid1
+    - art:repro_cps1
+    - ref:dehejia1998nber
+  C7:
+    class: empirical-description
+    strength: exploratory
+    claim: On PSID-1 the common-support trim keeps 1146 of 2490 comparison men and one of them carries 0.135 of the odds-weight mass (IPW and AIPW), while 1-NN matching uses 56 distinct men with one matched to a 0.146 share of the trainees; on sealed CPS-1 the trim keeps 4493 men and the largest share is 0.0426
+    numbers:
+    - name_one
+    - n_support_psid
+    - n_psid1
+    - share_psid
+    - n_match_controls
+    - share_match
+    - n_controls_sealed
+    - share_sealed
+    evidence:
+    - E0002
+    - E0005
+    - E0006
+    - E0009
+    - art:att_e0002
+    - art:att_e0005
+    - art:att_e0006
+    - art:att_e0009
+  C8:
+    class: procedural-verdict
+    strength: confirmed
+    claim: 'The notary adjudicated all seven registered predictions: 3 of 7 supported (P3, P5, P7), 4 of 7 refuted (P1, P2, P4, P6) and 0 of 7 inconclusive or open, and each refutation carries a dated Decision line in program.md'
+    numbers: []
+    evidence:
+    - P1
+    - P2
+    - P3
+    - P4
+    - P5
+    - P6
+    - P7
+    - E0001
+    - E0002
+    - E0005
+    - E0006
+    - E0007
+    - E0008
+    - E0009
+  C9:
+    class: empirical-description
+    strength: exploratory
+    claim: Of the method card's eight staked priors 7 of 8 held; the falsified one, that every out-of-band PSID-1 gap is negative, fell to IPW's +1244.09, and the card's leaning for 1-NN matching (holds, 0.60) missed at -1234.06
+    numbers:
+    - name_one
+    - gap_ipw
+    - card_p4_prior
+    - gap_match
+    evidence:
+    - E0001
+    - E0002
+    - E0005
+    - E0006
+    - E0007
+    - E0008
+    - E0009
+    - art:card
+  C10:
+    class: mechanism-interpretation
+    strength: exploratory
+    claim: 'The comparison-group adjusted values miss for an editorial reason, not a numerical one: Table 3 column (2) appears to be assembled from Table 2, printing Panel C column (4) in its NSW row and column (5) in its comparison rows under one note that lists column (4)''s covariates; column (5)''s covariate set is not printed and both readings tried failed, so which regression produced 731 and 972 remains unresolved'
+    numbers:
+    - table_three
+    - table_two
+    - column_four
+    - column_five
+    - psid1_adjusted_published
+    - cps1_adjusted_published
+    evidence:
+    - E0001
+    - E0008
+    - art:repro_psid1
+    - art:repro_cps1
+    - art:card
+    - ref:dehejia1998nber
+  C11:
+    class: mechanism-interpretation
+    strength: exploratory
+    claim: IPW and 1-NN matching miss on opposite sides with the same score (+1244.09 and -1234.06) most plausibly because each counterfactual rests on a different handful of PSID-1 men, one man carrying 0.135 of IPW's weight and one a 0.146 share of matching's, so the sign of a miss tracks which few men are heavy rather than a shared bias of the comparison group; per-man weights were not pinned, so this is unresolved in detail
+    numbers:
+    - gap_ipw
+    - gap_match
+    - name_one
+    - share_psid
+    - share_match
+    evidence:
+    - E0002
+    - E0005
+    - art:att_e0002
+    - art:att_e0005
+  C12:
+    class: mechanism-interpretation
+    strength: exploratory
+    claim: The sealed AIPW gap (-466.80) is smaller than its development gap (+889.48) most plausibly because CPS-1 overlaps the trainees better, with 4493 men on support against 1146 and a largest weight share of 0.0426 against 0.135, so the counterfactual rests on many men instead of a few; one sealed draw cannot separate this from luck, and agreement with the benchmark does not show that selection on observables holds
+    numbers:
+    - gap_sealed
+    - gap_aipw
+    - name_one
+    - n_controls_sealed
+    - n_support_psid
+    - share_sealed
+    - share_psid
+    evidence:
+    - E0006
+    - E0009
+    - art:att_e0006
+    - art:att_e0009
+    - ref:imbens2025
+    - ref:dehejia1998nber
+  C13:
+    class: research-discipline
+    strength: exploratory
+    claim: 'A sensitivity prediction scored against the benchmark band cannot separate the covariate mattering from the estimator missing anyway: IPW missed the 1000-dollar band both with 1974 earnings (gap +1244.09) and without them (estimate -15.33 against 1794.34), so P5 would have been supported had 1974 earnings been irrelevant; a rule stated against the baseline cell, as the card''s own prior was, is the test that discriminates'
+    numbers:
+    - band_usd
+    - gap_ipw
+    - att_no_re74
+    - experimental_att
+    evidence:
+    - E0002
+    - E0007
+    - P5
+    - art:card
+  C14:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Cross-read every printed target against the paper''s other tables before registering a replication: comparing Table 3 with Table 2 at METHOD explained both reproduction refutations before any cell ran, so the anchor''s STOP rule could tell a known inconsistency in the paper from a broken pipeline'
+    numbers:
+    - table_three
+    - table_two
+    evidence:
+    - E0001
+    - E0008
+    - art:card
+    - art:repro_psid1
+    - art:repro_cps1
+  C15:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Print the weight-concentration pair, the largest single weight share and the number of comparison units used, with every weighting or matching estimate and read it before the point estimate: PSID-1 shares of 0.135 (IPW, AIPW) and 0.146 (matching) said each estimate rested on a few men, which the 0.0426 share on CPS-1 did not'
+    numbers:
+    - name_one
+    - share_psid
+    - share_match
+    - share_sealed
+    evidence:
+    - E0002
+    - E0005
+    - E0006
+    - E0009
+    - art:att_e0002
+    - art:att_e0005
+    - art:att_e0006
+    - art:att_e0009
+  C16:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Treat a registered selection among estimators whose intervals overlap as a tie-break, not a ranking: AIPW won on PSID-1 at a gap of +889.48 against +1244.09 and -1234.06, inside intervals that all contain the benchmark, and only the sealed cell at -466.80 speaks for the selected estimator, once'
+    numbers:
+    - name_one
+    - gap_aipw
+    - gap_ipw
+    - gap_match
+    - gap_sealed
+    evidence:
+    - E0002
+    - E0005
+    - E0006
+    - E0009
+    - art:att_e0002
+    - art:att_e0005
+    - art:att_e0006
+    - art:att_e0009
+  C17:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Say what the interval is for: a percentile bootstrap of 500 draws that re-fits the score but holds the experimental controls fixed is an interval for the ATT estimate, not for its gap to the benchmark, and for 1-NN matching it is descriptive only; resample the controls, or use an analytic variance, before quoting coverage of a benchmark'
+    numbers:
+    - name_one
+    evidence:
+    - E0002
+    - E0005
+    - E0006
+    - E0007
+    - E0009
+    - ref:abadie2008
+    - art:card
+  C18:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Give the loop driver''s own tool timeout more room than the run''s max_run_seconds and set the cell before launching: E0003 (a wrapper timeout killed run-one mid-run, recovered as a crash) and E0004 (launched on the restored IPW cell, then killed with exit 143) spent two of the four estimator slots and forced a budget re-record'
+    numbers:
+    - exit_e0004
+    evidence:
+    - E0003
+    - E0004
+    - art:results
+    - art:contract
+  C19:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Never commit, cherry-pick or reset in a checkout where a run-one may be in flight: the lead''s reset removed E0005''s filed evidence commits and misnumbered the next cell, and the repair (reset to the fully filed E0005, AIPW re-run as E0006, every leftover preserved) is a recovery, not a routine'
+    numbers: []
+    evidence:
+    - E0005
+    - E0006
+    - art:incident
+  C20:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Read the sealed rehearsal''s exit code as a budget measurement: the first ATT dry run hit the 900-second limit (exit 124) on PSID-1 data under load, and the sealed CPS-1 cell later took 1227.74 seconds, so launching at the old limit would most likely have spent the track''s only sealed access on a timeout'
+    numbers:
+    - limit_old
+    - exit_dryrun
+    - name_one
+    - wall_sealed
+    evidence:
+    - E0009
+    - art:dryrun_att_timeout
+    - art:dryrun_att_ok
+    - art:contract
+  C21:
+    class: research-discipline
+    strength: exploratory
+    claim: 'Call an exact re-execution what it is: the same commit, data, environment and seed reproduced every printed value of E0001 and E0006 with a difference of 0 except the wall time (904.60 seconds against 639.89 for E0006), which shows the pipeline is deterministic and says nothing about robustness to code, seed or specification'
+    numbers:
+    - rep_diff
+    - rep_wall
+    - orig_wall
+    evidence:
+    - rep:E0001@20261103T065031Z
+    - rep:E0006@20261103T065104Z
+    - art:rep_e0001
+    - art:rep_e0006
