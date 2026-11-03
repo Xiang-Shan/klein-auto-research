@@ -212,3 +212,9 @@ ATT -15.33, bootstrap 95% CI [-2642.44, 2471.35], gap -1809.67 vs 1794.34, n_con
 | 3 | replication of E0001 and E0006 on development lanes (confirmation.require replicate) | 2 | 3 | 2 | 7 |
 
 Chosen order: dry run then sealed reproduction (P6), dry run then sealed att (P7), then replications. Both sealed cells are pre-registered; the selection was fixed at E0006 before any sealed access.
+
+### E0008 reflection (reproduction, sealed CPS-1; adjudicates P6)
+
+Sealed access of the reproduction track spent. Primary metric 2: CPS-1 unadjusted -8498 (reproduced -8497.52) and SE 712 (712.02) and size 15992 reproduce; adjusted 972 (reproduced 738.83, diff 233.17) and adjusted SE 550 (547.05, diff 2.95) miss. Diagnostics: note a gives 738.83 = Panel C column (4) 739 (diff 0.17) not column (5) 972; the two "all covariates" readings give 793.59 and 1137.20, neither near 972. Same pattern as PSID-1 (E0001): the mixed-column finding holds on the sealed lane and the covariate set of column (5) remains unrecovered (H5).
+
+- 2026-11-03 — Decision: P6 REFUTED at E0008 (2 targets outside +-1, exactly the CPS-1 adjusted value and SE pre-announced in the METHOD finding). Registered prediction kept as registered; the refutation is itself the finding that Table 3 column (2) mixes Panel C columns (4) and (5). No re-run: the track's sealed access is spent.
