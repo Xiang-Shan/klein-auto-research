@@ -240,3 +240,15 @@ Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; 
   not a bad idea; NOT recorded as "ruled out". Next: the same lever with the running
   statistics recomputed on the training set (no_grad, cumulative average, train data only; no
   development statistics are used) before `eval()`.
+- 2026-11-03 — E0004 (BatchNorm2d after each conv, running statistics recomputed on the training
+  set before eval): `keep`, val_macro_f1 seed-mean 0.8960 (seeds 0.9090 / 0.8804 / 0.8987;
+  std 0.0145, range 0.0286), accuracy 0.9087 (std 0.0128). Margin vs the old incumbent 0.7189:
+  +0.1771 = 4.0 keep bars and 12 seed stds; the worst seed (0.8804) beats the old best seed
+  (0.7342) by 0.146, so the margin exceeds the seed spread by a wide margin. Seed spread fell from
+  0.0255 (anchor) to 0.0145. E0003 and E0004 together say: BN's gain is large, but the default
+  running-average inference path was unusable at constant lr 3e-3 / 1,500 steps. The recomputation
+  is part of the normalization lever from here on. New incumbent: E0004. Headroom
+  h = (1 - 0.896) / 0.0438 = 2.4. Note: two edits (BN layers + the running-statistics pass) are
+  one lever (a working BN), because E0003 showed the first is not measurable without the second.
+  Experiments used in the phase: 3 of 6, so the slate drops its lowest-scored candidate (width 64);
+  order now D4, third block, 4,000 steps, then P3 last.
