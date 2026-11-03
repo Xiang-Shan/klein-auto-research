@@ -263,7 +263,9 @@
     "C6": {
       "claim": "The chain-of-thought gain is near-unmeasurable here because both arms sit at the ceiling: direct and chain-of-thought exact-match lie between 0.95 and 0.985 in every cell, so the largest gain the public cell could have shown is 0.05 (one minus 0.95), and only 9 of 300 public items (E0002) and 12 of 200 sealed twins (E0005) were discordant.",
       "class": "mechanism-interpretation",
-      "errata": [],
+      "errata": [
+        "E1"
+      ],
       "evidence": [
         "E0002",
         "E0004",
@@ -331,7 +333,15 @@
       "strength": "exploratory"
     }
   },
-  "errata": {},
+  "errata": {
+    "E1": {
+      "claims": [
+        "C6"
+      ],
+      "filed": "2026-11-03",
+      "note": "Referee note 5a (Gate 3, d7cc0dd): 'near-unmeasurable' overreaches. The gain was measured with tight intervals; what the ceiling removed is headroom: a gain of the registered size was unreachable given the observed direct scores. Strength unchanged (exploratory)."
+    }
+  },
   "git_head": "84ca15a69233d87e7221e3b2daeeb8c184efec57",
   "klein_commit": "84ca15a69233d87e7221e3b2daeeb8c184efec57",
   "klein_version": "2.2.0",
