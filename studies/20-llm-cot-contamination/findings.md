@@ -95,7 +95,50 @@ independent and overstates the evidence; the cluster interval is the inference.
 
 **[C15]** The notary adjudicated all six registered predictions — P1, P2, P4 and P5 refuted, P3 and P6 supported — and every refuted prediction carries a dated Decision line in program.md.
 
+### Controls (post-hoc, exploratory — added after the referee's check 4)
+
+The confirmed headlines C2 and C4 are nulls, so the record must show that this scorer and
+this interval code would see a gain if one were there. Neither control was registered;
+both were computed after Gate 3 returned FAIL, offline from the committed ledger and cell
+tables with no model call (`lib/synthesis.py`, `controls_and_familywise`; table
+`tables/synthesis_controls.tsv`, `art:controls`). They test the *pipeline* (extraction,
+scoring, pairing, bootstrap), never the model.
+
+**[C16]** Post-hoc negative control, exploratory: re-scoring the recorded replies against golds permuted across each cell's items drops exact-match to chance, a mean of 0.0126 for the direct arm over 100 permutations of the public items, and leaves the chain-of-thought gain at 0.0033 on the public items and 0.000 on both twin blocks, so the pipeline does not manufacture a gain from mismatched answers.
+
+The permutation seed is 20261123 (seed 20261124 for the repeats). Chance is
+above zero only because some golds coincide (a few templates have few distinct answers,
+data card W4); the largest mean over the 100 permutations in any cell and arm was 0.0367.
+
+**[C17]** Post-hoc positive control, exploratory: planting a gain of 0.10 by scoring a seeded set of correct direct replies as wrong was recovered exactly in all three cot_gain cells, with an interval lying wholly above zero in each (public items [0.0733, 0.15], sealed twins [0.045, 0.15]); a planted 0.05 was detected on the public items ([0.03, 0.0933]) but on neither twin block, so the twin blocks cannot resolve a gain as small as 0.05.
+
+Recipe: seed 20261124 chooses 30 of the public items' correct direct replies (20 on each
+twin block) and scores them 0; the recovered estimate moves by exactly the planted 0.10
+because the bootstrap is applied to the altered scores unchanged. On the development
+twins the planted 0.10 sits on an observed -0.025, so the rule "gain at least 0.10" fails
+there (0.075) although the interval [0.02, 0.125] still lies above zero. The opposite
+direction (a seeded half of the WRONG direct replies scored correct, seed 20261125)
+plants only -0.0267 public, -0.01 development and -0.015 sealed, because the direct arm
+has almost no wrong replies to flip; only the development block's interval moved off zero
+([-0.075, -0.005]). The ceiling limits what can be planted as well as what can be found.
+
+### Multiple comparisons (family-wise intervals — added after the referee's check 5)
+
+**[C18]** With n_comparisons of 4 in the cot_gain family (P1, P2, P4, P5) and 2 in the contamination family (P3, P6), Bonferroni-level intervals at levels 0.9875 and 0.975 still exclude the registered 0.10 for every gain cell (upper ends 0.0367 public, 0.01 development twins, 0.055 sealed twins) and still fail to exclude 0.05 for either gap (upper ends 0.065 and 0.075), so the verdicts of C2, C3 and C4 stand as written.
+
+Post-hoc, exploratory as a check (the guard was not fixed at CONSULT, which
+inquiry-model.md asks of a `test` study; the omission is on the record). Table
+`tables/synthesis_familywise.tsv` (`art:familywise`) uses the study's own bootstrap
+(10,000 replicates, the study seed) and first re-derives every notarized 95% interval
+exactly (the script asserts it). P1's family-wise lower end on direct exact-match is
+0.9167, still above 0.85. No verdict moves, so no erratum was filed for C2, C3 or C4.
+
 ## ② Registered predictions (from the ledger)
+
+**Families.** `cot_gain`: P1, P2, P4, P5 — n_comparisons = 4 (Bonferroni level 0.9875).
+`contamination`: P3, P6 — n_comparisons = 2 (Bonferroni level 0.975). The notary's
+verdicts are point-estimate rules and are unaffected; the family-wise intervals are in
+C18 and `art:familywise`, and every "interval excludes" statement survives them.
 
 Copied from `klein predict list` (2 supported, 4 refuted, 0 inconclusive, 0 open). The
 method card's pre-run P(holds) stands beside each, so the card's calibration is on the
@@ -148,8 +191,11 @@ empirical description; that it is *why* the gain vanished is C6's interpretation
 
 **[C6]** The chain-of-thought gain is near-unmeasurable here because both arms sit at the ceiling: direct and chain-of-thought exact-match lie between 0.95 and 0.985 in every cell, so the largest gain the public cell could have shown is 0.05 (one minus 0.95), and only 9 of 300 public items (E0002) and 12 of 200 sealed twins (E0005) were discordant.
 
-Class: mechanism-interpretation, exploratory. The arithmetic is fixed (a gain cannot
-exceed 1 minus em_direct), but whether a compliant direct arm would open headroom is an
+Class: mechanism-interpretation, exploratory. **Re-scoped by erratum E1:** the word
+"near-unmeasurable" overreaches. The gain *was* measured, with a tight interval
+([-0.01, 0.03] public); what the ceiling removed is headroom — a gain as large as the
+registered 0.10 was unreachable given the observed direct scores. The arithmetic is fixed
+(a gain cannot exceed one minus em_direct), but whether a compliant direct arm would open headroom is an
 untested hypothesis (playbook H3; ⑦ item 1). The ceiling also explains M4: with twins at
 0.96 the gap's variance shrinks (the card's §2 ceiling row), so the interval came out
 narrower than the 0.100 the card expected.
@@ -167,9 +213,10 @@ originals. The record lists `ci_low` (-0.015 → -0.08) as outside tolerance, de
 **[C8]** On the development twins the direct arm scored above chain-of-thought (0.985 vs 0.96, gain -0.025, E0004), and on the sealed twins the two arms tied at 0.97 (E0005); the reversal did not survive fresh instances of the same templates, which is most consistent with noise, since only 7 of 200 development twins were discordant.
 
 Class: mechanism-interpretation, exploratory; `unresolved` beyond "noise". Neither
-interval excludes zero. Three CoT twin replies on the development block were cut at
-`max_tokens` against two direct replies (`art:arms`) — too few to explain six
-direct-only wins, so truncation is not the mechanism.
+interval excludes zero. Of the 6 direct-only development twins, 1 had a CoT reply cut at
+`max_tokens` (`art:controls`), so truncation accounts for at most one of the six; the six
+sit in 3 templates, at most 2 in any one, so they are template-clustered — which the
+cluster interval already absorbs and McNemar does not.
 
 **Not a surprise, recorded for completeness.** The five templates whose number-swapped
 variants are public in GSM-Symbolic did not drive the gap: on the development block they
@@ -191,8 +238,10 @@ different arm.
 **[C10]** Before registering a gain threshold, check the headroom the direct arm leaves: a gain cannot exceed one minus the direct score, so at a direct score of 0.95 a registered gain of at least 0.10 was arithmetically unreachable on the public items.
 
 Evidence: E0002, P2. Register the threshold from a pilot direct score or from items off
-the ceiling (a harder benchmark, longer chains); otherwise the refutation is guaranteed
-by arithmetic, not learned from the model.
+the ceiling (a harder benchmark, longer chains). The unreachability is conditional on the
+observed direct score: when P2 was registered the direct score was unknown (the RQ1 prior
+was 0.55 to 0.85), so the lesson is to measure it first, not that the refutation was
+foreseeable.
 
 **[C11]** Size a template-paired contamination probe to the gap it must resolve: with 50 templates the interval on the gap was 0.075 wide on the development twins and 0.105 wide on the sealed twins, so a gap of 0.05 can be neither detected nor excluded; plan on roughly four times the templates to halve the interval.
 
@@ -234,7 +283,9 @@ Evidence: E0004, E0005, method_card.md §2 eq. (3). On the independent public it
   (`calls.price` is unset), so no dollar figure is given.
 - **Implication.** For this snapshot, on GSM8K-style arithmetic, an explicit
   step-by-step instruction bought no detectable exact-match over the registered direct
-  instruction while roughly doubling output tokens; the cheaper prompt scored the same.
+  instruction while roughly doubling output tokens; on public items the CoT prompt scored
+within the interval [-0.01, 0.03] of the cheaper one (no equivalence margin was
+registered, so this is not a demonstration that the two are equal).
   This is not evidence that written steps are unnecessary — the "direct" arm wrote them
   too (C5). No `materiality:` block is registered, so nothing here is priced.
 
@@ -293,11 +344,29 @@ Evidence: E0004, E0005, method_card.md §2 eq. (3). On the independent public it
 
 - **One snapshot.** `qwen-flash-2025-07-28` only; nothing here extends to another model,
   snapshot, decoding setting or thinking mode.
-- **Ceiling.** Both arms at 0.95 to 0.985 make any CoT gain near-unmeasurable (C6).
+- **Ceiling.** Both arms at 0.95 to 0.985 leave no headroom for a gain of the
+  registered size; the gain itself was measured with tight intervals (C6, erratum E1).
 - **Non-compliance.** The registered direct arm is a terse CoT (C5); P1 and P2 measure
   the instruction, not answering without written steps.
-- **Coupled sealed cells.** E0005 and E0006 share ledger entries; the two sealed cells
-  are one query of the model on the sealed twins, scored two ways (C12).
+- **Coupled cells.** Two pairs of cells share ledger entries. E0005 and E0006: the two
+  sealed cells are one query of the model on the sealed twins, scored two ways (C12).
+  E0003 and E0004: E0004's CoT arm is E0003's 200 development-twin answers
+  (`calls_cached` 200 in E0004), so P3 and P4 rest on the same CoT replies.
+- **C4's replication is track-level, not cell-level.** The `cot_gain` track's replicate
+  requirement is met by `rep:E0002@20261103T082725Z`, which re-queried the public items,
+  not the twins. No salted re-query of a twin-block gain exists; the sealed cell E0005 is
+  an independent fresh query of the model (400 new calls) that agrees with E0004.
+- **The sealed block is not structurally independent of the development block** (data
+  card W3): the same 50 templates, 186 of 200 sealed twins share a 13-gram with a
+  development twin, and 28 of 200 sealed twins repeat a (template, answer) pair already in the
+  development block. E0005 and E0006 therefore guard against luck in twin instances, not
+  against the choice of templates.
+- **DATA gate passed by override.** Gate 1 is `overridden`, not recorded: the mechanized
+  13-gram near-duplicate rows FAIL by design (every hit is a twin against its own
+  template's original or twins), as argued in `data_card.md` B1 and re-checked by an
+  adversarial reviewer; the override reason is in `study_state.json`.
+- **Controls and family-wise guard are post-hoc** (C16, C17, C18): neither was
+  registered at CONSULT.
 - **P6 supported with an interval past the bound.** Upper end 0.065, above 0.05.
 - **Sign flip under re-query.** E0003's re-query reversed the gap's sign while
   reproducing within tolerance (C7).
@@ -314,6 +383,19 @@ Evidence: E0004, E0005, method_card.md §2 eq. (3). On the independent public it
   from the sealed contamination rehearsal — development-twin values replayed from the
   ledger, not evidence. The data card dates GSM-Symbolic's public release to October
   2024, the method card to the data commit of 8 December 2024; the five-template caveat
-  holds under either date for a July 2025 snapshot.
+  holds under either date for a July 2025 snapshot. `klein verify` warns that no study
+  source calls `contract_split` or `load_partition`; the warning is harmless here because
+  `analyze.py` calls `kleinlib.data.load_items`, which goes through `load_partition`
+  (and so `contract_split`) on the predefined `split` column, prints the split
+  fingerprint, and the notary matched that fingerprint against the one frozen at the DATA
+  gate (`klein verify`: split fingerprint current = recorded) — the scan simply does not
+  recognize the wrapper.
+- **Erratum.** E1 re-scopes C6 (see the appendix).
 - **Evidence use.** All six non-keep rows (the E0001 crash; E0002 to E0006 measured) are
   cited above.
+
+## Errata (appendix)
+
+| Erratum | Filed | Claims re-scoped | What is now known |
+|---|---|---|---|
+| E1 | 2026-11-03 | C6 | "Near-unmeasurable" overreaches: the gain was measured with tight intervals ([-0.01, 0.03] public). What the ceiling removed is headroom: a gain of the registered 0.10 was unreachable given the observed direct scores. Raised by the referee (note 5a); strength unchanged (exploratory). |
