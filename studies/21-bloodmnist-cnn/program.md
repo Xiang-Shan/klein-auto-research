@@ -296,3 +296,15 @@ Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; 
   (BN, repaired) and E0008 (P3 bundle); discards E0003 (BN bug), E0005 (D4), E0006 (depth,
   sub-bar), E0007 (steps, sub-bar). Dev accuracy of the incumbent 0.9522 vs the MedMNIST
   ResNet-18 (28) test accuracy 0.958 (different split/metric; P5 is read on the sealed test).
+
+### Phase confirmation slate
+
+Cells (no development runs are spent; adaptive selection is closed, incumbent E0008):
+
+| # | Cell | Nov | Test | Info | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `--final-test --dry-run` of E0008's surface (rehearsal on development data; spends nothing) | 1 | 3 | 3 | 7 |
+| 2 | One sealed run of E0008's config, `--tests P4,P5` (test macro-F1 >= 0.90; test accuracy < 0.958) | 3 | 3 | 3 | 9 |
+| 3 | `klein replicate E0008` (re-execution of the development run in a detached worktree; `confirmation.require` includes replicate) | 2 | 3 | 3 | 8 |
+
+Chosen: 1 then 2 then 3, the order the contract fixes.
