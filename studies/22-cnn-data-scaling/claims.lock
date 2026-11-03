@@ -46,7 +46,7 @@
     },
     "program": {
       "path": "program.md",
-      "sha256": "f5f4785feeaed0181e9a8819e82b9f6c9763f690137604c51496c32744677800"
+      "sha256": "bbba7545cb1f1d0a97a50380e51f987ec0cdf172e48931e99f594ff3fb96cf36"
     },
     "refs": {
       "path": "references.yaml",
@@ -74,11 +74,11 @@
     },
     "synth": {
       "path": "tables/synthesis_summary.tsv",
-      "sha256": "20611b45914cfc3252122704ceb913a12920638cfd83d61eab41204697261739"
+      "sha256": "b5a7d69c8f22d77fbe272cbdf2667bdc66e10ab784df1505eceb4958c98875ef"
     },
     "synth_script": {
       "path": "figures/synthesis_summary.py",
-      "sha256": "309454736cd3f8671a16f8d58b5bcfa141bfd8e66e08c53049e1cbbedf3b4eef"
+      "sha256": "09731907526866d8786d4d08324f7dafb5b5bb122a314239d79eb79e7d41d8e9"
     }
   },
   "claims": {
@@ -95,7 +95,8 @@
         "E0006",
         "E0007",
         "rep:E0007@20261103T084735Z",
-        "art:fit"
+        "art:fit",
+        "rep:E0005@20261103T084144Z"
       ],
       "numbers": [
         "a_fit",
@@ -255,7 +256,8 @@
         "E0006",
         "E0007",
         "rep:E0007@20261103T084735Z",
-        "art:fit"
+        "art:fit",
+        "rep:E0005@20261103T084144Z"
       ],
       "numbers": [
         "fit_r2",
@@ -282,6 +284,7 @@
         "p3_threshold",
         "predicted_full",
         "rel_error",
+        "rel_error_seed_mean_loss",
         "sealed_loss"
       ],
       "strength": "confirmed"
@@ -643,6 +646,13 @@
       "note": "E0008 seed-mean signed (measured-predicted)/measured",
       "precision": 4,
       "value": -0.2801519225030284
+    },
+    "rel_error_seed_mean_loss": {
+      "art": "synth",
+      "claim": "C3",
+      "note": "signed error of the seed-mean loss; the locked -0.2802 is the seed mean of per-seed errors (erratum E1)",
+      "precision": 4,
+      "value": -0.279708
     },
     "sealed_loss": {
       "art": "results",
