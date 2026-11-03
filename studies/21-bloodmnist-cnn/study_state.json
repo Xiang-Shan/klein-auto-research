@@ -21,7 +21,7 @@
     "study.yaml": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
   },
   "created_at": "2026-11-03T04:45:23.119158Z",
-  "current_phase": "anchor",
+  "current_phase": "adaptive",
   "final_holdout_access": {
     "primary": {
       "accessed_at": null,
@@ -72,7 +72,14 @@
   },
   "last_experiment": 2,
   "overrides": [],
-  "phase_acknowledgements": {},
+  "phase_acknowledgements": {
+    "anchor": {
+      "acknowledged_at": "2026-11-03T05:51:20.148889Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated (program.md Roster). E0001 anchor keep (macro-F1 0.719, P2 refuted), E0002 linear discard (0.690, P1 supported); floor measured (minimum_delta 0.0438; fit noise 0.047 noted); proceed to adaptive",
+      "playbook_sha256": "5d91ebeceb3ce4f259f76bc904cb7181489f3efcad1606615bb529bcae44968d"
+    }
+  },
   "predictions": {
     "P1": {
       "evidence": [
@@ -142,5 +149,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T05:51:19.715548Z"
+  "updated_at": "2026-11-03T05:51:20.149906Z"
 }
