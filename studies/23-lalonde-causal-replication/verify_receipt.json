@@ -169,23 +169,34 @@
       "message": "all 805 scanned numerals trace to 31 pinned source(s)",
       "name": "findings numbers",
       "ok": true
+    },
+    {
+      "message": "all 142 rendered numerals trace to a pinned source",
+      "name": "tutorial numbers",
+      "ok": true
+    },
+    {
+      "message": "5 figure(s) re-render byte-identically",
+      "name": "figure re-render",
+      "ok": true
     }
   ],
   "evidence_use_rate": 1.0,
-  "git_head": "5f69eb56fa54f4f3c43d89685b66ae25436c7746",
+  "git_head": "0c25b2de801a1a0223970bcddfe2aff25f1a50ab",
   "inputs": {
     "aux_metrics.tsv": "5984de7f5bf11e72612d91c8f7b4a6630ef6518ad4f4f7b13ea3914d9fd3dd52",
     "claims.lock": "7f1de77d8bd38c9834a54b406259533a5fe2faa08a0d142b05c874e377e2776b",
-    "events.jsonl": "62b9299c7da0cf3341cef77165f4b75a0c8d3c6ab2ef5105e9a98c8cc2e1a0d9",
+    "events.jsonl": "cd2bef666c75db10ea56d79988d4406e26bb33e1ce813b89899455c64ab3ab44",
     "findings.md": "7497e8c5e7009f50f364a14ba065d1961882269dec2066715058a102b698d551",
     "playbook.md": "789b4047d1e608c063016d087ad390182583f745c3a7524ea0dd5c415d2dc819",
     "program.md": "210fc95be03d2c4ca0db3e3faf1e64e7703016e3b8346a04d421e08f231cc1c2",
     "referee_report.md": "0ef24875d798d778a3bbf9926bf85df1e2fb998daf5c5991d61a3715b0bfa942",
+    "report/index.html": "7c7a1eb8b4faf1ebeff75dc656f3b01141462da0873c59528758f93698ebb286",
     "results.tsv": "e2cd869f0447a4c45606ede7b8894a6735cce1b82b770a1fb2fededb251cc51e",
     "study.yaml": "b8cb958c06c617f35fdc05a7a24ad649ae957077412317072bc0f31436e99b7f",
-    "study_state.json": "f0f5ee0b32488cabfabadcee3a893e2c393282d9b4e6af594acc21533f9c1645"
+    "study_state.json": "d630a919d9cb8b7ae7774509e6a31bdabf62bf3acb62ff4c15bb2e3209c61207"
   },
-  "klein_commit": "5f69eb56fa54f4f3c43d89685b66ae25436c7746",
+  "klein_commit": "0c25b2de801a1a0223970bcddfe2aff25f1a50ab",
   "klein_version": "2.2.0",
   "manifests": {
     "E0001": "3a749974b6c8efd4a476f26aace8d134bfd5cbeb6bf01c7f6c6f92bd5c943928",
@@ -202,11 +213,11 @@
   "single_source_claims": [],
   "study": "23-lalonde-causal-replication",
   "summary": {
-    "checks": 34,
+    "checks": 36,
     "failed": 0,
     "warned": 0
   },
-  "timestamp": "2026-11-03T07:56:13.989289Z",
+  "timestamp": "2026-11-03T08:38:51.738276Z",
   "uncited_evidence": [],
   "undecided_refutations": []
 }
