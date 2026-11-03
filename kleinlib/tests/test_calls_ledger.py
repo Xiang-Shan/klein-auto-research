@@ -286,3 +286,44 @@ def test_a_rate_limit_is_waited_out_not_crashed(monkeypatch) -> None:
         httpd.shutdown()
     assert out["choices"][0]["message"]["content"] == "ok"
     assert waits == [7.0, 7.0, 7.0]  # Retry-After honoured; three limits, then success
+
+
+def test_a_dropped_connection_is_retried(monkeypatch) -> None:
+    """Study 24's E0003 crashed on a ConnectionResetError raised while the RESPONSE was
+    read — urllib raises it bare, not as URLError, so it escaped the retry loop."""
+    from kleinlib import calls
+
+    class _Flaky(BaseHTTPRequestHandler):
+        hits = 0
+
+        def do_POST(self) -> None:  # noqa: N802
+            type(self).hits += 1
+            self.rfile.read(int(self.headers["Content-Length"]))
+            if type(self).hits == 1:
+                self.close_connection = True
+                self.wfile.flush()
+                self.connection.shutdown(2)  # drop it before any status line
+                return
+            data = json.dumps({"model": "m", "choices": [{"message": {"content": "ok"}}], "usage": {}}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+
+        def log_message(self, *args) -> None:
+            return
+
+    httpd = HTTPServer(("127.0.0.1", 0), _Flaky)
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    waits: list[float] = []
+    monkeypatch.setattr(calls.time, "sleep", waits.append)
+    for name in ("NO_PROXY", "no_proxy"):
+        monkeypatch.setenv(name, "127.0.0.1,localhost")
+    try:
+        out = calls.openai_chat(f"http://127.0.0.1:{httpd.server_address[1]}/v1", {"model": "m", "messages": []})
+    finally:
+        httpd.shutdown()
+    assert out["choices"][0]["message"]["content"] == "ok"
+    assert len(waits) == 1
