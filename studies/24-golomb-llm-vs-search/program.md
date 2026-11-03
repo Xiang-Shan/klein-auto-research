@@ -242,3 +242,24 @@ Registered track: cells, all run; each sealed access is spent once after its dry
 | 4 | replicate E0004 (salted re-query, counts for confirmation) | 2 | 3 | 3 | 8 |
 
 Order: dry runs first (search, then llm), real search, wait for study 20 to be idle, real llm, replications.
+
+## Confirmation phase results (2026-11-03)
+
+- Dry runs (exit 0, "sealed dry-run OK ... nothing spent"): search rehearsed on development orders (0/12), llm
+  answered offline from the ledger (6/12, 2,400 cached calls). Artifacts under sweeps/.
+- E0005 (search, sealed orders 12-13, measured): optima_matched 0/6, invalid_best 0. Best length vs optimum
+  (trials 0/1/2): n=12 138/133/138 vs 85; n=13 164/166/164 vs 106. P4 supported (0 <= 0).
+- E0006 (llm, sealed orders 12-13, measured): optima_matched 0/6, first_batch_matches 0, invalid_best 6: NO valid
+  ruler in any pair (valid_rulers 0; unparsed replies 265 of 1,200, the other replies parsed but all violated the
+  Golomb property). Usage 1,200 calls, 0 cached, 1,523,219 tokens (951,747 in / 571,472 out), wall 3,587 s.
+  P5 refuted (0 < 3).
+- Decision (2026-11-03): P5 refuted. On orders 12-13 the LLM arm matched none of 6 pairs and produced no verified
+  ruler at all, against the registered >= 3. With P2 and P3 refuted on development (6/12 matched, 1/12 first batch),
+  the account that the model matches optima at scale is not supported; its development matches (n=8 and n=11, plus
+  nested prefixes of the tabulated 11-mark ruler) did not carry to n=12-13, which fits retrieval of short tabulated
+  rulers more than search, though this study cannot prove either reading. Search also matched 0/6 (P4 supported).
+- Replications: E0001 reproduced, difference 0, tolerance 0 [exact] (record runs/E0001/replications/20261103T090037Z.json;
+  block keys outside tolerance: evaluations, restarts). E0004 reproduced via a salted re-query of 2,400 live calls,
+  difference 0, tolerance 0 [exact] (record runs/E0004/replications/20261103T090054Z.json): optima_matched 6/12 again;
+  other block keys differed (first_batch_matches 2 vs 1, invalid_best 2 vs 3, valid_rulers 788 vs 719, unparsed 531 vs 593),
+  so the count of 6 reproduced but not the pair-by-pair detail.

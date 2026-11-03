@@ -13,6 +13,11 @@
 | search | E0001 | optima_matched 0/12 (measured) | randomized construction + local search, 2,000 evals | 2026-11-03 |
 | llm | E0004 | optima_matched 6/12 (measured; first_batch_matches 1) | qwen-flash-2025-07-28, 200x10 proposals, 2 workers | 2026-11-03 |
 
+## Confirmation (sealed orders 12-13)
+
+- search E0005: 0/6, P4 supported. llm E0006: 0/6 (no valid ruler), P5 refuted. Replications E0001 and E0004 reproduced (tolerance 0, exact; E0004 detail keys varied).
+- Next: SYNTHESIZE (lead's call); no experiment budget remains.
+
 ## Ruled out (evidence, not opinion)
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
@@ -32,5 +37,5 @@
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
 1. Phase boundary: await lead ack; development is complete (E0001, E0004 measured; E0002, E0003 crashes).
-2. Confirmation: search arm sealed dry run then final test (P4).
-3. Confirmation llm (P5, >= 3/6 on orders 12-13) after its dry run; order-12/13 optima are in the pinned oracle.
+2. (done) search sealed run.
+3. (done) confirmation cells E0005, E0006 and replications spent.
