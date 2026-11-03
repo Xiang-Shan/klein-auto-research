@@ -2,13 +2,13 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T05:19:15.236151Z"
+      "timestamp": "2026-11-03T07:41:45.666856Z"
     }
   },
   "artifact_hashes": {
     "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
     "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
-    "study.yaml": "f358fb41af4e0393d418255b15e9c9ec59b190e97459c22ed0af526937511b07"
+    "study.yaml": "fb65806975ed3af9db6fe5f3cec0717b2bc0f591b59393942e326ba25a6dcf57"
   },
   "created_at": "2026-11-03T04:53:53.769673Z",
   "current_phase": "anchor",
@@ -35,15 +35,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T05:19:15.236151Z",
+      "acknowledged_at": "2026-11-03T07:41:45.666856Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "88ac2c8349379fabf26c37468e8773a7c3d2d02d40c65edaf6e5919beb60489d",
+        "program.md": "a63cc630e3bc177b3d1e1a8b98f635b128f8c0cd6a1a33e7754bb5aee47f10c9",
         "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
         "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
-        "study.yaml": "f358fb41af4e0393d418255b15e9c9ec59b190e97459c22ed0af526937511b07"
+        "study.yaml": "fb65806975ed3af9db6fe5f3cec0717b2bc0f591b59393942e326ba25a6dcf57"
       },
-      "note": "RE-RECORD before any run: budget comments say per-run caps; scouting entry S4 (templates written from 56 GSM8K items); no prediction, rule, track or phase changed",
+      "note": "RE-RECORD before any study call: minimum_delta = pre-registered replication tolerances (0.03 / 0.05); twin sampler fixed (log-uniform, degeneracy guards, 7 skipped); no prediction or rule changed",
       "status": "recorded"
     },
     "data": {
@@ -67,5 +67,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T05:19:15.237932Z"
+  "updated_at": "2026-11-03T07:41:45.671717Z"
 }
