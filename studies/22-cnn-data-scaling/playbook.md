@@ -24,7 +24,7 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. Fit phase: run exponent cell on all six cells (P1,P2,P5); P2 at risk. (Cells phase DONE 6/6.) Next: fit phase (exponent track; P1, P2, P5) after the phase ack. Caveat to carry: N=500 below N=1000 and best_step at end of budget everywhere.
+1. Fit DONE (E0007): alpha 0.130, R2 0.796; P1 supported, P2 and P5 refuted. Next: sealed dry run then sealed cell after ack. (Cells phase DONE 6/6.) Next: fit phase (exponent track; P1, P2, P5) after the phase ack. Caveat to carry: N=500 below N=1000 and best_step at end of budget everywhere.
 
 ## Observations
 
@@ -33,3 +33,4 @@
 - E0004: N=4000 loss 0.757, best_step 550-563 of 563 (end of budget). Every cell so far is compute-limited (best checkpoint at the end); remaining question is whether N=8000/16000 continue down.
 - E0005: N=8000 loss 0.652 (sd 0.007), best_step 1100/1125. Wall 288 s; N=16000 expected ~600 s.
 - E0006: N=16000 loss 0.564 (sd 0.008), best_step 2128-2240/2250, wall 566 s. Ratio 8000->16000: 0.864 (local exponent ~0.21).
+- E0007: fit alpha 0.1304 [0.118,0.141], R2 0.796, a 2.126, predicted loss at 59,992 = 0.5066. Pinned law is frozen. Ruled out: a pure power law over N=500..16000 at R2>=0.98 (P2); alpha in [0.15,0.32] (P5).

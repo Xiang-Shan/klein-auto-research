@@ -173,3 +173,10 @@ required by the fit phase, so none is dropped. No cell adjudicates a prediction.
 | 3 | Refit over N>=4000 only (compute-limited regime check) | 2 | 2 | 2 | 6 |
 
 Chosen: #1 only; all six cells enter as registered. Expectation from the journal: the non-monotone N=500/1000 pair makes P2 (fit_r2 >= 0.98) at real risk.
+
+### Fit result (E0007, exponent track, six cells as registered)
+
+alpha = 0.1304 (bootstrap interval 0.1181 to 0.1411, descriptive only, ci_clamped 0), fit_r2 = 0.7955, a = 2.1258, predicted loss at N_FULL (59,992) = 0.5066. P1 supported; P2 refuted; P5 refuted.
+
+- 2026-11-03 — Decision: P2 refuted (fit_r2 0.796 < 0.98). Cause visible in the cell journal: N=500 (0.830) lies below N=1000 (0.949), and the N<=2000 cells share the 400-step floor, so the small end is flat/non-monotone; a pure power law over all six cells does not describe the curve. Not repaired by dropping N=500 (registered as six cells); any robustness refit is a post-hoc exploratory note, not the pinned fit.
+- 2026-11-03 — Decision: P5 refuted (alpha 0.130 < 0.15). The effective exponent is flatter than predicted, consistent with the flat small-N end and compute-limited cells pulling the slope down. P1 (wide band) supported. The pinned law (a=2.126, alpha=0.130) is frozen for the sealed extrapolation as registered; the flat small-N end means it likely predicts a loss at N_FULL (0.507) that is higher than a steeper large-N law would, so P4's sign (measured above prediction) is now doubtful.
