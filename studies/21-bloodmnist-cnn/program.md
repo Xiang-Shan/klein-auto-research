@@ -117,3 +117,40 @@ the ranked survivors into playbook.md "Next-best candidates".
 
 Chosen: 1, 2, 3, 4 in order (the phase is fixed by the contract; the floor needs the anchor's pinned tables). Rationale: the ladder P2 then P1 then the measured bar is the phase plan itself.
 
+
+## Phase anchor — run log and decisions
+
+- 2026-11-03 — E0001 (anchor, recipe SmallCNN, width 32, 1,500 steps, seeds 0/1/2; `--allow-rerun`
+  because the anchor is the committed surface): val_macro_f1 seed-mean 0.7189 (std 0.0255; seeds
+  0.7331 / 0.7342 / 0.6895), val_accuracy 0.7794 (std 0.0079). Disposition `keep` (first run; the
+  incumbent). Per-class recall (seed mean): 0: 0.26, 1: 0.94, 2: 0.76, 3: 0.71, 4: 0.50, 5: 0.57,
+  6: 0.95, 7: 0.98. Class 0 is mostly called class 3 (immature granulocytes); the 3 / 4 / 5
+  group is the weak spot. Development has 1,709 images (3 near-duplicates dropped at the DATA gate).
+  Loss at step 1500 is still ~0.5-1.0 and noisy: the anchor is under-trained at constant lr 3e-3,
+  not capacity-limited alone.
+- 2026-11-03 — Decision: P2 refuted (anchor 0.7189 < 0.85; the method card's central guess was 0.87,
+  plausible range 0.80-0.92, so this is below its range). Reading: 1,500 constant-lr AdamW steps
+  (8 epochs) leave the two-block, 8-px-receptive-field network far from the 0.85 line, and the
+  seed spread (0.69-0.73) is itself large. RQ2's prior ("macro-F1 at or above 0.85") is not
+  supported at the anchor. No change to the contract; P2 stays refuted and the adaptive phase
+  tests which lever moves it.
+- 2026-11-03 — E0002 (pixel-linear softmax, Flatten + Linear(2352, 8), same loop/steps/optimizer/
+  seeds): val_macro_f1 seed-mean 0.6903 (std 0.0364; seeds 0.7134 / 0.7092 / 0.6483),
+  val_accuracy 0.7353 (std 0.0268). Disposition `discard` (0.6903 < incumbent 0.7189 + delta; the
+  expected outcome). P1 supported (0.6903 in [0.50, 0.85]); the card's central guess was 0.72,
+  within range. The linear model and the CNN are 0.029 macro-F1 apart at the SAME ~19k parameters,
+  smaller than the keep bar measured below (0.0438). Linear per-class recall: class 3 is the
+  weak spot there (0.29), class 0 is strong (0.77): the two models fail on different classes.
+  The wall time was 3 s per seed against 250-500 s for the CNN (CPU shared; load average ~10).
+- 2026-11-03 — Floor (a), registered as `sweep:item_bootstrap`: 1,000 multinomial re-draws of the
+  seed-mean E0001 confusion table (n = 1,709), macro-F1 recomputed on every draw (not
+  `item_bootstrap` on per-image correctness). Per-seed-table cross-check sds 0.0121 / 0.0114 /
+  0.0117; sidecar sd 0.01197, range 0.0877, so `minimum_delta` = max(2 sd, range/2) =
+  0.0438435 (range/2 binds, as the card's section 2 predicted). The seed-mean table keeps the
+  sd of one seed's table (seeds' predictions are highly correlated), so this is not shrunk by
+  sqrt(3); bootstrapping the pinned tables conditions on the three fitted models.
+- 2026-11-03 — K1 (floor in [0.015, 0.040]) is FALSIFIED: the bar is 0.0438. K3 (accuracy minus
+  macro-F1 in [0, 0.03]) is FALSIFIED: the gap at the anchor is 0.0605. K4 (class 3 lowest or
+  second-lowest recall) is FALSIFIED: classes 0 (0.26), 4 (0.50) and 5 (0.57) all sit below
+  class 3 (0.71). These are card priors (not registered P#), recorded here for SYNTHESIZE.
+  Headroom at the anchor: h = (1 - 0.7189) / 0.0438 = 6.4.
