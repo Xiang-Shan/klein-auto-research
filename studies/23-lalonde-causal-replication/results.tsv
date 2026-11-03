@@ -4,3 +4,4 @@ E0002	att	3038.435574	measured	ab73544c7183f60268d41e290347f66844faff3e	estimato
 E0003	att	NA	crash	80d962a5622ee413b4e52d7e164bc8b3f48b5043	recovered interrupted run with no terminal record
 E0004	att	NA	crash	2eee5d29dae4340f7944d0394c0a00e501479e3e	estimators: match dw_psid 500 reps, adjudicates P4 (rerun after E0003 was interrupted by the driver's tool timeout); process exit code 143
 E0005	att	560.281374	measured	6f6ec261e52f2213201324a7c1d0d800a29fdd7f	estimators: match dw_psid 500 reps, adjudicates P4 (E0003/E0004 were driver errors); registered cell measured
+E0006	att	2683.81822	measured	5262850313fe73de22cc8e50ce59679088b26e92	estimators: aipw dw_psid 500 reps, adjudicates P3; registered cell measured

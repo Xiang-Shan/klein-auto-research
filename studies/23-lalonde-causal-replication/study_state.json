@@ -80,7 +80,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 5,
+  "last_experiment": 6,
   "overrides": [],
   "phase_acknowledgements": {
     "anchor": {
@@ -131,6 +131,26 @@
       "source": "run",
       "verdict": "refuted"
     },
+    "P3": {
+      "evidence": [
+        "E0006"
+      ],
+      "explanation": "|att_gap_usd| 889.47583774 <= 1000 (from 889.47583774) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0006"
+          ],
+          "explanation": "|att_gap_usd| 889.47583774 <= 1000 (from 889.47583774) \u2192 supported",
+          "recorded_at": "2026-11-03T05:29:32.594827Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:29:32.594827Z",
+      "source": "run",
+      "verdict": "supported"
+    },
     "P4": {
       "evidence": [
         "E0005"
@@ -159,5 +179,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T05:18:40.206255Z"
+  "updated_at": "2026-11-03T05:29:32.607667Z"
 }
