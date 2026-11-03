@@ -1,140 +1,382 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "6d1746c6a58c866f49461444254a65b4e97a3d7853e8e0df0c184b0533b4625d"
+    },
+    "confusion_E0008_s0": {
+      "path": "tables/confusion_E0008_s0.tsv",
+      "sha256": "65721325eb4337c2556f4ce3ece584000ffec057c8a1193dd2fa6823dd8ee9d0"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
+    },
+    "controls": {
+      "path": "tables/controls.tsv",
+      "sha256": "acad43929a228552703aca2b76dac30dead0e1df988ad02b6d111c339385d47b"
+    },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "2521cd4d51c7456c2d09203028eebd3fc88789ee1a6882e1d0ef7fb00a5a09a9"
+    },
+    "fit_noise": {
+      "path": "sweeps/fit_noise.sidecar.tsv",
+      "sha256": "ad4f3cf051b691f0529c84c10e7832ca9beec87c565cb3f5cc604601f2efcb81"
+    },
+    "method_card": {
+      "path": "method_card.md",
+      "sha256": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee"
+    },
+    "per_class": {
+      "path": "tables/per_class.tsv",
+      "sha256": "6f5cc6312fcbb314c306e62204931aad6fc2a562912d3eff14c51a3ab8baafd7"
+    },
+    "rep_E0008": {
+      "path": "runs/E0008/replications/20261103T090709Z.json",
+      "sha256": "358c81915ab43e9807c1be7c045eb8bb3f05aaa4638f2a06fbde79b2a8328e66"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "9fa170fa464d90b0b1963f9075c3edf79faa094e9c0deeceb9f72a36d3596bbc"
+    },
+    "seed_dominance": {
+      "path": "tables/seed_dominance.tsv",
+      "sha256": "5c503f6dd79d0701f30ffad63fcd24bc04a3e31125ef122f9ba5f2e96edbbbbe"
+    },
+    "seeds_E0001": {
+      "path": "runs/E0001/seeds.tsv",
+      "sha256": "514607cec42c477cb32ce60130cf4751ee8771923f795f5a55792098af4db444"
+    },
+    "seeds_E0002": {
+      "path": "runs/E0002/seeds.tsv",
+      "sha256": "e9dd593a7c17e09fbb6e2ed23ffaf2930e227611bf580f9737af26904a1cef89"
+    },
+    "seeds_E0003": {
+      "path": "runs/E0003/seeds.tsv",
+      "sha256": "db7cdc298e574a89ac429bb9ce4524d0fbb1ed19946b5d11821532fa61e3e8b8"
+    },
+    "seeds_E0004": {
+      "path": "runs/E0004/seeds.tsv",
+      "sha256": "c31de0c415c8862a4112bdc22f8aac475aaebb02dd15511ba3bd507a82aba2f9"
+    },
+    "seeds_E0005": {
+      "path": "runs/E0005/seeds.tsv",
+      "sha256": "8e141c18ae502d66eb81f1b0a4336a870520e9e45b2f9ccc2856b05cf83af6c7"
+    },
+    "seeds_E0006": {
+      "path": "runs/E0006/seeds.tsv",
+      "sha256": "d382882f62f343a66bc4e53efef2e67f51da3d6a6828e4cea495a093f802e27c"
+    },
+    "seeds_E0007": {
+      "path": "runs/E0007/seeds.tsv",
+      "sha256": "761532e9434696b5a1d146c13db9607cd3d66109722e6ea2b29ea0a207fc9994"
+    },
+    "seeds_E0008": {
+      "path": "runs/E0008/seeds.tsv",
+      "sha256": "beb2eee754a337712d823f90845b73ae32be68b18a38a771a2a9190ad318fd2d"
+    },
+    "seeds_E0009": {
+      "path": "runs/E0009/seeds.tsv",
+      "sha256": "a3036a9b04865d8f12ec468902c729e532ca7da39e64452cfb3e5d6704fc9f4f"
+    },
+    "summary": {
+      "path": "tables/synthesis_summary.tsv",
+      "sha256": "6dafb63d423d3d5f1137c183aa80643913cf582de49e9f36a58e3bb4eaf26c01"
+    },
+    "synthesis_script": {
+      "path": "tables/synthesis.py",
+      "sha256": "74c511f3e21dd1dc60762ad29ee1e86b6d973db234778d7d38d90f216beca26f"
+    },
+    "usage_E0009": {
+      "path": "runs/E0009/usage.json",
+      "sha256": "f491d59c69fb628cf4196862dc7e0f8797d477ba5cd0afcfa82e9b10fbcf530b"
+    }
+  },
   "claims": {
     "C1": {
-      "claim": "RQ1 | primary | supported (prior range held) | exploratory | empirical-description | E0002, `art:controls` | A linear softmax on raw pixels reached a seed-mean development macro-F1 of 0.6903 (accuracy 0.7353), far above the chance controls (prior-matched random 0.125, majority class 0.0408) and inside the prior range of 0.50 to 0.85, so a pixel-linear model solves a large part of BloodMNIST but not most of it. |",
-      "class": null,
+      "claim": "A linear softmax on raw pixels reached a seed-mean development macro-F1 of 0.6903 (accuracy 0.7353), far above the chance controls (prior-matched random 0.125, majority class 0.0408) and inside the prior range of 0.50 to 0.85, so a pixel-linear model solves a large part of BloodMNIST but not most of it.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0002",
+        "art:controls"
+      ],
+      "numbers": [
+        "chance_prior_matched_macro_f1",
+        "e0002_accuracy",
+        "e0002_macro_f1",
+        "macro_f1_name_numeral",
+        "majority_macro_f1_dev",
+        "p1_high",
+        "p1_low"
+      ],
       "strength": "exploratory"
     },
     "C10": {
-      "claim": "RQ3, RQ4 | primary | measured | exploratory | empirical-description | E0001, E0008, E0009, `art:summary` | Ranking and calibration did not trade off: expected calibration error fell from 0.0828 at the anchor to 0.0125 at E0008 (0.0086 on the sealed test) and log-loss from 0.6660 to 0.1333. |",
-      "class": null,
+      "claim": "Ranking and calibration did not trade off: expected calibration error fell from 0.0828 at the anchor to 0.0125 at E0008 (0.0086 on the sealed test) and log-loss from 0.6660 to 0.1333.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0008",
+        "E0009",
+        "art:summary"
+      ],
+      "numbers": [
+        "ece_e0001",
+        "ece_e0008",
+        "ece_e0009",
+        "mlogloss_e0001",
+        "mlogloss_e0008"
+      ],
       "strength": "exploratory"
     },
     "C11": {
-      "claim": "RQ2 | primary | interpretation | exploratory | mechanism-interpretation | E0001, E0004, `sweep:fit_noise`, `art:summary` | The anchor's narrow margin over the linear model reflects unstable, under-trained optimisation rather than missing capacity: the same two-block network with working batch normalization at the same 1500 steps reached 0.8960, and its seed sd fell from 0.0255 to 0.0145. |",
-      "class": null,
+      "claim": "The anchor's narrow margin over the linear model reflects unstable, under-trained optimisation rather than missing capacity: the same two-block network with working batch normalization at the same 1500 steps reached 0.8960, and its seed sd fell from 0.0255 to 0.0145.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0004",
+        "sweep:fit_noise",
+        "art:summary"
+      ],
+      "numbers": [
+        "e0004_macro_f1",
+        "seed_std_e0001",
+        "seed_std_e0004"
+      ],
       "strength": "exploratory"
     },
     "C12": {
-      "claim": "1.  Before calling a batch-normalization candidate a failure, compare its training-mode and evaluation-mode outputs and recompute the running statistics on the training set; at a constant learning rate and a short budget the default running averages broke inference here. (evidence: E0003, E0004)",
-      "class": null,
+      "claim": "Before calling a batch-normalization candidate a failure, compare its training-mode and evaluation-mode outputs and recompute the running statistics on the training set; at a constant learning rate and a short budget the default running averages broke inference here.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0003",
+        "E0004"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C13": {
-      "claim": "2.  Measure fit noise across seed blocks as well as item noise before the adaptive phase, and when fit noise exceeds the item-noise bar read every keep together with its seed spread rather than the bar alone. (evidence: `sweep:fit_noise`, `sweep:item_bootstrap`, E0001)",
-      "class": null,
+      "claim": "Measure fit noise across seed blocks as well as item noise before the adaptive phase, and when fit noise exceeds the item-noise bar read every keep together with its seed spread rather than the bar alone.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "sweep:fit_noise",
+        "sweep:item_bootstrap",
+        "E0001"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C14": {
-      "claim": "3.  Budget the ablations before a registered multi-lever bundle: decompose it inside the phase cap or its gain stays unattributed, as the E0008 bundle's did. (evidence: E0005, E0006, E0007, E0008)",
-      "class": null,
+      "claim": "Budget the ablations before a registered multi-lever bundle: decompose it inside the phase cap or its gain stays unattributed, as the E0008 bundle's did.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0005",
+        "E0006",
+        "E0007",
+        "E0008"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C15": {
-      "claim": "4.  On a MedMNIST official split, run the near-duplicate audit before training, drop cross-split copies from the evaluation partitions (11 items here), and state that the split is image-level rather than patient-grouped. (evidence: `art:data_card`, E0009)",
-      "class": null,
+      "claim": "On a MedMNIST official split, run the near-duplicate audit before training, drop cross-split copies from the evaluation partitions (11 items here), and state that the split is image-level rather than patient-grouped.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "art:data_card",
+        "E0009"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C16": {
-      "claim": "5.  Report a sealed comparison against a published number in binomial standard errors at the test size, and call a gap under two of them indistinguishable whatever the arithmetic verdict of the rule. (evidence: E0009, `art:summary`)",
-      "class": null,
+      "claim": "Report a sealed comparison against a published number in binomial standard errors at the test size, and call a gap under two of them indistinguishable whatever the arithmetic verdict of the rule.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0009",
+        "art:summary"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C17": {
-      "claim": "6.  Run the label-shuffled harness control the data card asks for during the anchor phase; without it the harness check rests on analytic chance levels alone, as it does in this study. (evidence: `art:data_card`, `art:controls`)",
-      "class": null,
+      "claim": "Run the label-shuffled harness control the data card asks for during the anchor phase; without it the harness check rests on analytic chance levels alone, as it does in this study.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "art:data_card",
+        "art:controls"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ2 | primary | refuted | exploratory | empirical-description | E0001, E0002, `sweep:item_bootstrap`, `art:summary` | The recipe two-block CNN scored 0.7189 and cleared the pixel-linear baseline by only +0.0286 macro-F1 (0.65 floors), inside the measured keep bar of 0.0438 and far below the prior of 0.85. |",
-      "class": null,
+      "claim": "The recipe two-block CNN scored 0.7189 and cleared the pixel-linear baseline by only +0.0286 macro-F1 (0.65 floors), inside the measured keep bar of 0.0438 and far below the prior of 0.85.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "sweep:item_bootstrap",
+        "art:summary"
+      ],
+      "numbers": [
+        "anchor_minus_linear",
+        "anchor_minus_linear_floors",
+        "e0001_macro_f1",
+        "macro_f1_name_numeral",
+        "minimum_delta",
+        "p1_high"
+      ],
       "strength": "exploratory"
     },
     "C3": {
-      "claim": "RQ3 | primary | supported for normalization; inconclusive for depth, schedule and augmentation | exploratory | empirical-description | E0004, E0005, E0006, E0007, `art:summary`, `art:seed_dominance` | Working batch normalization was the only single change to earn a keep (E0004, +0.1771 macro-F1, 4.04 floors over E0001); a third block (+0.0326) and 4000 steps (+0.0280) were positive on every seed but short of the bar by 0.0112 and 0.0158, and flip/rotation augmentation alone (-0.0067) is unresolved at this budget. |",
-      "class": null,
+      "claim": "Working batch normalization was the only single change to earn a keep (E0004, +0.1771 macro-F1, 4.04 floors over E0001); a third block (+0.0326) and 4000 steps (+0.0280) were positive on every seed but short of the bar by 0.0112 and 0.0158, and flip/rotation augmentation alone (-0.0067) is unresolved at this budget.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "art:summary",
+        "art:seed_dominance"
+      ],
+      "numbers": [
+        "e0004_minus_e0001",
+        "e0004_minus_e0001_floors",
+        "e0005_minus_e0004",
+        "e0006_minus_e0004",
+        "e0006_short_of_bar",
+        "e0007_minus_e0004",
+        "e0007_short_of_bar",
+        "macro_f1_name_numeral"
+      ],
       "strength": "exploratory"
     },
     "C4": {
-      "claim": "RQ3 | primary | supported for the bundle; not attributable | exploratory | empirical-description | E0004, E0006, E0007, E0008, `art:summary` | The four-lever bundle E0008 (third block, working batch normalization, flip/rotation augmentation, 4000 steps) kept at 0.9461, +0.0501 over E0004 and 0.0062 above the bar, but its margins over the depth-only and schedule-only runs (+0.0175 and +0.0221) are inside the bar, so the gain cannot be attributed to any single lever. |",
-      "class": null,
+      "claim": "The four-lever bundle E0008 (third block, working batch normalization, flip/rotation augmentation, 4000 steps) kept at 0.9461, +0.0501 over E0004 and 0.0062 above the bar, but its margins over the depth-only and schedule-only runs (+0.0175 and +0.0221) are inside the bar, so the gain cannot be attributed to any single lever.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0006",
+        "E0007",
+        "E0008",
+        "art:summary"
+      ],
+      "numbers": [
+        "e0008_macro_f1",
+        "e0008_margin_over_bar",
+        "e0008_minus_e0004",
+        "e0008_minus_e0006",
+        "e0008_minus_e0007"
+      ],
       "strength": "exploratory"
     },
     "C5": {
-      "claim": "RQ4 | primary | supported (holds; indistinguishable from the reference) | confirmed | empirical-description | E0009, E0008, `rep:E0008@20261103T090709Z`, `art:summary` | On the sealed official test split (3413 items after near-duplicate removal) the E0008 configuration scored macro-F1 0.9465 and accuracy 0.9527 over three seeds, +0.0004 macro-F1 against development; the accuracy is 0.0053 below the MedMNIST v2 reference of 0.958, about 1.5 binomial standard errors of 0.0034, so the two are indistinguishable at this test size. |",
-      "class": null,
+      "claim": "On the sealed official test split (3413 items after near-duplicate removal) the E0008 configuration scored macro-F1 0.9465 and accuracy 0.9527 over three seeds, +0.0004 macro-F1 against development; the accuracy is 0.0053 below the MedMNIST v2 reference of 0.958, about 1.5 binomial standard errors of 0.0034, so the two are indistinguishable at this test size.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0009",
+        "E0008",
+        "rep:E0008@20261103T090709Z",
+        "art:summary"
+      ],
+      "numbers": [
+        "binomial_se",
+        "e0009_accuracy",
+        "e0009_macro_f1",
+        "gap_in_binomial_se",
+        "macro_f1_name_numeral",
+        "resnet18_28_accuracy",
+        "resnet18_28_gap",
+        "sealed_minus_dev"
+      ],
+      "strength": "confirmed"
     },
     "C6": {
-      "claim": "\u2014 | primary | held | confirmed | procedural-verdict | E0001, E0004, E0008, E0009, `rep:E0008@20261103T090709Z`, `art:summary` | The frontier closed with two keeps (E0004, E0008) out of seven candidate-versus-incumbent comparisons, the one sealed access went to the E0008 configuration, the incumbent replicated with difference 0, and headroom h = 1.23 means a further keep would need 0.9899. |",
-      "class": null,
+      "claim": "The frontier closed with two keeps (E0004, E0008) out of seven candidate-versus-incumbent comparisons, the one sealed access went to the E0008 configuration, the incumbent replicated with difference 0, and headroom h = 1.23 means a further keep would need 0.9899.",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0001",
+        "E0004",
+        "E0008",
+        "E0009",
+        "rep:E0008@20261103T090709Z",
+        "art:summary"
+      ],
+      "numbers": [
+        "headroom_h_e0008",
+        "next_keep_needs",
+        "rep_difference"
+      ],
+      "strength": "confirmed"
     },
     "C7": {
-      "claim": "RQ3 | primary | interpretation | exploratory | mechanism-interpretation | E0003, E0004, `art:summary` | E0003's collapse to 0.3005 was an inference bug, not a verdict on batch normalization: the same layers with running statistics recomputed on the training set before evaluation (E0004) scored +0.5955 higher. |",
-      "class": null,
+      "claim": "E0003's collapse to 0.3005 was an inference bug, not a verdict on batch normalization: the same layers with running statistics recomputed on the training set before evaluation (E0004) scored +0.5955 higher.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0003",
+        "E0004",
+        "art:summary"
+      ],
+      "numbers": [
+        "e0003_macro_f1",
+        "e0004_minus_e0003"
+      ],
       "strength": "exploratory"
     },
     "C8": {
-      "claim": "RQ2 | primary | measured | exploratory | empirical-description | E0001, `sweep:fit_noise`, `sweep:item_bootstrap`, `art:summary` | At the anchor the seed-block spread of the three-seed mean (fit noise, sd 0.0472) is 3.94 times the item-bootstrap sd of 0.0120 that sets the bar, and the E0001 block is the highest of four (four-block mean 0.6620), so the anchor's 0.7189 is a favourable draw. |",
-      "class": null,
+      "claim": "At the anchor the seed-block spread of the three-seed mean (fit noise, sd 0.0472) is 3.94 times the item-bootstrap sd of 0.0120 that sets the bar, and the E0001 block is the highest of four (four-block mean 0.6620), so the anchor's 0.7189 is a favourable draw.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "sweep:fit_noise",
+        "sweep:item_bootstrap",
+        "art:summary"
+      ],
+      "numbers": [
+        "anchor_four_block_mean",
+        "e0001_macro_f1",
+        "fit_noise_sd",
+        "fit_over_item_sd",
+        "item_noise_sd"
+      ],
       "strength": "exploratory"
     },
     "C9": {
-      "claim": "RQ3, RQ4 | primary | measured | exploratory | empirical-description | E0001, E0004, E0008, E0009, `art:per_class` | Per-class effects are uneven: from E0001 to E0008 basophil recall rose from 0.2562 to 0.9201 and immature-granulocyte recall from 0.7046 to 0.9149, but monocyte recall fell from 0.8345 at E0004 to 0.7949 at E0008 and monocytes remain the weakest class on the sealed test at 0.8582. |",
-      "class": null,
+      "claim": "Per-class effects are uneven: from E0001 to E0008 basophil recall rose from 0.2562 to 0.9201 and immature-granulocyte recall from 0.7046 to 0.9149, but monocyte recall fell from 0.8345 at E0004 to 0.7949 at E0008 and monocytes remain the weakest class on the sealed test at 0.8582.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0004",
+        "E0008",
+        "E0009",
+        "art:per_class"
+      ],
+      "numbers": [
+        "recall_basophil_e0001",
+        "recall_basophil_e0008",
+        "recall_ig_e0001",
+        "recall_ig_e0008",
+        "recall_monocyte_e0004",
+        "recall_monocyte_e0008",
+        "recall_monocyte_e0009"
+      ],
       "strength": "exploratory"
     }
   },
@@ -144,6 +386,357 @@
   "klein_version": "2.2.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "anchor_four_block_mean": {
+      "art": "summary",
+      "claim": "C8",
+      "note": "E0001 block plus the three fit_noise blocks",
+      "precision": 4,
+      "value": 0.662049
+    },
+    "anchor_minus_linear": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "E0001 minus E0002",
+      "precision": 4,
+      "value": 0.028612
+    },
+    "anchor_minus_linear_floors": {
+      "art": "summary",
+      "claim": "C2",
+      "note": "E0001 minus E0002 in minimum_delta units",
+      "precision": 2,
+      "value": 0.652594
+    },
+    "binomial_se": {
+      "art": "summary",
+      "claim": "C5",
+      "note": "binomial SE at p=0.958, n=3413",
+      "precision": 4,
+      "value": 0.003434
+    },
+    "chance_prior_matched_macro_f1": {
+      "art": "controls",
+      "claim": "C1",
+      "note": "expected macro-F1 of a guess matched to class priors (dev)",
+      "precision": 3,
+      "value": 0.125
+    },
+    "e0001_macro_f1": {
+      "art": "results",
+      "claim": "C2",
+      "note": "anchor seed-mean dev macro-F1",
+      "precision": 4,
+      "value": 0.718932
+    },
+    "e0002_accuracy": {
+      "art": "summary",
+      "claim": "C1",
+      "note": "E0002 seed-mean dev accuracy (from seeds.tsv)",
+      "precision": 4,
+      "value": 0.735323
+    },
+    "e0002_macro_f1": {
+      "art": "results",
+      "claim": "C1",
+      "note": "pixel-linear softmax, seed-mean dev macro-F1",
+      "precision": 4,
+      "value": 0.69032
+    },
+    "e0003_macro_f1": {
+      "art": "results",
+      "claim": "C7",
+      "precision": 4,
+      "value": 0.300538
+    },
+    "e0004_macro_f1": {
+      "art": "results",
+      "claim": "C11",
+      "precision": 4,
+      "value": 0.896005
+    },
+    "e0004_minus_e0001": {
+      "art": "summary",
+      "claim": "C3",
+      "precision": 4,
+      "value": 0.177073
+    },
+    "e0004_minus_e0001_floors": {
+      "art": "summary",
+      "claim": "C3",
+      "precision": 2,
+      "value": 4.038759
+    },
+    "e0004_minus_e0003": {
+      "art": "summary",
+      "claim": "C7",
+      "precision": 4,
+      "value": 0.595467
+    },
+    "e0005_minus_e0004": {
+      "art": "summary",
+      "claim": "C3",
+      "precision": 4,
+      "value": -0.006708
+    },
+    "e0006_minus_e0004": {
+      "art": "summary",
+      "claim": "C3",
+      "precision": 4,
+      "value": 0.032627
+    },
+    "e0006_short_of_bar": {
+      "art": "summary",
+      "claim": "C3",
+      "precision": 4,
+      "value": 0.011217
+    },
+    "e0007_minus_e0004": {
+      "art": "summary",
+      "claim": "C3",
+      "precision": 4,
+      "value": 0.027998
+    },
+    "e0007_short_of_bar": {
+      "art": "summary",
+      "claim": "C3",
+      "precision": 4,
+      "value": 0.015845
+    },
+    "e0008_macro_f1": {
+      "art": "results",
+      "claim": "C4",
+      "note": "incumbent seed-mean dev macro-F1",
+      "precision": 4,
+      "value": 0.946093
+    },
+    "e0008_margin_over_bar": {
+      "art": "summary",
+      "claim": "C4",
+      "precision": 4,
+      "value": 0.006244
+    },
+    "e0008_minus_e0004": {
+      "art": "summary",
+      "claim": "C4",
+      "precision": 4,
+      "value": 0.050088
+    },
+    "e0008_minus_e0006": {
+      "art": "summary",
+      "claim": "C4",
+      "precision": 4,
+      "value": 0.017461
+    },
+    "e0008_minus_e0007": {
+      "art": "summary",
+      "claim": "C4",
+      "precision": 4,
+      "value": 0.02209
+    },
+    "e0009_accuracy": {
+      "art": "summary",
+      "claim": "C5",
+      "note": "sealed test seed-mean accuracy",
+      "precision": 4,
+      "value": 0.952729
+    },
+    "e0009_macro_f1": {
+      "art": "results",
+      "claim": "C5",
+      "note": "sealed test seed-mean macro-F1 (3 seeds)",
+      "precision": 4,
+      "value": 0.94652
+    },
+    "ece_e0001": {
+      "art": "summary",
+      "claim": "C10",
+      "note": "seed mean from seeds.tsv (aux row holds seed 2 only)",
+      "precision": 4,
+      "value": 0.082765
+    },
+    "ece_e0008": {
+      "art": "aux",
+      "claim": "C10",
+      "precision": 4,
+      "value": 0.012515
+    },
+    "ece_e0009": {
+      "art": "aux",
+      "claim": "C10",
+      "precision": 4,
+      "value": 0.008611
+    },
+    "fit_noise_sd": {
+      "art": "contract",
+      "claim": "C8",
+      "note": "sd of the three fit_noise sweep block means (seeds 10-12, 20-22, 30-32) at the anchor config",
+      "precision": 4,
+      "value": 0.047219
+    },
+    "fit_over_item_sd": {
+      "art": "summary",
+      "claim": "C8",
+      "precision": 2,
+      "value": 3.944976
+    },
+    "gap_in_binomial_se": {
+      "art": "summary",
+      "claim": "C5",
+      "note": "gap / sqrt(0.958*0.042/3413)",
+      "precision": 1,
+      "value": 1.535063
+    },
+    "headroom_h_e0008": {
+      "art": "summary",
+      "claim": "C6",
+      "note": "(1 - E0008) / minimum_delta",
+      "precision": 2,
+      "value": 1.229525
+    },
+    "item_noise_sd": {
+      "art": "contract",
+      "claim": "C8",
+      "precision": 4,
+      "value": 0.0119694
+    },
+    "macro_f1_name_numeral": {
+      "art": "contract",
+      "claim": "contract",
+      "note": "the numeral 1 inside the metric name macro-F1; study.yaml metric.bound.ideal is 1.0, the same value",
+      "precision": 0,
+      "value": 1.0
+    },
+    "majority_macro_f1_dev": {
+      "art": "controls",
+      "claim": "C1",
+      "note": "constant majority-class (neutrophil) macro-F1 on dev",
+      "precision": 4,
+      "value": 0.040769
+    },
+    "minimum_delta": {
+      "art": "contract",
+      "claim": "floor",
+      "note": "item-bootstrap keep bar, max(2 sd, range/2)",
+      "precision": 4,
+      "value": 0.0438435
+    },
+    "mlogloss_e0001": {
+      "art": "summary",
+      "claim": "C10",
+      "precision": 4,
+      "value": 0.666015
+    },
+    "mlogloss_e0008": {
+      "art": "aux",
+      "claim": "C10",
+      "precision": 4,
+      "value": 0.133349
+    },
+    "next_keep_needs": {
+      "art": "summary",
+      "claim": "C6",
+      "note": "E0008 + minimum_delta",
+      "precision": 4,
+      "value": 0.989937
+    },
+    "p1_high": {
+      "art": "contract",
+      "claim": "C1",
+      "note": "P1 upper bound / P2 threshold",
+      "precision": 2,
+      "value": 0.85
+    },
+    "p1_low": {
+      "art": "contract",
+      "claim": "C1",
+      "note": "P1 rule lower bound",
+      "precision": 2,
+      "value": 0.5
+    },
+    "recall_basophil_e0001": {
+      "art": "per_class",
+      "claim": "C9",
+      "precision": 4,
+      "value": 0.256198
+    },
+    "recall_basophil_e0008": {
+      "art": "per_class",
+      "claim": "C9",
+      "precision": 4,
+      "value": 0.92011
+    },
+    "recall_ig_e0001": {
+      "art": "per_class",
+      "claim": "C9",
+      "precision": 4,
+      "value": 0.704598
+    },
+    "recall_ig_e0008": {
+      "art": "per_class",
+      "claim": "C9",
+      "precision": 4,
+      "value": 0.914943
+    },
+    "recall_monocyte_e0004": {
+      "art": "per_class",
+      "claim": "C9",
+      "precision": 4,
+      "value": 0.834499
+    },
+    "recall_monocyte_e0008": {
+      "art": "per_class",
+      "claim": "C9",
+      "precision": 4,
+      "value": 0.794872
+    },
+    "recall_monocyte_e0009": {
+      "art": "per_class",
+      "claim": "C9",
+      "note": "sealed test",
+      "precision": 4,
+      "value": 0.858156
+    },
+    "rep_difference": {
+      "art": "rep_E0008",
+      "claim": "C6",
+      "note": "klein replicate E0008 primary_metric difference",
+      "precision": 0,
+      "value": 0
+    },
+    "resnet18_28_accuracy": {
+      "art": "contract",
+      "claim": "C5",
+      "note": "MedMNIST v2 Table 3 ResNet-18 (28) BloodMNIST test ACC (P5 rule)",
+      "precision": 3,
+      "value": 0.958
+    },
+    "resnet18_28_gap": {
+      "art": "summary",
+      "claim": "C5",
+      "note": "0.958 minus E0009 accuracy",
+      "precision": 4,
+      "value": 0.005271
+    },
+    "sealed_minus_dev": {
+      "art": "summary",
+      "claim": "C5",
+      "note": "E0009 minus E0008 macro-F1",
+      "precision": 4,
+      "value": 0.000426
+    },
+    "seed_std_e0001": {
+      "art": "summary",
+      "claim": "C11",
+      "precision": 4,
+      "value": 0.02551
+    },
+    "seed_std_e0004": {
+      "art": "summary",
+      "claim": "C11",
+      "precision": 4,
+      "value": 0.014472
+    }
+  },
   "study_id": "21-bloodmnist-cnn"
 }
