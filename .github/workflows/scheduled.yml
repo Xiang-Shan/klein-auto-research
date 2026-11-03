@@ -166,7 +166,7 @@ jobs:
             uv run --no-sync klein replicate --study "$study" "$run" --quiet
           done
           if [ -d studies/20-llm-cot-contamination ]; then
-            KLEIN_OFFLINE=1 uv run --no-sync klein replicate --study studies/20-llm-cot-contamination E0001 --replay --quiet
+            KLEIN_OFFLINE=1 uv run --no-sync klein replicate --study studies/20-llm-cot-contamination E0002 --replay --quiet
           fi
       - name: The checkout stays byte-clean
         run: test -z "$(git status --porcelain --untracked-files=no)"

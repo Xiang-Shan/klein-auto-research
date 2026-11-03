@@ -228,7 +228,7 @@ packs, host bridges).
 Every study below ran the whole lifecycle in this repository's history: every candidate
 commit resolves and every ledger verifies, checked by CI on every push.
 
-**Schema-3 exhibits — six studies across the axes of generality:**
+**Schema-3 exhibits — studies across the axes of generality:**
 
 | Study | Typed as | What it showed |
 |---|---|---|
@@ -238,6 +238,9 @@ commit resolves and every ledger verifies, checked by CI on every push.
 | [`12-insurance-claims-frequency`](studies/12-insurance-claims-frequency/) | predict · tabular · insurance | All three v1 anchors reproduce on 58k real claims; the measured floor leaves the v1 ladder exactly one keep |
 | [`13-charlm-fixed-budget`](studies/13-charlm-fixed-budget/) | predict · text · ml-research | At a fixed step budget, none of four registered levers cleared the noise floor; the only gain carried no prediction |
 | [`15-iris-90years-relaunch`](studies/15-iris-90years-relaunch/) | predict · tabular · generic | The metric pegged at its ideal, so the measured floor was exactly zero, the headroom law was disarmed and four ties were read as four keeps — the instrument failed, and that failure is the finding |
+| [`21-bloodmnist-cnn`](studies/21-bloodmnist-cnn/) | predict · image · cv | Under a 3-seed floor only batch norm (with running statistics recomputed on the training set) cleared the bar alone; a four-lever bundle reached 0.9465 sealed macro-F1 and an accuracy indistinguishable from ResNet-18 (28) — with no lever attributable |
+| [`22-cnn-data-scaling`](studies/22-cnn-data-scaling/) | estimate · image · ml-research | The fitted data-scaling law over-predicted the sealed full-data loss by 28 %, the opposite sign to the registered prediction; the size cells ran as attested detached jobs |
+| [`23-lalonde-causal-replication`](studies/23-lalonde-causal-replication/) | replicate · tabular · data-science | The naive difference in means against PSID controls misses the NSW benchmark by more than the benchmark itself; of IPW, matching and AIPW only AIPW landed within $1,000, and it held on the sealed CPS lane |
 
 **Schema-2 exhibits (frozen; they verify under schema-2 rules forever):**
 
