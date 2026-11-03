@@ -204,7 +204,9 @@
     "C17": {
       "claim": "Post-hoc positive control, exploratory: planting a gain of 0.10 by scoring a seeded set of correct direct replies as wrong was recovered exactly in all three cot_gain cells, with an interval lying wholly above zero in each (public items [0.0733, 0.15], sealed twins [0.045, 0.15]); a planted 0.05 was detected on the public items ([0.03, 0.0933]) but on neither twin block, so the twin blocks cannot resolve a gain as small as 0.05.",
       "class": "empirical-description",
-      "errata": [],
+      "errata": [
+        "E2"
+      ],
       "evidence": [
         "E0002",
         "E0004",
@@ -408,6 +410,13 @@
       ],
       "filed": "2026-11-03",
       "note": "Referee note 5a (Gate 3, d7cc0dd): 'near-unmeasurable' overreaches. The gain was measured with tight intervals; what the ceiling removed is headroom: a gain of the registered size was unreachable given the observed direct scores. Strength unchanged (exploratory)."
+    },
+    "E2": {
+      "claims": [
+        "C17"
+      ],
+      "filed": "2026-11-03",
+      "note": "Round-2 referee note R2-3 (Gate 3, 31875cb): the positive control is one seeded plant per block, not a power estimate. 'The twin blocks cannot resolve a gain as small as 0.05' should read 'a single seeded 0.05 plant was not detected on either twin block'; C11's interval widths are the detection-limit evidence. Strength unchanged (exploratory)."
     }
   },
   "git_head": "84ca15a69233d87e7221e3b2daeeb8c184efec57",
