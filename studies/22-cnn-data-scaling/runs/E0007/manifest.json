@@ -116,8 +116,10 @@
   "timed_out": false,
   "track": "exponent",
   "transaction": {
-    "ready_at": "2026-11-03T08:08:23.628013Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T08:08:23.841536Z",
+    "evidence_commit": "6378482de3643f3cdd96be02769d6f684fa45f14",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 17.04285616999914
 }
