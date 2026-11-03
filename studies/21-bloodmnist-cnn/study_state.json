@@ -1,6 +1,15 @@
 {
-  "acknowledgements": {},
-  "artifact_hashes": {},
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T04:49:24.727815Z"
+    }
+  },
+  "artifact_hashes": {
+    "research_plan.md": "5c05c8ceb263a1c842d9f6c86dbbe37f501ce0fb56b31836014036cd0403ed3a",
+    "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
+    "study.yaml": "ffd2118dd4dcab8f815ace451c038b98e3d02804460c387d1d4f3c119afbf305"
+  },
   "created_at": "2026-11-03T04:45:23.119158Z",
   "current_phase": "adaptive-1",
   "final_holdout_access": {
@@ -16,9 +25,16 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T04:49:24.727815Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "5502df4cd001717d6e0173cc597e1cfe46f496fe2e9964df75967c534f8306c6",
+        "research_plan.md": "5c05c8ceb263a1c842d9f6c86dbbe37f501ce0fb56b31836014036cd0403ed3a",
+        "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
+        "study.yaml": "ffd2118dd4dcab8f815ace451c038b98e3d02804460c387d1d4f3c119afbf305"
+      },
+      "note": "delegated by the repository owner's approval of the Klein 2.3 plan (exhibits 20-24); see program.md Roster",
+      "status": "recorded"
     },
     "data": {
       "acknowledged_at": null,
@@ -41,5 +57,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "21-bloodmnist-cnn",
-  "updated_at": "2026-11-03T04:45:23.119184Z"
+  "updated_at": "2026-11-03T04:49:24.729095Z"
 }
