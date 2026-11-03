@@ -88,6 +88,23 @@ transaction always restores `analyze.py`; the candidate commit stays resolvable.
   AIPW) and carried to CPS-1 with its PSID-1 specification unchanged (P7).
 - 2026-11-03 — Decision: estimators and targets live in `lib/lalonde.py`, outside
   the mutable surface; a cell only selects lane, estimator and specification.
+- 2026-11-03 — Note (after the consult gate): `KLEIN_SMOKE=1` checks of both tracks ran
+  on the real prepared data (the sanctioned off-loop smoke); predictions were already
+  hashed. Smoke output is not evidence.
+- 2026-11-03 — DATA gate: the dataframe-mode leakage audit exposed a harness defect
+  (scalar task and predefined split not reproduced); fixed in `kleinlib/leakage.py`,
+  audit 7/7, recorded GO with cautions.
+- 2026-11-03 — METHOD finding: Table 3 column (2) is not one regression. Its NSW value
+  (1,672) is Table 2 Panel C column (4) — note a's covariates — while its PSID-1 (731)
+  and CPS-1 (972) values are Panel C column (5), "all pre-treatment covariates". P1 and
+  P6 are expected to miss on exactly the adjusted PSID-1 / CPS-1 value and its standard
+  error. Decision: the registered predictions are NOT changed (they were registered
+  before this was known; a refutation for this reason is itself the finding). The
+  reproduction cell gains DIAGNOSTIC rows (never counted) that regress each lane under
+  note a and under two readings of "all pre-treatment covariates", against Panel C
+  columns (4) and (5), so the anchor shows which regression each printed value is.
+  A P1 miss of exactly these targets is therefore explained in advance and does not
+  trigger the anchor's STOP; any other miss does.
 
 ## Phase slates
 

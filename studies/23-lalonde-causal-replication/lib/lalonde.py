@@ -50,6 +50,23 @@ TOLERANCE = 1.0
 
 ADJUSTMENT = ["age", "age2", "education", "nodegree", "black", "hispanic", "re74", "re75"]
 
+#: DIAGNOSTICS, never targets. Table 3's column (2) is not one regression: its NSW value
+#: (1,672) equals Table 2 Panel C column (4) — note a's covariates — while its PSID-1 (731)
+#: and CPS-1 (972) values equal Panel C column (5), "all pre-treatment covariates"
+#: (found at the METHOD gate, method_card.md). The reproduction cell prints both
+#: regressions beside the registered targets so the run shows which is which; the
+#: column-(5) covariate list is not printed in the paper, so two readings are tried.
+ADJUSTMENT_ALL = {
+    "all_married": ADJUSTMENT + ["married"],
+    "all_married_u": ADJUSTMENT + ["married", "u74", "u75"],
+}
+#: Table 2 Panel C, columns (4) and (5), for the diagnostics' comparison column.
+PANEL_C = {
+    "nsw": {"col4": 1672, "col5": 1655},
+    "psid1": {"col4": 218, "col5": 731},
+    "cps1": {"col4": 739, "col5": 972},
+}
+
 #: Propensity specifications. `dw_psid` is Table 3 note c (the PSID-1 logit);
 #: `no_re74` drops every 1974-earnings term (the DW 1999 section 5 / Smith & Todd 2005
 #: sensitivity: is two years of pre-program earnings what makes it work?).
@@ -89,6 +106,14 @@ def ols_treat(y: np.ndarray, t: np.ndarray, X: np.ndarray | None = None) -> tupl
     sigma2 = float(resid @ resid) / dof
     cov = sigma2 * np.linalg.inv(design.T @ design)
     return float(beta[1]), float(np.sqrt(cov[1, 1]))
+
+
+def diagnostics(treated: pd.DataFrame, comparison: pd.DataFrame) -> dict[str, float]:
+    """The column-(5) candidates: OLS coefficient on treat under each ADJUSTMENT_ALL list."""
+    both = pd.concat([treated, comparison])
+    y = both["re78"].to_numpy(float)
+    t = both["treat"].to_numpy(int)
+    return {name: ols_treat(y, t, both[cols].to_numpy(float))[0] for name, cols in ADJUSTMENT_ALL.items()}
 
 
 def contrast(treated: pd.DataFrame, comparison: pd.DataFrame) -> dict[str, float]:

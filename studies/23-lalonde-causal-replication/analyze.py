@@ -70,12 +70,25 @@ def main() -> None:
             rows.append({"target": name, "published": printed, "reproduced": value,
                          "abs_diff": None if value is None else abs(value - printed),
                          "tolerance": lalonde.TOLERANCE, "status": "ok" if ok else "missed"})
-        missed = sum(r["status"] != "ok" for r in rows)
+        missed = sum(r["status"] == "missed" for r in rows)
+        # Diagnostic rows (never counted): which Table 2 Panel C column each lane's
+        # published "adjusted" value actually is (lib/lalonde.py:ADJUSTMENT_ALL).
+        lanes = [("nsw", controls), (lane, comparison)] if lane == "psid1" else [(lane, comparison)]
+        for name, group in lanes:
+            panel = lalonde.PANEL_C[name]
+            values = {"col4_note_a": lalonde.contrast(treated, group)["adjusted"],
+                      **lalonde.diagnostics(treated, group)}
+            for spec, value in values.items():
+                for column, printed in panel.items():
+                    rows.append({"target": f"diag_{name}_{spec}_vs_{column}", "published": printed,
+                                 "reproduced": value, "abs_diff": abs(value - printed),
+                                 "tolerance": lalonde.TOLERANCE,
+                                 "status": "diagnostic"})
         path = lalonde.write_table(f"tables/reproduction_{lane}.tsv", list(rows[0]), rows)
         evaluate_table(
             path, missed, exp_id=EXPERIMENT_ID, metric_name="targets_outside_tolerance",
             metric_goal="lower", rows=len(rows), study_dir=".", t0=t0,
-            extra={"targets": len(rows), "experimental_att": experimental},
+            extra={"targets": sum(r["status"] != "diagnostic" for r in rows), "experimental_att": experimental},
         )
         return
 
