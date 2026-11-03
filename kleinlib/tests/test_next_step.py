@@ -9,7 +9,7 @@ from pathlib import Path
 from test_workflow_v3 import _fill, commit_all, git
 
 from kleinlib.cli import main
-from kleinlib.next_step import next_step, status_data
+from kleinlib.next_step import next_step, sealed_tracks, status_data
 from kleinlib.scaffold import scaffold_study
 from kleinlib.state import record_gate
 
@@ -131,3 +131,13 @@ def test_cli_next_and_status_json(capsys) -> None:
     assert "stage: closed" in capsys.readouterr().out
     assert main(["status", "--study", study, "--json"]) == 0
     assert json.loads(capsys.readouterr().out)["study"] == "00-known-truth-quickstart"
+
+
+def test_sealed_tracks_skip_a_track_that_closes_on_replication() -> None:
+    contract = {"kind": "estimate", "schema_version": 3}
+    tracks = {
+        "primary": {"confirmation": {"require": ["sealed", "replicate"]}},
+        "exponent": {"confirmation": {"require": ["replicate"]}},
+        "default": {},
+    }
+    assert sealed_tracks(tracks, contract) == ["primary", "default"]

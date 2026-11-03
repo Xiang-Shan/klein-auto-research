@@ -126,6 +126,21 @@ def _action(
     }
 
 
+def sealed_tracks(tracks: Mapping[str, Any], contract: Mapping[str, Any]) -> list[str]:
+    """The tracks whose confirmation needs a sealed look, in contract order.
+
+    A track that closes without one (``confirmation.require: [replicate]``, an
+    ``optimize`` track closing on ``verify``) is never sent to ``--final-test``.
+    """
+    from .replicate import required_confirmation
+
+    return [
+        name
+        for name, spec in tracks.items()
+        if "sealed" in required_confirmation(spec if isinstance(spec, Mapping) else {}, contract)
+    ]
+
+
 def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     """The study's position and its single next action, as a JSON-able mapping."""
     study = Path(study_dir)
@@ -349,7 +364,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 for e in _events(study)
                 if e.get("type") == "sealed_dryrun" and e.get("acknowledged")
             }
-            for name in tracks:
+            for name in sealed_tracks(tracks, contract):
                 if name in sealed_spent:
                     continue
                 if name not in rehearsed:
