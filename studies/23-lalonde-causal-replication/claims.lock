@@ -1,0 +1,181 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "the paper's own Table 3, found at METHOD before any cell ran (, ). How",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "(mechanism-interpretation, exploratory; evidence E0001, E0008,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "). Carried unchanged to the sealed CPS-1 lane, the selected AIPW lands at a gap",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "(mechanism-interpretation, exploratory; evidence E0006, E0009,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "P5 | IPW without any 1974-earnings term misses by more than $1000 | `{not: {key: att_gap_usd, op: abs_le, value: 1000}}` | gap -1809.67 | supported | 0.70 | E0007 | \u2014 (but see : this rule could not discriminate) |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "(research-discipline, exploratory; evidence E0001, E0008, art:card,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "(research-discipline, exploratory; evidence E0002, E0005, E0006, E0009,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C16": {
+      "claim": "(research-discipline, exploratory; evidence E0002, E0005, E0006, E0009,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C17": {
+      "claim": "(research-discipline, exploratory; evidence E0002, E0005, E0006, E0007,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C18": {
+      "claim": "(research-discipline, exploratory; evidence E0003, E0004, art:results,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C19": {
+      "claim": "(research-discipline, exploratory; evidence E0005, E0006, art:incident)* \u2014 Never commit, cherry-pick or reset in a checkout where a run-one may be in flight: the lead's reset removed E0005's filed evidence commits and misnumbered the next cell, and the repair (reset to the fully filed E0005, AIPW re-run as E0006, every leftover preserved) is a recovery, not a routine",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "15204.78 against PSID-1 (). Do 1999-vintage propensity-score estimators",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C20": {
+      "claim": "(research-discipline, exploratory; evidence E0009, art:dryrun_att_timeout,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C21": {
+      "claim": "(research-discipline, exploratory; evidence rep:E0001@20261103T065031Z,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "IPW and 1-NN matching miss by almost the same amount on opposite sides (,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ4 | att | **supported** | exploratory | empirical-description | E0007, E0002, art:att_e0007, art:att_e0002 | Dropping every 1974-earnings term moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67), yet its bootstrap interval [-2642.44, 2471.35] still contains the benchmark: 1974 earnings is load-bearing for the point estimate under this one specification, not demonstrably for the interval |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "of -466.80 (). That last number is one sealed draw under one specification,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "the paper's own Table 3, found at METHOD before any cell ran (, ). How",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "att | exploratory | empirical-description | E0002, E0005, E0006, E0009, art:att_e0002, art:att_e0005, art:att_e0006, art:att_e0009 | On PSID-1 the common-support trim keeps 1146 of 2490 comparison men and one of them carries 0.135 of the odds-weight mass (IPW and AIPW), while 1-NN matching uses 56 distinct men with one matched to a 0.146 share of the trainees; on sealed CPS-1 the trim keeps 4493 men and the largest share is 0.0426 |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "(procedural-verdict, confirmed; evidence P1, P2, P3, P4, P5, P6, P7, E0001,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "(empirical-description, exploratory; evidence E0001, E0002, E0005, E0006,",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
+  "klein_commit": "407a9432e754423f486e3051a602720ee7d163d1",
+  "klein_version": "2.2.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "23-lalonde-causal-replication"
+}
