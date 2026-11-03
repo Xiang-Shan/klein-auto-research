@@ -19,13 +19,9 @@ class SmallCNN(nn.Module):
             nn.Conv2d(width, 2 * width, 3, padding=1),
             nn.BatchNorm2d(2 * width),
             nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Conv2d(2 * width, 4 * width, 3, padding=1),
-            nn.BatchNorm2d(4 * width),
-            nn.ReLU(),
             nn.AdaptiveAvgPool2d(1),
             nn.Flatten(),
-            nn.Linear(4 * width, n_classes),
+            nn.Linear(2 * width, n_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
