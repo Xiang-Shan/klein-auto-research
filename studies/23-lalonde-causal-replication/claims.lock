@@ -168,7 +168,9 @@
     "C13": {
       "claim": "A sensitivity prediction scored against the benchmark band cannot separate the covariate mattering from the estimator missing anyway: IPW missed the 1000-dollar band both with 1974 earnings (gap +1244.09) and without them (estimate -15.33 against 1794.34), so P5 would have been supported had 1974 earnings been irrelevant; a rule stated against the baseline cell, as the card's own prior was, is the test that discriminates",
       "class": "research-discipline",
-      "errata": [],
+      "errata": [
+        "E1"
+      ],
       "evidence": [
         "E0002",
         "E0007",
@@ -376,7 +378,9 @@
     "C4": {
       "claim": "Dropping every 1974-earnings term moves the IPW estimate on PSID-1 from 3038.44 to -15.33 (gap -1809.67), yet its bootstrap interval [-2642.44, 2471.35] still contains the benchmark: 1974 earnings is load-bearing for the point estimate under this one specification, not demonstrably for the interval",
       "class": "empirical-description",
-      "errata": [],
+      "errata": [
+        "E1"
+      ],
       "evidence": [
         "E0007",
         "E0002",
@@ -521,7 +525,16 @@
       "strength": "exploratory"
     }
   },
-  "errata": {},
+  "errata": {
+    "E1": {
+      "claims": [
+        "C4",
+        "C13"
+      ],
+      "filed": "2026-11-03",
+      "note": "The no_re74 cell is not a one-covariate drop. lib/lalonde.py PROPENSITY: dw_psid has re74, re75, re74sq, re75sq, u74_black; no_re74 has re75, re75sq, u75 - it removes all three 1974 terms, ADDS the 1975 zero-earnings flag u75, and the common support moves from 1146 (att_E0002.tsv) to 1092 men with the largest weight share 0.058339 against 0.134919 (att_E0007.tsv). C4's sentence attributes the whole 3038.44 -> -15.33 shift to 1974 earnings; it belongs to the whole specification change. C13's lesson (a band rule cannot discriminate a sensitivity) stands, but its 'without them' means that specification, not 1974 earnings alone. Superseded by C22. Strength unchanged (exploratory). Raised by the adversarial check of 2026-11-03."
+    }
+  },
   "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
   "klein_commit": "407a9432e754423f486e3051a602720ee7d163d1",
   "klein_version": "2.2.0",
