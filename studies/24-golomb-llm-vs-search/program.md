@@ -53,6 +53,33 @@ state and must not be hand-edited.
 - Lanes: development orders 8-11; sealed orders 12-13, read once per arm.
 - Gate 1 records the prepared-data SHA-256 and split-policy fingerprint.
 
+## Instrument notes (before DATA)
+
+- `instance.json` (sha256 717e406c…) is deterministic; OEIS A003022 re-checked on
+  2026-11-03 (revision #130) — values unchanged; order 1's 0 is the one-mark convention.
+- Search arm: n random marks on length n^2, then repeatedly aim one below the best valid
+  ruler (cut empty unit cells, anneal interior marks to remove repeated differences),
+  restart from the best after 150 evaluations without a valid ruler; each candidate
+  checked costs one of the 2,000 evaluations.
+- LLM arm: each proposal is one request (system + user), repeating the previous batch
+  with the searcher's verdicts and the best length so far, labelled "proposal k of 200";
+  each (order, trial) loop runs on a worker pool of `calls.max_workers`, with the trial
+  as the ledger's `sample`. Parsing is strict: nothing is sorted, shifted or repaired.
+- The searcher reads the optima only to report the first optimal proposal and its
+  provisional count; they never enter a prompt or a search decision. The verifier
+  re-derives everything and its number decides (tolerance 0).
+- The verifier additionally refuses incomplete lane coverage, more evaluations than the
+  budget, a track/arm mismatch, a first-batch ruler shorter than the stored best, and a
+  verified length below the tabulated optimum. Its `wall_seconds` is its own, so the
+  wall-clock guardrail checks the verifier; `max_run_seconds` bounds the search.
+- The instrument builder exercised the full path on TOY orders 5 and 6 (outside both
+  lanes) and with a fake transport; nothing about orders 8-13 was searched or scored.
+- 2026-11-03 — one connectivity request (lead): "Reply with the single word OK." with
+  `enable_thinking: false` at the top level of the body — accepted ("OK", 1 token).
+  Not about rulers; recorded here because the consult gate is already recorded.
+- The LLM sealed dry run answers from the ledger only, so the LLM development cell runs
+  before it; dry-run artifacts go to `sweeps/solution_DRYRUN_<track>.json`.
+
 ## Phases and registered predictions (mirror of study.yaml)
 
 | Phase | Cells | Predictions |
