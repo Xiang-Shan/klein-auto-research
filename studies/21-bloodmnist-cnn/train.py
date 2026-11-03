@@ -25,7 +25,7 @@ SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
 SEED = int(os.environ.get("KLEIN_SEED", "0"))
 
-RECIPE = {"steps": 20 if SMOKE else 1500, "batch_size": 64, "lr": 3e-3, "weight_decay": 1e-4, "width": 32}
+RECIPE = {"steps": 200 if SMOKE else 1500, "batch_size": 64, "lr": 3e-3, "weight_decay": 1e-4, "width": 32}
 
 
 def load(ids: list[str]) -> tuple[np.ndarray, np.ndarray]:
