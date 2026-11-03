@@ -44,21 +44,6 @@ def load(ids: list[str]) -> tuple[np.ndarray, np.ndarray]:
     return x, index.set_index("id").loc[ids, "label"].to_numpy()
 
 
-def d4(xb: torch.Tensor, aug_rng: np.random.Generator) -> torch.Tensor:
-    """Random element of the dihedral group D4 per image (exact pixel permutations)."""
-    k = aug_rng.integers(0, 4, len(xb))
-    flip = aug_rng.random(len(xb)) < 0.5
-    out = xb.clone()
-    for r in (1, 2, 3):
-        m = torch.from_numpy(k == r)
-        if m.any():
-            out[m] = torch.rot90(out[m], r, dims=(2, 3))
-    m = torch.from_numpy(flip)
-    if m.any():
-        out[m] = out[m].flip(3)
-    return out
-
-
 def main() -> None:
     if EXPERIMENT_ID is None:
         raise SystemExit("run through `klein run-one` (or KLEIN_SMOKE=1 for a shape check)")
@@ -74,12 +59,11 @@ def main() -> None:
     loss_fn = torch.nn.CrossEntropyLoss()
     xt, yt = torch.from_numpy(x_fit), torch.from_numpy(y_fit.astype(np.int64))
     rng = np.random.default_rng(SEED)
-    aug_rng = np.random.default_rng(SEED + 10_000)  # its own generator: batch order matches the anchor
     step, fit_start = 0, time.time()
     while step < RECIPE["steps"]:
         for batch in iterate_minibatches(len(xt), RECIPE["batch_size"], shuffle=True, generator=rng):
             optimizer.zero_grad()
-            loss = loss_fn(model(d4(xt[batch], aug_rng).to(device)), yt[batch].to(device))
+            loss = loss_fn(model(xt[batch].to(device)), yt[batch].to(device))
             loss.backward()
             optimizer.step()
             step += 1
