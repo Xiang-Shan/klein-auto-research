@@ -147,7 +147,13 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase development slate (2026-11-03)
 
-| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+Registered track: the candidates are cells, not ideas to rank away; both are run.
+
+| # | Candidate cell (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | search arm, orders 8-11 x 3 trials, 2,000 evaluations; tests P1 (optima matched <= 6/12) | 1 | 3 | 3 | 7 |
+| 2 | llm arm (qwen-flash-2025-07-28), orders 8-11 x 3 trials, 200 x 10 proposals; tests P2 (>= 9/12) and P3 (first-batch matches >= 6) | 3 | 3 | 3 | 9 |
+
+Chosen: both, in order E0001 (search) then E0002 (llm). Mirrored into playbook.md.
