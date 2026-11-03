@@ -6,6 +6,29 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [2.3.1] — 2026-11-03
+
+A follow-up to 2.3.0 that fixes the PyPI page and closes two of its known limitations.
+No rule a shipped study is judged under changes: both additions are silent unless a
+study opts in or declares the field they read.
+
+### Fixed
+
+- The README uses absolute URLs for its images and links, so the PyPI project page
+  renders the lifecycle, loop and Klein-bottle diagrams (relative paths resolved only on
+  GitHub).
+
+### Added
+
+- `policy: {numerals: identifier-aware}` — an opt-in for the numbers law: a digit run
+  glued to a preceding letter (`GSM8K`, `qwen2`, `A003022`) is part of a name, not a
+  number. A hyphen still separates and a trailing unit still scans. The default stays
+  `literal`, so every shipped receipt is unchanged; an older engine refuses the key
+  instead of misjudging the study.
+- `klein preflight` warns when a study declares `calls:` without `calls.price` (every
+  call would record `usd: 0`, unrecorded rather than free, and `budget_usd` would be
+  refused). `klein verify` does not add the row, so verify receipts keep their checks.
+
 ## [2.3.0] — 2026-11-03
 
 Klein 2.2 notarized research on tables well and on everything else by workaround: a

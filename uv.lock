@@ -690,7 +690,7 @@ wheels = [
 
 [[package]]
 name = "klein-auto-research"
-version = "2.3.0"
+version = "2.3.1"
 source = { editable = "." }
 dependencies = [
     { name = "joblib" },

@@ -1089,12 +1089,18 @@ def _data_source_problems(data: Mapping[str, Any]) -> list[str]:
     return problems
 
 
-#: ``policy:`` (Klein 2.3) — strictness knobs.  Each only ADDS a requirement, so
-#: an engine that ignores the block is merely less strict, never wrong.
+#: ``policy:`` (Klein 2.3) — study-wide knobs; the SECOND value of each is the
+#: default (the 2.2 behaviour). The first three only ADD a requirement, so an engine
+#: that ignores them is merely less strict. ``numerals: identifier-aware`` (2.3.1)
+#: lets the numbers law read the digits of a name glued to letters (``GSM8K``,
+#: ``qwen2``) as part of the name; an engine that does not know the key refuses the
+#: contract (unknown policy key) instead of misjudging it, and a study that does not
+#: set it is judged exactly as before.
 POLICY_VALUES: dict[str, tuple[str, ...]] = {
     "card_sections": ("enforce", "advise"),
     "realized_split": ("required", "advisory"),
     "noise_floor": ("required", "advisory"),
+    "numerals": ("identifier-aware", "literal"),
 }
 
 

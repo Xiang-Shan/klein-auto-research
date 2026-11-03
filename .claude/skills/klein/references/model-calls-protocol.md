@@ -22,6 +22,11 @@ calls:
   max_workers: 8                                # concurrent requests in chat_many
 ```
 
+Declare `price` before the first run: the contract is hashed at CONSULT, and without
+it every call records `usd: 0` — unrecorded, not free — and `budget_usd` is refused.
+`klein preflight` warns when `calls:` has no `price:` (studies 20 and 24 shipped without
+one).
+
 Credentials never enter the study: the transport reads `KLEIN_LLM_API_KEY`,
 `DASHSCOPE_API_KEY` or `OPENAI_API_KEY` (or a credential-injecting proxy), and no
 header is ever written to a shard.
