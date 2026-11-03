@@ -53,7 +53,7 @@ from kleinlib.torch_device import pick_device
 HERE = Path(__file__).resolve().parent
 
 # --- the candidate: the whole per-experiment diff ------------------------------
-CELL = {"n_train": 500}
+CELL = {"n_train": 2000}
 # -------------------------------------------------------------------------------
 
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
