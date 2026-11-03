@@ -257,6 +257,8 @@ uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --stu
 uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --study <dir> \
     --near-dup image --payload data/prepared/images.npy [--threshold 4] [--max-rate 0.0]
 uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --study <dir> \
+    --near-dup image --payload data/prepared/images.npy --pixel-rmse 4    # tiny images: pixel space
+uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --study <dir> \
     --near-dup text --text-column question [--against fewshot_pool.txt] [--threshold 13]
 ```
 
@@ -264,6 +266,14 @@ An index without a `split` column (every 2.3 index study) is audited on the part
 the CONTRACT realizes — the audit checks the split every run is held to, not a column a
 script wrote. `--max-rate` is the near-duplicate rate the study accepts (default 0); a
 non-zero value is a decision the card states with its reason.
+
+Development is audited against train; the SEALED partition against train + development,
+because the sealed run fits on both. A 64-bit dHash is too coarse for tiny images: on
+28 x 28 grey silhouettes most held-out images collide with some train image (study 22:
+56%, none byte-identical). For such data use `--pixel-rmse <grey levels>` — the exact
+pixel-nearest reference, RMS difference on a 0-255 scale — state the value on the card,
+and remove the genuine copies it finds in `prepare.py` (study 21 removed dHash hits the
+same way).
 
 Any FAIL on any row is a **BLOCKER** — NO-GO by the ranking rule above — until the
 cause is fixed deterministically (in `prepare.py` or the split block) and the audit is
