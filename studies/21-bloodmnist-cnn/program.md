@@ -209,3 +209,19 @@ noise; then 2 and 3, so the P3 bundle can be decomposed before it runs. 4-6 are 
   writes a seed array's aux rows as the seed means; E0001/E0002 were filed before it, so
   their aux_metrics.tsv rows hold the LAST seed's values — their per-seed values are in
   runs/E000N/seeds.tsv.
+
+### Phase adaptive slate
+
+Formalized at the phase start (the draft above stands; scores unchanged). Order of execution,
+one lever per seed-array candidate, P3 last as its own registered bundle:
+
+| # | Candidate | Nov | Test | Info | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | BatchNorm after each conv (normalization), anchor otherwise | 3 | 3 | 3 | 9 |
+| 2 | D4 flip / rot90 augmentation, own RNG | 3 | 3 | 3 | 9 |
+| 3 | Third conv-pool-conv-pool-conv block (depth) | 3 | 3 | 3 | 9 |
+| 4 | 4,000 steps only (schedule) | 2 | 3 | 3 | 8 |
+| 5 | Width 64 (capacity) | 2 | 3 | 2 | 7 |
+| 6 | P3 bundle: 3 blocks + BN + D4 + 4,000 steps, `--tests P3` | 2 | 3 | 3 | 8 |
+
+Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; a discard does not.
