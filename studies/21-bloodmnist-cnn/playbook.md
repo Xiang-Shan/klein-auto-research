@@ -23,6 +23,7 @@ Keep bar `minimum_delta` 0.0438435 (item bootstrap): a next keep needs >= 0.9398
 | --- | --- | --- |
 | Pixel-linear softmax as a competitor | E0002 (0.6903, discard) | 0.029 below the incumbent at the same ~19k parameters and well inside the bar; P1 supported |
 | Default BN running averages at eval (momentum 0.1) at constant lr 3e-3 | E0003 (0.3005, discard) | eval-mode inference broken (batch-stat acc 0.92 vs eval acc 0.25 off-loop); fixed by recomputing the stats on train data (E0004). A bug, not a dead lever |
+| 4,000 steps alone (E0007) | 0.9240, discard, +0.0280 | sub-bar by 0.0158; ~2 seed stds; not a keep, not null |
 | Third block alone at 1,500 steps (E0006) | 0.9286, discard, +0.0326 | sub-bar by 0.0112; larger than seed spread; NOT ruled out, rides inside P3 |
 | D4 augmentation alone at 1,500 steps, 2 blocks | E0005 (0.8893, discard, -0.0067) | not resolved at this budget: margin inside the incumbent seed std 0.0145 |
 | "The recipe CNN clears 0.85" (P2) | E0001 (0.7189) | refuted: 1,500 constant-lr steps leave the 2-block net at 0.72 with large seed spread |
@@ -42,6 +43,6 @@ Keep bar `minimum_delta` 0.0438435 (item bootstrap): a next keep needs >= 0.9398
 
 1. (E0005 done: D4 on E0004 = 0.8893, -0.0067, inside seed spread: NOT RESOLVED at this budget, not ruled out; revisit inside P3.)
 2. (E0006 done: third block on E0004 = 0.9286 +/- 0.0079, +0.0326 vs E0004, 0.0112 short of the bar: discard; real in direction (every seed above every E0004 seed), not a keep.)
-3. 4,000 steps only on E0004 (schedule). Sum 8.
+3. (E0007 done: 4,000 steps on E0004 = 0.9240 +/- 0.0132, +0.0280, 0.0158 short of the bar: discard, sub-bar.)
 4. P3 as its own registered cell (3 blocks + BN + D4 + 4,000 steps, `--tests P3`), last. Sum 8.
 5. Width 64: dropped for budget (6 experiments, 3 used by E0004's close).

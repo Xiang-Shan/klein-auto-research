@@ -270,3 +270,12 @@ Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; 
   spread, yet not larger than the measured item-noise floor, so the study cannot call it a
   resolved improvement. (H3 supported in sign, not a keep.) Phase experiments used: 4 of 6
   (E0003-E0006). Next: 4,000 steps on the E0004 base, then the P3 bundle last.
+- 2026-11-03 — E0007 (4,000 steps instead of 1,500, otherwise E0004): `discard`, val_macro_f1
+  seed-mean 0.9240 (seeds 0.9137 / 0.9193 / 0.9390; std 0.0132), accuracy 0.9347 (std 0.0107).
+  Margin vs incumbent 0.8960: +0.0280, about 2.1 candidate seed stds, 0.0158 short of the bar
+  (needed 0.9398). Schedule alone helps more than RQ3's prior ("a longer schedule alone helps less
+  than the floor") expected in direction, but is sub-bar. Two consecutive sub-bar discards
+  (E0006 +0.0326, E0007 +0.0280): both are positive and larger than their own seed spread, so
+  they are recorded as "sub-bar, not a keep" rather than null; the keep bar (item noise 0.0438)
+  was not cleared by any single lever after BN. Phase experiments used: 5 of 6. Last: P3
+  (3 blocks + BN + D4 + 4,000 steps) as its own registered cell.
