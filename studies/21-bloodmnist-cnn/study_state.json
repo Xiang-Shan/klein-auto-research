@@ -70,7 +70,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 7,
+  "last_experiment": 8,
   "overrides": [],
   "phase_acknowledgements": {
     "anchor": {
@@ -120,6 +120,26 @@
       "recorded_at": "2026-11-03T05:37:53.898797Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P3": {
+      "evidence": [
+        "E0008"
+      ],
+      "explanation": "primary_metric 0.946093333333 >= 0.93 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0008"
+          ],
+          "explanation": "primary_metric 0.946093333333 >= 0.93 \u2192 supported",
+          "recorded_at": "2026-11-03T08:33:05.216607Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:33:05.216607Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -149,5 +169,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T07:35:21.585120Z"
+  "updated_at": "2026-11-03T08:33:05.231731Z"
 }
