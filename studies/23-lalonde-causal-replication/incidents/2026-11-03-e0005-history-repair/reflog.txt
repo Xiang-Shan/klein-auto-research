@@ -1,0 +1,12 @@
+657fbaf HEAD@{0}: commit: candidate E0005: estimators: aipw dw_psid 500 reps, adjudicates P3
+be8e02a HEAD@{1}: commit: study 23: E0005 reflection
+6f6ec26 HEAD@{2}: reset: moving to 6f6ec26
+d25a53e HEAD@{3}: commit: transaction E0005: finalize evidence
+0fcec05 HEAD@{4}: commit: evidence E0005: measured
+692977f HEAD@{5}: cherry-pick: kleinlib: a seed array pins one evaluator table per seed
+6f6ec26 HEAD@{6}: commit: candidate E0005: estimators: match dw_psid 500 reps, adjudicates P4 (E0003/E0004 were driver errors)
+5c17e1d HEAD@{7}: commit: transaction E0004: finalize evidence
+2dede72 HEAD@{8}: commit: evidence E0004: crash
+2eee5d2 HEAD@{9}: commit: candidate E0004: estimators: match dw_psid 500 reps, adjudicates P4 (rerun after E0003 was interrupted by the driver's tool timeout)
+f282408 HEAD@{10}: commit: transaction E0003: finalize evidence
+7590d77 HEAD@{11}: commit: evidence E0003: crash

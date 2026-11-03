@@ -173,3 +173,11 @@ Process note (driver error, recorded as data): E0003 was interrupted when the ex
 E0005: 1-NN matching with replacement, ATT 560.28, bootstrap 95% CI [-619.80, 3857.86], gap -1234.06 vs 1794.34, n_controls_used 56 (distinct matched controls), max_weight_share 0.146. The estimate undershoots by more than $1,000: P4 refuted by the notary.
 
 - 2026-11-03 — Decision: P4 REFUTED at E0005 (|gap| 1234.06 > 1000). Matching on DW's PSID-1 logit lands about $1.2k below the benchmark on only 56 distinct controls with a wide CI; direction is opposite to IPW (E0002, +1244). The prediction stays as registered.
+
+- 2026-11-03 — Incident (lead's operator error) and repair: a framework cherry-pick and a
+  `git reset --keep` by the lead while E0005 was finishing removed E0005's evidence
+  commits from the branch; the next cell (AIPW) started misnumbered as E0005. The lead
+  killed that run before it produced any number, reset the unpushed branch to the fully
+  filed E0005 (d25a53e) and re-applied the reflection. Full account and every leftover
+  artifact: `incidents/2026-11-03-e0005-history-repair/`. `klein verify` passes after the
+  repair. The AIPW cell (P3) re-runs as E0006.

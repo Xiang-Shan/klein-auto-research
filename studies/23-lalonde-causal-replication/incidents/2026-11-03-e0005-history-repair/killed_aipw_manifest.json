@@ -1,0 +1,55 @@
+{
+  "artifacts": {},
+  "base_commit": "be8e02af5019acc6403885db124789b0a2a71053",
+  "candidate_commit": "657fbafb170995a6ac501090ee52c5776e5df8bb",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "run transaction started",
+  "description": "estimators: aipw dw_psid 500 reps, adjudicates P3",
+  "disposition": "crash",
+  "empty_candidate_diff": true,
+  "ended_at": null,
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": null,
+  "experiment": "E0005",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130"
+  },
+  "incumbent": null,
+  "max_run_seconds": 900.0,
+  "metric_goal": "higher",
+  "metric_name": "att_usd",
+  "metrics": {},
+  "phase": "estimators",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions_requested": [
+    "P3"
+  ],
+  "primary_metric": null,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T05:15:18.612046Z",
+  "timed_out": false,
+  "track": "att",
+  "transaction": {
+    "started_at": "2026-11-03T05:15:18.612124Z",
+    "status": "pending"
+  }
+}
