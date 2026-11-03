@@ -44,6 +44,24 @@
       "experiment": "E0005"
     }
   },
+  "finalization": {
+    "final_holdout_counts": {
+      "llm": 1,
+      "search": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "llm": "E0006",
+      "search": "E0005"
+    },
+    "timestamp": "2026-11-03T10:49:40.314318Z"
+  },
   "fingerprints": {
     "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
     "split": {
@@ -257,7 +275,7 @@
     }
   },
   "schema_version": 3,
-  "status": "active",
+  "status": "finalized",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T10:43:32.633496Z"
+  "updated_at": "2026-11-03T10:49:40.314339Z"
 }
