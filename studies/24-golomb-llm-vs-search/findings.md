@@ -44,13 +44,31 @@ pairs and the search arm matched 0 of 12 (E0004 vs E0001), a difference of +6 pa
 produced no valid ruler at all there: `invalid_best` is 6 of 6, and 265 of 1200 replies
 were unparsed. Every other reply parsed, but none was a valid Golomb ruler.
 
+That last sentence is not left on the searcher's self-reported `valid_rulers`
+(referee note 2). `tables/synthesis_derive.py` recounts it from the pinned shard
+`calls/E0006-000.jsonl.gz` (`art:calls_E0006`) with its own Golomb check, never
+importing `search.py`.
+- **Generous reading** (every bracketed integer list in every reply): 1200 replies hold
+  11395 lists with the requested number of marks, and 0 of them are valid Golomb rulers
+  (`E0006_ledger_valid_any`).
+- **Declared strict reading:** also 0 (`E0006_ledger_valid_strict`).
+
+The same recount on the development cell reproduces the searcher's 719 under the strict
+reading (`E0004_ledger_valid_strict`). The generous reading finds 185 more valid rulers,
+all in replies that were valid JSON in a shape the prompt did not ask for, e.g. objects
+`{"ruler": […]}`. The declared never-repair rule scores those entries invalid. Read
+generously, every development pair keeps the same best length and the same first proposal
+at the tabulated length (`E0004_ledger_generous_pairs_unchanged`), so the count of 6 of 12 and the
+first-batch count of 1 do not depend on the extraction rule. All of this is post-hoc and
+descriptive.
+
 | Claim | RQ | Track | Verdict | Strength | Class | Evidence | Delta + uncertainty |
 |---|---|---|---|---|---|---|---|
-| **[C1]** | RQ1 | search | supported (prior "at most half" held) | confirmed | empirical-description | E0001, rep:E0001@20261103T090037Z, E0005, art:synth_summary, ref:oeis_a003022 | At a budget of 2000 candidate evaluations per pair the classical search matched the tabulated optimum in 0 of 12 development pairs, its mean gap growing from 5.667 to 35.333 length units across the four development orders, and a re-execution reproduced the count exactly. |
+| **[C1]** | RQ1 | search | supported (prior "at most half" held) | confirmed | empirical-description | E0001, rep:E0001@20261103T090037Z, E0005, art:synth_summary, art:sol_E0001, ref:oeis_a003022 | At a budget of 2000 candidate evaluations per pair the classical search matched the tabulated optimum in 0 of 12 development pairs, its mean gap growing from 5.667 to 35.333 length units across the four development orders, and a re-execution reproduced the count exactly. |
 | **[C2]** | RQ2 | llm | refuted (prior "about even that it reaches 9 of 12") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:sol_E0004, art:rep_E0004, ref:oeis_a003022 | On the same development pairs the LLM arm matched the tabulated optimum in 6 of 12 pairs, all three trials of the two orders that matched and none of the other two, and a salted re-query of every call reproduced the count of 6 of 12 but not the pair-level detail: first-batch matches 2 against 1, valid rulers 788 against 719, unparsed replies 531 against 593. |
 | **[C3]** | RQ2 | llm vs search | inconclusive as an inference; the count difference is measured | exploratory | empirical-description | E0001, E0004, art:synth_summary | The development contrast is +6 pairs for the LLM arm over the search arm, with an exact McNemar p of 0.03125 when the 12 pairs are treated as independent, which does not clear the Bonferroni level of 0.025 for the two arm contrasts, and a p of 0.5 when the four orders are the unit, so the advantage is a measured count difference on two orders, not an established rate. |
 | **[C4]** | RQ3 | llm | refuted (prior "yes for most matches") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:synth_pairs | Only 1 of 12 development pairs held a verified optimum in its first proposal batch, and 2 of 12 in the salted re-query; 5 of 6 matched pairs first reached the optimum after verifier feedback, at proposals as late as 74 of 200, so the registered first-batch recall signature was not observed, which does not exclude recall, because a late match can be a resampled or repaired memory. |
-| **[C5]** | RQ4 | search, llm | supported for search (prior 0.85 held); LLM arm did not reach the optimum | confirmed | empirical-description | E0005, E0006, rep:E0001@20261103T090037Z, rep:E0004@20261103T090054Z, art:sol_E0005, art:sol_E0006, art:synth_summary, ref:robinson1979, ref:robinson1983 | On the sealed orders both arms matched the tabulated optimum in 0 of 6 pairs; the search arm's best verified lengths stayed at least 48 length units above it, and the LLM arm produced no verified ruler at all, with an invalid best in 6 of 6 pairs, 265 of 1200 replies unparsed and none of its candidates a valid Golomb ruler. |
+| **[C5]** | RQ4 | search, llm | supported for search (prior 0.85 held); LLM arm did not reach the optimum | confirmed | empirical-description | E0005, E0006, rep:E0001@20261103T090037Z, rep:E0004@20261103T090054Z, art:sol_E0005, art:sol_E0006, art:synth_summary, art:calls_E0006, ref:robinson1979, ref:robinson1983 | On the sealed orders both arms matched the tabulated optimum in 0 of 6 pairs; the search arm's best verified lengths stayed at least 48 length units above it, and the LLM arm produced no verified ruler at all, with an invalid best in 6 of 6 pairs, 265 of 1200 replies unparsed and none of its candidates a valid Golomb ruler. |
 | **[C6]** | all | search, llm | procedural | confirmed | procedural-verdict | E0001, E0004, E0005, E0006 | The predictions ledger holds 2 supported and 3 refuted of the 5 registered predictions: P1 and P4 supported, P2, P3 and P5 refuted, each refutation answered by a dated Decision line in program.md. |
 
 **Strength labels.** `confirmed` is used only where the track holds both kinds of
@@ -62,9 +80,24 @@ It also cites each track's development replication (rep:E0001, rep:E0004), becau
 contract on the development orders, not the sealed ones, so they confirm the
 instrument, not the sealed counts. C6 is a ledger fact.
 
+**C1 and C5 rest on development replications, and that is the protocol's only option
+(referee note 5).** The lead tried `klein replicate E0005 --verify-only` and the same for
+E0006. The engine refuses both by design and has no override: "replicating it would be a
+second look at the sealed partition" (`kleinlib/replicate.py`, `_refuse_unreplicable`). So
+no record binds the sealed artifacts to a second verifier pass. What stands in for one:
+- the notary's own verifier run on each sealed artifact (`metric.reported` equals
+  `metric.verified` in E0005 and E0006);
+- for C5's LLM half, the ledger recount above.
+
 C2 stays `exploratory` for two reasons. The re-query reproduced only the count. The sealed
 lane tests different orders, and there the count did not carry over (0 of 6). C3 and C4
 are exploratory by construction.
+
+**The sources of C2's re-query numbers differ (referee note 3).** The salted re-query's
+first-batch count of 2 and its primary count of 6 are the verifier's (`replicate_block`
+in `art:rep_E0004`). Its valid rulers 788 and unparsed replies 531 are searcher-reported
+(`searcher_block` of the same record). The verifier's block does not carry them, and the
+replica's call shards were not recounted here.
 
 **Controls that exist.** There are three.
 
@@ -76,10 +109,20 @@ are exploratory by construction.
      differs from the verified one, and a verified length below the table.
    - `sweeps/verifier_checks.py` re-runs nine of these refusals and all nine pass
      (data card).
-   - Positive control: hand-transcribed tabulated rulers scored 12 of 12 (development) and
-     6 of 6 (sealed). Negative controls: planted invalid objects were rejected. Both are
-     recorded in the data card. Those control artifacts lived in a scratch directory and
-     are not pinned, so the record of them is the card's text.
+   - Positive control (a known-valid input the checker must accept): hand-transcribed
+     tabulated rulers scored 12 of 12 (development) and 6 of 6 (sealed). Negative controls
+     (known-invalid inputs it must reject): planted invalid, forged, wrong-lane and tampered
+     artifacts were rejected. Both are recorded in the data card.
+   - **The labels are swapped between documents (referee note 4).** The data card labels
+     these the other way round: its "Positive control (hand-planted invalid objects it
+     must reject)" and "Negative control (known-valid objects it must accept)". The card
+     is gate-hashed and stays as written. This file and program.md use
+     the conventional labels above.
+   - **What these controls test.** They test the *verifier* only. They show that it accepts
+     what it should and refuses what it should. They say nothing about either arm: neither
+     searcher is controlled by them, and the missing arm-level controls are listed below.
+   - Those control artifacts lived in a scratch directory and are not pinned, so the record
+     of them is the card's text.
 2. **The oracle of known minimum lengths (OEIS A003022).** `verify.py` pins the OEIS A003022 values for
    orders 8 to 13 (34, 44, 55, 72, 85, 106) in its `ORACLE`, and it refuses an
    `instance.json` that disagrees. Those lengths are the only reference values any count
@@ -197,9 +240,25 @@ optimum cannot separate recall from search, and the study ran no control that co
   tabulated rows arrived at proposals 1, 70 and 34 (n = 8) and 2, 74 and 11 (n = 11).
 - **The hypothesis.** The model holds those two rows, and a sample at temperature 0.7,
   nudged by "difference d repeats" feedback, lands on them within tens of proposals.
-- **Why it stays a hypothesis.** It is equally consistent with a short local search that
-  happens to converge on a unique optimum. Identity is uninformative when the optimum is
-  unique, so only the missing contamination control could separate the two readings.
+- **Why it stays a hypothesis.** It is also consistent with a short local search that
+  converges on a tabulated optimum. Only the missing contamination control could separate
+  the two readings.
+- **Correction (referee note 1; erratum E1 on C7).** C7's locked sentence calls the
+  optimum "unique", and the bullet above originally said identity is "uninformative".
+  Both overstate the case:
+  - The optimum is unique only up to reflection at n = 8.
+  - At n = 11 there are two optima up to reflection: `0 1 4 13 28 33 47 54 64 70 72` and
+    `0 1 9 19 24 31 52 56 58 69 72` (method card).
+  - Across *every* proposal in the ledger, not only the stored bests, the only rulers at
+    the tabulated length are the table's printed rows in their printed orientation
+    (`E0004_n8_distinct_optimal_rulers_proposed` and `…_n11_…` are 1). The mirror images
+    and the second 11-mark optimum were never proposed (`E0004_n8_mirror_row_proposed`,
+    `E0004_n11_mirror_row_proposed` and `E0004_n11_other_optimum_proposed` are 0).
+
+  So identity carries weak, non-zero information that leans toward retrieval of the
+  printed rows: a search indifferent to orientation would be expected to hit a mirror
+  some of the time. It is still not a test. These are four post-hoc counts on two orders,
+  and the locked C7 text stands with the erratum attached.
 
 **[C8]** Untested hypothesis: order nine failed for the LLM arm, with no valid ruler in 600
 proposals, because its proposals anchor on extending the tabulated eight-mark row. 8 of 120
@@ -252,6 +311,18 @@ not known.
 the LLM arm took about 10234 times the search arm's searcher-reported wall-clock on
 development and 13016 times on the sealed orders, and the study made 6000 live model calls
 carrying 6507285 tokens.
+
+**Why 6000 and not the planned 7,200 (referee note 10).** The data card (issue 11) and
+program.md planned about 7,200 study-wide live calls. That was a first pass of 3,600
+(development 2,400 plus sealed 1,200) plus "about 3,600 for the salted re-query
+replication". The recorded total is 6000, and the record explains the gap:
+- The first pass cost exactly the planned 3,600. The development cell's three attempts
+  made 613 + 523 + 1264 live calls, which is 2,400 in total, because each rerun answered
+  the earlier attempts' requests from their shards. The sealed cell E0006 made 1200.
+- Only the development cell was re-queried, with 2400 calls. The sealed cell cannot be
+  replicated: the engine refuses a second look at the sealed partition (①). So the 1,200
+  the plan implicitly allotted to re-querying E0006 was never spent.
+- 3,600 + 2400 = 6000.
 
 **[C11]** Count an LLM arm's outcomes in orders as well as in pairs: the trials of an order
 sent byte-identical first requests and every development order came out all-or-none, so the
@@ -332,9 +403,12 @@ optimality credits for n ≤ 14 rest on the literature, not on a source this stu
   separately. This study's arm emits *objects* on tabulated problems. It is the OPRO-style
   regime (`ref:opro2024`) with a one-batch memory, the weakest regime for any claim beyond
   rediscovery.
-- **Memorization.** The results sit where `ref:carlini2023` would place a flash-tier model.
-  The shortest tabulated rows are reproduced, at least eventually: 8 marks, and 11 marks with
-  its two optima. There is no exact 12- or 13-integer row and not even a valid one.
+- **Memorization.** The pattern is consistent with the memorization-scales-with-capacity
+  account of `ref:carlini2023`, but it is untested here (C7). Carlini et al. make no
+  prediction about this model or its tier.
+  - The 8-mark tabulated row and one of the two 11-mark optima are reproduced, at least
+    eventually, and only in the table's printed orientation (③).
+  - There is no exact 12- or 13-integer row, and not even a valid one.
 - **The card's own scan.** It found no paper applying an LLM proposer to Golomb rulers, and a
   two-query scan finding nothing is not evidence that nothing exists. This study adds one
   dated data point for one snapshot. It does not position the model class.
@@ -361,6 +435,17 @@ optimality credits for n ≤ 14 rest on the literature, not on a source this stu
    0, with a price block declared (C13) and the replica's per-pair table kept (C14). Report
    results in orders as the unit (C11).
 
+**Not covered by the referee's verdict (referee note 9).** The referee ran on this file
+before any tutorial existed. Its PASS-WITH-NOTES does not cover the TUTORIAL artifact
+(`report/index.html`) or any figure, because none existed when it ran. Those need their
+own check when they are built.
+
 **Candidate claims for a cross-study survey** (not written here): C3, C10, C11, C12, C13 and
 C15 are process lessons that may promote into `knowledge/research-discipline.md` with typed
 citations after the referee's verdict.
+
+## Errata (appendix — present only when an erratum is filed)
+
+| Erratum | Filed | Claims re-scoped | What is now known |
+|---|---|---|---|
+| E1 | 2026-11-03 | C7 (stays `exploratory`) | The locked sentence's "unique tabulated optimum" is wrong as stated (referee note 1). At n = 8 the optimum is unique only up to reflection. At n = 11 there are two optima up to reflection. In every E0004 proposal the only rulers at the tabulated length are the table's printed rows in their printed orientation: the mirror images and the second 11-mark optimum were never proposed (`art:synth_summary`). Identity is therefore weak, non-zero, post-hoc information that leans toward retrieval, not "uninformative". C7 remains an untested hypothesis. |

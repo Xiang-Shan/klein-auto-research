@@ -16,7 +16,7 @@ changes.
 | data-gate auditor | `klein-data-auditor` subagent (Sonnet tier) · Claude Code | 2026-11-03 |
 | method scholar | `klein-method-scholar` subagent (Opus tier) · Claude Code | 2026-11-03 |
 | synthesist | `klein-synthesist` subagent (Opus tier) · Claude Code | 2026-11-03 |
-| referee | `klein-referee` subagent (Opus tier) · Claude Code · fresh context that never saw the loop (rung: different model than the experimenter) | 2026-11-03 |
+| referee | `klein-referee` subagent (Opus tier, claude-opus-5-5) · Claude Code · fresh context that never saw the loop (rung vs the experimenter: different model; rung vs the synthesist: fresh session only — both Opus tier in Claude Code, referee note 8) | 2026-11-03 |
 | lead | lead agent, acting on the repository owner's delegation | 2026-11-03 |
 
 **Acknowledgements are delegated.** The repository owner approved the Klein 2.3 plan
@@ -267,3 +267,72 @@ Order: dry runs first (search, then llm), real search, wait for study 20 to be i
 - 2026-11-03 — Decision: P2 refuted by E0004 (6 of 12 < 9): the registered expectation that the LLM arm matches 9 or more development pairs is withdrawn; replicated at 6/12 by the E0004 replication.
 - 2026-11-03 — Decision: P3 refuted by E0004 (first_batch_matches 1 < 6): the recall-in-first-batch account is not supported on development orders.
 - 2026-11-03 — Decision: P5 refuted by E0006 (0 of 6 < 3): the LLM arm's development matches did not carry to sealed orders 12-13; no verified ruler was produced there.
+
+## Referee notes answered (Gate 3 recorded at 57611b9, PASS-WITH-NOTES)
+
+Answered by the synthesist on 2026-11-03. Each line answers the note of the same number in
+`referee_report.md`. The earlier log lines above stay as written, because the notebook is
+append-only.
+
+- 2026-11-03 — Referee note: 1 (C7, "unique optimum") — **accepted.**
+  - Erratum E1 was filed with `klein claims erratum`. It re-scopes C7, whose locked text
+    is unchanged and whose strength stays exploratory.
+  - The re-scope: the optimum is unique up to reflection at n=8, and n=11 has two optima.
+  - `tables/synthesis_derive.py` now also checks every E0004 proposal. The only rulers at
+    the tabulated length are the printed rows in printed orientation; the mirror images and
+    the second 11-mark optimum were never proposed.
+  - findings §③ now reads identity as weak, non-zero, post-hoc information, not
+    "uninformative", and §⑥'s "two optima" slip is corrected.
+- 2026-11-03 — Referee note: 2 (C5, "no valid ruler") — **done.** The recount now runs
+  from the pinned shard `calls/E0006-000.jsonl.gz`, pinned as `art:calls_E0006`. It uses
+  this file's own Golomb check, and `search.py` is never imported.
+  - E0006: 11395 lists with n marks, 0 valid, under both the generous and the strict
+    reading.
+  - E0004 cross-check: the strict recount equals the searcher's 719. The generous reading
+    finds 185 more valid rulers, all in valid-JSON replies wrapped in objects, which the
+    never-repair rule scores invalid.
+  - No pair's best length or first optimal proposal changes under the generous reading.
+  - New numbers e6_ledger_valid_any, e6_ledger_lists_n and e4_ledger_valid_strict are
+    added to the lock. C5 gains `art:calls_E0006`.
+- 2026-11-03 — Referee note: 3 (C2's re-query sources) — **done.** findings §① now names
+  the source of each number:
+  - first-batch 2 and the primary 6 are the verifier's `replicate_block`;
+  - valid 788 and unparsed 531 are the searcher's `searcher_block`, not verified.
+- 2026-11-03 — Referee note: 4 (control labels) — **done in findings and here.** Labels
+  used: positive control = a known-valid input the verifier must accept (the tabulated
+  rulers, scoring 12/12 and 6/6); negative control = a known-invalid input it must reject
+  (planted, forged, wrong-lane and tampered artifacts). The data card, which is gate-hashed
+  and not edited, uses the swapped labels. These controls test the verifier only, not
+  either arm.
+- 2026-11-03 — Referee note: 5 (sealed replication) — **recorded.** The lead tried
+  `klein replicate E0005 --verify-only` and the same for E0006. The engine refuses both by
+  design, with no override: it would be a second look at the sealed partition
+  (`kleinlib/replicate.py` `_refuse_unreplicable`). So C1 and C5 rest on the development
+  replications rep:E0001 and rep:E0004, which is the protocol's only option, plus the
+  notary's own verifier run on each sealed artifact (reported equals verified). findings §①
+  says so.
+- 2026-11-03 — Referee note: 6 (Carlini sentence) — **done.** §⑥ now reads "consistent
+  with the memorization-scales-with-capacity account of ref:carlini2023, but untested here
+  (C7)".
+- 2026-11-03 — Referee note: 7 (n=8 prefix) — **acknowledged.** The development-phase log
+  line "Every n=8 first batch opens with the same prefix 0,1,4,9,15,22,32" is inaccurate.
+  The prefix opens trials 0 and 2 only; trial 1 opens 0 1 3 7 12 20 29 38. See the
+  correction in findings §③ ("A correction to the program's prose"). The log line is left
+  as written.
+- 2026-11-03 — Referee note: 8 (synthesist independence) — **recorded in the Roster's
+  referee row.** Relative to the experimenter the rung is "different model". Relative to
+  the synthesist it is "fresh session" only, because both are Opus tier in Claude Code.
+- 2026-11-03 — Referee note: 9 (tutorial and figures) — **acknowledged.** The Gate 3
+  verdict does not cover `report/index.html` or any figure; none existed when it ran.
+  findings §⑦ says so. The TUTORIAL stage needs its own check.
+- 2026-11-03 — Referee note: 10 (minor items) — **done.**
+  - (a) `art:sol_E0001` is added to C1's evidence cell in findings, matching the lock.
+  - (b) The earlier phrase "block keys outside tolerance: evaluations, restarts" for
+    rep:E0001 means those keys are *absent* from the verifier's block, so the tolerance
+    comparison could not cover them. They are not different: in the replica's
+    `searcher_block` they equal the original (evaluations 24000, restarts 94).
+  - (c) The ~7,200 planned study-wide live calls versus 6000 recorded is explained by the
+    record (findings §④, under C10). The first pass cost the planned 3,600, because the
+    development reruns re-used earlier shards (613 + 523 + 1264). The planned sealed
+    re-query (~1,200) could not happen, because sealed runs are not replicable. That leaves
+    3,600 + 2400 re-query.

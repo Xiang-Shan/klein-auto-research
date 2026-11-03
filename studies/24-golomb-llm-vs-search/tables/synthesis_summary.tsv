@@ -67,6 +67,37 @@ E0006_ledger_calls_max_per_pair	200	maximum
 E0006_ledger_first_batch_agree	6	pairs (of 6) whose stored first batch equals the ledger's first reply
 E0006_distinct_first_requests_per_order	1	distinct first requests across the 3 trials of an order (max over orders)
 E0004_n9_proposals	600	order-9 proposals in E0004 (3 trials x 200)
+E0004_ledger_replies	2400	lane replies read from the pinned call shards
+E0004_n8_distinct_optimal_rulers_proposed	1	distinct valid rulers at the tabulated length in any proposal (strict reading)
+E0004_n8_printed_row_proposed	1	1 if the table's printed row was proposed
+E0004_n8_mirror_row_proposed	0	1 if its mirror image was proposed
+E0004_n9_distinct_optimal_rulers_proposed	0	distinct valid rulers at the tabulated length in any proposal (strict reading)
+E0004_n10_distinct_optimal_rulers_proposed	0	distinct valid rulers at the tabulated length in any proposal (strict reading)
+E0004_n11_distinct_optimal_rulers_proposed	1	distinct valid rulers at the tabulated length in any proposal (strict reading)
+E0004_n11_printed_row_proposed	1	1 if the table's printed row was proposed
+E0004_n11_mirror_row_proposed	0	1 if its mirror image was proposed
+E0004_n11_other_optimum_proposed	0	1 if the second 11-mark optimum (either orientation) was proposed
+E0004_ledger_valid_strict	719	valid rulers under the declared strict extraction, recomputed here (compare aux valid_rulers)
+E0004_searcher_valid_rulers	719	searcher-reported valid_rulers (aux), for comparison
+E0004_ledger_wrapped_valid_extra	185	valid rulers only the generous reading counts (e.g. lists wrapped in objects), post-hoc
+E0004_ledger_generous_matched	6	pairs matched if every bracketed list is read (first llm_batch per reply); post-hoc
+E0004_ledger_generous_first_batch_matches	1	same reading, optimum already in proposal 1
+E0004_ledger_generous_pairs_unchanged	1	1 if every pair's best length and first optimal proposal equal the searcher's strict reading
+E0004_ledger_lists_with_n_marks	23364	every bracketed integer list with the order's n marks, no batch cap
+E0004_ledger_valid_any	904	of those, valid Golomb rulers (this file's check), no batch cap
+E0004_ledger_valid_first_batch_lists	904	valid Golomb rulers among the first 10 lists per reply
+E0006_ledger_replies	1200	lane replies read from the pinned call shards
+E0006_n12_distinct_optimal_rulers_proposed	0	distinct valid rulers at the tabulated length in any proposal (strict reading)
+E0006_n13_distinct_optimal_rulers_proposed	0	distinct valid rulers at the tabulated length in any proposal (strict reading)
+E0006_ledger_valid_strict	0	valid rulers under the declared strict extraction, recomputed here (compare aux valid_rulers)
+E0006_searcher_valid_rulers	0	searcher-reported valid_rulers (aux), for comparison
+E0006_ledger_wrapped_valid_extra	0	valid rulers only the generous reading counts (e.g. lists wrapped in objects), post-hoc
+E0006_ledger_generous_matched	0	pairs matched if every bracketed list is read (first llm_batch per reply); post-hoc
+E0006_ledger_generous_first_batch_matches	0	same reading, optimum already in proposal 1
+E0006_ledger_generous_pairs_unchanged	1	1 if every pair's best length and first optimal proposal equal the searcher's strict reading
+E0006_ledger_lists_with_n_marks	11395	every bracketed integer list with the order's n marks, no batch cap
+E0006_ledger_valid_any	0	of those, valid Golomb rulers (this file's check), no batch cap
+E0006_ledger_valid_first_batch_lists	0	valid Golomb rulers among the first 10 lists per reply
 card_brier_P1_P5	0.03568	method card P(rule holds) vs ledger outcome, 5 predictions
 card_brier_P2_P5	0.043975	method card, the 4 predictions the CONSULT priors also priced
 consult_brier_P2_P5	0.170625	study.yaml RQ priors, 4 predictions

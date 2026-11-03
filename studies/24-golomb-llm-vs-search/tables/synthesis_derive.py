@@ -3,7 +3,9 @@
 Reads ONLY committed evidence — tables/solution_E000{1,4,5,6}.json, runs/*/manifest.json,
 runs/*/usage.json, runs/E0004/replications/20261103T090054Z.json, the committed call
 shards calls/E000{2,3,4,6}-000.jsonl.gz, study_state.json, aux_metrics.tsv, study.yaml
-and verify.py's pinned ORACLE (read with ast, never imported) — and writes two tables beside it:
+and verify.py's pinned ORACLE (read with ast, never imported) — and writes two tables beside it.
+search.py (the mutable surface) is never imported: its extraction rule is re-implemented
+in strict_entries() so the ledger recount (referee note 2) is independent of it:
 
   tables/synthesis_pairs.tsv    one row per (arm, order, trial): optimum, best verified
                                 length, gap, matched, first-match index, valid/unparsed,
@@ -30,6 +32,8 @@ STUDY = Path(__file__).resolve().parents[1]
 # The tabulated rulers the data card transcribed (data_card.md, verifier positive control).
 TAB_8 = [0, 1, 4, 9, 15, 22, 32, 34]
 TAB_11 = [0, 1, 4, 13, 28, 33, 47, 54, 64, 70, 72]
+# The other 11-mark ruler at the tabulated length (method_card.md; referee note 1).
+TAB_11B = [0, 1, 9, 19, 24, 31, 52, 56, 58, 69, 72]
 
 
 def oracle() -> dict:
@@ -49,6 +53,32 @@ def is_golomb(r, n):
         return False
     d = [b - a for i, a in enumerate(r) for b in r[i + 1:]]
     return len(d) == len(set(d))
+
+
+def strict_entries(text, batch):
+    """The declared extraction rule (method card §3c, program.md instrument notes),
+    re-implemented here so search.py is never imported: the outermost [...] span as
+    JSON (one bare ruler is wrapped), else every complete inner list; first `batch`
+    entries; nothing unwrapped or repaired (an object entry stays invalid)."""
+    entries = None
+    start, end = text.find("["), text.rfind("]")
+    if start != -1 and end > start:
+        try:
+            value = json.loads(text[start:end + 1])
+        except ValueError:
+            value = None
+        if isinstance(value, list):
+            if value and all(isinstance(v, int) and not isinstance(v, bool) for v in value):
+                value = [value]
+            entries = value
+    if entries is None:
+        entries = []
+        for chunk in re.findall(r"\[[^\[\]]*\]", text):
+            try:
+                entries.append(json.loads(chunk))
+            except ValueError:
+                continue
+    return entries[:batch]
 
 
 def repeated_differences(r):
@@ -257,6 +287,85 @@ def main() -> None:
             distinct.append(len({json.dumps(first[(o, t)][0]["request"], sort_keys=True) for t in range(3)}))
         put(f"{exp}_distinct_first_requests_per_order", max(distinct), "distinct first requests across the 3 trials of an order (max over orders)")
     put("E0004_n9_proposals", 3 * 200, "order-9 proposals in E0004 (3 trials x 200)")
+
+    # Referee note 2 (2026-11-03): recompute "no valid ruler" from the pinned shards
+    # instead of the searcher's self-reported valid_rulers. Two readings of every reply
+    # in the cell: (a) EVERY bracketed integer list anywhere in the reply, no batch cap
+    # (the most generous reading); (b) the first `llm_batch` such lists per reply. A list
+    # counts if it has the order's n marks and passes is_golomb above (this file's own
+    # check, not search.py's).
+    inner = re.compile(r"\[[^\[\]]*\]")
+    for exp, files in shards.items():
+        recs = {}
+        for f in files:
+            with gzip.open(STUDY / f, "rt", encoding="utf-8") as fh:
+                for line in fh:
+                    r = json.loads(line)
+                    recs.setdefault(r["key"], r)
+        sol = json.loads((STUDY / "tables" / f"solution_{exp}.json").read_text(encoding="utf-8"))
+        lane_orders = set(sol["orders"])
+        replies = lists_n = valid_any = valid_capped = valid_strict = 0
+        optimal_seen: dict[int, set[tuple[int, ...]]] = {}
+        g_best: dict[tuple[int, int], int] = {}
+        g_first: dict[tuple[int, int], int] = {}
+        for r in recs.values():
+            text = r["request"]["messages"][1]["content"]
+            n = int(re.search(r"with (\d+) marks", text).group(1))
+            k = int(re.search(r"proposal (\d+) of", text).group(1))
+            if n not in lane_orders:
+                continue
+            replies += 1
+            content = r["response"]["choices"][0]["message"]["content"] or ""
+            parsed = []
+            for chunk in inner.findall(content):
+                try:
+                    value = json.loads(chunk)
+                except ValueError:
+                    continue
+                if isinstance(value, list) and value and all(
+                    isinstance(x, int) and not isinstance(x, bool) for x in value
+                ):
+                    parsed.append(value)
+            lists_n += sum(len(v) == n for v in parsed)
+            valid_any += sum(is_golomb(v, n) for v in parsed)
+            valid_capped += sum(is_golomb(v, n) for v in parsed[: int(orc["llm_batch"])])
+            valid_strict += sum(is_golomb(v, n) for v in strict_entries(content, int(orc["llm_batch"])))
+            pair = (n, int(r["sample"]))
+            for v in strict_entries(content, int(orc["llm_batch"])):
+                if is_golomb(v, n) and v[-1] == optima[n]:
+                    optimal_seen.setdefault(n, set()).add(tuple(v))
+            for v in parsed[: int(orc["llm_batch"])]:
+                if is_golomb(v, n):
+                    g_best[pair] = min(g_best.get(pair, v[-1]), v[-1])
+                    if v[-1] == optima[n]:
+                        g_first[pair] = min(g_first.get(pair, k), k)
+        put(f"{exp}_ledger_replies", replies, "lane replies read from the pinned call shards")
+        # Referee note 1: which optimal rulers (and orientations) were ever proposed.
+        for o in sorted(lane_orders):
+            seen = optimal_seen.get(o, set())
+            tab = {8: TAB_8, 11: TAB_11}.get(o)
+            put(f"{exp}_n{o}_distinct_optimal_rulers_proposed", len(seen), "distinct valid rulers at the tabulated length in any proposal (strict reading)")
+            if tab is not None:
+                mirror = tuple(tab[-1] - x for x in reversed(tab))
+                put(f"{exp}_n{o}_printed_row_proposed", int(tuple(tab) in seen), "1 if the table's printed row was proposed")
+                put(f"{exp}_n{o}_mirror_row_proposed", int(mirror in seen), "1 if its mirror image was proposed")
+            if o == 11:
+                other = tuple(TAB_11B)
+                put(f"{exp}_n11_other_optimum_proposed", int(other in seen or tuple(72 - x for x in reversed(other)) in seen), "1 if the second 11-mark optimum (either orientation) was proposed")
+        put(f"{exp}_ledger_valid_strict", valid_strict, "valid rulers under the declared strict extraction, recomputed here (compare aux valid_rulers)")
+        put(f"{exp}_searcher_valid_rulers", int(aux[(exp, "valid_rulers")]), "searcher-reported valid_rulers (aux), for comparison")
+        put(f"{exp}_ledger_wrapped_valid_extra", valid_capped - valid_strict, "valid rulers only the generous reading counts (e.g. lists wrapped in objects), post-hoc")
+        put(f"{exp}_ledger_generous_matched", len(g_first), "pairs matched if every bracketed list is read (first llm_batch per reply); post-hoc")
+        put(f"{exp}_ledger_generous_first_batch_matches", sum(v == 1 for v in g_first.values()), "same reading, optimum already in proposal 1")
+        same = all(
+            g_first.get((p["order"], p["trial"])) == p.get("first_optimal_proposal")
+            and g_best.get((p["order"], p["trial"])) == p.get("best_length")
+            for p in sol["pairs"]
+        )
+        put(f"{exp}_ledger_generous_pairs_unchanged", int(same), "1 if every pair's best length and first optimal proposal equal the searcher's strict reading")
+        put(f"{exp}_ledger_lists_with_n_marks", lists_n, "every bracketed integer list with the order's n marks, no batch cap")
+        put(f"{exp}_ledger_valid_any", valid_any, "of those, valid Golomb rulers (this file's check), no batch cap")
+        put(f"{exp}_ledger_valid_first_batch_lists", valid_capped, f"valid Golomb rulers among the first {orc['llm_batch']} lists per reply")
 
     # priors scorecard: P(rule holds) as stated in method_card.md part 4(a) and in the
     # study.yaml RQ priors (RQ2 "about even" -> P2 0.5; RQ3 "about 0.5" -> P3; RQ4 0.85 -> P4,
