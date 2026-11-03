@@ -115,6 +115,19 @@ non-default rule only when it applied.
   (found at study 23's first preflight).
 - The `cv-classify` and `dl-scaling` recipe smokes train long enough to clear the
   collapse guard on real data (found at study 21).
+- `klein finalize` and `klein next` honour a track's own `confirmation.require`: a
+  track declaring a non-empty list without `sealed` (study 22's fitted exponent,
+  `[replicate]`) closes on its records instead of being held to a sealed look it was
+  never meant to take; an empty list still cannot close `confirmed`. Labels already
+  recorded are never recomputed (found at study 22's finalize).
+- The sealed dry run files the new files its evaluator wrote (a DRYRUN-keyed
+  confusion table) in its own commit, so the mandatory rehearsal no longer leaves a
+  tree that refuses the sealed run (found at study 21).
+- The contract-driven split check recognises `load_items`, the index-table wrapper
+  over `load_partition`, instead of warning that no source asks the contract for a
+  partition (found by the referees of studies 20 and 21).
+- A phase-ladder test still expected the pre-repoint behaviour; it now checks both
+  halves (followed before work, drift after).
 
 ### Changed
 
