@@ -1,0 +1,13 @@
+<h3>The decision</h3>
+<p>You have a job-training programme, a pool of survey respondents who did not take part, and a propensity-score model. Before you act on the number it gives, you want to know whether that kind of model can be trusted. Most of the time you cannot check. Here you can, because the National Supported Work (NSW) demonstration was a randomised experiment: 260 men were randomised out of the programme, and their earnings give an experimental answer to compare against. The study asks, as a decision: <em>if I had only a survey comparison group, would a propensity-score estimate have told me the right thing, and how would I have known?</em></p>
+<p>Concretely, three questions, in order. First, do the published Dehejia-Wahba numbers come back out of the authors' own files? Second, how far does a naive comparison of trainees with survey men miss the experimental answer? Third, do 1999-vintage propensity-score estimators recover it on a first comparison group (PSID-1), and does the one chosen there carry, with its covariate list unchanged, to a second group (CPS-1) that was sealed until the end?</p>
+
+<h3>Takeaways</h3>
+<ul>
+<li><strong>The files are the paper's files, but four targets do not reproduce.</strong> Every unadjusted value, every sample size and the whole experimental row come back within one dollar. The four misses are exactly the comparison-group adjusted estimates and their standard errors, against targets transcribed from the working paper alone.</li>
+<li><strong>The naive contrast is not just wrong, it has the wrong sign</strong>, on both comparison groups, by more than the benchmark's own size.</li>
+<li><strong>Propensity methods did not clearly recover the benchmark on PSID-1.</strong> Three estimators on one score spread over more than the benchmark itself. On the sealed CPS-1 lane the selected estimator lands within the registered band once, which is consistency, not validation.</li>
+</ul>
+
+<h3>How the study is built</h3>
+<p>Two registered tracks, each a set of pre-registered cells rather than a search: <code>reproduction</code> counts how many published targets a cell misses by more than one dollar, and <code>att</code> records one propensity-score estimate of the effect of NSW on 1978 earnings, with its bootstrap range. Seven predictions (P1 to P7) were registered with arithmetic rules before any evidence existed, and the notary adjudicated each. There is no frontier to climb here, so there is no "best model"; the question is what the audit shows. The claim totals and the referee's verdict are in the evidence block of section 5, copied from the records.</p>
