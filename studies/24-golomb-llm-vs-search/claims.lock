@@ -1,132 +1,361 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "aux": {
+      "path": "aux_metrics.tsv",
+      "sha256": "0fc849f2a90a38e93b9189634b20cd2d932933adb57b846482d0166b9c059a01"
+    },
+    "contract": {
+      "path": "study.yaml",
+      "sha256": "467cbc8fe64c6399648b955e85d68015bc7bd53a7763dcc631512eeed10ce1b4"
+    },
+    "data_card": {
+      "path": "data_card.md",
+      "sha256": "d191937cd21d1f9cca3eca39d3d205cadcd95b3c183fd9258221738f411148df"
+    },
+    "man_E0002": {
+      "path": "runs/E0002/manifest.json",
+      "sha256": "77331da07b4cb262907ba1daca67ede3495bbbf3bb7c3784fac052d9bb67bc78"
+    },
+    "man_E0003": {
+      "path": "runs/E0003/manifest.json",
+      "sha256": "9873020095127bda9d96f5204a3151bb96f6b6706beb3491e62a03efe13effb0"
+    },
+    "man_E0004": {
+      "path": "runs/E0004/manifest.json",
+      "sha256": "fa22c44f9f45ecfacf1a8693cb381036daf72b9b7f62916ed4338dcd1cf09663"
+    },
+    "man_E0006": {
+      "path": "runs/E0006/manifest.json",
+      "sha256": "bc374958d892a3223512b981dcccc0c1adc4934514b29d56a56d674a34cd9bb2"
+    },
+    "method_card": {
+      "path": "method_card.md",
+      "sha256": "28b4ab4617e0a798054032ef9750eb9c07f2513f3945fcd47a891d0a0f00b077"
+    },
+    "rep_E0001": {
+      "path": "runs/E0001/replications/20261103T090037Z.json",
+      "sha256": "3bc382a382f67196831b1101391a22cc5bfe43f2e02b036127f52279d58a95e7"
+    },
+    "rep_E0004": {
+      "path": "runs/E0004/replications/20261103T090054Z.json",
+      "sha256": "640100a11362ae7947310028c57e90a8ce45918e6b5338efcf58c3639947c5da"
+    },
+    "results": {
+      "path": "results.tsv",
+      "sha256": "28077874ad7ae02d9bb37306b314348b5b211962a649473ada7ba72075a1a20d"
+    },
+    "sol_E0001": {
+      "path": "tables/solution_E0001.json",
+      "sha256": "7978e18ca3f8cd0e6101adc402020a64acf587b0764c1f4e16130f1c2b76144c"
+    },
+    "sol_E0004": {
+      "path": "tables/solution_E0004.json",
+      "sha256": "1c298e00dcdbf1e51be716cd4864ff42d2361fcf6647ee68d49b9faf68c25792"
+    },
+    "sol_E0005": {
+      "path": "tables/solution_E0005.json",
+      "sha256": "2cb2c0f673c1672bb80da1d4e955913e366c3df17e16243e5151aaa2776361aa"
+    },
+    "sol_E0006": {
+      "path": "tables/solution_E0006.json",
+      "sha256": "116f82debf357d348871c0bb68aa4b8c939218e56ca46b4117d7afbf7757e1b8"
+    },
+    "synth_pairs": {
+      "path": "tables/synthesis_pairs.tsv",
+      "sha256": "a2751a9705e1f23feef0c527e2c236b05ad2b23a8bcbdcf9cd4595f22544d440"
+    },
+    "synth_script": {
+      "path": "tables/synthesis_derive.py",
+      "sha256": "d5bfff97e240700e26d10546748cea7e4d9998488cfd27bb9ad8c0b1198004d4"
+    },
+    "synth_summary": {
+      "path": "tables/synthesis_summary.tsv",
+      "sha256": "ea5ce28efdeff3662bc5279b6c6c04be52c2d85021beda21c7dcd8effcb20fcf"
+    },
+    "verifier": {
+      "path": "verify.py",
+      "sha256": "63a60221be1a0b66c36095c804d08799df889156c7299c1129df16f2c0bc903c"
+    }
+  },
   "claims": {
     "C1": {
-      "claim": "RQ1 | search | supported (prior \"at most half\" held) | confirmed | empirical-description | E0001, rep:E0001@20261103T090037Z, E0005, art:synth_summary, ref:oeis_a003022 | At a budget of 2000 candidate evaluations per pair the classical search matched the tabulated optimum in 0 of 12 development pairs, its mean gap growing from 5.667 to 35.333 length units across the four development orders, and a re-execution reproduced the count exactly. |",
-      "class": null,
+      "claim": "At a budget of 2000 candidate evaluations per pair the classical search matched the tabulated optimum in 0 of 12 development pairs, its mean gap growing from 5.667 to 35.333 length units across the four development orders, and a re-execution reproduced the count exactly.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0001",
+        "rep:E0001@20261103T090037Z",
+        "E0005",
+        "art:synth_summary",
+        "art:sol_E0001",
+        "ref:oeis_a003022"
+      ],
+      "numbers": [
+        "budget_evals",
+        "search_gap_mean_n11",
+        "search_gap_mean_n8"
+      ],
+      "strength": "confirmed"
     },
     "C10": {
-      "claim": "Report a matched-evaluation budget beside its compute: at 2000 evaluations per pair",
-      "class": null,
+      "claim": "Report a matched-evaluation budget beside its compute: at 2000 evaluations per pair the LLM arm took about 10234 times the search arm's searcher-reported wall-clock on development and 13016 times on the sealed orders, and the study made 6000 live model calls carrying 6507285 tokens.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "rep:E0004@20261103T090054Z",
+        "art:synth_summary"
+      ],
+      "numbers": [
+        "budget_evals",
+        "study_live_calls",
+        "study_live_tokens",
+        "wall_ratio_dev",
+        "wall_ratio_sealed"
+      ],
       "strength": "exploratory"
     },
     "C11": {
-      "claim": "Count an LLM arm's outcomes in orders as well as in pairs: the trials of an order",
-      "class": null,
+      "claim": "Count an LLM arm's outcomes in orders as well as in pairs: the trials of an order sent byte-identical first requests and every development order came out all-or-none, so the exact test moved from 0.03125 to 0.5 when the unit changed from pair to order.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "art:synth_summary"
+      ],
+      "numbers": [
+        "mcnemar_order_p",
+        "mcnemar_pair_p"
+      ],
       "strength": "exploratory"
     },
     "C12": {
-      "claim": "Treat a rerun after a crash as partly the crashed run: E0004 answered 1136 of 2400",
-      "class": null,
+      "claim": "Treat a rerun after a crash as partly the crashed run: E0004 answered 1136 of 2400 requests from the crashed runs' shards, a share of 0.4733, so only a salted re-query is an independent second draw from the model.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0002",
+        "E0003",
+        "E0004",
+        "rep:E0004@20261103T090054Z",
+        "art:man_E0004",
+        "art:synth_summary"
+      ],
+      "numbers": [
+        "e4_cached",
+        "e4_cached_share"
+      ],
       "strength": "exploratory"
     },
     "C13": {
-      "claim": "Declare a price block before a model-calling run: this study's calls block declares",
-      "class": null,
+      "claim": "Declare a price block before a model-calling run: this study's calls block declares none, so every recorded usd reads 0, and the dollar cost of its 6000 live calls is unrecorded, not zero.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0006",
+        "art:contract",
+        "art:man_E0004",
+        "art:synth_summary"
+      ],
+      "numbers": [
+        "e4_usd",
+        "price_configured",
+        "study_live_calls"
+      ],
       "strength": "exploratory"
     },
     "C14": {
-      "claim": "Keep the replica's solution table when an LLM cell is re-queried: the salted",
-      "class": null,
+      "claim": "Keep the replica's solution table when an LLM cell is re-queried: the salted re-query's record keeps its call shards and its metric block but not its per-pair artifact, so whether the same pairs matched cannot be read from the record, only that the count of 6 of 12 recurred.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "rep:E0004@20261103T090054Z",
+        "art:rep_E0004"
+      ],
+      "numbers": [
+        "rep_primary"
+      ],
       "strength": "exploratory"
     },
     "C15": {
-      "claim": "Do not read a match on a tabulated object as search: a matched-budget comparison on",
-      "class": null,
+      "claim": "Do not read a match on a tabulated object as search: a matched-budget comparison on instances whose answers are public measures recall and search together, so a claim about search needs a contamination control (an untabulated or perturbed instance) and a no-feedback arm before it is made.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0004",
+        "E0006",
+        "ref:carlini2023",
+        "ref:oeis_a003022"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C16": {
-      "claim": "The matched rulers re-attain upper bounds already known to be tight, length 34 at",
-      "class": null,
+      "claim": "The matched rulers re-attain upper bounds already known to be tight, length 34 at eight marks and 72 at eleven marks per the OEIS table, so the study establishes nothing new about any Golomb length, and every miss is a fact about these proposers at this budget, never evidence that a shorter ruler or a match is out of reach.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "art:sol_E0004",
+        "art:synth_pairs",
+        "ref:oeis_a003022"
+      ],
+      "numbers": [
+        "opt_n11",
+        "opt_n8"
+      ],
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ2 | llm | refuted (prior \"about even that it reaches 9 of 12\") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:sol_E0004, art:rep_E0004, ref:oeis_a003022 | On the same development pairs the LLM arm matched the tabulated optimum in 6 of 12 pairs, all three trials of the two orders that matched and none of the other two, and a salted re-query of every call reproduced the count of 6 of 12 but not the pair-level detail: first-batch matches 2 against 1, valid rulers 788 against 719, unparsed replies 531 against 593. |",
-      "class": null,
+      "claim": "On the same development pairs the LLM arm matched the tabulated optimum in 6 of 12 pairs, all three trials of the two orders that matched and none of the other two, and a salted re-query of every call reproduced the count of 6 of 12 but not the pair-level detail: first-batch matches 2 against 1, valid rulers 788 against 719, unparsed replies 531 against 593.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "rep:E0004@20261103T090054Z",
+        "art:sol_E0004",
+        "art:rep_E0004",
+        "ref:oeis_a003022"
+      ],
+      "numbers": [
+        "e4_fb",
+        "e4_unparsed",
+        "e4_valid",
+        "rep_fb",
+        "rep_unparsed",
+        "rep_valid"
+      ],
       "strength": "exploratory"
     },
     "C3": {
-      "claim": "RQ2 | llm vs search | inconclusive as an inference; the count difference is measured | exploratory | empirical-description | E0001, E0004, art:synth_summary | The development contrast is +6 pairs for the LLM arm over the search arm, with an exact McNemar p of 0.03125 when the 12 pairs are treated as independent, which does not clear the Bonferroni level of 0.025 for the two arm contrasts, and a p of 0.5 when the four orders are the unit, so the advantage is a measured count difference on two orders, not an established rate. |",
-      "class": null,
+      "claim": "The development contrast is +6 pairs for the LLM arm over the search arm, with an exact McNemar p of 0.03125 when the 12 pairs are treated as independent, which does not clear the Bonferroni level of 0.025 for the two arm contrasts, and a p of 0.5 when the four orders are the unit, so the advantage is a measured count difference on two orders, not an established rate.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0004",
+        "art:synth_summary"
+      ],
+      "numbers": [
+        "bonferroni_alpha",
+        "dev_delta",
+        "mcnemar_order_p",
+        "mcnemar_pair_p",
+        "n_dev_pairs"
+      ],
       "strength": "exploratory"
     },
     "C4": {
-      "claim": "RQ3 | llm | refuted (prior \"yes for most matches\") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:synth_pairs | Only 1 of 12 development pairs held a verified optimum in its first proposal batch, and 2 of 12 in the salted re-query; 5 of 6 matched pairs first reached the optimum after verifier feedback, at proposals as late as 74 of 200, so the registered first-batch recall signature was not observed, which does not exclude recall, because a late match can be a resampled or repaired memory. |",
-      "class": null,
+      "claim": "Only 1 of 12 development pairs held a verified optimum in its first proposal batch, and 2 of 12 in the salted re-query; 5 of 6 matched pairs first reached the optimum after verifier feedback, at proposals as late as 74 of 200, so the registered first-batch recall signature was not observed, which does not exclude recall, because a late match can be a resampled or repaired memory.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "rep:E0004@20261103T090054Z",
+        "art:synth_pairs"
+      ],
+      "numbers": [
+        "e4_fb",
+        "llm_first_match_max",
+        "rep_fb"
+      ],
       "strength": "exploratory"
     },
     "C5": {
-      "claim": "RQ4 | search, llm | supported for search (prior 0.85 held); LLM arm did not reach the optimum | confirmed | empirical-description | E0005, E0006, art:sol_E0005, art:sol_E0006, art:synth_summary, ref:robinson1979, ref:robinson1983 | On the sealed orders both arms matched the tabulated optimum in 0 of 6 pairs; the search arm's best verified lengths stayed at least 48 length units above it, and the LLM arm produced no verified ruler at all, with an invalid best in 6 of 6 pairs, 265 of 1200 replies unparsed and none of its candidates a valid Golomb ruler. |",
-      "class": null,
+      "claim": "On the sealed orders both arms matched the tabulated optimum in 0 of 6 pairs; the search arm's best verified lengths stayed at least 48 length units above it, and the LLM arm produced no verified ruler at all, with an invalid best in 6 of 6 pairs, 265 of 1200 replies unparsed and none of its candidates a valid Golomb ruler.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0005",
+        "E0006",
+        "art:sol_E0005",
+        "art:sol_E0006",
+        "art:synth_summary",
+        "ref:robinson1979",
+        "ref:robinson1983"
+      ],
+      "numbers": [
+        "e6_calls",
+        "e6_invalid_best",
+        "e6_unparsed",
+        "search_gap_min_sealed"
+      ],
+      "strength": "confirmed"
     },
     "C6": {
-      "claim": "all | search, llm | procedural | confirmed | procedural-verdict | E0001, E0004, E0005, E0006 | The predictions ledger holds 2 supported and 3 refuted of the 5 registered predictions: P1 and P4 supported, P2, P3 and P5 refuted, each refutation answered by a dated Decision line in program.md. |",
-      "class": null,
+      "claim": "The predictions ledger holds 2 supported and 3 refuted of the 5 registered predictions: P1 and P4 supported, P2, P3 and P5 refuted, each refutation answered by a dated Decision line in program.md.",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0001",
+        "E0004",
+        "E0005",
+        "E0006"
+      ],
+      "numbers": [
+        "n_predictions",
+        "predictions_held",
+        "predictions_refuted"
+      ],
+      "strength": "confirmed"
     },
     "C7": {
-      "claim": "Untested hypothesis: the LLM arm's matches are retrieval of tabulated rulers. Every",
-      "class": null,
+      "claim": "Untested hypothesis: the LLM arm's matches are retrieval of tabulated rulers. Every matched ruler is the row the public table prints, and the best ruler in all three trials at order ten is the first ten marks of the tabulated eleven-mark ruler, a Golomb ruler by inheritance at length 70 against the optimum 55. But identity with a unique tabulated optimum cannot separate recall from search, and the study ran no control that could.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "art:sol_E0004",
+        "art:synth_pairs",
+        "art:data_card",
+        "ref:wikipedia_golomb",
+        "ref:oeis_a003022"
+      ],
+      "numbers": [
+        "llm_best_n10",
+        "opt_n10"
+      ],
       "strength": "exploratory"
     },
     "C8": {
-      "claim": "Untested hypothesis: order nine failed for the LLM arm, with no valid ruler in 600",
-      "class": null,
+      "claim": "Untested hypothesis: order nine failed for the LLM arm, with no valid ruler in 600 proposals, because its proposals anchor on extending the tabulated eight-mark row. 8 of 120 development first-batch rulers share that row's first seven marks, including one in every order-nine first batch, and extending a Golomb ruler by a mark usually repeats a difference.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "art:sol_E0004",
+        "art:synth_pairs",
+        "art:synth_summary"
+      ],
+      "numbers": [
+        "fb_prefix_tab8",
+        "n9_proposals"
+      ],
       "strength": "exploratory"
     },
     "C9": {
-      "claim": "The method card's prior that recall dominates the matches (first-batch matches at",
-      "class": null,
+      "claim": "The method card's prior that recall dominates the matches (first-batch matches at least half the matched count, a bar of 3) is refuted at 1. Its other four card-level priors held: the search arm matched 0 of 12, its mean gap was non-decreasing with order and 35.333 at the largest development order, every development order clustered all-or-none for the LLM arm, and the LLM arm was not behind at +6 pairs.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0004",
+        "art:method_card",
+        "art:synth_summary"
+      ],
+      "numbers": [
+        "card_c4_bar",
+        "dev_delta",
+        "e4_fb",
+        "search_gap_mean_n11"
+      ],
       "strength": "exploratory"
     }
   },
@@ -136,6 +365,243 @@
   "klein_version": "2.2.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "bonferroni_alpha": {
+      "art": "synth_summary",
+      "claim": "C3",
+      "precision": 3,
+      "value": 0.025
+    },
+    "budget_evals": {
+      "art": "sol_E0001",
+      "claim": "C1",
+      "note": "budget_evaluations per (order, trial), both arms",
+      "precision": 0,
+      "value": 2000
+    },
+    "card_c4_bar": {
+      "art": "synth_summary",
+      "claim": "C9",
+      "note": "M_llm / 2",
+      "precision": 0,
+      "value": 3
+    },
+    "dev_delta": {
+      "art": "synth_summary",
+      "claim": "C3",
+      "note": "pairs, E0004 minus E0001",
+      "precision": 0,
+      "value": 6
+    },
+    "e4_cached": {
+      "art": "aux",
+      "claim": "C12",
+      "precision": 0,
+      "value": 1136
+    },
+    "e4_cached_share": {
+      "art": "synth_summary",
+      "claim": "C12",
+      "precision": 4,
+      "value": 0.4733
+    },
+    "e4_fb": {
+      "art": "aux",
+      "claim": "C2",
+      "note": "E0004 first_batch_matches",
+      "precision": 0,
+      "value": 1
+    },
+    "e4_unparsed": {
+      "art": "aux",
+      "claim": "C2",
+      "precision": 0,
+      "value": 593
+    },
+    "e4_usd": {
+      "art": "man_E0004",
+      "claim": "C13",
+      "note": "manifest.usage.usd; unpriced, not free",
+      "precision": 0,
+      "value": 0
+    },
+    "e4_valid": {
+      "art": "aux",
+      "claim": "C2",
+      "precision": 0,
+      "value": 719
+    },
+    "e6_calls": {
+      "art": "aux",
+      "claim": "C5",
+      "precision": 0,
+      "value": 1200
+    },
+    "e6_invalid_best": {
+      "art": "man_E0006",
+      "claim": "C5",
+      "precision": 0,
+      "value": 6
+    },
+    "e6_unparsed": {
+      "art": "aux",
+      "claim": "C5",
+      "precision": 0,
+      "value": 265
+    },
+    "fb_prefix_tab8": {
+      "art": "synth_summary",
+      "claim": "C8",
+      "precision": 0,
+      "value": 8
+    },
+    "llm_best_n10": {
+      "art": "sol_E0004",
+      "claim": "C7",
+      "precision": 0,
+      "value": 70
+    },
+    "llm_first_match_max": {
+      "art": "synth_summary",
+      "claim": "C4",
+      "precision": 0,
+      "value": 74
+    },
+    "mcnemar_order_p": {
+      "art": "synth_summary",
+      "claim": "C3",
+      "precision": 1,
+      "value": 0.5
+    },
+    "mcnemar_pair_p": {
+      "art": "synth_summary",
+      "claim": "C3",
+      "precision": 5,
+      "value": 0.03125
+    },
+    "n9_proposals": {
+      "art": "synth_summary",
+      "claim": "C8",
+      "precision": 0,
+      "value": 600
+    },
+    "n_dev_pairs": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "pairs per development cell",
+      "precision": 0,
+      "value": 12
+    },
+    "n_predictions": {
+      "art": "synth_summary",
+      "claim": "C6",
+      "precision": 0,
+      "value": 5
+    },
+    "opt_n10": {
+      "art": "synth_pairs",
+      "claim": "C7",
+      "precision": 0,
+      "value": 55
+    },
+    "opt_n11": {
+      "art": "synth_pairs",
+      "claim": "C16",
+      "precision": 0,
+      "value": 72
+    },
+    "opt_n8": {
+      "art": "synth_pairs",
+      "claim": "C16",
+      "precision": 0,
+      "value": 34
+    },
+    "predictions_held": {
+      "art": "synth_summary",
+      "claim": "C6",
+      "precision": 0,
+      "value": 2
+    },
+    "predictions_refuted": {
+      "art": "synth_summary",
+      "claim": "C6",
+      "precision": 0,
+      "value": 3
+    },
+    "price_configured": {
+      "art": "synth_summary",
+      "claim": "C13",
+      "precision": 0,
+      "value": 0
+    },
+    "rep_fb": {
+      "art": "rep_E0004",
+      "claim": "C2",
+      "note": "first_batch_matches in the salted re-query",
+      "precision": 0,
+      "value": 2
+    },
+    "rep_primary": {
+      "art": "rep_E0004",
+      "claim": "C14",
+      "precision": 0,
+      "value": 6
+    },
+    "rep_unparsed": {
+      "art": "rep_E0004",
+      "claim": "C2",
+      "precision": 0,
+      "value": 531
+    },
+    "rep_valid": {
+      "art": "rep_E0004",
+      "claim": "C2",
+      "precision": 0,
+      "value": 788
+    },
+    "search_gap_mean_n11": {
+      "art": "synth_summary",
+      "claim": "C1",
+      "precision": 3,
+      "value": 35.333
+    },
+    "search_gap_mean_n8": {
+      "art": "synth_summary",
+      "claim": "C1",
+      "precision": 3,
+      "value": 5.667
+    },
+    "search_gap_min_sealed": {
+      "art": "synth_summary",
+      "claim": "C5",
+      "note": "search_gap_min_n12 (n13 min is 58)",
+      "precision": 0,
+      "value": 48
+    },
+    "study_live_calls": {
+      "art": "synth_summary",
+      "claim": "C10",
+      "precision": 0,
+      "value": 6000
+    },
+    "study_live_tokens": {
+      "art": "synth_summary",
+      "claim": "C10",
+      "precision": 0,
+      "value": 6507285
+    },
+    "wall_ratio_dev": {
+      "art": "synth_summary",
+      "claim": "C10",
+      "precision": 0,
+      "value": 10234
+    },
+    "wall_ratio_sealed": {
+      "art": "synth_summary",
+      "claim": "C10",
+      "precision": 0,
+      "value": 13016
+    }
+  },
   "study_id": "24-golomb-llm-vs-search"
 }
