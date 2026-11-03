@@ -167,6 +167,9 @@ Referee: <actor> (<tool / model>) · fresh context · independent-of-experimente
 
 Then the ten-row table with the evidence each check rested on (ids, file paths, the
 verifier output), the notes, and — on FAIL — the clearing conditions.
+Write every path repo-relative (`studies/<id>/…`), never the absolute path of the
+checkout you ran in: the gate hashes this report, so a machine-local path in it can never
+be edited out again, and the repository's universality guard rejects one.
 
 Those two lines are all `klein gate record referee` reads, and a FAIL is refused
 rather than recorded:

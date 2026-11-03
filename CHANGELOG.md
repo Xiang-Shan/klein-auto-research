@@ -150,6 +150,9 @@ citations (`knowledge/domains/{llm,cv,data-science}/`, `ml-research/`, `math/`,
 - The contract-driven split check recognises `load_items`, the index-table wrapper
   over `load_partition`, instead of warning that no source asks the contract for a
   partition (found by the referees of studies 20 and 21).
+- The referee protocol asks for repo-relative paths: a gate-hashed report cannot be
+  edited afterwards, and study 21's round-2 report named its worktree (exempted by exact
+  path in the universality guard, as frozen evidence).
 - A phase-ladder test still expected the pre-repoint behaviour; it now checks both
   halves (followed before work, drift after).
 
