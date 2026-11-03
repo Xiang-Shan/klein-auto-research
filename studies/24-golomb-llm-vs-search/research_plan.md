@@ -6,8 +6,8 @@ At a matched budget of verifier calls, does an LLM proposing Golomb rulers as da
 
 ## Contract
 
-- Domain: {{DOMAIN}}
-- Data: synthetic:prepare.py
+- Domain: combinatorial search (Golomb rulers)
+- Data: none — instance.json (orders, budget, OEIS optima, seed blocks)
 - Track: primary
 - Metric: ruler_length (lower, minimum delta 0)
 - Method depth: full
@@ -21,7 +21,16 @@ exploratory or confirmed.
 
 ## Experiment ladder
 
-1. Reproduce a split-identity anchor.
-2. Establish an honest baseline.
-3. Test the proposed method and ablations inside phase limits.
-4. Run the chosen track candidate once on the sealed final test.
+1. **Development (P1-P3).** One cell per arm on orders 8-11, three trials each, 2,000
+   candidate evaluations per trial; the verifier counts matched optima.
+2. **Sealed (P4, P5).** Orders 12-13, one run per arm after its dry run.
+3. **Replication.** `klein replicate` the search cells (deterministic seeds) and
+   `klein replicate --replay` the LLM cells (offline, from the pinned ledger); a salted
+   re-query of the LLM development cell is the replication confirmation counts.
+
+## What would change the conclusion
+
+- A matched optimum in the LLM's first batch is a retrieval, not a search result; the
+  verifier's `first_batch_matches` keeps the two apart.
+- The search arm's numbers are a property of THIS search at THIS budget, not of
+  classical search in general; findings must say so.

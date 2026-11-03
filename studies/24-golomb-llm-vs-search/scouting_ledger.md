@@ -13,16 +13,16 @@ status: open        # open | closed (closed at the CONSULT gate; later entries a
 
 ## §0 Disclosure
 
-Nothing was computed, read, or plotted before this contract was written — the study
-was scaffolded first and its questions typed from the brief alone. Replace this
-paragraph the moment that stops being true: values seen before the gate may seed
-anchors and identity checks; they may never be scored predictions.
+Nothing about this study's arms was computed before this contract was written. The one
+model request made on this machine before the gate (study 20's connectivity check, a
+multiplication prompt) is not about Golomb rulers. The optimal lengths are OEIS A003022
+values, recalled and re-checked against OEIS by prepare.py's author before the DATA gate.
 
 ## Entries
 
 | S# | Date | What was looked at | What was seen | Why it is not evidence | Decision |
 |---|---|---|---|---|---|
-| — | 2026-11-03 | nothing scouted before the gate | — | — | — |
+| S1 | 2026-11-03 | OEIS A003022 (optimal Golomb ruler lengths), recalled | 0, 1, 3, 6, 11, 17, 25, 34, 44, 55, 72, 85, 106, 127 for orders 1-14 | reference values the verifier compares against, not a result | re-checked against oeis.org before DATA; frozen in instance.json |
 
 ## Retirements
 
