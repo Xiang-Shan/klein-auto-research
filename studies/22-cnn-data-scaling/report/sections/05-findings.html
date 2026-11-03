@@ -1,0 +1,57 @@
+<h2>Findings &amp; insights</h2>
+
+<!--EVIDENCE-->
+
+<p>The evidence block above is copied from the records. The verdicts below cite claim ids from the lock
+(<code>22-cnn-data-scaling#Cn</code>); the sentence of each claim is the one in <code>claims.lock</code>.</p>
+
+<h3>Verdicts on the four questions</h3>
+<ul>
+<li><strong>RQ1, answered (C1).</strong> The pure law fitted to the six seed-mean development cells has exponent 0.1304 and prefactor 2.126. The prior's range was 0.1 to 0.6, so P1 is supported, but the exponent sits below the &ldquo;most likely 0.2 to 0.4&rdquo; band and below the sharper P5 range (refuted). The printed bootstrap spread, 0.1181 to 0.1411, is descriptive; a post-hoc per-seed-slope t-interval is 0.1033 to 0.1569.</li>
+<li><strong>RQ2, refuted (C2).</strong> Log-log R&sup2; is 0.7955 against the registered 0.98. The three smallest cells are flat at 0.8296, 0.9492 and 0.8408 where the law needs a decline.</li>
+<li><strong>RQ3, refuted (C3).</strong> Measured 0.3959 (seed sd 0.0090) against predicted 0.5066: a signed relative error of &minus;0.2802, outside the 0.20 bar.</li>
+<li><strong>RQ4, refuted with the opposite sign (C4).</strong> The measured loss is below the prediction by 0.1107 nats, so the law was pessimistic. P4 and P6 are refuted.</li>
+</ul>
+<p>Of the seven registered predictions, only P1 and P7 were supported. P7, the only sharp METHOD-gate prior that held, was
+about training dynamics rather than the curve: the full-pool cell's best checkpoint came at step 8050 of 8437 (C5).
+Erratum E1 notes that &minus;0.2802 is the seed mean of per-seed errors (the registered definition); the signed error of the
+seed-mean loss is &minus;0.2797. Verdict unchanged.</p>
+
+<img data-fig="figures/scaling_loglog.png" alt="The same log-log scaling plot of six development cells, the fitted law and the sealed point."
+ data-caption="The headline picture again (development cells on the development lane, sealed cell on the test set): the law fitted on N from 500 to 16,000 lands above the sealed measurement at the full pool. The partition difference means the gap cannot be split exactly between law and partition (C16).">
+
+<h3>Surprises, and how much of each is actually known</h3>
+
+<p><strong>The small end is flat, and N=1000 is worse than N=500.</strong> Local exponent over the three smallest cells is
+&minus;0.0096 against 0.2127 over the three largest, so the curve <em>steepens</em> with N, contradicting the method card's
+expectation that it would flatten (C7). N=1000 sits above N=500 on nested, paired subsamples and the inversion is
+<strong>present in all three paired seeds</strong>, by +0.1195 on average (C8). Every cell's best checkpoint came at 0.954 or more of
+its step budget, and the three smallest cells shared one 400-step floor with 113.8, 56.9 and 28.4 epochs (C6).</p>
+
+<img data-fig="figures/step_budget.png" alt="Step budget and best-checkpoint step against N on log-log axes; the two lines are nearly identical, flat at 400 steps up to N=2000, then rising to 8437 at the full pool."
+ data-caption="Optimizer steps per cell and seed-mean best inner-validation checkpoint step against N, for the six development cells and the sealed cell. The best checkpoint hugs the end of every budget, and N=500, 1,000 and 2,000 share one 400-step budget, so the cells are not matched in compute.">
+
+<p><strong>Mechanism: a hypothesis, untested (C9).</strong> The status of C9 as locked: <em>hypothesis, untested</em>.
+It says the small end may be compute-limited, so that at a shared 400-step budget the loss would track steps more than data.
+No step-matched or step-extended small cell was run, so this stands untested, and rival readings fit the same evidence:
+the small-data region that Hestness et al. describe, and non-monotone learning curves of a fixed model. The N=1000 inversion itself is unresolved;
+checkpoint selection on 50- and 100-image inner sets is visibly optimistic at N=500, but that was not isolated.</p>
+
+<p><strong>Even the friendliest refit over-predicts.</strong> A post-hoc, unregistered refit over the three largest cells alone gives exponent 0.2127
+and predicts 0.4254, still above the measured 0.3959 (C10). Whether the curve kept steepening past N=16000 is a cross-partition
+reading only, with a descriptive local exponent of 0.2674 that is confounded with the development-versus-test gap. The held-out over
+inner-validation loss ratios do not show the test set easier or harder (C11, re-scoped by erratum E2); this stays exploratory.</p>
+
+<p><strong>The printed interval is too narrow (C12).</strong> The bootstrap width is 0.0230 exponent units and the per-seed-slope t-interval has
+width 0.0536, which is 2.33 times wider. The card expected exactly this, and the interval prior held.</p>
+
+<h3>What this study did not do</h3>
+<ul>
+<li><strong>The cross-partition caveat applies to C3, C4 and the sealed point.</strong> The six fit cells are scored on the development lane and the sealed cell on the official test set (C16). A same-partition control was not run.</li>
+<li><strong>No negative control was run</strong> &mdash; no shuffled-label cell and no check against the chance level ln 10. The record gives no reason. The one positive control, a synthetic harness recovering a planted exponent, covers the fit code only, not training or evaluation. The cell losses sit far below chance, which is a sanity bound, not a control.</li>
+<li><strong>Re-execution is thin.</strong> E0001 to E0006 are attested detached runs, and only E0005 was re-executed under observation by the evidence the claims cite. The replication of the fit repeats arithmetic on pinned cells.</li>
+<li><strong>The noise floor was never separately measured.</strong> Both tracks are registered, so no claim leans on a keep bar; the per-cell seed spread is the only noise measure, and the contract's <code>minimum_delta</code> is a resolution, not a measured floor.</li>
+</ul>
+
+<h3>Practitioner impact: what to change in a training recipe, and at what cost</h3>
+<p>No materiality block is registered, so nothing is priced. The change that the evidence motivates is to make the step budget grow with N across the whole fitted range, with no minimum that several cells share, and to check that no best checkpoint sits at the end of its budget (C13); motivation is the measured shape (C6 to C8) and not the untested mechanism. The cells were not matched in compute, so the exponent is a property of this protocol, not of the network alone. Measured on a 4-CPU x86_64 Linux VM with no GPU: the sealed 3-seed array took 1883.8 s of wall time, and wall time is informational only.</p>
