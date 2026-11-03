@@ -37,7 +37,7 @@ TRACK = os.environ.get("KLEIN_TRACK") or ("reproduction" if SMOKE else None)
 # ---- the cell -----------------------------------------------------------------
 CELL = {
     "estimator": "ipw",   # att track: ipw | aipw | match
-    "spec": "dw_psid",    # att track: a key of lalonde.PROPENSITY
+    "spec": "no_re74",    # att track: a key of lalonde.PROPENSITY
     "reps": 500,          # att track: bootstrap draws (each re-fits the propensity model)
 }
 # -------------------------------------------------------------------------------
