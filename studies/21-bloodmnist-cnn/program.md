@@ -355,3 +355,18 @@ Chosen: 1 then 2 then 3, the order the contract fixes.
   kleinlib; nothing in this study works around it.
 - 2026-11-03 — Referee note 6: acknowledged; no change. The E0001/E0002 aux rows hold the last
   seed's values (pre-fcadacf), and findings and claims read runs/E000N/seeds.tsv.
+
+### Round-2 referee notes (PASS-WITH-NOTES; referee gate recorded at c52f0bb)
+
+- 2026-11-03 — Referee note 1 (round 2): accepted. §③ item 6 now says the 1.2–1.3 figure is
+  the drop divided by the binomial SE of ONE recall. It adds the independent-samples SE of the
+  difference (0.0459; the drop is 0.86 of it), says a paired SE was not measured, and quotes the
+  per-seed monocyte recalls, which overlap widely. tables/synthesis.py appends these rows to
+  tables/per_class_noise.tsv. The earlier rows of that table and the four other synthesis tables
+  are byte-identical. Both changed files are re-pinned through `klein claims`. No claim changed.
+- 2026-11-03 — Referee note 2 (round 2): accepted. §③ item 4 now reads "expected to be noisier
+  per item than near 0.93 (the item bootstrap was never run at the incumbent)". No claim changed.
+- 2026-11-03 — Referee notes 3–5 (round 2, carried forward): acknowledged. They are answered by
+  the round-1 lines above: note 3 (figures for TUTORIAL must start at zero or draw the 0.0438 bar),
+  note 4 (harness control closed as a disclosed gap, not met) and note 5 (contract-driven-split
+  WARN is a framework false positive, not a study defect).

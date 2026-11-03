@@ -172,7 +172,8 @@ mostly wrong, and that is the most transferable result of the anchor phase.
    E0007 seed (paired 0.0048 to 0.0403), yet both fell short of the bar by 0.0112 and
    0.0158. The bar was not relaxed after the fact. They are recorded as "positive, below
    the bar", not as null. The bar is set by item noise measured at an anchor near 0.72,
-   where macro-F1 is noisier per item than near 0.93; it is probably wider than the item
+   where macro-F1 is expected to be noisier per item than near 0.93 (the item bootstrap was
+   never run at the incumbent); it is probably wider than the item
    noise at the incumbent's level (unmeasured — ⑦ item 2).
 5. **Flip/rotation augmentation alone did nothing measurable (E0005, -0.0067).** The prior
    (and Veeling et al. 2018) favoured rotation symmetry for microscopy. Mechanism:
@@ -185,8 +186,11 @@ mostly wrong, and that is the most transferable result of the anchor phase.
    monocyte recall fell from 0.8345 at E0004 to 0.7949 at E0008; in E0008's seed-0 table 33
    of 143 development monocytes were called immature granulocytes. On the sealed test
    monocytes remain the weakest class (recall 0.8582). On 143 development monocytes this
-   drop (0.0396) is 1.2 to 1.3 binomial standard errors of recall (`art:per_class_noise`), so it is within per-class
-   noise and not an established effect. Mechanism: **unresolved**.
+   drop (0.0396) is 1.2 to 1.3 times the binomial SE of one recall, and 0.86 times the
+   independent-samples SE of the difference (0.0459); a paired SE on the shared images was
+   not measured (`art:per_class_noise`). The per-seed recalls overlap widely (E0004 0.825,
+   0.909, 0.769; E0008 0.755, 0.727, 0.902), so the drop is within per-class noise and not
+   an established effect. Mechanism: **unresolved**.
 7. **No development-to-test drop after selection (+0.0004).** Picking the best of 8
    configurations on 1709 images should leave selection optimism of order one development
    standard error. Two forces push in opposite directions in E0009 — selection optimism

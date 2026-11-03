@@ -10,7 +10,9 @@ sealed label beyond the row sums of E0009's own pinned confusion tables. Writes:
   tables/per_class.tsv          seed-mean per-class recall and F1 per run (from confusion)
   tables/seed_dominance.tsv     seed-level comparisons between selected run pairs
   tables/per_class_noise.tsv    binomial SE of the E0004 -> E0008 monocyte recall drop
-                                (added after referee note 4; other outputs unchanged)
+                                (added after referee note 4; other outputs unchanged;
+                                difference SE and per-seed recalls appended after the
+                                round-2 referee note 1)
 
 Run from anywhere: `uv run --no-sync python studies/21-bloodmnist-cnn/tables/synthesis.py`.
 Deterministic; values rounded to 6 decimals.
@@ -210,7 +212,13 @@ def main() -> None:
         ["binomial_se_at_E0008_recall", r6(se8)],
         ["drop_in_se_at_E0004", r6(drop / se4)],
         ["drop_in_se_at_E0008", r6(drop / se8)],
-    ])
+        # round-2 referee note 1: the rows above divide a DIFFERENCE by the SE of ONE
+        # recall. The independent-samples SE of the difference is below; the two recalls
+        # share the same images, so a paired SE could be smaller -- unmeasured here.
+        ["diff_se_independent_samples", r6(math.sqrt(se4 ** 2 + se8 ** 2))],
+        ["drop_in_diff_se_independent_samples", r6(drop / math.sqrt(se4 ** 2 + se8 ** 2))],
+    ] + [[f"monocyte_recall_{e}_s{s}", r6(per_class(confusion(e, s))[0][5])]
+         for e in ("E0004", "E0008") for s in range(3)])
     print("wrote synthesis_summary.tsv, controls.tsv, per_class.tsv, seed_dominance.tsv, per_class_noise.tsv")
 
 
