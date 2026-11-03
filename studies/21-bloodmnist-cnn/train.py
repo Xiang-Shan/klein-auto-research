@@ -19,7 +19,7 @@ from kleinlib.dl import report_usage, seed_everything
 from kleinlib.eval_multiclass import evaluate_multiclass
 from kleinlib.torch_device import pick_device
 from kleinlib.torch_loop import iterate_minibatches
-from model import SmallCNN
+from torch import nn
 
 SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
 EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
@@ -54,7 +54,7 @@ def main() -> None:
     x_eval, y_eval = load(eval_ids)
     classes = np.unique(np.concatenate([y_fit, y_eval]))
     device = pick_device()
-    model = SmallCNN(x_fit.shape[1], len(classes), RECIPE["width"]).to(device)
+    model = nn.Sequential(nn.Flatten(), nn.Linear(int(np.prod(x_fit.shape[1:])), len(classes))).to(device)  # P1: linear softmax on flattened pixels
     optimizer = torch.optim.AdamW(model.parameters(), lr=RECIPE["lr"], weight_decay=RECIPE["weight_decay"])
     loss_fn = torch.nn.CrossEntropyLoss()
     xt, yt = torch.from_numpy(x_fit), torch.from_numpy(y_fit.astype(np.int64))
