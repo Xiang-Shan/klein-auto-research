@@ -32,6 +32,12 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         default=None,
         help="also check this study's data.source tag (default: environment-only report)",
     )
+    parser.add_argument(
+        "--host",
+        choices=("claude-science", "claude-code", "generic"),
+        default=None,
+        help="also probe the driving host's constraints (read-only uv env, uv, GPU, skill, MCP)",
+    )
     parser.add_argument("--json", action="store_true", help="emit the report as JSON")
     parser.add_argument(
         "--strict",
@@ -42,7 +48,8 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
-    report = run_doctor(study_dir=args.study)
+    host = getattr(args, "host", None)
+    report = run_doctor(study_dir=args.study, **({"host": host} if host else {}))
     if args.json:
         print(json.dumps(report, indent=2, sort_keys=False))
     else:

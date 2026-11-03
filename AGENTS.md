@@ -99,7 +99,7 @@ this same table routed as the `/klein` skill.)
 | scaffold | `references/defaults-and-scaffolding.md` | study dir + templates, typed by kind / modality / profile | `klein new` |
 | CONSULT | `references/consult-protocol.md` + `references/inquiry-model.md` | study.yaml (predictions with rules), research_plan.md, program.md, scouting_ledger.md | `klein doctor --study` |
 | DATA | `references/data-gate-protocol.md` + `references/data-sources.md` | data_card.md (modality-typed go/no-go) | `python -m kleinlib.profile_fallback`, `python -m kleinlib.leakage` |
-| METHOD | `references/method-gate-protocol.md` | method_card.md, references.yaml, the verifier script | — |
+| METHOD | `references/method-gate-protocol.md` | method_card.md, references.yaml, the verifier script | `klein refs verify` (network: resolves every DOI / arXiv id, title match) |
 | EXPERIMENT | loop contract below + `SKILL.md` Hard Rules; `references/registered-mode.md` | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one [--tests P#]`; `klein run-one --final-test --dry-run` before every sealed run |
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction; measurement sweeps registered as `sweep:<name>` | `kleinlib.sweep.SweepRunner`, `klein sweep register` |
 | REPLICATE (any time after a run) | `references/replication-protocol.md` | `runs/E####/replications/<ts>.json` | `klein replicate E#### [--verify-only \| --replay]` |
@@ -108,6 +108,7 @@ this same table routed as the `/klein` skill.)
 | REFEREE | `references/referee-protocol.md` | referee_report.md | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after |
 | TUTORIAL | `references/tutorial-spec.md` + `references/profiles/<profile>.md` | report/index.html | `.claude/skills/klein/scripts/build_tutorial.py`, `figures/make_figures.py` |
 | status / next / verify (any time) | — | results_summary.md, progress.svg, verify_receipt.json | `klein next` (the one next action, read-only), `klein status [--json]`, `klein verify`, `summarize_results.py` |
+| host bridges (any time) | `integrations/claude-science/` | — (read-only; derivatives only) | `klein mcp` (read-only MCP server over stdio), `klein doctor --host <host>`, `klein notebook E####` (a run as a reading-copy `.ipynb`) |
 
 (`references/…` paths above live under `.claude/skills/klein/`; a bare `scripts/…`
 path means the repo root. Every helper is a plain CLI:
@@ -157,6 +158,12 @@ The loop has three layers. Keep them straight and the rest follows:
    It refuses an unchanged surface before any id or commit exists — pass
    `--allow-rerun` for an intentional identical replication, or `--tests P#` on a
    registered track (sealed final tests and `--command` overrides stay exempt).
+   A study that declares `entrypoint.execution: [local, detached]` may split one
+   transaction across a host the notary cannot spawn (`run-one --detach` →
+   `klein job exec` on the host → `run-one --collect`): the study is frozen in
+   between, the receipt is checked against the committed job bundle, and the run is
+   judged locally and recorded as attested, not observed
+   (`references/compute-and-devices.md`).
 3. **The state files are receipts — generated, never hand-edited.**
    `runs/E####/manifest.json`, `study_state.json`, the append-only self-verifying
    `events.jsonl`, `claims.lock`, `verify_receipt.json`, and the derived `results.tsv`
@@ -312,9 +319,12 @@ protocols always spell out both paths.
   following the stage map in AGENTS.md".
 - **Claude Code**: the `/klein` skill routes the same stages; `CLAUDE.md` imports
   this manual.
-- **Claude Science**: run Klein as the lab-notebook discipline inside a session —
-  a custom agent that follows this manual, with the referee stage handed to a
-  different model or a different session.
+- **Claude Science**: the kit in `integrations/claude-science/` — import the skill
+  from GitHub, install the engine (PyPI wheel, or uv with `UV_PROJECT_ENVIRONMENT`),
+  add the `klein-researcher` Specialist and the Reviewer criteria, wire `klein mcp`
+  as a Local command connector, and run GPU work as detached runs on SSH/Slurm or
+  Modal job cards. The built-in Reviewer is a pre-referee pass, never Gate 3: hand
+  REFEREE to a different session or tool (`klein-referee` Specialist, or Claude Code).
 - **Gemini CLI / Qwen Code**: add `AGENTS.md` to the context files — the
   settings.json `context.fileName` key takes a string or list — or start the
   session with "read AGENTS.md first".

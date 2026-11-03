@@ -932,6 +932,11 @@ def _profile_path(study_dir: Path, contract: Mapping[str, Any]) -> Path | None:
         candidate = root / PROFILE_DIR / f"{name}.md"
         if candidate.is_file():
             return candidate
+        # A wheel install has no `.claude/` tree; the wheel carries the same
+        # profiles as package data (pyproject force-include, Klein 2.3).
+        packaged = Path(__file__).resolve().parent / "_profiles" / f"{name}.md"
+        if packaged.is_file():
+            return packaged
     return None
 
 
@@ -1141,6 +1146,21 @@ def verify_study(
     )
     checks += _numbers_checks(study_dir, state, enabled=want_numbers, enforcing=schema_3)
     checks += _figure_rerender_checks(study_dir, enabled=schema_3)
+    # A detached run (Klein 2.3) freezes the study: the row appears only while one
+    # is open, and no receipt is written over an unjudged run.
+    from .primitives import open_detached_run
+
+    detached = open_detached_run(study_dir)
+    if detached is not None:
+        checks.append(
+            Check(
+                "detached run",
+                False,
+                f"{detached} is open — klein run-one --collect {detached} "
+                f"(or --abandon {detached} --reason …) before verifying",
+            )
+        )
+        want_receipt = False
     if want_receipt:
         checks += _receipt_checks(study_dir, contract, state, checks, version)
     return checks

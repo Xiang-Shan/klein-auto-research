@@ -261,6 +261,20 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     ]
     branch = _git_branch(study)
     expected_branch = f"experiments/{study_id}"
+    detached = (study / ".klein-detached").read_text(encoding="utf-8").strip() if (study / ".klein-detached").is_file() else None
+    if detached:
+        job = f"{s}/runs/{detached}/job.json"
+        has_result = (study / "runs" / detached / "job_result" / "receipt.json").is_file()
+        result["next"] = _action(
+            "EXPERIMENT · detached",
+            f"collect detached run {detached}" if has_result else f"execute detached run {detached} on its host",
+            f"klein run-one --study {s} --collect {detached}"
+            if has_result
+            else f"klein job exec {job}   # then copy job_result/ back if it ran elsewhere",
+            ".claude/skills/klein/references/compute-and-devices.md",
+            "the study is frozen until the detached run is collected (or abandoned with a reason)",
+        )
+        return result
     if not finalized:
         if pending:
             result["next"] = _action(

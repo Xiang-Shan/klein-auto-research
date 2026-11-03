@@ -49,8 +49,17 @@ _EXTRA_PROBES: dict[str, tuple[str, ...]] = {
 _RENDERER_MODULES = ("pygments", "ziamath", "latex2mathml")
 
 
-def run_doctor(study_dir: Path | None = None) -> dict[str, Any]:
-    """The full report: environment checks, plus study-source checks with `study_dir`."""
+#: ``klein doctor --host`` (Klein 2.3): the driving host's own constraints.
+HOSTS = ("claude-science", "claude-code", "generic")
+
+
+def run_doctor(study_dir: Path | None = None, *, host: str | None = None) -> dict[str, Any]:
+    """The full report: environment checks, plus study-source checks with `study_dir`.
+
+    ``host`` (Klein 2.3) appends that host's probes — still read-only, still no
+    network: a read-only uv environment, a missing uv, GPUs, the skill and agents
+    a host loads, and the read-only MCP server.
+    """
     checks: list[dict[str, Any]] = [
         _probe_python(),
         _probe_uv(),
@@ -62,6 +71,8 @@ def run_doctor(study_dir: Path | None = None) -> dict[str, Any]:
     ]
     if study_dir is not None:
         checks.extend(_probe_study_source(Path(study_dir)))
+    if host is not None:
+        checks.extend(_probe_host(host, Path(study_dir) if study_dir is not None else None))
     return {"ok": all(check["ok"] for check in checks), "checks": checks}
 
 
@@ -217,6 +228,109 @@ def _probe_study_source(study_dir: Path) -> list[dict[str, Any]]:
                 "name": "data source",
                 "ok": bool(report["resolvable"]),
                 "message": f"{tag!r} ({scheme}): {report['detail']}{pin_note}",
+            }
+        )
+    return checks
+
+
+# --------------------------------------------------------------------------
+# Host probes (Klein 2.3) — `klein doctor --host claude-science|claude-code|generic`
+# --------------------------------------------------------------------------
+
+
+def _repo_root(start: Path) -> Path | None:
+    for candidate in (start, *start.parents):
+        if (candidate / ".git").exists():
+            return candidate
+    return None
+
+
+def _probe_uv_environment(repo: Path | None) -> dict[str, Any]:
+    override = os.environ.get("UV_PROJECT_ENVIRONMENT")
+    if override:
+        target = Path(override).expanduser()
+        writable = os.access(target if target.exists() else target.parent, os.W_OK)
+        return {
+            "name": "uv environment",
+            "ok": writable,
+            "message": f"UV_PROJECT_ENVIRONMENT={override}"
+            + ("" if writable else " — not writable; point it at a directory you own"),
+        }
+    if shutil.which("uv") is None:
+        return {
+            "name": "uv environment",
+            "ok": True,
+            "message": "no uv on PATH — scaffold with `klein new … --runner python` and install the "
+            "engine from PyPI into the host's environment (integrations/claude-science/README.md §1)",
+        }
+    venv = (repo or Path.cwd()) / ".venv"
+    if venv.exists() and not os.access(venv, os.W_OK):
+        return {
+            "name": "uv environment",
+            "ok": False,
+            "message": f"{venv} is read-only to this process — export "
+            "UV_PROJECT_ENVIRONMENT=$HOME/.cache/klein-venv, then `uv sync --locked`",
+        }
+    return {"name": "uv environment", "ok": True, "message": f"{venv} {'writable' if venv.exists() else 'not created yet (uv sync --locked)'}"}
+
+
+def _probe_gpu() -> dict[str, Any]:
+    exe = shutil.which("nvidia-smi")
+    if exe is None:
+        return {"name": "gpu", "ok": True, "message": "no nvidia-smi — CPU here; use a detached run for GPU work"}
+    try:
+        result = subprocess.run([exe, "-L"], capture_output=True, text=True, timeout=10, check=False)
+    except OSError as exc:
+        return {"name": "gpu", "ok": True, "message": f"nvidia-smi failed to run: {exc}"}
+    gpus = [line for line in result.stdout.splitlines() if line.strip()]
+    return {"name": "gpu", "ok": True, "message": "; ".join(gpus) if gpus else "nvidia-smi lists no GPU"}
+
+
+def _probe_skill(repo: Path | None) -> dict[str, Any]:
+    root = repo or Path.cwd()
+    skill = root / ".claude" / "skills" / "klein" / "SKILL.md"
+    if skill.is_file():
+        return {"name": "klein skill", "ok": True, "message": f"{skill.relative_to(root)} present"}
+    return {
+        "name": "klein skill",
+        "ok": False,
+        "message": "no .claude/skills/klein/SKILL.md here — import the skill from GitHub, or run from a clone",
+    }
+
+
+def _probe_host(host: str, study_dir: Path | None) -> list[dict[str, Any]]:
+    if host not in HOSTS:
+        return [{"name": "host", "ok": False, "message": f"unknown host {host!r}; one of {', '.join(HOSTS)}"}]
+    repo = _repo_root((study_dir or Path.cwd()).resolve())
+    checks: list[dict[str, Any]] = [
+        {"name": "host", "ok": True, "message": host},
+        {
+            "name": "mcp server",
+            "ok": True,
+            "message": "built in (stdlib, read-only): `klein mcp --root "
+            f"{repo or '<repository>'}`",
+        },
+        _probe_gpu(),
+    ]
+    if host == "claude-science":
+        checks.append(_probe_uv_environment(repo))
+        checks.append(_probe_skill(repo))
+        kit = (repo or Path.cwd()) / "integrations" / "claude-science" / "README.md"
+        checks.append(
+            {
+                "name": "claude-science kit",
+                "ok": kit.is_file(),
+                "message": str(kit.relative_to(repo)) if kit.is_file() and repo else "integrations/claude-science/ not found",
+            }
+        )
+    elif host == "claude-code":
+        checks.append(_probe_skill(repo))
+        agents = sorted(p.stem for p in ((repo or Path.cwd()) / ".claude" / "agents").glob("klein-*.md"))
+        checks.append(
+            {
+                "name": "klein agents",
+                "ok": bool(agents),
+                "message": ", ".join(agents) if agents else "no .claude/agents/klein-*.md — roles run solo",
             }
         )
     return checks

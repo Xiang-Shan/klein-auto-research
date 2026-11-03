@@ -159,6 +159,10 @@ def _artifact_path(study_dir: Path, rel: str) -> Path:
 def render_results(manifests: Iterable[Mapping[str, Any]]) -> str:
     rows: list[list[str]] = []
     for manifest in manifests:
+        transaction = manifest.get("transaction")
+        if isinstance(transaction, Mapping) and transaction.get("phase") == "awaiting_collect":
+            # A detached run (Klein 2.3) is not a row until it is collected.
+            continue
         status = str(manifest.get("disposition", "crash"))
         metric = "NA" if status == "crash" else format(float(manifest["primary_metric"]), ".12g")
         description = str(manifest.get("description", "")).replace("\t", " ").replace("\r", " ").replace("\n", " ")

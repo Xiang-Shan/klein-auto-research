@@ -161,7 +161,7 @@ commit exists; pass `--allow-rerun` for an intentional identical replication, or
 `--tests P#` on a registered track — sealed final tests and `--command` overrides
 are exempt.
 
-### 2. One foreground run, with a real timeout and exit status
+### 2. One foreground run, with a real timeout and exit status — or one detached job whose receipt the notary checks
 
 ```bash
 uv run --locked klein run-one --study studies/NN-slug --track <track> \
@@ -173,6 +173,12 @@ The workflow runs one unbuffered subprocess, streams and stores its output, enfo
 process group on timeout, runs the declared verifier as a second subprocess, and
 records crashes. Never use a `command | tee` pipeline. A printed `split_fingerprint:`
 that differs from the one frozen at the DATA gate is a crash by design.
+
+**Detached runs (opt-in).** A study that declares `entrypoint.execution: [local,
+detached]` may hand one candidate to a host it cannot spawn (`klein run-one --detach` →
+`klein job exec` on the host → `klein run-one --collect`); the study is frozen in
+between, the receipt is checked against the committed job bundle, and the manifest
+says the run was attested, not observed (`references/compute-and-devices.md`).
 
 **Where the metrics are read from.** By default every `key: value` line of the whole
 log is a metric (the rule every pre-2.3 study was judged under). A study that declares

@@ -502,6 +502,14 @@ jobs:
             --goal "clean wheel scaffold" --domain test --target y --family linear \
             --metric val_auc --goal-direction higher --data csv:fixture.csv
           test -s "$RUNNER_TEMP/wheel-studies/99-wheel-smoke/study_state.json"
+          # Klein 2.3: recipes and audience profiles travel inside the wheel, the
+          # profiles byte-identical to the skill copy (the vocabulary scan's source).
+          "$venv/bin/klein" new 98-wheel-recipe --root "$RUNNER_TEMP/wheel-studies" --recipe math-verify --runner python
+          test -s "$RUNNER_TEMP/wheel-studies/98-wheel-recipe/verify.py"
+          pkg="$("$venv/bin/python" -c 'import kleinlib, pathlib; print(pathlib.Path(kleinlib.__file__).parent)')"
+          for f in "$GITHUB_WORKSPACE"/.claude/skills/klein/references/profiles/*.md; do
+            cmp "$f" "$pkg/_profiles/$(basename "$f")"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: distributions

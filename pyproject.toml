@@ -71,6 +71,12 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["kleinlib"]
 
+# The audience profiles (banned words, doctrine) travel inside the wheel, so a
+# PyPI install — Claude Science's pip installs only wheels — still runs the
+# vocabulary scan. Byte-identical to the skill copy (CI's package job checks).
+[tool.hatch.build.targets.wheel.force-include]
+".claude/skills/klein/references/profiles" = "kleinlib/_profiles"
+
 [tool.ruff]
 target-version = "py311"
 line-length = 100

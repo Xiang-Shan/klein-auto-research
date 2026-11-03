@@ -51,8 +51,45 @@ An entrypoint may be a blocking submit-and-wait wrapper: it submits the job, pol
 waits, then prints the canonical block when the job returns, pinning the job's own
 logs and outputs as `artifact:` lines. The wrapper is the mutable surface's boundary
 and the manifest records what it printed; Klein neither knows nor cares what ran
-behind it. `max_run_seconds` bounds the wait. This is the whole integration — no
-scheduler, no queue, no remote agent.
+behind it. `max_run_seconds` bounds the wait. From a terminal this is still the
+default and usually the right answer (`ssh host …`, `sbatch --wait`, `modal run` all
+block).
+
+**Detached runs (Klein 2.3, opt-in) — the one exception.** When the compute is driven
+by a host the notary cannot spawn as a child — a Claude Science SSH/Slurm or Modal job
+card, or a run that outlives the session driving it — declare
+`entrypoint.execution: [local, detached]` and split the transaction in two:
+
+1. `klein run-one --detach` runs every pre-run check, files the candidate commit, then a
+   DETACH commit holding `runs/E####/job.json` (command, environment, seeds, timeout,
+   the candidate commit and the sha256 of every mutable-surface file) and the
+   `.klein-detached` sentinel. The study is now FROZEN: every other verb that would
+   lock or commit refuses, so the ledger order stays the execution order.
+2. The host checks out that commit and runs `klein job exec runs/E####/job.json`
+   (`--executor here` in a dedicated clone; `--executor local` runs it in a throwaway
+   worktree of this repository). It writes `job_result/` — the log, the usage record,
+   every output file, and `receipt.json` with the job's sha256, the surface hashes it
+   actually executed, the log and file hashes, the exit status and the hardware.
+3. Copy `job_result/` back beside the job bundle and run `klein run-one --collect
+   E####`: the receipt is checked against the committed job (a mismatch is refused),
+   then the run is judged LOCALLY by the same code as a foreground run — partition
+   check, declared verifier, disposition, predictions — and filed with
+   `execution: {mode: detached, observed_by_notary: false, receipt_sha256, hardware}`.
+   The referee weighs it as attested, not observed; `klein replicate` can re-run it
+   locally at any time.
+
+`klein run-one --abandon E#### --reason …` closes a detached run that will never come
+back as a crash, on the record. `klein recover` never crashes a detached run.
+
+## Seed arrays, budgets and usage (Klein 2.3)
+
+`entrypoint.seeds: [0, 1, 2]` makes one candidate one seed array: the notary runs the
+entrypoint once per seed (`KLEIN_SEED`), aggregates the blocks (mean, std, min, max)
+and decides on the mean; `runs/E####/seeds.tsv` is pinned. A child may report usage
+with `kleinlib.dl.report_usage(steps=…, tokens_in=…, usd=…)` (the call ledger does it
+for model calls); `klein run-one` folds `runs/E####/usage.json` into the manifest for
+every exit status, and `phases[].budget_steps` / `budget_tokens` / `budget_usd` are
+enforced on those totals beside `budget_seconds`.
 
 ## Reproduction is a floor statement
 

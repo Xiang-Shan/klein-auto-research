@@ -59,6 +59,18 @@ the experimenter.
 | 9 | **Figures.** `figures/make_figures.py` re-renders pixel-identically on the platform family that rendered the committed figures (byte-identically on that very machine; another platform's PNG encoder writes the same pixels in different bytes, which `klein verify` decodes and accepts; on another CPU family a computed curve can move a pixel in its last bits, which verify reports as a `[WARN]` naming both platforms — re-render on the rendering platform before signing); the four-point figure critique of `tutorial-spec.md` passes. | a figure whose pixels do not re-render on their own platform, or a truncated axis that inflates a within-noise delta |
 | 10 | **Vocabulary and scope.** The profile's banned words are absent or qualified; the floor's estimand is named; simulation claims carry their in-silico scope; measurement resolution is never called materiality. | any banned word unqualified, a missing estimand, an unscoped simulation claim, or resolution sold as materiality |
 
+**Attested runs and seed arrays (Klein 2.3) — read under checks 1 and 7.** A manifest
+with `execution.mode: detached` was executed by a host the notary did not watch: its
+receipt was checked against the committed job bundle and the run was judged locally,
+but the process itself is *attested, not observed* (`execution.observed_by_notary:
+false`). A `confirmed` claim resting on attested runs alone needs a `klein replicate`
+record (an observed re-execution) or a sentence in findings saying the headline is
+attested; FAIL check 1 when neither exists. A manifest with `seeds_n` was decided on
+the seed-array mean: cite `runs/E####/seeds.tsv` when a claim quotes a spread, and
+treat `primary_metric_std` as the run's own seed noise, never as the study's floor.
+A run with `usage` carries its tokens / calls / USD — a cost claim must copy them
+from the manifest, not estimate them.
+
 ## Generation addenda
 
 Only for a study whose `generation/manifest.yaml` exists; on every other study this

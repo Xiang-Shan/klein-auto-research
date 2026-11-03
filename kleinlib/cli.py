@@ -11,6 +11,7 @@ from . import __version__
 from .cli_claims import register as register_claims
 from .cli_doctor import register as register_doctor
 from .cli_generation import register as register_generation
+from .cli_host import register as register_host
 from .cli_predict import register as register_predict
 from .cli_replicate import register as register_replicate
 from .cli_stop import register as register_stop
@@ -22,7 +23,9 @@ from .scaffold import apply_runner, scaffold_study
 from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
 from .workflow import (
     WorkflowError,
+    abandon_detached,
     acknowledge_headroom,
+    collect_detached,
     finalize,
     preflight_checks,
     record_gate,
@@ -197,10 +200,44 @@ def build_parser() -> argparse.ArgumentParser:
         help="permit an intentional identical replication (empty train.py diff)",
     )
     run.add_argument(
+        "--detach",
+        action="store_true",
+        help="Klein 2.3: do every pre-run check and the candidate commit, then file a DETACH "
+        "commit with runs/E####/job.json for a host to execute (`klein job exec`); needs "
+        "entrypoint.execution: [local, detached]. The study is frozen until --collect/--abandon",
+    )
+    run.add_argument(
+        "--collect",
+        metavar="E####",
+        help="judge a detached run from its job_result/ (receipt checked against the job bundle)",
+    )
+    run.add_argument(
+        "--abandon",
+        metavar="E####",
+        help="close an open detached run as a crash, on the record (needs --reason)",
+    )
+    run.add_argument("--reason", default="", help="why a detached run is abandoned")
+    run.add_argument(
         "--command",
         nargs=argparse.REMAINDER,
         help="test/debug override; default is: uv run --locked python -u train.py",
     )
+
+    job = sub.add_parser("job", help="execute a detached run's job bundle (Klein 2.3)")
+    job_sub = job.add_subparsers(dest="job_action", required=True)
+    job_exec = job_sub.add_parser(
+        "exec",
+        help="run runs/E####/job.json and write job_result/ + receipt.json for --collect",
+    )
+    job_exec.add_argument("job_json", type=Path, help="path to runs/E####/job.json")
+    job_exec.add_argument(
+        "--executor",
+        choices=("local", "here"),
+        default="local",
+        help="local: a throwaway worktree of this repo at HEAD (default); here: this checkout "
+        "(a dedicated clone on the host, at the detach commit)",
+    )
+    job_exec.add_argument("--quiet", action="store_true")
 
     recovery = sub.add_parser("recover", help="finish an interrupted evidence transaction")
     _study_arg(recovery)
@@ -306,6 +343,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     register_doctor(sub)
     register_generation(sub)
+    register_host(sub)
     register_predict(sub)
     register_replicate(sub)
     register_stop(sub)
@@ -462,6 +500,16 @@ def main(argv: list[str] | None = None) -> int:
                 end="",
             )
             return 0
+        if args.command_name == "job":
+            from .job import exec_job
+
+            result = exec_job(args.job_json, executor=args.executor, echo=not args.quiet)
+            receipt = json.loads((result / "receipt.json").read_text(encoding="utf-8"))
+            print(
+                f"job {receipt['experiment']}: exit {receipt['exit_code']}"
+                f"{' (timeout)' if receipt['timed_out'] else ''} — receipt at {result / 'receipt.json'}"
+            )
+            return 0
         study = resolve_study(args.study)
         if args.command_name == "gate":
             record_gate(
@@ -490,6 +538,18 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "preflight":
             return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
         if args.command_name == "run-one":
+            if args.collect or args.abandon:
+                if args.collect and args.abandon:
+                    raise WorkflowError("--collect and --abandon are different acts; pick one")
+                if args.collect:
+                    manifest = collect_detached(study, args.collect, echo=not args.quiet)
+                else:
+                    manifest = abandon_detached(study, args.abandon, reason=args.reason)
+                print(
+                    f"{manifest['experiment']}: {manifest['disposition']} "
+                    f"metric={manifest['primary_metric']} (detached; attested, not observed)"
+                )
+                return 0 if manifest["disposition"] != "crash" or args.abandon else 1
             if args.dry_run:
                 if not args.final_test:
                     raise WorkflowError(
@@ -519,7 +579,14 @@ def main(argv: list[str] | None = None) -> int:
                 echo=not args.quiet,
                 allow_rerun=args.allow_rerun,
                 tests=args.tests,
+                detach=args.detach,
             )
+            if args.detach:
+                job = f"{study}/runs/{manifest['experiment']}/job.json"
+                print(f"{manifest['experiment']}: detached — candidate {manifest['candidate_commit'][:12]}")
+                print(f"next: klein job exec {job}   (on the host; --executor local runs it here in a worktree)")
+                print(f"then: klein run-one --study {study} --collect {manifest['experiment']}")
+                return 0
             label = manifest["disposition"]
             if (
                 manifest.get("evaluation_kind") == "final_test"

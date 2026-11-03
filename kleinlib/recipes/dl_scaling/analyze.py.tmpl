@@ -34,7 +34,7 @@ TRACK = os.environ.get("KLEIN_TRACK") or ("cells" if SMOKE else None)
 SEED = int(os.environ.get("KLEIN_SEED", "0"))
 FINAL = os.environ.get("KLEIN_EVALUATION_KIND") == "final_test"
 
-CELL = {"n_train": 200, "steps": 30 if SMOKE else 600, "batch_size": 64, "lr": 3e-3}
+CELL = {"n_train": 200, "steps": 150 if SMOKE else 600, "batch_size": 64, "lr": 3e-3}
 
 
 def _load(ids: list[str]) -> tuple[np.ndarray, np.ndarray]:

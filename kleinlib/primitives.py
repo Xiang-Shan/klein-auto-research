@@ -98,14 +98,41 @@ def atomic_write_json(path: Path, value: Any) -> None:
     atomic_write_text(path, json.dumps(value, indent=2, sort_keys=True) + "\n")
 
 
-class StudyLock:
-    """Portable single-process lock using exclusive file creation."""
+#: Present (and committed) while a detached run is open (Klein 2.3): the study is
+#: frozen until ``klein run-one --collect`` or ``--abandon`` closes that run.
+DETACHED_SENTINEL = ".klein-detached"
 
-    def __init__(self, study_dir: Path) -> None:
+
+def open_detached_run(study_dir: Path) -> str | None:
+    """The id of the detached run holding the study, or None."""
+    path = Path(study_dir) / DETACHED_SENTINEL
+    if not path.is_file():
+        return None
+    return path.read_text(encoding="utf-8").strip() or "unknown"
+
+
+class StudyLock:
+    """Portable single-process lock using exclusive file creation.
+
+    While a detached run is open (Klein 2.3) every lock is refused except the one
+    ``collect`` / ``abandon`` / ``recover`` take with ``allow_detached=True``:
+    ledger order must equal execution order, so nothing else may happen to the
+    study between a detach and its collect.
+    """
+
+    def __init__(self, study_dir: Path, *, allow_detached: bool = False) -> None:
         self.path = study_dir / ".klein.lock"
+        self.study_dir = Path(study_dir)
+        self.allow_detached = allow_detached
         self.fd: int | None = None
 
     def __enter__(self) -> StudyLock:
+        detached = open_detached_run(self.study_dir)
+        if detached is not None and not self.allow_detached:
+            raise WorkflowError(
+                f"detached run {detached} is open: the study is frozen until "
+                f"`klein run-one --collect {detached}` (or `--abandon {detached} --reason ...`)"
+            )
         try:
             self.fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
         except FileExistsError as exc:

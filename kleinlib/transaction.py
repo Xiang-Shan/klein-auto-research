@@ -257,6 +257,7 @@ def commit_state_writes(
     commit: Committer | None = None,
     paths: Sequence[str] = (),
     scope: str = "state",
+    allow_detached: bool = False,
 ) -> str | None:
     """Commit the state/derived files a CLI verb just wrote.
 
@@ -285,6 +286,14 @@ def commit_state_writes(
     """
     if scope not in ("state", "own"):
         raise WorkflowError(f"unknown commit scope {scope!r} (expected 'state' or 'own')")
+    from .primitives import open_detached_run
+
+    detached = open_detached_run(Path(study_dir))
+    if detached is not None and not allow_detached:
+        raise WorkflowError(
+            f"detached run {detached} is open: nothing is committed to this study until "
+            f"`klein run-one --collect {detached}` (or `--abandon`) closes it"
+        )
     probe = git(study_dir, ["rev-parse", "--show-toplevel"], check=False)
     if probe.returncode:
         return None
