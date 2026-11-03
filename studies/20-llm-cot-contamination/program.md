@@ -274,3 +274,8 @@ Chosen: #1 then #2 (the phase's two experiments); #3 is read-only. Expectation: 
 - Note: CELL in analyze.py now stays "twin_dev" at HEAD (committed before E0004 so the run
   was not on an unchanged surface); the lead should reset it deliberately if a gsm8k cell is
   needed again. Sealed cells ignore CELL.
+
+- 2026-11-03 — Note (lead, twins boundary): the experimenter committed `CELL = {"block":
+  "twin_dev"}` in analyze.py BEFORE E0004 instead of letting `run-one` file it as the
+  candidate, so E0004's candidate diff is empty; the cell it ran is the committed HEAD and
+  the manifest records it. Disclosed for the referee; no evidence is affected.
