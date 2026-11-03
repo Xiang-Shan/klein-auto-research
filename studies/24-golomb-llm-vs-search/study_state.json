@@ -197,8 +197,30 @@
     "path": "/home/user/wt-24/studies/24-golomb-llm-vs-search/data/prepared/instance.json",
     "sha256": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32"
   },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20261103T090037Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T09:00:37.172051Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "search"
+    }
+  },
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T09:00:11.459685Z"
+  "updated_at": "2026-11-03T09:00:52.720794Z"
 }
