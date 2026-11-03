@@ -5,7 +5,7 @@ profile: "llm"
 kind: "test"
 status: synthesized
 concepts: [chain-of-thought, direct-answer, exact-match, paired-comparison, cluster-bootstrap, template-twins, contamination-gap, ceiling, prompt-compliance, call-ledger, salted-requery, replay-is-not-replication]
-related: [study.yaml, program.md, playbook.md, method_card.md, data_card.md, references.yaml, results.tsv, aux_metrics.tsv, claims.lock, lib/synthesis.py, tables/synthesis_arms.tsv, tables/synthesis_paired.tsv, tables/synthesis_quantities.tsv]
+related: [study.yaml, program.md, playbook.md, method_card.md, data_card.md, references.yaml, results.tsv, aux_metrics.tsv, claims.lock, lib/synthesis.py, tables/synthesis_arms.tsv, tables/synthesis_paired.tsv, tables/synthesis_quantities.tsv, tables/synthesis_controls.tsv, tables/synthesis_familywise.tsv]
 ---
 
 # Findings — 20-llm-cot-contamination
@@ -35,7 +35,10 @@ related: [study.yaml, program.md, playbook.md, method_card.md, data_card.md, ref
 > re-scores the committed call shards and replication shards with the fixed scorer and
 > writes `tables/synthesis_arms.tsv` (`art:arms`: compliance and token diagnostics per
 > cell and arm), `tables/synthesis_paired.tsv` (`art:paired`: the paired outcome tables)
-> and `tables/synthesis_quantities.tsv` (`art:quant`: every derived quantity below). Its
+> and `tables/synthesis_quantities.tsv` (`art:quant`: every derived quantity below),
+> and, after Gate 3's first round, `tables/synthesis_controls.tsv` (`art:controls`: the
+> post-hoc controls and the direct-only diagnostics) and `tables/synthesis_familywise.tsv`
+> (`art:familywise`: the Bonferroni-level intervals). Its
 > re-scored exact-match equals the notarized value in every cell-arm, and the method
 > card's mechanical identities hold: E0004 `em_cot` 0.96 equals E0003 `em_twins` 0.96,
 > and E0005 `em_cot` 0.97 equals E0006 `em_twins` 0.97.
@@ -101,8 +104,15 @@ The confirmed headlines C2 and C4 are nulls, so the record must show that this s
 this interval code would see a gain if one were there. Neither control was registered;
 both were computed after Gate 3 returned FAIL, offline from the committed ledger and cell
 tables with no model call (`lib/synthesis.py`, `controls_and_familywise`; table
-`tables/synthesis_controls.tsv`, `art:controls`). They test the *pipeline* (extraction,
-scoring, pairing, bootstrap), never the model.
+`tables/synthesis_controls.tsv`, `art:controls`). Neither tests the model, and each
+covers a different part of the pipeline. The negative control exercises extraction,
+scoring and pairing on the recorded replies. The positive control plants its effect on
+the already-scored 0/1 vectors, so it tests only the pairing, the clustering and the
+interval code, and its point recovery is exact by construction. Together they cover the
+pipeline, but neither plants a known effect at the reply level: neither can show that
+the scorer would credit a real CoT advantage that extraction might mangle. That part
+rests on the instrument check (the re-scored exact-match equals the notarized value in
+every cell-arm) and on the offline replay of E0002.
 
 **[C16]** Post-hoc negative control, exploratory: re-scoring the recorded replies against golds permuted across each cell's items drops exact-match to chance, a mean of 0.0126 for the direct arm over 100 permutations of the public items, and leaves the chain-of-thought gain at 0.0033 on the public items and 0.000 on both twin blocks, so the pipeline does not manufacture a gain from mismatched answers.
 
@@ -121,6 +131,12 @@ direction (a seeded half of the WRONG direct replies scored correct, seed 202611
 plants only -0.0267 public, -0.01 development and -0.015 sealed, because the direct arm
 has almost no wrong replies to flip; only the development block's interval moved off zero
 ([-0.075, -0.005]). The ceiling limits what can be planted as well as what can be found.
+
+**Re-scoped by erratum E2:** each plant is ONE seeded realization per block, not a power
+estimate. The closing clause of C17 ("the twin blocks cannot resolve a gain as small as
+0.05") should read "a single seeded 0.05 plant was not detected on either twin block";
+it agrees with the twin-block interval widths in C11, which are the better basis for a
+detection-limit statement.
 
 ### Multiple comparisons (family-wise intervals — added after the referee's check 5)
 
@@ -216,7 +232,10 @@ Class: mechanism-interpretation, exploratory; `unresolved` beyond "noise". Neith
 interval excludes zero. Of the 6 direct-only development twins, 1 had a CoT reply cut at
 `max_tokens` (`art:controls`), so truncation accounts for at most one of the six; the six
 sit in 3 templates, at most 2 in any one, so they are template-clustered — which the
-cluster interval already absorbs and McNemar does not.
+cluster interval already absorbs and McNemar does not. The sealed counterpart
+(`art:controls`, E0005): 6 direct-only sealed twins, 2 of them with a CoT reply cut at
+`max_tokens`, in 3 templates with at most 4 in one — again few, again clustered, and here
+matched by 6 CoT-only twins.
 
 **Not a surprise, recorded for completeness.** The five templates whose number-swapped
 variants are public in GSM-Symbolic did not drive the gap: on the development block they
@@ -390,7 +409,7 @@ registered, so this is not a demonstration that the two are equal).
   fingerprint, and the notary matched that fingerprint against the one frozen at the DATA
   gate (`klein verify`: split fingerprint current = recorded) — the scan simply does not
   recognize the wrapper.
-- **Erratum.** E1 re-scopes C6 (see the appendix).
+- **Errata.** E1 re-scopes C6 and E2 re-scopes C17 (see the appendix).
 - **Evidence use.** All six non-keep rows (the E0001 crash; E0002 to E0006 measured) are
   cited above.
 
@@ -399,3 +418,4 @@ registered, so this is not a demonstration that the two are equal).
 | Erratum | Filed | Claims re-scoped | What is now known |
 |---|---|---|---|
 | E1 | 2026-11-03 | C6 | "Near-unmeasurable" overreaches: the gain was measured with tight intervals ([-0.01, 0.03] public). What the ceiling removed is headroom: a gain of the registered 0.10 was unreachable given the observed direct scores. Raised by the referee (note 5a); strength unchanged (exploratory). |
+| E2 | 2026-11-03 | C17 | The positive control is one seeded plant per block, not a power estimate. "The twin blocks cannot resolve a gain as small as 0.05" should read "a single seeded 0.05 plant was not detected on either twin block"; C11's interval widths are the detection-limit evidence. Raised by the round-2 referee (note R2-3); strength unchanged (exploratory). |
