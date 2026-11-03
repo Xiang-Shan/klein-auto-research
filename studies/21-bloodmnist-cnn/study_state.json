@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T05:50:01.865353Z"
+      "timestamp": "2026-11-03T05:51:19.684935Z"
     },
     "data": {
       "by": "lead-agent",
@@ -18,7 +18,7 @@
     "method_card.md": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee",
     "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
     "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
-    "study.yaml": "429b5d61c128122a4058d2827f6a8c2d32e42422a9cdaf32c6227aa3c6c59fee"
+    "study.yaml": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
   },
   "created_at": "2026-11-03T04:45:23.119158Z",
   "current_phase": "anchor",
@@ -40,15 +40,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T05:50:01.865353Z",
+      "acknowledged_at": "2026-11-03T05:51:19.684935Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "a3689d1d192d4ab468795ae6c2981cf06d7c61ff79bee17cb753e720222a78cc",
+        "program.md": "3868f4daba7aefb600ad11cfed85c9d3369bf9eaeb8e89f3f44848f832c83c41",
         "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
         "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
-        "study.yaml": "429b5d61c128122a4058d2827f6a8c2d32e42422a9cdaf32c6227aa3c6c59fee"
+        "study.yaml": "8c396d7edac0052799efd8b305b4c1faac2a2636c0e4732951c2e7e490b9d322"
       },
-      "note": "minimum_delta set from the measured noise floor: item bootstrap of the anchor macro-F1 (marginal-resplit) 0.0438435; fit_noise block recorded as provenance (seed blocks, std 0.0472)",
+      "note": "RE-RECORD at the anchor/adaptive boundary: max_run_seconds and the wall_seconds guardrail 1800 -> 5400 (a whole 3-seed array under CPU contention); no prediction, rule, metric or floor changed",
       "status": "recorded"
     },
     "data": {
@@ -142,5 +142,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T05:50:01.867266Z"
+  "updated_at": "2026-11-03T05:51:19.715548Z"
 }
