@@ -1,0 +1,13 @@
+{
+  "hardware": {
+    "cpu_count": 4,
+    "cuda_available": false,
+    "device_override": null,
+    "machine": "x86_64",
+    "mps_available": false,
+    "python": "3.13.18",
+    "system": "Linux",
+    "torch": "2.13.0+cu130"
+  },
+  "steps": 3375.0
+}

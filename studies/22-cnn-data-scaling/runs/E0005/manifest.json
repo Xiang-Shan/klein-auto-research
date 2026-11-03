@@ -1,5 +1,88 @@
 {
-  "artifacts": {},
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 3641,
+      "committed": true,
+      "sha256": "17a4af57b0cdc731124bf4f2907c35e115cee63c694b621a286f8eba92e9d264"
+    },
+    "runs/E0005/job.json": {
+      "availability": "recorded",
+      "bytes": 1112,
+      "committed": true,
+      "role": "job",
+      "sha256": "d7c47576a112ea2941f6ff9d1381609311e9bfedd5ffce287567250ca0700af2"
+    },
+    "runs/E0005/job_receipt.json": {
+      "availability": "recorded",
+      "bytes": 1644,
+      "committed": true,
+      "role": "receipt",
+      "sha256": "d7b08d803d2f605b06fac6749fa36e4f5f90bdf75ab0fe5695a3525b42bb475a"
+    },
+    "runs/E0005/run.log": {
+      "availability": "recorded",
+      "bytes": 4690,
+      "committed": true,
+      "sha256": "c6997e365baf06345e1870534b653dd948ca8bb14ce2919f67ce7a0e1dc5c21f"
+    },
+    "runs/E0005/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 670,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "8d72b06d268ede2a8d07a9adf69e5db087110e1ab21835c278b0d506bf69ec53"
+    },
+    "runs/E0005/usage.json": {
+      "availability": "recorded",
+      "bytes": 250,
+      "committed": true,
+      "role": "usage",
+      "sha256": "1ddc1f3180ddd06774dd2c7bf762100e2b5bd7263d778f639ca1d50664a4af4f"
+    },
+    "tables/cell_E0005_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 67,
+      "committed": true,
+      "role": "declared",
+      "sha256": "d262937b2028d4962233c39690a91f41d43fed85e9435c49ca4576725c826e8e"
+    },
+    "tables/cell_E0005_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 67,
+      "committed": true,
+      "role": "declared",
+      "sha256": "afe97979353d7ef38b091a38de6fc4b1c0b5295309848b1a439d951cdab4e9d6"
+    },
+    "tables/cell_E0005_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 67,
+      "committed": true,
+      "role": "declared",
+      "sha256": "8f372271910504c0120748f4e75976d1616754efcc5c25f4679eef9f2cd733cc"
+    },
+    "tables/confusion_E0005_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 315,
+      "committed": true,
+      "role": "declared",
+      "sha256": "8a9f04fe5d7e0908fb5f8a9b5f014153b55a3b132878f7f3d9f233acb2c602fe"
+    },
+    "tables/confusion_E0005_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 310,
+      "committed": true,
+      "role": "declared",
+      "sha256": "d4a15e125ada33fa05c636a7cdd0134df708aa1e1286771d5a852d850f5b4c65"
+    },
+    "tables/confusion_E0005_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 315,
+      "committed": true,
+      "role": "declared",
+      "sha256": "111c68f1fc9a6fe9ffc54349a0d10a66f8c82d6ca5dbe54a184109d1db5038a3"
+    }
+  },
   "base_commit": "b87de3bab04ea529ec9ef05e0035989d5d66e85f",
   "candidate_commit": "77446a4e3466afa9d4b898a41b9b2748a0d41bb5",
   "code_patch_hash": "5ca987b3194f5ec4b75017e74287ab87378823d068da7537378689d17a77d7ff",
@@ -11,10 +94,10 @@
     "-u",
     "analyze.py"
   ],
-  "decision_reason": "detached: awaiting collect",
-  "description": "cell N=8000",
-  "disposition": "crash",
-  "ended_at": null,
+  "decision_reason": "registered cell measured",
+  "description": "cell N=8000; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-11-03T07:57:34.149170Z",
   "environment": {
     "implementation": "CPython",
     "machine": "x86_64",
@@ -24,26 +107,67 @@
   },
   "evaluation_kind": "development",
   "execution": {
+    "executor": "local",
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "host": "vm",
     "mode": "detached",
-    "status": "awaiting_collect"
+    "observed_by_notary": false,
+    "receipt_sha256": "d7b08d803d2f605b06fac6749fa36e4f5f90bdf75ab0fe5695a3525b42bb475a"
   },
-  "exit_code": null,
+  "exit_code": 0,
   "experiment": "E0005",
   "fingerprints": {
     "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
     "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
-    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4"
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05"
   },
+  "guardrails_ok": true,
   "incumbent": null,
   "max_run_seconds": 5400.0,
   "metric_goal": "lower",
   "metric_name": "val_mlogloss",
-  "metrics": {},
+  "metrics": {
+    "best_inner_loss": 0.64221,
+    "best_step": 1100.0,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 7200.0,
+    "n_inner": 800.0,
+    "n_train": 8000.0,
+    "primary_metric": 0.6523396666666667,
+    "primary_metric_max": 0.660363,
+    "primary_metric_min": 0.646519,
+    "primary_metric_std": 0.0071800340760565995,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 1125.0,
+    "total_seconds": 88.2,
+    "train_rows": 7200.0,
+    "training_seconds": 80.60000000000001,
+    "val_accuracy": 0.759741,
+    "val_balanced_accuracy": 0.7599006666666667,
+    "val_ece": 0.031656,
+    "val_macro_f1": 0.7535493333333333,
+    "val_mlogloss": 0.6523396666666667,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9945286666666666,
+    "wall_seconds": 88.18905666666667
+  },
   "phase": "cells",
   "phase_budget_seconds": 7200.0,
   "phase_experiment_limit": 6,
   "predictions_requested": [],
-  "primary_metric": null,
+  "primary_metric": 0.6523396666666667,
   "printed_scope": "block",
   "schema_version": 3,
   "seeds": [
@@ -51,12 +175,15 @@
     1,
     2
   ],
-  "started_at": "2026-11-03T07:52:43.130756Z",
+  "started_at": "2026-11-03T07:52:46.083286Z",
   "timed_out": false,
   "track": "primary",
   "transaction": {
-    "detached_at": "2026-11-03T07:52:43.139183Z",
-    "phase": "awaiting_collect",
+    "ready_at": "2026-11-03T07:57:38.882385Z",
     "status": "pending"
-  }
+  },
+  "usage": {
+    "steps": 3375.0
+  },
+  "wall_seconds": 288.066
 }
