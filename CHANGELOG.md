@@ -167,6 +167,10 @@ citations (`knowledge/domains/{llm,cv,data-science}/`, `ml-research/`, `math/`,
   config; the 2.3 exhibits' figures, first rendered under a host config that preferred
   an installed font, were re-rendered that way and their tutorials rebuilt (text
   unchanged).
+- Study 22's scaling plot is drawn in log10 space with `math.log10` (rounded) on linear
+  axes: matplotlib's log axes transform each vertex with numpy's vectorized `log10`, which
+  differs from the C library in the last bit on AVX-512 machines and moved pixels between
+  hosts. `tutorial-spec.md` carries the rule for dense curves.
 - A phase-ladder test still expected the pre-repoint behaviour; it now checks both
   halves (followed before work, drift after).
 
