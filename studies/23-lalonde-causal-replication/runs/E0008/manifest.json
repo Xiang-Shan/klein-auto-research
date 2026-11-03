@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1778,
+      "committed": true,
+      "sha256": "0e16d66af3879be8b3c475fac5a21c9c6e1ab16885f4867d14e56a9e36b9897b"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 712,
+      "committed": true,
+      "sha256": "afe0a34cc3f122e807ec27748c7039d15a3f49fbe5a64988772cd52201e25851"
+    },
+    "tables/reproduction_cps1.tsv": {
+      "availability": "recorded",
+      "bytes": 784,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1d4e389460854f12c9085389cffadc00f3ed928ac0a1c7975984ec3861e08c38"
+    }
+  },
+  "base_commit": "8fa331c1dc0f994e4b7fd1aec151af0fdb7248d1",
+  "candidate_commit": "64f19fd8eafb0445fd9b790033712107442748b7",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed CPS-1 reproduction of DW Table 3 cols (1)-(2) and Table 1 size; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T05:58:22.037978Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130",
+    "split_partition": "b2409a22372d6caee501b263c218947569e4f3b2b827a227c10b0008831680a4"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 900.0,
+  "metric_goal": "lower",
+  "metric_name": "targets_outside_tolerance",
+  "metrics": {
+    "experimental_att": 1794.3423818563415,
+    "primary_metric": 2.0,
+    "rows": 11.0,
+    "runner_exit_code": 0.0,
+    "targets": 5.0,
+    "total_seconds": 0.5,
+    "wall_seconds": 0.457549
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 2400.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P6": {
+      "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P6"
+  ],
+  "primary_metric": 2.0,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T05:58:19.647792Z",
+  "timed_out": false,
+  "track": "reproduction",
+  "transaction": {
+    "committed_at": "2026-11-03T05:58:22.237245Z",
+    "evidence_commit": "433c7ce4932466f7b5363b8054fc5d7b2ce529a4",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 2.389824829000645
+}

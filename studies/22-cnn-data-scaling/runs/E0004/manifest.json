@@ -1,0 +1,191 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2940,
+      "committed": true,
+      "sha256": "0bd7f0029f3a32f965d9bd5df7ffdbfb1ab81500795c7d3bde9076e9f059a348"
+    },
+    "runs/E0004/job.json": {
+      "availability": "recorded",
+      "bytes": 1112,
+      "committed": true,
+      "role": "job",
+      "sha256": "6893b5a62a8eba0dc4e171cec2024f4b7b38ea1695c9715f946621c338bdff25"
+    },
+    "runs/E0004/job_receipt.json": {
+      "availability": "recorded",
+      "bytes": 1644,
+      "committed": true,
+      "role": "receipt",
+      "sha256": "f09d95141a6605b08f78e94c0eebdb94e901a66368c796dbff8da5adcb301f23"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 4683,
+      "committed": true,
+      "sha256": "9bcf17125cc8cac631522ed92793a60fbb5c4f49d3043b2affa31da28eba081d"
+    },
+    "runs/E0004/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 663,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "50b265bf089c6089eaa881a65d210627807ad42bc4888012e654a99b0f2bb14d"
+    },
+    "runs/E0004/usage.json": {
+      "availability": "recorded",
+      "bytes": 250,
+      "committed": true,
+      "role": "usage",
+      "sha256": "5a973c5749669c65782f590167a6610e93b10302d81d1a5c4d55f4206f028626"
+    },
+    "tables/cell_E0004_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 66,
+      "committed": true,
+      "role": "declared",
+      "sha256": "cd27f04cb44a8df77b843f50ccc1ebb57924a6966e2f0f06485110fb9815f4fc"
+    },
+    "tables/cell_E0004_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 66,
+      "committed": true,
+      "role": "declared",
+      "sha256": "b09fcd78e163be441c7ccee6637db34f859fc093249ce585f665f19de44ebbae"
+    },
+    "tables/cell_E0004_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 66,
+      "committed": true,
+      "role": "declared",
+      "sha256": "95d535f3f1c30ec5c048bf1aef3c47e17f9b274ab45cf945f169a108a68550fe"
+    },
+    "tables/confusion_E0004_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 316,
+      "committed": true,
+      "role": "declared",
+      "sha256": "6b236039d40e19f9a4fb780778336887c267da501659e614f118f6db749fd20d"
+    },
+    "tables/confusion_E0004_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 323,
+      "committed": true,
+      "role": "declared",
+      "sha256": "70403fdee7f8c3c0b12306c4946f289192e2a59bfc8ecb1a11bf475e3e854771"
+    },
+    "tables/confusion_E0004_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 316,
+      "committed": true,
+      "role": "declared",
+      "sha256": "4bb0d13274a6046af191aa998b1ff055ca6717d52d8a84938c3f68bb2bf6ce96"
+    }
+  },
+  "base_commit": "46d1e283886e33d153ed590610910fadfa45ae1c",
+  "candidate_commit": "b95cec095a8a7ac467eae08771d576f7cac62c36",
+  "code_patch_hash": "4c54d64d9be7d6741663347f80dce39524f3301539a7ad84ad130cd0c464d092",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "cell N=4000; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-11-03T07:52:26.518936Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "execution": {
+    "executor": "local",
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "host": "vm",
+    "mode": "detached",
+    "observed_by_notary": false,
+    "receipt_sha256": "f09d95141a6605b08f78e94c0eebdb94e901a66368c796dbff8da5adcb301f23"
+  },
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric_goal": "lower",
+  "metric_name": "val_mlogloss",
+  "metrics": {
+    "best_inner_loss": 0.700057,
+    "best_step": 554.3333333333334,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 3600.0,
+    "n_inner": 400.0,
+    "n_train": 4000.0,
+    "primary_metric": 0.7569993333333334,
+    "primary_metric_max": 0.773272,
+    "primary_metric_min": 0.727778,
+    "primary_metric_std": 0.025360934236209266,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 563.0,
+    "total_seconds": 43.86666666666667,
+    "train_rows": 3600.0,
+    "training_seconds": 36.46666666666667,
+    "val_accuracy": 0.7266143333333334,
+    "val_balanced_accuracy": 0.7260260000000001,
+    "val_ece": 0.047687,
+    "val_macro_f1": 0.7147640000000001,
+    "val_mlogloss": 0.7569993333333334,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9919603333333334,
+    "wall_seconds": 43.87011666666666
+  },
+  "phase": "cells",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 6,
+  "predictions_requested": [],
+  "primary_metric": 0.7569993333333334,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T07:49:52.472010Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-11-03T07:52:32.571216Z",
+    "evidence_commit": "dea486960bc3e80ff2764bb412792344faa9791b",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "steps": 1689.0
+  },
+  "wall_seconds": 154.047
+}

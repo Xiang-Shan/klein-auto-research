@@ -1,0 +1,244 @@
+{
+  "baseline": 0.9491743333333332,
+  "block_differences": {
+    "best_inner_loss": {
+      "difference": 0.0,
+      "original": 0.878805,
+      "replicate": 0.878805
+    },
+    "best_step": {
+      "difference": 0.0,
+      "original": 383.3333333333333,
+      "replicate": 383.3333333333333
+    },
+    "eval_every": {
+      "difference": 0.0,
+      "original": 50.0,
+      "replicate": 50.0
+    },
+    "n_classes": {
+      "difference": 0.0,
+      "original": 10.0,
+      "replicate": 10.0
+    },
+    "n_fit": {
+      "difference": 0.0,
+      "original": 900.0,
+      "replicate": 900.0
+    },
+    "n_inner": {
+      "difference": 0.0,
+      "original": 100.0,
+      "replicate": 100.0
+    },
+    "n_train": {
+      "difference": 0.0,
+      "original": 1000.0,
+      "replicate": 1000.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 0.9491743333333332,
+      "replicate": 0.9491743333333332
+    },
+    "primary_metric_max": {
+      "difference": 0.0,
+      "original": 1.002682,
+      "replicate": 1.002682
+    },
+    "primary_metric_min": {
+      "difference": 0.0,
+      "original": 0.880389,
+      "replicate": 0.880389
+    },
+    "primary_metric_std": {
+      "difference": 0.0,
+      "original": 0.06256156796575145,
+      "replicate": 0.06256156796575145
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "seeds_n": {
+      "difference": 0.0,
+      "original": 3.0,
+      "replicate": 3.0
+    },
+    "steps": {
+      "difference": 0.0,
+      "original": 400.0,
+      "replicate": 400.0
+    },
+    "total_seconds": {
+      "difference": 2.7000000000000064,
+      "original": 32.300000000000004,
+      "replicate": 29.599999999999998
+    },
+    "train_rows": {
+      "difference": 0.0,
+      "original": 900.0,
+      "replicate": 900.0
+    },
+    "training_seconds": {
+      "difference": 2.1000000000000014,
+      "original": 24.8,
+      "replicate": 22.7
+    },
+    "val_accuracy": {
+      "difference": 0.0,
+      "original": 0.6397453333333334,
+      "replicate": 0.6397453333333334
+    },
+    "val_balanced_accuracy": {
+      "difference": 0.0,
+      "original": 0.64182,
+      "replicate": 0.64182
+    },
+    "val_ece": {
+      "difference": 0.0,
+      "original": 0.08236633333333333,
+      "replicate": 0.08236633333333333
+    },
+    "val_macro_f1": {
+      "difference": 0.0,
+      "original": 0.6204296666666668,
+      "replicate": 0.6204296666666668
+    },
+    "val_mlogloss": {
+      "difference": 0.0,
+      "original": 0.9491743333333332,
+      "replicate": 0.9491743333333332
+    },
+    "val_rows": {
+      "difference": 0.0,
+      "original": 9992.0,
+      "replicate": 9992.0
+    },
+    "val_top5_accuracy": {
+      "difference": 0.0,
+      "original": 0.9871233333333334,
+      "replicate": 0.9871233333333334
+    },
+    "wall_seconds": {
+      "difference": 2.7065393333333354,
+      "original": 32.283101,
+      "replicate": 29.576561666666667
+    }
+  },
+  "candidate_commit": "f4507418ccd38cf79e97112d8a0cf59bda758006",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+  "difference": 0.0,
+  "ended_at": "2026-11-03T09:14:36.136087Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "environment_match": true,
+  "evidence_id": "rep:E0002@20261103T091244Z",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "log": "runs/E0002/replications/20261103T091244Z.log",
+  "max_run_seconds": 10800.0,
+  "metric_name": "val_mlogloss",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "best_inner_loss": 0.878805,
+    "best_step": 383.3333333333333,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 900.0,
+    "n_inner": 100.0,
+    "n_train": 1000.0,
+    "primary_metric": 0.9491743333333332,
+    "primary_metric_max": 1.002682,
+    "primary_metric_min": 0.880389,
+    "primary_metric_std": 0.06256156796575145,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 400.0,
+    "total_seconds": 32.300000000000004,
+    "train_rows": 900.0,
+    "training_seconds": 24.8,
+    "val_accuracy": 0.6397453333333334,
+    "val_balanced_accuracy": 0.64182,
+    "val_ece": 0.08236633333333333,
+    "val_macro_f1": 0.6204296666666668,
+    "val_mlogloss": 0.9491743333333332,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9871233333333334,
+    "wall_seconds": 32.283101
+  },
+  "original_environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "original_primary_metric": 0.9491743333333332,
+  "record": "runs/E0002/replications/20261103T091244Z.json",
+  "replicate_block": {
+    "best_inner_loss": 0.878805,
+    "best_step": 383.3333333333333,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 900.0,
+    "n_inner": 100.0,
+    "n_train": 1000.0,
+    "primary_metric": 0.9491743333333332,
+    "primary_metric_max": 1.002682,
+    "primary_metric_min": 0.880389,
+    "primary_metric_std": 0.06256156796575145,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 400.0,
+    "total_seconds": 29.599999999999998,
+    "train_rows": 900.0,
+    "training_seconds": 22.7,
+    "val_accuracy": 0.6397453333333334,
+    "val_balanced_accuracy": 0.64182,
+    "val_ece": 0.08236633333333333,
+    "val_macro_f1": 0.6204296666666668,
+    "val_mlogloss": 0.9491743333333332,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9871233333333334,
+    "wall_seconds": 29.576561666666667
+  },
+  "replicate_primary_metric": 0.9491743333333332,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "encoders",
+    "--extra",
+    "deep"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "encoders",
+    "deep"
+  ],
+  "setup_seconds": 1.332571552000445,
+  "stamp": "20261103T091244Z",
+  "started_at": "2026-11-03T09:12:46.863707Z",
+  "timed_out": false,
+  "timestamp": "2026-11-03T09:12:44.628063Z",
+  "tolerance": 0.001,
+  "tolerance_source": "minimum_delta",
+  "track": "primary",
+  "wall_seconds": 109.27222173900009,
+  "worktree_prepared": true
+}

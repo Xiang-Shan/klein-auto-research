@@ -1,0 +1,54 @@
+"""One prompting cell (mutable surface, recipe llm-eval).
+
+Each run measures ONE prompt configuration (`PROMPT`) on the partition the
+contract hands it: the public items while developing, the fresh block once, sealed.
+Every model call goes through the call ledger (`kleinlib.calls`), so requests,
+responses, model id, parameters and token usage are pinned under `calls/` and the
+study re-verifies offline; the per-item table is pinned by `evaluate_items` so two
+cells can be compared PAIRED on the same items.
+"""
+
+from __future__ import annotations
+
+import os
+import time
+
+import pandas as pd
+
+from kleinlib.calls import CallLedger
+from kleinlib.data import load_items
+from kleinlib.eval_items import evaluate_items
+from score import exact_match
+
+SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
+EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
+
+PROMPT = "direct"  # direct | cot  — ONE idea per cell
+TEMPLATES = {
+    "direct": "Answer with the final number only.\n\nQuestion: {q}\nAnswer:",
+    "cot": "Solve the problem step by step, then give the final number after 'Answer:'.\n\nQuestion: {q}",
+}
+PARAMS = {"temperature": 0.0, "max_tokens": 512}
+
+
+def main() -> None:
+    if EXPERIMENT_ID is None:
+        raise SystemExit("run through `klein run-one` (or KLEIN_SMOKE=1 for a shape check)")
+    t0 = time.time()
+    _pool_ids, eval_ids = load_items()
+    index = pd.read_csv("data/prepared/index.csv", dtype={"id": str}).set_index("id")
+    items = index.loc[eval_ids[:5] if SMOKE else eval_ids]
+    rows = []
+    with CallLedger.from_contract(".", smoke_response="Answer: 0") as ledger:
+        for item_id, item in items.iterrows():
+            messages = [{"role": "user", "content": TEMPLATES[PROMPT].format(q=item["question"])}]
+            response = ledger.chat(messages, **PARAMS)
+            rows.append({"item_id": item_id, "score": exact_match(response, item["answer"])})
+    evaluate_items(
+        pd.DataFrame(rows), exp_id=EXPERIMENT_ID, metric_name="{{METRIC_NAME}}",
+        t0=t0, extra={"prompt": PROMPT}, study_dir=None if SMOKE else ".",
+    )
+
+
+if __name__ == "__main__":
+    main()

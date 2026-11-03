@@ -18,8 +18,11 @@ about that field.
 |---|---|---|
 | `insurance/` | `insurance` | the 2026-04 ancestor campaign; studies 00, 05, 12 |
 | `physics/` | `generic` | study 10 (Hubble 1929) |
-| `math/` | `math` | study 11 (exact-verifier construction) |
-| `ml-research/` | `ml-research` | study 13 (fixed-budget character language model) |
+| `math/` | `math` | study 11 (exact-verifier construction); study 24 (Golomb rulers: LLM proposer vs classical search) |
+| `ml-research/` | `ml-research` | study 13 (fixed-budget character language model); study 22 (CNN data-scaling law) |
+| `llm/` | `llm` | study 20 (chain-of-thought gain and contamination probe) |
+| `cv/` | `cv` | study 21 (BloodMNIST CNN) |
+| `data-science/` | `data-science` | study 23 (LaLonde / Dehejia-Wahba causal replication) |
 
 Every statement promoted here carries a typed claim citation —
 `(supports <study>#Cn)` / `(refutes <study>#Cn)` — and every file has the frontmatter

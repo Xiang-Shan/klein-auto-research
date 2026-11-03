@@ -1,0 +1,9 @@
+experiment	track	primary_metric	status	commit	description
+E0001	primary	0.829647333333	measured	96bffa0294a74340a83b432a51c4f8d155060642	cell N=500; registered cell measured
+E0002	primary	0.949174333333	measured	f4507418ccd38cf79e97112d8a0cf59bda758006	cell N=1000; registered cell measured
+E0003	primary	0.840758666667	measured	a916b2b88ace8c631effd843790654171d323b7c	cell N=2000; registered cell measured
+E0004	primary	0.756999333333	measured	b95cec095a8a7ac467eae08771d576f7cac62c36	cell N=4000; registered cell measured
+E0005	primary	0.652339666667	measured	77446a4e3466afa9d4b898a41b9b2748a0d41bb5	cell N=8000; registered cell measured
+E0006	primary	0.563684	measured	c4b9823e37842b2bb6a7d9da11c2bc5d5319166c	cell N=16000; registered cell measured
+E0007	exponent	0.13036	measured	580835ce38d1ae1731c1dd72b7e3de6bcf5229bf	fit: the power law over the six cells; registered cell measured
+E0008	primary	0.395864	measured	23f405e00a60da8f865416da8014e24866450936	sealed confirmation: full pool N=59,992; registered cell measured

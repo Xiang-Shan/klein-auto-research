@@ -1,0 +1,79 @@
+name: release
+
+# Publish the klein engine to PyPI when a release tag is pushed.
+#
+# Why PyPI at all: hosts whose package installer accepts only prebuilt wheels from
+# an index — Claude Science's task environments are one — cannot install the
+# engine from a git URL, so the skill imported from GitHub would arrive without
+# its engine.  A wheel on PyPI closes that gap; the git-pinned install keeps
+# working for everyone else.
+#
+# Trusted publishing (OIDC), no API token in the repository: before the first
+# release a maintainer creates the PyPI project (or a "pending publisher") for
+# `klein-auto-research`, naming this repository, this workflow file
+# (`release.yml`) and the environment `pypi`.  Until that exists the publish step
+# fails and nothing else is affected.
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build and check the wheel
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+      - name: Tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -E '^version = ' pyproject.toml | head -1 | sed -E 's/version = "(.*)"/\1/')
+          test "v${version}" = "${GITHUB_REF_NAME}" \
+            || { echo "tag ${GITHUB_REF_NAME} != pyproject version ${version}" >&2; exit 1; }
+      - name: Build sdist and wheel
+        run: uv build
+      - name: The wheel installs cleanly and carries its package data
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv venv "$RUNNER_TEMP/clean"
+          VIRTUAL_ENV="$RUNNER_TEMP/clean" uv pip install dist/*.whl
+          "$RUNNER_TEMP/clean/bin/klein" --version
+          "$RUNNER_TEMP/clean/bin/python" - <<'PY'
+          import importlib.resources as r
+          root = r.files("kleinlib")
+          for sub in ("recipes", "profiles"):
+              path = root / sub
+              if path.is_dir():
+                  print(sub, sorted(p.name for p in path.iterdir())[:8])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: publish to PyPI (trusted publishing)
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

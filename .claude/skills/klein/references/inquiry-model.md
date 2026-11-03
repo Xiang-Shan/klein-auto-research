@@ -65,7 +65,7 @@ CONFIRMS them in its summary — they are never a seventh interview question.
   sequence | graph | text | simulation | none`. It selects the Gate-1 card template
   and the split vocabulary (`data-gate-protocol.md`).
 - **`profile`** — who reads the study and what vocabulary is honest there:
-  `generic | ml-research | math | insurance`, or a repo-local `profile_doc:`. A profile
+  `generic | ml-research | math | insurance | llm | cv | data-science`, or a repo-local `profile_doc:`. A profile
   never changes what the engine checks; it changes headings, audience sentences,
   figure sets, doctrine anchors, budgets, and banned words (`profiles/README.md`).
 
@@ -97,6 +97,13 @@ Rules that follow from the table:
   identical reruns are allowed when they test a prediction (`registered-mode.md`).
 - **`discover` cannot close `confirmed`.** Its findings are hypotheses with evidence
   ids; the honest next step is a `test` study whose predictions cite them.
+- **`confirmation.require` is the whole price of `confirmed`, per track.** A track
+  whose list names `sealed` (every kind's default except `discover` and `optimize`)
+  needs exactly one successful sealed look. A track that declares a non-empty list
+  WITHOUT `sealed` — a fitted quantity confirmed by `[replicate]`, an `optimize`
+  track by `[verify]` — closes on those records and is never sent to
+  `--final-test`. An empty list (`discover`) is not a waiver: such a track stays
+  exploratory.
 - **`simulate` confirms methods, not the world.** A `known-dgp-teaching` claim carries
   `scope: in-silico` in the lock and names its DGP; a sentence about real data in a
   simulation study is a claim of a different class and stays exploratory.

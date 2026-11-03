@@ -1,0 +1,18 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+---
+primary_metric:    6.000000
+metric_name:       optima_matched
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.0
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+wall_seconds:      0.001026
+first_batch_matches: 1
+pairs: 12
+invalid_best: 3
+sealed_lane: 0
+runner_status: ok
+runner_exit_code: 0

@@ -28,6 +28,7 @@ from .claims import (
     STRENGTHS,
     add_claim,
     add_number,
+    apply_claims_file,
     file_erratum,
     init_lock,
     pin_artifact,
@@ -139,6 +140,14 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     )
     erratum.set_defaults(handler=_run_erratum)
 
+    apply = actions.add_parser(
+        "apply",
+        help="apply one YAML file of pins, numbers and claims in a single commit (all or nothing)",
+    )
+    _study(apply)
+    apply.add_argument("spec", help="YAML file with artifacts:, numbers: and claims: sections")
+    apply.set_defaults(handler=_run_apply)
+
     verify = actions.add_parser("verify", help="run the seven checks of the claims law")
     _study(verify)
     verify.add_argument(
@@ -206,6 +215,18 @@ def _run_add(args: argparse.Namespace) -> int:
     print(
         f"{args.claim_id}: {entry['class']} / {entry['strength']} — "
         f"{len(entry['numbers'])} numbers, {len(entry['evidence'])} evidence ids"
+    )
+    return 0
+
+
+def _run_apply(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    study = resolve_study(args.study)
+    counts = apply_claims_file(study, Path(args.spec))
+    print(
+        f"applied {args.spec}: {counts['artifacts']} pins, {counts['numbers']} numbers, "
+        f"{counts['claims']} claims"
     )
     return 0
 

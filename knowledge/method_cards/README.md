@@ -23,6 +23,11 @@ and instantiates them is the framework's METHOD stage.
 | [`gbdt-tabular.md`](gbdt-tabular.md) | GBDT three-family landscape (LGBM / XGB / CatBoost) | ml | generic, insurance | seed | campaign Phase 3 (0.6701 single, 0.6715 soft-vote) |
 | [`dae-tabular.md`](dae-tabular.md) | Swap-noise denoising-autoencoder representations | ml / insurance | ml-research, insurance | validated — Study 01 (archived at tag v1.0.0) | study 01 (DAE→LGBM 0.6683 < MLP 0.6706 ≈ GBDT 0.6701; imputer 3.4×; anomaly no) |
 | [`quantile-least-squares.md`](quantile-least-squares.md) | Robust quantile least squares for loss severity | insurance | insurance | validated — Study 02 (archived at tag v1.0.0) | study 02 (QLS-OLS 1.083× MLE; MLE 352% vs QLS 50% @ ε=10; window ≫ trim; $2M cap bounds GPD tail to +0.17%; the cancellation caveat) |
+| [`cnn-image-classification.md`](cnn-image-classification.md) | Small CNNs for multiclass image classification | ml | cv, ml-research | seed | Klein 2.3 `cv-classify` recipe |
+| [`llm-prompting-and-eval.md`](llm-prompting-and-eval.md) | Prompting strategies (CoT, self-consistency) and item-level LLM evaluation | ml | llm, ml-research | seed | Klein 2.3 `llm-eval` recipe |
+| [`scaling-law-fits.md`](scaling-law-fits.md) | Data-scaling power laws, intervals and extrapolation tests | ml | ml-research, cv | seed | Klein 2.3 `dl-scaling` recipe |
+| [`causal-propensity-methods.md`](causal-propensity-methods.md) | Propensity matching, IPW and doubly robust ATT against an experimental benchmark | science | data-science, generic | seed | Klein 2.3 `ds-causal` recipe |
+| [`verifier-guided-search.md`](verifier-guided-search.md) | Verifier-judged search for constructions; LLM vs classical proposers at matched budget | science | math | seed | Klein 2.3 `math-verify` recipe |
 
 Studies **01** and **02** have each promoted their card at the SYNTHESIZE stage
 (`dae-tabular.md`, `quantile-least-squares.md`) — both promised cards are now delivered and

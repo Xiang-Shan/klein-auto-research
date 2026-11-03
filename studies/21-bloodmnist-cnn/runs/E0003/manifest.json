@@ -1,0 +1,145 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 1895,
+      "committed": true,
+      "sha256": "d6cb247918352f2c1fbb065c945c420af1f37325cf092d5d71f42ceec05e90a4"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 2751,
+      "committed": true,
+      "sha256": "4dcb918ed9fc744adf837a7dff35d7593ebc48d76854044ce785793ec58e399b"
+    },
+    "runs/E0003/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 524,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "db7cdc298e574a89ac429bb9ce4524d0fbb1ed19946b5d11821532fa61e3e8b8"
+    },
+    "runs/E0003/usage.json": {
+      "availability": "recorded",
+      "bytes": 250,
+      "committed": true,
+      "role": "usage",
+      "sha256": "342b970fed10ab8ef6bba3701f326341c95d846c1659662ab014a64fa62407bd"
+    },
+    "tables/confusion_E0003_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 194,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1197dd81f35b28c437b3a4ba304b29458551b2c7d0bb76ea19804af4a0c117a2"
+    },
+    "tables/confusion_E0003_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 191,
+      "committed": true,
+      "role": "declared",
+      "sha256": "dee445753c9c3b1bea836421c2199b732e6627304382bf52c68abbe68a7ddf88"
+    },
+    "tables/confusion_E0003_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 193,
+      "committed": true,
+      "role": "declared",
+      "sha256": "7b8c41bac2e23b00ceff630253d671e67760f449bc43cd9c1425aaf2a0738c0f"
+    }
+  },
+  "base_commit": "e1aec5f1a9bb2471eef22fca86a27e5eed08b475",
+  "candidate_commit": "3b9a5e5026dbdb1dd3b43d007fa1641b1a28603f",
+  "code_patch_hash": "f9894817d9f3c9018cc2c4fdb61a18c4b6dda5f6f64076d2931d2e09455b4967",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "did not improve track frontier 0.718932 by minimum_delta=0.0438435",
+  "description": "BatchNorm2d after each conv (normalization), anchor otherwise; did not improve track frontier 0.718932 by minimum_delta=0.0438435",
+  "disposition": "discard",
+  "ended_at": "2026-11-03T05:54:30.298021Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "execution": {
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "mode": "local"
+  },
+  "exit_code": 0,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b"
+  },
+  "incumbent": "E0001",
+  "max_run_seconds": 5400.0,
+  "metric_goal": "higher",
+  "metric_name": "val_macro_f1",
+  "metrics": {
+    "n_classes": 8.0,
+    "primary_metric": 0.30053833333333335,
+    "primary_metric_max": 0.354057,
+    "primary_metric_min": 0.215863,
+    "primary_metric_std": 0.07417849295674141,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 1500.0,
+    "total_seconds": 51.13333333333333,
+    "train_rows": 11959.0,
+    "training_seconds": 48.96666666666667,
+    "val_accuracy": 0.36688133333333334,
+    "val_balanced_accuracy": 0.3849903333333333,
+    "val_ece": 0.46632366666666664,
+    "val_macro_f1": 0.30053833333333335,
+    "val_mlogloss": 4.3893276666666665,
+    "val_rows": 1709.0,
+    "val_top5_accuracy": 0.9122293333333333,
+    "wall_seconds": 51.11002533333333
+  },
+  "phase": "adaptive",
+  "phase_budget_seconds": 10800.0,
+  "phase_experiment_limit": 6,
+  "predictions_requested": [],
+  "primary_metric": 0.30053833333333335,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T05:51:45.237053Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-11-03T05:54:30.410367Z",
+    "evidence_commit": "075ddac36a48e14c669cc29466e58e31712b1927",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "steps": 4500.0
+  },
+  "wall_seconds": 165.0609274039998
+}

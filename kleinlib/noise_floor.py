@@ -37,7 +37,13 @@ __all__ = [
 #: The floor recipes and estimands the consult protocol names. Re-exported from
 #: :mod:`kleinlib.metrology` so this stdlib-only module (and the CLI it backs)
 #: does not import numpy just to spell three strings; a drift test pins them.
-RECIPES: tuple[str, ...] = ("seed-sweep", "split-lottery", "paired-bootstrap")
+RECIPES: tuple[str, ...] = (
+    "seed-sweep",
+    "split-lottery",
+    "paired-bootstrap",
+    "item-bootstrap",
+    "resample",
+)
 ESTIMANDS: tuple[str, ...] = ("fit-noise", "marginal-resplit", "paired-comparison")
 
 #: The one estimand that is NEVER the keep bar.
@@ -48,6 +54,8 @@ RECIPE_ESTIMAND: dict[str, str] = {
     "seed-sweep": "fit-noise",
     "split-lottery": "marginal-resplit",
     "paired-bootstrap": "paired-comparison",
+    "item-bootstrap": "marginal-resplit",
+    "resample": "fit-noise",
 }
 
 

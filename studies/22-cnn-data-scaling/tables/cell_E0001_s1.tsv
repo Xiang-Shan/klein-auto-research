@@ -1,0 +1,2 @@
+run	seed	n_train	val_mlogloss	best_step
+E0001	1	500	0.789615	400

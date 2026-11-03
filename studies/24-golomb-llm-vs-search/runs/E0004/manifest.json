@@ -1,0 +1,151 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 486,
+      "committed": true,
+      "sha256": "a669d0d1ac1697b67edfb6d3750c9b8369e7a6740bfc33d9293f9fca16e22fa9"
+    },
+    "calls/E0004-000.jsonl.gz": {
+      "availability": "recorded",
+      "bytes": 268944,
+      "committed": true,
+      "role": "declared",
+      "sha256": "261569aeafd6d9bdcbf3cb4fdb3691341fe16abd3b74b7487fb6ce294f5e889b"
+    },
+    "runs/E0004/run.log": {
+      "availability": "recorded",
+      "bytes": 839,
+      "committed": true,
+      "sha256": "85b51bc207790b8683cd771d97876ae1002dd048e3c6f1c5ac149af70a38c90b"
+    },
+    "runs/E0004/usage.json": {
+      "availability": "recorded",
+      "bytes": 136,
+      "committed": true,
+      "role": "usage",
+      "sha256": "00003d1b303cf0b7ecaad8785f8266e5f1d60f38e5731505c662ec081b02b1b9"
+    },
+    "tables/solution_E0004.json": {
+      "availability": "recorded",
+      "bytes": 16171,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1c298e00dcdbf1e51be716cd4864ff42d2361fcf6647ee68d49b9faf68c25792"
+    }
+  },
+  "base_commit": "a81bd520e32de8ac0c7fa9221cfd96c4d2ab9bb0",
+  "candidate_commit": "650d11c41ac19a5611fd943dd479e6991c285e10",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "development: qwen-flash-2025-07-28 proposes rulers, orders 8-11, 3 trials, 200 x 10 proposals (rerun after E0003's dropped-connection crash); registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T07:58:28.032739Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "fingerprints": {
+    "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "1f2ded940a92d1254b5928579dc2e4090195d35958ba0f4385309cb620197dd1"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric": {
+    "reported": 6.0,
+    "verified": 6.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "optima_matched",
+  "metrics": {
+    "calls_cached": 1136.0,
+    "calls_total": 2400.0,
+    "cost_usd": 0.0,
+    "evaluations": 24000.0,
+    "first_batch_matches": 1.0,
+    "invalid_best": 3.0,
+    "pairs": 12.0,
+    "primary_metric": 6.0,
+    "runner_exit_code": 0.0,
+    "sealed_lane": 0.0,
+    "tokens_in": 893189.0,
+    "tokens_out": 494814.0,
+    "total_seconds": 0.0,
+    "unparsed_replies": 593.0,
+    "valid_rulers": 719.0,
+    "wall_seconds": 0.001026
+  },
+  "phase": "development",
+  "phase_budget_seconds": 10800.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P2": {
+      "explanation": "primary_metric 6 >= 9 \u2192 refuted",
+      "verdict": "refuted"
+    },
+    "P3": {
+      "explanation": "first_batch_matches 1 >= 6 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P2",
+    "P3"
+  ],
+  "primary_metric": 6.0,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T07:03:33.390232Z",
+  "timed_out": false,
+  "track": "llm",
+  "transaction": {
+    "committed_at": "2026-11-03T07:58:30.719127Z",
+    "evidence_commit": "37af2547d62ea69c0c6487d9bea4519533fd8b50",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "calls": 1264.0,
+    "calls_cached": 1136.0,
+    "tokens": 1388003.0,
+    "tokens_in": 893189.0,
+    "tokens_out": 494814.0,
+    "usd": 0.0
+  },
+  "verifier": {
+    "artifact": "tables/solution_E0004.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "63a60221be1a0b66c36095c804d08799df889156c7299c1129df16f2c0bc903c"
+    },
+    "timed_out": false,
+    "wall_seconds": 2.3973537140009284
+  },
+  "wall_seconds": 3294.6419175770006
+}

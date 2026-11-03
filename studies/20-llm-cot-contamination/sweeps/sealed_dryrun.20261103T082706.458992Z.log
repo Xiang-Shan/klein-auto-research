@@ -1,0 +1,29 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+split_fingerprint: bf49493a7990426baf50e73ce8657f84d6a17d917e10063e0edb31aef795d13d
+sealed_dryrun: 1
+cell: track=contamination block=twin_dev templates=50 twins=200 arm=cot interval=bootstrap over templates
+---
+primary_metric:    0.020000
+metric_name:       em_gap
+metric_goal:       lower
+training_seconds:  NA
+total_seconds:     0.4
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            -0.015000
+ci_high:           0.060000
+n:                 50
+wall_seconds:      0.368856
+em_original: 0.98
+em_twins: 0.96
+n_templates: 50
+n_twin_items: 200
+calls_total: 250.0
+calls_cached: 250.0
+calls_tokens_in: 0.0
+calls_tokens_out: 0.0
+calls_cost_usd: 0.0
+runner_status: ok
+runner_exit_code: 0

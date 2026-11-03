@@ -83,11 +83,30 @@ A study is typed on three orthogonal axes; the same trust kernel serves all of t
 |---|---|---|
 | **kind** — the question's shape | `predict` · `estimate` · `test` · `simulate` · `replicate` · `discover` · `optimize` | track mode, what "sealed" means, what `confirmed` requires |
 | **modality** — the evidence source | `tabular` · `timeseries` · `image` · `sequence` · `graph` · `text` · `simulation` · `none` | which data-gate card the DATA gate demands |
-| **profile** — the audience | `generic` · `ml-research` · `math` · `insurance` · your own `profile_doc` | headings, doctrine, figures, budgets, banned words |
+| **profile** — the audience | `generic` · `ml-research` · `math` · `insurance` · `llm` · `cv` · `data-science` · your own `profile_doc` | headings, doctrine, figures, budgets, banned words |
 
 A mathematician's keep means "beat the best known value"; a deep-learning researcher's
 means "clear a five-seed noise floor". The engine does not know the difference; the
 protocols do — [`inquiry-model.md`](.claude/skills/klein/references/inquiry-model.md).
+
+## Pick your domain
+
+Klein 2.3 ships a recipe per domain: `klein new NN-slug --recipe <id>` pre-fills the three
+axes, the metric and split, the 2.3 contract blocks, and a `prepare.py` + entrypoint that
+smoke offline — leaving every judgment (predictions, priors, the data card's findings)
+for you, so no gate can be rubber-stamped.
+
+| Domain | Recipe | Typed as | What the pack brings | Exhibit |
+|---|---|---|---|---|
+| tabular ML | `tabular-predict` | predict · tabular · generic | binary/regression evaluators, the clean-room leakage audit | 00, 15 |
+| computer vision | `cv-classify` | predict · image · cv | index splits (official or grouped), image near-duplicate audit, `evaluate_multiclass`, seed arrays | 21 |
+| deep-learning training | `dl-scaling` | estimate · image · ml-research | seed arrays, step budgets, usage + hardware records, detached runs | 22 |
+| LLM evaluation | `llm-eval` | test · text · llm | the model-call ledger (offline replay), `evaluate_items`, contamination audit, fresh sealed items | 20 |
+| data science / causal | `ds-causal` | estimate · tabular · data-science | multi-file `data.inputs`, bootstrap intervals, an estimate-vs-benchmark design | 23 |
+| mathematics | `math-verify` | optimize · none · math | a declared verifier that decides every run, exact metrics | 11, 24 |
+
+Every recipe accepts the explicit flags below (they win), and `--runner python` for hosts
+without uv. `klein next --study <dir>` then names the one next action at every step.
 
 ## Run it on your own question
 
@@ -124,7 +143,9 @@ Run `--help` on any command for its full arguments. The CLI commits its own rece
 so the loop never dead-ends on state it generated itself; `gate override`,
 `headroom ack` and `stop ack` each put a reason on the record instead of silently
 bypassing a rule. Compute is one bounded foreground subprocess per run on whatever you
-have; long runs are budgeted in steps or tokens, not seconds. The full contract is in
+have — or, in a study that opts in, one detached job on a GPU host whose receipt the
+notary checks (`run-one --detach` → `klein job exec` → `run-one --collect`); long runs
+are budgeted in steps or tokens, not seconds. The full contract is in
 [`AGENTS.md`](AGENTS.md), the step-by-step walk-through in
 [`docs/quickstart.md`](docs/quickstart.md), the device rules in
 [`compute-and-devices.md`](.claude/skills/klein/references/compute-and-devices.md).
@@ -170,14 +191,17 @@ opt in is untouched: no core verb, receipt or disposition changes either way. Pr
 
 ## Drive it with your agent — or none
 
-Klein is agent-agnostic and calls no model API. The operating manual is
-[`AGENTS.md`](AGENTS.md); every protocol it points to is plain markdown.
+Klein is agent-agnostic: no Klein verb calls a model API (a study's entrypoint may,
+through the call ledger, which pins every request and response so the study re-verifies
+offline). The operating manual is [`AGENTS.md`](AGENTS.md); every protocol it points to
+is plain markdown.
 
 | You use… | How to drive Klein |
 |---|---|
 | **Codex, Copilot, Cursor, Jules, …** | They auto-read `AGENTS.md` — just ask for a Klein study |
 | **Claude Code** | The `/klein` skill routes the stages; eight worker agents ship pre-wired |
-| **Claude Science** | A custom agent follows `AGENTS.md`; REFEREE goes to a different session |
+| **Claude Science** | The kit in [`integrations/claude-science/`](integrations/claude-science/README.md): import the skill from GitHub, a `klein-researcher` Specialist, Reviewer criteria as a pre-referee pass, `klein mcp` as a Local command connector, GPU cells as detached runs on SSH/Slurm or Modal job cards; REFEREE goes to a different session or tool |
+| **Any MCP client** | `klein mcp --root <repo>` — read-only tools (`next`, `status`, `verify`, …); no gate or run tool by design |
 | **Gemini CLI / Qwen Code** | Add `AGENTS.md` to the context files |
 | **GLM & Anthropic-compatible CLIs** | They load `CLAUDE.md`, which imports `AGENTS.md` |
 | **No agent** | `AGENTS.md` doubles as a human runbook; every helper is a plain CLI |
@@ -194,15 +218,17 @@ Where Klein sits among its neighbours — positioning, not a benchmark:
 | Audit by a stranger | message history | citations | — | git history | every claim resolves |
 
 Klein does not compete with a workbench on connectors or scale; it is the discipline a
-workbench's agent can run *inside*. The full argument:
-[`docs/design/klein-2-design.md`](docs/design/klein-2-design.md).
+workbench's agent can run *inside* — 2.3 makes that concrete with the Claude Science kit.
+The full argument: [`docs/design/klein-2-design.md`](docs/design/klein-2-design.md) and
+[`docs/design/klein-2.3-design.md`](docs/design/klein-2.3-design.md) (kernel, domain
+packs, host bridges).
 
 ## The shipped studies
 
 Every study below ran the whole lifecycle in this repository's history: every candidate
 commit resolves and every ledger verifies, checked by CI on every push.
 
-**Schema-3 exhibits — six studies across the axes of generality:**
+**Schema-3 exhibits — studies across the axes of generality:**
 
 | Study | Typed as | What it showed |
 |---|---|---|
@@ -212,6 +238,11 @@ commit resolves and every ledger verifies, checked by CI on every push.
 | [`12-insurance-claims-frequency`](studies/12-insurance-claims-frequency/) | predict · tabular · insurance | All three v1 anchors reproduce on 58k real claims; the measured floor leaves the v1 ladder exactly one keep |
 | [`13-charlm-fixed-budget`](studies/13-charlm-fixed-budget/) | predict · text · ml-research | At a fixed step budget, none of four registered levers cleared the noise floor; the only gain carried no prediction |
 | [`15-iris-90years-relaunch`](studies/15-iris-90years-relaunch/) | predict · tabular · generic | The metric pegged at its ideal, so the measured floor was exactly zero, the headroom law was disarmed and four ties were read as four keeps — the instrument failed, and that failure is the finding |
+| [`20-llm-cot-contamination`](studies/20-llm-cot-contamination/) | test · text · llm | Chain-of-thought gave no measurable gain on GSM8K or on freshly generated twins: both arms already scored between 0.95 and 0.985 exact match, and the "direct" arm wrote its working anyway; every model call is ledgered, so the study re-verifies with the network off |
+| [`21-bloodmnist-cnn`](studies/21-bloodmnist-cnn/) | predict · image · cv | Under a 3-seed floor only batch norm (with running statistics recomputed on the training set) cleared the bar alone; a four-lever bundle reached 0.9465 sealed macro-F1 and an accuracy indistinguishable from ResNet-18 (28) — with no lever attributable |
+| [`22-cnn-data-scaling`](studies/22-cnn-data-scaling/) | estimate · image · ml-research | The fitted data-scaling law over-predicted the sealed full-data loss by 28 %, the opposite sign to the registered prediction; the size cells ran as attested detached jobs |
+| [`23-lalonde-causal-replication`](studies/23-lalonde-causal-replication/) | replicate · tabular · data-science | The naive difference in means against PSID controls misses the NSW benchmark by more than the benchmark itself; of IPW, matching and AIPW only AIPW landed within $1,000, and it held on the sealed CPS lane |
+| [`24-golomb-llm-vs-search`](studies/24-golomb-llm-vs-search/) | test · none · math | At a matched budget of verifier calls an LLM matched known optimal Golomb rulers on 6 of 12 development pairs against 0 for a classical randomized search — every match a tabulated row — and neither arm matched any optimum at the sealed orders 12–13 |
 
 **Schema-2 exhibits (frozen; they verify under schema-2 rules forever):**
 
@@ -234,13 +265,21 @@ To see what "closing the loop" means, open any tutorial:
 
 Klein cannot make a model reason better — it makes reasoning failures detectable. It
 runs one experiment at a time and does not schedule, parallelize, or learn a policy
-across runs. It does not execute notebooks. The referee is independent by mechanism,
-not by magic: a fresh session of the same model is the lowest rung of the independence
-ladder, and the rung reached is on the record. A measured floor bounds honesty, not
-power; a lock verifies that numbers have homes, not that the homes were the right
-places to look. Evaluators today cover binary classification, point and rate regression
-(incl. Poisson/Gamma/Tweedie deviance), scalar, estimate, test and table cells;
-multiclass, survival and ranking are documented extension points.
+across runs. It does not execute notebooks (`klein notebook` writes a reading copy, never
+evidence). The referee is independent by mechanism, not by magic: a fresh session of the
+same model is the lowest rung of the independence ladder, and the rung reached is on the
+record; Claude Science's built-in Reviewer runs on the session's own model and never
+stands in for Gate 3. A measured floor bounds honesty, not power; a lock verifies that
+numbers have homes, not that the homes were the right places to look. A detached run is
+attested, not observed — its receipt is checked, its process was not watched. The call
+ledger makes a model-calling study re-verify offline from what the model answered; it
+cannot make a hosted model answer the same way next year, which is why a re-query is a
+replication and a replay is not. Evaluators cover binary and multiclass classification,
+point and rate regression (incl. Poisson/Gamma/Tweedie deviance), per-item benchmarks
+(exact match, pass@k), ranking, survival, segmentation, scalar, estimate, test and table
+cells; detection mAP is not shipped. The Claude Science kit is documented against that
+product's published docs; a live smoke needs a person with a Claude Science seat and is
+filed under `docs/reviews/` only when one has run.
 
 ## Harness or skill? Both — a harness that carries a skill.
 

@@ -13,12 +13,38 @@ the source of truth; Claude Code ships it pre-wired as the `klein-data-auditor` 
 ## 0. Declare the modality and the source
 
 `study.yaml` names `data.modality` and `data.source` (`references/data-sources.md`:
-`csv: | parquet: | synthetic: | bundled: | hub: | sklearn: | openml: | url:`, with a
-`data.sha256` pin wherever the bytes could change). Resolve the source once —
+`csv: | parquet: | synthetic: | bundled: | hub: | sklearn: | openml: | url: | hf:`, with a
+`data.sha256` pin wherever the bytes could change, and `data.inputs` for further files). Resolve the source once —
 `klein doctor --study <dir>` says whether it resolves on this machine without
 fetching — and read the provenance line it prints. The card's frontmatter carries
 `modality:`; the gate checks that the card has the headings that modality requires
-(`kleinlib.schema.MODALITY_CARD_SECTIONS`).
+(`kleinlib.schema.MODALITY_CARD_SECTIONS`). A study that sets `policy.card_sections:
+enforce` (every 2.3 recipe does) has those headings — plus `## Near-duplicate audit` for
+image, text, sequence and graph data and `## Contamination audit` for the `llm` profile
+(`POLICY_CARD_SECTIONS`, `PROFILE_CARD_SECTIONS`) — checked mechanically when the DATA
+gate is recorded; a missing heading refuses the record.
+
+**Items that are not rows of a table** (images, documents, sequences, graphs, benchmark
+questions) are split through an **index**: `prepare.py` writes the payload (arrays,
+text, files) and an index table into a prepared DIRECTORY, and the contract names it —
+
+```yaml
+data:
+  prepared_path: data/prepared            # a directory: its whole tree is fingerprinted
+  split:
+    kind: predefined                      # or stratified | random | group | time
+    index: index.csv                      # inside prepared_path: id, [label], [group], [time], [split]
+    id_column: id
+    label_column: label                   # needed to stratify; optional otherwise
+    split_column: split                   # predefined only: values train | development | test
+```
+
+`kind: predefined` keeps a dataset's official partitions (MedMNIST, a benchmark's own
+test set) — `prepare.py` maps the source's names onto `train | development | test`.
+The gate then freezes REAL partition fingerprints over item ids, `load_items()` /
+`load_partition()` print them, and run-one crashes a run measured on other items —
+no fake target column, no "partition not verified". `policy.realized_split: required`
+makes a split that cannot be realized refuse the gate instead of leaving a note.
 
 ## 1. Prepare, then profile the PREPARED artifact
 
@@ -121,6 +147,29 @@ skipped them; the fix cost ~2h and salvaged every later comparison.)
   partitions), and the group-overlap check on the index table. Duplicates and
   near-duplicates across partitions are the leak that makes every image and sequence
   benchmark look better than it is; state the rate and the threshold.
+- **image (deeper, 2.3)** — beyond the group policy, the card answers: the **unit of
+  leakage** (patient, slide, subject, scene, video, capture session — never the file);
+  **near-duplicates** across partitions from `--near-dup image` (dHash, the threshold in
+  bits, the rate per held-out partition, and what was done about each hit);
+  **augmentation twins** (no augmented copy of a held-out image was generated before
+  the split); **resolution and channel statistics** per partition (a split whose test
+  images were resized differently is a covariate shift, not a benchmark); **class
+  balance** per partition; **label provenance** (who labelled, inter-rater agreement if
+  known, known label noise); and the dataset **licence** and any pretrained weights'
+  training data (a backbone pretrained on the test set is contamination).
+- **text, LLM evaluation (2.3)** — `## Contamination audit` (profile `llm`) answers,
+  before any model is queried: the benchmark's **publication date versus the model's
+  stated training cutoff** (later-than-cutoff is not proof of cleanliness, earlier is
+  not proof of contamination — both are stated); **n-gram overlap** of the evaluated
+  items with every text the prompt will carry (few-shot exemplars, instructions,
+  templates) from `--near-dup text --against <pool>` (13-grams by default); the
+  **fresh-item control** — a procedurally generated or held-back block the model cannot
+  have seen, used as the sealed comparison (a gain that exists on the public items but
+  not on fresh twins is the contamination signature); any **perturbation probe**
+  (renamed entities, changed numbers) with the generator's own exact-answer check; the
+  answer key's provenance and the exact-match normalization; and the **licence** of the
+  items and of the model outputs the study will commit (model responses are committed
+  in the call ledger — check the provider's terms first).
 - **simulation** — `## DGP card`: the declared truth in full (generating process,
   every parameter, seed blocks for development and sealed, sample sizes), what
   "recover" means numerically — the criterion each prediction's rule will use — and
@@ -204,7 +253,27 @@ Evidence column:
 ```bash
 uv run --locked python -m kleinlib.leakage <prepared> --target <col> --study <dir>          # dataframe mode (tabular)
 uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --study <dir>    # index-table mode (any modality)
+# 2.3 — the near-duplicate rows (copy them under `## Near-duplicate audit`):
+uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --study <dir> \
+    --near-dup image --payload data/prepared/images.npy [--threshold 4] [--max-rate 0.0]
+uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --study <dir> \
+    --near-dup image --payload data/prepared/images.npy --pixel-rmse 4    # tiny images: pixel space
+uv run --locked python -m kleinlib.leakage --index data/prepared/index.csv --study <dir> \
+    --near-dup text --text-column question [--against fewshot_pool.txt] [--threshold 13]
 ```
+
+An index without a `split` column (every 2.3 index study) is audited on the partitions
+the CONTRACT realizes — the audit checks the split every run is held to, not a column a
+script wrote. `--max-rate` is the near-duplicate rate the study accepts (default 0); a
+non-zero value is a decision the card states with its reason.
+
+Development is audited against train; the SEALED partition against train + development,
+because the sealed run fits on both. A 64-bit dHash is too coarse for tiny images: on
+28 x 28 grey silhouettes most held-out images collide with some train image (study 22:
+56%, none byte-identical). For such data use `--pixel-rmse <grey levels>` — the exact
+pixel-nearest reference, RMS difference on a 0-255 scale — state the value on the card,
+and remove the genuine copies it finds in `prepare.py` (study 21 removed dHash hits the
+same way).
 
 Any FAIL on any row is a **BLOCKER** — NO-GO by the ranking rule above — until the
 cause is fixed deterministically (in `prepare.py` or the split block) and the audit is

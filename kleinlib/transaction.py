@@ -73,6 +73,29 @@ def environment_fingerprint(repo_root: Path) -> tuple[str, dict[str, Any]]:
 GIT_TEXT = ("utf-8", "surrogateescape")
 
 
+#: The object-name width a code patch is recorded with. ``git diff`` abbreviates
+#: the blob names on each ``index`` line to a length git chooses from the number of
+#: objects in the repository, so the same two commits produced a different patch —
+#: and a different ``code_patch_hash`` — in a fresh, fully packed clone (8
+#: characters) than in the working repository that recorded it (7). Every shipped
+#: manifest was recorded at the historical width, 7; recording pins it, and
+#: verification accepts any width git may have widened to for uniqueness.
+PATCH_ABBREV = 7
+#: The widths verification tries, narrowest first (git widens an ambiguous prefix).
+PATCH_ABBREV_ACCEPTED = tuple(range(7, 13))
+
+
+def surface_patch(
+    repo: Path, base: str, candidate: str, surface_rels: Sequence[str], *, abbrev: int = PATCH_ABBREV
+) -> subprocess.CompletedProcess[str]:
+    """``git diff --binary`` of the mutable surface, at a fixed object-name width."""
+    return git(
+        repo,
+        ["diff", "--binary", f"--abbrev={abbrev}", base, candidate, "--", *surface_rels],
+        check=False,
+    )
+
+
 def git(repo: Path, args: Sequence[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
     result = subprocess.run(
         ["git", *args],
@@ -257,6 +280,7 @@ def commit_state_writes(
     commit: Committer | None = None,
     paths: Sequence[str] = (),
     scope: str = "state",
+    allow_detached: bool = False,
 ) -> str | None:
     """Commit the state/derived files a CLI verb just wrote.
 
@@ -285,6 +309,14 @@ def commit_state_writes(
     """
     if scope not in ("state", "own"):
         raise WorkflowError(f"unknown commit scope {scope!r} (expected 'state' or 'own')")
+    from .primitives import open_detached_run
+
+    detached = open_detached_run(Path(study_dir))
+    if detached is not None and not allow_detached:
+        raise WorkflowError(
+            f"detached run {detached} is open: nothing is committed to this study until "
+            f"`klein run-one --collect {detached}` (or `--abandon`) closes it"
+        )
     probe = git(study_dir, ["rev-parse", "--show-toplevel"], check=False)
     if probe.returncode:
         return None

@@ -1,0 +1,65 @@
+"""One estimator specification per cell (mutable surface, recipe ds-causal).
+
+The nuisance model (propensity) is fit on the FIT partition and the effect on the
+treated is estimated on the EVAL partition (cross-fitting, so no unit's own outcome
+tunes its weight). The interval is a bootstrap over the evaluation rows with the
+propensity model held fixed — a specification is a registered cell; change
+`ESTIMATOR` (naive | ipw | aipw) for the next cell.
+"""
+
+from __future__ import annotations
+
+import os
+import time
+
+import numpy as np
+from sklearn.linear_model import LinearRegression, LogisticRegression
+
+from kleinlib.data import load_partition
+from kleinlib.eval import evaluate_estimate
+
+SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
+EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
+ESTIMATOR = "ipw"
+COVARIATES = ["age", "school", "prior_earnings"]
+
+
+def att(X, t, y, propensity, outcome_model) -> float:
+    if ESTIMATOR == "naive":
+        return float(y[t == 1].mean() - y[t == 0].mean())
+    e = np.clip(propensity.predict_proba(X)[:, 1], 0.01, 0.99)
+    w = e / (1 - e)
+    if ESTIMATOR == "ipw":
+        return float(y[t == 1].mean() - np.average(y[t == 0], weights=w[t == 0]))
+    mu0 = outcome_model.predict(X)
+    resid = y - mu0
+    return float(resid[t == 1].mean() - np.average(resid[t == 0], weights=w[t == 0]))
+
+
+def main() -> None:
+    if EXPERIMENT_ID is None:
+        raise SystemExit("run through `klein run-one` (or KLEIN_SMOKE=1 for a shape check)")
+    t0 = time.time()
+    X_fit, X_eval, y_fit, y_eval = load_partition(target="y")
+    propensity = LogisticRegression(max_iter=5000).fit(X_fit[COVARIATES], X_fit["treat"])
+    controls = X_fit["treat"] == 0
+    outcome_model = LinearRegression().fit(X_fit.loc[controls, COVARIATES], y_fit[controls])
+    X, t, y = X_eval[COVARIATES].to_numpy(), X_eval["treat"].to_numpy(), y_eval.to_numpy()
+    point = att(X, t, y, propensity, outcome_model)
+    rng = np.random.default_rng(20260301)
+    draws = []
+    for _ in range(200 if SMOKE else 2000):
+        idx = rng.integers(0, len(y), len(y))
+        if t[idx].min() == t[idx].max():
+            continue
+        draws.append(att(X[idx], t[idx], y[idx], propensity, outcome_model))
+    low, high = (float(q) for q in np.quantile(draws, [0.025, 0.975]))
+    evaluate_estimate(
+        point, min(low, point), max(high, point), int(len(y)),
+        exp_id=EXPERIMENT_ID, metric_name="{{METRIC_NAME}}", metric_goal="higher",
+        t0=t0, extra={"n_treated": int(t.sum())}, study_dir=".",
+    )
+
+
+if __name__ == "__main__":
+    main()

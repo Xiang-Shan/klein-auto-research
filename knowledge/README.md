@@ -18,7 +18,8 @@ study. Two kinds of file live here.
   (findings unchanged): `insights-and-framework.md`, `gbdt-hyperparameter-guide.md`,
   `encoder-comparison.md`, and `domains/insurance/best-practices-auto-insurance.md`.
 - **Promoted framework lessons** — `research-discipline.md`: the ten process lessons
-  of studies 07–09 with typed claim citations, and the 2.0 mechanism each produced.
+  of studies 07–09 with typed claim citations, and the 2.0 mechanism each produced;
+  lesson 11 (study 10), lessons 12–22 (studies 20–23) and lessons 23–26 (study 24).
 - **Domain knowledge** — `domains/<profile>/`, one directory per audience profile
   (`domains/README.md`); a field's doctrine anchor and its first typed citation live
   there.
@@ -32,7 +33,7 @@ in that campaign's private lab. Numbers come from the sources — the port never
 rewrites a finding.
 
 **Frontmatter conventions** (simple YAML, self-contained to this repo): `title`, `type` (`synthesis` | `reference` | `retro` | `method-card`),
-`domain` (`insurance` | `ml` | `science` | `physics` | `math` | `ml-research`), `status`
+`domain` (`insurance` | `ml` | `science` | `physics` | `math` | `ml-research` | `llm` | `cv` | `data-science`), `status`
 (`seed` — written, no study has tested it · `ported` — carried over unchanged from a
 source named in `source:` · `promoted` — written from closed studies' claims ·
 `validated` — a later study's claims support it · `contested` — a later study's claims

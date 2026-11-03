@@ -17,7 +17,16 @@ Compare at matched compute (steps or tokens, never wall-clock as the budget); re
 seed variance as `fit_noise` and never paste a k-seed spread as the keep bar; never
 compare a tuned candidate against an untuned baseline; checkpoints are `artifact:`
 lines scored by a declared verifier script (`tracks.<id>.verifier`), so the training
-script never grades itself. A single seed is an anecdote.
+script never grades itself. A single seed is an anecdote — so since Klein 2.3 a
+candidate can BE a seed array (`entrypoint.seeds: [0, 1, 2]`): one transaction runs
+every seed, the notary aggregates the blocks (mean, std, min, max) and decides on the
+mean, and the floor is measured on aggregates. Training chatter goes before the final
+block (`entrypoint.printed: block`). A checkpoint saved mid-run is for in-job resume
+(`kleinlib.dl.Checkpointer`), never for continuing a crashed transaction; hardware and
+library versions are recorded per run (`kleinlib.dl.report_usage`). Long jobs on a
+cluster or a cloud GPU run detached (`klein run-one --detach` → the host runs
+`klein job exec` → `klein run-one --collect`) and are disclosed as attested, not
+observed.
 
 ## 4. Figures
 Training and validation curves per candidate; seed-variance bars at the anchor; metric
@@ -34,6 +43,7 @@ Tutorial §⑥ heading: **Training-recipe advice**.
 | seconds (tiny nets, CPU) | 300 | 5-seed `fit_noise` |
 | minutes (small nets, one GPU or MPS) | 1 800 | 3–5-seed `fit_noise` |
 | hours (real training runs) | set explicitly; budget in steps | 3-seed `fit_noise` at a reduced budget, disclosed as such |
+| days, cluster or cloud GPU | detached runs; `phases[].budget_steps` / `budget_usd` | seed-array aggregates at a reduced budget, disclosed |
 Long runs use `max_steps` or `max_tokens` as a printed guardrail; `wall_seconds` is
 informational so CPU and accelerator runs agree within the floor.
 

@@ -1,0 +1,244 @@
+{
+  "baseline": 0.563684,
+  "block_differences": {
+    "best_inner_loss": {
+      "difference": 0.0,
+      "original": 0.5547783333333333,
+      "replicate": 0.5547783333333333
+    },
+    "best_step": {
+      "difference": 0.0,
+      "original": 2202.6666666666665,
+      "replicate": 2202.6666666666665
+    },
+    "eval_every": {
+      "difference": 0.0,
+      "original": 56.0,
+      "replicate": 56.0
+    },
+    "n_classes": {
+      "difference": 0.0,
+      "original": 10.0,
+      "replicate": 10.0
+    },
+    "n_fit": {
+      "difference": 0.0,
+      "original": 14400.0,
+      "replicate": 14400.0
+    },
+    "n_inner": {
+      "difference": 0.0,
+      "original": 1600.0,
+      "replicate": 1600.0
+    },
+    "n_train": {
+      "difference": 0.0,
+      "original": 16000.0,
+      "replicate": 16000.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 0.563684,
+      "replicate": 0.563684
+    },
+    "primary_metric_max": {
+      "difference": 0.0,
+      "original": 0.572035,
+      "replicate": 0.572035
+    },
+    "primary_metric_min": {
+      "difference": 0.0,
+      "original": 0.556876,
+      "replicate": 0.556876
+    },
+    "primary_metric_std": {
+      "difference": 0.0,
+      "original": 0.007696392466604039,
+      "replicate": 0.007696392466604039
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "seeds_n": {
+      "difference": 0.0,
+      "original": 3.0,
+      "replicate": 3.0
+    },
+    "steps": {
+      "difference": 0.0,
+      "original": 2250.0,
+      "replicate": 2250.0
+    },
+    "total_seconds": {
+      "difference": 8.866666666666674,
+      "original": 181.13333333333333,
+      "replicate": 172.26666666666665
+    },
+    "train_rows": {
+      "difference": 0.0,
+      "original": 14400.0,
+      "replicate": 14400.0
+    },
+    "training_seconds": {
+      "difference": 8.733333333333348,
+      "original": 173.5666666666667,
+      "replicate": 164.83333333333334
+    },
+    "val_accuracy": {
+      "difference": 0.0,
+      "original": 0.7910663333333333,
+      "replicate": 0.7910663333333333
+    },
+    "val_balanced_accuracy": {
+      "difference": 0.0,
+      "original": 0.7918663333333332,
+      "replicate": 0.7918663333333332
+    },
+    "val_ece": {
+      "difference": 0.0,
+      "original": 0.026092333333333332,
+      "replicate": 0.026092333333333332
+    },
+    "val_macro_f1": {
+      "difference": 0.0,
+      "original": 0.788814,
+      "replicate": 0.788814
+    },
+    "val_mlogloss": {
+      "difference": 0.0,
+      "original": 0.563684,
+      "replicate": 0.563684
+    },
+    "val_rows": {
+      "difference": 0.0,
+      "original": 9992.0,
+      "replicate": 9992.0
+    },
+    "val_top5_accuracy": {
+      "difference": 0.0,
+      "original": 0.9958966666666668,
+      "replicate": 0.9958966666666668
+    },
+    "wall_seconds": {
+      "difference": 8.874046666666686,
+      "original": 181.14098533333333,
+      "replicate": 172.26693866666665
+    }
+  },
+  "candidate_commit": "c4b9823e37842b2bb6a7d9da11c2bc5d5319166c",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+  "difference": 0.0,
+  "ended_at": "2026-11-03T09:29:44.452066Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "environment_match": true,
+  "evidence_id": "rep:E0006@20261103T092044Z",
+  "exit_code": 0,
+  "experiment": "E0006",
+  "log": "runs/E0006/replications/20261103T092044Z.log",
+  "max_run_seconds": 10800.0,
+  "metric_name": "val_mlogloss",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "best_inner_loss": 0.5547783333333333,
+    "best_step": 2202.6666666666665,
+    "eval_every": 56.0,
+    "n_classes": 10.0,
+    "n_fit": 14400.0,
+    "n_inner": 1600.0,
+    "n_train": 16000.0,
+    "primary_metric": 0.563684,
+    "primary_metric_max": 0.572035,
+    "primary_metric_min": 0.556876,
+    "primary_metric_std": 0.007696392466604039,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 2250.0,
+    "total_seconds": 181.13333333333333,
+    "train_rows": 14400.0,
+    "training_seconds": 173.5666666666667,
+    "val_accuracy": 0.7910663333333333,
+    "val_balanced_accuracy": 0.7918663333333332,
+    "val_ece": 0.026092333333333332,
+    "val_macro_f1": 0.788814,
+    "val_mlogloss": 0.563684,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9958966666666668,
+    "wall_seconds": 181.14098533333333
+  },
+  "original_environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "original_primary_metric": 0.563684,
+  "record": "runs/E0006/replications/20261103T092044Z.json",
+  "replicate_block": {
+    "best_inner_loss": 0.5547783333333333,
+    "best_step": 2202.6666666666665,
+    "eval_every": 56.0,
+    "n_classes": 10.0,
+    "n_fit": 14400.0,
+    "n_inner": 1600.0,
+    "n_train": 16000.0,
+    "primary_metric": 0.563684,
+    "primary_metric_max": 0.572035,
+    "primary_metric_min": 0.556876,
+    "primary_metric_std": 0.007696392466604039,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 2250.0,
+    "total_seconds": 172.26666666666665,
+    "train_rows": 14400.0,
+    "training_seconds": 164.83333333333334,
+    "val_accuracy": 0.7910663333333333,
+    "val_balanced_accuracy": 0.7918663333333332,
+    "val_ece": 0.026092333333333332,
+    "val_macro_f1": 0.788814,
+    "val_mlogloss": 0.563684,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9958966666666668,
+    "wall_seconds": 172.26693866666665
+  },
+  "replicate_primary_metric": 0.563684,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "encoders",
+    "--extra",
+    "deep"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "encoders",
+    "deep"
+  ],
+  "setup_seconds": 1.3348956940026255,
+  "stamp": "20261103T092044Z",
+  "started_at": "2026-11-03T09:20:47.002049Z",
+  "timed_out": false,
+  "timestamp": "2026-11-03T09:20:44.701484Z",
+  "tolerance": 0.001,
+  "tolerance_source": "minimum_delta",
+  "track": "primary",
+  "wall_seconds": 537.4499408320007,
+  "worktree_prepared": true
+}

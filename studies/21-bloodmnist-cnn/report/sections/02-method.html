@@ -1,0 +1,22 @@
+<h2>The method taught</h2>
+<h3>Intuition: stencils, then sliding stencils</h3>
+<p>BloodMNIST is photographs of single cells, centre-cropped and shrunk to 28 &times; 28 RGB. The classes differ by colour, size and nucleus shape. A <strong>linear softmax on pixels</strong> gives each class one template image; a cell is called whatever template it overlaps best. A <strong>convolution</strong> is a small learned stencil applied at every position (weight sharing), so features need not be relearned per location, and stacking layers lets later filters combine earlier ones. Counted from <code>model.py</code>, the linear model has 18,824 parameters and the anchor CNN 19,912, so the first comparison spends the same budget two ways.</p>
+
+<h3>The load-bearing math</h3>
+<p>Training minimizes softmax cross-entropy, with augmentation stated as a prior: each training image is replaced by a random member of its dihedral orbit <span data-math="g_i \sim \mathrm{Uniform}(D_4)"></span> (four rotations, each with or without a flip; exact pixel permutations at 28 pixels).</p>
+<div data-math-display="\mathcal{L}(\theta) = -\frac{1}{B}\sum_{i=1}^{B} \log \mathrm{softmax}\big(f_\theta(g_i \cdot x_i)\big)_{y_i}"></div>
+<p>Batch normalization standardizes each channel per mini-batch, then learns a scale and shift back. At evaluation the batch statistics are replaced by population statistics. The way those are obtained turns out to be the study's most expensive lesson (section 6).</p>
+<div data-math-display="\mathrm{BN}(z) = \gamma\,\frac{z - \mu_{\mathcal{B}}}{\sqrt{\sigma^{2}_{\mathcal{B}} + \epsilon}} + \beta"></div>
+<p>The primary metric is macro-F1, an unweighted mean of per-class F1 scores, each read off the confusion table. Accuracy is a prevalence-weighted mean of recalls. Macro-F1 is a ratio of sums per class, not a mean over items, so a bootstrap of it must recompute it on every re-draw.</p>
+<div data-math-display="F1_k = \frac{2\,TP_k}{2\,TP_k + FP_k + FN_k},\qquad \text{macro-F1} = \frac{1}{K}\sum_{k=1}^{K} F1_k"></div>
+
+<h3>Two noises, one keep bar</h3>
+<p><strong>Fit noise</strong> is how much a score moves when the seeds are redrawn: the instability of the fitting procedure. <strong>Item noise</strong> is how much it moves had the development images been another draw from the same smears: the precision of the ruler. A seed array shrinks the first, not the second, because every seed is scored on the same images. The keep bar is therefore set from an item bootstrap of the anchor's pinned confusion tables:</p>
+<div data-math-display="\delta \ge \max\!\Big(2\,\mathrm{sd}_b\big(m^{*}_b\big),\ \tfrac{1}{2}\,\mathrm{range}_b\big(m^{*}_b\big)\Big)"></div>
+<p>Here <span data-math="m^{*}_b"></span> is the macro-F1 on bootstrap re-draw <span data-math="b"></span> of the development items. The measured bar is 0.0438, and the half-range term, not twice the standard deviation, is the one that binds.</p>
+<img data-fig="figures/item_bootstrap.png" alt="Histogram of 1000 bootstrap macro-F1 values for the anchor with the range arrow" data-caption="Item-bootstrap distribution of the anchor's development macro-F1 (1000 re-draws, registered sweep item_bootstrap, development split). Half of the range is the keep bar of 0.0438; this is the ruler against which every later candidate is judged.">
+
+<h3>The from-scratch pieces</h3>
+<p>The study is run through a notary: every candidate is a three-seed array (seeds 0, 1, 2), and the decision is made on the seed mean against the bar. The weight-sharing idea is one line: the same filter <span data-math="W"></span> is applied at every position,</p>
+<div data-math-display="(W \star x)[c', i, j] = b_{c'} + \sum_{c=1}^{C}\sum_{u,v=0}^{k-1} W[c', c, u, v]\, x[c,\, i+u,\, j+v]"></div>
+<p>and a third conv-pool block raises the receptive field from 8 to 18 pixels, about the whole cell, which is why depth was a candidate lever and not just more capacity.</p>

@@ -1,0 +1,206 @@
+{
+  "baseline": 0.01,
+  "block_differences": {
+    "calls_cached": {
+      "difference": 1.0,
+      "original": 599.0,
+      "replicate": 600.0
+    },
+    "calls_cost_usd": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "calls_tokens_in": {
+      "difference": 75.0,
+      "original": 75.0,
+      "replicate": 0.0
+    },
+    "calls_tokens_out": {
+      "difference": 107.0,
+      "original": 107.0,
+      "replicate": 0.0
+    },
+    "calls_total": {
+      "difference": 0.0,
+      "original": 600.0,
+      "replicate": 600.0
+    },
+    "ci_high": {
+      "difference": 0.0,
+      "original": 0.03,
+      "replicate": 0.03
+    },
+    "ci_low": {
+      "difference": 0.0,
+      "original": -0.01,
+      "replicate": -0.01
+    },
+    "discordant_cot_only": {
+      "difference": 0.0,
+      "original": 6.0,
+      "replicate": 6.0
+    },
+    "discordant_direct_only": {
+      "difference": 0.0,
+      "original": 3.0,
+      "replicate": 3.0
+    },
+    "em_cot": {
+      "difference": 0.0,
+      "original": 0.96,
+      "replicate": 0.96
+    },
+    "em_direct": {
+      "difference": 0.0,
+      "original": 0.95,
+      "replicate": 0.95
+    },
+    "mcnemar_p": {
+      "difference": 0.0,
+      "original": 0.5078125,
+      "replicate": 0.5078125
+    },
+    "n": {
+      "difference": 0.0,
+      "original": 300.0,
+      "replicate": 300.0
+    },
+    "n_clusters": {
+      "difference": 0.0,
+      "original": 300.0,
+      "replicate": 300.0
+    },
+    "n_items": {
+      "difference": 0.0,
+      "original": 300.0,
+      "replicate": 300.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 0.01,
+      "replicate": 0.01
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "total_seconds": {
+      "difference": 2.6,
+      "original": 3.0,
+      "replicate": 0.4
+    },
+    "wall_seconds": {
+      "difference": 2.518872,
+      "original": 2.957728,
+      "replicate": 0.438856
+    }
+  },
+  "calls_copied": [
+    "calls/E0001-000.jsonl.gz",
+    "calls/E0002-000.jsonl.gz",
+    "calls/E0003-000.jsonl.gz",
+    "calls/E0004-000.jsonl.gz",
+    "calls/E0005-000.jsonl.gz"
+  ],
+  "candidate_commit": "90198c83e848a5a4449d03727377a9be69d07f1c",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62",
+  "difference": 0.0,
+  "ended_at": "2026-11-03T08:53:19.812521Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "environment_match": true,
+  "evidence_id": "replay:E0002@20261103T085311Z",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "log": "runs/E0002/replications/20261103T085311Z.log",
+  "max_run_seconds": 3600.0,
+  "metric_name": "em_gain",
+  "mismatched_keys": [],
+  "mode": "replay",
+  "original_block": {
+    "calls_cached": 599.0,
+    "calls_cost_usd": 0.0,
+    "calls_tokens_in": 75.0,
+    "calls_tokens_out": 107.0,
+    "calls_total": 600.0,
+    "ci_high": 0.03,
+    "ci_low": -0.01,
+    "discordant_cot_only": 6.0,
+    "discordant_direct_only": 3.0,
+    "em_cot": 0.96,
+    "em_direct": 0.95,
+    "mcnemar_p": 0.5078125,
+    "n": 300.0,
+    "n_clusters": 300.0,
+    "n_items": 300.0,
+    "primary_metric": 0.01,
+    "runner_exit_code": 0.0,
+    "total_seconds": 3.0,
+    "wall_seconds": 2.957728
+  },
+  "original_environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "original_primary_metric": 0.01,
+  "record": "runs/E0002/replications/20261103T085311Z.json",
+  "replicate_block": {
+    "calls_cached": 600.0,
+    "calls_cost_usd": 0.0,
+    "calls_tokens_in": 0.0,
+    "calls_tokens_out": 0.0,
+    "calls_total": 600.0,
+    "ci_high": 0.03,
+    "ci_low": -0.01,
+    "discordant_cot_only": 6.0,
+    "discordant_direct_only": 3.0,
+    "em_cot": 0.96,
+    "em_direct": 0.95,
+    "mcnemar_p": 0.5078125,
+    "n": 300.0,
+    "n_clusters": 300.0,
+    "n_items": 300.0,
+    "primary_metric": 0.01,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.4,
+    "wall_seconds": 0.438856
+  },
+  "replicate_primary_metric": 0.01,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "encoders"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "encoders"
+  ],
+  "setup_seconds": 0.7733680720011762,
+  "stamp": "20261103T085311Z",
+  "started_at": "2026-11-03T08:53:12.936503Z",
+  "timed_out": false,
+  "timestamp": "2026-11-03T08:53:11.832677Z",
+  "tolerance": 0.03,
+  "tolerance_source": "minimum_delta",
+  "track": "cot_gain",
+  "wall_seconds": 6.875553649999347,
+  "worktree_prepared": true
+}

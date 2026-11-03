@@ -1,0 +1,26 @@
+"""Freeze the problem instance and its seed blocks (recipe math-verify).
+
+`data/prepared/instance.json` is fingerprinted at the DATA gate: the number of marks
+and the seed block each evaluation kind may use. `development` is the only block
+adaptive search may touch; `sealed` is a fresh block reserved for the one sealed run.
+No literal seed lives in search.py or verify.py (war story 8).
+"""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+INSTANCE = {"problem": "golomb-ruler", "marks": 9, "seed_blocks": {"development": 101, "sealed": 202}}
+
+
+def main() -> None:
+    out = HERE / "data" / "prepared" / "instance.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(INSTANCE, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"instance: {INSTANCE}")
+
+
+if __name__ == "__main__":
+    main()

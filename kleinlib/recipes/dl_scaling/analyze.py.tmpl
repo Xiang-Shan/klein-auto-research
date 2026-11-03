@@ -1,0 +1,136 @@
+"""Data-scaling cells and the power-law fit (mutable surface, recipe dl-scaling).
+
+Two registered tracks share this file:
+
+* `cells` — one run = one training-set size N (`CELL["n_train"]`), run as a seed
+  array; each seed trains the SAME small network for the SAME number of steps on a
+  seeded subsample of size N of the training partition, scores multiclass log-loss
+  on the development partition, and pins its row in `tables/cell_<run>_s<seed>.tsv`.
+* `exponent` — fits log L = log A - alpha log N over every pinned cell row, with a
+  bootstrap over seeds within each N, and prints alpha with its interval
+  (`evaluate_estimate`), pinning `tables/scaling_fit.tsv`.
+
+The sealed run (`klein run-one --final-test`) trains at the FULL training size and
+is compared with the fit's prediction — the extrapolation test.
+"""
+
+from __future__ import annotations
+
+import glob
+import os
+import time
+
+import numpy as np
+import pandas as pd
+
+from kleinlib.data import load_items
+from kleinlib.dl import report_usage, seed_everything
+from kleinlib.eval import evaluate_estimate
+from kleinlib.eval_multiclass import evaluate_multiclass
+
+SMOKE = os.environ.get("KLEIN_SMOKE") == "1"
+EXPERIMENT_ID = os.environ.get("KLEIN_EXPERIMENT_ID") or ("SMOKE" if SMOKE else None)
+TRACK = os.environ.get("KLEIN_TRACK") or ("cells" if SMOKE else None)
+SEED = int(os.environ.get("KLEIN_SEED", "0"))
+FINAL = os.environ.get("KLEIN_EVALUATION_KIND") == "final_test"
+
+CELL = {"n_train": 200, "steps": 150 if SMOKE else 600, "batch_size": 64, "lr": 3e-3}
+
+
+def _load(ids: list[str]) -> tuple[np.ndarray, np.ndarray]:
+    index = pd.read_csv("data/prepared/index.csv", dtype={"id": str})
+    images = np.load("data/prepared/images.npy", mmap_mode="r")
+    rows = index.reset_index().set_index("id").loc[ids, "index"].to_numpy()
+    x = np.asarray(images[rows], dtype=np.float32)
+    x = x[:, None] if x.ndim == 3 else np.moveaxis(x, -1, 1)
+    return x, index.set_index("id").loc[ids, "label"].to_numpy()
+
+
+def run_cell(t0: float) -> None:
+    import torch
+    from torch import nn
+
+    from kleinlib.torch_device import pick_device
+    from kleinlib.torch_loop import iterate_minibatches
+
+    seed_everything(SEED)
+    fit_ids, eval_ids = load_items()
+    rng = np.random.default_rng(SEED)
+    n = len(fit_ids) if FINAL else min(CELL["n_train"], len(fit_ids))
+    chosen = sorted(rng.choice(len(fit_ids), size=n, replace=False).tolist())
+    x_fit, y_fit = _load([fit_ids[i] for i in chosen])
+    x_eval, y_eval = _load(eval_ids)
+    classes = np.unique(np.concatenate([y_fit, y_eval]))
+    width = 16
+    model = nn.Sequential(
+        nn.Conv2d(x_fit.shape[1], width, 3, padding=1), nn.ReLU(), nn.MaxPool2d(2),
+        nn.Conv2d(width, 2 * width, 3, padding=1), nn.ReLU(), nn.AdaptiveAvgPool2d(1),
+        nn.Flatten(), nn.Linear(2 * width, len(classes)),
+    ).to(pick_device())
+    device = next(model.parameters()).device
+    optimizer = torch.optim.AdamW(model.parameters(), lr=CELL["lr"])
+    xt = torch.from_numpy(x_fit)
+    yt = torch.from_numpy(np.searchsorted(classes, y_fit).astype(np.int64))
+    step = 0
+    while step < CELL["steps"]:
+        for batch in iterate_minibatches(len(xt), min(CELL["batch_size"], len(xt)), shuffle=True, generator=rng):
+            optimizer.zero_grad()
+            loss = nn.functional.cross_entropy(model(xt[batch].to(device)), yt[batch].to(device))
+            loss.backward()
+            optimizer.step()
+            step += 1
+            if step >= CELL["steps"]:
+                break
+    model.eval()
+    with torch.no_grad():
+        proba = torch.softmax(model(torch.from_numpy(x_eval).to(device)), 1).cpu().numpy().astype(np.float64)
+    proba /= proba.sum(axis=1, keepdims=True)
+    table = f"tables/cell_{EXPERIMENT_ID}_s{SEED}.tsv"
+    report_usage(steps=step)
+    value = evaluate_multiclass(
+        y_eval, proba, labels=classes.tolist(), exp_id=EXPERIMENT_ID, metric_name="val_mlogloss",
+        t0=t0, train_n=n, extra={"n_train": n, "steps": step, "seed": SEED}, study_dir=".",
+    )
+    if not SMOKE:
+        os.makedirs("tables", exist_ok=True)
+        pd.DataFrame([{"run": EXPERIMENT_ID, "seed": SEED, "n_train": n, "val_mlogloss": value}]).to_csv(
+            table, sep="\t", index=False, lineterminator="\n"
+        )
+        print(f"artifact: {table}")
+
+
+def run_fit(t0: float) -> None:
+    rows = pd.concat([pd.read_csv(p, sep="\t") for p in sorted(glob.glob("tables/cell_*_s*.tsv"))])
+    by_n = {n: g["val_mlogloss"].to_numpy() for n, g in rows.groupby("n_train")}
+    sizes = np.array(sorted(by_n))
+    if sizes.size < 3:
+        raise SystemExit("the fit needs measured cells at >= 3 sizes")
+
+    def alpha(losses: list[float]) -> float:
+        slope, _ = np.polyfit(np.log(sizes), np.log(losses), 1)
+        return float(-slope)
+
+    point = alpha([by_n[n].mean() for n in sizes])
+    rng = np.random.default_rng(20260301)
+    draws = [alpha([rng.choice(by_n[n], size=len(by_n[n])).mean() for n in sizes]) for _ in range(2000)]
+    low, high = (float(q) for q in np.quantile(draws, [0.025, 0.975]))
+    os.makedirs("tables", exist_ok=True)
+    pd.DataFrame({"n_train": sizes, "mean_val_mlogloss": [by_n[n].mean() for n in sizes]}).to_csv(
+        "tables/scaling_fit.tsv", sep="\t", index=False, lineterminator="\n"
+    )
+    print("artifact: tables/scaling_fit.tsv")
+    evaluate_estimate(
+        point, min(low, point), max(high, point), int(rows.shape[0]),
+        exp_id=EXPERIMENT_ID, metric_name="scaling_exponent", metric_goal="higher", t0=t0, study_dir=".",
+    )
+
+
+def main() -> None:
+    if EXPERIMENT_ID is None:
+        raise SystemExit("run through `klein run-one` (or KLEIN_SMOKE=1 for a shape check)")
+    t0 = time.time()
+    run_fit(t0) if TRACK == "exponent" else run_cell(t0)
+
+
+if __name__ == "__main__":
+    main()

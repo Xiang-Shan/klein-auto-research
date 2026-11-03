@@ -46,6 +46,11 @@ FORBIDDEN = [
 
 EXEMPT = (
     "scripts/tests/test_universality.py",  # this file names the strings it hunts
+    # Gate-hashed evidence: study 21's round-2 referee report names the worktree it
+    # ran from. `klein gate record referee` pinned its sha256, so editing it would
+    # break the gate record — frozen like a ledger. The referee protocol now asks for
+    # repo-relative paths; add nothing else here.
+    "studies/21-bloodmnist-cnn/referee_report.md",
 )
 
 

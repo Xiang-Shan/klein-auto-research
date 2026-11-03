@@ -46,6 +46,7 @@ import sys
 import tempfile
 import urllib.parse
 import urllib.request
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -59,13 +60,15 @@ __all__ = [
     "ResolvedSource",
     "SourceKind",
     "describe",
+    "hf_url",
     "parse_source",
     "resolve",
+    "resolve_inputs",
 ]
 
 
 class SourceKind(enum.StrEnum):
-    """The eight schemes a `data.source` tag may name.
+    """The nine schemes a `data.source` tag may name.
 
     A `str` enum on purpose: it compares equal to its scheme string
     (``SourceKind.CSV == "csv"``) and serializes as one in `--json` output
@@ -80,6 +83,7 @@ class SourceKind(enum.StrEnum):
     SKLEARN = "sklearn"
     OPENML = "openml"
     URL = "url"
+    HF = "hf"
 
 
 #: Offline-safe scikit-learn toy-dataset loaders (scikit-learn's own "Toy
@@ -211,6 +215,17 @@ def resolve(
         resolved = _resolve_url(
             parsed.value, study_dir=study_dir, offline=offline, expected_sha256=expected_sha256
         )
+    elif parsed.kind is SourceKind.HF:
+        url = hf_url(parsed.value)
+        inner = _resolve_url(
+            url, study_dir=study_dir, offline=offline, expected_sha256=expected_sha256
+        )
+        resolved = ResolvedSource(
+            path=inner.path,
+            kind=SourceKind.HF,
+            provenance_line=f"data source: hf — {inner.path} (hf:{parsed.value})",
+            digest=inner.digest,
+        )
     else:  # pragma: no cover - exhaustive over SourceKind
         raise AssertionError(f"unhandled source kind {parsed.kind!r}")
     print(resolved.provenance_line)
@@ -259,6 +274,55 @@ def _single_data_file(directory: Path) -> Path | None:
 
 def _openml_cache_file(study_dir: Path, id_str: str) -> Path:
     return Path(study_dir) / "data" / "raw" / "openml" / id_str / f"{id_str}.csv"
+
+
+#: ``hf:<owner>/<repo>@<revision>/<path>`` — a file in a Hugging Face DATASET
+#: repository at an immutable commit.  The revision must be a full 40-hex commit
+#: id (a branch name such as ``main`` moves under you); the bytes are pinned by
+#: ``data.sha256`` exactly like ``url:``, of which this is sugar.
+HF_TAG_RE = re.compile(
+    r"^(?P<repo>[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*)"
+    r"@(?P<revision>[0-9a-f]{40})/(?P<path>[^\s]+)$"
+)
+
+
+def hf_url(value: str) -> str:
+    """The HTTPS ``resolve`` URL for an ``hf:`` tag's value (no network)."""
+    match = HF_TAG_RE.match(value)
+    if match is None:
+        raise WorkflowError(
+            f"hf:{value} must be hf:<owner>/<repo>@<40-hex commit>/<path-in-repo> — a branch "
+            "name moves under you, so the revision must be a full commit id"
+        )
+    path = "/".join(urllib.parse.quote(part) for part in match.group("path").split("/"))
+    return (
+        f"https://huggingface.co/datasets/{match.group('repo')}/resolve/"
+        f"{match.group('revision')}/{path}"
+    )
+
+
+def resolve_inputs(
+    contract: Mapping[str, Any], *, study_dir: Path, offline: bool
+) -> list[ResolvedSource]:
+    """Resolve every ``data.inputs`` entry (Klein 2.3), each pinned like ``data.source``.
+
+    A study whose evidence needs more than one file (an experimental sample
+    and its observational controls; a benchmark and its few-shot pool) lists
+    them here; ``prepare.py`` calls this and reads each ``.path``.
+    """
+    data = contract.get("data")
+    inputs = data.get("inputs") if isinstance(data, Mapping) else None
+    resolved: list[ResolvedSource] = []
+    for entry in inputs or []:
+        resolved.append(
+            resolve(
+                str(entry["source"]),
+                study_dir=study_dir,
+                offline=offline,
+                expected_sha256=entry.get("sha256"),
+            )
+        )
+    return resolved
 
 
 def _url_cache_file(study_dir: Path, url_str: str) -> Path:
@@ -636,7 +700,7 @@ def describe(
             "resolvable": False,
             "detail": str(exc),
         }
-    network_required = parsed.kind in (SourceKind.OPENML, SourceKind.URL)
+    network_required = parsed.kind in (SourceKind.OPENML, SourceKind.URL, SourceKind.HF)
     pin_present = (expected_sha256 is not None) if network_required else None
     resolvable, detail = _describe_readiness(
         parsed, study_dir=study_dir, expected_sha256=expected_sha256
@@ -736,14 +800,19 @@ def _describe_readiness(
             return True, f"sklearn.datasets.{parsed.value}"
         return False, "scikit-learn is not installed"
 
-    if kind in (SourceKind.OPENML, SourceKind.URL):
+    if kind in (SourceKind.OPENML, SourceKind.URL, SourceKind.HF):
         if study_dir is None:
             return False, "no --study given to check the data/raw/ cache"
-        cache_file = (
-            _openml_cache_file(Path(study_dir), parsed.value)
-            if kind is SourceKind.OPENML
-            else _url_cache_file(Path(study_dir), parsed.value)
-        )
+        if kind is SourceKind.HF:
+            try:
+                target = hf_url(parsed.value)
+            except WorkflowError as exc:
+                return False, str(exc)
+            cache_file = _url_cache_file(Path(study_dir), target)
+        elif kind is SourceKind.OPENML:
+            cache_file = _openml_cache_file(Path(study_dir), parsed.value)
+        else:
+            cache_file = _url_cache_file(Path(study_dir), parsed.value)
         if not cache_file.is_file():
             return False, f"not cached at {cache_file}; needs a network fetch (refused under KLEIN_OFFLINE=1)"
         digest = sha256_file(cache_file)

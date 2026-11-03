@@ -1,0 +1,57 @@
+<h2>The experiment journey</h2>
+
+<p>Both tracks are <em>registered</em>: every row of the ledger is a pre-declared cell that was
+either measured or crashed. There is no incumbent and no keep, so the &ldquo;frontier&rdquo; for each
+track is simply its cells in the order they ran. Development cells and sealed confirmation cells are
+labelled separately below; the table that follows is generated from the ledger.</p>
+
+<!--LEDGER-->
+
+<h3>Track cot_gain: three development cells and one sealed cell</h3>
+
+<p><strong>E0001 crashed.</strong> The first anchor run hit an HTTP rate-limit response after almost
+all of its calls had been made and pinned. That is an infrastructure fault (eight concurrent workers
+on an account shared with another study), not a bad idea, so the lead lowered the worker count and
+re-ran. <strong>E0002</strong> answered all but one of its requests from E0001&rsquo;s pinned shard and made one
+new call: this is how the public anchor was measured. Its paired gain was +0.01 with interval
+[-0.01, 0.03], against a registered rule value of 0.10 (P2 refuted), and its direct score of 0.95 was far
+above the 0.55 to 0.85 range the card had expected (P1 refuted).</p>
+
+<img data-fig="figures/decision_trajectory__cot_gain.png" alt="Gain and its 95% interval for each cot_gain cell, with the registered 0.10 rule value as a dashed line; the crashed first run is a rug mark." data-caption="Track cot_gain, development cells (dots) and the sealed twin cell (star), each with its 95% interval, against the registered rule value of 0.10 (dashed) and zero (solid). The first anchor run crashed and carries no value. Every interval lies far below the registered gain and spans zero or sits near it.">
+
+<p><strong>E0004</strong> repeated the paired comparison on 200 development twins and found the
+direct arm <em>ahead</em> by 0.025 (cluster interval [-0.065, 0.005]); P4 refuted. The experimenter&rsquo;s
+decision lines were written before the next cell ran. The sealed cell <strong>E0005</strong> was opened
+once, after a mandatory offline dry run that spent nothing: the gain was 0.000 with interval
+[-0.055, 0.045] (P5 refuted).</p>
+
+<img data-fig="figures/paired_outcomes.png" alt="Grouped bars of items where only CoT was right and items where only direct was right, for public items, development twins and sealed twins." data-caption="Cells E0002 (public, 300 items), E0004 (development twins) and E0005 (sealed twins) on the cot_gain track: the items where exactly one arm answered correctly, bars zero-based, concordant counts beneath each pair. A near-zero gain is a handful of disagreements that fall in both directions; the twin cells are template-clustered, so McNemar&rsquo;s p overstates them.">
+
+<h3>Track contamination: one development cell and one sealed cell</h3>
+
+<p><strong>E0003</strong> compared CoT on the 50 originals with their 200 development twins, template by
+template: gap 0.02, interval over templates [-0.015, 0.06] (P3 supported by its point-estimate rule, with an
+upper end above the 0.05 bound). The sealed cell <strong>E0006</strong> gave a gap of 0.01, interval
+[-0.04, 0.065] (P6 supported by the same rule). <strong>The two sealed cells share ledger entries.</strong>
+E0006 made no new model call: it re-scored the 50 original answers E0003 had recorded and the 200 sealed CoT
+twin answers E0005 had recorded. Their agreement is by construction, so the sealed contamination cell is a
+second <em>scoring</em> of answers already in the ledger, not a second query of the model.</p>
+
+<img data-fig="figures/decision_trajectory__contamination.png" alt="Gap and its 95% interval for the two contamination cells, with the 0.05 rule value dashed." data-caption="Track contamination, the development cell E0003 (dot) and the sealed cell E0006 (star), each with its 95% template-bootstrap interval, against the registered rule value of 0.05 (dashed) and zero (solid). Both point estimates sit below the bound, but both interval upper ends reach past it, so a 5-point gap is not excluded.">
+
+<h3>Replications, and the replay that is not one</h3>
+
+<p>Two salted re-queries re-asked the model: one of the public anchor (E0002) and one of the development
+contamination cell (E0003). Each re-query reproduced within its pre-registered tolerance (0.03 and 0.05), and each
+moved: the anchor gain went from +0.01 to -0.0067, and the gap&rsquo;s <em>sign</em> flipped from 0.02 to -0.025 (a shift of
+0.045). That is what temperature 0 on a hosted model looks like. An offline <em>replay</em> of E0002 also ran. It
+reproduced with a difference of 0, because it re-scored the same recorded answers. <strong>A replay is never a
+replication</strong>: it audits parsing, scoring and aggregation, and says nothing about the model.</p>
+
+<h3>The decision lines</h3>
+
+<p>Every refuted prediction received a dated decision line in the lab notebook before the next cell ran. Two
+decisions shaped everything after them. When the experimenter saw, from E0001&rsquo;s pinned shard and before any score
+existed, that the direct arm did not comply with its instruction, the lead declined to change the prompt, so the
+instrument would not adapt to observed outputs. And after the first referee round the synthesist added two
+post-hoc controls and a family-wise interval check, labelled as such; they appear in the next section.</p>

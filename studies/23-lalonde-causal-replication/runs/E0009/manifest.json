@@ -1,0 +1,97 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2071,
+      "committed": true,
+      "sha256": "5984de7f5bf11e72612d91c8f7b4a6630ef6518ad4f4f7b13ea3914d9fd3dd52"
+    },
+    "runs/E0009/run.log": {
+      "availability": "recorded",
+      "bytes": 247750,
+      "committed": true,
+      "sha256": "f19b35027f7e679dc2ae3eda3617e43d5bf743eac3673ac7c89a03d42887177f"
+    },
+    "tables/att_E0009.tsv": {
+      "availability": "recorded",
+      "bytes": 232,
+      "committed": true,
+      "role": "declared",
+      "sha256": "6d97a11945c6aaeea8fef29fe45b7e805ea16a94d2cce66448a5b5060c1a8850"
+    }
+  },
+  "base_commit": "f070a3e3beed7218d78d6e4cb0d2468205b67ead",
+  "candidate_commit": "ac09d5612389ab4141a4a778e1312dbf83c762c9",
+  "code_patch_hash": "b9e09fecf466bbed1e9309b4f5faf966cbd4ac0a67af38d969b7d5cc31173fc0",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed CPS-1: AIPW dw_psid 500 reps, the cell selected at E0006; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-11-03T06:49:48.813112Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0009",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130",
+    "split_partition": "b2409a22372d6caee501b263c218947569e4f3b2b827a227c10b0008831680a4"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 10800.0,
+  "metric_goal": "higher",
+  "metric_name": "att_usd",
+  "metrics": {
+    "att_gap_usd": -466.80419171728545,
+    "ci_high": 2835.621967,
+    "ci_low": -129.173477,
+    "experimental_att": 1794.3423818563415,
+    "max_weight_share": 0.04261954308422956,
+    "n": 185.0,
+    "n_controls_used": 4493.0,
+    "primary_metric": 1327.53819,
+    "runner_exit_code": 0.0,
+    "total_seconds": 1227.7,
+    "wall_seconds": 1227.744357
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 14400.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P7": {
+      "explanation": "|att_gap_usd| 466.804191717 <= 1000 (from -466.804191717) \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P7"
+  ],
+  "primary_metric": 1327.53819,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T06:29:18.991711Z",
+  "timed_out": false,
+  "track": "att",
+  "transaction": {
+    "committed_at": "2026-11-03T06:49:49.074952Z",
+    "evidence_commit": "ddb7fe182530649fce8f4d274ec17f15acb7efbf",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 1229.820977674999
+}

@@ -30,6 +30,7 @@ from __future__ import annotations
 import json
 import math
 import re
+import shutil
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -62,14 +63,19 @@ from .contract import (
     _phase_ids,
     _phase_spec,
     _placeholder_locations,  # noqa: F401  (re-export)
+    calls_dirs,
     entrypoint_spec,
+    execution_modes,
     load_contract,
     mutable_surface,
     normalize_tracks,
+    policy,
     prepared_data_path,
+    printed_scope,
     registered_predictions,
     resolve_study,
     schema_version,
+    seed_array,
     split_fingerprint,
     validate_contract,
 )
@@ -85,6 +91,7 @@ from .decision import (
     parse_metric_log,
     parse_printed_lines,  # noqa: F401  (re-export)
     parse_printed_strings,
+    parse_seed_array_log,
     printed_values,
     registered_guardrails,
     track_headroom,
@@ -119,11 +126,13 @@ from .predictions import (
     record_run_adjudications,
 )
 from .primitives import (
+    DETACHED_SENTINEL,
     StudyLock,
     atomic_write_json,
     atomic_write_text,
     canonical_json,
     fingerprint_path,
+    open_detached_run,
     sha256_bytes,
     sha256_file,
     utc_now,
@@ -374,6 +383,7 @@ def _run_declared_verifier(
     reported_metrics: Mapping[str, float],
     manifest: dict[str, Any],
     echo: bool,
+    evaluation_kind: str = "development",
 ) -> tuple[float, dict[str, float]]:
     """Re-score the run's artifact with the declared checker, and decide on IT.
 
@@ -415,10 +425,19 @@ def _run_declared_verifier(
             "KLEIN_ARTIFACT": str(artifact),
             "KLEIN_EXPERIMENT_ID": run_id,
             "KLEIN_TRACK": track,
+            # Which partition the run was judged on (Klein 2.3; found at study
+            # 24's DATA gate): without it a checker can only trust the lane the
+            # artifact declares for itself, so a development run could score the
+            # sealed lane without spending the seal. `klein replicate` already
+            # passes the manifest's kind (replicate._child_env).
+            "KLEIN_EVALUATION_KIND": evaluation_kind,
             # The checker never runs in smoke or rehearsal mode: it is the
             # thing being trusted.
             "KLEIN_SMOKE": "",
             "KLEIN_SEALED_DRYRUN": "",
+            # ...and never imports from the directory the searcher just wrote to
+            # (a planted json.py there would shadow the stdlib; study 24).
+            "PYTHONSAFEPATH": "1",
         },
     )
     scripts = [
@@ -440,7 +459,9 @@ def _run_declared_verifier(
             + (" (timeout)" if process.timed_out else "")
         )
     try:
-        verified, _, _, verified_metrics = parse_metric_log(log_path)
+        verified, _, _, verified_metrics = parse_metric_log(
+            log_path, scope=str(manifest.get("printed_scope", "log"))
+        )
     except WorkflowError as exc:
         raise WorkflowError(f"{VERIFIER_FAILED}: {exc}") from exc
 
@@ -464,6 +485,7 @@ def _assert_registered_partition(
     evaluation_kind: str,
     manifest: dict[str, Any],
     echo: bool,
+    required: bool = False,
 ) -> None:
     """Refuse a number measured on a partition the DATA gate never froze.
 
@@ -481,6 +503,12 @@ def _assert_registered_partition(
     expected = registered.get(evaluation_kind)
     if printed:
         manifest.setdefault("fingerprints", {})["split_partition"] = printed[-1]
+    if required and not printed:
+        raise WorkflowError(
+            f"{SPLIT_FINGERPRINT_MISMATCH}: policy.realized_split: required, but the run "
+            "printed no split_fingerprint — load the data through kleinlib.data "
+            "(load_partition / load_items), which prints it"
+        )
     if not printed or expected is None:
         if echo:
             missing = "the run printed no split_fingerprint" if not printed else (
@@ -531,6 +559,27 @@ def _commit_state_writes(
     return transaction.commit_state_writes(
         study_dir, message, commit=_git_commit, paths=paths, scope=scope
     )
+
+
+def _untracked_study_files(study_dir: Path) -> set[str]:
+    """Untracked, non-ignored files under the study, study-relative POSIX paths."""
+    result = transaction.git(
+        study_dir,
+        ["ls-files", "--others", "--exclude-standard", "--full-name", "--", "."],
+        check=False,
+    )
+    if result.returncode != 0:
+        return set()
+    repo = repo_root_for(study_dir)
+    prefix = study_dir.resolve().relative_to(repo.resolve()).as_posix()
+    out: set[str] = set()
+    for line in result.stdout.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        rel = line[len(prefix) + 1 :] if prefix not in ("", ".") and line.startswith(prefix + "/") else line
+        out.add(rel)
+    return out
 
 
 #: What a sealed dry-run exits with when the child never acknowledged it.
@@ -639,6 +688,7 @@ def sealed_dry_run(
                 else ("uv", "run", "--locked", "python", "-u", "train.py")
             )
         )
+        untracked_before = _untracked_study_files(study_dir)
         process = run_subprocess(
             cmd,
             cwd=study_dir,
@@ -676,10 +726,14 @@ def sealed_dry_run(
         # rows are filed in this same state commit: a verb that leaves the tree
         # dirty would have the mandatory rehearsal block, through
         # `assert_run_worktree`, the very sealed run it is mandatory for.
+        # The same holds for files the evaluator wrote (a DRYRUN-keyed confusion
+        # table under tables/): new untracked, non-ignored files are filed too.
+        # Study 21's rehearsal left `tables/confusion_DRYRUN.tsv` untracked.
+        created = sorted(_untracked_study_files(study_dir) - untracked_before)
         _commit_state_writes(
             study_dir,
             f"klein: sealed dry-run rehearsal ({track})",
-            paths=("aux_metrics.tsv",),
+            paths=("aux_metrics.tsv", *created),
         )
     if echo:
         if exit_code == 0:
@@ -696,6 +750,588 @@ def sealed_dry_run(
     return exit_code
 
 
+def _run_seed_array(
+    command: Sequence[str],
+    seeds: Sequence[int],
+    *,
+    cwd: Path,
+    log_path: Path,
+    timeout_seconds: float,
+    echo: bool,
+    env_overrides: Mapping[str, str],
+) -> ProcessResult:
+    """One candidate, N seeds, one log (``entrypoint.seeds``) — see ``runner.run_seed_array``."""
+    from .runner import run_seed_array
+
+    started_at = utc_now()
+    result = run_seed_array(
+        command,
+        seeds,
+        cwd=cwd,
+        log_path=log_path,
+        timeout_seconds=timeout_seconds,
+        echo=echo,
+        env_overrides=env_overrides,
+    )
+    return ProcessResult(
+        command=tuple(command),
+        exit_code=result.exit_code,
+        timed_out=result.timed_out,
+        started_at=started_at,
+        ended_at=utc_now(),
+        wall_seconds=result.wall_seconds,
+    )
+
+
+def _artifact_meta(path: Path, role: str) -> dict[str, Any]:
+    size = path.stat().st_size
+    return {
+        "sha256": sha256_file(path),
+        "bytes": size,
+        "committed": size <= 10 * 1024 * 1024,
+        "role": role,
+    }
+
+
+def _write_seed_table(
+    study_dir: Path, run_dir: Path, per_seed: Sequence[Mapping[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    """Pin every seed's block as ``runs/E####/seeds.tsv`` — the array's evidence."""
+    keys = sorted({key for row in per_seed for key in row} - {"seed"})
+    lines = ["\t".join(["seed", *keys])]
+    for row in per_seed:
+        lines.append(
+            "\t".join([str(row["seed"]), *(format(float(row[k]), ".12g") if k in row else "NA" for k in keys)])
+        )
+    path = run_dir / "seeds.tsv"
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return {path.relative_to(study_dir).as_posix(): _artifact_meta(path, "seeds")}
+
+
+#: ``phases[].budget_*`` keys (Klein 2.3) and the usage field each one sums.
+PHASE_USAGE_BUDGETS: dict[str, str] = {
+    "budget_usd": "usd",
+    "budget_tokens": "tokens",
+    "budget_steps": "steps",
+}
+
+#: Numeric usage fields a child may report and a phase may budget (Klein 2.3).
+USAGE_FIELDS: tuple[str, ...] = (
+    "tokens_in",
+    "tokens_out",
+    "tokens",
+    "calls",
+    "calls_cached",
+    "usd",
+    "steps",
+    "gpu_seconds",
+)
+
+
+def _record_usage(study_dir: Path, run_dir: Path, manifest: dict[str, Any]) -> None:
+    """Fold ``runs/E####/usage.json`` (if a child wrote one) into the manifest."""
+    path = run_dir / "usage.json"
+    if not path.is_file():
+        return
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        manifest["usage"] = {"unreadable": True}
+        return
+    usage = {
+        key: float(raw[key])
+        for key in USAGE_FIELDS
+        if isinstance(raw.get(key), (int, float)) and math.isfinite(float(raw[key]))
+    }
+    if "tokens" not in usage and ("tokens_in" in usage or "tokens_out" in usage):
+        usage["tokens"] = usage.get("tokens_in", 0.0) + usage.get("tokens_out", 0.0)
+    manifest["usage"] = usage
+    hardware = raw.get("hardware")
+    if isinstance(hardware, Mapping):
+        manifest.setdefault("execution", {"mode": "local"})["hardware"] = dict(hardware)
+    manifest["artifacts"][path.relative_to(study_dir).as_posix()] = {
+        **_artifact_meta(path, "usage"),
+        "availability": "recorded",
+    }
+
+
+def _close_transaction(
+    *,
+    repo: Any,
+    study_dir: Any,
+    contract: Any,
+    state: Any,
+    tracks: Any,
+    track: Any,
+    manifest: Any,
+    run_dir: Any,
+    log_path: Any,
+    process: Any,
+    final_test: Any,
+    registered: Any,
+    incumbent: Any,
+    timeout: Any,
+    requested_predictions: Any,
+    seeds: Any,
+    artifacts_before: Any,
+    watched_dirs: Any,
+    description: Any,
+    number: Any,
+    base_commit: Any,
+    surface: Any,
+    surface_rels: Any,
+    run_id: Any,
+    echo: Any,
+    extra_artifacts: Mapping[str, Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """The judging half of one candidate transaction, from a finished process onward.
+
+    Shared by the foreground path of :func:`run_one` and by ``klein run-one
+    --collect`` (a detached job's result): parse the block (seed array or one
+    run, block or log scope), check the partition, run the declared verifier,
+    decide the disposition, adjudicate the predictions, record usage, restore
+    the surface on a non-keep, and file the evidence transaction.  The caller
+    holds the study lock.
+    """
+    manifest.update(
+        {
+            "started_at": process.started_at,
+            "ended_at": process.ended_at,
+            "wall_seconds": process.wall_seconds,
+            "exit_code": process.exit_code,
+            "timed_out": process.timed_out,
+        }
+    )
+    declared_artifacts: dict[str, dict[str, Any]] = {}
+    if process.exit_code == 0:
+        try:
+            if seeds is not None:
+                primary, printed_name, printed_goal, metrics, per_seed = parse_seed_array_log(
+                    log_path, seeds
+                )
+                declared_artifacts.update(_write_seed_table(study_dir, run_dir, per_seed))
+                # Every seed's evaluator replaced the previous seed's aux rows
+                # (`_append_aux_rows` is idempotent per experiment), leaving the
+                # LAST seed's values under the array's id — found at study 22. The
+                # notary writes the array's own rows instead: the seed means it
+                # decided on plus their spread; per-seed values live in seeds.tsv.
+                from .eval import _append_aux_rows
+
+                _append_aux_rows(
+                    study_dir, run_id, {k: v for k, v in metrics.items() if k != "primary_metric"}
+                )
+            else:
+                primary, printed_name, printed_goal, metrics = parse_metric_log(
+                    log_path, scope=str(manifest.get("printed_scope", "log"))
+                )
+            expected_metric = tracks[track]["metric"]
+            if printed_name != expected_metric["name"]:
+                raise WorkflowError(
+                    f"evaluator metric_name={printed_name!r}; track requires {expected_metric['name']!r}"
+                )
+            if printed_goal != expected_metric["goal"]:
+                raise WorkflowError(
+                    f"evaluator metric_goal={printed_goal!r}; track requires {expected_metric['goal']!r}"
+                )
+            _assert_registered_partition(
+                log_path,
+                state,
+                evaluation_kind=manifest["evaluation_kind"],
+                manifest=manifest,
+                echo=echo,
+                required=policy(contract, "realized_split") == "required",
+            )
+            if schema_version(contract) >= 3:
+                # Schema-3 only: a schema-2 study never printed `artifact:`
+                # lines, so its manifests keep exactly the artifacts the
+                # before/after inventory diff always recorded.
+                declared_artifacts.update(_declared_artifacts(study_dir, log_path))
+            verifier = tracks[track].get("verifier")
+            if isinstance(verifier, Mapping):
+                # The checker is never the searcher: the disposition is
+                # decided on the number a SECOND, immutable process derived
+                # from the artifact this run produced.
+                primary, metrics = _run_declared_verifier(
+                    study_dir,
+                    verifier,
+                    run_dir=run_dir,
+                    timeout=timeout,
+                    run_id=run_id,
+                    track=track,
+                    reported=primary,
+                    reported_metrics=metrics,
+                    manifest=manifest,
+                    echo=echo,
+                    evaluation_kind="final_test" if final_test else "development",
+                )
+            disposition, reason = choose_disposition(
+                primary_metric=primary,
+                track_spec=tracks[track],
+                metrics=metrics,
+                incumbent=incumbent,
+                final_test=final_test,
+                mode="registered" if registered else "frontier",
+            )
+            if registered:
+                # A guardrail on a registered cell is DISCLOSED, never
+                # disposition-flipping: the measurement happened either way
+                # and findings must be able to weigh it.
+                guardrails_ok, guardrail_failures = registered_guardrails(
+                    tracks[track], metrics
+                )
+                manifest["guardrails_ok"] = guardrails_ok
+                if guardrail_failures:
+                    manifest["guardrail_failures"] = guardrail_failures
+            if incumbent is not None and incumbent.get("external"):
+                # Found / matched / improved — never "proved". A search that
+                # reaches the published value and stops there says so. The
+                # resolution at which "reached" is decided is the checker's
+                # tolerance where a checker exists, and otherwise the track's
+                # own measured resolution — never a bare float equality.
+                external = float(incumbent["primary_metric"])
+                tolerance = (
+                    float(verifier.get("tolerance", 0.0))
+                    if isinstance(verifier, Mapping)
+                    else float(tracks[track]["metric"].get("minimum_delta", 0.0) or 0.0)
+                )
+                manifest["matched_external"] = abs(primary - external) <= tolerance
+                reason = f"{reason} (external incumbent {external:.12g})"
+            manifest.update(
+                primary_metric=primary,
+                metrics=metrics,
+                disposition=disposition,
+                decision_reason=reason,
+            )
+            # --- predictions ledger hook (WP-E6) -------------------------
+            # The ids were validated against the register before the lock;
+            # the printed block is in `metrics`.  Adjudication happens HERE,
+            # inside the transaction: the verdicts land on the manifest, in
+            # `state["predictions"]` (saved with this run's state write and
+            # committed with its evidence), and as one
+            # `prediction_adjudicated` event each.  A prediction is never
+            # decided by prose, and never outside a receipt.
+            if requested_predictions:
+                manifest["predictions"] = record_run_adjudications(
+                    study_dir,
+                    state,
+                    requested_predictions,
+                    contract=contract,
+                    printed=metrics,
+                    experiment=run_id,
+                )
+            # -------------------------------------------------------------
+        except WorkflowError as exc:
+            manifest["decision_reason"] = str(exc)
+    else:
+        manifest["decision_reason"] = (
+            f"timeout after {timeout:g}s" if process.timed_out else f"process exit code {process.exit_code}"
+        )
+    artifacts_after = artifact_inventory(study_dir, watched_dirs)
+    manifest["artifacts"] = {
+        rel: meta
+        for rel, meta in artifacts_after.items()
+        if rel not in artifacts_before
+        or meta.get("sha256") != artifacts_before[rel].get("sha256")
+    }
+    for rel, meta in declared_artifacts.items():
+        # A cell may pin a table the inventory never watches (`sweeps/`,
+        # `tables/`) or one it already saw (`figures/`); either way the
+        # DECLARED role is what makes it citable evidence.
+        manifest["artifacts"].setdefault(rel, {}).update(meta)
+    for meta in manifest["artifacts"].values():
+        meta["availability"] = "recorded" if meta.get("committed") else "local"
+    manifest["artifacts"][f"runs/{run_id}/run.log"] = _run_log_evidence(
+        study_dir, run_id
+    )
+    # Usage (tokens, dollars, steps, hardware) is recorded for EVERY exit
+    # status: a crashed $3 run still spent $3, and budgets sum it.
+    _record_usage(study_dir, run_dir, manifest)
+    for rel, meta in (extra_artifacts or {}).items():
+        manifest["artifacts"][rel] = dict(meta)
+    manifest["transaction"] = {"status": "pending", "ready_at": utc_now()}
+    if manifest["decision_reason"] and description:
+        manifest["description"] = f"{description}; {manifest['decision_reason']}"
+    elif manifest["decision_reason"]:
+        manifest["description"] = manifest["decision_reason"]
+    atomic_write_json(run_dir / "manifest.json", manifest)
+    append_event(
+        study_dir,
+        "run_finished",
+        experiment=run_id,
+        exit_code=process.exit_code,
+        timed_out=process.timed_out,
+        disposition=manifest["disposition"],
+        primary_metric=manifest["primary_metric"],
+    )
+    state["last_experiment"] = number
+    save_state(study_dir, state)
+
+    restored = manifest["disposition"] != "keep" or final_test
+    if restored:
+        _git(repo, ["restore", "--source", base_commit, "--", *surface_rels])
+    _complete_evidence_transaction(
+        repo, study_dir, manifest, restored_train=restored, surface=surface
+    )
+    return manifest
+
+
+def _detach_transaction(
+    *,
+    repo: Path,
+    study_dir: Path,
+    contract: Mapping[str, Any],
+    state: dict[str, Any],
+    manifest: dict[str, Any],
+    run_dir: Path,
+    cmd: Sequence[str],
+    child_env: Mapping[str, str],
+    seeds: Sequence[int] | None,
+    timeout: float,
+    artifacts_before: Mapping[str, Mapping[str, Any]],
+    watched_dirs: Sequence[str],
+    surface: Sequence[str],
+    run_id: str,
+) -> dict[str, Any]:
+    """File the DETACH commit: the job bundle a host executes and ``--collect`` judges.
+
+    Everything a foreground run checks before it executes has been checked; the
+    candidate commit exists.  The job bundle pins what may run (command, env,
+    seeds, timeout) and what it must run ON (the candidate commit and the sha256
+    of every mutable-surface file); the committed sentinel freezes the study so
+    the ledger order stays the execution order.
+    """
+    prepared = prepared_data_path(study_dir, contract)
+    try:
+        prepared_rel = prepared.relative_to(study_dir.resolve()).as_posix()
+    except ValueError:
+        prepared_rel = prepared.as_posix()
+    job = {
+        "job_schema": 1,
+        "experiment": run_id,
+        "study": _relative(repo, study_dir),
+        "candidate_commit": manifest["candidate_commit"],
+        "base_commit": manifest["base_commit"],
+        "command": list(cmd),
+        "env": {key: value for key, value in child_env.items() if key != "KLEIN_RUN_DIR"},
+        "seeds": list(seeds) if seeds is not None else None,
+        "timeout_seconds": float(timeout),
+        "printed_scope": manifest.get("printed_scope", "log"),
+        "surface": {name: sha256_file(study_dir / name) for name in surface if (study_dir / name).is_file()},
+        "watched_dirs": list(watched_dirs),
+        "artifacts_before": {rel: str(meta.get("sha256")) for rel, meta in artifacts_before.items()},
+        "prepared_path": prepared_rel,
+        "data_fingerprint": manifest["fingerprints"]["data"],
+    }
+    job_path = run_dir / "job.json"
+    atomic_write_json(job_path, job)
+    (study_dir / DETACHED_SENTINEL).write_text(run_id + "\n", encoding="utf-8")
+    manifest["transaction"] = {
+        "status": "pending",
+        "phase": "awaiting_collect",
+        "detached_at": utc_now(),
+    }
+    manifest["execution"] = {"mode": "detached", "status": "awaiting_collect"}
+    manifest["decision_reason"] = "detached: awaiting collect"
+    atomic_write_json(run_dir / "manifest.json", manifest)
+    append_event(
+        study_dir,
+        "run_detached",
+        experiment=run_id,
+        candidate_commit=manifest["candidate_commit"],
+        job_sha256=sha256_file(job_path),
+    )
+    save_state(study_dir, state)
+    paths = [
+        run_dir / "manifest.json",
+        job_path,
+        study_dir / DETACHED_SENTINEL,
+        study_dir / "study_state.json",
+        study_dir / "events.jsonl",
+    ]
+    _git(repo, ["add", "-f", "--", *(_relative(repo, path) for path in paths)])
+    _git_commit(repo, f"detach {run_id}: awaiting collect")
+    return manifest
+
+
+def _load_detached(study_dir: Path, run_id: str) -> tuple[dict[str, Any], Path]:
+    run_dir = study_dir / "runs" / run_id
+    manifest_path = run_dir / "manifest.json"
+    if not manifest_path.is_file():
+        raise WorkflowError(f"no run {run_id} in this study")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    transaction = manifest.get("transaction") if isinstance(manifest.get("transaction"), Mapping) else {}
+    if transaction.get("phase") != "awaiting_collect":
+        raise WorkflowError(f"{run_id} is not a detached run awaiting collect")
+    if open_detached_run(study_dir) != run_id:
+        raise WorkflowError(f"the study's open detached run is {open_detached_run(study_dir)!r}, not {run_id!r}")
+    return manifest, run_dir
+
+
+def _release_sentinel(repo: Path, study_dir: Path) -> None:
+    sentinel = study_dir / DETACHED_SENTINEL
+    if sentinel.exists():
+        _git(repo, ["rm", "-q", "-f", "--", _relative(repo, sentinel)])
+
+
+def collect_detached(study_dir: Path, run_id: str, *, echo: bool = True) -> dict[str, Any]:
+    """Judge a detached job's result (``klein run-one --collect E####``).
+
+    The receipt is checked against the committed job bundle — same job bytes,
+    same candidate commit, same mutable-surface hashes, log and output files
+    matching their recorded sha256 — and then the run is judged LOCALLY by the
+    same code as a foreground run (partition check, declared verifier,
+    disposition, predictions).  The host's execution is ATTESTED, not observed:
+    the manifest says so (``execution.observed_by_notary: false``).
+    """
+    contract = load_contract(study_dir)
+    repo = repo_root_for(study_dir)
+    with StudyLock(study_dir, allow_detached=True):
+        manifest, run_dir = _load_detached(study_dir, run_id)
+        head_subject = _git(repo, ["log", "-1", "--format=%s"]).stdout.strip()
+        if head_subject != f"detach {run_id}: awaiting collect":
+            raise WorkflowError(
+                f"HEAD is not {run_id}'s detach commit (found {head_subject!r}); "
+                "collect needs the tree exactly as the detach left it"
+            )
+        job_path = run_dir / "job.json"
+        job = json.loads(job_path.read_text(encoding="utf-8"))
+        result_dir = run_dir / "job_result"
+        receipt_path = result_dir / "receipt.json"
+        if not receipt_path.is_file():
+            raise WorkflowError(
+                f"no {receipt_path.relative_to(study_dir)}: run `klein job exec "
+                f"{job_path.relative_to(study_dir)}` (or copy the host's job_result/ here) first"
+            )
+        receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+        problems: list[str] = []
+        if receipt.get("job_sha256") != sha256_file(job_path):
+            problems.append("the receipt belongs to a different job bundle")
+        if receipt.get("candidate_commit") != job["candidate_commit"]:
+            problems.append("the receipt names a different candidate commit")
+        if receipt.get("surface") != job["surface"]:
+            problems.append("the job ran a mutable surface whose bytes differ from the candidate's")
+        log = result_dir / "run.log"
+        if not log.is_file() or sha256_file(log) != receipt.get("log_sha256"):
+            problems.append("run.log is missing or does not match the receipt")
+        files = receipt.get("files") if isinstance(receipt.get("files"), Mapping) else {}
+        for rel, digest in files.items():
+            source = result_dir / "files" / rel
+            if Path(rel).is_absolute() or ".." in Path(rel).parts:
+                problems.append(f"output path escapes the study: {rel}")
+            elif not source.is_file() or sha256_file(source) != digest:
+                problems.append(f"output {rel} is missing or does not match the receipt")
+        if problems:
+            raise WorkflowError(f"cannot collect {run_id}: " + "; ".join(problems))
+        shutil.copyfile(log, run_dir / "run.log")
+        if (result_dir / "usage.json").is_file():
+            shutil.copyfile(result_dir / "usage.json", run_dir / "usage.json")
+        for rel in files:
+            target = study_dir / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(result_dir / "files" / rel, target)
+        kept_receipt = run_dir / "job_receipt.json"
+        shutil.copyfile(receipt_path, kept_receipt)
+        shutil.rmtree(result_dir)
+
+        state = load_state(study_dir, contract)
+        tracks = normalize_tracks(contract)
+        track = str(manifest["track"])
+        registered = str(tracks[track].get("mode", "frontier")) == "registered"
+        manifests = [m for m in load_manifests(study_dir) if m.get("experiment") != run_id]
+        incumbent = (
+            None if registered else _seed_external_incumbent(tracks[track], _incumbent(manifests, track))
+        )
+        surface = list(mutable_surface(contract))
+        manifest["execution"] = {
+            "mode": "detached",
+            "executor": receipt.get("executor"),
+            "host": receipt.get("host"),
+            "receipt_sha256": sha256_file(kept_receipt),
+            "observed_by_notary": False,
+            **({"hardware": receipt["hardware"]} if isinstance(receipt.get("hardware"), Mapping) else {}),
+        }
+        manifest["transaction"] = {"status": "pending", "collected_at": utc_now()}
+        append_event(study_dir, "run_collected", experiment=run_id, receipt_sha256=manifest["execution"]["receipt_sha256"])
+        _release_sentinel(repo, study_dir)
+        process = ProcessResult(
+            command=tuple(job["command"]),
+            exit_code=int(receipt.get("exit_code", 1)),
+            timed_out=bool(receipt.get("timed_out")),
+            started_at=str(receipt.get("started_at") or utc_now()),
+            ended_at=str(receipt.get("ended_at") or utc_now()),
+            wall_seconds=float(receipt.get("wall_seconds") or 0.0),
+        )
+        extra = {
+            path.relative_to(study_dir).as_posix(): {**_artifact_meta(path, role), "availability": "recorded"}
+            for path, role in ((job_path, "job"), (kept_receipt, "receipt"))
+        }
+        return _close_transaction(
+            repo=repo,
+            study_dir=study_dir,
+            contract=contract,
+            state=state,
+            tracks=tracks,
+            track=track,
+            manifest=manifest,
+            run_dir=run_dir,
+            log_path=run_dir / "run.log",
+            process=process,
+            final_test=manifest.get("evaluation_kind") == "final_test",
+            registered=registered,
+            incumbent=incumbent,
+            timeout=float(job["timeout_seconds"]),
+            requested_predictions=list(manifest.get("predictions_requested") or []),
+            seeds=job.get("seeds"),
+            artifacts_before={rel: {"sha256": sha} for rel, sha in job["artifacts_before"].items()},
+            watched_dirs=tuple(job.get("watched_dirs") or ()),
+            description=str(manifest.get("description") or ""),
+            number=int(run_id[1:]),
+            base_commit=str(manifest["base_commit"]),
+            surface=surface,
+            surface_rels=[_relative(repo, study_dir / name) for name in surface],
+            run_id=run_id,
+            echo=echo,
+            extra_artifacts=extra,
+        )
+
+
+def abandon_detached(study_dir: Path, run_id: str, *, reason: str) -> dict[str, Any]:
+    """Close an open detached run as a CRASH, on the record (``--abandon E#### --reason``)."""
+    if not reason.strip():
+        raise WorkflowError("--abandon requires a non-empty --reason")
+    contract = load_contract(study_dir)
+    repo = repo_root_for(study_dir)
+    with StudyLock(study_dir, allow_detached=True):
+        manifest, run_dir = _load_detached(study_dir, run_id)
+        result_dir = run_dir / "job_result"
+        if result_dir.exists():
+            shutil.rmtree(result_dir)
+        (run_dir / "run.log").write_text(f"[KLEIN] detached run abandoned: {reason}\n", encoding="utf-8")
+        manifest.update(
+            ended_at=utc_now(),
+            exit_code=None,
+            timed_out=False,
+            primary_metric=None,
+            disposition="crash",
+            decision_reason=f"abandoned detached run: {reason}",
+            description=f"{manifest.get('description')}; abandoned detached run: {reason}",
+        )
+        manifest["execution"] = {"mode": "detached", "status": "abandoned", "observed_by_notary": False}
+        manifest["artifacts"] = {
+            f"runs/{run_id}/run.log": _run_log_evidence(study_dir, run_id),
+            f"runs/{run_id}/job.json": {**_artifact_meta(run_dir / "job.json", "job"), "availability": "recorded"},
+        }
+        manifest["transaction"] = {"status": "pending", "abandoned_at": utc_now()}
+        atomic_write_json(run_dir / "manifest.json", manifest)
+        append_event(study_dir, "run_abandoned", experiment=run_id, reason=reason)
+        surface = list(mutable_surface(contract))
+        surface_rels = [_relative(repo, study_dir / name) for name in surface]
+        _git(repo, ["restore", "--source", str(manifest["base_commit"]), "--", *surface_rels])
+        _release_sentinel(repo, study_dir)
+        _complete_evidence_transaction(repo, study_dir, manifest, restored_train=True, surface=surface)
+        return manifest
+
+
 def run_one(
     study_dir: Path,
     *,
@@ -707,6 +1343,7 @@ def run_one(
     echo: bool = True,
     allow_rerun: bool = False,
     tests: str | Sequence[str] | None = None,
+    detach: bool = False,
 ) -> dict[str, Any]:
     contract = load_contract(study_dir)
     problems = validate_contract(contract, study_dir)
@@ -802,6 +1439,30 @@ def run_one(
         remaining_budget = phase_budget - spent
         if remaining_budget <= 0:
             raise WorkflowError(f"phase {phase_id} exhausted budget_seconds")
+        for key, field in PHASE_USAGE_BUDGETS.items():
+            if key in phase:
+                used = sum(
+                    float((m.get("usage") or {}).get(field, 0.0) or 0.0) for m in phase_runs
+                )
+                if used >= float(phase[key]):
+                    raise WorkflowError(
+                        f"phase {phase_id} exhausted {key}: {used:.6g} of {float(phase[key]):.6g} "
+                        "recorded in this phase's manifests (usage is recorded for every exit "
+                        "status, crashes included)"
+                    )
+        if (
+            not final_test
+            and policy(contract, "noise_floor") == "required"
+            and str(tracks[track].get("mode", "frontier")) == "frontier"
+            and phase_id != _phase_ids(contract)[0]
+            and tracks[track]["metric"].get("exactness") != "exact"
+            and not isinstance(tracks[track]["metric"].get("noise_floor"), Mapping)
+        ):
+            raise WorkflowError(
+                f"policy.noise_floor: required — track {track!r} has no measured noise_floor "
+                "block and phase 1 is over; measure it (klein noise-floor --recipe …), record "
+                "the consult gate again with a note, then continue"
+            )
 
         configured_timeout = float(contract["max_run_seconds"])
         timeout = configured_timeout if timeout_seconds is None else float(timeout_seconds)
@@ -832,6 +1493,19 @@ def run_one(
         surface = mutable_surface(contract)
         surface_rels = [_relative(repo, study_dir / name) for name in surface]
         surface_names = ", ".join(surface)
+        seeds = seed_array(contract) if schema_version(contract) >= 3 else None
+        if detach and "detached" not in execution_modes(contract):
+            raise WorkflowError(
+                "run-one --detach needs `entrypoint.execution: [local, detached]` in study.yaml, "
+                "so the contract shows that external execution was possible"
+            )
+        if detach and command is not None:
+            raise WorkflowError("--detach runs the declared entrypoint; --command is not allowed")
+        if seeds is not None and isinstance(tracks[track].get("verifier"), Mapping):
+            raise WorkflowError(
+                "entrypoint.seeds cannot be combined with a declared verifier in Klein 2.3 "
+                "(the checker would re-score one artifact per seed); drop one of the two"
+            )
         # Schema 2 always ran train.py; schema 3 names its entrypoint by kind
         # (a Hubble regression is not "trained"), so the default command comes
         # from the contract.  ``--command`` still overrides either.
@@ -871,7 +1545,10 @@ def run_one(
         base_commit = _git(repo, ["rev-parse", "HEAD"]).stdout.strip()
         _git(repo, ["add", "--", *surface_rels])
         candidate_commit = _git_commit(repo, f"candidate {run_id}: {description or track}", allow_empty=True)
-        patch = _git(repo, ["diff", "--binary", base_commit, candidate_commit, "--", *surface_rels]).stdout.encode(*GIT_TEXT)
+        diff = transaction.surface_patch(repo, base_commit, candidate_commit, surface_rels)
+        if diff.returncode:
+            raise WorkflowError(f"git diff of the candidate failed: {diff.stderr.strip()}")
+        patch = diff.stdout.encode(*GIT_TEXT)
         patch_hash = sha256_bytes(patch)
         empty_diff = patch == b""
         env_hash, env_details = environment_fingerprint(repo)
@@ -919,6 +1596,14 @@ def run_one(
         }
         if empty_diff:
             manifest["empty_candidate_diff"] = True
+        if seeds is not None:
+            manifest["seeds"] = list(seeds)
+        if printed_scope(contract) == "block":
+            # The receipt of the rule the run was judged under — recorded only
+            # when it is not the default, so every pre-2.3 manifest shape is
+            # unchanged, and `klein replicate` re-parses by THIS, not by
+            # whatever the contract says later.
+            manifest["printed_scope"] = "block"
         atomic_write_json(run_dir / "manifest.json", manifest)
         append_event(
             study_dir,
@@ -929,7 +1614,8 @@ def run_one(
             candidate_commit=candidate_commit,
             **({"empty_diff": True} if empty_diff else {}),
         )
-        artifacts_before = artifact_inventory(study_dir)
+        watched_dirs = calls_dirs(contract)
+        artifacts_before = artifact_inventory(study_dir, watched_dirs)
         if final_test:
             state["final_holdout_access"][track] = {
                 "count": 1,
@@ -939,190 +1625,102 @@ def run_one(
             save_state(study_dir, state)
 
         cmd = tuple(command or default_command)
-        process = run_subprocess(
-            cmd,
-            cwd=study_dir,
-            log_path=log_path,
-            timeout_seconds=timeout,
-            echo=echo,
-            env_overrides={
-                "KLEIN_EVALUATION_KIND": "final_test" if final_test else "development",
-                "KLEIN_EXPERIMENT_ID": run_id,
-                "KLEIN_TRACK": track,
-                # A real run force-clears ambient smoke mode: an exported
-                # KLEIN_SMOKE=1 in the driving shell must never silently
-                # suppress evidence writes.
-                "KLEIN_SMOKE": "",
-            },
-        )
-        manifest.update(
-            {
-                "started_at": process.started_at,
-                "ended_at": process.ended_at,
-                "wall_seconds": process.wall_seconds,
-                "exit_code": process.exit_code,
-                "timed_out": process.timed_out,
-            }
-        )
-        declared_artifacts: dict[str, dict[str, Any]] = {}
-        if process.exit_code == 0:
-            try:
-                primary, printed_name, printed_goal, metrics = parse_metric_log(log_path)
-                expected_metric = tracks[track]["metric"]
-                if printed_name != expected_metric["name"]:
-                    raise WorkflowError(
-                        f"evaluator metric_name={printed_name!r}; track requires {expected_metric['name']!r}"
-                    )
-                if printed_goal != expected_metric["goal"]:
-                    raise WorkflowError(
-                        f"evaluator metric_goal={printed_goal!r}; track requires {expected_metric['goal']!r}"
-                    )
-                _assert_registered_partition(
-                    log_path,
-                    state,
-                    evaluation_kind=manifest["evaluation_kind"],
-                    manifest=manifest,
-                    echo=echo,
-                )
-                if schema_version(contract) >= 3:
-                    # Schema-3 only: a schema-2 study never printed `artifact:`
-                    # lines, so its manifests keep exactly the artifacts the
-                    # before/after inventory diff always recorded.
-                    declared_artifacts = _declared_artifacts(study_dir, log_path)
-                verifier = tracks[track].get("verifier")
-                if isinstance(verifier, Mapping):
-                    # The checker is never the searcher: the disposition is
-                    # decided on the number a SECOND, immutable process derived
-                    # from the artifact this run produced.
-                    primary, metrics = _run_declared_verifier(
-                        study_dir,
-                        verifier,
-                        run_dir=run_dir,
-                        timeout=timeout,
-                        run_id=run_id,
-                        track=track,
-                        reported=primary,
-                        reported_metrics=metrics,
-                        manifest=manifest,
-                        echo=echo,
-                    )
-                disposition, reason = choose_disposition(
-                    primary_metric=primary,
-                    track_spec=tracks[track],
-                    metrics=metrics,
-                    incumbent=incumbent,
-                    final_test=final_test,
-                    mode="registered" if registered else "frontier",
-                )
-                if registered:
-                    # A guardrail on a registered cell is DISCLOSED, never
-                    # disposition-flipping: the measurement happened either way
-                    # and findings must be able to weigh it.
-                    guardrails_ok, guardrail_failures = registered_guardrails(
-                        tracks[track], metrics
-                    )
-                    manifest["guardrails_ok"] = guardrails_ok
-                    if guardrail_failures:
-                        manifest["guardrail_failures"] = guardrail_failures
-                if incumbent is not None and incumbent.get("external"):
-                    # Found / matched / improved — never "proved". A search that
-                    # reaches the published value and stops there says so. The
-                    # resolution at which "reached" is decided is the checker's
-                    # tolerance where a checker exists, and otherwise the track's
-                    # own measured resolution — never a bare float equality.
-                    external = float(incumbent["primary_metric"])
-                    tolerance = (
-                        float(verifier.get("tolerance", 0.0))
-                        if isinstance(verifier, Mapping)
-                        else float(tracks[track]["metric"].get("minimum_delta", 0.0) or 0.0)
-                    )
-                    manifest["matched_external"] = abs(primary - external) <= tolerance
-                    reason = f"{reason} (external incumbent {external:.12g})"
-                manifest.update(
-                    primary_metric=primary,
-                    metrics=metrics,
-                    disposition=disposition,
-                    decision_reason=reason,
-                )
-                # --- predictions ledger hook (WP-E6) -------------------------
-                # The ids were validated against the register before the lock;
-                # the printed block is in `metrics`.  Adjudication happens HERE,
-                # inside the transaction: the verdicts land on the manifest, in
-                # `state["predictions"]` (saved with this run's state write and
-                # committed with its evidence), and as one
-                # `prediction_adjudicated` event each.  A prediction is never
-                # decided by prose, and never outside a receipt.
-                if requested_predictions:
-                    manifest["predictions"] = record_run_adjudications(
-                        study_dir,
-                        state,
-                        requested_predictions,
-                        contract=contract,
-                        printed=metrics,
-                        experiment=run_id,
-                    )
-                # -------------------------------------------------------------
-            except WorkflowError as exc:
-                manifest["decision_reason"] = str(exc)
-        else:
-            manifest["decision_reason"] = (
-                f"timeout after {timeout:g}s" if process.timed_out else f"process exit code {process.exit_code}"
-            )
-        artifacts_after = artifact_inventory(study_dir)
-        manifest["artifacts"] = {
-            rel: meta
-            for rel, meta in artifacts_after.items()
-            if rel not in artifacts_before
-            or meta.get("sha256") != artifacts_before[rel].get("sha256")
+        child_env = {
+            "KLEIN_EVALUATION_KIND": "final_test" if final_test else "development",
+            "KLEIN_EXPERIMENT_ID": run_id,
+            "KLEIN_TRACK": track,
+            # A real run force-clears ambient smoke mode: an exported
+            # KLEIN_SMOKE=1 in the driving shell must never silently
+            # suppress evidence writes.
+            "KLEIN_SMOKE": "",
+            # Where a child may leave its usage record (kleinlib.dl.report_usage,
+            # kleinlib.calls): read back below for every exit status.
+            "KLEIN_RUN_DIR": str(run_dir),
         }
-        for rel, meta in declared_artifacts.items():
-            # A cell may pin a table the inventory never watches (`sweeps/`,
-            # `tables/`) or one it already saw (`figures/`); either way the
-            # DECLARED role is what makes it citable evidence.
-            manifest["artifacts"].setdefault(rel, {}).update(meta)
-        for meta in manifest["artifacts"].values():
-            meta["availability"] = "recorded" if meta.get("committed") else "local"
-        manifest["artifacts"][f"runs/{run_id}/run.log"] = _run_log_evidence(
-            study_dir, run_id
+        if detach:
+            return _detach_transaction(
+                repo=repo,
+                study_dir=study_dir,
+                contract=contract,
+                state=state,
+                manifest=manifest,
+                run_dir=run_dir,
+                cmd=cmd,
+                child_env=child_env,
+                seeds=seeds,
+                timeout=timeout,
+                artifacts_before=artifacts_before,
+                watched_dirs=watched_dirs,
+                surface=surface,
+                run_id=run_id,
+            )
+        if seeds is not None:
+            process = _run_seed_array(
+                cmd,
+                seeds,
+                cwd=study_dir,
+                log_path=log_path,
+                timeout_seconds=timeout,
+                echo=echo,
+                env_overrides=child_env,
+            )
+        else:
+            process = run_subprocess(
+                cmd,
+                cwd=study_dir,
+                log_path=log_path,
+                timeout_seconds=timeout,
+                echo=echo,
+                env_overrides=child_env,
+            )
+        return _close_transaction(
+            repo=repo,
+            study_dir=study_dir,
+            contract=contract,
+            state=state,
+            tracks=tracks,
+            track=track,
+            manifest=manifest,
+            run_dir=run_dir,
+            log_path=log_path,
+            process=process,
+            final_test=final_test,
+            registered=registered,
+            incumbent=incumbent,
+            timeout=timeout,
+            requested_predictions=requested_predictions,
+            seeds=seeds,
+            artifacts_before=artifacts_before,
+            watched_dirs=watched_dirs,
+            description=description,
+            number=number,
+            base_commit=base_commit,
+            surface=surface,
+            surface_rels=surface_rels,
+            run_id=run_id,
+            echo=echo,
         )
-        manifest["transaction"] = {"status": "pending", "ready_at": utc_now()}
-        if manifest["decision_reason"] and description:
-            manifest["description"] = f"{description}; {manifest['decision_reason']}"
-        elif manifest["decision_reason"]:
-            manifest["description"] = manifest["decision_reason"]
-        atomic_write_json(run_dir / "manifest.json", manifest)
-        append_event(
-            study_dir,
-            "run_finished",
-            experiment=run_id,
-            exit_code=process.exit_code,
-            timed_out=process.timed_out,
-            disposition=manifest["disposition"],
-            primary_metric=manifest["primary_metric"],
-        )
-        state["last_experiment"] = number
-        save_state(study_dir, state)
-
-        restored = manifest["disposition"] != "keep" or final_test
-        if restored:
-            _git(repo, ["restore", "--source", base_commit, "--", *surface_rels])
-        _complete_evidence_transaction(
-            repo, study_dir, manifest, restored_train=restored, surface=surface
-        )
-        return manifest
 
 
 def recover(study_dir: Path) -> list[str]:
     contract = load_contract(study_dir)
     repo = repo_root_for(study_dir)
     recovered: list[str] = []
-    with StudyLock(study_dir):
+    with StudyLock(study_dir, allow_detached=True):
         state = load_state(study_dir, contract)
         for manifest_path in _manifest_paths(study_dir):
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             run_id = str(manifest["experiment"])
             manifest_rel = _relative(repo, manifest_path)
             transaction = manifest.get("transaction", {})
+            if isinstance(transaction, Mapping) and transaction.get("phase") == "awaiting_collect":
+                # A detached run is not interrupted: it is executing elsewhere.
+                # Crashing it here would destroy evidence a host is producing.
+                print(
+                    f"recover: {run_id} is a detached run awaiting collect — "
+                    f"`klein run-one --collect {run_id}` or `--abandon {run_id} --reason ...`"
+                )
+                continue
             dirty_manifest = bool(
                 _git(
                     repo,
@@ -1230,7 +1828,8 @@ def recover(study_dir: Path) -> list[str]:
                 surface=mutable_surface(contract),
             )
             recovered.append(run_id)
-    _commit_state_writes(study_dir, "klein: recover — state writes filed")
+    if open_detached_run(study_dir) is None:
+        _commit_state_writes(study_dir, "klein: recover — state writes filed")
     return recovered
 
 
@@ -1282,16 +1881,33 @@ def finalize(
         # every schema-2 study (no track declares confirmation), so this path is
         # unchanged there.
         confirmation_gaps = replicate.confirmation_gaps(study_dir, contract, manifests)
+        # A track whose declared `confirmation.require` is non-empty and names no
+        # `sealed` (study 22's `exponent: [replicate]`) closes on its records, not
+        # on a sealed look it was never meant to take. An EMPTY requirement (the
+        # `discover` default) still cannot close confirmed, and every track that
+        # needs a sealed look still needs exactly one.
+        needs_sealed = {
+            track: (
+                "sealed" in required
+                or not required
+            )
+            for track in tracks
+            for required in [replicate.required_confirmation(tracks[track], contract)]
+        }
+        sealed_ok = all(
+            counts[track] == 1 and successful_confirmation[track]
+            for track in tracks
+            if needs_sealed[track]
+        )
         label = (
             "confirmed"
             if counts
-            and all(count == 1 for count in counts.values())
-            and all(successful_confirmation.values())
+            and sealed_ok
             and not confirmation_gaps
             else "exploratory"
         )
         if label == "exploratory" and not allow_exploratory:
-            reason = "not every track has one successful sealed final-test evaluation"
+            reason = "not every track that requires one has a successful sealed final-test evaluation"
             if confirmation_gaps:
                 reason += "; missing confirmation records — " + "; ".join(
                     f"{track}: {'; '.join(missing)}"

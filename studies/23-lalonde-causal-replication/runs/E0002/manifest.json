@@ -1,0 +1,98 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 521,
+      "committed": true,
+      "sha256": "f75c5632c29bbcec2b6a3d7a504bc4866a0646f93f6561a687c0e758d7bdd8f3"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 247746,
+      "committed": true,
+      "sha256": "6219048a6be0e9e7718cc17a21dc0867278502d1f3c757470b2ff7f17e52d222"
+    },
+    "tables/att_E0002.tsv": {
+      "availability": "recorded",
+      "bytes": 231,
+      "committed": true,
+      "role": "declared",
+      "sha256": "8c93829b95e0baf872ae532612da924e3fbf04e75749452f29b2d8a4287f3c78"
+    }
+  },
+  "base_commit": "f211fc2a136d4fad3c05d46bba6e124f16508da5",
+  "candidate_commit": "ab73544c7183f60268d41e290347f66844faff3e",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "estimators: ipw dw_psid 500 reps, adjudicates P2; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T05:11:08.014162Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130",
+    "split_partition": "301cc9c3c8cd54188515afa3f24fa45ec6b75350e5cbe1b111a194ea5392a67c"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 900.0,
+  "metric_goal": "higher",
+  "metric_name": "att_usd",
+  "metrics": {
+    "att_gap_usd": 1244.0931922558925,
+    "ci_high": 4501.2966,
+    "ci_low": 976.006008,
+    "experimental_att": 1794.3423818563415,
+    "max_weight_share": 0.13491870426262995,
+    "n": 185.0,
+    "n_controls_used": 1146.0,
+    "primary_metric": 3038.435574,
+    "runner_exit_code": 0.0,
+    "total_seconds": 313.4,
+    "wall_seconds": 313.425134
+  },
+  "phase": "estimators",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 4,
+  "predictions": {
+    "P2": {
+      "explanation": "|att_gap_usd| 1244.09319226 <= 1000 (from 1244.09319226) \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P2"
+  ],
+  "primary_metric": 3038.435574,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T05:05:52.856582Z",
+  "timed_out": false,
+  "track": "att",
+  "transaction": {
+    "committed_at": "2026-11-03T05:11:08.148266Z",
+    "evidence_commit": "719ca216c9b8a18933983462fd0e24393010695e",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 315.15709200499987
+}

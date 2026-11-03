@@ -1,0 +1,35 @@
+"""Prepare the analysis table (recipe ds-causal): one row per unit, `treat`, outcome `y`.
+
+Default source `synthetic:make_data.py` (a known-truth teaching lab). For real data,
+point `data.source` (and `data.inputs` for further files) at pinned sources and
+replace `load_frame()`; keep pre-treatment covariates only.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import yaml
+
+HERE = Path(__file__).resolve().parent
+
+
+def load_frame():
+    contract = yaml.safe_load((HERE / "study.yaml").read_text(encoding="utf-8"))
+    if contract["data"]["source"] == "synthetic:make_data.py":
+        import make_data
+
+        return make_data.make()
+    raise SystemExit("write the loader for your data.source / data.inputs here")
+
+
+def main() -> None:
+    frame = load_frame()
+    out = HERE / "data" / "prepared" / "prepared.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_csv(out, index=False, lineterminator="\n")
+    print(f"prepared {len(frame)} units, {int(frame['treat'].sum())} treated")
+
+
+if __name__ == "__main__":
+    main()

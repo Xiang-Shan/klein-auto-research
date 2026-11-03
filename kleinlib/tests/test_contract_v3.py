@@ -194,7 +194,15 @@ def test_profile_is_a_shipped_name_or_a_repo_local_document(tmp_path: Path) -> N
     study.mkdir(parents=True)
     (tmp_path / "pyproject.toml").write_text("", encoding="utf-8")
     (study / "train.py").write_text("", encoding="utf-8")
-    assert KNOWN_PROFILES == ("generic", "ml-research", "math", "insurance")
+    assert KNOWN_PROFILES == (
+        "generic",
+        "ml-research",
+        "math",
+        "insurance",
+        "llm",
+        "cv",
+        "data-science",
+    )
 
     contract = base()
     contract["profile"] = "climate"
@@ -599,3 +607,27 @@ def test_scalar_is_the_schema_3_spelling_of_the_simulation_family(study_dir: Pat
 def test_schema_version_reads_the_contract() -> None:
     assert schema_version({"schema_version": 3}) == 3
     assert schema_version({}) == 1
+
+
+def test_a_phase_ladder_rewritten_at_consult_is_followed_until_work_starts(tmp_path) -> None:
+    """Exhibit 23 found it: CONSULT renames the scaffold's `adaptive-1`; with no run and
+    no phase acknowledgement the state follows the contract, after that it never does."""
+    import json
+
+    from kleinlib.contract import load_contract
+    from kleinlib.scaffold import scaffold_study
+    from kleinlib.state import load_state
+
+    study = scaffold_study(
+        tmp_path, "03-rename", goal="g", domain="d", target="y", task_type="classification",
+        method_depth="brief", family="f", metric_name="val_auc", metric_goal="higher",
+        data_source="csv:fixture.csv", data_path="data/prepared/fixture.csv", max_run_seconds=60,
+        schema_version=3, kind="predict", modality="tabular", profile="generic", audience="tests",
+    )
+    path = study / "study.yaml"
+    path.write_text(path.read_text(encoding="utf-8").replace("id: adaptive-1", "id: anchor"), encoding="utf-8")
+    assert load_state(study, load_contract(study))["current_phase"] == "anchor"
+    run = study / "runs" / "E0001"
+    run.mkdir(parents=True)
+    (run / "manifest.json").write_text(json.dumps({"experiment": "E0001"}), encoding="utf-8")
+    assert load_state(study, load_contract(study))["current_phase"] == "adaptive-1"

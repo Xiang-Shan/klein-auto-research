@@ -1,0 +1,163 @@
+{
+ "arm": "search",
+ "budget_evaluations": 2000,
+ "experiment": "E0005",
+ "lane": "sealed",
+ "orders": [
+  12,
+  13
+ ],
+ "pairs": [
+  {
+   "best": [
+    0,
+    7,
+    9,
+    17,
+    21,
+    32,
+    48,
+    92,
+    98,
+    116,
+    135,
+    138
+   ],
+   "best_found_at_evaluation": 1783,
+   "best_length": 138,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 12,
+   "restarts": 9,
+   "seed": 20262307,
+   "trial": 0
+  },
+  {
+   "best": [
+    0,
+    6,
+    25,
+    27,
+    32,
+    49,
+    67,
+    83,
+    120,
+    121,
+    130,
+    133
+   ],
+   "best_found_at_evaluation": 1730,
+   "best_length": 133,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 12,
+   "restarts": 8,
+   "seed": 20262308,
+   "trial": 1
+  },
+  {
+   "best": [
+    0,
+    12,
+    20,
+    52,
+    53,
+    71,
+    100,
+    114,
+    116,
+    121,
+    125,
+    138
+   ],
+   "best_found_at_evaluation": 1984,
+   "best_length": 138,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 12,
+   "restarts": 9,
+   "seed": 20262309,
+   "trial": 2
+  },
+  {
+   "best": [
+    0,
+    8,
+    33,
+    35,
+    65,
+    83,
+    112,
+    127,
+    150,
+    151,
+    155,
+    161,
+    164
+   ],
+   "best_found_at_evaluation": 1778,
+   "best_length": 164,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 13,
+   "restarts": 9,
+   "seed": 20262407,
+   "trial": 0
+  },
+  {
+   "best": [
+    0,
+    4,
+    6,
+    23,
+    43,
+    51,
+    64,
+    65,
+    132,
+    139,
+    148,
+    163,
+    166
+   ],
+   "best_found_at_evaluation": 1825,
+   "best_length": 166,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 13,
+   "restarts": 11,
+   "seed": 20262408,
+   "trial": 1
+  },
+  {
+   "best": [
+    0,
+    4,
+    17,
+    27,
+    65,
+    102,
+    120,
+    131,
+    136,
+    155,
+    161,
+    162,
+    164
+   ],
+   "best_found_at_evaluation": 1770,
+   "best_length": 164,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 13,
+   "restarts": 8,
+   "seed": 20262409,
+   "trial": 2
+  }
+ ],
+ "problem": "golomb-ruler",
+ "sealed_dryrun": false,
+ "seed_block": 20261107,
+ "trials": 3
+}

@@ -1,0 +1,12 @@
+target	published	reproduced	abs_diff	tolerance	status
+cps1_unadjusted	-8498	-8497.516148	0.483852	1.000000	ok
+cps1_unadjusted_se	712	712.020720	0.020720	1.000000	ok
+cps1_adjusted	972	738.834132	233.165868	1.000000	missed
+cps1_adjusted_se	550	547.053372	2.946628	1.000000	missed
+n_cps1	15992	15992.000000	0.000000	1.000000	ok
+diag_cps1_col4_note_a_vs_col4	739	738.834132	0.165868	1.000000	diagnostic
+diag_cps1_col4_note_a_vs_col5	972	738.834132	233.165868	1.000000	diagnostic
+diag_cps1_all_married_vs_col4	739	793.587040	54.587040	1.000000	diagnostic
+diag_cps1_all_married_vs_col5	972	793.587040	178.412960	1.000000	diagnostic
+diag_cps1_all_married_u_vs_col4	739	1137.195707	398.195707	1.000000	diagnostic
+diag_cps1_all_married_u_vs_col5	972	1137.195707	165.195707	1.000000	diagnostic

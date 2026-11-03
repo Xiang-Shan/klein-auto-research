@@ -1,0 +1,276 @@
+{
+ "arm": "search",
+ "budget_evaluations": 2000,
+ "experiment": "DRYRUN",
+ "lane": "development",
+ "orders": [
+  8,
+  9,
+  10,
+  11
+ ],
+ "pairs": [
+  {
+   "best": [
+    0,
+    2,
+    5,
+    17,
+    27,
+    33,
+    40,
+    41
+   ],
+   "best_found_at_evaluation": 1562,
+   "best_length": 41,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 8,
+   "restarts": 9,
+   "seed": 20261906,
+   "trial": 0
+  },
+  {
+   "best": [
+    0,
+    1,
+    3,
+    10,
+    21,
+    26,
+    34,
+    38
+   ],
+   "best_found_at_evaluation": 551,
+   "best_length": 38,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 8,
+   "restarts": 10,
+   "seed": 20261907,
+   "trial": 1
+  },
+  {
+   "best": [
+    0,
+    3,
+    8,
+    18,
+    27,
+    34,
+    38,
+    40
+   ],
+   "best_found_at_evaluation": 1503,
+   "best_length": 40,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 8,
+   "restarts": 11,
+   "seed": 20261908,
+   "trial": 2
+  },
+  {
+   "best": [
+    0,
+    1,
+    6,
+    14,
+    32,
+    34,
+    41,
+    53,
+    56
+   ],
+   "best_found_at_evaluation": 1950,
+   "best_length": 56,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 9,
+   "restarts": 6,
+   "seed": 20262006,
+   "trial": 0
+  },
+  {
+   "best": [
+    0,
+    7,
+    8,
+    20,
+    24,
+    43,
+    49,
+    52,
+    54
+   ],
+   "best_found_at_evaluation": 1895,
+   "best_length": 54,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 9,
+   "restarts": 8,
+   "seed": 20262007,
+   "trial": 1
+  },
+  {
+   "best": [
+    0,
+    11,
+    16,
+    26,
+    34,
+    47,
+    53,
+    54,
+    56
+   ],
+   "best_found_at_evaluation": 1073,
+   "best_length": 56,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 9,
+   "restarts": 6,
+   "seed": 20262008,
+   "trial": 2
+  },
+  {
+   "best": [
+    0,
+    4,
+    6,
+    9,
+    35,
+    50,
+    62,
+    63,
+    73,
+    80
+   ],
+   "best_found_at_evaluation": 1872,
+   "best_length": 80,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 10,
+   "restarts": 7,
+   "seed": 20262106,
+   "trial": 0
+  },
+  {
+   "best": [
+    0,
+    9,
+    16,
+    29,
+    47,
+    55,
+    61,
+    80,
+    82,
+    83
+   ],
+   "best_found_at_evaluation": 1215,
+   "best_length": 83,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 10,
+   "restarts": 7,
+   "seed": 20262107,
+   "trial": 1
+  },
+  {
+   "best": [
+    0,
+    4,
+    6,
+    22,
+    30,
+    45,
+    64,
+    65,
+    74,
+    77
+   ],
+   "best_found_at_evaluation": 1536,
+   "best_length": 77,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 10,
+   "restarts": 7,
+   "seed": 20262108,
+   "trial": 2
+  },
+  {
+   "best": [
+    0,
+    9,
+    20,
+    48,
+    66,
+    70,
+    71,
+    95,
+    101,
+    108,
+    111
+   ],
+   "best_found_at_evaluation": 1830,
+   "best_length": 111,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 11,
+   "restarts": 8,
+   "seed": 20262206,
+   "trial": 0
+  },
+  {
+   "best": [
+    0,
+    1,
+    7,
+    38,
+    42,
+    59,
+    78,
+    87,
+    89,
+    92,
+    105
+   ],
+   "best_found_at_evaluation": 1562,
+   "best_length": 105,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 11,
+   "restarts": 8,
+   "seed": 20262207,
+   "trial": 1
+  },
+  {
+   "best": [
+    0,
+    11,
+    12,
+    21,
+    44,
+    60,
+    78,
+    84,
+    86,
+    91,
+    106
+   ],
+   "best_found_at_evaluation": 1813,
+   "best_length": 106,
+   "evaluations": 2000,
+   "first_optimal_evaluation": null,
+   "order": 11,
+   "restarts": 7,
+   "seed": 20262208,
+   "trial": 2
+  }
+ ],
+ "problem": "golomb-ruler",
+ "sealed_dryrun": true,
+ "seed_block": 20261106,
+ "trials": 3
+}

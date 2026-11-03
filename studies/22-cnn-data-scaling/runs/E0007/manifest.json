@@ -1,0 +1,125 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 4816,
+      "committed": true,
+      "sha256": "f5b626fd6ab26aeb398ba6ed0978266f644d1b14f8ea5ee6c9a05bff55410c6a"
+    },
+    "runs/E0007/run.log": {
+      "availability": "recorded",
+      "bytes": 2310,
+      "committed": true,
+      "sha256": "71ab9095c6caeedb92a03dd0d6cf0e5042f996378403866dc9cef63e7b707af2"
+    },
+    "runs/E0007/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 410,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "8ad51936a68f0d24b45aecb2949385e5816851111798daf4b761ccc0f800e2c4"
+    },
+    "tables/scaling_fit.tsv": {
+      "availability": "recorded",
+      "bytes": 862,
+      "committed": true,
+      "role": "declared",
+      "sha256": "c5e3c5e71992eb69383069bf8292dfbe228ed524dae02e4e428f73407cd257c0"
+    }
+  },
+  "base_commit": "27810d814f9cdfff39b3c0aab1aea73f2da50ceb",
+  "candidate_commit": "580835ce38d1ae1731c1dd72b7e3de6bcf5229bf",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "fit: the power law over the six cells; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T08:08:23.603066Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0007",
+  "fingerprints": {
+    "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 600.0,
+  "metric_goal": "higher",
+  "metric_name": "scaling_exponent",
+  "metrics": {
+    "a": 2.1258374645167906,
+    "ci_clamped": 0.0,
+    "ci_high": 0.141115,
+    "ci_low": 0.11812300000000002,
+    "fit_r2": 0.7955326389533554,
+    "n": 18.0,
+    "n_sizes": 6.0,
+    "predicted_loss_at_full": 0.506590303869533,
+    "primary_metric": 0.13036,
+    "primary_metric_max": 0.13036,
+    "primary_metric_min": 0.13036,
+    "primary_metric_std": 0.0,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "total_seconds": 0.7333333333333334,
+    "wall_seconds": 0.7434766666666667
+  },
+  "phase": "fit",
+  "phase_budget_seconds": 600.0,
+  "phase_experiment_limit": 1,
+  "predictions": {
+    "P1": {
+      "explanation": "primary_metric 0.13036 in [0.1, 0.6] \u2192 supported",
+      "verdict": "supported"
+    },
+    "P2": {
+      "explanation": "fit_r2 0.795532638953 >= 0.98 \u2192 refuted",
+      "verdict": "refuted"
+    },
+    "P5": {
+      "explanation": "primary_metric 0.13036 in [0.15, 0.32] \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P1",
+    "P2",
+    "P5"
+  ],
+  "primary_metric": 0.13036,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T08:08:06.560163Z",
+  "timed_out": false,
+  "track": "exponent",
+  "transaction": {
+    "committed_at": "2026-11-03T08:08:23.841536Z",
+    "evidence_commit": "6378482de3643f3cdd96be02769d6f684fa45f14",
+    "recovered": false,
+    "status": "complete"
+  },
+  "wall_seconds": 17.04285616999914
+}

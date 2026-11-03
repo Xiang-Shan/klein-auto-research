@@ -1,0 +1,50 @@
+"""The declared verifier — the checker, never the searcher (recipe math-verify).
+
+`klein run-one` runs this after the search with KLEIN_ARTIFACT pointing at the
+artifact; the disposition is decided on the number THIS script prints. It shares no
+code with search.py, is outside `entrypoint.mutable`, and is hashed at the METHOD
+gate. It is the dumbest correct thing: every pairwise difference, an exact set test.
+Rejects (exit 2): a malformed artifact, marks that are not strictly increasing
+integers starting at 0, and any repeated difference.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+import time
+
+from kleinlib.eval import evaluate_scalar
+
+
+def check(marks: object) -> int:
+    if not isinstance(marks, list) or len(marks) < 2 or not all(isinstance(m, int) for m in marks):
+        raise ValueError("marks must be a list of at least two integers")
+    if marks[0] != 0 or any(b <= a for a, b in zip(marks, marks[1:])):
+        raise ValueError("marks must start at 0 and strictly increase")
+    seen: set[int] = set()
+    for i, a in enumerate(marks):
+        for b in marks[i + 1:]:
+            if b - a in seen:
+                raise ValueError(f"difference {b - a} repeats")
+            seen.add(b - a)
+    return marks[-1]
+
+
+def main() -> None:
+    t0 = time.time()
+    path = os.environ.get("KLEIN_ARTIFACT")
+    if not path:
+        raise SystemExit("verify.py is run by `klein run-one`, which sets KLEIN_ARTIFACT")
+    try:
+        length = check(json.loads(open(path, encoding="utf-8").read())["marks"])
+    except (OSError, ValueError, KeyError) as exc:
+        print(f"REJECTED: {exc}")
+        sys.exit(2)
+    evaluate_scalar(float(length), exp_id=os.environ.get("KLEIN_EXPERIMENT_ID", "verify"),
+                    metric_name="{{METRIC_NAME}}", metric_goal="lower", t0=t0)
+
+
+if __name__ == "__main__":
+    main()

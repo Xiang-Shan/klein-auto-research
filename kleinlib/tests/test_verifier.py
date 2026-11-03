@@ -594,3 +594,61 @@ def test_preflight_checks_the_declared_entrypoint_not_the_literal_train_py(
     (study / "search.py").unlink()
     check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
     assert not check.ok and check.message == "missing"
+
+
+def test_the_verifier_is_told_which_partition_the_run_was_judged_on(optimize_study) -> None:
+    """Study 24's DATA gate found it: a checker that cannot see the evaluation kind
+    must trust the lane an artifact declares for itself."""
+    repo, study = optimize_study
+    _artifact_key(study)
+    (study / "verify.py").write_text(
+        VERIFY.replace(
+            'print("wall_seconds:      0.5")',
+            'assert os.environ["KLEIN_EVALUATION_KIND"] == "development", os.environ.get("KLEIN_EVALUATION_KIND")\n'
+            'print("wall_seconds:      0.5")',
+        ),
+        encoding="utf-8",
+    )
+    _commit(repo, "a verifier that insists on knowing the partition")
+    record_gate(study, "method", acknowledged_by="tester", note="re-hash the verifier")
+    _commit(repo, "method re-recorded")
+    _search(study, reported=10, artifact_value=10)
+    manifest = run_one(study, echo=False)
+    assert manifest["disposition"] == "keep", manifest["decision_reason"]
+
+
+def test_a_module_planted_by_the_searcher_never_reaches_the_verifier(optimize_study) -> None:
+    """Study 24's review found it: the searcher runs first, with write access to the
+    verifier's own directory, and a planted json.py there would shadow the stdlib."""
+    repo, study = optimize_study
+    _artifact_key(study)
+    _commit(repo, "point the verifier at the printed artifact key")
+    _search(study, reported=10, artifact_value=10)
+    search = study / "search.py"
+    search.write_text(
+        search.read_text(encoding="utf-8")
+        + "pathlib.Path('json.py').write_text('raise SystemExit(\"shadowed\")')\n",
+        encoding="utf-8",
+    )
+    manifest = run_one(study, echo=False)
+    assert manifest["disposition"] == "keep", manifest["decision_reason"]
+    assert manifest["primary_metric"] == 10.0
+
+
+def test_a_replication_of_a_verifier_run_is_judged_by_the_verifier(optimize_study) -> None:
+    """Study 24's review found it: a replica's SELF-reported number was compared with the
+    manifest's VERIFIED number. The replica's artifact now goes through the checker."""
+    from kleinlib.replicate import replicate_run
+
+    repo, study = optimize_study
+    _artifact_key(study)
+    _edit_contract(study, lambda c: c["tracks"]["primary"]["verifier"].update(tolerance=0.5))
+    _commit(repo, "declare a tolerance")
+    _search(study, reported=10.2, artifact_value=10.0)
+    manifest = run_one(study, echo=False)
+    assert manifest["primary_metric"] == 10.0
+    record = replicate_run(study, "E0001", tolerance=0.05, echo=False)
+    # The searcher prints 10.2; the checker re-derives 10.0 from the replica's artifact.
+    assert record["verifier"]["exit_code"] == 0, record
+    assert record["searcher_block"]["primary_metric"] == 10.2
+    assert record["reproduced"] is True, record.get("failure_reason")

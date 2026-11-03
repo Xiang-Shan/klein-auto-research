@@ -99,14 +99,16 @@ this same table routed as the `/klein` skill.)
 | scaffold | `references/defaults-and-scaffolding.md` | study dir + templates, typed by kind / modality / profile | `klein new` |
 | CONSULT | `references/consult-protocol.md` + `references/inquiry-model.md` | study.yaml (predictions with rules), research_plan.md, program.md, scouting_ledger.md | `klein doctor --study` |
 | DATA | `references/data-gate-protocol.md` + `references/data-sources.md` | data_card.md (modality-typed go/no-go) | `python -m kleinlib.profile_fallback`, `python -m kleinlib.leakage` |
-| METHOD | `references/method-gate-protocol.md` | method_card.md, references.yaml, the verifier script | — |
+| METHOD | `references/method-gate-protocol.md` | method_card.md, references.yaml, the verifier script | `klein refs verify` (network: resolves every DOI / arXiv id, title match) |
 | EXPERIMENT | loop contract below + `SKILL.md` Hard Rules; `references/registered-mode.md` | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one [--tests P#]`; `klein run-one --final-test --dry-run` before every sealed run |
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction; measurement sweeps registered as `sweep:<name>` | `kleinlib.sweep.SweepRunner`, `klein sweep register` |
-| REPLICATE (any time after a run) | `references/replication-protocol.md` | `runs/E####/replications/<ts>.json` | `klein replicate E#### [--verify-only]` |
+| REPLICATE (any time after a run) | `references/replication-protocol.md` | `runs/E####/replications/<ts>.json` | `klein replicate E#### [--verify-only \| --replay]` |
+| MODEL CALLS (studies that query a model) | `references/model-calls-protocol.md` | `calls/E####-NNN.jsonl.gz`, `manifest.usage` | `kleinlib.calls.CallLedger`; `klein replicate --replay` |
 | SYNTHESIZE | `references/synthesis-protocol.md` + `references/claims-protocol.md` | findings.md, claims.lock | `.claude/skills/klein/scripts/summarize_results.py`, `klein predict list`, `klein claims …` |
 | REFEREE | `references/referee-protocol.md` | referee_report.md | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after |
 | TUTORIAL | `references/tutorial-spec.md` + `references/profiles/<profile>.md` | report/index.html | `.claude/skills/klein/scripts/build_tutorial.py`, `figures/make_figures.py` |
-| status / verify (any time) | — | results_summary.md, progress.svg, verify_receipt.json | `klein status`, `klein verify`, `summarize_results.py` |
+| status / next / verify (any time) | — | results_summary.md, progress.svg, verify_receipt.json | `klein next` (the one next action, read-only), `klein status [--json]`, `klein verify`, `summarize_results.py` |
+| host bridges (any time) | `integrations/claude-science/` | — (read-only; derivatives only) | `klein mcp` (read-only MCP server over stdio), `klein doctor --host <host>`, `klein notebook E####` (a run as a reading-copy `.ipynb`) |
 
 (`references/…` paths above live under `.claude/skills/klein/`; a bare `scripts/…`
 path means the repo root. Every helper is a plain CLI:
@@ -120,7 +122,7 @@ the track mode, what "sealed" means, what confirmation requires
 (`confirmation.require ⊆ {sealed, replicate, verify}`), and the strength a claim can
 reach. **`modality`** is the evidence source — `tabular | timeseries | image |
 sequence | graph | text | simulation | none` — and selects the data-gate card.
-**`profile`** is the audience — `generic | ml-research | math | insurance`, or a
+**`profile`** is the audience — `generic | ml-research | math | insurance | llm | cv | data-science`, or a
 repo-local `profile_doc` — and changes headings, doctrine anchors, figure sets,
 budgets and banned words, never what the engine checks. Five objects thread through
 every study: a Question, a Prediction (registered, with a rule), Evidence (manifests,
@@ -156,6 +158,12 @@ The loop has three layers. Keep them straight and the rest follows:
    It refuses an unchanged surface before any id or commit exists — pass
    `--allow-rerun` for an intentional identical replication, or `--tests P#` on a
    registered track (sealed final tests and `--command` overrides stay exempt).
+   A study that declares `entrypoint.execution: [local, detached]` may split one
+   transaction across a host the notary cannot spawn (`run-one --detach` →
+   `klein job exec` on the host → `run-one --collect`): the study is frozen in
+   between, the receipt is checked against the committed job bundle, and the run is
+   judged locally and recorded as attested, not observed
+   (`references/compute-and-devices.md`).
 3. **The state files are receipts — generated, never hand-edited.**
    `runs/E####/manifest.json`, `study_state.json`, the append-only self-verifying
    `events.jsonl`, `claims.lock`, `verify_receipt.json`, and the derived `results.tsv`
@@ -249,6 +257,9 @@ The standing rules around those layers:
   when one is declared): `wall_seconds` is printed by every evaluator; any other
   declared key must be printed via `evaluate*(..., extra={...})` — `klein preflight`
   warns when a declared key is neither auto-printed nor named in the study's sources.
+  `entrypoint.printed: block` (Klein 2.3, opt-in) reads the metric block only from the
+  last line that is exactly `---` to the end of the log, so training chatter cannot
+  crash or pollute a run; the manifest records the scope and replication follows it.
 - Everything that is not the one primary metric goes to `aux_metrics.tsv` in long
   format (`experiment  metric  value`), never into extra results columns; tables a
   cell produces are pinned with `artifact:` lines and cited as `art:<alias>`.
@@ -308,9 +319,12 @@ protocols always spell out both paths.
   following the stage map in AGENTS.md".
 - **Claude Code**: the `/klein` skill routes the same stages; `CLAUDE.md` imports
   this manual.
-- **Claude Science**: run Klein as the lab-notebook discipline inside a session —
-  a custom agent that follows this manual, with the referee stage handed to a
-  different model or a different session.
+- **Claude Science**: the kit in `integrations/claude-science/` — import the skill
+  from GitHub, install the engine (PyPI wheel, or uv with `UV_PROJECT_ENVIRONMENT`),
+  add the `klein-researcher` Specialist and the Reviewer criteria, wire `klein mcp`
+  as a Local command connector, and run GPU work as detached runs on SSH/Slurm or
+  Modal job cards. The built-in Reviewer is a pre-referee pass, never Gate 3: hand
+  REFEREE to a different session or tool (`klein-referee` Specialist, or Claude Code).
 - **Gemini CLI / Qwen Code**: add `AGENTS.md` to the context files — the
   settings.json `context.fileName` key takes a string or list — or start the
   session with "read AGENTS.md first".
@@ -318,9 +332,12 @@ protocols always spell out both paths.
   here.
 - **Model backends.** Any driver above runs over any backend that speaks its
   protocol — a subscription agent CLI, or a **local model** behind an
-  OpenAI-compatible or Anthropic-Messages-compatible server. Klein itself calls no
-  model APIs and requires no API keys — the framework is plain Python + git; the
-  driving agent brings its own model.
+  OpenAI-compatible or Anthropic-Messages-compatible server. No Klein verb calls a
+  model API or needs an API key — the framework is plain Python + git; the driving
+  agent brings its own model. A study's ENTRYPOINT may query a model (an LLM
+  evaluation, an LLM proposer judged by a verifier) through the call ledger
+  (`references/model-calls-protocol.md`), which pins every request and response so
+  the study re-verifies offline.
 - **No agent at all**: follow the stage map by hand — each protocol is a
   human-readable runbook and each helper is a plain CLI.
 

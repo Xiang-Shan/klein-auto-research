@@ -1,0 +1,32 @@
+<h2>The data story</h2>
+
+<p>Fashion-MNIST: 28&times;28 greyscale images, 10 classes, four IDX files each pinned by sha256
+in <code>study.yaml</code>. No pretrained weights are involved. The call is
+<strong>GO-WITH-CAUTIONS</strong>; no BLOCKER is open.</p>
+
+<h3>Shape and partitions</h3>
+<table>
+<thead><tr><th>Partition</th><th>Rows</th><th>Defined by</th><th>Used for</th></tr></thead>
+<tbody>
+<tr><td>train</td><td>50,000</td><td>official train rows 0 to 49,999</td><td>every development cell draws its N-image subsample from here</td></tr>
+<tr><td>development</td><td>9,992</td><td>official train rows 50,000 to 59,999, minus 8 near-copies</td><td>scores the six fit cells</td></tr>
+<tr><td>test (sealed)</td><td>9,995</td><td>official t10k, minus 5 near-copies</td><td>scored once, by the sealed full-pool cell</td></tr>
+</tbody>
+</table>
+<p>The sealed fit pool is train plus development, 59,992 images. Partitions are positions, not a
+seed: <code>prepare.py</code> holds no random state, and the <code>seed: 42</code> in the contract is declared inert.</p>
+
+<h3>The gotcha: a tooling false positive on small silhouettes</h3>
+<p>The first audit used a 64-bit difference hash and flagged 56 percent of held-out images as
+near-duplicates of training images. None were byte-identical. On 28&times;28 silhouettes a 64-bit hash
+collides constantly, so this was a false positive of the tool, not a leak. The fix was an exact
+pixel-space criterion: nearest fit-pool image by pixel RMS, with copies at 4 grey levels or less removed.
+That removed 8 development images and 5 test images, and the re-run pixel audit passes with no held-out image
+within 4 grey levels of any fit-pool image. The dHash result is kept in the card verbatim and is not the criterion of record.</p>
+
+<h3>The cautions that carry into the findings</h3>
+<ul>
+<li><strong>WARN: the partitions are not one draw.</strong> Development rows come from the train file and the sealed rows from t10k. The measured per-image standardized difference is +0.015, with no detectable first-order covariate shift, which is not proof of none, and the data card measured no loss gap. This is the origin of the cross-partition caveat on C16.</li>
+<li><strong>WARN: no group ids.</strong> Same-product, different-view twins cannot be audited.</li>
+<li><strong>NOTE: the chance-level check was deferred.</strong> It is not mechanizable in index mode and no later step took it up, which is why no negative control exists (section 5).</li>
+</ul>

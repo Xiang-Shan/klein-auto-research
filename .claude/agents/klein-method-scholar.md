@@ -25,7 +25,8 @@ FIRST every invocation; it is the source of truth, this file only orients you.
    `.claude/skills/klein/assets/method-card-template.md` to the study as
    `method_card.md`.
 2. Write the five parts IN ORDER — each depends on the one before. Do not reorder.
-3. **Part 1 — Intuition.** Explain it to an actuary / data scientist who has NOT read
+3. **Part 1 — Intuition.** Explain it to the study's audience (`study.yaml:audience`, and
+   §1 of `references/profiles/<profile>.md`) as someone who has NOT read
    the paper. Lead with an analogy to something they know ("a denoising autoencoder is
    nonlinear PCA"). Build the mental model before any math.
 4. **Part 2 — Math core.** A notation table first (define every symbol), then the ≤5
@@ -40,16 +41,23 @@ FIRST every invocation; it is the source of truth, this file only orients you.
    existing from-scratch nano (`nano_repos/NNN-slug/` — name it and the measured
    result relied on; see the protocol's triad contract).
 6. **Part 4 — When it pays / when it doesn't.** A regime table keyed on data size and
-   signal strength, grounded in doctrine (Grinsztajn: trees still win on most tabular;
-   deep methods need scale/signal). Then state the FALSIFIABLE PRIORS this study will
+   signal strength, grounded in the profile's doctrine (§3 of
+   `references/profiles/<profile>.md` — e.g. for tabular work, trees still win on most
+   tables; for vision, split by the unit that leaks; for LLM evaluation, the item is the
+   unit of uncertainty) and in the matching seed card under `knowledge/method_cards/`.
+   Then state the FALSIFIABLE PRIORS this study will
    test — each names a lever, a direction, and a magnitude with units, and can come out
    false (e.g. "frozen DAE reps + LGBM will NOT beat the 0.6701 raw-GBDT baseline
    (Δ ≤ 0)"). Mirror them into `study.yaml:predictions_to_falsify`. The card is not
    done until it has staked a claim SYNTHESIZE can falsify.
 7. **Part 5 — Verified references.** Verify EACH reference; do not cite from memory.
-   If the global `alphaxiv-paper-lookup` skill is installed (Glob for its SKILL.md
-   under `~/.claude/skills/` or `.claude/skills/`), read it and drive its procedure;
-   else use WebSearch/WebFetch and confirm venue, year, and arXiv id for every entry.
+   Use a literature connector when one is available (Claude Science's Literature Graph
+   over OpenAlex and arXiv, PubMed, Scholar Gateway, Consensus, Hugging Face papers —
+   any MCP search tool in your tool list); else, if the global `alphaxiv-paper-lookup`
+   skill is installed (Glob for its SKILL.md under `~/.claude/skills/` or
+   `.claude/skills/`), drive its procedure; else use WebSearch/WebFetch. Confirm venue,
+   year, and DOI or arXiv id for every entry; `klein refs verify --study <dir>` then
+   resolves each DOI / arXiv id mechanically and records the title match.
    If the harness carries vault skills (`~/.claude/skills/ask-vault/`,
    `~/.claude/skills/arxiv-into-vault/` — example bindings), use them for grounded
    intuition Q&A and to file cited papers durably; verification rules are unchanged.
@@ -57,8 +65,10 @@ FIRST every invocation; it is the source of truth, this file only orients you.
    `refs_verified: true` in the frontmatter ONLY when every row is verified.
 8. **Frontier lit-scan (mandatory when applicable).** If the method is recent or
    unfamiliar (SSL for tabular, a 2023+ architecture, a niche robust estimator), find
-   the seminal paper, 1-2 key follow-ups, and any resonant application (e.g. Jahrer's
-   Porto Seguro DAE for insurance). Position the method against the trend, honestly.
+   the seminal paper, 1-2 key follow-ups, and any resonant application in the study's
+   field (e.g. a denoising autoencoder on a Kaggle insurance table; a CNN on a
+   MedMNIST benchmark; chain-of-thought on GSM8K). Position the method against the
+   trend, honestly.
    The card is incomplete without this scan.
 
 ## Outputs

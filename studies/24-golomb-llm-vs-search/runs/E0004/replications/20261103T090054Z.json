@@ -1,0 +1,237 @@
+{
+  "baseline": 6.0,
+  "block_differences": {
+    "calls_cached": {
+      "difference": null,
+      "original": 1136.0,
+      "replicate": null
+    },
+    "calls_total": {
+      "difference": null,
+      "original": 2400.0,
+      "replicate": null
+    },
+    "cost_usd": {
+      "difference": null,
+      "original": 0.0,
+      "replicate": null
+    },
+    "evaluations": {
+      "difference": null,
+      "original": 24000.0,
+      "replicate": null
+    },
+    "first_batch_matches": {
+      "difference": 1.0,
+      "original": 1.0,
+      "replicate": 2.0
+    },
+    "invalid_best": {
+      "difference": 1.0,
+      "original": 3.0,
+      "replicate": 2.0
+    },
+    "pairs": {
+      "difference": 0.0,
+      "original": 12.0,
+      "replicate": 12.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 6.0,
+      "replicate": 6.0
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "sealed_lane": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "tokens_in": {
+      "difference": null,
+      "original": 893189.0,
+      "replicate": null
+    },
+    "tokens_out": {
+      "difference": null,
+      "original": 494814.0,
+      "replicate": null
+    },
+    "total_seconds": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "unparsed_replies": {
+      "difference": null,
+      "original": 593.0,
+      "replicate": null
+    },
+    "valid_rulers": {
+      "difference": null,
+      "original": 719.0,
+      "replicate": null
+    },
+    "wall_seconds": {
+      "difference": 0.0004630000000000001,
+      "original": 0.001026,
+      "replicate": 0.001489
+    }
+  },
+  "calls_kept": [
+    "runs/E0004/replications/20261103T090054Z-calls/E0002-000.jsonl.gz",
+    "runs/E0004/replications/20261103T090054Z-calls/E0003-000.jsonl.gz",
+    "runs/E0004/replications/20261103T090054Z-calls/E0004-000.jsonl.gz"
+  ],
+  "candidate_commit": "650d11c41ac19a5611fd943dd479e6991c285e10",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+  "difference": 0.0,
+  "ended_at": "2026-11-03T10:25:25.268297Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "environment_match": true,
+  "evidence_id": "rep:E0004@20261103T090054Z",
+  "exit_code": 0,
+  "experiment": "E0004",
+  "log": "runs/E0004/replications/20261103T090054Z.log",
+  "max_run_seconds": 10800.0,
+  "metric_name": "optima_matched",
+  "mismatched_keys": [
+    "cost_usd",
+    "evaluations",
+    "first_batch_matches",
+    "invalid_best",
+    "tokens_in",
+    "tokens_out",
+    "unparsed_replies",
+    "valid_rulers"
+  ],
+  "mode": "replicate",
+  "original_block": {
+    "calls_cached": 1136.0,
+    "calls_total": 2400.0,
+    "cost_usd": 0.0,
+    "evaluations": 24000.0,
+    "first_batch_matches": 1.0,
+    "invalid_best": 3.0,
+    "pairs": 12.0,
+    "primary_metric": 6.0,
+    "runner_exit_code": 0.0,
+    "sealed_lane": 0.0,
+    "tokens_in": 893189.0,
+    "tokens_out": 494814.0,
+    "total_seconds": 0.0,
+    "unparsed_replies": 593.0,
+    "valid_rulers": 719.0,
+    "wall_seconds": 0.001026
+  },
+  "original_environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "original_primary_metric": 6.0,
+  "record": "runs/E0004/replications/20261103T090054Z.json",
+  "replicate_block": {
+    "first_batch_matches": 2.0,
+    "invalid_best": 2.0,
+    "pairs": 12.0,
+    "primary_metric": 6.0,
+    "runner_exit_code": 0.0,
+    "sealed_lane": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.001489
+  },
+  "replicate_primary_metric": 6.0,
+  "reproduced": true,
+  "schema_version": 1,
+  "searcher_block": {
+    "calls_cached": 0.0,
+    "calls_total": 2400.0,
+    "cost_usd": 0.0,
+    "evaluations": 24000.0,
+    "first_batch_matches": 2.0,
+    "pairs": 12.0,
+    "primary_metric": 6.0,
+    "runner_exit_code": 0.0,
+    "sealed_lane": 0.0,
+    "tokens_in": 1623189.0,
+    "tokens_out": 873955.0,
+    "total_seconds": 5063.1,
+    "unparsed_replies": 531.0,
+    "valid_rulers": 788.0,
+    "wall_seconds": 5063.111629
+  },
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "encoders"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "encoders"
+  ],
+  "setup_seconds": 1.0258390160015551,
+  "stamp": "20261103T090054Z",
+  "started_at": "2026-11-03T09:00:56.353009Z",
+  "timed_out": false,
+  "timestamp": "2026-11-03T09:00:54.948626Z",
+  "tolerance": 0.0,
+  "tolerance_source": "exact",
+  "track": "llm",
+  "verifier": {
+    "artifact": "tables/solution_E0004.json",
+    "artifact_sha256": "6960c74fe37d4fac1da22ba00598b3320a69f93879526822ac7989f2f553eb92",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "log_tail": [
+      "warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.",
+      "---",
+      "primary_metric:    6.000000",
+      "metric_name:       optima_matched",
+      "metric_goal:       higher",
+      "training_seconds:  NA",
+      "total_seconds:     0.0",
+      "train_rows:        NA",
+      "val_rows:          NA",
+      "status:            ok",
+      "--- aux_metrics ---",
+      "wall_seconds:      0.001489",
+      "first_batch_matches: 2",
+      "pairs: 12",
+      "invalid_best: 2",
+      "sealed_lane: 0",
+      "runner_status: ok",
+      "runner_exit_code: 0"
+    ],
+    "primary": 6.0,
+    "timed_out": false,
+    "wall_seconds": 1.7749090679972142
+  },
+  "wall_seconds": 5068.911139143998,
+  "worktree_prepared": true
+}

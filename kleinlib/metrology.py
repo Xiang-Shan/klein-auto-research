@@ -56,13 +56,24 @@ __all__ = [
     "RECIPES",
     "RECIPE_ESTIMAND",
     "family_maxt",
+    "item_bootstrap",
+    "mcnemar_exact",
     "paired_bootstrap",
+    "paired_item_bootstrap",
+    "resample_spread",
+    "seed_item_variance",
     "seed_sweep",
     "split_lottery",
 ]
 
 #: The floor recipes the consult protocol names (``klein noise-floor --recipe``).
-RECIPES: tuple[str, ...] = ("seed-sweep", "split-lottery", "paired-bootstrap")
+RECIPES: tuple[str, ...] = (
+    "seed-sweep",
+    "split-lottery",
+    "paired-bootstrap",
+    "item-bootstrap",
+    "resample",
+)
 
 #: The estimands a floor may answer (``klein noise-floor --estimand``).
 #: ``fit-noise`` is deliberately NOT a keep bar — see :data:`FloorEstimate.block_key`.
@@ -75,6 +86,9 @@ RECIPE_ESTIMAND: dict[str, str] = {
     "seed-sweep": "fit-noise",
     "split-lottery": "marginal-resplit",
     "paired-bootstrap": "paired-comparison",
+    # Klein 2.3 — evaluations over a set of ITEMS (benchmarks, LLM evals):
+    "item-bootstrap": "marginal-resplit",  # the item set re-drawn: one candidate's level
+    "resample": "fit-noise",  # same items, the stochastic model re-queried: never the bar
 }
 
 #: Below this many replicate values a spread is not a measurement.
@@ -296,6 +310,145 @@ def paired_bootstrap(
         seeds=None,
         source=source,
     )
+
+
+# --------------------------------------------------------------------------
+# Item-level instruments (Klein 2.3): benchmarks and LLM evaluations
+# --------------------------------------------------------------------------
+
+
+def item_bootstrap(
+    scores: Sequence[float] | np.ndarray,
+    *,
+    n_boot: int = 1000,
+    seed: int = 0,
+    groups: Sequence[Any] | None = None,
+    source: str | None = None,
+) -> FloorEstimate:
+    """Resample the evaluated ITEMS (or whole clusters of them) and re-take the mean.
+
+    Estimand ``marginal-resplit``: how much one candidate's benchmark score moves
+    when the item set is re-drawn — the honest floor for a LEVEL on a few hundred
+    questions.  For a comparison of two candidates on the same items use
+    :func:`paired_item_bootstrap`.
+    """
+    values = np.asarray(scores, dtype=float)
+    if values.ndim != 1 or values.size < 2:
+        raise ValueError("item-bootstrap: scores must be a 1-D series of at least 2 items")
+    if not np.isfinite(values).all():
+        raise ValueError("item-bootstrap: scores must be finite")
+    if int(n_boot) < MIN_K:
+        raise ValueError(f"item-bootstrap: n_boot must be >= {MIN_K}")
+    rng = np.random.default_rng(seed)
+    if groups is None:
+        draws = rng.integers(0, values.size, size=(int(n_boot), values.size))
+        means = values[draws].mean(axis=1)
+    else:
+        labels, inverse = np.unique(np.asarray(groups).astype(str), return_inverse=True)
+        sums = np.bincount(inverse, weights=values, minlength=labels.size)
+        counts = np.bincount(inverse, minlength=labels.size).astype(float)
+        draws = rng.integers(0, labels.size, size=(int(n_boot), labels.size))
+        means = sums[draws].sum(axis=1) / counts[draws].sum(axis=1)
+    return _summarize(
+        [float(v) for v in means],
+        recipe="item-bootstrap",
+        estimand="marginal-resplit",
+        source=source,
+    )
+
+
+def resample_spread(
+    run_means: Sequence[float],
+    *,
+    source: str | None = None,
+) -> FloorEstimate:
+    """The spread of k re-queries of the SAME configuration on the SAME items.
+
+    Estimand ``fit-noise``: a stochastic model's sampling wobble (temperature,
+    nondeterministic serving).  Like a seed sweep it is provenance about the
+    instrument, never the keep bar.
+    """
+    return _summarize(list(run_means), recipe="resample", estimand="fit-noise", source=source)
+
+
+def paired_item_bootstrap(
+    scores_a: Mapping[str, float],
+    scores_b: Mapping[str, float],
+    *,
+    n_boot: int = 1000,
+    seed: int = 0,
+    source: str | None = None,
+) -> tuple[FloorEstimate, int]:
+    """Paired bootstrap of ``mean(a) - mean(b)`` over the items BOTH runs scored.
+
+    ``scores_a`` / ``scores_b`` map item id -> score (e.g. the per-item tables
+    ``kleinlib.eval_items.evaluate_items`` pins).  Items are aligned by id, never
+    by position; items only one run scored are dropped and the count of shared
+    items is returned beside the estimate so the report can say so.
+    """
+    shared = sorted(set(scores_a) & set(scores_b))
+    if len(shared) < 2:
+        raise ValueError("paired-item-bootstrap: the two runs share fewer than 2 items")
+    left = [float(scores_a[item]) for item in shared]
+    right = [float(scores_b[item]) for item in shared]
+    return paired_bootstrap(left, right, n_boot=n_boot, seed=seed, source=source), len(shared)
+
+
+def mcnemar_exact(
+    a: Sequence[float] | np.ndarray, b: Sequence[float] | np.ndarray
+) -> dict[str, float]:
+    """Exact (binomial) McNemar test for two paired binary outcomes on the same items.
+
+    ``a`` / ``b`` are 0/1 per item, aligned.  Only the discordant items carry
+    information: ``n10`` (a right, b wrong) and ``n01``.  Under H0 each
+    discordant item is a fair coin, so the two-sided p-value is
+    ``min(1, 2 * P(Binom(n10 + n01, 1/2) <= min(n10, n01)))``.
+    """
+    left = np.asarray(a, dtype=float)
+    right = np.asarray(b, dtype=float)
+    if left.shape != right.shape or left.ndim != 1 or left.size == 0:
+        raise ValueError("mcnemar: a and b must be aligned, non-empty 1-D series")
+    if not (np.isin(left, (0.0, 1.0)).all() and np.isin(right, (0.0, 1.0)).all()):
+        raise ValueError("mcnemar: outcomes must be 0 or 1")
+    n10 = int(np.sum((left == 1) & (right == 0)))
+    n01 = int(np.sum((left == 0) & (right == 1)))
+    discordant = n10 + n01
+    if discordant == 0:
+        p_value = 1.0
+    else:
+        low = min(n10, n01)
+        tail = sum(math.comb(discordant, i) for i in range(low + 1)) / 2.0**discordant
+        p_value = min(1.0, 2.0 * tail)
+    return {
+        "n": float(left.size),
+        "n10": float(n10),
+        "n01": float(n01),
+        "p_value": float(p_value),
+        "effect": float(left.mean() - right.mean()),
+    }
+
+
+def seed_item_variance(matrix: Sequence[Sequence[float]] | np.ndarray) -> dict[str, float]:
+    """Decompose a seeds x items score matrix into its two noise sources.
+
+    Rows are seeds (or re-queries), columns items.  Returns the variance of the
+    per-seed MEANS (what a single-seed headline wobbles by), the mean
+    within-item variance across seeds (sampling noise per item), and the
+    variance of the per-item means across items (how unequal the items are —
+    what an item bootstrap measures).
+    """
+    m = np.asarray(matrix, dtype=float)
+    if m.ndim != 2 or m.shape[0] < 2 or m.shape[1] < 2:
+        raise ValueError("seed_item_variance: need a (seeds >= 2) x (items >= 2) matrix")
+    if not np.isfinite(m).all():
+        raise ValueError("seed_item_variance: scores must be finite")
+    return {
+        "seeds": float(m.shape[0]),
+        "items": float(m.shape[1]),
+        "var_seed_means": float(np.var(m.mean(axis=1), ddof=1)),
+        "mean_within_item_var": float(np.mean(np.var(m, axis=0, ddof=1))),
+        "var_item_means": float(np.var(m.mean(axis=0), ddof=1)),
+    }
 
 
 # --------------------------------------------------------------------------

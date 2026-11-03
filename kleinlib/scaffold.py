@@ -875,7 +875,7 @@ def scaffold_study(
                     f"profile_doc: {profile_doc}   # a repo-local profile of your own"
                     if profile_doc is not None
                     else f'profile: "{profile or "{{PROFILE}}"}"'
-                    "            # generic | ml-research | math | insurance\n"
+                    "            # generic | ml-research | math | insurance | llm | cv | data-science\n"
                     "# profile_doc: profiles/my-field.md   # ... or a repo-relative profile of your own"
                 ),
                 "AUDIENCE": _quote_text(audience or "{{AUDIENCE}}"),
@@ -937,3 +937,28 @@ def scaffold_study(
     atomic_write_json(study_dir / "study_state.json", state)
     append_event(study_dir, "study_created", study_id=slug, schema_version=schema_version)
     return study_dir
+
+
+#: The uv launcher the templates write, and the plain one ``--runner python`` swaps in.
+_UV_LAUNCH = '"uv", "run", "--locked", "python", "-u", '
+_PLAIN_LAUNCH = '"python", "-u", '
+
+
+def apply_runner(study_dir: Path, runner: str) -> None:
+    """Rewrite the study's launch commands for a host without uv (``--runner python``).
+
+    Claude Science task environments, conda hosts and HPC modules often have a
+    working Python but no uv (or a read-only uv environment).  The entrypoint and
+    verifier commands then launch ``python -u <file>`` in the current interpreter;
+    ``klein replicate`` re-runs them in that same environment (it builds a uv
+    environment only for commands that start with ``uv run``), and the extended
+    environment record says which packages were present.
+    """
+    if runner not in {"uv", "python"}:
+        raise ValueError("runner must be uv or python")
+    if runner == "uv":
+        return
+    path = Path(study_dir) / "study.yaml"
+    text = path.read_text(encoding="utf-8")
+    path.write_text(text.replace(_UV_LAUNCH, _PLAIN_LAUNCH), encoding="utf-8")
+

@@ -24,7 +24,7 @@ uv run --locked klein new 05-my-study \
     --track primary [--track control:registered] [--split-seed 20260912]
 ```
 
-`--kind` (seven values), `--modality` (eight), `--profile` (four shipped, or
+`--kind` (seven values), `--modality` (eight), `--profile` (seven shipped, or
 `--profile-doc <path>`), `--audience`, repeatable `--track NAME[:MODE]`, `--split-seed`,
 and `--schema-version {2,3}` (3 is the default) are the schema-3 flags; the
 scaffolded entrypoint is named by kind — `train.py` (predict), `analyze.py` (estimate,
@@ -34,6 +34,32 @@ opens with the `## Roster`), the rolling `playbook.md`, the schema-3 `scouting_l
 prepare/train entrypoints, derived ledger header, auxiliary sidecar, initial
 `study_state.json`, first hash-chained event, and empty artifact/run directories. It refuses to overwrite an existing study dir.
 Flags fill matching placeholders; CONSULT fills the rest.
+
+### Domain recipes (`klein new --recipe <id>`, Klein 2.3)
+
+A recipe is the same scaffold plus a domain overlay, and every explicit flag still wins:
+
+| Recipe | Typed as | Default source (offline) | What it adds |
+|---|---|---|---|
+| `tabular-predict` | predict · tabular · generic | `sklearn:load_breast_cancer` | a working `prepare.py` + logistic-regression `train.py` |
+| `cv-classify` | predict · image · cv | `sklearn:load_digits` | payload `images.npy` + `index.csv`, an index split, `model.py` (small CNN) + `train.py`, `entrypoint.seeds: [0, 1, 2]`, `evaluate_multiclass` |
+| `dl-scaling` | estimate · image · ml-research | `sklearn:load_digits` | registered `primary` cells over training-set size (seed arrays) and an `exponent` track that fits the power law with a bootstrap interval |
+| `llm-eval` | test · text · llm | `synthetic:prepare.py` (procedural items with a solver-checked key) | a `predefined` split (few-shot pool / public / FRESH sealed block), a `calls:` ledger block, `analyze.py` prompt cell, `score.py` scorer outside the mutable surface |
+| `ds-causal` | estimate · tabular · data-science | `synthetic:make_data.py` (known ATT) | cross-fitted naive / IPW / AIPW ATT with a bootstrap interval |
+| `math-verify` | optimize · none · math | `synthetic:prepare.py` (instance + seed blocks) | a Golomb-ruler `search.py` and an exact `verify.py`, `exactness: exact` |
+
+Every recipe writes `entrypoint.printed: block`, a `policy:` block
+(`card_sections: enforce`, `realized_split: required`, `noise_floor: required`) and a
+`data_card.md` skeleton carrying exactly the headings that policy enforces. Its example
+code runs at once (`KLEIN_SMOKE=1 python prepare.py && KLEIN_SMOKE=1 python <entrypoint>`);
+switch `data.source` to your own data and edit the loader. What it never writes is
+judgment: the goal, research questions, predictions, audience and every data-card
+finding stay `{{placeholders}}`, and the gates refuse them.
+
+`--runner python` writes `python -u …` launch commands instead of `uv run --locked python
+-u …`, for hosts without uv (a conda environment, a Claude Science task environment, an
+HPC module); `klein replicate` then re-runs in the current interpreter, and the run's
+`usage.json` / extended record says what was installed.
 
 ## The canonical files (fixed names)
 
@@ -171,7 +197,8 @@ being on `main` as a failure for the loop — respect it.
 
 ## uv only
 
-All Python runs through locked `uv run`; all deps through `uv add`. `uv sync --locked` to set up;
+All Python runs through locked `uv run` (or, on a host without uv, `--runner python` —
+see above); all deps through `uv add`. `uv sync --locked` to set up;
 `--extra gbdt`, `--extra deep` for the optional stacks (dev tools are a default
 dependency group — plain `uv sync --locked` installs them). If `uv` is
 missing, install it first — never fall back to pip/conda (lockfile drift is

@@ -1,0 +1,79 @@
+"""Prepare the evaluation items (recipe llm-eval).
+
+Writes `data/prepared/index.csv` with one row per item — `id, question, answer,
+block, split` — and the contract splits it as `kind: predefined`:
+
+* `train`       — the few-shot exemplar pool (never scored);
+* `development` — the PUBLIC items every prompting cell is measured on;
+* `test`        — a FRESH block the model cannot have seen, used once, sealed.
+
+Default source `synthetic:prepare.py`: procedurally generated multi-step arithmetic
+word problems with exact answers (each generated item is checked by an independent
+solver below). A real study keeps the generator for the fresh block and loads a
+public benchmark (e.g. GSM8K, MIT licence) for `development` — bundled or pinned by
+sha256 — then audits contamination on the data card.
+"""
+
+from __future__ import annotations
+
+from fractions import Fraction
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+HERE = Path(__file__).resolve().parent
+NAMES = ["Ada", "Ben", "Chen", "Dara", "Eli", "Fay", "Gus", "Hana", "Ivo", "Jun"]
+ITEMS = ["apples", "pencils", "stamps", "marbles", "books", "shells"]
+
+
+def generate(n: int, seed: int, prefix: str) -> list[dict]:
+    rng = np.random.default_rng(seed)
+    rows = []
+    for i in range(n):
+        name, item = NAMES[rng.integers(len(NAMES))], ITEMS[rng.integers(len(ITEMS))]
+        a, b, c, k = (int(v) for v in rng.integers(3, 60, 4))
+        k = max(2, k % 6)
+        question = (
+            f"{name} has {a} {item}. {name} buys {b} more, then gives away {c}. "
+            f"{name} then splits the rest equally into {k} boxes, keeping any remainder. "
+            "How many are left over after filling the boxes?"
+        )
+        answer = (a + b - c) % k if a + b - c >= 0 else None
+        if answer is None:
+            continue
+        rows.append({"id": f"{prefix}{i:05d}", "question": question, "answer": str(answer)})
+    return rows
+
+
+def solver(question: str) -> int:
+    """An independent check of the generator's answer key (parses the numbers back)."""
+    nums = [int(tok.strip(".,")) for tok in question.split() if tok.strip(".,").isdigit()]
+    a, b, c, k = nums
+    return int(Fraction(a + b - c) % k)
+
+
+def main() -> None:
+    blocks = {
+        "train": generate(16, 11, "pool"),
+        "development": generate(120, 22, "pub"),
+        "test": generate(120, 33, "fresh"),
+    }
+    frames = []
+    for split, rows in blocks.items():
+        frame = pd.DataFrame(rows)
+        frame["block"] = "fewshot" if split == "train" else ("public" if split == "development" else "fresh")
+        frame["split"] = split
+        frames.append(frame)
+    index = pd.concat(frames, ignore_index=True)
+    bad = [r.id for r in index.itertuples() if solver(r.question) != int(r.answer)]
+    if bad:
+        raise SystemExit(f"answer key disagrees with the solver on {bad[:5]}")
+    out = HERE / "data" / "prepared"
+    out.mkdir(parents=True, exist_ok=True)
+    index.to_csv(out / "index.csv", index=False, lineterminator="\n")
+    print(f"prepared {len(index)} items: " + ", ".join(f"{k}={len(v)}" for k, v in blocks.items()))
+
+
+if __name__ == "__main__":
+    main()

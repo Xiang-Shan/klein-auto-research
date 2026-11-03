@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
@@ -10,17 +11,21 @@ from . import __version__
 from .cli_claims import register as register_claims
 from .cli_doctor import register as register_doctor
 from .cli_generation import register as register_generation
+from .cli_host import register as register_host
 from .cli_predict import register as register_predict
 from .cli_replicate import register as register_replicate
 from .cli_stop import register as register_stop
 from .cli_sweep import register as register_sweep
 from .contract import KNOWN_KINDS, load_contract, mutable_surface
 from .noise_floor import add_recipe_arguments
-from .scaffold import scaffold_study
+from .recipes import RECIPES, apply_recipe, recipe_defaults
+from .scaffold import apply_runner, scaffold_study
 from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
 from .workflow import (
     WorkflowError,
+    abandon_detached,
     acknowledge_headroom,
+    collect_detached,
     finalize,
     preflight_checks,
     record_gate,
@@ -48,7 +53,22 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--goal", help="one-sentence falsifiable study goal")
     new.add_argument("--domain", help="problem domain, e.g. insurance, optimization")
     new.add_argument("--target", help="target column (or 'synthetic' for known-truth labs)")
-    new.add_argument("--task-type", choices=("classification", "regression", "simulation", "scalar"), default="classification", help="evaluator shape for the study (scalar = known-truth labs and closed-form objectives; simulation is its schema-2 spelling)")
+    new.add_argument("--task-type", choices=("classification", "regression", "simulation", "scalar"), default=None, help="evaluator shape for the study (default: classification, or the recipe's; scalar = known-truth labs, closed-form objectives and item/benchmark scores; simulation is its schema-2 spelling)")
+    new.add_argument(
+        "--recipe",
+        choices=sorted(RECIPES),
+        help="a domain recipe (Klein 2.3): pre-fills kind / modality / profile / metric / split, "
+        "writes working example code on an offline default source and the 2.3 contract "
+        "blocks (printed block, seeds, policy). Explicit flags still win. Judgment stays "
+        "{{placeholders}} the gates refuse",
+    )
+    new.add_argument(
+        "--runner",
+        choices=("uv", "python"),
+        default="uv",
+        help="how the entrypoint is launched: `uv run --locked python` (default) or plain "
+        "`python` for hosts without uv (conda envs, Claude Science task environments)",
+    )
     new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
     new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
     new.add_argument(
@@ -102,7 +122,7 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--group-column", help="grouping column for split-kind=group")
     new.add_argument("--time-column", help="timestamp column for split-kind=time")
     new.add_argument("--split-seed", type=int, default=42, help="seed written into data.split (default: 42)")
-    new.add_argument("--max-run-seconds", type=int, default=600, help="hard per-run timeout enforced by run-one (default: 600)")
+    new.add_argument("--max-run-seconds", type=int, default=None, help="hard per-run timeout enforced by run-one (default: 600, or the recipe's)")
 
     gate = sub.add_parser("gate", help="record or explicitly override a gate")
     gate_sub = gate.add_subparsers(dest="gate_action", required=True)
@@ -180,15 +200,56 @@ def build_parser() -> argparse.ArgumentParser:
         help="permit an intentional identical replication (empty train.py diff)",
     )
     run.add_argument(
+        "--detach",
+        action="store_true",
+        help="Klein 2.3: do every pre-run check and the candidate commit, then file a DETACH "
+        "commit with runs/E####/job.json for a host to execute (`klein job exec`); needs "
+        "entrypoint.execution: [local, detached]. The study is frozen until --collect/--abandon",
+    )
+    run.add_argument(
+        "--collect",
+        metavar="E####",
+        help="judge a detached run from its job_result/ (receipt checked against the job bundle)",
+    )
+    run.add_argument(
+        "--abandon",
+        metavar="E####",
+        help="close an open detached run as a crash, on the record (needs --reason)",
+    )
+    run.add_argument("--reason", default="", help="why a detached run is abandoned")
+    run.add_argument(
         "--command",
         nargs=argparse.REMAINDER,
         help="test/debug override; default is: uv run --locked python -u train.py",
     )
 
+    job = sub.add_parser("job", help="execute a detached run's job bundle (Klein 2.3)")
+    job_sub = job.add_subparsers(dest="job_action", required=True)
+    job_exec = job_sub.add_parser(
+        "exec",
+        help="run runs/E####/job.json and write job_result/ + receipt.json for --collect",
+    )
+    job_exec.add_argument("job_json", type=Path, help="path to runs/E####/job.json")
+    job_exec.add_argument(
+        "--executor",
+        choices=("local", "here"),
+        default="local",
+        help="local: a throwaway worktree of this repo at HEAD (default); here: this checkout "
+        "(a dedicated clone on the host, at the detach commit)",
+    )
+    job_exec.add_argument("--quiet", action="store_true")
+
     recovery = sub.add_parser("recover", help="finish an interrupted evidence transaction")
     _study_arg(recovery)
     status = sub.add_parser("status", help="show gates, frontiers, transactions, and sealed-test use")
     _study_arg(status)
+    status.add_argument("--json", action="store_true", help="machine-readable status")
+    nxt = sub.add_parser(
+        "next",
+        help="the ONE next action this study needs, with the exact command (read-only)",
+    )
+    _study_arg(nxt)
+    nxt.add_argument("--json", action="store_true", help="machine-readable output")
     final = sub.add_parser("finalize", help="mark findings exploratory or confirmed")
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
@@ -282,6 +343,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
     register_doctor(sub)
     register_generation(sub)
+    register_host(sub)
     register_predict(sub)
     register_replicate(sub)
     register_stop(sub)
@@ -357,35 +419,48 @@ def main(argv: list[str] | None = None) -> int:
         if (handler := getattr(args, "handler", None)) is not None:
             return handler(args)  # a cli_<group> module's verb, dispatched generically
         if args.command_name == "new":
+            defaults: dict[str, object] = {}
+            if args.recipe:
+                if args.schema_version != 3:
+                    raise WorkflowError("--recipe scaffolds a schema-3 study")
+                defaults = recipe_defaults(args.recipe)
+            def pick(name: str, value: object, fallback: object = None) -> object:
+                return value if value is not None else defaults.get(name, fallback)
+            explicit_profile_doc = args.profile_doc is not None
             study = scaffold_study(
                 args.root,
                 args.slug,
                 goal=args.goal,
                 domain=args.domain,
-                target=args.target,
-                task_type=args.task_type,
+                target=pick("target", args.target),
+                task_type=pick("task_type", args.task_type, "classification"),
                 method_depth=args.method_depth,
-                family=args.family,
+                family=pick("family", args.family),
                 tracks=args.track,
-                metric_name=args.metric,
-                metric_goal=args.goal_direction,
+                metric_name=pick("metric_name", args.metric),
+                metric_goal=pick("metric_goal", args.goal_direction),
                 minimum_delta=args.minimum_delta,
-                data_source=args.data,
-                data_path=args.prepared_path,
-                split_kind=args.split_kind,
+                data_source=pick("data_source", args.data),
+                data_path=pick("data_path", args.prepared_path),
+                split_kind=pick("split_kind", args.split_kind),
                 split_seed=args.split_seed,
                 group_column=args.group_column,
                 time_column=args.time_column,
-                max_run_seconds=args.max_run_seconds,
+                max_run_seconds=pick("max_run_seconds", args.max_run_seconds, 600),
                 schema_version=args.schema_version,
-                kind=args.kind,
-                modality=args.modality,
-                profile=args.profile,
+                kind=pick("kind", args.kind),
+                modality=pick("modality", args.modality),
+                profile=None if explicit_profile_doc else pick("profile", args.profile),
                 profile_doc=args.profile_doc,
                 audience=args.audience,
             )
+            if args.recipe:
+                written = apply_recipe(study, args.recipe, split_seed=args.split_seed)
+                print(f"recipe {args.recipe}: wrote {', '.join(written)}")
+            if args.runner == "python":
+                apply_runner(study, "python")
             print(f"scaffolded {study}")
-            print(f"next: git switch -c experiments/{args.slug}")
+            print(f"next: git switch -c experiments/{args.slug}   # then: klein next --study {study}")
             return 0
         if args.command_name == "noise-floor":
             from .noise_floor import (
@@ -425,6 +500,16 @@ def main(argv: list[str] | None = None) -> int:
                 end="",
             )
             return 0
+        if args.command_name == "job":
+            from .job import exec_job
+
+            result = exec_job(args.job_json, executor=args.executor, echo=not args.quiet)
+            receipt = json.loads((result / "receipt.json").read_text(encoding="utf-8"))
+            print(
+                f"job {receipt['experiment']}: exit {receipt['exit_code']}"
+                f"{' (timeout)' if receipt['timed_out'] else ''} — receipt at {result / 'receipt.json'}"
+            )
+            return 0
         study = resolve_study(args.study)
         if args.command_name == "gate":
             record_gate(
@@ -453,6 +538,18 @@ def main(argv: list[str] | None = None) -> int:
         if args.command_name == "preflight":
             return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
         if args.command_name == "run-one":
+            if args.collect or args.abandon:
+                if args.collect and args.abandon:
+                    raise WorkflowError("--collect and --abandon are different acts; pick one")
+                if args.collect:
+                    manifest = collect_detached(study, args.collect, echo=not args.quiet)
+                else:
+                    manifest = abandon_detached(study, args.abandon, reason=args.reason)
+                print(
+                    f"{manifest['experiment']}: {manifest['disposition']} "
+                    f"metric={manifest['primary_metric']} (detached; attested, not observed)"
+                )
+                return 0 if manifest["disposition"] != "crash" or args.abandon else 1
             if args.dry_run:
                 if not args.final_test:
                     raise WorkflowError(
@@ -482,7 +579,14 @@ def main(argv: list[str] | None = None) -> int:
                 echo=not args.quiet,
                 allow_rerun=args.allow_rerun,
                 tests=args.tests,
+                detach=args.detach,
             )
+            if args.detach:
+                job = f"{study}/runs/{manifest['experiment']}/job.json"
+                print(f"{manifest['experiment']}: detached — candidate {manifest['candidate_commit'][:12]}")
+                print(f"next: klein job exec {job}   (on the host; --executor local runs it here in a worktree)")
+                print(f"then: klein run-one --study {study} --collect {manifest['experiment']}")
+                return 0
             label = manifest["disposition"]
             if (
                 manifest.get("evaluation_kind") == "final_test"
@@ -520,7 +624,21 @@ def main(argv: list[str] | None = None) -> int:
             print("recovered: " + (", ".join(recovered) if recovered else "none"))
             return 0
         if args.command_name == "status":
+            if args.json:
+                from .next_step import status_data
+
+                print(json.dumps(status_data(study), indent=2, sort_keys=True))
+                return 0
             print(status_summary(study), end="")
+            return 0
+        if args.command_name == "next":
+            from .next_step import format_next, next_step
+
+            result = next_step(study)
+            if args.json:
+                print(json.dumps(result, indent=2, sort_keys=True))
+            else:
+                print(format_next(result), end="")
             return 0
         if args.command_name == "finalize":
             label = finalize(

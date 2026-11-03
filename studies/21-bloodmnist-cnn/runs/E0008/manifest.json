@@ -1,0 +1,153 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 4798,
+      "committed": true,
+      "sha256": "975a0d88b0010436eec89db7d76686a23d4a54a3703752e8eab656a01628b819"
+    },
+    "runs/E0008/run.log": {
+      "availability": "recorded",
+      "bytes": 3483,
+      "committed": true,
+      "sha256": "1cbca6459109f75ae2896e73270e09fbf37472b87d1e4a1d733f5401ae0ee48d"
+    },
+    "runs/E0008/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 519,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "beb2eee754a337712d823f90845b73ae32be68b18a38a771a2a9190ad318fd2d"
+    },
+    "runs/E0008/usage.json": {
+      "availability": "recorded",
+      "bytes": 251,
+      "committed": true,
+      "role": "usage",
+      "sha256": "f491d59c69fb628cf4196862dc7e0f8797d477ba5cd0afcfa82e9b10fbcf530b"
+    },
+    "tables/confusion_E0008_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 188,
+      "committed": true,
+      "role": "declared",
+      "sha256": "65721325eb4337c2556f4ce3ece584000ffec057c8a1193dd2fa6823dd8ee9d0"
+    },
+    "tables/confusion_E0008_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 187,
+      "committed": true,
+      "role": "declared",
+      "sha256": "9dc6d937536f688763e82245c0bfee654ba9ac68de7e88aff335f59f2d57ff03"
+    },
+    "tables/confusion_E0008_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 189,
+      "committed": true,
+      "role": "declared",
+      "sha256": "73434766a7df02168bdf10b753e699c197053bb24aa64c8e4888afaf2024dac2"
+    }
+  },
+  "base_commit": "64d618be8010d7abd83f6d99b567980c1c5441a1",
+  "candidate_commit": "80be6152e0b1fbf9b42c2db71397bcecf4cdb9c3",
+  "code_patch_hash": "8473347157c5b5b886caab08bcb269fc6ad9730594037ee1f60884425bf1441b",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "train.py"
+  ],
+  "decision_reason": "frontier improvement over 0.896005333333 with minimum_delta=0.0438435",
+  "description": "P3 bundle: three conv blocks + BN (train-set running stats) + D4 augmentation + 4,000 steps; frontier improvement over 0.896005333333 with minimum_delta=0.0438435",
+  "disposition": "keep",
+  "ended_at": "2026-11-03T08:33:05.211305Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "execution": {
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "mode": "local"
+  },
+  "exit_code": 0,
+  "experiment": "E0008",
+  "fingerprints": {
+    "data": "f42c6818886facb9d7b23477d3309e4fa2e4ed0af792a0d38d4b9335ef22031d",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "29130f0c89b184e2de20455d92efd4243e9a5feab1ecaabeb285e82b90672e4b"
+  },
+  "incumbent": "E0004",
+  "max_run_seconds": 5400.0,
+  "metric_goal": "higher",
+  "metric_name": "val_macro_f1",
+  "metrics": {
+    "n_classes": 8.0,
+    "primary_metric": 0.9460933333333333,
+    "primary_metric_max": 0.954448,
+    "primary_metric_min": 0.937187,
+    "primary_metric_std": 0.008643713457382369,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 4000.0,
+    "total_seconds": 1142.7,
+    "train_rows": 11959.0,
+    "training_seconds": 1140.2666666666667,
+    "val_accuracy": 0.9522136666666666,
+    "val_balanced_accuracy": 0.9428493333333333,
+    "val_ece": 0.012515333333333331,
+    "val_macro_f1": 0.9460933333333333,
+    "val_mlogloss": 0.13334933333333335,
+    "val_rows": 1709.0,
+    "val_top5_accuracy": 0.9998049999999999,
+    "wall_seconds": 1142.6971210000002
+  },
+  "phase": "adaptive",
+  "phase_budget_seconds": 10800.0,
+  "phase_experiment_limit": 6,
+  "predictions": {
+    "P3": {
+      "explanation": "primary_metric 0.946093333333 >= 0.93 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P3"
+  ],
+  "primary_metric": 0.9460933333333333,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T07:35:42.196731Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-11-03T08:33:05.414420Z",
+    "evidence_commit": "8662f76c91d33921adb0ba3f8e236d52ab955a35",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "steps": 12000.0
+  },
+  "wall_seconds": 3443.014517904001
+}

@@ -1,0 +1,27 @@
+"""A known-truth observational dataset for the ds-causal recipe (synthetic:make_data.py).
+
+Treatment is confounded by age, schooling and prior earnings; the true effect on the
+treated (ATT) is fixed at 1000. A study that keeps this source is a TEACHING lab
+(claims stay `known-dgp-teaching`, scope in-silico); a real study replaces
+`data.source` with its own pinned files and `prepare.py`'s loader.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+
+TRUE_ATT = 1000.0
+
+
+def make(n: int = 4000, seed: int = 20260301) -> pd.DataFrame:
+    rng = np.random.default_rng(seed)
+    age = rng.integers(18, 56, n)
+    school = rng.integers(6, 17, n)
+    prior = np.maximum(0.0, rng.normal(6000 - 150 * (school < 12), 3000, n))
+    logit = -1.0 - 0.04 * (age - 30) - 0.2 * (school - 11) - 0.0002 * (prior - 5000)
+    treated = rng.random(n) < 1 / (1 + np.exp(-logit))
+    y0 = 2000 + 80 * school + 0.6 * prior + 30 * (age - 18) + rng.normal(0, 2500, n)
+    y = np.maximum(0.0, y0 + TRUE_ATT * treated)
+    return pd.DataFrame({"age": age, "school": school, "prior_earnings": prior.round(2),
+                         "treat": treated.astype(int), "y": y.round(2)})

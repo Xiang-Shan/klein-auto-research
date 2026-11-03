@@ -1,0 +1,62 @@
+<h2>The method taught</h2>
+
+<h3>A fitted exponent is a tangent line, not a law</h3>
+
+<p>On log-log axes almost any smooth, decreasing curve looks straight over a short
+enough interval. A fit over 1.5 decades measures the <em>average local slope</em> over
+that interval. That slope can be pinned precisely and still be the wrong slope to
+extrapolate with. The question the study asks is not &ldquo;how well is the line
+pinned?&rdquo; but &ldquo;is the curve still a line out there?&rdquo;</p>
+
+<h3>The law and how it is fitted</h3>
+
+<p>The pure law is a power in the training-set size, and taking logs turns the fit into
+ordinary least squares on the six seed-mean losses:</p>
+
+<div data-math-display="L(N) = a\,N^{-\alpha}\qquad\Longleftrightarrow\qquad \ln L = \ln a - \alpha \ln N"></div>
+
+<p>Each cell is a 3-seed array and the fit uses the seed mean
+<span data-math="\bar{L}_k = \tfrac{1}{3}\sum_{s=0}^{2} L_{k,s}"></span> of the development
+cross-entropy at each of the six sizes. R&sup2; is computed in log space. The printed
+interval for <span data-math="\alpha"></span> is a percentile bootstrap that resamples seeds
+within each N. Because subsamples are <em>nested</em> within a seed (the 500 images are
+part of the 1,000, and so on), that bootstrap is only a descriptive spread, never a calibrated
+95% interval.</p>
+
+<h3>Why the curve might bend</h3>
+
+<p>For a <em>fixed</em> model the data curve is expected to saturate at a model-dependent
+floor. The saturating alternative is</p>
+
+<div data-math-display="L(N) = L_{\infty} + b\,N^{-\beta}"></div>
+
+<p>A floor makes the local slope decay toward zero as N grows, so a straight line fitted
+on the steep early part predicts a loss that is too low further out: the pure law would
+be <em>optimistic</em>. That is the bet behind P4 and P6. R&sup2; cannot arbitrate: the method card's
+synthetic checks show a curve whose pure-law extrapolation misses by 20 percent can
+still score R&sup2; above 0.98.</p>
+
+<h3>The sealed test and its error</h3>
+
+<p>After the fit is frozen, the network is trained once on the whole pool and scored once
+on the test set. For each seed the study records the signed relative error, and the
+notary averages it over the three seeds:</p>
+
+<div data-math-display="e = \frac{L_{\mathrm{measured}} - L_{\mathrm{predicted}}}{L_{\mathrm{measured}}},\qquad L_{\mathrm{predicted}} = a\,N_{\star}^{-\alpha},\quad N_{\star} = 59992"></div>
+
+<p>A positive <span data-math="e"></span> means the law was optimistic. P3 asks whether
+<span data-math="|e| \le 0.20"></span>, P4 whether <span data-math="e > 0"></span>, and P6 whether
+<span data-math="e"></span> lies in [0.03, 0.25]. The seed mean of per-seed errors differs slightly from the
+error of the seed-mean loss (erratum E1 in section 5 records that); the verdicts do not change.</p>
+
+<h3>The training protocol the cells share</h3>
+
+<p>The network, optimizer and schedule are fixed in <code>lib/protocol.py</code>, outside the
+mutable surface, so a cell changes N and nothing else. A cell trains for</p>
+
+<div data-math-display="\text{steps}(N) = \min\!\Big(12000,\ \max\!\big(400,\ \lceil 20\, n_{\mathrm{fit}} / 128 \rceil\big)\Big)"></div>
+
+<p>optimizer steps, where <span data-math="n_{\mathrm{fit}}"></span> is the 90 percent of the
+subsample it trains on. The other 10 percent is an inner validation set used to keep the best checkpoint,
+which is early stopping. This is the load-bearing design detail for the rest of the page: the 400-step floor
+means the three smallest cells share one budget, as section 4 shows.</p>

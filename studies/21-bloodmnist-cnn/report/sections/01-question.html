@@ -1,0 +1,10 @@
+<h2>The question</h2>
+<p>A practitioner trains a small CNN on a benchmark of blood-cell photographs, changes one thing at a time, and watches a number go up. The decision this study informs is: <strong>when is a change a real improvement and not seed luck or the wobble of a small evaluation set?</strong> The concrete task is BloodMNIST, eight classes of normal blood cells at 28 &times; 28 pixels, official split, on a CPU budget. The registered questions ask how far a linear softmax on raw pixels gets (RQ1), whether the recipe two-block CNN clears it by more than the measured floor (RQ2), which single change earns a keep once a CNN is in place (RQ3), and whether the final incumbent holds on the sealed official test split and how it sits against MedMNIST v2's ResNet-18 (28) accuracy of 0.958 (RQ4).</p>
+
+<h3>Takeaways</h3>
+<ul>
+<li><strong>The recipe CNN barely beat a linear model.</strong> The anchor scored a macro-F1 of 0.7189 against 0.6903 for pixel-linear softmax, a gap of 0.65 keep bars. Prediction P2 (at least 0.85) was refuted.</li>
+<li><strong>Two changes earned a keep.</strong> Batch normalization, once a running-statistics bug was repaired (E0004, 0.8960), and a four-lever bundle (E0008, 0.9461) whose gain cannot be attributed to any single lever.</li>
+<li><strong>The sealed run held.</strong> One access to the official test split scored a macro-F1 of 0.9465 and an accuracy of 0.9527, 0.0053 below the published 0.958, which is indistinguishable from ResNet-18 (28) at this test size.</li>
+</ul>
+<p>Scope travels with every number on this page: all scores are <strong>image-level</strong>. The official MedMNIST split is not grouped by patient or smear, so nothing here estimates performance on a new patient. The final records (claim totals, the referee verdict, the finalization label) are copied from the study's state files into the evidence block in section 5.</p>

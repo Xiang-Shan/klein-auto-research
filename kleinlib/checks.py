@@ -70,12 +70,14 @@ from .state import (
 )
 from .transaction import (
     GIT_TEXT,
+    PATCH_ABBREV_ACCEPTED,
     commit_state_writes,
     current_branch,
     git,
     git_blob,
     relative,
     repo_root_for,
+    surface_patch,
 )
 
 __all__ = [
@@ -107,6 +109,25 @@ ABSENT_LOCAL_ARTIFACT = (
     "re-run prepare.py / `klein replicate` to re-check"
 )
 
+
+
+def _patch_hash_matches(
+    repo: Path, base: str, candidate: str, surface_rels: Sequence[str], recorded: object
+) -> bool:
+    """Does the surface patch between two commits hash to ``recorded``?
+
+    The bytes depend on the object-name width git prints on ``index`` lines, which
+    git derives from the repository's size unless pinned (a fresh clone printed 8
+    where the recording repository printed 7). The patch is re-derived at each
+    width git can have used — the content it binds is the same at every width.
+    """
+    for abbrev in PATCH_ABBREV_ACCEPTED:
+        patch = surface_patch(repo, base, candidate, surface_rels, abbrev=abbrev)
+        if patch.returncode:
+            return False
+        if sha256_bytes(patch.stdout.encode(*GIT_TEXT)) == recorded:
+            return True
+    return False
 
 def _is_git_ignored(repo: Path | None, path: Path) -> bool:
     """True when .gitignore covers ``path`` (tracked paths are never ignored)."""
@@ -175,12 +196,9 @@ def _v2_ledger_problems(
             base = manifest.get("base_commit")
             candidate = manifest.get("candidate_commit")
             if isinstance(base, str) and isinstance(candidate, str):
-                patch = git(
-                    repo,
-                    ["diff", "--binary", base, candidate, "--", *surface_rels],
-                    check=False,
-                )
-                if patch.returncode or sha256_bytes(patch.stdout.encode(*GIT_TEXT)) != manifest.get("code_patch_hash"):
+                if not _patch_hash_matches(
+                    repo, base, candidate, surface_rels, manifest.get("code_patch_hash")
+                ):
                     problems.append(f"{run_id}: code_patch_hash does not match commits")
             artifacts = manifest.get("artifacts", {})
             if isinstance(artifacts, Mapping):
@@ -599,7 +617,9 @@ def _verifier_hash_check(
 
 
 #: How a schema-3 study is supposed to obtain its partitions.
-_CONTRACT_SPLIT_RE = re.compile(r"\b(contract_split|load_partition)\s*\(")
+#: ``load_items`` is the index-table wrapper over ``load_partition`` (2.3), so a
+#: study that calls it IS routed through the contract (found at studies 20/21).
+_CONTRACT_SPLIT_RE = re.compile(r"\b(contract_split|load_partition|load_items)\s*\(")
 
 
 def _contract_split_check(study_dir: Path, state: Mapping[str, Any]) -> Check:
@@ -932,6 +952,11 @@ def _profile_path(study_dir: Path, contract: Mapping[str, Any]) -> Path | None:
         candidate = root / PROFILE_DIR / f"{name}.md"
         if candidate.is_file():
             return candidate
+        # A wheel install has no `.claude/` tree; the wheel carries the same
+        # profiles as package data (pyproject force-include, Klein 2.3).
+        packaged = Path(__file__).resolve().parent / "_profiles" / f"{name}.md"
+        if packaged.is_file():
+            return packaged
     return None
 
 
@@ -1141,6 +1166,21 @@ def verify_study(
     )
     checks += _numbers_checks(study_dir, state, enabled=want_numbers, enforcing=schema_3)
     checks += _figure_rerender_checks(study_dir, enabled=schema_3)
+    # A detached run (Klein 2.3) freezes the study: the row appears only while one
+    # is open, and no receipt is written over an unjudged run.
+    from .primitives import open_detached_run
+
+    detached = open_detached_run(study_dir)
+    if detached is not None:
+        checks.append(
+            Check(
+                "detached run",
+                False,
+                f"{detached} is open — klein run-one --collect {detached} "
+                f"(or --abandon {detached} --reason …) before verifying",
+            )
+        )
+        want_receipt = False
     if want_receipt:
         checks += _receipt_checks(study_dir, contract, state, checks, version)
     return checks
@@ -1438,6 +1478,25 @@ def _figure_render_timeout() -> float:
     return float(FIGURE_RENDER_TIMEOUT)
 
 
+def figure_render_env(config_dir: Path) -> dict[str, str]:
+    """The environment a figure script renders in, independent of the machine.
+
+    A machine-wide matplotlib config (``$MATPLOTLIBRC``, ``~/.config/matplotlib``)
+    changes fonts and hinting, so the same script drew different pixels on a host
+    whose config preferred an installed font than on a CI runner without it
+    (found on PR 3: every 2.3 exhibit failed figure re-render on CI). The script
+    gets matplotlib's own defaults, fonts it bundles and the Agg backend: an empty
+    rc file in ``config_dir``, used as both ``MATPLOTLIBRC`` and ``MPLCONFIGDIR``.
+    Render committed figures the same way (``tutorial-spec.md``).
+    """
+    config_dir.mkdir(parents=True, exist_ok=True)
+    rc = config_dir / "matplotlibrc"
+    rc.write_text("# klein: matplotlib defaults only\n", encoding="utf-8")
+    env = dict(os.environ)
+    env.update({"MPLBACKEND": "Agg", "MATPLOTLIBRC": str(rc), "MPLCONFIGDIR": str(config_dir)})
+    return env
+
+
 def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
     """Re-run ``figures/make_figures.py`` into a temp dir and compare the bytes.
 
@@ -1465,7 +1524,8 @@ def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
         ]
     committed_dir = study_dir / "figures"
     before = _figures_snapshot(committed_dir)
-    with tempfile.TemporaryDirectory(prefix="klein-figures-") as temporary:
+    with tempfile.TemporaryDirectory(prefix="klein-figures-") as temporary, \
+            tempfile.TemporaryDirectory(prefix="klein-mplconfig-") as mplconfig:
         out = Path(temporary)
         try:
             result = subprocess.run(  # noqa: S603 - a study's own committed script
@@ -1482,6 +1542,7 @@ def _figure_rerender_checks(study_dir: Path, *, enabled: bool) -> list[Check]:
                 timeout=_figure_render_timeout(),
                 check=False,
                 cwd=str(repo_root_for(study_dir)) if _in_repo(study_dir) else str(study_dir),
+                env=figure_render_env(Path(mplconfig)),
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
             _restore_figures(committed_dir, before)

@@ -51,7 +51,7 @@ import uuid
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
@@ -76,12 +76,18 @@ __all__ = [
     "MetricSpec",
     "evaluate",
     "evaluate_estimate",
+    "evaluate_items",
+    "evaluate_multiclass",
+    "evaluate_ranking",
     "evaluate_regression",
     "evaluate_scalar",
+    "evaluate_segmentation",
+    "evaluate_survival",
     "evaluate_table",
     "evaluate_test",
     "evaluate_with_inner_cv",
     "get_metric_spec",
+    "pass_at_k",
     "save_holdout_predictions",
 ]
 
@@ -133,7 +139,32 @@ _METRIC_SPECS: dict[str, MetricSpec] = {
     "val_poisson_deviance": MetricSpec("val_poisson_deviance", "lower", "regression"),
     "val_gamma_deviance": MetricSpec("val_gamma_deviance", "lower", "regression"),
     "val_tweedie_deviance": MetricSpec("val_tweedie_deviance", "lower", "regression"),
+    # Klein 2.3 — multiclass (kleinlib.eval_multiclass.evaluate_multiclass)
+    "val_accuracy": MetricSpec("val_accuracy", "higher", "classification"),
+    "val_balanced_accuracy": MetricSpec("val_balanced_accuracy", "higher", "classification"),
+    "val_macro_f1": MetricSpec("val_macro_f1", "higher", "classification"),
+    "val_top5_accuracy": MetricSpec("val_top5_accuracy", "higher", "classification"),
+    "val_mlogloss": MetricSpec("val_mlogloss", "lower", "classification"),
+    "val_ece": MetricSpec("val_ece", "lower", "classification"),
+    # Klein 2.3 — per-item benchmarks (kleinlib.eval_items.evaluate_items)
+    "exact_match": MetricSpec("exact_match", "higher", "scalar"),
+    "item_accuracy": MetricSpec("item_accuracy", "higher", "scalar"),
+    "pass_at_k": MetricSpec("pass_at_k", "higher", "scalar"),
+    "mean_item_score": MetricSpec("mean_item_score", "higher", "scalar"),
+    # Klein 2.3 — ranking, survival, segmentation (kleinlib.eval_structured)
+    "val_ndcg_at_k": MetricSpec("val_ndcg_at_k", "higher", "scalar"),
+    "val_mrr": MetricSpec("val_mrr", "higher", "scalar"),
+    "val_recall_at_k": MetricSpec("val_recall_at_k", "higher", "scalar"),
+    "val_c_index": MetricSpec("val_c_index", "higher", "scalar"),
+    "val_miou": MetricSpec("val_miou", "higher", "scalar"),
+    "val_dice": MetricSpec("val_dice", "higher", "scalar"),
 }
+
+#: The metrics binary :func:`evaluate` computes; the multiclass names above are
+#: scored by ``evaluate_multiclass`` and refused here.
+BINARY_METRICS = frozenset(
+    {"val_auc", "val_pr_auc", "val_logloss", "val_brier", "val_lift_top10", "val_f1_at_best"}
+)
 
 #: Best achievable value for each hard-bounded metric — the basis for the
 #: headroom (detection-limit) audit: with ``goal: lower`` and an ideal of 0,
@@ -153,6 +184,21 @@ KNOWN_IDEALS: dict[str, float] = {
     "val_poisson_deviance": 0.0,
     "val_gamma_deviance": 0.0,
     "val_tweedie_deviance": 0.0,
+    "val_accuracy": 1.0,
+    "val_balanced_accuracy": 1.0,
+    "val_macro_f1": 1.0,
+    "val_top5_accuracy": 1.0,
+    "val_mlogloss": 0.0,
+    "val_ece": 0.0,
+    "exact_match": 1.0,
+    "item_accuracy": 1.0,
+    "pass_at_k": 1.0,
+    "val_ndcg_at_k": 1.0,
+    "val_mrr": 1.0,
+    "val_recall_at_k": 1.0,
+    "val_c_index": 1.0,
+    "val_miou": 1.0,
+    "val_dice": 1.0,
 }
 
 #: The deviance family follows the exposure-weighted-rate convention: the
@@ -558,6 +604,11 @@ def evaluate(
     metric as a plain float.
     """
     spec = get_metric_spec(metric_name, goal=metric_goal, task="classification")
+    if spec.name not in BINARY_METRICS:
+        raise ValueError(
+            f"evaluate() is the BINARY evaluator; {spec.name!r} is scored by "
+            "kleinlib.eval_multiclass.evaluate_multiclass"
+        )
     p, proba_std, proba_range, proba_unique = _validate_probabilities(
         _positive_class_probabilities(model, X_va, y_va),
         collapse_rtol=collapse_rtol,
@@ -1264,6 +1315,8 @@ def evaluate_with_inner_cv(
     exactly this, and nothing was auditing the inner one.
     """
     spec = get_metric_spec(metric, task="classification")
+    if spec.name not in BINARY_METRICS:
+        raise ValueError(f"evaluate_with_inner_cv is binary-only; {spec.name!r} is a multiclass metric")
     if groups is None:
         splitter: Any = StratifiedKFold(
             n_splits=n_splits, shuffle=True, random_state=42
@@ -1293,3 +1346,32 @@ def evaluate_with_inner_cv(
         scores.append(spec.validate_value(values[spec.name]))
     mean_score = spec.validate_value(np.mean(scores))
     return mean_score, scores
+
+
+# ---------------------------------------------------------------------------
+# Klein 2.3 evaluators — re-exported LAZILY (PEP 562) so `from kleinlib.eval import
+# evaluate_multiclass` keeps being the one import an entrypoint needs, while the
+# submodules (which import the printing helpers above) can also be imported first.
+# ---------------------------------------------------------------------------
+if TYPE_CHECKING:  # the names __all__ promises, for readers and type checkers
+    from .eval_items import evaluate_items, pass_at_k
+    from .eval_multiclass import evaluate_multiclass
+    from .eval_structured import evaluate_ranking, evaluate_segmentation, evaluate_survival
+
+_LAZY_EVALUATORS = {
+    "evaluate_items": "eval_items",
+    "pass_at_k": "eval_items",
+    "evaluate_multiclass": "eval_multiclass",
+    "evaluate_ranking": "eval_structured",
+    "evaluate_segmentation": "eval_structured",
+    "evaluate_survival": "eval_structured",
+}
+
+
+def __getattr__(name: str) -> Any:
+    module = _LAZY_EVALUATORS.get(name)
+    if module is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    import importlib
+
+    return getattr(importlib.import_module(f"{__package__}.{module}"), name)

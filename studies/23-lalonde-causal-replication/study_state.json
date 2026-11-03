@@ -1,0 +1,392 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T06:15:31.245849Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T04:47:19.679970Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T05:02:33.625631Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T07:56:09.084962Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "1ecc6c86f43b910e1fabcf53e87be637157ee1dc114b052d2fbb88b48b3287d0",
+    "method_card.md": "058fb9f47afa5bd1f5450cfaf0f45457a2f099b4281d1a142d8b8a78456c0e85",
+    "referee_report.md": "0ef24875d798d778a3bbf9926bf85df1e2fb998daf5c5991d61a3715b0bfa942",
+    "research_plan.md": "efb81b07f8ecacbd13cdb2ef70ee51e8e836e0acc6a805505b08c46cb0838973",
+    "scouting_ledger.md": "ab1fce365d651104bbe24a6d8f1b38b6dcf061e912187bb7cca459bc0cede43b",
+    "study.yaml": "b8cb958c06c617f35fdc05a7a24ad649ae957077412317072bc0f31436e99b7f"
+  },
+  "created_at": "2026-11-03T04:41:22.375465Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "att": {
+      "accessed_at": "2026-11-03T06:29:18.984332Z",
+      "count": 1,
+      "experiment": "E0009"
+    },
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "reproduction": {
+      "accessed_at": "2026-11-03T05:58:19.640367Z",
+      "count": 1,
+      "experiment": "E0008"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "att": 1,
+      "reproduction": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee round 2 (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "att": "E0009",
+      "reproduction": "E0008"
+    },
+    "timestamp": "2026-11-03T08:34:35.654758Z"
+  },
+  "fingerprints": {
+    "data": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a",
+    "split": {
+      "development": "301cc9c3c8cd54188515afa3f24fa45ec6b75350e5cbe1b111a194ea5392a67c",
+      "final_test": "b2409a22372d6caee501b263c218947569e4f3b2b827a227c10b0008831680a4",
+      "policy": "e9ad8ff84b3e250779c4366d2e1b529459e2de3cbc860fac1a19b6fdf2935130"
+    },
+    "verifier": {}
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-11-03T06:15:31.245849Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "4d2cdd58cb0c5025e1383aa1b5e2f145860d1b27eb39ee9e8edaa17d00e04f09",
+        "research_plan.md": "efb81b07f8ecacbd13cdb2ef70ee51e8e836e0acc6a805505b08c46cb0838973",
+        "scouting_ledger.md": "ab1fce365d651104bbe24a6d8f1b38b6dcf061e912187bb7cca459bc0cede43b",
+        "study.yaml": "b8cb958c06c617f35fdc05a7a24ad649ae957077412317072bc0f31436e99b7f"
+      },
+      "note": "RE-RECORD: max_run_seconds 900 -> 10800, att wall_seconds guardrail 900 -> 10800, confirmation budget_seconds 2400 -> 14400, because the mandatory ATT dry run timed out under machine load; the selected cell, predictions, rules and targets are unchanged",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-11-03T04:47:19.679970Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "1ecc6c86f43b910e1fabcf53e87be637157ee1dc114b052d2fbb88b48b3287d0"
+      },
+      "note": "delegated (program.md Roster). GO with cautions WARN-2..4; WARN-1 was a leakage-harness defect fixed in kleinlib before this record, audit 7/7",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-11-03T05:02:33.625631Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "058fb9f47afa5bd1f5450cfaf0f45457a2f099b4281d1a142d8b8a78456c0e85"
+      },
+      "note": "delegated (program.md Roster). Card complete (triad theory/papers/practice); refs verify 18 references, 0 failed",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-11-03T07:56:09.084962Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "0ef24875d798d778a3bbf9926bf85df1e2fb998daf5c5991d61a3715b0bfa942"
+      },
+      "independent_of_experimenter": true,
+      "note": "round 2 PASS-WITH-NOTES by a fresh-context klein-referee (Opus tier; rung: model vs the Sonnet experimenter, fresh session vs the synthesist); round 1 FAIL cleared; notes answered in program.md",
+      "referee": "klein-referee round 2 (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 9,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "anchor": {
+      "acknowledged_at": "2026-11-03T05:05:33.314631Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated (program.md Roster). E0001: 9/11 targets reproduce; the 2 misses (PSID-1 adjusted value and SE) are the ones explained in advance by Table 3 mixing Panel C columns (4)/(5); proceed to estimators",
+      "playbook_sha256": "728da47b2dc675f64eb21869cb92eecd5def2a8793f6a0cbd8472f287bf586b9"
+    },
+    "confirmation": {
+      "acknowledged_at": "2026-11-03T07:07:11.529057Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated (program.md Roster). E0008 sealed reproduction: 2 pre-announced misses (P6 refuted); E0009 sealed AIPW on CPS-1: gap -466.80 (P7 supported); E0001 and E0006 replicated exactly; 7/7 predictions adjudicated",
+      "playbook_sha256": "789b4047d1e608c063016d087ad390182583f745c3a7524ea0dd5c415d2dc819"
+    },
+    "estimators": {
+      "acknowledged_at": "2026-11-03T05:56:38.982658Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated (program.md Roster). E0002 IPW +1244 (P2 refuted), E0005 match -1234 (P4 refuted), E0006 AIPW +889 (P3 supported), E0007 IPW no-RE74 -1810 (P5 supported); E0003/E0004 driver crashes; AIPW selected by the registered rule before any sealed access",
+      "playbook_sha256": "c201180cc86d800b16ea825d3d6a708b5665b019bb9292bb1ababa09415ebe91"
+    }
+  },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+          "recorded_at": "2026-11-03T05:04:48.865957Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:04:48.865957Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P2": {
+      "evidence": [
+        "E0002"
+      ],
+      "explanation": "|att_gap_usd| 1244.09319226 <= 1000 (from 1244.09319226) \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0002"
+          ],
+          "explanation": "|att_gap_usd| 1244.09319226 <= 1000 (from 1244.09319226) \u2192 refuted",
+          "recorded_at": "2026-11-03T05:11:08.018044Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:11:08.018044Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P3": {
+      "evidence": [
+        "E0006"
+      ],
+      "explanation": "|att_gap_usd| 889.47583774 <= 1000 (from 889.47583774) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0006"
+          ],
+          "explanation": "|att_gap_usd| 889.47583774 <= 1000 (from 889.47583774) \u2192 supported",
+          "recorded_at": "2026-11-03T05:29:32.594827Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:29:32.594827Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P4": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "|att_gap_usd| 1234.06100792 <= 1000 (from -1234.06100792) \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "|att_gap_usd| 1234.06100792 <= 1000 (from -1234.06100792) \u2192 refuted",
+          "recorded_at": "2026-11-03T05:15:08.266245Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:15:08.266245Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P5": {
+      "evidence": [
+        "E0007"
+      ],
+      "explanation": "not(|att_gap_usd| 1809.67269862 <= 1000 (from -1809.67269862) \u2192 refuted) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0007"
+          ],
+          "explanation": "not(|att_gap_usd| 1809.67269862 <= 1000 (from -1809.67269862) \u2192 refuted) \u2192 supported",
+          "recorded_at": "2026-11-03T05:37:41.835084Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:37:41.835084Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P6": {
+      "evidence": [
+        "E0008"
+      ],
+      "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0008"
+          ],
+          "explanation": "primary_metric 2 <= 0 \u2192 refuted",
+          "recorded_at": "2026-11-03T05:58:22.038856Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T05:58:22.038856Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P7": {
+      "evidence": [
+        "E0009"
+      ],
+      "explanation": "|att_gap_usd| 466.804191717 <= 1000 (from -466.804191717) \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0009"
+          ],
+          "explanation": "|att_gap_usd| 466.804191717 <= 1000 (from -466.804191717) \u2192 supported",
+          "recorded_at": "2026-11-03T06:49:48.828300Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T06:49:48.828300Z",
+      "source": "run",
+      "verdict": "supported"
+    }
+  },
+  "prepared_data": {
+    "path": "/home/user/klein-auto-research/studies/23-lalonde-causal-replication/data/prepared/prepared.csv",
+    "sha256": "579df9aacd3f053159ef325bf8b23c159910d6aaece040d404d630e67e0e257a"
+  },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20261103T065031Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T06:50:31.466631Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "reproduction"
+    },
+    "E0002": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0002@20261103T075625Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T07:56:25.242160Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "att"
+    },
+    "E0005": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0005@20261103T081034Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T08:10:34.190727Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "att"
+    },
+    "E0006": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0006@20261103T065104Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T06:51:04.144192Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "att"
+    },
+    "E0007": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0007@20261103T082630Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T08:26:30.742375Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "att"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "23-lalonde-causal-replication",
+  "updated_at": "2026-11-03T08:34:35.654795Z"
+}

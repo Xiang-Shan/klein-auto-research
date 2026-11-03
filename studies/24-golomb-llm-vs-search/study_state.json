@@ -1,0 +1,281 @@
+{
+  "acknowledgements": {
+    "consult": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T07:03:20.300738Z"
+    },
+    "data": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T06:19:04.608560Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T06:19:06.679690Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T10:43:32.631768Z"
+    }
+  },
+  "artifact_hashes": {
+    "data_card.md": "d191937cd21d1f9cca3eca39d3d205cadcd95b3c183fd9258221738f411148df",
+    "method_card.md": "28b4ab4617e0a798054032ef9750eb9c07f2513f3945fcd47a891d0a0f00b077",
+    "referee_report.md": "475a68665ff13b5ea4d15f79d9901d947475ec5142fb7647e6a1c9b412734e25",
+    "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
+    "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
+    "study.yaml": "467cbc8fe64c6399648b955e85d68015bc7bd53a7763dcc631512eeed10ce1b4"
+  },
+  "created_at": "2026-11-03T05:00:23.311898Z",
+  "current_phase": "confirmation",
+  "final_holdout_access": {
+    "llm": {
+      "accessed_at": "2026-11-03T08:00:19.314020Z",
+      "count": 1,
+      "experiment": "E0006"
+    },
+    "primary": {
+      "accessed_at": null,
+      "count": 0,
+      "experiment": null
+    },
+    "search": {
+      "accessed_at": "2026-11-03T08:00:03.874749Z",
+      "count": 1,
+      "experiment": "E0005"
+    }
+  },
+  "finalization": {
+    "final_holdout_counts": {
+      "llm": 1,
+      "search": 1
+    },
+    "label": "confirmed",
+    "referee": {
+      "independent_of_experimenter": true,
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "refereed",
+      "verdict": "PASS-WITH-NOTES"
+    },
+    "successful_confirmation": {
+      "llm": "E0006",
+      "search": "E0005"
+    },
+    "timestamp": "2026-11-03T10:49:40.314318Z"
+  },
+  "fingerprints": {
+    "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+    "split": {
+      "note": "[WARN] realized split fingerprints not recorded (ValueError: data.split.kind is 'none': this study's comparability comes from declared seed blocks, not from row partitions \u2014 build them in the entrypoint and print split_fingerprint yourself); run-one will proceed with a printed notice instead of comparing",
+      "policy": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+    },
+    "verifier": {
+      "verify.py": "63a60221be1a0b66c36095c804d08799df889156c7299c1129df16f2c0bc903c"
+    }
+  },
+  "gates": {
+    "consult": {
+      "acknowledged_at": "2026-11-03T07:03:20.300738Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "program.md": "7dbddb63ca94b3464fb8e5294c44b8dd259dc07894465afbaaf79a404e568f86",
+        "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
+        "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
+        "study.yaml": "467cbc8fe64c6399648b955e85d68015bc7bd53a7763dcc631512eeed10ce1b4"
+      },
+      "note": "RE-RECORD: E0003 crashed on a dropped connection (now retried by the transport); development max_experiments 3 -> 4 so the pre-registered LLM cell runs once more; no prediction, rule, track or cell changed",
+      "status": "recorded"
+    },
+    "data": {
+      "acknowledged_at": "2026-11-03T06:19:04.608560Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "data_card.md": "d191937cd21d1f9cca3eca39d3d205cadcd95b3c183fd9258221738f411148df"
+      },
+      "note": "delegated (program.md Roster). GO with cautions WARN 1-4 (self-reported budget parity, memorizable public optima, optimality from literature, candidate-count budget matching); both verifier holes found in review closed and tested",
+      "status": "recorded"
+    },
+    "method": {
+      "acknowledged_at": "2026-11-03T06:19:06.679690Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "28b4ab4617e0a798054032ef9750eb9c07f2513f3945fcd47a891d0a0f00b077"
+      },
+      "note": "delegated (program.md Roster). Card complete (triad all true); verify.py hashed at its final form; adversarial re-check: no load-bearing claim refuted",
+      "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-11-03T10:43:32.631768Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "475a68665ff13b5ea4d15f79d9901d947475ec5142fb7647e6a1c9b412734e25"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
+    }
+  },
+  "last_experiment": 6,
+  "overrides": [],
+  "phase_acknowledgements": {
+    "development": {
+      "acknowledged_at": "2026-11-03T07:59:40.058265Z",
+      "acknowledged_by": "lead-agent",
+      "note": "delegated. E0001 search 0/12 (P1 supported); E0004 LLM 6/12, first-batch 1 (P2, P3 refuted); E0002/E0003 transport crashes, fixed in the ledger",
+      "playbook_sha256": "9589b6edccf001ae86e5f2d095286136dd54a69d683780f85860091b4be33d1a"
+    }
+  },
+  "predictions": {
+    "P1": {
+      "evidence": [
+        "E0001"
+      ],
+      "explanation": "primary_metric 0 <= 6 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0001"
+          ],
+          "explanation": "primary_metric 0 <= 6 \u2192 supported",
+          "recorded_at": "2026-11-03T06:19:40.191507Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T06:19:40.191507Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P2": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "primary_metric 6 >= 9 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "primary_metric 6 >= 9 \u2192 refuted",
+          "recorded_at": "2026-11-03T07:58:30.433353Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T07:58:30.433353Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P3": {
+      "evidence": [
+        "E0004"
+      ],
+      "explanation": "first_batch_matches 1 >= 6 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0004"
+          ],
+          "explanation": "first_batch_matches 1 >= 6 \u2192 refuted",
+          "recorded_at": "2026-11-03T07:58:30.459660Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T07:58:30.459660Z",
+      "source": "run",
+      "verdict": "refuted"
+    },
+    "P4": {
+      "evidence": [
+        "E0005"
+      ],
+      "explanation": "primary_metric 0 <= 0 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0005"
+          ],
+          "explanation": "primary_metric 0 <= 0 \u2192 supported",
+          "recorded_at": "2026-11-03T08:00:09.124313Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:00:09.124313Z",
+      "source": "run",
+      "verdict": "supported"
+    },
+    "P5": {
+      "evidence": [
+        "E0006"
+      ],
+      "explanation": "primary_metric 0 >= 3 \u2192 refuted",
+      "history": [
+        {
+          "evidence": [
+            "E0006"
+          ],
+          "explanation": "primary_metric 0 >= 3 \u2192 refuted",
+          "recorded_at": "2026-11-03T09:00:11.437946Z",
+          "source": "run",
+          "verdict": "refuted"
+        }
+      ],
+      "recorded_at": "2026-11-03T09:00:11.437946Z",
+      "source": "run",
+      "verdict": "refuted"
+    }
+  },
+  "prepared_data": {
+    "path": "/home/user/wt-24/studies/24-golomb-llm-vs-search/data/prepared/instance.json",
+    "sha256": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32"
+  },
+  "replications": {
+    "E0001": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0001@20261103T090037Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T09:00:37.172051Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "search"
+    },
+    "E0004": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0004@20261103T090054Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T09:00:54.948626Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "llm"
+    }
+  },
+  "schema_version": 3,
+  "status": "finalized",
+  "study_id": "24-golomb-llm-vs-search",
+  "updated_at": "2026-11-03T10:49:40.314339Z"
+}

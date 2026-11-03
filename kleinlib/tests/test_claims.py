@@ -21,6 +21,7 @@ from kleinlib.claims import (
     CLAIM_CLASSES,
     add_claim,
     add_number,
+    apply_claims_file,
     canonical_lock_text,
     claims_checks,
     detect_lock_schema,
@@ -820,3 +821,54 @@ def test_a_version_tag_in_a_claim_sentence_is_not_a_numeral() -> None:
     assert left == ["0.0375805"], left
     # the document half already agreed, and must keep agreeing
     assert DOCUMENT_EXEMPT_RE.search("v1.3.0")
+
+
+def test_claims_apply_files_one_commit_equal_to_the_item_verbs(ready_study, tmp_path: Path) -> None:
+    """``klein claims apply`` = pin + number + add, filed as ONE commit."""
+    repo, study = ready_study
+    (study / "findings.md").write_text(
+        "# Findings\n\n- **[C1]** The anchor scores 0.026744 on the development split.\n",
+        encoding="utf-8",
+    )
+    (study / "tables").mkdir()
+    (study / "tables" / "anchor.tsv").write_text("run\tbrier\nE0001\t0.026744\n", encoding="utf-8")
+    (study / "runs" / "E0001").mkdir(parents=True)
+    (study / "runs" / "E0001" / "manifest.json").write_text("{}\n", encoding="utf-8")
+    _git(repo, "add", "-A")
+    _git(repo, "-c", "user.name=T", "-c", "user.email=t@example.invalid", "commit", "-q", "-m", "f")
+    init_lock(study)
+    spec = tmp_path / "claims.yaml"
+    spec.write_text(
+        "artifacts:\n  anchor: tables/anchor.tsv\n"
+        "numbers:\n  anchor_brier: {value: 0.026744, art: anchor, claim: C1, precision: 6}\n"
+        "claims:\n  C1:\n    class: empirical-description\n    strength: exploratory\n"
+        "    claim: The anchor scores 0.026744 on the development split.\n"
+        "    numbers: [anchor_brier]\n    evidence: [E0001, 'art:anchor']\n",
+        encoding="utf-8",
+    )
+    head_before = _git(repo, "rev-parse", "HEAD")
+    counts = apply_claims_file(study, spec)
+    assert counts == {"artifacts": 1, "numbers": 1, "claims": 1}
+    assert _git(repo, "rev-list", "--count", f"{head_before}..HEAD") == "1"
+    lock = load_lock(study)
+    assert lock["numbers"]["anchor_brier"]["value"] == 0.026744
+    assert lock["claims"]["C1"]["numbers"] == ["anchor_brier"]
+    assert _failures(verify_lock(study, numbers=True)) == []
+
+
+def test_claims_apply_is_all_or_nothing(locked_study, tmp_path: Path) -> None:
+    _repo, study = locked_study
+    before = lock_path(study).read_bytes()
+    spec = tmp_path / "bad.yaml"
+    spec.write_text(
+        "artifacts:\n  anchor2: tables/anchor.tsv\n"
+        "numbers:\n  orphan: {value: 1.0, art: not_pinned}\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(WorkflowError):
+        apply_claims_file(study, spec)
+    assert lock_path(study).read_bytes() == before
+    errata = tmp_path / "errata.yaml"
+    errata.write_text("errata:\n  E1: {claims: [C1], note: x}\n", encoding="utf-8")
+    with pytest.raises(WorkflowError, match="erratum"):
+        apply_claims_file(study, errata)

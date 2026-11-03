@@ -6,6 +6,196 @@ All notable changes to Klein Auto Research. Format follows
 CLI surface, and the ledger formats are stable — breaking changes mean a major
 version.
 
+## [2.3.0] — 2026-11-03
+
+Klein 2.2 notarized research on tables well and on everything else by workaround: a
+binary evaluator, a whole-log metric channel, one input file, wall-clock budgets only,
+a blocking wrapper as the only remote compute, and a Claude Science row that was a
+paragraph. 2.3 keeps the trust kernel exactly as it was — the notary transaction, the
+hash-chained events, manifests, the claims law, the predictions ledger, the referee
+gate, the verify receipt — and grows domain packs and host bridges around it, so a
+study in computer vision, deep-learning training, LLM evaluation, data science or
+mathematics is a first-class Klein study. Every shipped study re-verifies unchanged:
+new behaviour lives only in contract fields 2.3 scaffolds write (an older engine
+refuses such a study loudly instead of misjudging it), and a manifest records a
+non-default rule only when it applied.
+
+### Added — guided onboarding
+
+- **`klein next [--study S] [--json]`** — the ONE next action a study needs: its stage,
+  what is done, the exact command, the protocol section and why. Strictly read-only.
+  **`klein status --json`** beside it.
+- **`klein new --recipe <domain>`** — `tabular-predict`, `cv-classify`, `dl-scaling`,
+  `llm-eval`, `ds-causal`, `math-verify`: kind / modality / profile / metric / split,
+  the 2.3 contract blocks and a `policy:` block pre-filled, and a `prepare.py` +
+  entrypoint (+ verifier) that smoke offline — with `{{…}}` placeholders wherever
+  judgment is required, so a gate still refuses a rubber stamp. Explicit flags win
+  over the recipe. **`--runner python`** writes `python -u …` commands for hosts
+  without uv.
+- **`klein claims apply claims.yaml`** — artifact pins, numbers and claims in one
+  all-or-nothing file.
+
+### Added — the metric channel, data and evaluation
+
+- **`entrypoint.printed: block`** — metrics are read from the last line that is
+  exactly `---` to the end of the log, so training chatter (`loss: nan`, `epoch: 3`)
+  can neither crash nor pollute a run; a log without the opener is a crash. The
+  manifest records `printed_scope` and replication follows it.
+- **Index-table splits** (`data.split.index`, `id_column`, `label_column`,
+  `split_column`) for images, text, sequences and graphs, and **`kind: predefined`**
+  for official partitions (MedMNIST, GSM8K): real fingerprints over item ids, enforced
+  at every run. `kleinlib.data.load_items()` hands an entrypoint its partition's ids.
+- **`data.inputs`** for multi-file studies and **`hf:<owner>/<repo>@<commit>/<path>`**
+  pinned Hugging Face sources; `klein doctor --study` reports one line per file.
+- **Near-duplicate and contamination audits** — `python -m kleinlib.leakage --index …
+  --near-dup image|text [--against <pool>]`: 64-bit dHash for images, normalized
+  13-gram overlap for text.
+- **`policy:`** — strictness-only knobs: `card_sections: enforce` (the modality's data
+  card headings, plus `Near-duplicate audit` for image/text/sequence/graph and
+  `Contamination audit` for the `llm` profile), `realized_split: required`,
+  `noise_floor: required`.
+- **Evaluators**: `evaluate_multiclass` (accuracy, balanced accuracy, macro-F1, top-5,
+  log-loss, ECE; confusion table pinned; a one-class collapse guard), `evaluate_items`
+  (exact match, pass@k with the unbiased estimator, per-item tables, cluster bootstrap),
+  ranking (NDCG@k, MRR, recall@k), survival (Harrell's C) and segmentation (mIoU,
+  Dice). Metrology: exact McNemar, paired item bootstrap, seed-by-item variance; the
+  `item-bootstrap` and `resample` floor recipes.
+- **Profiles** `llm`, `cv`, `data-science` (eight sections each, banned words included);
+  `ml-research` deepened as the deep-learning profile. Five new seed method cards.
+
+### Added — execution
+
+- **Seed arrays** (`entrypoint.seeds: [0, 1, 2]`): one candidate is N children with
+  `KLEIN_SEED`; the notary decides on the mean, records std / min / max and pins
+  `runs/E####/seeds.tsv`. A contract field, never a flag, so N cannot be chosen after
+  seeing results.
+- **Usage and budgets** — a child reports steps / tokens / calls / USD with
+  `kleinlib.dl.report_usage`; `manifest.usage` and `execution.hardware` are recorded
+  for every exit status, and `phases[].budget_steps|tokens|usd` are enforced beside
+  `budget_seconds`. `kleinlib.dl`: `seed_everything`, `hardware_report`, an atomic
+  `Checkpointer`. `SweepRunner(workers=N)`.
+- **The model-call ledger** (`kleinlib.calls.CallLedger`, stdlib only): a
+  content-addressed record of every request and response (`calls/E####-NNN.jsonl.gz`,
+  deterministic shards, secrets scrubbed), a hard budget that crashes honestly,
+  `KLEIN_OFFLINE=1` cache-only replay, and pinning on every exit status.
+  **`klein replicate --replay`** re-runs offline from the pinned ledger (a `replay:`
+  record, never counted as a replication); plain `klein replicate` re-queries with
+  salted keys. No Klein verb imports it.
+- **Detached runs** (opt-in, `entrypoint.execution: [local, detached]`):
+  `klein run-one --detach` files the candidate and a job bundle and freezes the study;
+  **`klein job exec`** runs it on any host and writes a receipt; `klein run-one
+  --collect` checks the receipt against the committed job and judges the run locally,
+  recorded as attested, not observed; `--abandon --reason` closes one that never
+  returns. `verify`, `finalize`, `recover` and `next` all know about an open one.
+
+### Added — host bridges
+
+- **`integrations/claude-science/`** — install (PyPI wheel, or uv with
+  `UV_PROJECT_ENVIRONMENT`), project instructions, `klein-researcher` and
+  `klein-referee` Specialists, Reviewer criteria (a pre-referee pass, never Gate 3),
+  remote compute via SSH/Slurm and Modal job cards, artifacts.
+- **`klein mcp`** — a stdlib, read-only MCP server over stdio (`list_studies`, `next`,
+  `status`, `doctor`, `preflight`, `verify` without a receipt, `predictions`,
+  `claims_verify`, `explain`). No gate or run tool, by design.
+- **`klein refs verify [--record]`** — resolve every DOI (Crossref, OpenAlex) and arXiv
+  id in `references.yaml` and compare titles; opt-in network, never imported by verify;
+  `--record` is a comment-preserving edit that never overwrites a human verification.
+- **`klein notebook E####`** — a run as a reading-copy `.ipynb` of the executed source
+  at its candidate commit plus its printed block.
+- **`klein doctor --host claude-science|claude-code|generic`**.
+- The audience profiles ship inside the wheel, so a PyPI install keeps the vocabulary
+  scan; CI asserts byte-identity and that the recipes are packaged.
+- `.github/workflows/release.yml` — PyPI trusted publishing on `v*` tags.
+
+### Added — five exhibits, one per domain pack
+
+Each ran the full lifecycle on its own `experiments/<id>` branch, merged with history:
+recipe scaffold, typed data card with the new audits, method card with verified
+references, registered predictions, sealed run after the mandatory dry run,
+replications, claims lock, an independent referee (20–23 failed round 1 and passed round 2
+with notes; 24 passed round 1 with notes), finalize `confirmed`, a tutorial, and knowledge promoted with typed
+citations (`knowledge/domains/{llm,cv,data-science}/`, `ml-research/`, `math/`,
+`research-discipline.md` lessons 12 onward).
+
+- **20 `llm-cot-contamination`** (test · text · llm) — chain-of-thought vs direct
+  answers on GSM8K and on procedurally generated twins, every DashScope call ledgered;
+  re-verifies with the network off.
+- **21 `bloodmnist-cnn`** (predict · image · cv) — pixel logistic regression to a small
+  CNN under a 3-seed-array floor; predefined official split with cross-split
+  near-duplicates removed by the audit's rule.
+- **22 `cnn-data-scaling`** (estimate · image · ml-research) — a data-scaling law fitted
+  on detached (attested) cells and held to a sealed full-data extrapolation.
+- **23 `lalonde-causal-replication`** (replicate · tabular · data-science) — Dehejia–Wahba
+  NSW/PSID/CPS via `data.inputs`; an operator incident (a history repair during a live
+  run) is filed under `incidents/`.
+- **24 `golomb-llm-vs-search`** (test · none · math) — LLM proposals vs a classical
+  randomized search at a matched budget of exact-verifier calls.
+- Studies 20 and 24 commit their model call ledgers (`calls/`), produced on a paid
+  pay-as-you-go DashScope key and labelled AI-generated in `calls/README.md`, as the
+  provider's terms require.
+
+### Fixed
+
+- The leakage audit reproduces scalar-task and predefined splits (found at study 23's
+  DATA gate).
+- A phase ladder rewritten at CONSULT is followed by the state until work starts
+  (found at study 23's first preflight).
+- The `cv-classify` and `dl-scaling` recipe smokes train long enough to clear the
+  collapse guard on real data (found at study 21).
+- `klein finalize` and `klein next` honour a track's own `confirmation.require`: a
+  track declaring a non-empty list without `sealed` (study 22's fitted exponent,
+  `[replicate]`) closes on its records instead of being held to a sealed look it was
+  never meant to take; an empty list still cannot close `confirmed`. Labels already
+  recorded are never recomputed (found at study 22's finalize).
+- The sealed dry run files the new files its evaluator wrote (a DRYRUN-keyed
+  confusion table) in its own commit, so the mandatory rehearsal no longer leaves a
+  tree that refuses the sealed run (found at study 21).
+- The contract-driven split check recognises `load_items`, the index-table wrapper
+  over `load_partition`, instead of warning that no source asks the contract for a
+  partition (found by the referees of studies 20 and 21).
+- The referee protocol asks for repo-relative paths: a gate-hashed report cannot be
+  edited afterwards, and study 21's round-2 report named its worktree (exempted by exact
+  path in the universality guard, as frozen evidence).
+- `klein verify`'s ledger integrity no longer depends on the repository's size: `git
+  diff` abbreviates object names on its `index` lines to a width git derives from the
+  object count, so a fresh, fully packed clone printed 8 characters where the recording
+  repository printed 7 and every study's `code_patch_hash` failed on CI. `run-one`
+  records the patch at a pinned width of 7 (the width every shipped manifest used) and
+  verify accepts any width git may widen to (found on the release PR's CI).
+- The figure re-render runs the study's script with matplotlib's defaults (an empty
+  `MATPLOTLIBRC`, a private `MPLCONFIGDIR`, the Agg backend), never the machine's
+  config; the 2.3 exhibits' figures, first rendered under a host config that preferred
+  an installed font, were re-rendered that way and their tutorials rebuilt (text
+  unchanged).
+- Study 22's scaling plot is drawn in log10 space with `math.log10` (rounded) on linear
+  axes: matplotlib's log axes transform each vertex with numpy's vectorized `log10`, which
+  differs from the C library in the last bit on AVX-512 machines and moved pixels between
+  hosts. `tutorial-spec.md` carries the rule for dense curves.
+- A phase-ladder test still expected the pre-repoint behaviour; it now checks both
+  halves (followed before work, drift after).
+
+### Changed
+
+- Literature steps try connectors first (Literature Graph, PubMed, Scholar Gateway,
+  Consensus, Hugging Face papers), then the web; the consultant can scout with
+  WebSearch/WebFetch, logged in the scouting ledger. Insurance doctrine moved out of the
+  generic agents into `profiles/insurance.md`. SKILL.md's generation-layer block moved
+  to `references/generation-overview.md`.
+
+### Known limitations
+
+- The claims numeral scan reads digits inside identifiers (the "8" of `GSM8K`) as
+  numerals; study 20 carries a labelled identifier alias. Changing the scanner would
+  re-count shipped receipts, so it waits for a schema bump.
+- `klein replicate --verify-only` refuses a sealed run by design, so a sealed artifact's
+  re-verification is the notary's own verifier pass; confirmation rests on development
+  replications.
+- A study without a `calls.price` block records `usd: 0` for model calls: unrecorded,
+  not free.
+- The Claude Science kit is written against the product's published documentation; its
+  live smoke record needs a person with a seat. PyPI publishing needs the project's
+  trusted publisher to be created by its owner.
+
 ## [2.2.0] — 2026-09-07
 
 The report builder learns to read the study's own records. A tutorial used to be

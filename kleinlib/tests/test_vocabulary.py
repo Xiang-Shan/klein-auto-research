@@ -53,6 +53,9 @@ MATERIALITY_BLOCK = {
         ("insurance", ["material", "actionable", "lift", "significant"]),
         ("math", ["proved", "proof", "optimal", "impossible", "cannot exist"]),
         ("ml-research", ["SOTA", "state of the art", "beats", "converged"]),
+        ("llm", ["understands", "reasoning ability", "emergent", "solved", "SOTA"]),
+        ("cv", ["SOTA", "state of the art", "human-level", "superhuman"]),
+        ("data-science", ["causes", "drives", "proves", "significant"]),
     ],
 )
 def test_every_shipped_profile_parses_to_its_banned_list(profile, expected) -> None:
