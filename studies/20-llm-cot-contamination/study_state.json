@@ -24,9 +24,9 @@
   "current_phase": "confirmation",
   "final_holdout_access": {
     "contamination": {
-      "accessed_at": null,
-      "count": 0,
-      "experiment": null
+      "accessed_at": "2026-11-03T08:27:11.646034Z",
+      "count": 1,
+      "experiment": "E0006"
     },
     "cot_gain": {
       "accessed_at": "2026-11-03T08:15:36.762791Z",
@@ -81,7 +81,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 5,
+  "last_experiment": 6,
   "overrides": [
     {
       "acknowledged_at": "2026-11-03T07:41:46.152602Z",
@@ -204,6 +204,26 @@
       "recorded_at": "2026-11-03T08:26:59.772272Z",
       "source": "run",
       "verdict": "refuted"
+    },
+    "P6": {
+      "evidence": [
+        "E0006"
+      ],
+      "explanation": "primary_metric 0.01 <= 0.05 \u2192 supported",
+      "history": [
+        {
+          "evidence": [
+            "E0006"
+          ],
+          "explanation": "primary_metric 0.01 <= 0.05 \u2192 supported",
+          "recorded_at": "2026-11-03T08:27:13.997679Z",
+          "source": "run",
+          "verdict": "supported"
+        }
+      ],
+      "recorded_at": "2026-11-03T08:27:13.997679Z",
+      "source": "run",
+      "verdict": "supported"
     }
   },
   "prepared_data": {
@@ -213,5 +233,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T08:26:59.807694Z"
+  "updated_at": "2026-11-03T08:27:14.015696Z"
 }

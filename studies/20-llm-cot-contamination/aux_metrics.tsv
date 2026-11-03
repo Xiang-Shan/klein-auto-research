@@ -73,3 +73,16 @@ DRYRUN	calls_cached	250.0
 DRYRUN	calls_tokens_in	0.0
 DRYRUN	calls_tokens_out	0.0
 DRYRUN	calls_cost_usd	0.0
+E0006	ci_low	-0.040000000000000036
+E0006	ci_high	0.06499999999999995
+E0006	n	50
+E0006	wall_seconds	0.24938368797302246
+E0006	em_original	0.98
+E0006	em_twins	0.97
+E0006	n_templates	50
+E0006	n_twin_items	200
+E0006	calls_total	250.0
+E0006	calls_cached	250.0
+E0006	calls_tokens_in	0.0
+E0006	calls_tokens_out	0.0
+E0006	calls_cost_usd	0.0

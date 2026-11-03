@@ -4,3 +4,4 @@ E0002	cot_gain	0.01	measured	90198c83e848a5a4449d03727377a9be69d07f1c	anchor: Co
 E0003	contamination	0.02	measured	a8a99381f56f389483aac559f9469b2590f1c906	contamination: CoT on 50 template originals vs 200 development twins (template-paired); registered cell measured
 E0004	cot_gain	-0.025	measured	20e3f0fb5b407625187a78078f493d3730fff18f	cot_gain on development twin block A (CoT vs direct); registered cell measured
 E0005	cot_gain	0	measured	30051467ba04e4f74fa586d2c78943a5514fb41f	sealed confirmation: CoT vs direct on twin block C; registered cell measured
+E0006	contamination	0.01	measured	e793d3fb32a9da3495195eb7aa84b30ca90aad53	sealed confirmation: CoT originals vs twin block C; registered cell measured
