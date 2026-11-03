@@ -279,7 +279,9 @@
         "art:sol_E0006",
         "art:synth_summary",
         "ref:robinson1979",
-        "ref:robinson1983"
+        "ref:robinson1983",
+        "rep:E0001@20261103T090037Z",
+        "rep:E0004@20261103T090054Z"
       ],
       "numbers": [
         "e6_calls",
