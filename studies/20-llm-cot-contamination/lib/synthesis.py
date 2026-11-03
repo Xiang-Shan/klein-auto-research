@@ -240,8 +240,13 @@ def main() -> None:
 # Post-hoc controls and family-wise intervals (referee checks 4 and 5)
 # --------------------------------------------------------------------------
 
-#: Seeds of the post-hoc controls: one declared stream each, offset from the
-#: study's bootstrap seed so no control re-uses a block's or the bootstrap's draws.
+#: Seeds of the post-hoc controls, offset from the study's bootstrap seed so no
+#: control re-uses a block's or the bootstrap's draws. NOTE (referee R2-2): the
+#: streams are NOT all distinct — POS_SEED (20261124) equals NEG_SEED + 1, the seed
+#: of the 100 negative-control repeats. The two drive different operations
+#: (``permutation`` vs ``choice``), so no result depends on it; the values are kept
+#: as committed so the pinned tables stay byte-identical. The reverse plant uses
+#: POS_SEED + 1 (20261125).
 NEG_SEED = 20261103 + 20  # the gold permutation
 NEG_REPEATS = 100  # permutations averaged for the chance level
 POS_SEED = 20261103 + 21  # which direct items a planted effect flips
