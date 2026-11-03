@@ -258,3 +258,27 @@ Sealed att access spent, after a successful dry run (exit 0, `sealed_dryrun: 1`;
   §③ item 1 stated the exploratory Table 3 reading (C10) as confirmed. The lead reworded
   that heading exactly as the referee's clearing condition proposes; no lock, erratum or
   evidence changed. The study returns to REFEREE in a fresh context.
+
+## Referee notes (round 2, PASS-WITH-NOTES) — answered 2026-11-03
+
+- Referee note 1 (§③ item 1 body says the values "are Panel C column (5)" unhedged; §⑥
+  "documentary finding"): accepted — the locked claims carry the right strengths (C10
+  exploratory, E4); the body sentence is read as the exploratory C10 reading. Findings are
+  not re-edited after the verdict; the tutorial words it as "appears to be".
+- Referee note 2 ("rests on a few people" goes beyond C7): accepted — what was measured is
+  the largest single weight share and the 56 distinct matched controls; the tutorial says
+  exactly that.
+- Referee note 3 (name the controls): the NSW experimental reproduction is the positive
+  control; no placebo (negative) control was run, as declared in method_card §4.
+- Referee note 4: n_comparisons = 4 (the four PSID-1 att cells E0002, E0005, E0006, E0007).
+- Referee note 5 (figures built after the referee): accepted; TUTORIAL builds them from
+  pinned tables only and adds no claim.
+- Referee note 6 (roster tiers, not model ids): the experimenter, auditor and scholar were
+  Claude Code subagents of the Sonnet / Opus tiers named in the Roster; exact ids were not
+  recorded at the time; the lead was the orchestrating Claude Code session.
+- Referee note 7 (overstatements left in program.md; "was not visible at CONSULT" vs S3):
+  program.md is an append-only notebook; the Table 3 reading and E0007's "the effect
+  vanishes" are superseded by findings/claims (C10, C22). S3 is right: Tables 1-3 were
+  read at CONSULT; the column (4)/(5) mismatch was noticed only at METHOD.
+- Referee note 8: neither the tutorial nor knowledge/ writes "replicated sealed result" —
+  the replications are of development cells E0001 and E0006.
