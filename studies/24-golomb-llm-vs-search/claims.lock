@@ -4,6 +4,10 @@
       "path": "aux_metrics.tsv",
       "sha256": "0fc849f2a90a38e93b9189634b20cd2d932933adb57b846482d0166b9c059a01"
     },
+    "calls_E0006": {
+      "path": "calls/E0006-000.jsonl.gz",
+      "sha256": "feca45f236ec4a53133da2340521150799e4f5e1f9efc93f14d7ed6a3cfdc13a"
+    },
     "contract": {
       "path": "study.yaml",
       "sha256": "467cbc8fe64c6399648b955e85d68015bc7bd53a7763dcc631512eeed10ce1b4"
@@ -66,11 +70,11 @@
     },
     "synth_script": {
       "path": "tables/synthesis_derive.py",
-      "sha256": "d5bfff97e240700e26d10546748cea7e4d9998488cfd27bb9ad8c0b1198004d4"
+      "sha256": "89bb0548ded45759be5cc5de7a52664fdcab9447b27f3eeeea1f4813b5a5f40f"
     },
     "synth_summary": {
       "path": "tables/synthesis_summary.tsv",
-      "sha256": "ea5ce28efdeff3662bc5279b6c6c04be52c2d85021beda21c7dcd8effcb20fcf"
+      "sha256": "698a96680fed6dfbf2a232b5b96c98bcb65b8d821af10aa9333d46c4b1cf247d"
     },
     "verifier": {
       "path": "verify.py",
@@ -226,6 +230,7 @@
       ],
       "numbers": [
         "e4_fb",
+        "e4_ledger_valid_strict",
         "e4_unparsed",
         "e4_valid",
         "rep_fb",
@@ -281,11 +286,14 @@
         "ref:robinson1979",
         "ref:robinson1983",
         "rep:E0001@20261103T090037Z",
-        "rep:E0004@20261103T090054Z"
+        "rep:E0004@20261103T090054Z",
+        "art:calls_E0006"
       ],
       "numbers": [
         "e6_calls",
         "e6_invalid_best",
+        "e6_ledger_lists_n",
+        "e6_ledger_valid_any",
         "e6_unparsed",
         "search_gap_min_sealed"
       ],
@@ -318,9 +326,12 @@
         "art:synth_pairs",
         "art:data_card",
         "ref:wikipedia_golomb",
-        "ref:oeis_a003022"
+        "ref:oeis_a003022",
+        "art:synth_summary"
       ],
       "numbers": [
+        "e4_n11_other_optimum_proposed",
+        "e4_n8_mirror_proposed",
         "llm_best_n10",
         "opt_n10"
       ],
@@ -414,6 +425,27 @@
       "precision": 0,
       "value": 1
     },
+    "e4_ledger_valid_strict": {
+      "art": "synth_summary",
+      "claim": "C2",
+      "note": "E0004_ledger_valid_strict: strict recount from the shards equals the searcher's 719",
+      "precision": 0,
+      "value": 719
+    },
+    "e4_n11_other_optimum_proposed": {
+      "art": "synth_summary",
+      "claim": "C7",
+      "note": "E0004_n11_other_optimum_proposed (either orientation)",
+      "precision": 0,
+      "value": 0
+    },
+    "e4_n8_mirror_proposed": {
+      "art": "synth_summary",
+      "claim": "C7",
+      "note": "E0004_n8_mirror_row_proposed",
+      "precision": 0,
+      "value": 0
+    },
     "e4_unparsed": {
       "art": "aux",
       "claim": "C2",
@@ -444,6 +476,20 @@
       "claim": "C5",
       "precision": 0,
       "value": 6
+    },
+    "e6_ledger_lists_n": {
+      "art": "synth_summary",
+      "claim": "C5",
+      "note": "E0006_ledger_lists_with_n_marks",
+      "precision": 0,
+      "value": 11395
+    },
+    "e6_ledger_valid_any": {
+      "art": "synth_summary",
+      "claim": "C5",
+      "note": "E0006_ledger_valid_any: valid Golomb rulers among every bracketed list in the pinned E0006 shard",
+      "precision": 0,
+      "value": 0
     },
     "e6_unparsed": {
       "art": "aux",
