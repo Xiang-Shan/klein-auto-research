@@ -48,7 +48,11 @@ class _Handler(BaseHTTPRequestHandler):
 
 
 @pytest.fixture
-def server():
+def server(monkeypatch):
+    # The server is local, not the network: an ambient KLEIN_OFFLINE=1 (CI sets it for
+    # the whole job) would make the ledger cache-only and crash the entrypoint before
+    # its first call. Tests that mean offline set it themselves (replay does).
+    monkeypatch.delenv("KLEIN_OFFLINE", raising=False)
     _Handler.calls = 0
     _Handler.seen_auth = []
     httpd = HTTPServer(("127.0.0.1", 0), _Handler)
