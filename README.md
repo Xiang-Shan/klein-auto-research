@@ -2,8 +2,8 @@
 
 [![ci](https://github.com/Xiang-Shan/klein-auto-research/actions/workflows/ci.yml/badge.svg)](https://github.com/Xiang-Shan/klein-auto-research/actions/workflows/ci.yml)
 [![release](https://img.shields.io/github/v/tag/Xiang-Shan/klein-auto-research?label=release&sort=semver)](https://github.com/Xiang-Shan/klein-auto-research/releases)
-[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![python ≥3.11](https://img.shields.io/badge/python-%E2%89%A53.11-3776AB.svg)](pyproject.toml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/Xiang-Shan/klein-auto-research/blob/main/LICENSE)
+[![python ≥3.11](https://img.shields.io/badge/python-%E2%89%A53.11-3776AB.svg)](https://github.com/Xiang-Shan/klein-auto-research/blob/main/pyproject.toml)
 
 **Process-verifiable research for AI for Science.** Klein is the lab-notebook
 discipline an AI agent runs *inside*: predictions registered before their evidence,
@@ -22,7 +22,7 @@ new ─▶ CONSULT ─▶ DATA ─▶ METHOD ═══▶ EXPERIMENT/SWEEP ─�
         Gate 0   Gate 1   Gate 2      └ the honest loop ┘    findings.md    Gate 3     report/
 ```
 
-<p align="center"><img src="docs/diagrams/lifecycle.png" alt="The Klein study lifecycle — seven stages, four checkpoints" width="640"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/Xiang-Shan/klein-auto-research/main/docs/diagrams/lifecycle.png" alt="The Klein study lifecycle — seven stages, four checkpoints" width="640"></p>
 
 ## Quickstart (5 minutes)
 
@@ -50,7 +50,7 @@ LightGBM/XGBoost/CatBoost, `--extra deep` for PyTorch (only to re-run the
 character-language-model exhibit).
 
 To take one study of your own from scaffold to signed tutorial, follow the
-walk-through in [`docs/quickstart.md`](docs/quickstart.md).
+walk-through in [`docs/quickstart.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/docs/quickstart.md).
 
 ## Why Klein
 
@@ -71,9 +71,9 @@ the failures detectable. Klein does that mechanically, with no model checking it
 The rest of the discipline is the part its studies paid for: a measured noise floor
 before any comparison, a detection-limit law, contract-driven splits, a sealed dry-run,
 errata that re-scope and never delete. The incident reports are in
-[`war-stories.md`](.claude/skills/klein/references/war-stories.md); the promoted
+[`war-stories.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/.claude/skills/klein/references/war-stories.md); the promoted
 lessons, each cited to the claim that earned it, in
-[`knowledge/research-discipline.md`](knowledge/research-discipline.md).
+[`knowledge/research-discipline.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/knowledge/research-discipline.md).
 
 ## One kernel, any inquiry
 
@@ -87,7 +87,7 @@ A study is typed on three orthogonal axes; the same trust kernel serves all of t
 
 A mathematician's keep means "beat the best known value"; a deep-learning researcher's
 means "clear a five-seed noise floor". The engine does not know the difference; the
-protocols do — [`inquiry-model.md`](.claude/skills/klein/references/inquiry-model.md).
+protocols do — [`inquiry-model.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/.claude/skills/klein/references/inquiry-model.md).
 
 ## Pick your domain
 
@@ -146,11 +146,11 @@ bypassing a rule. Compute is one bounded foreground subprocess per run on whatev
 have — or, in a study that opts in, one detached job on a GPU host whose receipt the
 notary checks (`run-one --detach` → `klein job exec` → `run-one --collect`); long runs
 are budgeted in steps or tokens, not seconds. The full contract is in
-[`AGENTS.md`](AGENTS.md), the step-by-step walk-through in
-[`docs/quickstart.md`](docs/quickstart.md), the device rules in
-[`compute-and-devices.md`](.claude/skills/klein/references/compute-and-devices.md).
+[`AGENTS.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/AGENTS.md), the step-by-step walk-through in
+[`docs/quickstart.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/docs/quickstart.md), the device rules in
+[`compute-and-devices.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/.claude/skills/klein/references/compute-and-devices.md).
 
-<p align="center"><img src="docs/diagrams/loop-transaction.png" alt="One candidate transaction — you think; run-one notarizes; the files remember" width="640"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/Xiang-Shan/klein-auto-research/main/docs/diagrams/loop-transaction.png" alt="One candidate transaction — you think; run-one notarizes; the files remember" width="640"></p>
 
 ### Detection limit: audit headroom before spending challengers
 
@@ -187,20 +187,20 @@ evidence) · `benchmark` (planted truths under a hash commitment).
 
 The layer never proposes, ranks, selects, schedules or retries. A study that does not
 opt in is untouched: no core verb, receipt or disposition changes either way. Protocol:
-[`generation-protocol.md`](.claude/skills/klein/references/generation-protocol.md).
+[`generation-protocol.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/.claude/skills/klein/references/generation-protocol.md).
 
 ## Drive it with your agent — or none
 
 Klein is agent-agnostic: no Klein verb calls a model API (a study's entrypoint may,
 through the call ledger, which pins every request and response so the study re-verifies
-offline). The operating manual is [`AGENTS.md`](AGENTS.md); every protocol it points to
+offline). The operating manual is [`AGENTS.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/AGENTS.md); every protocol it points to
 is plain markdown.
 
 | You use… | How to drive Klein |
 |---|---|
 | **Codex, Copilot, Cursor, Jules, …** | They auto-read `AGENTS.md` — just ask for a Klein study |
 | **Claude Code** | The `/klein` skill routes the stages; eight worker agents ship pre-wired |
-| **Claude Science** | The kit in [`integrations/claude-science/`](integrations/claude-science/README.md): import the skill from GitHub, a `klein-researcher` Specialist, Reviewer criteria as a pre-referee pass, `klein mcp` as a Local command connector, GPU cells as detached runs on SSH/Slurm or Modal job cards; REFEREE goes to a different session or tool |
+| **Claude Science** | The kit in [`integrations/claude-science/`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/integrations/claude-science/README.md): import the skill from GitHub, a `klein-researcher` Specialist, Reviewer criteria as a pre-referee pass, `klein mcp` as a Local command connector, GPU cells as detached runs on SSH/Slurm or Modal job cards; REFEREE goes to a different session or tool |
 | **Any MCP client** | `klein mcp --root <repo>` — read-only tools (`next`, `status`, `verify`, …); no gate or run tool by design |
 | **Gemini CLI / Qwen Code** | Add `AGENTS.md` to the context files |
 | **GLM & Anthropic-compatible CLIs** | They load `CLAUDE.md`, which imports `AGENTS.md` |
@@ -219,8 +219,8 @@ Where Klein sits among its neighbours — positioning, not a benchmark:
 
 Klein does not compete with a workbench on connectors or scale; it is the discipline a
 workbench's agent can run *inside* — 2.3 makes that concrete with the Claude Science kit.
-The full argument: [`docs/design/klein-2-design.md`](docs/design/klein-2-design.md) and
-[`docs/design/klein-2.3-design.md`](docs/design/klein-2.3-design.md) (kernel, domain
+The full argument: [`docs/design/klein-2-design.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/docs/design/klein-2-design.md) and
+[`docs/design/klein-2.3-design.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/docs/design/klein-2.3-design.md) (kernel, domain
 packs, host bridges).
 
 ## The shipped studies
@@ -232,28 +232,28 @@ commit resolves and every ledger verifies, checked by CI on every push.
 
 | Study | Typed as | What it showed |
 |---|---|---|
-| [`00-known-truth-quickstart`](studies/00-known-truth-quickstart/) | predict · tabular · generic | With the Bayes-optimal score known, three keeps closed most of the distance to it, and the one sealed look confirmed the level |
-| [`10-hubble-1929-replication`](studies/10-hubble-1929-replication/) | replicate · tabular · generic | Hubble's 465 is unreproducible for missing inputs, not method; his own 24 objects support a value whose interval contains it |
-| [`11-exact-verifier-construction`](studies/11-exact-verifier-construction/) | optimize · none · math | Zero keeps by arithmetic under an exact verifier — and what a search may claim when it cannot win |
-| [`12-insurance-claims-frequency`](studies/12-insurance-claims-frequency/) | predict · tabular · insurance | All three v1 anchors reproduce on 58k real claims; the measured floor leaves the v1 ladder exactly one keep |
-| [`13-charlm-fixed-budget`](studies/13-charlm-fixed-budget/) | predict · text · ml-research | At a fixed step budget, none of four registered levers cleared the noise floor; the only gain carried no prediction |
-| [`15-iris-90years-relaunch`](studies/15-iris-90years-relaunch/) | predict · tabular · generic | The metric pegged at its ideal, so the measured floor was exactly zero, the headroom law was disarmed and four ties were read as four keeps — the instrument failed, and that failure is the finding |
-| [`20-llm-cot-contamination`](studies/20-llm-cot-contamination/) | test · text · llm | Chain-of-thought gave no measurable gain on GSM8K or on freshly generated twins: both arms already scored between 0.95 and 0.985 exact match, and the "direct" arm wrote its working anyway; every model call is ledgered, so the study re-verifies with the network off |
-| [`21-bloodmnist-cnn`](studies/21-bloodmnist-cnn/) | predict · image · cv | Under a 3-seed floor only batch norm (with running statistics recomputed on the training set) cleared the bar alone; a four-lever bundle reached 0.9465 sealed macro-F1 and an accuracy indistinguishable from ResNet-18 (28) — with no lever attributable |
-| [`22-cnn-data-scaling`](studies/22-cnn-data-scaling/) | estimate · image · ml-research | The fitted data-scaling law over-predicted the sealed full-data loss by 28 %, the opposite sign to the registered prediction; the size cells ran as attested detached jobs |
-| [`23-lalonde-causal-replication`](studies/23-lalonde-causal-replication/) | replicate · tabular · data-science | The naive difference in means against PSID controls misses the NSW benchmark by more than the benchmark itself; of IPW, matching and AIPW only AIPW landed within $1,000, and it held on the sealed CPS lane |
-| [`24-golomb-llm-vs-search`](studies/24-golomb-llm-vs-search/) | test · none · math | At a matched budget of verifier calls an LLM matched known optimal Golomb rulers on 6 of 12 development pairs against 0 for a classical randomized search — every match a tabulated row — and neither arm matched any optimum at the sealed orders 12–13 |
+| [`00-known-truth-quickstart`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/00-known-truth-quickstart/) | predict · tabular · generic | With the Bayes-optimal score known, three keeps closed most of the distance to it, and the one sealed look confirmed the level |
+| [`10-hubble-1929-replication`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/10-hubble-1929-replication/) | replicate · tabular · generic | Hubble's 465 is unreproducible for missing inputs, not method; his own 24 objects support a value whose interval contains it |
+| [`11-exact-verifier-construction`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/11-exact-verifier-construction/) | optimize · none · math | Zero keeps by arithmetic under an exact verifier — and what a search may claim when it cannot win |
+| [`12-insurance-claims-frequency`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/12-insurance-claims-frequency/) | predict · tabular · insurance | All three v1 anchors reproduce on 58k real claims; the measured floor leaves the v1 ladder exactly one keep |
+| [`13-charlm-fixed-budget`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/13-charlm-fixed-budget/) | predict · text · ml-research | At a fixed step budget, none of four registered levers cleared the noise floor; the only gain carried no prediction |
+| [`15-iris-90years-relaunch`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/15-iris-90years-relaunch/) | predict · tabular · generic | The metric pegged at its ideal, so the measured floor was exactly zero, the headroom law was disarmed and four ties were read as four keeps — the instrument failed, and that failure is the finding |
+| [`20-llm-cot-contamination`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/20-llm-cot-contamination/) | test · text · llm | Chain-of-thought gave no measurable gain on GSM8K or on freshly generated twins: both arms already scored between 0.95 and 0.985 exact match, and the "direct" arm wrote its working anyway; every model call is ledgered, so the study re-verifies with the network off |
+| [`21-bloodmnist-cnn`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/21-bloodmnist-cnn/) | predict · image · cv | Under a 3-seed floor only batch norm (with running statistics recomputed on the training set) cleared the bar alone; a four-lever bundle reached 0.9465 sealed macro-F1 and an accuracy indistinguishable from ResNet-18 (28) — with no lever attributable |
+| [`22-cnn-data-scaling`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/22-cnn-data-scaling/) | estimate · image · ml-research | The fitted data-scaling law over-predicted the sealed full-data loss by 28 %, the opposite sign to the registered prediction; the size cells ran as attested detached jobs |
+| [`23-lalonde-causal-replication`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/23-lalonde-causal-replication/) | replicate · tabular · data-science | The naive difference in means against PSID controls misses the NSW benchmark by more than the benchmark itself; of IPW, matching and AIPW only AIPW landed within $1,000, and it held on the sealed CPS lane |
+| [`24-golomb-llm-vs-search`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/24-golomb-llm-vs-search/) | test · none · math | At a matched budget of verifier calls an LLM matched known optimal Golomb rulers on 6 of 12 development pairs against 0 for a classical randomized search — every match a tabulated row — and neither arm matched any optimum at the sealed orders 12–13 |
 
 **Schema-2 exhibits (frozen; they verify under schema-2 rules forever):**
 
 | Study | What it showed |
 |---|---|
-| [`03-noisy-rosenbrock-dfo`](studies/03-noisy-rosenbrock-dfo/) | Restarts beat Nelder-Mead at 2.96× the measured floor and replicate sealed — but random search ties them |
-| [`05-fremtpl2-gap-forensics`](studies/05-fremtpl2-gap-forensics/) | On 678k rows the GBDT's sealed edge is 9.3× its paired SE, and ≈83 % of it is non-additive |
-| [`06-hurricane-gqls-returnlevels`](studies/06-hurricane-gqls-returnlevels/) | All 120 published parameters reproduced sealed, once the loop found the thesis's own quantile convention |
-| [`07-iris-90years`](studies/07-iris-90years/) | The measured floor outgrew the anchor's whole distance to perfection — the study that produced the headroom law |
-| [`08-iris-rematch`](studies/08-iris-rematch/) | Twenty-one challengers walked through a door ajar at h = 1.015 and produced zero keeps |
-| [`09-iris-first-lesson`](studies/09-iris-first-lesson/) | Door closed at h = 0.33 before a challenger ran; an erratum re-scoped a retired seed rather than deleting it |
+| [`03-noisy-rosenbrock-dfo`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/03-noisy-rosenbrock-dfo/) | Restarts beat Nelder-Mead at 2.96× the measured floor and replicate sealed — but random search ties them |
+| [`05-fremtpl2-gap-forensics`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/05-fremtpl2-gap-forensics/) | On 678k rows the GBDT's sealed edge is 9.3× its paired SE, and ≈83 % of it is non-additive |
+| [`06-hurricane-gqls-returnlevels`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/06-hurricane-gqls-returnlevels/) | All 120 published parameters reproduced sealed, once the loop found the thesis's own quantile convention |
+| [`07-iris-90years`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/07-iris-90years/) | The measured floor outgrew the anchor's whole distance to perfection — the study that produced the headroom law |
+| [`08-iris-rematch`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/08-iris-rematch/) | Twenty-one challengers walked through a door ajar at h = 1.015 and produced zero keeps |
+| [`09-iris-first-lesson`](https://github.com/Xiang-Shan/klein-auto-research/tree/main/studies/09-iris-first-lesson/) | Door closed at h = 0.33 before a challenger ran; an erratum re-scoped a retired seed rather than deleting it |
 
 Earlier exhibits and the original v1 quickstart are preserved intact at tags
 [`v1.0.0`](https://github.com/Xiang-Shan/klein-auto-research/tree/v1.0.0/studies) and
@@ -314,13 +314,13 @@ predictions, the claims lock, the referee, and the mandatory synthesis and tutor
 stages. The name nods to the Klein bottle: a research loop whose output feeds its own
 input.
 
-<p align="center"><img src="docs/diagrams/klein-bottle.png" alt="Why Klein — the inside is the outside; a study's findings become the next study's priors" width="560"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/Xiang-Shan/klein-auto-research/main/docs/diagrams/klein-bottle.png" alt="Why Klein — the inside is the outside; a study's findings become the next study's priors" width="560"></p>
 
-Release history is in [`CHANGELOG.md`](CHANGELOG.md); versioning is SemVer, and 2.0.0
+Release history is in [`CHANGELOG.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/CHANGELOG.md); versioning is SemVer, and 2.0.0
 froze the schema-3 contract, the CLI surface and the ledger formats; 2.1.0 adds the
 opt-in generation layer beside them without changing any of the three; 2.2.0 makes the
 report read the study's records. To cite Klein see
-[`CITATION.cff`](CITATION.cff); to contribute, [`CONTRIBUTING.md`](CONTRIBUTING.md);
-for vulnerabilities, [`SECURITY.md`](SECURITY.md). The software is MIT licensed
-([LICENSE](LICENSE)); third-party data and lineage notices are collected in
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+[`CITATION.cff`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/CITATION.cff); to contribute, [`CONTRIBUTING.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/CONTRIBUTING.md);
+for vulnerabilities, [`SECURITY.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/SECURITY.md). The software is MIT licensed
+([LICENSE](https://github.com/Xiang-Shan/klein-auto-research/blob/main/LICENSE)); third-party data and lineage notices are collected in
+[`THIRD_PARTY_NOTICES.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/THIRD_PARTY_NOTICES.md).
