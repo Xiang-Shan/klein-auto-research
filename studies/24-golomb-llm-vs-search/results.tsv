@@ -1,2 +1,3 @@
 experiment	track	primary_metric	status	commit	description
 E0001	search	0	measured	f8efcf87c00e0600f5a3b6f12429d7e8b957c4a1	development: classical search, orders 8-11, 3 trials, 2,000 evaluations; registered cell measured
+E0002	llm	NA	crash	c5817ea6e273d77b14d02ae9fe12e73d0f67218a	development: qwen-flash-2025-07-28 proposes rulers, orders 8-11, 3 trials, 200 x 10 proposals; process exit code 1

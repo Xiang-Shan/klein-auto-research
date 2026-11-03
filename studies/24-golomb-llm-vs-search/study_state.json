@@ -81,7 +81,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 1,
+  "last_experiment": 2,
   "overrides": [],
   "phase_acknowledgements": {},
   "predictions": {
@@ -113,5 +113,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T06:19:40.211674Z"
+  "updated_at": "2026-11-03T06:30:06.207671Z"
 }

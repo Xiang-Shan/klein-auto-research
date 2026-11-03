@@ -1,0 +1,85 @@
+{
+  "artifacts": {
+    "calls/E0002-000.jsonl.gz": {
+      "availability": "recorded",
+      "bytes": 139185,
+      "committed": true,
+      "sha256": "30d6b64ef1ec0e053a9184c001c8454812b26a284ee0852a1210f86b7578ef22"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 3054,
+      "committed": true,
+      "sha256": "04526eeaec9f12dfc3519009bb2753488517fa29e7d6108fbc8a8a837727df2a"
+    },
+    "runs/E0002/usage.json": {
+      "availability": "recorded",
+      "bytes": 131,
+      "committed": true,
+      "role": "usage",
+      "sha256": "353b7f423c95b133d0e1229817e80540f5876f1f4fc46faf9a633ac67a05473a"
+    }
+  },
+  "base_commit": "46f958224a9e49b185822c938082c9bb63d2a806",
+  "candidate_commit": "c5817ea6e273d77b14d02ae9fe12e73d0f67218a",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "process exit code 1",
+  "description": "development: qwen-flash-2025-07-28 proposes rulers, orders 8-11, 3 trials, 200 x 10 proposals; process exit code 1",
+  "disposition": "crash",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T06:30:06.189254Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 1,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric_goal": "higher",
+  "metric_name": "optima_matched",
+  "metrics": {},
+  "phase": "development",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 2,
+  "predictions_requested": [
+    "P2",
+    "P3"
+  ],
+  "primary_metric": null,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T06:19:46.768338Z",
+  "timed_out": false,
+  "track": "llm",
+  "transaction": {
+    "ready_at": "2026-11-03T06:30:06.191502Z",
+    "status": "pending"
+  },
+  "usage": {
+    "calls": 613.0,
+    "calls_cached": 0.0,
+    "tokens": 585586.0,
+    "tokens_in": 387966.0,
+    "tokens_out": 197620.0,
+    "usd": 0.0
+  },
+  "wall_seconds": 619.4205759570013
+}

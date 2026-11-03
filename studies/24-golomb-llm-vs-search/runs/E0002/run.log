@@ -1,0 +1,49 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: calls/E0002-000.jsonl.gz
+Traceback (most recent call last):
+  File "/home/user/wt-24/kleinlib/calls.py", line 109, in openai_chat
+    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 495, in open
+    response = meth(req, response)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 604, in http_response
+    response = self.parent.error(
+        'http', request, response, code, msg, hdrs)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 533, in error
+    return self._call_chain(*args)
+           ~~~~~~~~~~~~~~~~^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 466, in _call_chain
+    result = func(*args)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 613, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 429: Too Many Requests
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 496, in <module>
+    main()
+    ~~~~^^
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 467, in main
+    pairs, extra, payload["llm"] = run_llm(orders, trials, limit, batch, optima)
+                                   ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 412, in run_llm
+    raise error
+  File "/usr/local/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 335, in llm_pair
+    reply = ledger.chat(_messages(n, k, proposals, batch, previous,
+                                  None if best is None else best[-1]),
+                        sample=trial, **LLM_PARAMS)
+  File "/home/user/wt-24/kleinlib/calls.py", line 230, in chat
+    response = self.request("chat.completions", payload, sample=sample)
+  File "/home/user/wt-24/kleinlib/calls.py", line 272, in request
+    response = self.transport(self.base_url or "", payload)
+  File "/home/user/wt-24/kleinlib/calls.py", line 117, in openai_chat
+    raise RuntimeError(f"model endpoint returned HTTP {exc.code}: {detail}") from exc
+RuntimeError: model endpoint returned HTTP 429: {"error":{"message":"You have exceeded your current request limit. For details, see: https://help.aliyun.com/zh/model-studio/error-code#rate-limit","type":"limit_requests","param":null,"code":"limit_requests"},"request_id":"3a832846-60ad-938d-be2d-6355503cda82"}
+runner_status: crash
+runner_exit_code: 1
