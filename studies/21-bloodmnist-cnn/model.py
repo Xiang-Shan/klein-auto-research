@@ -13,11 +13,9 @@ class SmallCNN(nn.Module):
         super().__init__()
         self.body = nn.Sequential(
             nn.Conv2d(in_channels, width, 3, padding=1),
-            nn.BatchNorm2d(width),
             nn.ReLU(),
             nn.MaxPool2d(2),
             nn.Conv2d(width, 2 * width, 3, padding=1),
-            nn.BatchNorm2d(2 * width),
             nn.ReLU(),
             nn.AdaptiveAvgPool2d(1),
             nn.Flatten(),

@@ -1,3 +1,4 @@
 experiment	track	primary_metric	status	commit	description
 E0001	primary	0.718932	keep	93c58ef2907017d6c3ec09f9266fcbb78a8046bf	anchor: recipe SmallCNN, width 32, 1,500 steps; first valid result on this track
 E0002	primary	0.69032	discard	11542e38d13a9846c85f5145b25ac809db36504b	pixel-linear baseline: Flatten + Linear softmax on raw pixels, same loop/optimizer/steps as the anchor; did not improve track frontier 0.718932 by minimum_delta=0
+E0003	primary	0.300538333333	discard	3b9a5e5026dbdb1dd3b43d007fa1641b1a28603f	BatchNorm2d after each conv (normalization), anchor otherwise; did not improve track frontier 0.718932 by minimum_delta=0.0438435
