@@ -74,7 +74,7 @@ policy:
   noise_floor: required
 
 # Per-run, per-phase time, and experiment-count limits are intentionally separate.
-max_run_seconds: 1800
+max_run_seconds: 5400   # bounds a whole 3-seed array; the sealed N=60,000 array needs about 1,800 s at 1 thread
 phases:
   - id: cells
     description: "six registered training-set sizes N = 500, 1,000, 2,000, 4,000, 8,000, 16,000, each a 3-seed array run as a detached job and collected"

@@ -54,6 +54,27 @@ state and must not be hand-edited.
 - Adaptive work uses train + development only.
 - Gate 1 records the prepared-data SHA-256 and split-policy fingerprint.
 
+## Instrument notes and lead decisions (2026-11-03, before DATA)
+
+- Network: a 3-conv CNN with global average pooling (23,946 parameters), chosen over the
+  recipe's two-block net (5,130), which pools globally at 14x14. AdamW 1e-3, wd 1e-4,
+  batch 128; steps = max(400, ceil(20 epochs x 0.9N / 128)) capped at 12,000; best
+  inner-validation (10% of N) checkpoint kept. All in `lib/protocol.py`, outside the surface.
+- Subsamples are nested across N within a seed (common random numbers along the curve);
+  the seed-resampling bootstrap of alpha therefore errs wide, and with 3 seeds the
+  percentile bootstrap understates variance by ~2/3 — `lib/scaling.py` notes both.
+- The 400-step minimum trains small cells for many epochs (N=500: ~114); the best-checkpoint
+  rule limits overfitting, and the method card must discuss it.
+- Decision: `TORCH_THREADS = 1` (robust under contention from sibling studies; ~2x slower
+  when the machine is quiet).
+- Decision: `max_run_seconds` 1800 -> 5400: it bounds the whole 3-seed array, and the
+  sealed N=60,000 array needs about 1,800 s at 1 thread.
+- Decision: the sealed DRY run trains only `DRYRUN_STEPS = 60` steps — it rehearses the
+  path; a full-budget N=50,000 rehearsal would preview the extrapolation on development
+  data.
+- Framework fixes reached this study before any run: one confusion table per seed, and
+  the array's aux rows written by the notary (seed means + spread).
+
 ## Phases and registered predictions (mirror of study.yaml)
 
 | Phase | Cells | Predictions |
