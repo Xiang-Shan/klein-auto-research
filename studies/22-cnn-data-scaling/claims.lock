@@ -83,139 +83,319 @@
   },
   "claims": {
     "C1": {
-      "claim": "RQ1 | exponent | **answered (estimate)**: alpha 0.1304, a 2.126 \u2014 inside the prior range 0.1\u20130.6, but BELOW its \"most likely 0.2\u20130.4\" band | confirmed | empirical-description | E0001\u2013E0006, E0007, rep:E0007@20261103T084735Z, art:fit | printed within-N bootstrap 0.1181 to 0.1411 \u2014 descriptive, NOT a calibrated 95% interval (method card \u00a74(c)); post-hoc per-seed-slope t-interval 0.1033 to 0.1569 (art:synth) |",
-      "class": null,
+      "claim": "The pure power law fitted to the six seed-mean development cells has exponent alpha 0.1304 and prefactor a 2.126; its printed bootstrap spread 0.1181 to 0.1411 is descriptive, not a calibrated interval.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "rep:E0007@20261103T084735Z",
+        "art:fit"
+      ],
+      "numbers": [
+        "a_fit",
+        "alpha_ci_high",
+        "alpha_ci_low",
+        "alpha_fit"
+      ],
+      "strength": "confirmed"
     },
     "C10": {
-      "claim": "A post-hoc pure-law refit over the three largest cells alone gives alpha 0.2127",
-      "class": null,
+      "claim": "A post-hoc pure-law refit over the three largest cells alone gives alpha 0.2127 and predicts 0.4254 at the full pool, still above the measured 0.3959, a signed relative error of -0.0745.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0008",
+        "art:synth"
+      ],
+      "numbers": [
+        "alpha_local_large",
+        "posthoc_pred",
+        "posthoc_rel",
+        "sealed_loss"
+      ],
       "strength": "exploratory"
     },
     "C11": {
-      "claim": "Mechanism \u2014 interpretation.* An easier test set is an unlikely explanation of",
-      "class": null,
+      "claim": "An easier test set is an unlikely explanation of the over-prediction: the sealed cell's test loss is 1.0877 times its own inner-validation loss against 1.0158 and 1.0161 for the two largest development cells, so the test partition looks slightly harder, not easier.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0005",
+        "E0006",
+        "E0008",
+        "art:synth",
+        "art:data_card"
+      ],
+      "numbers": [
+        "ratio_e0005",
+        "ratio_e0006",
+        "ratio_e0008"
+      ],
       "strength": "exploratory"
     },
     "C12": {
-      "claim": "The printed within-N bootstrap width is 0.0230 exponent units and the",
-      "class": null,
+      "claim": "The printed within-N bootstrap width is 0.0230 exponent units and the per-seed-slope t-interval (0.1033 to 0.1569) has width 0.0536, which is 2.33 times wider, so the card's interval prior held.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "art:synth",
+        "art:fit"
+      ],
+      "numbers": [
+        "printed_width",
+        "t_high",
+        "t_low",
+        "t_ratio",
+        "t_width"
+      ],
       "strength": "exploratory"
     },
     "C13": {
-      "claim": "1.  Before fitting a data-scaling exponent, make the step budget grow with N",
-      "class": null,
+      "claim": "Before fitting a data-scaling exponent, make the step budget grow with N across the whole range, with no minimum that several cells share, and check that no cell's best checkpoint sits at the end of its budget; here three cells shared one 400-step budget and every best checkpoint came at 0.954 or more of its budget.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0008",
+        "art:synth"
+      ],
+      "numbers": [
+        "min_steps",
+        "share_min"
+      ],
       "strength": "exploratory"
     },
     "C14": {
-      "claim": "2.  Do not accept a fitted law on its in-range R\u00b2 or its interval; hold it to a",
-      "class": null,
+      "claim": "Do not accept a fitted law on its in-range R\u00b2 or its interval; hold it to a sealed extrapolation point: here the registered law missed by -0.2802 and even the most favourable post-hoc refit missed by -0.0745.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0007",
+        "E0008",
+        "art:synth",
+        "ref:alabdulmohsin2022"
+      ],
+      "numbers": [
+        "posthoc_rel",
+        "rel_error"
+      ],
       "strength": "exploratory"
     },
     "C15": {
-      "claim": "3.  Report the per-seed-slope t-interval beside any within-N bootstrap: with nested",
-      "class": null,
+      "claim": "Report the per-seed-slope t-interval beside any within-N bootstrap: with nested subsamples the bootstrap width 0.0230 was 2.33 times narrower than the per-seed t-interval width 0.0536.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0007",
+        "art:synth",
+        "ref:besiroglu2024"
+      ],
+      "numbers": [
+        "printed_width",
+        "t_ratio",
+        "t_width"
+      ],
       "strength": "exploratory"
     },
     "C16": {
-      "claim": "4.  Score the fit cells and the extrapolation point on the same distribution, or",
-      "class": null,
+      "claim": "Score the fit cells and the extrapolation point on the same distribution, or run a control that measures the partition gap; here the sealed point used the official test set and the cells the development lane, so the extrapolation error cannot be split exactly between the law and the partition.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0006",
+        "E0008",
+        "art:synth",
+        "art:data_card"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C17": {
-      "claim": "5.  Do not assume a pure law is optimistic for a fixed small model: the",
-      "class": null,
+      "claim": "Do not assume a pure law is optimistic for a fixed small model: the floor argument behind P4 and P6 predicted a positive error, and the observed error was negative.",
+      "class": "research-discipline",
       "errata": [],
-      "evidence": [],
+      "evidence": [
+        "E0007",
+        "E0008"
+      ],
       "numbers": [],
       "strength": "exploratory"
     },
     "C2": {
-      "claim": "RQ2 | exponent | **refuted**: a pure power law is not adequate over N=500 to 16000 | confirmed | empirical-description | E0001\u2013E0006, E0007, rep:E0007@20261103T084735Z, art:fit | log-log R\u00b2 0.7955 vs the registered 0.98; the three smallest cells are flat (0.8296, 0.9492, 0.8408) where the law needs a decline |",
-      "class": null,
+      "claim": "A pure power law is not an adequate description of N=500 to 16000: the six-cell log-log fit has R\u00b2 0.7955, below the registered 0.98, because the three smallest cells are flat at 0.8296, 0.9492 and 0.8408 instead of declining.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0007",
+        "rep:E0007@20261103T084735Z",
+        "art:fit"
+      ],
+      "numbers": [
+        "fit_r2",
+        "loss_n1000",
+        "loss_n2000",
+        "loss_n500",
+        "n_largest_cell",
+        "n_smallest",
+        "p2_r2_threshold"
+      ],
+      "strength": "confirmed"
     },
     "C3": {
-      "claim": "RQ3 | primary | **refuted**: the law did not predict the full-pool loss within 0.20 | confirmed | procedural-verdict | E0007, E0008, art:fit | measured 0.3959 (seed sd 0.0090) vs predicted 0.5066; signed relative error -0.2802 (per seed -0.2819, -0.2502, -0.3084) |",
-      "class": null,
+      "claim": "The law fitted on the development cells did not predict the sealed full-pool test loss within the registered 0.20: measured 0.3959 against predicted 0.5066, a signed relative error of -0.2802 (P3 refuted).",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0007",
+        "E0008",
+        "rep:E0005@20261103T084144Z",
+        "art:fit"
+      ],
+      "numbers": [
+        "p3_threshold",
+        "predicted_full",
+        "rel_error",
+        "sealed_loss"
+      ],
+      "strength": "confirmed"
     },
     "C4": {
-      "claim": "RQ4 | primary | **refuted \u2014 opposite sign**: the measured loss is BELOW the prediction; the law was pessimistic | confirmed | procedural-verdict | E0007, E0008, art:synth | predicted minus measured +0.1107 nats; partition caveat \u2014 cells on development, sealed cell on t10k |",
-      "class": null,
+      "claim": "The miss runs opposite to the registered direction: the measured full-pool loss is below the law's prediction by 0.1107 nats, so the pure law was pessimistic rather than optimistic (P4 and P6 refuted), with the fit cells scored on development and the sealed cell on the official test set.",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0007",
+        "E0008",
+        "rep:E0005@20261103T084144Z",
+        "art:synth"
+      ],
+      "numbers": [
+        "predicted_minus_sealed"
+      ],
+      "strength": "confirmed"
     },
     "C5": {
-      "claim": "P7 held: the full-pool cell's best inner-validation checkpoint came at seed-mean",
-      "class": null,
+      "claim": "P7 held: the full-pool cell's best inner-validation checkpoint came at seed-mean step 8050 of 8437, above the registered 6329, so the cell was still improving near the end of its budget.",
+      "class": "procedural-verdict",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
-      "strength": "exploratory"
+      "evidence": [
+        "E0008",
+        "rep:E0005@20261103T084144Z",
+        "art:sealed_seeds"
+      ],
+      "numbers": [
+        "p7_threshold"
+      ],
+      "strength": "confirmed"
     },
     "C6": {
-      "claim": "Every cell's best checkpoint fell in the last 5% of its step budget (best_step",
-      "class": null,
+      "claim": "Every cell's best checkpoint came at 0.954 to 1.0 of its step budget, and the three smallest cells shared the 400-step floor, with epoch counts of 113.8, 56.9 and 28.4.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "E0008",
+        "art:synth"
+      ],
+      "numbers": [
+        "epochs_e0001",
+        "epochs_e0002",
+        "epochs_e0003",
+        "min_steps",
+        "share_max",
+        "share_min"
+      ],
       "strength": "exploratory"
     },
     "C7": {
-      "claim": "The method card's flattening prior MC2 is contradicted: the local exponent over",
-      "class": null,
+      "claim": "The method card's flattening prior is contradicted: the local exponent over the three smallest cells is -0.0096 against 0.2127 over the three largest, a difference of -0.2223 where the prior required at least +0.03, so the curve steepens with N over this range.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0004",
+        "E0005",
+        "E0006",
+        "art:synth",
+        "art:method_card"
+      ],
+      "numbers": [
+        "alpha_local_large",
+        "alpha_local_small",
+        "mc2_diff",
+        "mc2_threshold"
+      ],
       "strength": "exploratory"
     },
     "C8": {
-      "claim": "N=1000 sits above N=500 in all three seeds \u2014 paired, because subsamples are",
-      "class": null,
+      "claim": "N=1000 sits above N=500 in all three seeds on nested, paired subsamples, by +0.1195 on average (range 0.0347 to 0.1748), at an identical 400-step budget.",
+      "class": "empirical-description",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "art:synth"
+      ],
+      "numbers": [
+        "inv_max",
+        "inv_mean",
+        "inv_min",
+        "min_steps",
+        "n_1000",
+        "n_smallest"
+      ],
       "strength": "exploratory"
     },
     "C9": {
-      "claim": "Mechanism \u2014 a hypothesis, not tested.* The flat left end may be compute-limited:",
-      "class": null,
+      "claim": "Hypothesis, untested: the small end is compute-limited, so at a shared 400-step budget the loss tracks steps more than data, which would flatten the pinned slope and make the six-cell law over-predict the full-pool loss; no step-matched or step-extended small cell was run to test it.",
+      "class": "mechanism-interpretation",
       "errata": [],
-      "evidence": [],
-      "numbers": [],
+      "evidence": [
+        "E0001",
+        "E0002",
+        "E0003",
+        "E0007",
+        "E0008",
+        "ref:hestness2017",
+        "ref:nakkiran2020"
+      ],
+      "numbers": [
+        "min_steps"
+      ],
       "strength": "exploratory"
     }
   },
@@ -225,6 +405,294 @@
   "klein_version": "2.2.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "lock_schema": 2,
-  "numbers": {},
+  "numbers": {
+    "a_fit": {
+      "art": "fit",
+      "claim": "C1",
+      "note": "pinned prefactor a (E0007)",
+      "precision": 3,
+      "value": 2.125837465
+    },
+    "alpha_ci_high": {
+      "art": "fit",
+      "claim": "C1",
+      "note": "printed within-N bootstrap high, descriptive",
+      "precision": 4,
+      "value": 0.1411146295
+    },
+    "alpha_ci_low": {
+      "art": "fit",
+      "claim": "C1",
+      "note": "printed within-N bootstrap low, descriptive",
+      "precision": 4,
+      "value": 0.1181226757
+    },
+    "alpha_fit": {
+      "art": "fit",
+      "claim": "C1",
+      "note": "pinned pure-law exponent over six cells (E0007)",
+      "precision": 4,
+      "value": 0.1303601958
+    },
+    "alpha_local_large": {
+      "art": "synth",
+      "claim": "C7",
+      "note": "post-hoc local exponent 4000-16000 (= post-hoc refit alpha)",
+      "precision": 4,
+      "value": 0.212703
+    },
+    "alpha_local_small": {
+      "art": "synth",
+      "claim": "C7",
+      "note": "post-hoc local exponent 500-2000",
+      "precision": 4,
+      "value": -0.009597
+    },
+    "epochs_e0001": {
+      "art": "synth",
+      "claim": "C6",
+      "note": "epochs at N=500",
+      "precision": 1,
+      "value": 113.777778
+    },
+    "epochs_e0002": {
+      "art": "synth",
+      "claim": "C6",
+      "note": "epochs at N=1000",
+      "precision": 1,
+      "value": 56.888889
+    },
+    "epochs_e0003": {
+      "art": "synth",
+      "claim": "C6",
+      "note": "epochs at N=2000",
+      "precision": 1,
+      "value": 28.444444
+    },
+    "fit_r2": {
+      "art": "fit",
+      "claim": "C2",
+      "note": "log-log R2 of the pinned fit",
+      "precision": 4,
+      "value": 0.795532639
+    },
+    "inv_max": {
+      "art": "synth",
+      "claim": "C8",
+      "note": "max paired gap",
+      "precision": 4,
+      "value": 0.174837
+    },
+    "inv_mean": {
+      "art": "synth",
+      "claim": "C8",
+      "note": "mean paired N1000-N500 loss gap",
+      "precision": 4,
+      "value": 0.119527
+    },
+    "inv_min": {
+      "art": "synth",
+      "claim": "C8",
+      "note": "min paired gap",
+      "precision": 4,
+      "value": 0.034737
+    },
+    "loss_n1000": {
+      "art": "fit",
+      "claim": "C2",
+      "note": "seed-mean dev loss E0002",
+      "precision": 4,
+      "value": 0.9491743333
+    },
+    "loss_n2000": {
+      "art": "fit",
+      "claim": "C2",
+      "note": "seed-mean dev loss E0003",
+      "precision": 4,
+      "value": 0.8407586667
+    },
+    "loss_n500": {
+      "art": "fit",
+      "claim": "C2",
+      "note": "seed-mean dev loss E0001",
+      "precision": 4,
+      "value": 0.8296473333
+    },
+    "mc2_diff": {
+      "art": "synth",
+      "claim": "C7",
+      "note": "small minus large local exponent",
+      "precision": 4,
+      "value": -0.222299
+    },
+    "mc2_threshold": {
+      "art": "method_card",
+      "claim": "C7",
+      "note": "MC2 stated bound",
+      "precision": 2,
+      "value": 0.03
+    },
+    "min_steps": {
+      "art": "aux",
+      "claim": "C6",
+      "note": "shared 400-step floor of E0001-E0003",
+      "precision": 0,
+      "value": 400
+    },
+    "n_1000": {
+      "art": "fit",
+      "claim": "C8",
+      "note": "second cell size",
+      "precision": 0,
+      "value": 1000
+    },
+    "n_largest_cell": {
+      "art": "fit",
+      "claim": "C2",
+      "note": "largest development cell",
+      "precision": 0,
+      "value": 16000
+    },
+    "n_smallest": {
+      "art": "fit",
+      "claim": "C2",
+      "note": "smallest training-set size",
+      "precision": 0,
+      "value": 500
+    },
+    "p2_r2_threshold": {
+      "art": "contract",
+      "claim": "C2",
+      "note": "P2 registered threshold",
+      "precision": 2,
+      "value": 0.98
+    },
+    "p3_threshold": {
+      "art": "contract",
+      "claim": "C3",
+      "note": "P3 registered abs relative error bound",
+      "precision": 2,
+      "value": 0.2
+    },
+    "p7_threshold": {
+      "art": "contract",
+      "claim": "C5",
+      "note": "P7 registered best_step bound",
+      "precision": 0,
+      "value": 6329
+    },
+    "posthoc_pred": {
+      "art": "synth",
+      "claim": "C10",
+      "note": "post-hoc N>=4000 refit prediction at full pool",
+      "precision": 4,
+      "value": 0.425356
+    },
+    "posthoc_rel": {
+      "art": "synth",
+      "claim": "C10",
+      "note": "post-hoc refit signed relative error vs sealed",
+      "precision": 4,
+      "value": -0.074501
+    },
+    "predicted_full": {
+      "art": "fit",
+      "claim": "C3",
+      "note": "pinned law at N=59992",
+      "precision": 4,
+      "value": 0.5065903039
+    },
+    "predicted_minus_sealed": {
+      "art": "synth",
+      "claim": "C4",
+      "note": "predicted minus measured, nats",
+      "precision": 4,
+      "value": 0.110726
+    },
+    "printed_width": {
+      "art": "synth",
+      "claim": "C12",
+      "note": "printed bootstrap width",
+      "precision": 4,
+      "value": 0.022992
+    },
+    "ratio_e0005": {
+      "art": "synth",
+      "claim": "C11",
+      "note": "E0005 held-out over inner loss",
+      "precision": 4,
+      "value": 1.015773
+    },
+    "ratio_e0006": {
+      "art": "synth",
+      "claim": "C11",
+      "note": "E0006 held-out over inner loss",
+      "precision": 4,
+      "value": 1.016053
+    },
+    "ratio_e0008": {
+      "art": "synth",
+      "claim": "C11",
+      "note": "E0008 held-out over inner loss",
+      "precision": 4,
+      "value": 1.08771
+    },
+    "rel_error": {
+      "art": "aux",
+      "claim": "C3",
+      "note": "E0008 seed-mean signed (measured-predicted)/measured",
+      "precision": 4,
+      "value": -0.2801519225030284
+    },
+    "sealed_loss": {
+      "art": "results",
+      "claim": "C3",
+      "note": "E0008 seed-mean test cross-entropy (sealed, t10k)",
+      "precision": 4,
+      "value": 0.395864
+    },
+    "share_max": {
+      "art": "synth",
+      "claim": "C6",
+      "note": "largest best_step/steps share (E0003)",
+      "precision": 1,
+      "value": 1.0
+    },
+    "share_min": {
+      "art": "synth",
+      "claim": "C6",
+      "note": "smallest best_step/steps share (E0008)",
+      "precision": 3,
+      "value": 0.954131
+    },
+    "t_high": {
+      "art": "synth",
+      "claim": "C12",
+      "note": "per-seed-slope t-interval high",
+      "precision": 4,
+      "value": 0.156889
+    },
+    "t_low": {
+      "art": "synth",
+      "claim": "C12",
+      "note": "per-seed-slope t-interval low",
+      "precision": 4,
+      "value": 0.10326
+    },
+    "t_ratio": {
+      "art": "synth",
+      "claim": "C12",
+      "note": "t width over printed width",
+      "precision": 2,
+      "value": 2.332509
+    },
+    "t_width": {
+      "art": "synth",
+      "claim": "C12",
+      "note": "per-seed-slope t-interval width",
+      "precision": 4,
+      "value": 0.053629
+    }
+  },
   "study_id": "22-cnn-data-scaling"
 }
