@@ -1,0 +1,131 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 437,
+      "committed": true,
+      "sha256": "0d2693aaf48fc79bd5c4ffda76286e41b11125f9d6c0905843916a73a4196afb"
+    },
+    "calls/E0002-000.jsonl.gz": {
+      "availability": "recorded",
+      "bytes": 726,
+      "committed": true,
+      "role": "declared",
+      "sha256": "a385d81c1a8dcccf365e68565ba52797ff8701038f2ffec59793299ac36cf1f3"
+    },
+    "runs/E0002/run.log": {
+      "availability": "recorded",
+      "bytes": 976,
+      "committed": true,
+      "sha256": "f896e58572f64e0870bd713f1309954c15d5e9e9b41623a484ce2e9096f8fc7d"
+    },
+    "runs/E0002/usage.json": {
+      "availability": "recorded",
+      "bytes": 121,
+      "committed": true,
+      "role": "usage",
+      "sha256": "26d3342770c6365f199ec12d690523f13013072525257bd0c7f8d5c76c4ff366"
+    },
+    "tables/cot_gain_E0002.tsv": {
+      "availability": "recorded",
+      "bytes": 6791,
+      "committed": true,
+      "role": "declared",
+      "sha256": "066018b65f3f23cfe667aaa8a7faa562a895dbe14fce83772ea54a068cedcdc8"
+    }
+  },
+  "base_commit": "c2054d572d5cd9174a0ff9a8acd1c480603cfa97",
+  "candidate_commit": "90198c83e848a5a4449d03727377a9be69d07f1c",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "anchor: CoT vs direct on the 300-item public GSM8K sample, rerun after E0001's rate-limit crash; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T07:58:59.538712Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0002",
+  "fingerprints": {
+    "data": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "98bc8a1ab69b3cdb20246ce29d16279df7e19687129b966592b21291e6948d29",
+    "split_partition": "bf49493a7990426baf50e73ce8657f84d6a17d917e10063e0edb31aef795d13d"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 3600.0,
+  "metric_goal": "higher",
+  "metric_name": "em_gain",
+  "metrics": {
+    "calls_cached": 599.0,
+    "calls_cost_usd": 0.0,
+    "calls_tokens_in": 75.0,
+    "calls_tokens_out": 107.0,
+    "calls_total": 600.0,
+    "ci_high": 0.03,
+    "ci_low": -0.01,
+    "discordant_cot_only": 6.0,
+    "discordant_direct_only": 3.0,
+    "em_cot": 0.96,
+    "em_direct": 0.95,
+    "mcnemar_p": 0.5078125,
+    "n": 300.0,
+    "n_clusters": 300.0,
+    "n_items": 300.0,
+    "primary_metric": 0.01,
+    "runner_exit_code": 0.0,
+    "total_seconds": 3.0,
+    "wall_seconds": 2.957728
+  },
+  "phase": "anchor",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P1": {
+      "explanation": "em_direct 0.95 <= 0.85 \u2192 refuted",
+      "verdict": "refuted"
+    },
+    "P2": {
+      "explanation": "primary_metric 0.01 >= 0.1 \u2192 refuted",
+      "verdict": "refuted"
+    }
+  },
+  "predictions_requested": [
+    "P1",
+    "P2"
+  ],
+  "primary_metric": 0.01,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T07:58:54.041449Z",
+  "timed_out": false,
+  "track": "cot_gain",
+  "transaction": {
+    "ready_at": "2026-11-03T07:58:59.553724Z",
+    "status": "pending"
+  },
+  "usage": {
+    "calls": 1.0,
+    "calls_cached": 599.0,
+    "tokens": 182.0,
+    "tokens_in": 75.0,
+    "tokens_out": 107.0,
+    "usd": 0.0
+  },
+  "wall_seconds": 5.496853384000133
+}

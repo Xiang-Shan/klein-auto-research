@@ -1,1 +1,17 @@
 experiment	metric	value
+E0002	ci_low	-0.010000000000000009
+E0002	ci_high	0.030000000000000027
+E0002	n	300
+E0002	wall_seconds	2.9577276706695557
+E0002	em_direct	0.95
+E0002	em_cot	0.96
+E0002	n_items	300
+E0002	n_clusters	300
+E0002	mcnemar_p	0.5078125
+E0002	discordant_cot_only	6
+E0002	discordant_direct_only	3
+E0002	calls_total	600.0
+E0002	calls_cached	599.0
+E0002	calls_tokens_in	75.0
+E0002	calls_tokens_out	107.0
+E0002	calls_cost_usd	0.0
