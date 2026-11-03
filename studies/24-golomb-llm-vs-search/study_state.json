@@ -11,11 +11,16 @@
     "method": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T06:19:06.679690Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T10:43:32.631768Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "d191937cd21d1f9cca3eca39d3d205cadcd95b3c183fd9258221738f411148df",
     "method_card.md": "28b4ab4617e0a798054032ef9750eb9c07f2513f3945fcd47a891d0a0f00b077",
+    "referee_report.md": "475a68665ff13b5ea4d15f79d9901d947475ec5142fb7647e6a1c9b412734e25",
     "research_plan.md": "b62247572145c946c8ff945e6c2c43c6a1fcd0d7cf6c02fdb74a52806f7fe2a5",
     "scouting_ledger.md": "2d8a260d13fbdb4e37f9831be05ff1d7685db21ef04743f38ddb2d90622afaf1",
     "study.yaml": "467cbc8fe64c6399648b955e85d68015bc7bd53a7763dcc631512eeed10ce1b4"
@@ -79,6 +84,18 @@
       },
       "note": "delegated (program.md Roster). Card complete (triad all true); verify.py hashed at its final form; adversarial re-check: no load-bearing claim refuted",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-11-03T10:43:32.631768Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "475a68665ff13b5ea4d15f79d9901d947475ec5142fb7647e6a1c9b412734e25"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "last_experiment": 6,
@@ -242,5 +259,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "24-golomb-llm-vs-search",
-  "updated_at": "2026-11-03T10:25:28.255800Z"
+  "updated_at": "2026-11-03T10:43:32.633496Z"
 }
