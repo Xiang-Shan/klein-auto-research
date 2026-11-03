@@ -14,6 +14,7 @@ this document directly.
 ```bash
 uv run --locked klein replicate --study studies/NN-slug E0003 [--tolerance 0.001]
 uv run --locked klein replicate --study studies/NN-slug E0007 --verify-only   # verifier tracks
+uv run --locked klein replicate --study studies/NN-slug E0004 --replay         # call-ledger studies, offline
 uv run --locked klein replicate --study studies/NN-slug --list
 ```
 
@@ -33,6 +34,20 @@ uv run --locked klein replicate --study studies/NN-slug --list
   `mode: verify`; the evidence id is `verify:E####@<ts>`.
 - Refused, with no override: sealed runs (a replication would be a second look) and
   crashes (there is nothing to reproduce; run a new candidate instead).
+- `--replay` (Klein 2.3, studies whose entrypoint calls a model through the call
+  ledger) re-executes the run in the worktree with the run's pinned call shards copied
+  in (each hash-checked) and `KLEIN_OFFLINE=1`, so every model request is answered from
+  the ledger and none reaches the network; a request the ledger does not hold is a
+  crash. The record is `mode: replay`, evidence id `replay:E####@<ts>`. A replay proves
+  the pipeline from the model's recorded answers to the printed block — it NEVER
+  satisfies `confirmation.require: [replicate]`, because re-reading what a model said is
+  not asking it again. A plain `klein replicate` of the same run re-queries the model
+  with salted request keys (`KLEIN_CALLS_NAMESPACE`), keeps the new shards under
+  `runs/E####/replications/<ts>-calls/`, and counts as a replication when the block
+  reproduces within tolerance.
+- Seed-array runs (`entrypoint.seeds`) are replicated seed by seed and compared on the
+  aggregate; a detached run is replicated locally like any other — that is how an
+  attested run gets an observed record.
 
 ### What the worktree receives
 

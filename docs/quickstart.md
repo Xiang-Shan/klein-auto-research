@@ -83,6 +83,22 @@ which headings the findings and the report carry — see
 **What just happened.** You created a schema-3 study directory and a branch. Studies
 run on `experiments/<id>` branches, never on `main`; the loop enforces it.
 
+**The shortcut for your own field (Klein 2.3).** This walkthrough types every flag so
+you see the whole contract. For a real study, start from the recipe for your domain —
+it fills the axes, metric, split and the 2.3 contract blocks, and writes a `prepare.py`
+and entrypoint that already smoke under `KLEIN_SMOKE=1`:
+
+```bash
+uv run --no-sync klein new 17-my-blood-cells --recipe cv-classify \
+  --goal "Does a small CNN clear the measured floor over a pixel-linear baseline?"
+uv run --no-sync klein next --study studies/17-my-blood-cells
+```
+
+Recipes: `tabular-predict`, `cv-classify`, `dl-scaling`, `llm-eval`, `ds-causal`,
+`math-verify`. Every `{{…}}` a recipe leaves is a judgment that is yours — the gates
+refuse a study that still carries one — and `klein next` names the one next action
+from here to the tutorial. Studies 20-24 were built exactly this way.
+
 ---
 
 ## 2. What the scaffold contains

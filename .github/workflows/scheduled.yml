@@ -132,6 +132,45 @@ jobs:
       - name: The checkout stays byte-clean
         run: test -z "$(git status --porcelain)"
 
+  exhibits-network:
+    # Klein 2.3 exhibits pin their data by sha256 to public hosts (NBER, Zenodo,
+    # GitHub). Weekly, with the network ON: re-fetch and re-prepare each study's data
+    # (the pin proves the bytes did not change), then re-execute one development run
+    # per study in a detached worktree. Study 20's ledgered model calls are replayed
+    # offline instead (`--replay`), so this job never queries a model.
+    name: exhibits — re-fetch pinned data and replicate one run each
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KLEIN_DEVICE: cpu
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v8.3.2
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - name: Locked environment
+        run: uv sync --locked --extra encoders --extra deep
+      - name: Re-prepare and replicate
+        shell: bash
+        run: |
+          set -euo pipefail
+          # replicate files its own record as a local commit (never pushed).
+          git config user.name "klein-ci"; git config user.email "klein-ci@users.noreply.github.com"
+          for pair in 23-lalonde-causal-replication:E0002 21-bloodmnist-cnn:E0001 22-cnn-data-scaling:E0001; do
+            study="studies/${pair%%:*}"; run="${pair##*:}"
+            test -d "$study" || { echo "skip $study (not present)"; continue; }
+            ( cd "$study" && uv run --no-sync python -u prepare.py )
+            uv run --no-sync klein replicate --study "$study" "$run" --quiet
+          done
+          if [ -d studies/20-llm-cot-contamination ]; then
+            KLEIN_OFFLINE=1 uv run --no-sync klein replicate --study studies/20-llm-cot-contamination E0001 --replay --quiet
+          fi
+      - name: The checkout stays byte-clean
+        run: test -z "$(git status --porcelain --untracked-files=no)"
+
   shipped-reports:
     name: shipped report acceptance in a real browser
     runs-on: ubuntu-latest

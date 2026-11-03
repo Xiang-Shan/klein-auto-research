@@ -30,6 +30,11 @@ Golden rules (details, definitions and the full stage map in `AGENTS.md`):
   `klein predict adjudicate`), never by prose; claims live in `claims.lock`
   (`klein claims ...`, append-only, errata re-scope); `klein verify --numbers
   --evidence-use` must pass before a study closes.
+- New studies start from a recipe — `klein new NN-slug --recipe
+  tabular-predict|cv-classify|dl-scaling|llm-eval|ds-causal|math-verify` — and
+  `klein next --study studies/NN-slug` names the one next action at every step.
+  A study's entrypoint that queries a model does so only through
+  `kleinlib.calls.CallLedger` (pinned, replayable offline); no Klein verb calls a model.
 - Never edit a shipped study's ledgers, lock, cards, `findings.md` or
   `program.md` — they are immutable exhibits. New results = new studies.
 - Studies run on `experiments/<study>` branches, never on `main`; study branches
