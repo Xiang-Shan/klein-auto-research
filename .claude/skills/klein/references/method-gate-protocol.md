@@ -47,6 +47,15 @@ The card is not done until it has staked a claim SYNTHESIZE can falsify.
 ### 5. Verified references
 Verify EACH reference — do not cite from memory:
 
+- **If a literature connector is available** (Claude Science's Literature Graph over
+  OpenAlex and arXiv, PubMed, bioRxiv, Scholar Gateway, Consensus, the Hugging Face
+  papers index — any MCP search tool the session has), use it first: it returns the
+  record from the index rather than a page about it.
+- **Then resolve every DOI and arXiv id mechanically:** `klein refs verify --study <dir>`
+  (Klein 2.3; network, refused under `KLEIN_OFFLINE=1`) looks each one up (Crossref /
+  OpenAlex for DOIs, export.arxiv.org for arXiv ids), compares the resolved title with
+  the card's, and records `verified_by: klein-refs` with the date in `references.yaml`.
+  It never runs inside `klein verify`, which stays network-free.
 - **If the `alphaxiv-paper-lookup` skill is available** (check for its SKILL.md under
   `~/.claude/skills/` or `.agents/skills/`), use it for the lit-scan — worker agents
   without the Skill tool read that SKILL.md and drive its scripts via Bash.

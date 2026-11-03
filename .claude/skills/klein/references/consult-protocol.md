@@ -38,7 +38,14 @@ interrogate. The six axes, with example phrasings:
 6. **Deliverable form.** "Besides the always-on `findings.md` + `claims.lock` +
    referee report + HTML tutorial, do you want any study-specific docs?"
 
-### Fast-path
+#**Recipe (inferred, never a seventh question).** When the typed inquiry matches a
+domain recipe — `tabular-predict`, `cv-classify`, `dl-scaling`, `llm-eval`, `ds-causal`,
+`math-verify` (`references/defaults-and-scaffolding.md`) — name it in the confirm summary
+and scaffold with `klein new NN-slug --recipe <id> …`: the recipe writes the 2.3 contract
+blocks and runnable example code, and leaves every judgment as a placeholder for this
+gate to fill.
+
+## Fast-path
 
 If the brief already answers FIVE or more of the six, do NOT re-ask. Draft everything,
 then present a single CONFIRM-ONLY summary (below). Ask only about the one genuinely

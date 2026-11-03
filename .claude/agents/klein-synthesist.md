@@ -34,11 +34,16 @@ every invocation; it is the source of truth, this file only orients you.
      extend the development frontier.
 2. **aux_metrics.tsv — the tradeoffs.**
    - Rank-vs-calibration: did the best-AUC model also have the best brier/logloss, or
-     did they trade off? For actuarial use, calibration often matters more than rank.
+     did they trade off? The profile's doctrine says which matters for the decision
+     (for insurance pricing, calibration often matters more than rank; for an LLM
+     benchmark, the paired per-item difference matters more than the two means).
    - Wall-clock: was the best model 10x slower for +0.001? Note the cost.
    - Prediction health: check finite range/unique-value diagnostics — a near-collapsed
      run is suspect even if its headline metric looked fine.
-   For frequency/severity/pure-premium studies, consider the eval-card exhibit:
+   For per-item studies (benchmarks, LLM evaluations) mine the pinned item tables:
+   `kleinlib.metrology.paired_item_bootstrap` / `mcnemar_exact` between cells, and
+   the fresh-vs-public gap when the data card declares a contamination control.
+   For insurance frequency/severity/pure-premium studies, consider the eval-card exhibit:
    Glob for `~/.claude/skills/pricing-eval/SKILL.md` (example binding from the
    author's harness) — if present, export holdout predictions via
    `kleinlib.eval.save_holdout_predictions` and drive that SKILL.md's card; else
