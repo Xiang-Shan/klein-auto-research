@@ -299,10 +299,30 @@
         }
       ],
       "track": "contamination"
+    },
+    "E0004": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.02,
+          "evidence_id": "rep:E0004@20261103T102653Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T10:26:53.602524Z",
+          "tolerance": 0.03
+        }
+      ],
+      "track": "cot_gain"
     }
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T09:21:39.521978Z"
+  "updated_at": "2026-11-03T10:35:58.763421Z"
 }
