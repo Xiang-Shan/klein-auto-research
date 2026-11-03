@@ -179,8 +179,10 @@
   "timed_out": false,
   "track": "primary",
   "transaction": {
-    "ready_at": "2026-11-03T07:52:32.402905Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T07:52:32.571216Z",
+    "evidence_commit": "dea486960bc3e80ff2764bb412792344faa9791b",
+    "recovered": false,
+    "status": "complete"
   },
   "usage": {
     "steps": 1689.0
