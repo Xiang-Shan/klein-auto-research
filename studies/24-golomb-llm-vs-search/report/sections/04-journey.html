@@ -1,0 +1,28 @@
+<h3>How to read a registered journey</h3>
+<p>Both tracks are registered: each run is a pre-declared cell, <em>measured</em> or <em>crash</em>, never a keep or a discard. So there is no frontier to climb. The &ldquo;journey&rdquo; is the sequence of cells, the two crashes that interrupted one of them, and the separate sealed confirmation cell. The step line of the engine's trajectory plot is empty by design; what matters is where the squares, the crosses and the star fall.</p>
+<p>Development evidence (orders 8&ndash;11) and sealed confirmation evidence (orders 12&ndash;13) are different partitions and are labelled separately everywhere below.</p>
+
+<h3>The <code>search</code> track</h3>
+<p>One development cell measured the annealer (E0001), and one sealed cell measured it again on the sealed orders, once, after a dry run (E0005). Nothing about the mutable surface changed between them: the notary recorded an empty candidate diff on both, and section 6 shows the same bytes under both run ids.</p>
+<img data-fig="figures/plot_decision_trajectory__search.png" alt="Decision trajectory for the search track: one blue square at 0 matched in the development phase and a star at 0 in the confirmation phase." data-caption="The search track&rsquo;s registered cells in run order (metric: pairs matched, higher is better). Development cell E0001 is a blue square and the sealed final-test cell E0005 is a star off the frontier. Both sit at 0 matches; there is no incumbent to beat on a registered track, so the takeaway is the flat zero in both lanes.">
+
+<h3>The <code>llm</code> track, and the two crashes</h3>
+<p>The model arm needed four attempts at one development cell. E0002 died on an HTTP 429 rate limit from the provider after 613 calls. The transport was made to wait out rate limits and the concurrency was lowered; E0003 then died on a bare connection reset after 523 live calls plus 613 answered from E0002's shard. The transport was made to retry dropped connections, and the same pre-registered cell ran to completion as E0004. Neither crash was a bug in the ruler logic, both are kept in the ledger as crashes with an NA metric, and each fix was a dated lead decision with the contract re-recorded. No registered prediction changed.</p>
+<p>The caveat this leaves is that E0004 answered a large share of its requests from the crashed runs' shards. Those are genuine recorded responses to byte-identical requests, but they make E0004 partly the same sample as the crashed runs, so only the salted re-query is a fully independent second draw (claim C12).</p>
+<img data-fig="figures/plot_decision_trajectory__llm.png" alt="Decision trajectory for the llm track: two red crosses on the crash rug at experiments 2 and 3, a blue square at 6 matches at experiment 4, and a star at 0 matches at experiment 6 in the confirmation phase." data-caption="The llm track&rsquo;s registered cells in run order (metric: pairs matched). E0002 and E0003 are transport crashes on the rug (metric NA), E0004 is the development cell that finally measured, and the star is the sealed cell E0006. The development count of 6 did not carry over to the sealed orders, where the cell measured 0.">
+
+<h3>What each cell measured, pair by pair</h3>
+<p>The count hides the shape. Plotting each (order, trial) pair as best verified length against the tabulated length separates the two arms cleanly:</p>
+<img data-fig="figures/gap_by_order.png" alt="Two panels over orders 8 to 13. Left: best verified ruler length per trial for each arm with the tabulated optimum as a bar per order. Right: the gap above the tabulated length on an axis starting at zero." data-caption="Verified best length (left) and gap to the tabulated optimum (right, zero-based) for every (order, trial) pair; development orders 8&ndash;11 left of the dotted line, sealed orders 12&ndash;13 right. The search arm (circles) misses everywhere and its gap grows with order; the LLM arm (diamonds) sits exactly on the tabulated length at orders 8 and 11, 15 units above it at order 10, and has no valid ruler at all (crosses) at orders 9, 12 and 13.">
+<p>Three things are visible without any test. The annealer's gap grows monotonically with order, as the method card's prior predicted, so its zero is hardness growth at a fixed budget, not a defect. The LLM arm is all-or-none within each development order, which is why the pair-level contrast overstates its evidence (claim C11). And on the sealed orders the LLM arm did not merely fail to match: it produced no valid ruler, so its row of crosses has no length to compare.</p>
+
+<h3>The ledger</h3>
+<!--LEDGER-->
+<p>The ledger key line names each track's metric and direction. The rows with an NA metric are the two crashes; the &ldquo;measured&rdquo; rows are the registered cells. The <code>DRYRUN</code> rows in <code>aux_metrics.tsv</code> and the files under <code>sweeps/</code> are sealed rehearsals and are never evidence.</p>
+
+<h3>The notebook's decisions, in brief</h3>
+<ul>
+  <li><strong>Matched budget:</strong> a dated decision fixed the budget in candidate evaluations, 2000 per order and trial, accepting that the LLM spends 10 per proposal.</li>
+  <li><strong>Refutations answered:</strong> P2, P3 and P5 were refuted by the notary, and each received a dated <code>Decision:</code> line in <code>program.md</code>. P1 and P4 were supported.</li>
+  <li><strong>A correction to the notebook's own prose:</strong> the development log said every order-8 first batch opens with the same prefix. The pinned tables show it in two of three trials. Findings carries the correction; the append-only notebook was left as written.</li>
+</ul>

@@ -1,0 +1,118 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 178,
+      "committed": true,
+      "sha256": "6c30dfa2a47084a36974d678d7065d092a4ca05ff37e8032d4b9d15b7b6446c8"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 673,
+      "committed": true,
+      "sha256": "a3f8f81c6c1fb318833b7aaabf37a1271103a0f53f95389ee3b4e32e77640351"
+    },
+    "tables/solution_E0001.json": {
+      "availability": "recorded",
+      "bytes": 3719,
+      "committed": true,
+      "role": "declared",
+      "sha256": "7978e18ca3f8cd0e6101adc402020a64acf587b0764c1f4e16130f1c2b76144c"
+    }
+  },
+  "base_commit": "9017fdf21098fa08d5ccfd39a540470ca4e6342a",
+  "candidate_commit": "f8efcf87c00e0600f5a3b6f12429d7e8b957c4a1",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "development: classical search, orders 8-11, 3 trials, 2,000 evaluations; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T06:19:38.269673Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9",
+    "split_partition": "1f2ded940a92d1254b5928579dc2e4090195d35958ba0f4385309cb620197dd1"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric": {
+    "reported": 0.0,
+    "verified": 0.0
+  },
+  "metric_goal": "higher",
+  "metric_name": "optima_matched",
+  "metrics": {
+    "evaluations": 24000.0,
+    "first_batch_matches": 0.0,
+    "invalid_best": 0.0,
+    "pairs": 12.0,
+    "primary_metric": 0.0,
+    "restarts": 94.0,
+    "runner_exit_code": 0.0,
+    "sealed_lane": 0.0,
+    "total_seconds": 0.0,
+    "wall_seconds": 0.000433
+  },
+  "phase": "development",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P1": {
+      "explanation": "primary_metric 0 <= 6 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P1"
+  ],
+  "primary_metric": 0.0,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T06:19:36.092245Z",
+  "timed_out": false,
+  "track": "search",
+  "transaction": {
+    "committed_at": "2026-11-03T06:19:40.393524Z",
+    "evidence_commit": "bee75afe2d52a5834d2494c75c0ae51919f2d654",
+    "recovered": false,
+    "status": "complete"
+  },
+  "verifier": {
+    "artifact": "tables/solution_E0001.json",
+    "command": [
+      "uv",
+      "run",
+      "--locked",
+      "python",
+      "-u",
+      "verify.py"
+    ],
+    "exit_code": 0,
+    "sha256": {
+      "verify.py": "63a60221be1a0b66c36095c804d08799df889156c7299c1129df16f2c0bc903c"
+    },
+    "timed_out": false,
+    "wall_seconds": 1.92022220599938
+  },
+  "wall_seconds": 2.1771244290011964
+}

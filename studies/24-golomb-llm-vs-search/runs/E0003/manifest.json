@@ -1,0 +1,87 @@
+{
+  "artifacts": {
+    "calls/E0003-000.jsonl.gz": {
+      "availability": "recorded",
+      "bytes": 116884,
+      "committed": true,
+      "sha256": "0744631c658d87cd699ab35815ab91b4e93ccef4fa264a7062e73b9eb902090a"
+    },
+    "runs/E0003/run.log": {
+      "availability": "recorded",
+      "bytes": 3506,
+      "committed": true,
+      "sha256": "8fcd4633839cb482967d5bf62624e02defb1fdf815144eb126c232a3d027d0b9"
+    },
+    "runs/E0003/usage.json": {
+      "availability": "recorded",
+      "bytes": 133,
+      "committed": true,
+      "role": "usage",
+      "sha256": "9296071a7c7989c7c72de7d8f6cff0a4ffcc8585ee3086ef756d85a746d56368"
+    }
+  },
+  "base_commit": "189678393ba429d4a78b11fd131f13a628498b09",
+  "candidate_commit": "72996a394e3fbec61a9049b71e1d9a6dba96d84f",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "search.py"
+  ],
+  "decision_reason": "process exit code 1",
+  "description": "development: qwen-flash-2025-07-28 proposes rulers, orders 8-11, 3 trials, 200 x 10 proposals (rerun after E0002's rate-limit crash); process exit code 1",
+  "disposition": "crash",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T06:51:40.165227Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 1,
+  "experiment": "E0003",
+  "fingerprints": {
+    "data": "846e4e71af0f4128d9bd5683995c777a3bec442a71fb468d63db83fc482e5c32",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "ad9dc46ce79f094b6868e5aae28ac4bd802b12e9f69bc9991a183ef5eeb4f0f9"
+  },
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric_goal": "higher",
+  "metric_name": "optima_matched",
+  "metrics": {},
+  "phase": "development",
+  "phase_budget_seconds": 10800.0,
+  "phase_experiment_limit": 3,
+  "predictions_requested": [
+    "P2",
+    "P3"
+  ],
+  "primary_metric": null,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T06:34:20.364620Z",
+  "timed_out": false,
+  "track": "llm",
+  "transaction": {
+    "committed_at": "2026-11-03T06:51:40.531213Z",
+    "evidence_commit": "56b0445ca1ca0f9d0a6849c6afa86be28b6144f8",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "calls": 523.0,
+    "calls_cached": 613.0,
+    "tokens": 513333.0,
+    "tokens_in": 338950.0,
+    "tokens_out": 174383.0,
+    "usd": 0.0
+  },
+  "wall_seconds": 1039.8002405669995
+}

@@ -1,0 +1,30 @@
+<h3>What to try next</h3>
+<p>These are the four next experiments from the findings, in priority order. Each is the control that converts a specific hypothesis above into a finding or a refutation.</p>
+<ol>
+  <li><strong>A contamination control, first.</strong> Re-run the LLM arm unchanged on instances with no public answer at the same 2000 evaluations: for example a perturbed Golomb variant with a forbidden difference set, whose optima the verifier can certify by exhaustive enumeration at small <span data-math="n"></span>. A match there could not be retrieval. This is the single experiment that turns C7 and C8 into findings or refutations.</li>
+  <li><strong>A no-feedback arm.</strong> Resample the same model and prompt for 200 proposals without verdicts, on orders 8 and 11, registered as a rule on <code>first_optimal_proposal</code>. If the late matches recur without feedback they are resampling; if they vanish, feedback steered them.</li>
+  <li><strong>A compute-honest classical baseline.</strong> Run the annealer, or the hybrid of <code>ref:dotu2005</code>, at the LLM arm&rsquo;s wall-clock or at 10 and 100 times the evaluations, reporting the budget in evaluations and seconds. This places the annealer&rsquo;s zero on its own budget curve.</li>
+  <li><strong>Snapshot and temperature replication.</strong> Query a second dated snapshot at temperature 0, declare a price block (C13), keep the replica&rsquo;s per-pair table (C14), and report results in orders as the unit (C11).</li>
+</ol>
+<p>The study did not do any of these: the contract registered exactly two arms and both phase allowances were spent. The process lessons C3, C10 to C13 and C15 are candidates for promotion into the framework&rsquo;s cross-study notes after a survey; that promotion is not done here.</p>
+
+<h3>References</h3>
+<p>All entries below are marked verified in <code>references.yaml</code> and match the method card; none is promoted beyond what that record says. Secondary sources are labelled as such.</p>
+<ul class="refs">
+  <li><code>oeis_a003022</code> &mdash; OEIS Foundation, <em>A003022: Length of shortest (or optimal) Golomb ruler with n marks</em>, The On-Line Encyclopedia of Integer Sequences, 2026. https://oeis.org/A003022 &mdash; the source of every tabulated length compared against.</li>
+  <li><code>wikipedia_golomb</code> &mdash; Wikipedia contributors, <em>Golomb ruler</em> (secondary source: the table of known rulers and their counts). https://en.wikipedia.org/wiki/Golomb_ruler</li>
+  <li><code>wikipedia_sidon</code> &mdash; Wikipedia contributors, <em>Sidon sequence</em> (secondary source for the Sidon-set statements). https://en.wikipedia.org/wiki/Sidon_sequence</li>
+  <li><code>robinson1979</code> &mdash; J. P. Robinson, <em>Optimum Golomb Rulers</em>, IEEE Trans. Computers C-28(12), 1979. doi:10.1109/TC.1979.1675287</li>
+  <li><code>robinson1983</code> &mdash; J. P. Robinson, <em>Addendum to &ldquo;Optimum Golomb Rulers&rdquo;</em>, IEEE Trans. Computers C-32(2), 1983. doi:10.1109/TC.1983.1676205</li>
+  <li><code>shearer1990</code> &mdash; J. B. Shearer, <em>Some new optimum Golomb rulers</em>, IEEE Trans. Information Theory 36(1), 1990. doi:10.1109/18.50388</li>
+  <li><code>singer1938</code> &mdash; J. Singer, <em>A theorem in finite projective geometry and some applications to number theory</em>, Trans. AMS 43(3), 1938. doi:10.1090/S0002-9947-1938-1501951-4</li>
+  <li><code>atkinson1986</code> &mdash; M. Atkinson, N. Santoro, J. Urrutia, <em>Integer Sets with Distinct Sums and Differences and Carrier Frequency Assignments for Nonlinear Repeaters</em>, IEEE Trans. Communications 34(6), 1986. doi:10.1109/TCOM.1986.1096587</li>
+  <li><code>kirkpatrick1983</code> &mdash; S. Kirkpatrick, C. D. Gelatt, M. P. Vecchi, <em>Optimization by Simulated Annealing</em>, Science 220(4598), 1983. doi:10.1126/science.220.4598.671</li>
+  <li><code>dotu2005</code> &mdash; I. Dotu, P. Van Hentenryck, <em>A simple Hybrid Evolutionary Algorithm for Finding Golomb Rulers</em>, 2005 IEEE Congress on Evolutionary Computation 3. doi:10.1109/CEC.2005.1554943</li>
+  <li><code>opro2024</code> &mdash; C. Yang et al., <em>Large Language Models as Optimizers</em>, ICLR 2024. arXiv:2309.03409</li>
+  <li><code>funsearch2024</code> &mdash; B. Romera-Paredes et al., <em>Mathematical discoveries from program search with large language models</em>, Nature 625, 2024. doi:10.1038/s41586-023-06924-6</li>
+  <li><code>alphaevolve2025</code> &mdash; A. Novikov et al., <em>AlphaEvolve: A coding agent for scientific and algorithmic discovery</em>, arXiv:2506.13131, 2025.</li>
+  <li><code>georgiev2025</code> &mdash; B. Georgiev, J. Gomez-Serrano, T. Tao, A. Z. Wagner, <em>Mathematical exploration and discovery at scale</em>, arXiv:2511.02864, 2025.</li>
+  <li><code>carlini2023</code> &mdash; N. Carlini et al., <em>Quantifying Memorization Across Neural Language Models</em>, ICLR 2023. arXiv:2202.07646</li>
+</ul>
+<p>The method card&rsquo;s own scan found no paper applying an LLM proposer to Golomb rulers; two queries finding nothing is not evidence that nothing exists.</p>

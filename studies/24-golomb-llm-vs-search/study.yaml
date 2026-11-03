@@ -1,0 +1,137 @@
+schema_version: 3
+study_id: "24-golomb-llm-vs-search"
+goal: "At a matched budget of verifier calls, does an LLM proposing Golomb rulers as data match the known optimal lengths (OEIS A003022) as often as a classical randomized search, on development orders n = 8-11 and sealed orders n = 12-13 — and is a match search or recall?"
+domain: "combinatorial search (Golomb rulers)"
+target: "ruler_length"
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "test"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "math"            # generic | ml-research | math | insurance | llm | cv | data-science
+# profile_doc: profiles/my-field.md   # ... or a repo-relative profile of your own
+audience: "a mathematician or ML researcher weighing claims that an LLM found an optimal combinatorial object"
+
+task_type: "scalar"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "verifier-guided search"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "search.py"]
+  mutable: ["search.py"]
+  printed: block                # metrics are read from the final `---` block only
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  search:
+    kind: test
+    mode: registered          # the classical arm: randomized construction + local search
+    metric:
+      name: "optima_matched"
+      goal: "higher"
+      minimum_delta: 1
+      exactness: exact
+      exactness_note: "An integer count, recomputed by verify.py from the cell's artifact, of (order, trial) pairs whose best VERIFIED ruler has the optimal length of OEIS A003022; resolution 1."
+    guardrails:
+      wall_seconds: {max: 5400}
+    verifier:
+      command: ["uv", "run", "--locked", "python", "-u", "verify.py"]
+      tolerance: 0.0
+      artifact_key: solution
+    confirmation:
+      require: [sealed, replicate]
+  llm:
+    kind: test
+    mode: registered          # the LLM arm: qwen-flash proposes rulers as JSON data, never code
+    metric:
+      name: "optima_matched"
+      goal: "higher"
+      minimum_delta: 1
+      exactness: exact
+      exactness_note: "An integer count, recomputed by verify.py from the cell's artifact, of (order, trial) pairs whose best VERIFIED ruler has the optimal length of OEIS A003022; resolution 1."
+    guardrails:
+      wall_seconds: {max: 5400}
+    verifier:
+      command: ["uv", "run", "--locked", "python", "-u", "verify.py"]
+      tolerance: 0.0
+      artifact_key: solution
+    confirmation:
+      require: [sealed, replicate]
+data:
+  source: "synthetic:prepare.py"
+  modality: "none"
+  prepared_path: "data/prepared/instance.json"   # orders, trials, budget, optima, seed blocks — frozen at DATA
+  split:
+    kind: none              # no rows: development orders 8-11 and sealed orders 12-13 are declared in instance.json
+    seed: 42                # inert
+
+policy:
+  card_sections: enforce
+  realized_split: advisory     # no rows to split; the sealed lane is a set of orders (instance.json)
+  noise_floor: required
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+calls:
+  dir: calls
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  model: "qwen-flash-2025-07-28"   # the dated snapshot, not the alias the provider can repoint
+  budget_calls: 5000            # PER RUN: the development cell needs 2,400, the sealed cell 1,200
+  budget_tokens: 6000000
+  max_workers: 2                # was 6; six concurrent loops hit the provider's request limit at call 613
+
+max_run_seconds: 5400
+phases:
+  - id: development
+    description: "one registered cell per arm on orders 8-11, three trials each, 2,000 candidate evaluations per trial (P1-P3)"
+    budget_seconds: 10800        # was 7200; see program.md 2026-11-03 (E0002 rate-limit crash)
+    max_experiments: 4           # was 2; E0002 crashed on a provider rate limit, E0003 on a dropped connection
+  - id: confirmation
+    description: "the sealed orders 12-13, one run per arm after its dry run (P4, P5)"
+    budget_seconds: 7200
+    max_experiments: 2
+
+research_questions:
+  - id: RQ1
+    question: "With 2,000 candidate evaluations per trial, how often does a classical randomized search reach the optimal Golomb ruler length for orders 8-11?"
+    prior: "in at most half of the 12 (order, trial) pairs — optimal rulers are rare and local search at this budget usually stops a few units long beyond order 9 (source: uninformed beyond general experience with the problem's hardness)."
+  - id: RQ2
+    question: "With the same number of candidate evaluations (200 proposals of 10 rulers, each told the verifier's verdict on its previous batch), how often does the LLM arm reach the optimum for orders 8-11?"
+    prior: "about even that it reaches 9 of 12: optimal rulers up to order 27 are tabulated on Wikipedia and in OEIS, so a model may recall them (source: knowledge, recalled; verified at METHOD)."
+  - id: RQ3
+    question: "When the LLM matches, is it recall — does a match already appear in the first proposal batch?"
+    prior: "yes for most matches, about 0.5 (source: as RQ2)."
+  - id: RQ4
+    question: "On the sealed orders 12 and 13, does either arm reach the optimum?"
+    prior: "the search arm does not (0.85); the LLM arm does on at least half of the 6 pairs only if it recalls the tables (0.4) (source: as RQ1, RQ2)."
+
+predictions:
+  - id: P1
+    track: search
+    statement: "On development orders 8-11, the classical search reaches the optimal length in at most 6 of the 12 (order, trial) pairs."
+    rule: {key: primary_metric, op: "<=", value: 6}
+  - id: P2
+    track: llm
+    statement: "On development orders 8-11, the LLM arm reaches the optimal length in at least 9 of the 12 (order, trial) pairs."
+    rule: {key: primary_metric, op: ">=", value: 9}
+  - id: P3
+    track: llm
+    statement: "On development orders 8-11, at least 6 of the LLM arm's 12 (order, trial) pairs contain a verified optimal ruler in their FIRST proposal batch (a recall signature)."
+    rule: {key: first_batch_matches, op: ">=", value: 6}
+  - id: P4
+    track: search
+    statement: "On the sealed orders 12-13, the classical search reaches the optimal length in none of the 6 (order, trial) pairs."
+    rule: {key: primary_metric, op: "<=", value: 0}
+  - id: P5
+    track: llm
+    statement: "On the sealed orders 12-13, the LLM arm reaches the optimal length in at least 3 of the 6 (order, trial) pairs."
+    rule: {key: primary_metric, op: ">=", value: 3}
+
+confirmation:
+  require: [sealed, replicate]
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html
