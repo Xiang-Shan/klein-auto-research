@@ -199,3 +199,13 @@ Chosen: both, in order E0001 (search) then E0002 (llm). Mirrored into playbook.m
   Development phase now has 3 experiments used (E0001 measured, E0002 crash, E0003 crash). Candidate
   fix for the lead: treat connection resets/timeouts as retryable in the ledger transport, and allow a new run.
   No refutation, so no refutation Decision is owed.
+
+- 2026-11-03 — Decision (lead): E0003 crashed on a ConnectionResetError raised while a
+  response was read (after 523 new calls; 613 were answered from E0002's shard). urllib
+  raises that bare, not as URLError, so the transport's retry loop missed it. Framework
+  fix: dropped connections, timeouts and HTTP protocol errors now back off and retry like
+  a 5xx (commit "the call ledger retries a connection dropped mid-response"). Contract:
+  development `max_experiments` 3 -> 4 so the pre-registered LLM cell runs once more as
+  E0004 (it will answer its first 1,136 requests from the E0002/E0003 shards — identical
+  requests, genuine recorded responses). E0002 and E0003 stay in the ledger as crashes.
+  Consult re-recorded with this reason.

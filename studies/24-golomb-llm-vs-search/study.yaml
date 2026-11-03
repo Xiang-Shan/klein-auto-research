@@ -86,7 +86,7 @@ phases:
   - id: development
     description: "one registered cell per arm on orders 8-11, three trials each, 2,000 candidate evaluations per trial (P1-P3)"
     budget_seconds: 10800        # was 7200; see program.md 2026-11-03 (E0002 rate-limit crash)
-    max_experiments: 3           # was 2; E0002 crashed on a provider rate limit
+    max_experiments: 4           # was 2; E0002 crashed on a provider rate limit, E0003 on a dropped connection
   - id: confirmation
     description: "the sealed orders 12-13, one run per arm after its dry run (P4, P5)"
     budget_seconds: 7200
