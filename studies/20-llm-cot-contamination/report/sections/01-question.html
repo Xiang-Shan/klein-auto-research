@@ -1,0 +1,45 @@
+<h2>The question</h2>
+
+<p>You run LLM benchmarks. A colleague proposes adding &ldquo;think step by step&rdquo; to the
+prompt for a cheap hosted model, and quotes the large gains that chain-of-thought (CoT)
+prompting produced on grade-school arithmetic a few years ago. Before you change the prompt
+for every downstream evaluation, two questions have to be answered on <em>your</em> model:
+does the step-by-step instruction raise exact-match on GSM8K, and does any such gain
+survive on items the model cannot have seen? GSM8K has been public for years, so a
+score on it may partly be a memory test. This study asks both, on one dated snapshot,
+<code>qwen-flash-2025-07-28</code>, queried at temperature 0 with its thinking mode off.</p>
+
+<h3>What was decided, and how it was registered</h3>
+
+<p>Two registered tracks, each a set of pre-declared measurement cells rather than a search
+(no cell was ever &ldquo;kept&rdquo; against an incumbent):</p>
+<ul>
+<li><strong><code>cot_gain</code></strong> &mdash; the paired difference in exact-match, CoT arm
+minus direct arm, on the same items. Registered prediction rules asked for a gain of at least
+<span data-math="0.10"></span> on public items, on development twins and on sealed twins.</li>
+<li><strong><code>contamination</code></strong> &mdash; the template-paired gap between a
+GSM8K original and the mean over its four procedurally generated twins, CoT arm only. The
+registered rule asked for a gap of at most <span data-math="0.05"></span>.</li>
+</ul>
+<p>Each track declared that its headline would need a sealed confirmation cell and a
+replication before it could be called confirmed. How far the records got is shown in the
+evidence block of section 5, not restated here.</p>
+
+<h3>What the study found, before the method</h3>
+
+<ul>
+<li><strong>No CoT gain was detected anywhere.</strong> The paired gain was +0.01 on public
+items (95% interval [-0.01, 0.03]), -0.025 on development twins ([-0.065, 0.005]) and 0.000
+on sealed twins ([-0.055, 0.045]). Every interval excludes the registered 0.10.</li>
+<li><strong>No contamination signature was detected, but a 5-point gap was not excluded.</strong>
+The template-paired gap was 0.02 on the development twins and 0.01 on the sealed twins; the
+upper interval ends were 0.06 and 0.065, above the 0.05 bound.</li>
+<li><strong>The &ldquo;direct&rdquo; arm was not direct.</strong> Told to answer with the
+number only, the model wrote its working anyway, so the comparison is CoT against a terse CoT.
+That, and a near-ceiling score on every block, is the most useful thing to take from the
+study.</li>
+</ul>
+
+<p>Scope of every sentence on this page: one model snapshot, two registered prompt wordings,
+one query date. Nothing here says anything about another model, a thinking-mode
+configuration or another prompt.</p>
