@@ -11,11 +11,16 @@
     "method": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T07:41:48.312467Z"
+    },
+    "referee": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T09:21:39.500725Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "32125100183b0ac2d42c50461523c1efdbb7a2c5b30f13b0cf727b1f3d8bba27",
     "method_card.md": "59a9f5fe65bbc851f0cb0395aad2bf7541377040fd0c2dc86f448e73a8d8412e",
+    "referee_report.md": "b7b0d5819446a80a67c1658f54189480ef0512801ad906588c3f0ac1bf86b502",
     "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
     "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
     "study.yaml": "d1aa5eba455a7dbd3fd5155074bfcdc10426a49565eb3c03c83d56546b906f46"
@@ -79,6 +84,18 @@
       },
       "note": "delegated. Card complete; refs 21 verified; adversarial re-check: no blocker",
       "status": "recorded"
+    },
+    "referee": {
+      "acknowledged_at": "2026-11-03T09:21:39.500725Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "referee_report.md": "b7b0d5819446a80a67c1658f54189480ef0512801ad906588c3f0ac1bf86b502"
+      },
+      "independent_of_experimenter": true,
+      "note": "",
+      "referee": "klein-referee (Claude Code subagent, model: claude-opus-5-5)",
+      "status": "recorded",
+      "verdict": "PASS-WITH-NOTES"
     }
   },
   "last_experiment": 6,
@@ -287,5 +304,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T08:53:20.371291Z"
+  "updated_at": "2026-11-03T09:21:39.521978Z"
 }

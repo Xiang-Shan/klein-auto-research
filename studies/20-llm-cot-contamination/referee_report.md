@@ -1,148 +1,127 @@
-Verdict: FAIL
+Verdict: PASS-WITH-NOTES
 Referee: klein-referee (Claude Code subagent, model: claude-opus-5-5) · fresh context · independent-of-experimenter: yes
 Generation: n/a
 
-# Referee report — 20-llm-cot-contamination
+# Referee report (round 2) — 20-llm-cot-contamination
 
-> Gate 3 (REFEREE), written 2026-11-03 in a fresh context. I read `findings.md` first,
-> then `claims.lock`, `study.yaml`, `results.tsv`, `aux_metrics.tsv`, the six manifests,
-> the three replication records, `study_state.json`, `events.jsonl`, `data_card.md`,
-> `method_card.md`, `references.yaml`, `scouting_ledger.md`, `research_plan.md` and
-> `playbook.md`, and `program.md` last. Protocol:
-> `.claude/skills/klein/references/referee-protocol.md`; also
-> `references/model-calls-protocol.md`. I ran read-only verbs only, with `KLEIN_OFFLINE=1`
-> and no network call. I edited no study file other than this one.
+> Gate 3 (REFEREE), round 2, written 2026-11-03 in a fresh context that saw neither the
+> loop nor the round-1 review session. Round 1 is the report committed at `d7cc0dd`
+> (Verdict: FAIL on check 4, controls, and check 5, multiple comparisons, plus eight
+> notes). This round reviews HEAD `21e90df` (revision `d7cc0dd..21e90df`: `a949ada`,
+> `a061f0a`, `21e90df`). I applied all ten checks again, not only the two that failed.
+> Reading order: `findings.md` first; then the round-1 report and the revision diff;
+> `claims.lock`, `study.yaml`, `results.tsv`, the manifests, `events.jsonl`,
+> `study_state.json`, the pinned tables, `lib/synthesis.py`; then `data_card.md`,
+> `method_card.md`, `references.yaml`; `program.md` last (the `## Roster` header was read
+> only for the rung). Protocols: `.claude/skills/klein/references/referee-protocol.md`
+> and `references/model-calls-protocol.md`. Every command ran with `KLEIN_OFFLINE=1` and
+> `uv run --no-sync`, and no network call was made. The only file I wrote in the study is
+> this one.
 
 ## Independence
 
 Rung reached (person > tool > model > backend > fresh session): **model**.
 Experimenter: the `klein-experimenter` subagent (Sonnet tier) · Claude Code · a fresh
 subagent context per phase (`program.md` `## Roster`). I am an Opus-tier subagent
-(`claude-opus-5-5`) in a context that never saw the loop. That is a different model, so
-`independent-of-experimenter: yes` agrees with the roster.
+(`claude-opus-5-5`) in a fresh context, so `independent-of-experimenter: yes` agrees with
+the roster.
 
-Disclosure: the same orchestrating Claude Code session spawned the experimenter, the
-synthesist and me, so the tool and the session are shared (the study's commits and this
-report carry the same `Claude-Session` URL). The synthesist is also Opus tier. The rung
-is "model" with respect to the experimenter, and nothing higher.
+Disclosure: the tool (Claude Code) and the orchestrating session are shared with the
+experimenter and the synthesist, so the rung is "model" and nothing higher. The
+synthesist is also Opus tier. I did not write or revise these findings. The round-1
+referee was on the same model, so this round does not add a new rung. It adds a reader
+who did not write round 1.
 
 ## Mechanical verifiers run
 
 | Command | Result |
 |---|---|
-| `klein verify --numbers --evidence-use --no-receipt` | 34 checks, 0 failed. Warnings printed inside OK rows: no study source calls `contract_split`/`load_partition`; neither track's noise floor was measured; referee gate not yet recorded. `evidence_use_rate 1.00` (6/6 non-keep runs cited); findings numbers: 267 numerals trace to 23 pinned sources |
-| `klein claims verify` | 7 checks, 0 failed |
+| `klein verify --numbers --evidence-use --no-receipt` | 34 checks, 0 failed. Warnings inside OK rows: no study source calls `contract_split`/`load_partition` (explained, see check 10 / round-1 note 8); both noise floors not measured; referee gate not yet recorded. `evidence_use_rate 1.00` (6/6). Findings numbers: 343 scanned numerals trace to 25 pinned sources. `convergent evidence`: 6 confirmed claims, each citing two or more evidence kinds. |
+| `klein claims verify` | 7 checks, 0 failed. 17 pinned artifacts hash as recorded; append-only holds across git history. |
 | `klein predict list` | 2 supported (P3, P6), 4 refuted (P1, P2, P4, P5), 0 inconclusive, 0 open |
-| `klein status` | 6 experiments (measured 5, crash 1); gates consult=recorded, data=**overridden**, method=recorded; sealed access contamination 1/1, cot_gain 1/1 |
-| figure re-render | not applicable: `figures/` is empty and the study has no `figures/make_figures.py` |
-| independent re-score (mine, offline, read-only, using the study's own `lib/prompts.exact_match` on the committed `calls/` shards and the re-query shards) | reproduces em_direct/em_cot 0.95/0.96 (public), 0.985/0.96 (dev twins), 0.97/0.97 (sealed twins), em_original 0.98; 4 of 300 bare direct replies; direct median 112.5 tokens; 9 of 600 item-arm scores changed under the salted re-query (namespace `rep:E0002@20261103T082725Z`, 0 cached) |
+| `klein status` | 6 experiments (measured 5, crash 1); gates consult=recorded, data=overridden, method=recorded; successful confirmation cot_gain=E0005, contamination=E0006; 0 refutations without a decision |
+| figure re-render | not applicable: `figures/` is empty and the study has no `figures/make_figures.py` (unchanged since round 1) |
+| re-execution of `lib/synthesis.py` (mine) | The whole study dir was copied to a scratch directory outside the repo and `python -m lib.synthesis` was run there. All five synthesis tables (`synthesis_arms`, `_paired`, `_quantities`, `_controls`, `_familywise`) re-render **byte-identically** to the committed ones. The script's internal assertions pass: the extracted answers re-score to every notarized cell table, and the re-derived 95% intervals for P2–P6 equal the notarized `ci_low`/`ci_high` in `aux_metrics.tsv`. |
+| independent family-wise re-derivation (mine) | A separate script calls `kleinlib.metrology.paired_bootstrap`/`item_bootstrap` directly on the pinned `tables/cot_gain_E000{2,4,5}.tsv` and `tables/contamination_E000{3,6}.tsv` (N_BOOT 10,000, seed 20261103, template clusters on twin blocks). It reproduces every `cifw_low`/`cifw_high` in `tables/synthesis_familywise.tsv` exactly. |
 
-## The ten checks
+## Round-1 clearing conditions: were they really met?
+
+| Round-1 item | Met? | What I checked |
+|---|---|---|
+| **Check 4: controls**, option (b): offline controls from the committed ledger, pinned | **yes** | Negative control: the recorded replies are re-extracted from the committed `calls/` shards and re-scored against golds permuted within each cell (`controls_and_familywise`, seeds 20261123/20261124). Positive controls: planted shifts on the pinned cell tables (seeds 20261124/20261125), run through the study's own bootstrap (`lib/measure.py` N_BOOT and BOOT_SEED). The output is `tables/synthesis_controls.tsv`, pinned as `art:controls` (sha256 `1c87eba8…`), and it re-renders byte-identically. No model call: the code reads shards and cell tables only. The claims are C16 and C17, both `exploratory`, and both labelled post-hoc in the sentence itself and in the caveats. |
+| **Check 5: multiple comparisons**: `n_comparisons` per family in §②, a guard applied from a pinned artifact, or a downgrade | **yes** | §② now states `cot_gain` = P1, P2, P4, P5 (n=4, level 0.9875) and `contamination` = P3, P6 (n=2, level 0.975). The Bonferroni-level percentile intervals use the study's own bootstrap and are pinned as `art:familywise` (sha256 `4a661ab4…`). I reproduced them independently. Every "interval excludes 0.10" statement (C2, C4) survives at the family level (upper ends 0.0367 / 0.01 / 0.055). Every "0.05 not excluded" statement (C3) survives trivially, because widening cannot exclude. P1's family-wise lower end 0.9167 is still above 0.85, so C1 survives. The guard is disclosed as post-hoc (C18, caveats). Round 1 told the study not to copy its unpinned figures. It did not: the pinned sealed-twin upper end is 0.055, not round 1's approximate 0.05. |
+| **Erratum must re-scope, never rewrite** | **yes** | `claims.lock` C6: the `claim` text is byte-identical to round 1, `strength` is still `exploratory`, and `errata: ["E1"]` was added. The top-level `errata.E1` names C6 with a note. `events.jsonl` seq 39 `erratum_filed` is in a valid chain. The C6 sentence in `findings.md` is also unchanged, with the re-scope written beneath it and in the appendix table. `klein claims verify` append-only: OK. No other claim sentence changed in findings (diff checked). Only explanatory prose under C8 and C10, §⑤ and the caveats was edited. |
+| Note 1 `gsm8k_name_numeral` | answered | `program.md` Referee note (1). Still applies at TUTORIAL (note R2-5 below). |
+| Note 2 DATA override not in findings | answered | Caveat "DATA gate passed by override". |
+| Note 3 coupling E0003/E0004 | answered | Caveat "Coupled cells" names both pairs. |
+| Note 4 C4 replication is track-level | answered | Caveat "C4's replication is track-level, not cell-level". |
+| Note 5a–d phrasing | answered | (a) erratum E1; (b) C10 prose is now conditional on the observed direct score; (c) §⑤ now reads "within the interval [-0.01, 0.03] … no equivalence margin"; (d) C8 prose now cites the pinned diagnostic (1 of 6 cut at `max_tokens`, 3 templates, at most 2 in one). It matches `art:controls` and my round-1 count. |
+| Note 6 data-card W3 | answered | Caveat on structural non-independence of the sealed block. |
+| Note 7 figures | deferred to TUTORIAL (acceptable; carried as R2-5) | — |
+| Note 8 contract-split warning | answered | Caveat added. I confirmed the explanation in `kleinlib/data.py`: `load_items` calls `load_partition` (line 613), and `analyze.py:192` calls `load_items()`. The split fingerprint matches the frozen one (`klein verify`). The data card was correctly not edited (gate-hashed). |
+
+Each of these has a dated `Referee note:` / `Referee check` line in `program.md` ("Referee
+notes answered", 2026-11-03).
+
+## The ten checks (applied afresh)
 
 | # | Check | Result | Evidence rested on |
 |---|---|---|---|
-| 1 | strength matches evidence | **PASS** (notes 3, 4, 5) | Both tracks carry the two kinds `confirmation.require: [sealed, replicate]` demands. Sealed: E0005 (`evaluation_kind: final_test`, 400 new calls) and E0006 (`final_test`). Replicate: `rep:E0002@20261103T082725Z` and `rep:E0003@20261103T084446Z`, both `mode: replicate`, both salted (0 cached calls). The replay `replay:E0002@20261103T085311Z` is cited only by C13 (exploratory) and is named in the caveats as satisfying no requirement. That is correct under model-calls-protocol.md ("Replay is not replication"). E0006 made 0 new calls: its originals are E0003's ledger entries and its twins are E0005's. Findings says so three times (C3 limit (a), C12, caveats), so the coupled sealed cells are not presented as independent. Mechanisms C6, C7 and C8 are labelled `mechanism-interpretation, exploratory` in the prose. C5's "terse chain-of-thought" holds: I read the direct-arm replies in `calls/E0001-000.jsonl.gz`, and they write worked steps. |
-| 2 | predictions adjudicated and reported | PASS | `klein predict list`: 6/6 adjudicated by the notary (`prediction_adjudicated` events, seq 12–33). Findings §② matches state row for row. P1, P2, P4 and P5 each have a dated `Decision:` line in program.md "Belief-revision decisions", and `klein verify` reports belief revision OK. |
-| 3 | negative evidence reported | PASS | `evidence_use_rate 1.00`. The E0001 crash (HTTP 429 after 599 calls) is reported as an infrastructure fault and re-run as E0002, which reused 599 of its pinned answers (disclosed). That is a retried crash, not a crash read as a verdict. All five measured cells are cited. |
-| 4 | controls | **FAIL** | The study has no positive control and no negative control, and `findings.md` and `program.md` never declare either absence. The only nearby statement is `data_card.md` clean-room row 4: the chance-level row is "N/A in index mode … Reasoned, not executed", which partly declares a negative control's absence. The positive control (a known effect the pipeline must detect) is neither present nor declared anywhere. That matters more here than usual, because the confirmed headlines C2 and C4 are nulls: nothing on the record shows that this scorer and paired bootstrap would detect a gain if there were one. The mechanical identities (E0004 em_cot = E0003 em_twins; re-scored = notarized) and the replay show the pipeline is consistent. They are not controls. |
-| 5 | multiple comparisons | **FAIL** | `n_comparisons` is not stated for either family anywhere in the study: `grep` of findings, program, research_plan, study.yaml, method and data cards finds no `n_comparisons`, Bonferroni or `family_maxt`. No family-wise guard was applied. This is a `kind: test` study, and inquiry-model.md:160 requires CONSULT to fix "the hypothesis family, `n_comparisons`, the family-wise guard". The confirmed claims C2 and C4 come from the `cot_gain` family (P1, P2, P4, P5: four rules) and C3 from the `contamination` family (P3, P6). The rubric's FAIL condition, a confirmed claim drawn from an unguarded family, therefore holds. On substance, and only to show the fix is cheap: I re-ran the paired/cluster bootstrap on the pinned `tables/cot_gain_E000{2,4,5}.tsv`. My 95% intervals reproduce the notarized ones. At a Bonferroni level for four comparisons (98.75%), the upper ends were about 0.037, 0.01 and 0.05, all below 0.10, and widening only strengthens C3's "0.05 not excluded". So no verdict is likely to move. These are my numbers, not pinned ones, and they must not be copied into findings; the study has to compute and pin its own. |
-| 6 | pre-registration integrity | PASS (note 6) | P1–P6 and their rules are byte-unchanged from the first CONSULT record (05:04:33Z) to HEAD (`git diff 8e5f657 a7bf6af -- study.yaml` touches only `minimum_delta`, `calls.*` and the anchor phase budget). There are three CONSULT re-records: 05:19 (per-run caps, scouting S4), 07:41 (tolerances 0.03/0.05 as `minimum_delta`, dated model snapshot, before any study call; E0001 started 07:42:33Z) and 07:57 (workers 8→2, anchor slot +1, after the E0001 crash, with no prediction, rule, prompt or cell changed). Each has a stated reason in the gate note and in program.md. No prediction's contract hash post-dates the run that adjudicated it. The lead saw the E0001 crash shard's direct-arm outputs (lengths) before E0002 and explicitly did not change the prompt (program.md 2026-11-03). |
-| 7 | numbers traceable | PASS (note 1) | `klein verify --numbers` passes, and findings contains no `klein:numbers-ok` marker. Hand-checked: (1) C2 McNemar p 0.5078 = 2·(1+9+36+84)/512 for 3 of 9 discordant, matching `aux_metrics.tsv` E0002 `mcnemar_p 0.5078125`; (2) C3 sealed interval [-0.04, 0.065] = E0006 `ci_low -0.0400…036`, `ci_high 0.06499…95`; (3) C5 ratio 1.85 = 265.7/143.5 (`synthesis_quantities.tsv` `m6_token_ratio_anchor_gsm8k 1.851568`); (4) C7 shift 0.045 = abs(-0.025 - 0.02), em_original 0.98 → 0.94 (`rep_E0003` `replicate_block`); (5) M5 / C13 "9 of 600", recomputed by me from the raw shards; (6) C11 widths 0.075 = 0.06+0.015 and 0.105 = 0.065+0.04; (7) C6/C8 discordant 9, 12 and 7 against `synthesis_paired.tsv`. See note 1 on the `gsm8k_name_numeral` alias. |
-| 8 | references | PASS | All eight cited `ref:` ids (wei2022, kojima2022, sprague2024, mirzadeh2024, dlugosz2026, zhang2024, he2025, atil2024) are `verified: true` in `references.yaml`. No confirmed claim rests on a reference (only exploratory C7 cites he2025 and atil2024). The method card's `refs_verified: true` matches 21/21 rows. I did not re-resolve them (offline). |
-| 9 | figures | PASS (note 7) | No committed figures and no `make_figures.py`, so nothing can fail to re-render and no axis can be truncated. |
-| 10 | vocabulary and scope | PASS (note 8) | None of the llm profile's banned words appears ("understands", "reasoning ability", "emergent", "solved", "SOTA"), and "improves", "generalizes" and "robust" are absent. Scope is stated (one dated snapshot, one date, temperature 0, thinking off, two registered prompts). "Resolution" is used only for the probe's detection limit, and §⑤ says no `materiality:` block exists. There is no measured floor and therefore no floor estimand. §⑦ item 4 says plainly that both `minimum_delta` values are pre-registered replication tolerances, not measured floors. |
+| 1 | strength matches evidence | **PASS** (notes R2-1, R2-3) | Confirmed claims: C1, C2, C3, C4, C5, C15 (`claims.lock`). Both tracks declare `confirmation.require: [sealed, replicate]`, and both have them: sealed E0005 (`final_test`, fresh queries) and E0006 (`final_test`, re-scoring of E0003/E0005 ledger entries, disclosed in C3(a), C12 and the caveats); replicate `rep:E0002@20261103T082725Z` and `rep:E0003@20261103T084446Z`, both salted re-queries. The replay `replay:E0002@20261103T085311Z` backs only exploratory C13 and is said to satisfy no requirement, as model-calls-protocol.md "Replay is not replication" requires. C4 rests on the track-level replication, and this is now disclosed. No run is `detached`, so no attested-only headline exists. All new claims C16–C18 are `exploratory`, and each sentence says so ("Post-hoc … exploratory"; C18 "exploratory as a check"). Mechanisms C6, C7 and C8 keep their `mechanism-interpretation, exploratory` labels. |
+| 2 | predictions adjudicated and reported | PASS | `klein predict list` agrees with §② row for row (the observed values 0.95, 0.01, 0.02, -0.025, 0, 0.01 match the notary's adjudication events seq 12–33). P1, P2, P4 and P5 each carry a dated `Decision:` line (`klein verify` belief revision OK). The revision added the family statement to §② and changed no verdict. |
+| 3 | negative evidence reported | PASS | `evidence_use_rate 1.00`. E0001 (crash, HTTP 429 after 599 calls) is reported as an infrastructure fault and retried as E0002 with disclosed reuse of 599 pinned answers. It is not read as a verdict. Every measured cell is cited. |
+| 4 | controls | **PASS** (note R2-1) | Both controls are present and declared post-hoc. **Negative**: re-scoring against permuted golds gives chance-level exact-match, a mean of 0.012633 direct on public items over 100 permutations; the largest mean in any cell and arm is 0.036667, and the gain is 0.003333 public and 0 on both twin blocks (`art:controls`). This exercises extraction, scoring and pairing on the recorded replies. **Positive**: a planted +0.10 is recovered with a 95% interval above zero in all three cells ([0.073333, 0.15], [0.02, 0.125], [0.045, 0.15]). A planted +0.05 is detected only on the public items. The reverse plant is limited by the ceiling, which is disclosed. The table reproduces byte-identically. This clears round-1 check 4. See R2-1 for the scope of what the positive control tests. |
+| 5 | multiple comparisons | **PASS** (note R2-4) | `n_comparisons` is stated for both families in §② and in C18. A Bonferroni guard is applied and pinned (`art:familywise`) and independently reproduced. No confirmed claim's verdict depends on an unguarded interval: C1 (P1 family-wise lower end 0.916667 > 0.85), C2 (0.036667 < 0.10), C4 (0.01 and 0.055 < 0.10), C3 (0.065 and 0.075, still not excluding 0.05). C5 and C15 make no inferential comparison. The guard is post-hoc. That is disclosed, and because Bonferroni only widens the intervals and no verdict was moved toward significance, the post-hoc timing cannot have flattered a result. This clears round-1 check 5. |
+| 6 | pre-registration integrity | PASS | `study.yaml` was not touched in `d7cc0dd..HEAD`. The P1–P6 statements and rules are unchanged from the first CONSULT record (`git diff 8e5f657 a7bf6af -- study.yaml` touches only `minimum_delta` 0.01→0.03/0.05, the dated snapshot id, `calls.*` budgets and workers, and the anchor phase budget). There are three CONSULT re-records, each with a stated reason (events seq 3, 4, 10). Seq 3 and 4 precede the first run (E0001 started 07:42:33Z). Seq 10 (07:57:30Z) follows the E0001 crash and changes no prediction, rule, prompt or cell. Every `prediction_adjudicated` event post-dates the last contract record. The post-hoc controls and the family-wise guard are labelled post-hoc and were not back-dated into the contract. |
+| 7 | numbers traceable (hand-checked below) | PASS | `klein verify --numbers` passes, and there is no `klein:numbers-ok` marker in findings, lock or program. Hand-checked against pinned artifacts: (1) C16 "0.0126" = `synthesis_controls.tsv` E0002 `em_direct_mean_over_100 0.012633`; (2) C17 "[0.0733, 0.15]" = E0002 `positive_plant_gain_0.10` `ci95_low 0.073333`, `ci95_high 0.150000`, and the dev-twin "0.075" / "[0.02, 0.125]" match E0004's rows; (3) C18 "0.055 sealed twins" = `synthesis_familywise.tsv` P5 `cifw_high 0.055000`, independently reproduced by my own `item_bootstrap` call; (4) C18 "0.075" = P6 `cifw_high 0.075000`, independently reproduced; (5) the C8 prose "1 of the 6 … 3 templates, at most 2" = E0004 `diagnostic_direct_only` 6 / 1 / 3 / 2; (6) §① "P1's family-wise lower end 0.9167" = P1 `cifw_low 0.916667`; (7) C17 recipe "30 … (20 on each twin block)" = `items_flipped_direct_right_to_wrong` 30/20/20, and the reverse plant 8/2/3 = ceil(15/2), ceil(3/2), ceil(6/2) from the cell tables' wrong-direct counts (15, 3, 6, which I counted). Round-1 note 1 (`gsm8k_name_numeral`) is unchanged and still accepted as a disclosed identifier workaround. |
+| 8 | references | PASS | `references.yaml` is unchanged since round 1: 21 entries, all `verified: true`, 0 `false`. All eight cited `ref:` ids resolve and are verified. No confirmed claim rests on a reference. C16–C18 cite none. I did not re-resolve them (offline). |
+| 9 | figures | PASS (note R2-5) | There are no committed figures and no `make_figures.py`, so nothing can fail to re-render and no axis can be truncated. |
+| 10 | vocabulary and scope | PASS | No llm-profile banned word ("understands", "reasoning ability", "emergent", "solved", "SOTA") appears in findings or lock. The only grep hit is "unresolved", in C8's label. "improves", "generalizes" and "robust" are absent. The scope (one dated snapshot, the query date, temperature 0, thinking off, two registered prompts) is stated up front and in the caveats. "Resolution" is used only for the probe's detection limit, and §⑤ says no `materiality:` block exists. There is no measured floor and therefore no floor estimand; findings §⑦ item 4 says that both `minimum_delta` values are replication tolerances, not floors. Simulation scope: not applicable (`modality: text`, real model queries). |
 
-## The `gsm8k_name_numeral` alias (asked for by the orchestrator)
+## Notes (PASS-WITH-NOTES: each needs a dated `Referee note:` answer in program.md before `klein finalize`)
 
-`claims.lock` → `numbers.gsm8k_name_numeral = {value: 8, art: study_yaml, precision: 0}`,
-listed in C1's and C2's `numbers[]`. It was added in commit `acd640a` because the
-claim-sentence scan (`kleinlib/claims.py` `NUMERAL_RE`, which has no look-behind on digits)
-reads the "8" inside the benchmark name GSM8K as a numeral. `SENTENCE_EXEMPT_RE` exempts
-only `E####`, `P#`, `C#`, `RQ#`, `S#`, years and versions, not alphanumeric names.
-
-**My judgement: acceptable as a disclosed workaround, not a fabricated home. It is a
-NOTE, not a FAIL.**
-- claims-protocol.md exempts identifiers from the numbers law. GSM8K is one, so the
-  sentence quotes no number here. The lock entry's `note` says "NOT a measured value" in
-  plain words.
-- The value really does occur in its artifact as the same identifier
-  (`data.source: "bundled:gsm8k-test/test.jsonl"`). No measured numeral in C1 or C2 is
-  homed by it: no other numeral in either sentence rounds to 8 at precision 0.
-- The documented escape hatch, a `klein:numbers-ok` marker inside the claim sentence,
-  would have exempted every numeral in C1 and C2 (`_check_claim_sentences` skips the
-  whole sentence). The alias is the narrower of the two available tools.
-- Costs that stay on the record: the numbers ledger now holds a non-number, and the lock
-  is append-only, so it is permanent. The alias would silently home any future "8" in
-  those sentences. A tutorial that reads headline numbers from `claims.lock` must not
-  render it. The right fix belongs in the framework: exempt digits glued between letters
-  (for example `GSM8K`, `Llama3B`, `p5`) in `SENTENCE_EXEMPT_RE`, in a framework change
-  rather than this study.
-
-## Notes (to be answered with a dated `Referee note:` line in program.md once the FAILs clear)
-
-1. **`gsm8k_name_numeral`.** Accepted as above. Record in program.md that it is an
-   identifier workaround. The TUTORIAL stage must exclude it from any number it renders
-   from the lock.
-2. **DATA gate was overridden, and findings does not say so.** `study_state.json` gates.data
-   `status: overridden` (mechanized 13-gram near-dup FAIL: 179/500 and 188/200, all
-   own-template by design). The reason is sound and well evidenced in `data_card.md` B1.
-   A reader of `findings.md` alone never learns that Gate 1 was passed by override. Add one
-   caveat line.
-3. **Coupling beyond the sealed pair.** E0004's CoT arm is E0003's 200 development-twin
-   ledger entries (`calls_cached 200`). The program's instrument notes disclose this
-   design, but findings names only E0005/E0006 as coupled (C12, caveats). Findings
-   mentions the E0004/E0003 identity only as a "mechanical identity". The model-calls
-   doctrine says cells that share ledger entries are not independent, so the caveat list
-   should name both coupled pairs.
-4. **C4's replication is track-level, not cell-level.** C4 (confirmed) cites E0004 and
-   E0005 but no `rep:` id. The track's replicate requirement is met by `rep:E0002`,
-   which re-queried the public items, not the twins. The twin-block gain was never
-   re-queried, although E0005 is an independent fresh query that agrees. That is
-   acceptable under the track-level rule (`klein finalize` checks the track). Findings
-   should say which replication backs C4, or that none re-queried the twin gain.
-5. **Phrasing that runs ahead of the evidence (all on exploratory or implication text).**
-   (a) C6 calls the gain "near-unmeasurable". It was measured, with a tight interval
-   ([-0.01, 0.03] on public items). What the ceiling removes is headroom: the registered
-   0.10 was unreachable given the observed direct score. (b) C10's "the refutation is
-   guaranteed by arithmetic" holds only conditional on the observed em_direct, which was
-   unknown when P2 was registered (prior 0.55–0.85). (c) §⑤ "the cheaper prompt scored
-   the same" overstates an interval of [-0.01, 0.03]; no equivalence test was registered.
-   "Scored within the interval [-0.01, 0.03] of" is the honest form. (d) C8's "truncation
-   is not the mechanism": my re-score finds that 1 of the 6 direct-only development twins
-   (twA-t1179-2) was a length-truncated CoT reply, so truncation explains at most one
-   sixth of them. The direct-only wins also cluster in 3 templates (t0906, t1046, t1179,
-   two each).
-6. **Data card W3 is not carried into findings.** 28 sealed twins repeat a (template,
-   answer) pair already in twin_dev, and 186/200 sealed twins share a 13-gram with a dev
-   twin. The sealed twin block is therefore not structurally independent of the
-   development block, which bears on what E0005 and E0006 "confirm". Add one caveat line.
-7. **Tutorial figures.** The TUTORIAL stage needs `figures/make_figures.py` and
-   re-renderable figures. The four-point figure critique (zero-based axes for deltas of
-   0.01–0.025) applies then.
-8. **The `contract-driven split` warning.** No study source calls `contract_split`. The
-   predefined split is the `split` column of a deterministic index, and `klein verify`
-   matches the split fingerprint, so this is informational. The data card should still
-   say why the warning is benign.
+R2-1. **What the positive control tests.** The controls preamble says the two controls
+   "test the *pipeline* (extraction, scoring, pairing, bootstrap)". Only the negative
+   control touches extraction and scoring. The positive control plants its shift on the
+   already-scored 0/1 vectors, so it tests the pairing, the clustering and the interval
+   code, and its point recovery is exact by construction (findings says this). Taken
+   together the two controls cover the pipeline, but neither one plants a known effect
+   at the reply level. Neither can show that the scorer would credit a real CoT
+   advantage that the extraction might mangle. The instrument assertion (re-scored =
+   notarized) and the replay partly cover that, and the program note should say so. I
+   do not ask for a new computation.
+R2-2. **Seed-stream comment in `lib/synthesis.py`.** The comment says "one declared
+   stream each … so no control re-uses … draws", but `POS_SEED = 20261103 + 21`
+   equals `NEG_SEED + 1`, the seed of the 100 negative-control repeats. The two streams
+   drive different operations (`permutation` vs `choice`), so no result is affected,
+   and findings discloses both seeds honestly as 20261124. The comment is inaccurate.
+   Acknowledge it in program.md. `lib/` is not the mutable surface of a run, and the
+   committed table must not be regenerated with a different seed after this review.
+R2-3. **C17's "cannot resolve a gain as small as 0.05" rests on one seeded plant per
+   block.** It is a single realization, not a power estimate. It is consistent with
+   the twin-block interval half-widths (about 0.05; C11), and C17 is exploratory, so
+   this is not a FAIL. A tutorial or a knowledge promotion should phrase it as "a single
+   seeded 0.05 plant was not detected on either twin block" or cite C11's widths, not
+   state it as a power result.
+R2-4. **The family definition is the synthesist's choice, made post-hoc.** The families
+   follow the tracks (4 + 2). In an unpinned check of my own (not to be copied into
+   findings), a single study-wide family of six also leaves every C2/C4 upper end below
+   0.10 and every C3 upper end above 0.05. The verdicts therefore do not depend on how
+   the family is drawn. Record in program.md that the next `test` study fixes the family,
+   `n_comparisons` and the guard at CONSULT, as inquiry-model.md asks.
+R2-5. **Carried to TUTORIAL (round-1 notes 1 and 7).** (a) Exclude `gsm8k_name_numeral`
+   from any number rendered from `claims.lock`. (b) Build `figures/make_figures.py`, with
+   re-renderable figures and zero-based delta axes. The headline deltas are 0.01–0.025.
+R2-6. **Housekeeping.** The findings front matter `related:` and the "Derived tables"
+   paragraph still list three synthesis tables. They omit `tables/synthesis_controls.tsv`
+   and `tables/synthesis_familywise.tsv`, which are cited in the body. This is a
+   cosmetic omission and changes no claim. Separately, the pinned E0005 diagnostic (6
+   direct-only sealed twins, 2 with a CoT reply cut at `max_tokens`, at most 4 in one
+   template) is reported nowhere. It is not required, but it is the sealed counterpart of
+   C8's development-block sentence, and the tutorial's data story can use it.
 
 ## Clearing conditions (FAIL only)
 
-- **Check 4 (controls).** One of the following, in findings.md (for example in §③ or the
-  caveats), with any computed number pinned through `klein claims` like every other number:
-  (a) declare the absence of a positive control and of an executed negative control,
-  each with its reason (the data card's chance-level reasoning can be cited for the
-  negative control); or (b) add offline controls computed from the committed ledger with
-  no model call. A negative control could re-score the recorded replies against permuted
-  golds and expect near-zero exact-match. A positive control could plant a known gain, by
-  scoring k recorded direct replies as wrong, and show the paired/cluster bootstrap
-  recovers it. Because the confirmed headlines are nulls, (b) is the stronger answer.
-- **Check 5 (multiple comparisons).** State `n_comparisons` for each family in findings
-  §② (`cot_gain`: P1, P2, P4, P5; `contamination`: P3, P6). Then either apply a
-  family-wise guard and report it from a pinned artifact (for example Bonferroni-level
-  intervals added to `lib/synthesis.py` → `tables/synthesis_quantities.tsv`, showing
-  whether each "interval excludes 0.10" statement in C2 and C4 survives), or downgrade
-  C2, C3 and C4 to `exploratory` with `klein claims erratum`. Do not copy my
-  unpinned figures from check 5 into findings.
-
-Once both are cleared, re-run `klein verify --numbers --evidence-use` and `klein claims
-verify` and send the study back to a fresh referee, or back to this seat with the diff
-since this report. The notes above then become `Referee note:` lines in program.md.
+None. No FAIL condition holds. Round-1 checks 4 and 5 are cleared as described above.
+The orchestrator may record the gate after answering R2-1 to R2-6 with dated `Referee
+note:` lines in `program.md` before `klein finalize`.
