@@ -1,0 +1,4 @@
+seed	best_inner_loss	best_step	eval_every	n_classes	n_fit	n_inner	n_train	primary_metric	runner_exit_code	steps	total_seconds	train_rows	training_seconds	val_accuracy	val_balanced_accuracy	val_ece	val_macro_f1	val_mlogloss	val_rows	val_top5_accuracy	wall_seconds
+0	0.690732	550	50	10	3600	400	4000	0.727778	0	563	47.2	3600	36.4	0.732986	0.732535	0.046976	0.721144	0.727778	9992	0.993195	47.191676
+1	0.69056	563	50	10	3600	400	4000	0.773272	0	563	43.1	3600	37.6	0.717974	0.717749	0.047861	0.709538	0.773272	9992	0.992594	43.113139
+2	0.718879	550	50	10	3600	400	4000	0.769948	0	563	41.3	3600	35.4	0.728883	0.727794	0.048224	0.71361	0.769948	9992	0.990092	41.305535

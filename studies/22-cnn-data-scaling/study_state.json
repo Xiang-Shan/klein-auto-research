@@ -75,7 +75,7 @@
       "status": "recorded"
     }
   },
-  "last_experiment": 3,
+  "last_experiment": 4,
   "overrides": [],
   "phase_acknowledgements": {},
   "prepared_data": {
@@ -85,5 +85,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T07:49:49.407723Z"
+  "updated_at": "2026-11-03T07:52:32.406169Z"
 }
