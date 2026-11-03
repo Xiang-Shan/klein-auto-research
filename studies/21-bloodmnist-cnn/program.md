@@ -260,3 +260,13 @@ Chosen first: 1. Frontier rule: a keep becomes the base for the next candidate; 
   orbit member only ~once, so a null here says nothing about D4 with a longer schedule or a deeper
   network (it still rides inside P3). Not resolved at this budget, not ruled out. Seed std
   0.0070 is the lowest of any run so far. Phase experiments used: 3 of 6 (E0003-E0005).
+- 2026-11-03 — E0006 (third conv block: conv-BN-ReLU-pool, conv-BN-ReLU-pool, conv-BN-ReLU, GAP,
+  receptive field 8 -> 18 px, widths 32/64/128, on the E0004 incumbent): `discard`, val_macro_f1
+  seed-mean 0.9286 (seeds 0.9347 / 0.9197 / 0.9314; std 0.0079), accuracy 0.9366 (std 0.0075).
+  Margin vs incumbent 0.8960: +0.0326. That is 4.1 candidate seed stds and every E0006 seed
+  (min 0.9197) beats every E0004 seed (max 0.9090), but it is 0.0112 short of the keep bar
+  0.0438 (needed 0.9398), so the notary's disposition is `discard`. The bar is the contract and
+  is not relaxed after the fact: the depth effect is real in direction and larger than the seed
+  spread, yet not larger than the measured item-noise floor, so the study cannot call it a
+  resolved improvement. (H3 supported in sign, not a keep.) Phase experiments used: 4 of 6
+  (E0003-E0006). Next: 4,000 steps on the E0004 base, then the P3 bundle last.
