@@ -11,13 +11,14 @@
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
 | search | E0001 | optima_matched 0/12 (measured) | randomized construction + local search, 2,000 evals | 2026-11-03 |
-| llm | E0002 | crash (HTTP 429 at 613 calls) | qwen-flash-2025-07-28, 200x10 proposals | no result |
+| llm | E0003 | crash (connection reset after 523 live + 613 cached calls; E0002 earlier 429) | qwen-flash-2025-07-28, 200x10 proposals | no result |
 
 ## Ruled out (evidence, not opinion)
 
 | Direction | Evidence (exp IDs) | Why it lost (one line) |
 | --- | --- | --- |
 | LLM run with current max_workers against the provider limit | E0002 | HTTP 429 after 613 calls |
+| LLM rerun with 429 backoff only | E0003 | ConnectionResetError not covered by the backoff |
 
 ## Open hypotheses
 
@@ -28,6 +29,6 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. Lead decision: rerun llm development cell with lower max_workers / backoff (needs a new allowance).
+1. Lead decision: make socket resets/timeouts retryable in the ledger transport, then rerun the llm development cell (needs a new allowance; 1,136 calls already cached).
 2. Confirmation: search arm sealed dry run then final test (P4).
 3. Confirmation llm (P5) only after a successful development cell.

@@ -190,3 +190,12 @@ Chosen: both, in order E0001 (search) then E0002 (llm). Mirrored into playbook.m
   best lengths 38-111 vs optima 34-72) are far from the METHOD-gate toy calibration (orders
   5-7, 20/20, 20/20, 9/20). Both are the same algorithm at the same budget; the gap is the
   hardness growth from order 7 to 8+, reported as such, not as a defect.
+
+- 2026-11-03 — E0003 (llm rerun with backoff transport, max_workers 2): CRASH, metric NA. A
+  ConnectionResetError (errno 104, peer reset) on the HTTPS read escaped the transport (the backoff
+  covers HTTP 429, not a socket reset). manifest.usage: 523 live calls + 613 cache hits from E0002's
+  shard, 513,333 tokens (338,950 in / 174,383 out). No artifact, no verifier block; P2 and P3 stay open.
+  Not retried per the lead's instruction. Crash class: network, not a code bug in the ruler logic.
+  Development phase now has 3 experiments used (E0001 measured, E0002 crash, E0003 crash). Candidate
+  fix for the lead: treat connection resets/timeouts as retryable in the ledger transport, and allow a new run.
+  No refutation, so no refutation Decision is owed.
