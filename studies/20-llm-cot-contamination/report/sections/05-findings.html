@@ -1,0 +1,103 @@
+<h2>Findings &amp; insights</h2>
+
+<p>The records below are copied by the builder from the claims lock and the study state; the prose after
+them cites them and never restates a total.</p>
+
+<!--EVIDENCE-->
+
+<h3>The verdicts</h3>
+
+<ul>
+<li><strong>[C2] and [C4] &mdash; no CoT gain.</strong> The paired gain over the registered direct prompt was +0.01
+(public, [-0.01, 0.03]), -0.025 (development twins) and 0.000 (sealed twins); every interval excludes the
+registered 0.10. The salted re-query moved the public gain to -0.0067, inside the 0.03 tolerance.</li>
+<li><strong>[C3] &mdash; no contamination signature at this instrument&rsquo;s resolution.</strong> The gaps were 0.02
+(development) and 0.01 (sealed), and the interval widths, 0.075 and 0.105, are too wide to detect <em>or</em> exclude a
+5-point gap. &ldquo;None detected&rdquo; is not &ldquo;none present&rdquo;.</li>
+<li><strong>[C1] &mdash; the direct arm scored 0.95, 0.985 and 0.97</strong> on public, development-twin and sealed-twin
+items, far above the 0.55 to 0.85 the card expected.</li>
+</ul>
+
+<img data-fig="figures/accuracy_by_block.png" alt="Grouped bars of exact-match for the direct and CoT arms on public items, the 50 originals, development twins and sealed twins; all bars are near 1." data-caption="Exact-match per arm and item block (public items and development and sealed twins under both arms; the 50 originals under CoT only), bars zero-based, from the per-item tables of E0002, E0003, E0004 and E0005. Both arms sit at the ceiling on every block, which is why a gain of the registered size was arithmetically out of reach.">
+
+<h3>The surprise: the &ldquo;direct&rdquo; arm is a terse chain of thought</h3>
+
+<p>[C5] The registered number-only instruction was not followed: only 4 of 300 public replies were a bare number, the
+direct arm&rsquo;s median output was 112.5 tokens against 243 for CoT, and CoT wrote only 1.85 times the direct arm&rsquo;s mean output
+tokens on public items (1.92 on sealed twins). What was compared is CoT against a terse CoT, not CoT against answering without written
+steps. The method card named this failure mode in advance; its quantitative form, CoT writing at least twenty times as many tokens, was the most
+informative prior that missed.</p>
+
+<img data-fig="figures/tokens_by_arm.png" alt="Overlaid step histograms of output tokens per call for the direct arm and the CoT arm." data-caption="Output tokens per call for every unique recorded call of the study (direct arm and CoT arm, all blocks, from the pinned call-ledger shards), vertical lines at the medians. The direct arm&rsquo;s replies are shorter but nowhere near number-sized: it writes its working anyway.">
+
+<h3>Why the gain is hard to see: the ceiling</h3>
+
+<p>[C6, re-scoped by erratum E1] Both arms score between 0.95 and 0.985 in every cell, so the largest gain the public cell could
+have shown is one minus the direct score, 0.05. The gain <em>was</em> measured, with a tight interval; what the ceiling removed
+is <em>headroom</em>, and a gain as large as 0.10 was unreachable given the observed direct scores. Whether a compliant direct arm would
+reopen that headroom is an untested hypothesis, not a finding.</p>
+
+<h3>What the contamination probe saw, template by template</h3>
+
+<img data-fig="figures/gap_per_template.png" alt="Histograms of the per-template gap for the development and the sealed contamination cells; most templates sit at zero." data-caption="Per-template gap (the original&rsquo;s score minus the mean of its four twins) for the 50 templates, development cell E0003 and sealed cell E0006, counts zero-based. Almost every template shows no gap, so the mean gap is carried by a few templates; a single original is worth 0.02 of em_gap.">
+
+<p>[C7, exploratory] The sign of a gap this small is set by serving noise on 50 originals: in the E0003 re-query three originals went
+from right to wrong and one from wrong to right, moving the originals&rsquo; score from 0.98 to 0.94. [C8, exploratory, unresolved beyond
+&ldquo;noise&rdquo;] The development-twin reversal (direct ahead by 0.025) did not survive on the sealed twins, where the arms tied, and the
+discordant twins sit in a few templates, which the cluster interval absorbs and McNemar does not.</p>
+
+<h3>Controls added after the first referee round (post-hoc, exploratory)</h3>
+
+<p>The headline results are nulls, so the record has to show that the scorer and interval code would have seen a gain
+if one existed. Neither control was registered; both were computed offline from the committed ledger and tables, with no model call.</p>
+
+<ul>
+<li><strong>Negative control [C16].</strong> Re-scoring the recorded replies against golds permuted across each cell&rsquo;s items drops
+exact-match to chance, a mean of 0.0126 for the direct arm over 100 permutations of the public items, and leaves the CoT gain at 0.0033
+on the public items and 0.000 on both twin blocks. The pipeline does not manufacture a gain from mismatched answers.</li>
+<li><strong>Positive control [C17].</strong> A gain of 0.10 planted by scoring a seeded set of correct direct replies as wrong was recovered exactly in all
+three cells, with an interval wholly above zero in each (public [0.0733, 0.15], sealed twins [0.045, 0.15]). A planted 0.05 was detected on the public
+items but not on either twin block. <strong>Each plant is a single seeded realization per block, never a power estimate</strong> (erratum E2): the
+fair reading is &ldquo;one seeded 0.05 plant was not detected on either twin block&rdquo;, and the detection limit is better read from the twin-block
+interval widths.</li>
+</ul>
+
+<img data-fig="figures/planted_gain.png" alt="Forest plot per cot_gain cell: the observed gain with its interval, a planted 0.05 gain and a planted 0.10 gain, each with its interval." data-caption="Post-hoc controls on the three cot_gain cells (public items, development twins, sealed twins): the observed gain with its 95% interval (dot) beside one seeded planted gain of 0.05 (square) and of 0.10 (diamond), x-axis spanning zero. Each plant is one seeded draw per block, not a power estimate; it shows the interval code responds to a planted shift, not that the scorer would credit a real CoT advantage at the reply level.">
+
+<p>What the two controls do not do: neither plants an effect at the <em>reply</em> level, so neither can show that the scorer would
+credit a real CoT advantage that extraction might mangle. That part rests on the instrument check (the re-scored exact-match equals the
+notarized value in every cell and arm) and on the offline replay.</p>
+
+<h3>Multiple comparisons</h3>
+
+<p>[C18, post-hoc] With 4 comparisons in the <code>cot_gain</code> family and 2 in the <code>contamination</code> family, Bonferroni-level
+intervals (levels 0.9875 and 0.975) still exclude the registered 0.10 for every gain cell (upper ends 0.0367 public, 0.01 development twins,
+0.055 sealed twins) and still fail to exclude 0.05 for either gap (upper ends 0.065 and 0.075). The families were drawn by the synthesist
+after the fact; the next test study should fix the family and guard at consultation.</p>
+
+<h3>What changes in practice</h3>
+
+<ul>
+<li><strong>Change measured:</strong> a step-by-step instruction against a number-only instruction, temperature 0, 1024-token cap, thinking off.</li>
+<li><strong>Model and date:</strong> <code>qwen-flash-2025-07-28</code>, queried on 2026-11-03; every ledger record names that
+snapshot as served. One model snapshot only.</li>
+<li><strong>Items and contamination status:</strong> 300 public items (presumed seen), 200 development twins and 200 sealed twins of 50 templates.</li>
+<li><strong>Paired effect:</strong> +0.01 [-0.01, 0.03] public; -0.025 [-0.065, 0.005] development twins; 0.000 [-0.055, 0.045] sealed twins.</li>
+<li><strong>Token cost per item:</strong> mean output tokens 265.7 (CoT) against 143.5 (direct) on public items, 295.4 against 154.1 on sealed twins.
+No price is pinned, so no dollar figure is given.</li>
+<li><strong>Reading:</strong> for this snapshot, on GSM8K-style arithmetic, the explicit step-by-step instruction bought no detectable exact-match over the
+registered direct instruction while roughly doubling output tokens. No equivalence margin was registered, so that is not a demonstration that the two are
+equal; and it is not evidence that written steps are unnecessary, because the direct arm wrote them too.</li>
+</ul>
+
+<h3>Caveats that limit every conclusion</h3>
+
+<ul>
+<li><strong>One snapshot, two prompt wordings, one date.</strong></li>
+<li><strong>Non-compliance.</strong> The direct arm is a terse CoT; the first two predictions measure the <em>instruction</em>.</li>
+<li><strong>Coupled cells.</strong> The two sealed cells share ledger entries, and E0004&rsquo;s CoT arm is E0003&rsquo;s twin answers.</li>
+<li><strong>The twin-gain replication is track-level.</strong> The salted re-query re-asked the public items, not the twins.</li>
+<li><strong>A sign flip under re-query,</strong> and a supported sealed-gap rule whose interval upper end passes the bound.</li>
+<li><strong>The data gate passed by recorded override,</strong> not a clean pass.</li>
+<li><strong>The controls and family-wise guard are post-hoc;</strong> a replay satisfies no confirmation requirement.</li>
+</ul>

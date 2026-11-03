@@ -1,0 +1,33 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+split_fingerprint: 788ee7164fe4a148411d3dbb8858145c20cd9abf8e88b4c407aba870c29c0397
+cell: track=cot_gain block=twin_sealed items=200 arms=direct,cot interval=cluster bootstrap over templates
+artifact: tables/cot_gain_E0005.tsv
+---
+primary_metric:    0.000000
+metric_name:       em_gain
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     680.4
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            -0.055000
+ci_high:           0.045000
+n:                 200
+wall_seconds:      680.374401
+em_direct: 0.97
+em_cot: 0.97
+n_items: 200
+n_clusters: 50
+mcnemar_p: 1.0
+discordant_cot_only: 6
+discordant_direct_only: 6
+calls_total: 400.0
+calls_cached: 0.0
+calls_tokens_in: 34960.0
+calls_tokens_out: 89917.0
+calls_cost_usd: 0.0
+artifact: calls/E0005-000.jsonl.gz
+runner_status: ok
+runner_exit_code: 0

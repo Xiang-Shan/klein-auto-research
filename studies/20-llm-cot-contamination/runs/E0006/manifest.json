@@ -1,0 +1,118 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 2215,
+      "committed": true,
+      "sha256": "ba11c6276cd09baec0d6570ef21ce07320dd7ef1214bfd895499d9e627c8144b"
+    },
+    "runs/E0006/run.log": {
+      "availability": "recorded",
+      "bytes": 898,
+      "committed": true,
+      "sha256": "96af66c032ccdcac34b4d84dc80fe1280503d23c3a92354c4d2d4ee2130e23f8"
+    },
+    "runs/E0006/usage.json": {
+      "availability": "recorded",
+      "bytes": 116,
+      "committed": true,
+      "role": "usage",
+      "sha256": "c39eec4a3fd2c5520e350316e57ff9dfed3b2ffc5ff8f9e731bc80effc904191"
+    },
+    "tables/contamination_E0006.tsv": {
+      "availability": "recorded",
+      "bytes": 1415,
+      "committed": true,
+      "role": "declared",
+      "sha256": "f4e7072b083a10e4c654a920f41dc88dd5a7791233c340054c4a1970ea25b4a5"
+    }
+  },
+  "base_commit": "fd651467fd7c45d4bdaec59edff03e472811d96c",
+  "candidate_commit": "e793d3fb32a9da3495195eb7aa84b30ca90aad53",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "sealed confirmation: CoT originals vs twin block C; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T08:27:13.996944Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "final_test",
+  "exit_code": 0,
+  "experiment": "E0006",
+  "fingerprints": {
+    "data": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "98bc8a1ab69b3cdb20246ce29d16279df7e19687129b966592b21291e6948d29",
+    "split_partition": "788ee7164fe4a148411d3dbb8858145c20cd9abf8e88b4c407aba870c29c0397"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 3600.0,
+  "metric_goal": "lower",
+  "metric_name": "em_gap",
+  "metrics": {
+    "calls_cached": 250.0,
+    "calls_cost_usd": 0.0,
+    "calls_tokens_in": 0.0,
+    "calls_tokens_out": 0.0,
+    "calls_total": 250.0,
+    "ci_high": 0.065,
+    "ci_low": -0.04,
+    "em_original": 0.98,
+    "em_twins": 0.97,
+    "n": 50.0,
+    "n_templates": 50.0,
+    "n_twin_items": 200.0,
+    "primary_metric": 0.01,
+    "runner_exit_code": 0.0,
+    "total_seconds": 0.2,
+    "wall_seconds": 0.249384
+  },
+  "phase": "confirmation",
+  "phase_budget_seconds": 5400.0,
+  "phase_experiment_limit": 2,
+  "predictions": {
+    "P6": {
+      "explanation": "primary_metric 0.01 <= 0.05 \u2192 supported",
+      "verdict": "supported"
+    }
+  },
+  "predictions_requested": [
+    "P6"
+  ],
+  "primary_metric": 0.01,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T08:27:11.655757Z",
+  "timed_out": false,
+  "track": "contamination",
+  "transaction": {
+    "committed_at": "2026-11-03T08:27:14.270417Z",
+    "evidence_commit": "eb39ef4ccaf38a04618b4c58dac8f457ac3f70cc",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "calls": 0.0,
+    "calls_cached": 250.0,
+    "tokens": 0.0,
+    "tokens_in": 0.0,
+    "tokens_out": 0.0,
+    "usd": 0.0
+  },
+  "wall_seconds": 2.3408389770011127
+}

@@ -1,0 +1,87 @@
+{
+  "artifacts": {
+    "calls/E0001-000.jsonl.gz": {
+      "availability": "recorded",
+      "bytes": 231626,
+      "committed": true,
+      "sha256": "8490efca09b89d91fa5973c3ce7970ad651c64345340bd454529348a0d316733"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 3546,
+      "committed": true,
+      "sha256": "d1157b50ce860b895fdba3676eeaa606bd46dba0089321f921c19100e3b6b8bf"
+    },
+    "runs/E0001/usage.json": {
+      "availability": "recorded",
+      "bytes": 130,
+      "committed": true,
+      "role": "usage",
+      "sha256": "14b1532f0f34ce7f1df3774f8bad5d0666cefa048322139672901e679b44cdc8"
+    }
+  },
+  "base_commit": "d3024a38f3342491dc2b77ebf8ff09580d267dc6",
+  "candidate_commit": "dbe086a1af253cb3b40a5bf9be43870428544375",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "process exit code 1",
+  "description": "anchor: CoT vs direct on the 300-item public GSM8K sample; process exit code 1",
+  "disposition": "crash",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T07:56:18.218289Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "exit_code": 1,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "fa308a19edb6ebad91fab37674083d3d4de6fe8aef6d6a62e76a23f181a63c62",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "98bc8a1ab69b3cdb20246ce29d16279df7e19687129b966592b21291e6948d29"
+  },
+  "incumbent": null,
+  "max_run_seconds": 3600.0,
+  "metric_goal": "higher",
+  "metric_name": "em_gain",
+  "metrics": {},
+  "phase": "anchor",
+  "phase_budget_seconds": 3600.0,
+  "phase_experiment_limit": 1,
+  "predictions_requested": [
+    "P1",
+    "P2"
+  ],
+  "primary_metric": null,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "started_at": "2026-11-03T07:42:33.948461Z",
+  "timed_out": false,
+  "track": "cot_gain",
+  "transaction": {
+    "committed_at": "2026-11-03T07:56:18.439263Z",
+    "evidence_commit": "3a000e3f15e8e0c350ad902b5ee9855818a1c79b",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "calls": 599.0,
+    "calls_cached": 0.0,
+    "tokens": 172657.0,
+    "tokens_in": 49985.0,
+    "tokens_out": 122672.0,
+    "usd": 0.0
+  },
+  "wall_seconds": 824.269323296001
+}

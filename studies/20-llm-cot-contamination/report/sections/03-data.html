@@ -1,0 +1,47 @@
+<h2>The data story</h2>
+
+<h3>Shape</h3>
+
+<p>The source is the bundled GSM8K test file, verified by hash before preparation. The study
+uses four blocks of an index that the contract names, so no evaluator invents its own partition:</p>
+
+<table>
+<thead><tr><th>Block</th><th>Split</th><th>What it is</th></tr></thead>
+<tbody>
+<tr><td><code>original</code></td><td>train</td><td>the 50 GSM8K test items the templates were written from</td></tr>
+<tr><td><code>gsm8k</code></td><td>development</td><td>300 further public items (the anchor sample)</td></tr>
+<tr><td><code>twin_dev</code></td><td>development</td><td>4 twins per template, generator seed A (200 items)</td></tr>
+<tr><td><code>twin_sealed</code></td><td>test, sealed</td><td>4 twins per template, a second generator seed (200 items), opened once per track</td></tr>
+</tbody>
+</table>
+
+<p>The unit of independence on a twin block is the template, so the effective sample for the
+contamination track is the 50 templates, not the 200 twins.</p>
+
+<h3>The gotchas that travelled into the findings</h3>
+
+<ul>
+<li><strong>The twins are not perfectly faithful.</strong> Twin answers run larger than their
+originals&rsquo; (a median ratio above one on both blocks, driven by a few templates), which pushes
+a measured gap upward. The study registered a magnitude-matched sensitivity cell for that.</li>
+<li><strong>Five templates are public elsewhere.</strong> GSM-Symbolic publishes number-swapped
+variants of five of the fifty source items, so for those five a &ldquo;fresh&rdquo; twin is less fresh.
+The contamination cells report a five-versus-forty-five split, descriptively.</li>
+<li><strong>The sealed block is not structurally independent of the development block.</strong> It
+reuses the same fifty templates; most sealed twins share a 13-gram with a development twin, and
+a few repeat a (template, answer) pair. The sealed cells therefore guard against luck in twin
+<em>instances</em>, not against the choice of <em>templates</em>.</li>
+<li><strong>Small answer spaces.</strong> A dozen templates have fewer than four distinct answers
+among their four twins; the twin is then a weaker independent draw.</li>
+<li><strong>The model&rsquo;s training cutoff is not published.</strong> That GSM8K is in pretraining is a
+working assumption, which the probe tests behaviourally rather than assumes.</li>
+</ul>
+
+<h3>The go/no-go call</h3>
+
+<p>The mechanized near-duplicate check <em>failed</em> by design: a twin shares a 13-gram with its own
+template&rsquo;s original and twins, which is exactly what a twin is. The auditor showed that every hit
+is own-template and none touches another template or any public item. Under the protocol any
+mechanized FAIL is a blocker, so the card stayed at no-go until the lead recorded a gate
+<em>override</em> with that reasoning, the actor, and the index hash. That override is on the
+record, not a clean pass, and the findings carry it as a caveat. The audit itself made no model call.</p>

@@ -1,0 +1,142 @@
+schema_version: 3
+study_id: "20-llm-cot-contamination"
+goal: "Does chain-of-thought prompting raise a hosted small model's exact-match on GSM8K, and does the gain survive on procedurally generated fresh twins of the same problems (a contamination probe)?"
+domain: "LLM evaluation (grade-school math reasoning)"
+target: "answer"
+
+# The three axes (references/inquiry-model.md). kind fixes the default track
+# mode, what "sealed" means, the confirmation default and the strength ceiling.
+kind: "test"                  # predict | estimate | test | simulate | replicate | discover | optimize
+profile: "llm"            # generic | ml-research | math | insurance | llm | cv | data-science
+# profile_doc: profiles/my-field.md   # ... or a repo-relative profile of your own
+audience: "an ML engineer who runs LLM benchmarks and has never asked whether a benchmark gain survives on items the model cannot have seen"
+
+task_type: "scalar"       # classification | regression | scalar (simulation is the old spelling)
+method_depth: "full" # brief | full
+family: "prompting"
+
+# The declared entrypoint. `mutable` is THE per-experiment surface — one
+# falsifiable idea per candidate — and nothing else in the study may change
+# inside a run. A declared verifier is never listed here.
+entrypoint:
+  command: ["uv", "run", "--locked", "python", "-u", "analyze.py"]
+  mutable: ["analyze.py"]
+  printed: block                # metrics are read from the final `---` block only
+
+# A track owns its metric frontier. Never compare unrelated research tasks globally.
+tracks:
+  cot_gain:
+    kind: test
+    mode: registered
+    metric:
+      name: "em_gain"
+      goal: "higher"
+      minimum_delta: 0.03      # = the pre-registered replication tolerance (klein replicate's default ladder); program.md 2026-11-03
+      exactness: stochastic
+    guardrails:
+      wall_seconds: {max: 3600}
+    confirmation:
+      require: [sealed, replicate]
+  contamination:
+    kind: test
+    mode: registered
+    metric:
+      name: "em_gap"
+      goal: "lower"
+      minimum_delta: 0.05      # = the pre-registered replication tolerance; program.md 2026-11-03
+      exactness: stochastic
+    guardrails:
+      wall_seconds: {max: 3600}
+    confirmation:
+      require: [sealed, replicate]
+data:
+  source: "bundled:gsm8k-test/test.jsonl"
+  modality: "text"
+  prepared_path: "data/prepared"
+  split:
+    kind: predefined        # the lanes are the design: template originals / public + twin block A / sealed twin block C
+    index: index.csv        # id, question, answer, block, template, split
+    id_column: id
+    split_column: split
+    seed: 42                # inert: prepare.py's seeds are declared in lib/twins.py and the data card
+
+policy:
+  card_sections: enforce
+  realized_split: required
+  noise_floor: required
+
+# The model-call ledger (kleinlib.calls): every request/response is pinned under
+# calls/ and committed with the run, so the study re-verifies offline.
+calls:
+  dir: calls
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"   # any OpenAI-compatible endpoint
+  model: "qwen-flash-2025-07-28"   # the dated snapshot, not the alias the provider can repoint
+  budget_calls: 6000               # a hard stop in calls PER RUN (the largest cell needs about 600; the study about 2,700)
+  budget_tokens: 4000000           # a hard stop in tokens PER RUN; prices are not pinned, so no USD cap
+  max_workers: 2                   # was 8: E0001 hit the account's request limit (shared with study 24)
+  # price: {input_per_mtok: 0.0, output_per_mtok: 0.0}   # from the provider's page, dated
+  # budget_usd: 5.0
+
+# Per-run, per-phase time, and experiment-count limits are intentionally separate.
+max_run_seconds: 3600
+phases:
+  - id: anchor
+    description: "the CoT-vs-direct cell on the public GSM8K sample (P1, P2) — the identity anchor for everything after it"
+    budget_seconds: 7200          # was 3600
+    max_experiments: 2            # was 1: E0001 crashed on a provider rate limit
+  - id: twins
+    description: "the contamination cell (template originals vs development twins, CoT; P3) and the CoT-vs-direct cell on the development twins (P4)"
+    budget_seconds: 5400
+    max_experiments: 2
+  - id: confirmation
+    description: "the sealed twin block, read once per track after each dry run: CoT gain (P5) and contamination gap (P6)"
+    budget_seconds: 5400
+    max_experiments: 2
+
+research_questions:
+  - id: RQ1
+    question: "How much exact-match does qwen-flash lose on GSM8K when it must answer with the number only?"
+    prior: "a lot less than older small models: direct exact-match between 0.55 and 0.85 (source: uninformed about this model; knowledge that recent small models do much mental arithmetic in-weights)."
+  - id: RQ2
+    question: "Does chain-of-thought raise exact-match on the public GSM8K sample by at least 10 points?"
+    prior: "likely, about 0.65 — CoT gains on GSM8K are large for most models (Wei et al. 2022), though shrinking as direct answering improves (source: knowledge, recalled; verified at METHOD)."
+  - id: RQ3
+    question: "Is qwen-flash's CoT accuracy on the template ORIGINALS higher than on fresh twins of the same templates by more than 5 points — a contamination signature?"
+    prior: "about even (0.5 that the gap stays within 5 points). GSM-Symbolic (Mirzadeh et al. 2024) reported drops of a few points to over ten for many models on re-instantiated GSM8K templates (source: knowledge, recalled; verified at METHOD)."
+  - id: RQ4
+    question: "Does the CoT gain survive on fresh twins the model cannot have seen?"
+    prior: "yes, about 0.6: the gain is a property of the prompt, not of memorized items (source: uninformed)."
+
+predictions:
+  - id: P1
+    track: cot_gain
+    statement: "On the public GSM8K sample, direct-answer exact-match (number only) is at most 0.85."
+    rule: {key: em_direct, op: "<=", value: 0.85}
+  - id: P2
+    track: cot_gain
+    statement: "On the public GSM8K sample, chain-of-thought raises exact-match by at least 0.10 over direct answering, paired on the same items."
+    rule: {key: primary_metric, op: ">=", value: 0.10}
+  - id: P3
+    track: contamination
+    statement: "With chain-of-thought, exact-match on the template originals exceeds exact-match on their development twins by at most 0.05 (template-paired)."
+    rule: {key: primary_metric, op: "<=", value: 0.05}
+  - id: P4
+    track: cot_gain
+    statement: "On the development twins, chain-of-thought still raises exact-match by at least 0.10 over direct answering."
+    rule: {key: primary_metric, op: ">=", value: 0.10}
+  - id: P5
+    track: cot_gain
+    statement: "On the sealed twin block, chain-of-thought raises exact-match by at least 0.10 over direct answering."
+    rule: {key: primary_metric, op: ">=", value: 0.10}
+  - id: P6
+    track: contamination
+    statement: "With chain-of-thought, exact-match on the template originals exceeds exact-match on the sealed twins by at most 0.05 (template-paired)."
+    rule: {key: primary_metric, op: "<=", value: 0.05}
+
+confirmation:
+  require: [sealed, replicate]
+
+deliverables:
+  - findings.md
+  - claims.lock
+  - report/index.html

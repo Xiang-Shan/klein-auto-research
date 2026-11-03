@@ -1,0 +1,85 @@
+<h2>Prompting and evaluation-harness advice</h2>
+
+<p><strong>The change.</strong> A step-by-step instruction in place of a number-only instruction, scored by a fixed
+integer-extraction rule. <strong>The model and date.</strong> <code>qwen-flash-2025-07-28</code>, a hosted snapshot, queried
+2026-11-03 at temperature 0, thinking off, 1024-token cap. <strong>The item set and its status.</strong> Public GSM8K
+(presumed contaminated) and procedurally generated twins. <strong>The paired effect.</strong> Indistinguishable from zero on every block.
+<strong>The cost.</strong> Roughly twice the output tokens; no price pinned. <strong>What this does not say.</strong> Nothing about another
+model, another snapshot or a thinking-mode configuration.</p>
+
+<h3>The executed source, in three layers</h3>
+
+<p>The harness has three layers, and keeping them apart is the first piece of advice. <strong>The instrument</strong> (prompts, decoding
+parameters, scorer) is library code outside the mutable surface, written before any prediction was registered and then left alone.
+<strong>The measurement machinery</strong> (the lanes, the intervals, the table writer) is also outside the surface. <strong>The cell</strong>,
+<code>analyze.py</code>, is the only mutable file, and it only chooses which items to measure and how to summarize them.</p>
+
+<p><strong>The instrument.</strong> Everything that decides what the model is asked and what counts as correct is in one short file:</p>
+<pre data-code="lib/prompts.py" data-lang="python" data-run="E0002"></pre>
+
+<p>Two things in it deserve a second look. The scorer falls back to the <em>last number in the reply</em> when there is no
+<code>Answer:</code> marker. That is a sensible rule for chain-of-thought, and it is also exactly why a direct arm that ignores its
+instruction is scored without any warning: it silently becomes a different arm. The only way this study saw it was by auditing the replies,
+not the scores. And the decoding parameters travel as a single dictionary, identical for both arms:</p>
+
+<pre><code class="language-python">PARAMS = {"temperature": 0.0, "max_tokens": 1024, "enable_thinking": False}</code></pre>
+
+<p>The cap matters: a handful of CoT replies were cut at the token limit, so truncation can account for a few of the
+&ldquo;direct-only&rdquo; discordant items, and the study reports how many.</p>
+
+<p><strong>The measurement machinery.</strong> Intervals are percentile bootstraps with a fixed replicate count and seed; on twins the resampling unit is the template:</p>
+<pre data-code="lib/measure.py" data-lang="python" data-run="E0002"></pre>
+
+<p><strong>The public cell, as run (E0002).</strong> The cell below is the exact <code>analyze.py</code> the notary committed before the anchor ran. Read
+<code>run_cot_gain</code>: one ledger-backed call per item per arm, the scorer applied to the recorded replies, the paired table written, then the
+paired interval and McNemar&rsquo;s exact test. Everything the model returned goes through <code>CallLedger</code>, so the call is pinned and a re-run
+answers from the shard.</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0002"></pre>
+
+<p><strong>The sealed gain cell (E0005).</strong> The same file at the commit of the sealed run. In a sealed run the cell ignores its lane
+setting and measures whatever twin block the contract hands back, so the sealed access could not be spent on the wrong block:</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0005"></pre>
+
+<p><strong>The contamination cell (E0006).</strong> The same file again, executed on the contamination track. Note that every call in it is a
+ledger hit: the CoT answers for the 50 originals and the 200 sealed twins were recorded by E0003 and E0005, which is why this sealed cell
+and the sealed gain cell are one query of the model scored two ways.</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0006"></pre>
+
+<p>No verifier is declared for this study: the scorer is a deterministic rule, not an LLM judge, so there is no separate checker whose hash
+was fixed at the method gate. That is a limit, not an omission to hide.</p>
+
+<h3>Eight lessons, each with the run that paid for it</h3>
+
+<ol>
+<li><p><strong>Audit the direct arm&rsquo;s compliance from the ledger before reading any gain [C9].</strong> The share of bare-number replies and
+output tokens per item, against the CoT arm. Here, 4 of 300 replies were bare; the direct arm&rsquo;s median output was
+112.5 tokens against 243. (E0002.)</p></li>
+<li><p><strong>Check the headroom before you register a gain threshold [C10].</strong> A gain cannot exceed one minus the direct score;
+at a direct score of 0.95 a registered gain of 0.10 could not be reached. Measure the direct score first, from a pilot or from items off the ceiling. (E0002.)</p></li>
+<li><p><strong>Size a template-paired contamination probe to the gap it must resolve [C11].</strong> Fifty templates gave interval widths of 0.075 and
+0.105, so a gap of 0.05 could be neither detected nor excluded. Roughly four times the templates halves the interval. (E0003, E0006.)</p></li>
+<li><p><strong>Treat cells that share ledger entries as one measurement [C12].</strong> The ledger&rsquo;s de-duplication makes a study cheap and
+replayable; it also couples the cells, and the findings must say which. (E0006.)</p></li>
+<li><p><strong>Never count a replay as a replication [C13].</strong> The offline replay reproduced with a difference of 0 because it re-scored the same
+recorded answers; the salted re-query changed 9 of 600 item-arm scores and moved the gain by 0.0167.</p></li>
+<li><p><strong>On twin blocks, report the cluster bootstrap over templates, not McNemar&rsquo;s test [C14].</strong> Four twins of one template are not
+independent; McNemar&rsquo;s p of 0.125 on the development twins overstates the evidence.</p></li>
+<li><p><strong>Expect a sign flip when the effect is below the serving noise.</strong> Temperature 0 on a hosted model is not determinism. One flipped
+original is worth 0.02 of em_gap on 50 templates, so a handful of flips reverses a gap this small.</p></li>
+<li><p><strong>Rate limits are a harness fault, not a result.</strong> The first anchor run crashed on an HTTP rate-limit after almost all calls were
+pinned; the pinned shard made the re-run nearly free. Lower the worker count on a shared account and let the ledger&rsquo;s cache do the rest.</p></li>
+</ol>
+
+<h3>Pitfalls and war stories</h3>
+
+<ul>
+<li><strong>The identifier that looks like a number.</strong> The digit in the benchmark name GSM8K is read by the claim-sentence numeral scan as a
+measured value. The claims lock carries it under a labelled alias whose note says it is an identifier, never a measurement. The tutorial does not render that alias.</li>
+<li><strong>Pinning the dated snapshot, not the alias.</strong> A provider can repoint an alias; the ledger records the model id actually served on every call,
+and every record here names the same snapshot.</li>
+<li><strong>The positive control is one seeded plant.</strong> It tests the pairing and interval code, its point recovery is exact by construction, and it is not a power analysis.</li>
+<li><strong>The instrument was fixed before the predictions, and stayed fixed after the surprise.</strong> The lead kept the registered prompt after seeing the replies, so the
+non-compliance is a property of the measurement, recorded as such.</li>
+<li><strong>A seed comment that was wrong.</strong> The synthesis script&rsquo;s comment about independent seed streams was inaccurate (one positive-control seed equals one
+negative-control repeat seed). The streams drive different operations, so no result moved, and the committed table was not regenerated.</li>
+</ul>

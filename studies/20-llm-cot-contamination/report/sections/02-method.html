@@ -1,0 +1,76 @@
+<h2>The method taught</h2>
+
+<p>The method is a <em>paired item comparison with an honest unit of uncertainty</em>, plus a
+<em>fresh-twin probe</em> for contamination. Both are cheap, and both are easy to get subtly wrong.</p>
+
+<h3>Two arms, one scorer, every call pinned</h3>
+
+<p>Each item is sent twice to the same model at temperature 0, once under a <code>direct</code>
+instruction and once under a <code>cot</code> instruction. A fixed scorer extracts the integer
+the reply commits to (the number after the last <code>Answer:</code> marker, else the last
+number in the reply) and scores 1 if it equals the gold answer, else 0. The prompts, decoding
+parameters and scorer live in a library file the experiment cannot edit, so a cell chooses
+<em>which items</em> to measure and never <em>how they are asked or graded</em>. Every request
+and response goes through a call ledger that pins the exact request, the response, the model
+id actually served, and the token usage; the study therefore re-verifies offline.</p>
+
+<h3>The paired gain, and why pairing matters</h3>
+
+<p>With <span data-math="c_i, r_i \in \{0,1\}"></span> the exact-match of item <span data-math="i"></span>
+under the CoT and direct arms, the gain is the mean of the per-item differences, which depends
+only on the <em>discordant</em> items (those where exactly one arm is right):</p>
+
+<div data-math-display="\hat\Delta=\frac1n\sum_{i}(c_i-r_i)=\frac{n_{10}-n_{01}}{n},\qquad \operatorname{SE}(\hat\Delta)=\sqrt{\frac{p_{10}+p_{01}-\Delta^{2}}{n}}"></div>
+
+<p>Here <span data-math="n_{10}"></span> counts items only CoT answered correctly and
+<span data-math="n_{01}"></span> items only the direct arm did. Items both arms get right (or both
+get wrong) add nothing. That is why a pair of arms at 0.95 and 0.96 can be compared far more
+sharply than two marginal means, and also why, near a ceiling, the whole comparison rests on
+a handful of items. McNemar&rsquo;s exact test asks whether the discordant items split like a
+fair coin:</p>
+
+<div data-math-display="p_{\text{McNemar}}=\min\!\Big(1,\;2\sum_{j=0}^{\min(n_{10},n_{01})}\binom{D}{j}\,2^{-D}\Big),\qquad D=n_{10}+n_{01}"></div>
+
+<p>It assumes the discordant items are independent. That holds for the public GSM8K items. It
+fails on the twin blocks, where four twins share one template&rsquo;s wording and structure.</p>
+
+<h3>The cluster bootstrap: the template is the unit</h3>
+
+<p>On a twin block the study resamples whole templates, not rows, with a ratio estimator so that
+unequal cluster sizes stay correct:</p>
+
+<div data-math-display="\hat\Delta^{*b}=\frac{\sum_{t\in S_b}\sum_{k}(c_{tk}-r_{tk})}{\sum_{t\in S_b}m_t},\qquad S_b=\text{templates drawn with replacement}"></div>
+
+<p>The same four-twin block therefore carries the information of far fewer than 200 independent
+items (the design effect <span data-math="1+(m-1)\rho_d"></span> with <span data-math="m"></span>
+twins per template and intra-template correlation <span data-math="\rho_d"></span>). On twins, the
+cluster interval is the inference; McNemar&rsquo;s p is shown only to be told it overstates the
+evidence.</p>
+
+<h3>The contamination probe: originals against fresh twins</h3>
+
+<p>GSM8K is presumed contaminated. A <em>twin</em> is the same question text with new numbers,
+generated from a template by a procedure that regenerates the original byte-for-byte and whose
+answers an exact solver validates. If the model had memorized an original&rsquo;s answer, its
+score on the original should exceed its score on the twins of that template. With
+<span data-math="o_t"></span> the CoT score on template <span data-math="t"></span>&rsquo;s original and
+<span data-math="\bar y_t"></span> its twins&rsquo; mean score:</p>
+
+<div data-math-display="G=\frac1T\sum_{t}\bigl(o_t-\bar y_t\bigr)"></div>
+
+<p>The comparison is paired by template, so a hard template counts against both sides of its own
+difference and the template mix cannot create a gap. Two honest limits come with the design.
+First, a twin is a fresh <em>string</em>, not a fresh <em>kind</em> of problem, so the probe
+sees instance memorization only. Second, a gap cannot exceed one minus the twins&rsquo; score, so
+a model scoring near the ceiling leaves almost no room for the probe to find anything. The same
+headroom logic caps the gain:</p>
+
+<div data-math-display="\Delta\le 1-p_r"></div>
+
+<h3>Registering rules, and what a point-estimate rule can decide</h3>
+
+<p>The registered predictions read the printed point estimate, not the interval. A rule at a
+threshold the truth sits exactly on is a coin flip, and a rule can be satisfied while its
+interval still reaches past the bound. The study keeps those two things apart: the notary
+adjudicates the rule as written, and the interval is the evidence for what the data can and
+cannot exclude.</p>
