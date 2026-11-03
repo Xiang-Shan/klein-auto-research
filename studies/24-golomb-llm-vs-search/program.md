@@ -263,3 +263,7 @@ Order: dry runs first (search, then llm), real search, wait for study 20 to be i
   difference 0, tolerance 0 [exact] (record runs/E0004/replications/20261103T090054Z.json): optima_matched 6/12 again;
   other block keys differed (first_batch_matches 2 vs 1, invalid_best 2 vs 3, valid_rulers 788 vs 719, unparsed 531 vs 593),
   so the count of 6 reproduced but not the pair-by-pair detail.
+
+- 2026-11-03 — Decision: P2 refuted by E0004 (6 of 12 < 9): the registered expectation that the LLM arm matches 9 or more development pairs is withdrawn; replicated at 6/12 by the E0004 replication.
+- 2026-11-03 — Decision: P3 refuted by E0004 (first_batch_matches 1 < 6): the recall-in-first-batch account is not supported on development orders.
+- 2026-11-03 — Decision: P5 refuted by E0006 (0 of 6 < 3): the LLM arm's development matches did not carry to sealed orders 12-13; no verified ruler was produced there.
