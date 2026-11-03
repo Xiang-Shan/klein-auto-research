@@ -209,3 +209,23 @@ Chosen: both, in order E0001 (search) then E0002 (llm). Mirrored into playbook.m
   E0004 (it will answer its first 1,136 requests from the E0002/E0003 shards — identical
   requests, genuine recorded responses). E0002 and E0003 stay in the ledger as crashes.
   Consult re-recorded with this reason.
+
+- 2026-11-03 — E0004 (llm rerun after E0003's dropped-connection crash, backoff on resets): measured.
+  Verifier: optima_matched 6/12 (reported 6, verified 6), first_batch_matches 1, invalid_best 3, pairs 12,
+  evaluations 24,000. manifest.usage: 1,264 live calls + 1,136 cached (2,400 total), tokens 1,388,003
+  (893,189 in / 494,814 out), usd 0, wall 3,292 s. Unparsed replies 593 of 2,400 (valid rulers 719).
+  Best verified length vs optimum, trials 0/1/2 (first proposal index at the optimum in brackets):
+  n=8 34/34/34 vs 34 (1, 70, 34); n=9 none valid in any trial vs 44 (invalid_best, 0 valid rulers; unparsed 53/62/58);
+  n=10 70/70/70 vs 55 (not matched); n=11 72/72/72 vs 72 (2, 74, 11). Unparsed per pair n=8 44/48/56,
+  n=10 47/47/49, n=11 28/59/42.
+  Recall signature: first_batch_matches 1 (only n=8 trial 0, proposal 1; n=11 trial 0 first matched at proposal 2).
+  Every n=8 first batch opens with the same prefix 0,1,4,9,15,22,32 and the n=10 and n=11 bests are nested
+  prefixes of the optimal 11-mark ruler (0 1 4 13 28 33 47 54 64 70 72) - consistent with retrieval or recall of a
+  tabulated ruler, but this study cannot separate that from search; a match is a match, not evidence of reasoning.
+  Language: optima "matched", never "found".
+- Decision (2026-11-03): P2 refuted (6 < 9): the LLM arm matched 6 of 12 pairs, fewer than the 9 registered.
+  P3 refuted (1 < 6): the first-batch recall signature appeared in 1 of 12 pairs, not >= 6. Reading: on orders
+  8-11 the LLM matched more pairs than the search (6 vs 0) but not as often as predicted, and the match is not
+  concentrated in the first batch - so the registered recall account of P3 is not supported; matches arrived later,
+  after the searcher's feedback (proposals 2-74), though recall of partial structure remains possible. Order 9
+  and 10 stayed unmatched. This is development-lane evidence; confirmation orders 12-13 remain unspent.
