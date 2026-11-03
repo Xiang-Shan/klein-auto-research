@@ -232,8 +232,12 @@
   },
   "replications": {
     "E0002": {
-      "attempts": 1,
+      "attempts": 2,
       "modes": {
+        "replay": {
+          "attempts": 1,
+          "reproduced": true
+        },
         "replicate": {
           "attempts": 1,
           "reproduced": true
@@ -246,6 +250,14 @@
           "mode": "replicate",
           "reproduced": true,
           "timestamp": "2026-11-03T08:27:25.213197Z",
+          "tolerance": 0.03
+        },
+        {
+          "difference": 0.0,
+          "evidence_id": "replay:E0002@20261103T085311Z",
+          "mode": "replay",
+          "reproduced": true,
+          "timestamp": "2026-11-03T08:53:11.832677Z",
           "tolerance": 0.03
         }
       ],
@@ -275,5 +287,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T08:53:01.947630Z"
+  "updated_at": "2026-11-03T08:53:20.371291Z"
 }
