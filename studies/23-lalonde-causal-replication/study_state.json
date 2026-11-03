@@ -345,10 +345,30 @@
         }
       ],
       "track": "att"
+    },
+    "E0007": {
+      "attempts": 1,
+      "modes": {
+        "replicate": {
+          "attempts": 1,
+          "reproduced": true
+        }
+      },
+      "records": [
+        {
+          "difference": 0.0,
+          "evidence_id": "rep:E0007@20261103T082630Z",
+          "mode": "replicate",
+          "reproduced": true,
+          "timestamp": "2026-11-03T08:26:30.742375Z",
+          "tolerance": 0.0
+        }
+      ],
+      "track": "att"
     }
   },
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T08:26:28.201826Z"
+  "updated_at": "2026-11-03T08:34:34.908415Z"
 }
