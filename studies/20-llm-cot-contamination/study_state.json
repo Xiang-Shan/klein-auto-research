@@ -7,10 +7,15 @@
     "data": {
       "by": "lead-agent",
       "timestamp": "2026-11-03T07:41:46.152602Z"
+    },
+    "method": {
+      "by": "lead-agent",
+      "timestamp": "2026-11-03T07:41:48.312467Z"
     }
   },
   "artifact_hashes": {
     "data_card.md": "32125100183b0ac2d42c50461523c1efdbb7a2c5b30f13b0cf727b1f3d8bba27",
+    "method_card.md": "59a9f5fe65bbc851f0cb0395aad2bf7541377040fd0c2dc86f448e73a8d8412e",
     "research_plan.md": "af3555861f35ec24d01ae4b1a8cbb2f788000670090eaf379a82e69f0acd678f",
     "scouting_ledger.md": "680280823a609e083a4aeab5255be7f3537e08f4dafec153e2ff3882598e9efd",
     "study.yaml": "fb65806975ed3af9db6fe5f3cec0717b2bc0f591b59393942e326ba25a6dcf57"
@@ -40,7 +45,8 @@
       "development": "bf49493a7990426baf50e73ce8657f84d6a17d917e10063e0edb31aef795d13d",
       "final_test": "788ee7164fe4a148411d3dbb8858145c20cd9abf8e88b4c407aba870c29c0397",
       "policy": "98bc8a1ab69b3cdb20246ce29d16279df7e19687129b966592b21291e6948d29"
-    }
+    },
+    "verifier": {}
   },
   "gates": {
     "consult": {
@@ -66,9 +72,13 @@
       "status": "overridden"
     },
     "method": {
-      "acknowledged_at": null,
-      "acknowledged_by": null,
-      "status": "pending"
+      "acknowledged_at": "2026-11-03T07:41:48.312467Z",
+      "acknowledged_by": "lead-agent",
+      "artifacts": {
+        "method_card.md": "59a9f5fe65bbc851f0cb0395aad2bf7541377040fd0c2dc86f448e73a8d8412e"
+      },
+      "note": "delegated. Card complete; refs 21 verified; adversarial re-check: no blocker",
+      "status": "recorded"
     }
   },
   "last_experiment": 0,
@@ -88,5 +98,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "20-llm-cot-contamination",
-  "updated_at": "2026-11-03T07:41:47.452371Z"
+  "updated_at": "2026-11-03T07:41:48.323691Z"
 }
