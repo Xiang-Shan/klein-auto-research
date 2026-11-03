@@ -10,7 +10,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary (registered, no incumbent) | cells measured so far: E0001 N=500 | val_mlogloss 0.8296 (sd 0.035) | detached 3-seed array | - |
+| primary (registered, no incumbent) | cells so far E0001 N=500 (0.830), E0002 N=1000 (0.949) | non-monotone start | detached 3-seed arrays | - |
 
 ## Ruled out (evidence, not opinion)
 
@@ -25,3 +25,7 @@
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
 1. cells phase slate: N=500, 1000, 2000, 4000, 8000, 16000 in ascending order (see program.md). Then fit phase (P1, P2, P5).
+
+## Observations
+
+- E0002: N=1000 loss > N=500 loss; best_step at the 400-step floor for both. Small cells appear step-limited (floor of 400 steps = fewer epochs at larger N). Watch whether N>=2000 (steps grow with N only above ~N=2,844) restores monotonicity.
