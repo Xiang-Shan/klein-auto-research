@@ -71,6 +71,16 @@ def main() -> None:
                 print(f"step: {step} loss: {loss.item():.4f}")  # chatter: outside the final block
             if step >= RECIPE["steps"]:
                 break
+    # BatchNorm: recompute the running statistics as a cumulative average over one pass of the
+    # TRAINING set (no grad), so inference does not depend on a lagging momentum average.
+    bns = [mod for mod in model.modules() if isinstance(mod, torch.nn.BatchNorm2d)]
+    for mod in bns:
+        mod.reset_running_stats()
+        mod.momentum = None
+    model.train()
+    with torch.no_grad():
+        for batch in iterate_minibatches(len(xt), 256, shuffle=False, generator=None):
+            model(xt[batch].to(device))
     model.eval()
     with torch.no_grad():
         proba = torch.softmax(model(torch.from_numpy(x_eval).to(device)), dim=1).cpu().numpy().astype(np.float64)
