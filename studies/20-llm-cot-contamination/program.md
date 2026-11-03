@@ -346,3 +346,13 @@ Order: dry runs first, then sealed cot_gain, sealed contamination, replications.
 - 2026-11-03 — Referee note: (R2-4) the families (cot_gain 4, contamination 2) were drawn post-hoc by the synthesist along the tracks. Lesson recorded for the next `test` study: fix the hypothesis family, `n_comparisons` and the family-wise guard at CONSULT, as inquiry-model.md asks.
 - 2026-11-03 — Referee note: (R2-5) carried to TUTORIAL: (a) exclude `gsm8k_name_numeral` from any number rendered from claims.lock; (b) build `figures/make_figures.py` with re-renderable figures and zero-based delta axes.
 - 2026-11-03 — Referee note: (R2-6) findings' front matter and "Derived tables" paragraph now list `tables/synthesis_controls.tsv` and `tables/synthesis_familywise.tsv`; the pinned E0005 direct-only diagnostic (6 sealed twins, 2 with a CoT reply cut at max_tokens, 3 templates, at most 4 in one) is now reported beside C8.
+
+- 2026-11-03 — Decision (terms check, lead): the call ledgers in `calls/` stay published. The
+  calls were billed to a paid, pay-as-you-go DashScope key — no free or trial quota — so the
+  Model Studio service-specific terms' Section III trial clause (trial content "may only be
+  used to evaluate the model's performance" and may not be distributed on a third-party
+  platform) does not apply. The remaining duty, "AI-generated content must be clearly
+  labeled", is met by `calls/README.md`. Correction to the scouting ledger (row S3, which is
+  gate-hashed and therefore not edited): the current terms contain no clause against using
+  outputs to train competing models, and "trial outputs restricted" does not bind these
+  paid calls. Source: <https://help.aliyun.com/en/model-studio/bailian-service-notes>.

@@ -130,6 +130,9 @@ citations (`knowledge/domains/{llm,cv,data-science}/`, `ml-research/`, `math/`,
   run) is filed under `incidents/`.
 - **24 `golomb-llm-vs-search`** (test · none · math) — LLM proposals vs a classical
   randomized search at a matched budget of exact-verifier calls.
+- Studies 20 and 24 commit their model call ledgers (`calls/`), produced on a paid
+  pay-as-you-go DashScope key and labelled AI-generated in `calls/README.md`, as the
+  provider's terms require.
 
 ### Fixed
 

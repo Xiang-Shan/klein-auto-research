@@ -336,3 +336,10 @@ append-only.
     development reruns re-used earlier shards (613 + 523 + 1264). The planned sealed
     re-query (~1,200) could not happen, because sealed runs are not replicable. That leaves
     3,600 + 2400 re-query.
+
+- 2026-11-03 — Decision (terms check, lead): the call ledgers in `calls/` stay published. The
+  calls were billed to a paid, pay-as-you-go DashScope key — no free or trial quota — so the
+  Model Studio service-specific terms' Section III trial clause (trial content "may only be
+  used to evaluate the model's performance" and may not be distributed on a third-party
+  platform) does not apply. The remaining duty, "AI-generated content must be clearly
+  labeled", is met by `calls/README.md`. Source: <https://help.aliyun.com/en/model-studio/bailian-service-notes>.
