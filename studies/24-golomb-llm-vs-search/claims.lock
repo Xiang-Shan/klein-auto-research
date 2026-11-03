@@ -319,7 +319,9 @@
     "C7": {
       "claim": "Untested hypothesis: the LLM arm's matches are retrieval of tabulated rulers. Every matched ruler is the row the public table prints, and the best ruler in all three trials at order ten is the first ten marks of the tabulated eleven-mark ruler, a Golomb ruler by inheritance at length 70 against the optimum 55. But identity with a unique tabulated optimum cannot separate recall from search, and the study ran no control that could.",
       "class": "mechanism-interpretation",
-      "errata": [],
+      "errata": [
+        "E1"
+      ],
       "evidence": [
         "E0004",
         "art:sol_E0004",
@@ -372,7 +374,15 @@
       "strength": "exploratory"
     }
   },
-  "errata": {},
+  "errata": {
+    "E1": {
+      "claims": [
+        "C7"
+      ],
+      "filed": "2026-11-03",
+      "note": "Referee note 1 (2026-11-03): the sentence's 'unique tabulated optimum' is wrong as stated. The n=8 optimum is unique only up to reflection; n=11 has two optima up to reflection (0 1 4 13 28 33 47 54 64 70 72 and 0 1 9 19 24 31 52 56 58 69 72). Re-scope: in every E0004 proposal the only rulers at the tabulated length are the table's printed rows in printed orientation (mirror and second 11-mark optimum never proposed; art:synth_summary), so identity is weak, non-zero, post-hoc information leaning toward retrieval, not 'uninformative'. Still exploratory; still untested."
+    }
+  },
   "git_head": "614c6df266bc0f9f07b064004cef77464fbe143d",
   "klein_commit": "614c6df266bc0f9f07b064004cef77464fbe143d",
   "klein_version": "2.2.0",
