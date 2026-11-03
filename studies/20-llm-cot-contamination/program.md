@@ -279,3 +279,14 @@ Chosen: #1 then #2 (the phase's two experiments); #3 is read-only. Expectation: 
   "twin_dev"}` in analyze.py BEFORE E0004 instead of letting `run-one` file it as the
   candidate, so E0004's candidate diff is empty; the cell it ran is the committed HEAD and
   the manifest records it. Disclosed for the referee; no evidence is affected.
+
+### Phase confirmation slate (2026-11-03)
+
+| # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | sealed cot_gain on twin block C, after dry run (P5: gain >= 0.10) | 2 | 3 | 3 | 8 |
+| 2 | sealed contamination on twin block C, after dry run (P6: gap <= 0.05) | 3 | 3 | 3 | 9 |
+| 3 | salted re-query replications of E0002 (tol 0.03) and E0003 (tol 0.05) | 2 | 3 | 3 | 8 |
+| 4 | offline --replay of E0002 (never counts) | 1 | 3 | 1 | 5 |
+
+Order: dry runs first, then sealed cot_gain, sealed contamination, replications. Expectation: P5 refuted (ceiling, as P2/P4), P6 likely supported.
