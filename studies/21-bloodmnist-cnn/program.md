@@ -154,3 +154,43 @@ Chosen: 1, 2, 3, 4 in order (the phase is fixed by the contract; the floor needs
   second-lowest recall) is FALSIFIED: classes 0 (0.26), 4 (0.50) and 5 (0.57) all sit below
   class 3 (0.71). These are card priors (not registered P#), recorded here for SYNTHESIZE.
   Headroom at the anchor: h = (1 - 0.7189) / 0.0438 = 6.4.
+- 2026-11-03 — Floor (b), registered as `sweep:fit_noise`: the anchor configuration (train.py's
+  own RECIPE and SmallCNN, run in-process; the harness reproduces E0001's seeds 0/1/2 to the
+  sixth decimal) on seed blocks {10,11,12} {20,21,22} {30,31,32}. Block-mean macro-F1 0.6719,
+  0.5886, 0.6688: mean 0.6431, std 0.0472, range 0.0833. Per-seed values range from 0.490 (seed
+  21) to 0.734. Recorded as `fit_noise` (provenance, never the bar). Across all twelve seeds run
+  at the anchor config: mean 0.662, per-seed std 0.075. E0001's block (0.7189) is the highest of
+  the four blocks (four-block mean 0.6620, std 0.0541): the incumbent is a favourable draw.
+- 2026-11-03 — K2 (fit/item ratio < 1.0) is FALSIFIED: fit-noise std 0.0472 over item-bootstrap
+  std 0.0120 is 3.9. Unlike the card's expectation the seed-array spread is the bigger noise, and
+  the anchor is unstable at this schedule (constant lr 3e-3, 8 epochs). Consequence: the
+  keep bar 0.0438 is set by item noise (the contract's estimand), but a candidate's 3-seed mean
+  also carries fit noise of about 0.047; the bar sits at about 0.93 fit-noise sds. A keep needs
+  0.7627 (incumbent 0.7189 + 0.0438). Because the incumbent is a favourable draw, a null change
+  is unlikely to keep (it would need roughly +2 block sds over the four-block mean), while a
+  real improvement that also stabilises training clears the bar easily. Read every adaptive
+  keep and discard against both floors; a candidate within 0.047 of the incumbent is not
+  distinguishable by one seed array.
+- 2026-11-03 — Contract: `minimum_delta` 0.0438435 (estimand marginal-resplit, recipe
+  item-bootstrap, k 1000) and the `fit_noise` block are in `study.yaml`; CONSULT re-recorded
+  (lead-agent, reason: minimum_delta set from the measured noise floor). Preflight: 22 checks,
+  0 failed; headroom h = 6.41.
+
+### Phase adaptive slate (drafted at the anchor close; the formal ritual repeats at the phase start)
+
+Evidence in hand: the anchor is unstable and under-trained (loss still ~0.5-1.0 at step 1500,
+per-seed macro-F1 0.49-0.73), and fit noise (0.047) is about the size of the keep bar (0.044).
+Levers that stabilise optimisation should therefore pay first. Predicted effects are in
+macro-F1 against the incumbent 0.7189; the keep bar is +0.0438.
+
+| # | Candidate (one lever, one seed array) | Nov | Test | Info | Sum |
+| --- | --- | --- | --- | --- | --- |
+| 1 | BatchNorm after each conv, anchor depth/steps otherwise (normalization): +0.08, stabilises seeds | 3 | 3 | 3 | 9 |
+| 2 | D4 flip / rot90 augmentation on the training batch (own RNG, batch order unchanged), anchor model: +0.04 | 3 | 3 | 3 | 9 |
+| 3 | Third conv block (conv-pool-conv-pool-conv, receptive field 8 -> 18 px), no BN: +0.05 | 3 | 3 | 3 | 9 |
+| 4 | Longer schedule only: 4,000 steps, anchor model (RQ3's prior says it helps less than the floor) | 2 | 3 | 3 | 8 |
+| 5 | Width 64 (capacity only): +0.02, expected not to clear the bar | 2 | 3 | 2 | 7 |
+| 6 | P3 as its own registered cell: three blocks + BN + D4 + 4,000 steps (tests P3 >= 0.93); a bundle of four levers | 2 | 3 | 3 | 8 |
+
+Chosen to start: 1 (BatchNorm) because the anchor's seed instability is the dominant measured
+noise; then 2 and 3, so the P3 bundle can be decomposed before it runs. 4-6 are the queue.
