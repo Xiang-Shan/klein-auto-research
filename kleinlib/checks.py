@@ -282,12 +282,38 @@ def _legacy_results_problems(path: Path) -> list[str]:
     return problems
 
 
+def _call_price_checks(contract: Mapping[str, Any]) -> list[Check]:
+    """Advisory: a study that queries a model but declares no ``calls.price``.
+
+    Without a price the call ledger records ``usd: 0`` for every call — unrecorded,
+    not free — and no ``budget_usd`` can be set (studies 20 and 24 shipped that
+    way). The contract is hashed at CONSULT, so the warning has to come before the
+    first run. Silent for a study with no ``calls:`` block.
+    """
+    block = contract.get("calls")
+    if not isinstance(block, Mapping):
+        return []
+    if isinstance(block.get("price"), Mapping):
+        return [Check("model-call price", True, "calls.price declared — usage.usd is recorded")]
+    return [
+        Check(
+            "model-call price",
+            True,
+            "[WARN] calls: declares no price, so every call records usd 0 — unrecorded, "
+            "not free — and budget_usd cannot be set; add calls.price "
+            "{input_per_mtok, output_per_mtok} from the provider's price page before "
+            "the first run (references/model-calls-protocol.md)",
+        )
+    ]
+
+
 def preflight_checks(
     study_dir: Path,
     *,
     require_clean: bool = True,
     require_branch: bool = True,
     require_local: bool = True,
+    cost_advisory: bool = True,
 ) -> list[Check]:
     checks: list[Check] = []
     try:
@@ -306,6 +332,8 @@ def preflight_checks(
     # told its contract was "schema_version 2 valid". Schema-2 output is
     # byte-identical, which is what studies 03 and 05-09 keep verifying against.
     checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or f"schema_version {version} contract valid"))
+    if cost_advisory:
+        checks.extend(_call_price_checks(contract))
     for track_name, track_spec in normalize_tracks(contract).items():
         metric = track_spec["metric"]
         floor = metric.get("noise_floor")
@@ -1152,6 +1180,9 @@ def verify_study(
         require_clean=False,
         require_branch=False,
         require_local=require_local,
+        # The price advisory guards a run that has not happened yet; verify judges
+        # runs that have, and its receipt keeps the rows it always had.
+        cost_advisory=False,
     )
     checks += _sweep_registry_checks(study_dir, state)
     checks += _vocabulary_checks(study_dir, contract)
@@ -1409,14 +1440,16 @@ def _numbers_checks(
     """
     if not enabled:
         return []
+    from .claims import identifier_aware_numerals
     from .numbers import LiteralIndex, extract_literals, format_literals, html_text
 
+    aware = identifier_aware_numerals(study_dir)
     checks: list[Check] = []
     findings = study_dir / "findings.md"
     if findings.is_file():
         text = findings.read_text(encoding="utf-8", errors="replace")
         index = LiteralIndex.for_study(study_dir, state, exclude=[findings])
-        literals = extract_literals(text)
+        literals = extract_literals(text, identifier_aware=aware)
         unsourced = [item for item in literals if not index.covers(item)]
         checks.append(
             Check(
@@ -1441,7 +1474,7 @@ def _numbers_checks(
     if tutorial.is_file():
         page = html_text(tutorial.read_text(encoding="utf-8", errors="replace"))
         index = LiteralIndex.for_study(study_dir, state)
-        literals = extract_literals(page)
+        literals = extract_literals(page, identifier_aware=aware)
         unsourced = [item for item in literals if not index.covers(item)]
         checks.append(
             Check(

@@ -50,7 +50,9 @@ A recipe is the same scaffold plus a domain overlay, and every explicit flag sti
 
 Every recipe writes `entrypoint.printed: block`, a `policy:` block
 (`card_sections: enforce`, `realized_split: required`, `noise_floor: required`) and a
-`data_card.md` skeleton carrying exactly the headings that policy enforces. Its example
+`data_card.md` skeleton carrying exactly the headings that policy enforces. (A fourth
+key, `numerals: identifier-aware`, is opt-in and not written by any recipe; see
+`claims-protocol.md`.) Its example
 code runs at once (`KLEIN_SMOKE=1 python prepare.py && KLEIN_SMOKE=1 python <entrypoint>`);
 switch `data.source` to your own data and edit the loader. What it never writes is
 judgment: the goal, research questions, predictions, audience and every data-card

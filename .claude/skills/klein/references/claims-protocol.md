@@ -182,6 +182,11 @@ section, figure and table numbering; small counts that name their source
 (`n = 24 (Table 1)`, `k = 5 seeds`); numerals inside code blocks and typeset formulas.
 A numeral that needs an exemption not listed here is marked on its line with
 `<!-- klein:numbers-ok: <reason> -->`, and the referee reads every such marker.
+Names with digits glued to letters (`GSM8K`, `qwen2`, `A003022`) are read as numbers by
+default; a study declares `policy: {numerals: identifier-aware}` at CONSULT to have the
+law skip a digit run that directly follows a letter (a hyphen still separates —
+`depth-2` is two — and a trailing unit still scans — `60k` is a number). Without it the
+honest workaround is study 20's: an identifier alias labelled "not a measured value".
 `klein verify --numbers` mechanizes the scan (enforcing on schema 3, advisory on
 schema 2, always advisory on the tutorial).
 

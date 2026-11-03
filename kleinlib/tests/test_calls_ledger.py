@@ -331,3 +331,23 @@ def test_a_dropped_connection_is_retried(monkeypatch) -> None:
         httpd.shutdown()
     assert out["choices"][0]["message"]["content"] == "ok"
     assert len(waits) == 1
+
+
+def test_preflight_warns_when_a_study_queries_a_model_without_a_price(tmp_path: Path, server: str) -> None:
+    """Studies 20 and 24 shipped `usage.usd` 0 for every call: no `calls.price`.
+    Preflight says so before the first run; `klein verify` keeps the rows it had."""
+    from kleinlib.checks import preflight_checks, verify_study
+
+    study = _calls_study(tmp_path, server)
+    price = [c for c in preflight_checks(study, require_clean=False) if c.name == "model-call price"]
+    assert len(price) == 1 and price[0].ok
+    assert "[WARN]" in price[0].message and "calls.price" in price[0].message
+    assert not [c for c in verify_study(study) if c.name == "model-call price"]
+
+    path = study / "study.yaml"
+    text = path.read_text(encoding="utf-8").replace(
+        '  model: "m"\n', '  model: "m"\n  price: {input_per_mtok: 0.05, output_per_mtok: 0.4}\n', 1
+    )
+    path.write_text(text, encoding="utf-8")
+    price = [c for c in preflight_checks(study, require_clean=False) if c.name == "model-call price"]
+    assert price and price[0].ok and "[WARN]" not in price[0].message

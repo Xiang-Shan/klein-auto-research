@@ -47,6 +47,7 @@ from .claims import (
     NUMBERS_OK_RE,
     NUMERAL_RE,
     SENTENCE_EXEMPT_RE,
+    glued_to_a_name,
     numeral_matches,
     text_numerals,
 )
@@ -223,8 +224,12 @@ def _scannable_lines(markdown: str) -> Iterator[tuple[int, str]]:
         yield number, raw.replace(UNICODE_MINUS, "-")
 
 
-def extract_literals(markdown: str) -> list[Literal]:
-    """Every numeral in ``markdown`` the numbers law asks for a home for."""
+def extract_literals(markdown: str, *, identifier_aware: bool = False) -> list[Literal]:
+    """Every numeral in ``markdown`` the numbers law asks for a home for.
+
+    ``identifier_aware`` (``policy: {numerals: identifier-aware}``) skips a digit
+    run glued to a preceding letter — the ``8`` of ``GSM8K`` is part of a name.
+    """
     literals: list[Literal] = []
     for number, line in _scannable_lines(markdown):
         spans = _exempt_spans(line)
@@ -232,6 +237,8 @@ def extract_literals(markdown: str) -> list[Literal]:
         for match in NUMERAL_RE.finditer(line):
             start, end = match.span()
             if any(start < stop and begin < end for begin, stop in spans):
+                continue
+            if identifier_aware and glued_to_a_name(line, start):
                 continue
             try:
                 value = float(match.group())

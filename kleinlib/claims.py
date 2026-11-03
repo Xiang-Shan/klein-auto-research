@@ -259,9 +259,22 @@ def _numeric_leaves(value: Any, prefix: str = "") -> list[tuple[str, float]]:
     return []
 
 
-def text_numerals(text: str) -> list[float]:
+def glued_to_a_name(text: str, start: int) -> bool:
+    """Does the numeral starting at ``start`` continue a word (``GSM8K``, ``qwen2``)?
+
+    Used only under ``policy: {numerals: identifier-aware}``: a digit run that
+    follows a letter with nothing between them is part of a name, not a quantity.
+    A hyphen still separates (``depth-2`` is two), and a trailing unit still scans
+    (``60k`` is a number).
+    """
+    return start > 0 and text[start].isdigit() and text[start - 1].isalpha()
+
+
+def text_numerals(text: str, *, identifier_aware: bool = False) -> list[float]:
     values: list[float] = []
     for match in NUMERAL_RE.finditer(text):
+        if identifier_aware and glued_to_a_name(text, match.start()):
+            continue
         try:
             values.append(float(match.group()))
         except ValueError:  # pragma: no cover - the regex only matches parseable forms
@@ -810,12 +823,31 @@ def _check_numbers(
             )
 
     if sentences and schema >= 2:
-        problems.extend(_check_claim_sentences(lock, schema, numbers))
+        problems.extend(
+            _check_claim_sentences(
+                lock, schema, numbers, identifier_aware=identifier_aware_numerals(study_dir)
+            )
+        )
     return problems
 
 
+def identifier_aware_numerals(study_dir: Path) -> bool:
+    """``policy.numerals`` of the study's contract (``literal`` when absent)."""
+    from .contract import load_contract, policy
+
+    try:
+        contract = load_contract(study_dir)
+    except Exception:  # noqa: BLE001 - a missing or broken contract keeps the literal law
+        return False
+    return policy(contract, "numerals") == "identifier-aware"
+
+
 def _check_claim_sentences(
-    lock: Mapping[str, Any], schema: int, numbers: Mapping[str, Any]
+    lock: Mapping[str, Any],
+    schema: int,
+    numbers: Mapping[str, Any],
+    *,
+    identifier_aware: bool = False,
 ) -> list[Problem]:
     """Every numeral in a claim sentence is covered by one of its aliases."""
     problems: list[Problem] = []
@@ -843,7 +875,7 @@ def _check_claim_sentences(
             )
             continue
         sentence = SENTENCE_EXEMPT_RE.sub(" ", entry["claim"])
-        for numeral in text_numerals(sentence):
+        for numeral in text_numerals(sentence, identifier_aware=identifier_aware):
             if not any(
                 numeral_matches(numeral, [value], precision) for value, precision in covered
             ):
