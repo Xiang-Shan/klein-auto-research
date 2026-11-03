@@ -154,7 +154,8 @@
       "claim": "The sealed AIPW gap (-466.80) is smaller than its development gap (+889.48) most plausibly because CPS-1 overlaps the trainees better, with 4493 men on support against 1146 and a largest weight share of 0.0426 against 0.135, so the counterfactual rests on many men instead of a few; one sealed draw cannot separate this from luck, and agreement with the benchmark does not show that selection on observables holds",
       "class": "mechanism-interpretation",
       "errata": [
-        "E3"
+        "E3",
+        "E7"
       ],
       "evidence": [
         "E0006",
@@ -451,7 +452,9 @@
     "C25": {
       "claim": "The sealed AIPW gap (-466.80) differs from its development gap (+889.48), and better CPS-1 overlap is only one candidate reason: CPS-1 puts more men on support in absolute terms (4493 against 1146) with a smaller largest weight share (0.0426 against 0.135), but a smaller fraction of its pool (4493 of 15992 against 1146 of 2490), and before weighting the trainees differ from CPS-1 more in black (standardized mean difference 2.43 against 1.48) and about as much in 1974 and 1975 earnings (-1.57 and -1.75 against -1.72 and -1.77); each lane's estimate lies inside the other's bootstrap range ([689.10, 4101.53] and [-129.17, 2835.62]), so one sealed draw cannot separate any mechanism from luck, and agreement with the benchmark does not show that selection on observables holds",
       "class": "mechanism-interpretation",
-      "errata": [],
+      "errata": [
+        "E7"
+      ],
       "evidence": [
         "E0006",
         "E0009",
@@ -884,6 +887,14 @@
       ],
       "filed": "2026-11-03",
       "note": "Scope note, no change of content or strength: C5's confirmed strength meets confirmation.require [sealed, replicate] with the sealed run E0009 plus rep:E0006@20261103T065104Z, a same-seed re-execution of the PSID-1 development cell E0006. E0009 itself was never re-executed (no runs/E0009/replications/), so confirmed here means a sealed run plus pipeline determinism, not a reproduced sealed value. The same holds for the sealed half (E0008) of C1, C2 and C26, which rest on rep:E0001. Raised by the adversarial check of 2026-11-03."
+    },
+    "E7": {
+      "claims": [
+        "C25",
+        "C12"
+      ],
+      "filed": "2026-11-03",
+      "note": "C25 lists the pre-weighting standardized mean differences on which CPS-1 is no closer to the trainees (black larger; re74 and re75 about equal) and omits those on which it is closer (married, age, hispanic) or equal (education, nodegree), all in the same data_card.md table; it also calls re74 and re75 'about as much' where CPS-1 is slightly closer. The conclusion (overlap is one candidate, not the favoured mechanism) stands. Superseded by C28, which quotes the full covariate row. Separately, erratum E3's note quotes two percentages that are ratios of pinned counts (n_controls_sealed over n_cps1, n_support_psid over n_psid1), not pinned values; read them as arithmetic on those aliases. Strength unchanged (exploratory). Raised by the second adversarial check of 2026-11-03."
     }
   },
   "git_head": "407a9432e754423f486e3051a602720ee7d163d1",
