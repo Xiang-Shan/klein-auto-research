@@ -79,14 +79,14 @@ calls:
   model: "qwen-flash-2025-07-28"   # the dated snapshot, not the alias the provider can repoint
   budget_calls: 5000            # PER RUN: the development cell needs 2,400, the sealed cell 1,200
   budget_tokens: 6000000
-  max_workers: 6
+  max_workers: 2                # was 6; six concurrent loops hit the provider's request limit at call 613
 
 max_run_seconds: 5400
 phases:
   - id: development
     description: "one registered cell per arm on orders 8-11, three trials each, 2,000 candidate evaluations per trial (P1-P3)"
-    budget_seconds: 7200
-    max_experiments: 2
+    budget_seconds: 10800        # was 7200; see program.md 2026-11-03 (E0002 rate-limit crash)
+    max_experiments: 3           # was 2; E0002 crashed on a provider rate limit
   - id: confirmation
     description: "the sealed orders 12-13, one run per arm after its dry run (P4, P5)"
     budget_seconds: 7200

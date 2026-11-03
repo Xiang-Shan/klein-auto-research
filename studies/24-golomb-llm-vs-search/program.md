@@ -173,3 +173,20 @@ Chosen: both, in order E0001 (search) then E0002 (llm). Mirrored into playbook.m
   or a retry/backoff in search.py, plus a new experiment allowance).
 - Decision: no prediction was refuted in this phase (P1 supported; P2, P3 open after the crash), so no
   refutation Decision line is owed.
+
+- 2026-11-03 — Decision (lead, at the development boundary): E0002 (llm) crashed on an HTTP
+  429 rate limit from the provider after 613 of ~2,400 calls — the ledger's transport
+  retried three times over 14 s, too short for a per-minute limit. Framework fix: the
+  transport now backs off to a 60 s cap over 8 attempts and honours Retry-After (commit
+  "the call ledger waits out a rate limit"). Contract: `calls.max_workers` 6 -> 2, the
+  development phase's `max_experiments` 2 -> 3 and `budget_seconds` 7200 -> 10800, so the
+  pre-registered LLM cell can run once more as E0003; E0002 stays in the ledger as a crash.
+  No prediction, rule, track or cell changed; consult re-recorded with this reason.
+- Note for the referee: E0003 asks exactly the requests E0002 asked first, so its first
+  613 calls are answered from E0002's pinned shard (identical requests, genuine recorded
+  responses); `manifest.usage.calls_cached` will show it. The sampling is the provider's
+  either way; nothing about the cell changes.
+- Note for the referee: the classical search's development results (E0001: 0/12 matched,
+  best lengths 38-111 vs optima 34-72) are far from the METHOD-gate toy calibration (orders
+  5-7, 20/20, 20/20, 9/20). Both are the same algorithm at the same budget; the gap is the
+  hardness growth from order 7 to 8+, reported as such, not as a defect.
