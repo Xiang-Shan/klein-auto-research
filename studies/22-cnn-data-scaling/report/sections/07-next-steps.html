@@ -1,0 +1,30 @@
+<h2>Next steps &amp; references</h2>
+
+<h3>What to try next</h3>
+<ol>
+<li><strong>Step-extended small cells (tests C9).</strong> Re-run N=500, 1000 and 2000 with a step budget at least as large as the N=4000 cell's, 3 seeds each, same development lane. If the left end then declines and the six-cell exponent steepens, the compute-limited reading gains support; if it stays flat, the small-data-region reading does.</li>
+<li><strong>A same-partition extrapolation control (tests C11 and C16).</strong> Train at a large N on the train lane and score the development lane, so the miss splits into its law and partition parts.</li>
+<li><strong>Register a two-regime or floor law before data.</strong> Pre-register a smoothly broken power law or an <span data-math="L_{\infty} + b N^{-\beta}"></span> fit on the same six cells and hold it against a fresh sealed point between N=16000 and the full pool; never refit on E0008. Run a shuffled-label negative control in the same study.</li>
+<li><strong>Longer full-pool training (follows P7).</strong> The full-pool best checkpoint sits in the last 5 percent of its budget; measure how far the loss keeps falling with a larger budget to learn whether 0.3959 is data-limited or compute-limited.</li>
+</ol>
+
+<h3>References</h3>
+<p>All sixteen entries in the method card are verified (arXiv, Crossref or proceedings records checked on 2026-11-03); none is promoted from unverified.</p>
+<ul>
+<li>Xiao, Rasul &amp; Vollgraf 2017. Fashion-MNIST: a Novel Image Dataset for Benchmarking Machine Learning Algorithms. arXiv:1708.07747.</li>
+<li>Cortes, Jackel, Solla, Vapnik &amp; Denker 1993. Learning Curves: Asymptotic Values and Rate of Convergence. NIPS 6, pp. 327-334.</li>
+<li>Hestness et al. 2017. Deep Learning Scaling is Predictable, Empirically. arXiv:1712.00409.</li>
+<li>Rosenfeld, Rosenfeld, Belinkov &amp; Shavit 2020. A Constructive Prediction of the Generalization Error Across Scales. ICLR 2020, arXiv:1909.12673.</li>
+<li>Kaplan et al. 2020. Scaling Laws for Neural Language Models. arXiv:2001.08361.</li>
+<li>Hoffmann et al. 2022. Training Compute-Optimal Large Language Models. NeurIPS 2022, arXiv:2203.15556.</li>
+<li>Bahri, Dyer, Kaplan, Lee &amp; Sharma 2024. Explaining neural scaling laws. PNAS 121(27) e2311878121, doi:10.1073/pnas.2311878121.</li>
+<li>Viering &amp; Loog 2023. The Shape of Learning Curves: A Review. IEEE TPAMI 45(6) 7799-7819, doi:10.1109/TPAMI.2022.3220744.</li>
+<li>Alabdulmohsin, Neyshabur &amp; Zhai 2022. Revisiting Neural Scaling Laws in Language and Vision. NeurIPS 2022, arXiv:2209.06640.</li>
+<li>Caballero, Gupta, Rish &amp; Krueger 2023. Broken Neural Scaling Laws. ICLR 2023, arXiv:2210.14891.</li>
+<li>Besiroglu, Erdil, Barnett &amp; You 2024. Chinchilla Scaling: A replication attempt. arXiv:2404.10102.</li>
+<li>Hoiem, Gupta, Li &amp; Shlapentokh-Rothman 2021. Learning Curves for Analysis of Deep Networks. ICML 2021, arXiv:2010.11029.</li>
+<li>Nakkiran et al. 2020. Deep Double Descent: Where Bigger Models and More Data Hurt. ICLR 2020, arXiv:1912.02292.</li>
+<li>Clauset, Shalizi &amp; Newman 2009. Power-law distributions in empirical data. SIAM Review 51(4) 661-703, doi:10.1137/070710111.</li>
+<li>Loshchilov &amp; Hutter 2019. Decoupled Weight Decay Regularization. ICLR 2019, arXiv:1711.05101.</li>
+<li>Efron &amp; Tibshirani 1993. An Introduction to the Bootstrap. Chapman &amp; Hall, doi:10.1007/978-1-4899-4541-9.</li>
+</ul>

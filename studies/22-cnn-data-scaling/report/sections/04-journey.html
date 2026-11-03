@@ -1,0 +1,53 @@
+<h2>The experiment journey</h2>
+
+<p>Two registered tracks, no frontier and no keeps. A registered track <em>measures</em>: every
+run is a pre-registered cell, recorded as <code>measured</code> or <code>crash</code>. There were no
+crashes, no discards and no sweeps. The ledger below is generated from the run manifests; the figures
+are drawn from the committed per-seed tables and manifests.</p>
+
+<!--LEDGER-->
+
+<h3>How the runs were executed, and what that does to the evidence</h3>
+<p>E0001 to E0006 (the six development cells) ran as <strong>detached jobs</strong>: the notary committed
+the candidate, a host executed it, and the receipt was collected and judged locally. Each manifest says
+<code>mode: detached</code> and <code>observed_by_notary: false</code>, so these are <em>attested, not observed</em>.
+Of the claims' evidence, only E0005 was re-executed under observation (<code>rep:E0005@20261103T084144Z</code>,
+difference 0). E0007 (the fit) and E0008 (the sealed cell) ran in the foreground under the notary, and the fit's
+replication <code>rep:E0007@20261103T084735Z</code> re-ran its arithmetic on the pinned cells, not the cells themselves.
+Further replication records for E0001 to E0004 and E0006 sit in the run directories, all with difference 0; they were
+filed after the claims were locked and no claim cites them.</p>
+
+<h3>Phase 1: the six development cells (primary track)</h3>
+<img data-fig="figures/decision_trajectory__primary.png" alt="Dot plot of the seven primary-track runs in order: six development cells falling from about 0.83 at N=500 through a bump at N=1000 to about 0.56 at N=16000, and the sealed cell at about 0.40 in a separate confirmation band."
+ data-caption="Primary track, run by run: seed mean and seed min-to-max of val_mlogloss for the six development cells (E0001 to E0006, scored on the development lane) and, in the separate confirmation band, the sealed full-pool cell E0008 (scored on the official test set). There is no frontier to climb on a registered track; the takeaway is the non-monotone start, N=1000 above N=500.">
+
+<p>Ascending N was chosen for cheapness and to fail fast on the detached path. The first two cells already
+broke the script of a power law: N=1000 (E0002) came out <em>worse</em> than N=500 (E0001). The journal
+recorded it as measured and did not retry. The next section on findings shows that the inversion is present in all
+three paired seeds.</p>
+
+<img data-fig="figures/per_seed_curves.png" alt="Three lines, one per seed, each rising from N=500 to N=1000 and then falling steadily to N=16000."
+ data-caption="Each seed's own loss curve across the six development cells (development lane). Subsamples are nested within a seed, so the three curves are paired. All three rise from N=500 to N=1000, then decline together; the curves converge as N grows.">
+
+<h3>Phase 2: the fit (exponent track)</h3>
+<p>E0007 fits the pure law over the six pinned cells, and adjudicated P1, P2 and P5 by the notary's
+arithmetic, not by prose. The fitted exponent is inside the wide P1 range and below the sharper P5 range.</p>
+
+<img data-fig="figures/decision_trajectory__exponent.png" alt="One point for the fitted exponent with a short bootstrap bar, inside the wide shaded P1 range but below the hatched P5 range."
+ data-caption="Exponent track, one registered cell (E0007, development cells): the fitted alpha with its printed bootstrap spread against the two registered ranges. It sits inside P1 (supported) and below P5 (refuted); the spread is descriptive, not a calibrated interval.">
+
+<h3>The scaling picture: six cells, one law, one sealed point</h3>
+<img data-fig="figures/scaling_loglog.png" alt="Log-log plot of cross-entropy against training-set size. Six development points trace a bumpy line; the fitted power law is a straight line extended as a dashed segment past N=16000 to a prediction marker well above the sealed measured star."
+ data-caption="Log-log scaling plot: six development cells (grey seeds, black seed means, E0001 to E0006, development lane), the pinned power law from E0007 (solid in range, dashed extrapolated), and at N=59,992 the sealed cell E0008 (test set) against the law's prediction. The sealed measurement falls below the prediction, and the sealed cell sits on a different partition from the fit cells (C16).">
+
+<h3>Phase 3: the sealed extrapolation (confirmation evidence, labelled separately)</h3>
+<p>The sealed cell E0008 is <strong>confirmation evidence</strong>, not part of the development series. Its dry run
+trained only 60 steps on development data and spent nothing; the real run trained the full 8437-step budget
+for three seeds, in the foreground, and read the test set once. The prediction came from the fit frozen at
+E0007, and the fit table was hash-checked before training began. Section 5 gives the verdicts.</p>
+
+<h3>The lab notebook, with one correction to the reader's trust</h3>
+<p>The cell journal in <code>program.md</code> contains three contemporaneous entries that state the
+compute-limited mechanism as fact. The referee required that they not be taken that way: they are readings,
+superseded by claim C9's status, <strong>hypothesis, untested</strong>. This page uses C9's status and not the
+notebook's phrasing.</p>

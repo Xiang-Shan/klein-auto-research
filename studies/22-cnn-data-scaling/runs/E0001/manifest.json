@@ -1,0 +1,192 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 764,
+      "committed": true,
+      "sha256": "68796d8db5902675cf8fba9bac75735a57737a4b63a3747e7bcef2fd401d05e9"
+    },
+    "runs/E0001/job.json": {
+      "availability": "recorded",
+      "bytes": 1112,
+      "committed": true,
+      "role": "job",
+      "sha256": "15bb3e1f88285d148226eabd80d6524119768daae03aec1c4e040032d991883b"
+    },
+    "runs/E0001/job_receipt.json": {
+      "availability": "recorded",
+      "bytes": 1644,
+      "committed": true,
+      "role": "receipt",
+      "sha256": "a5defb523bb7c765374f6bb95a90aabc6aa85598a756f155df08ac13b21e1f9e"
+    },
+    "runs/E0001/run.log": {
+      "availability": "recorded",
+      "bytes": 4670,
+      "committed": true,
+      "sha256": "fd030ed035ceb0f443fa5473962cfa18f9433b22508f64ef99f79977f2fb9db0"
+    },
+    "runs/E0001/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 650,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "f0dd9d4f2b59a74653ef7a256d56b434d26d2ac553e847be1b928d63512ffba8"
+    },
+    "runs/E0001/usage.json": {
+      "availability": "recorded",
+      "bytes": 250,
+      "committed": true,
+      "role": "usage",
+      "sha256": "0b5683c0c8c51212be95d09faa7bec806b6d223b90194d917e28273f235f9813"
+    },
+    "tables/cell_E0001_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 65,
+      "committed": true,
+      "role": "declared",
+      "sha256": "9d81c7161e2920f1eb59567998223cb127658ce5f349e7d81f14c80e33da7164"
+    },
+    "tables/cell_E0001_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 65,
+      "committed": true,
+      "role": "declared",
+      "sha256": "6f9e20d1f0edef98568915047ec4b9bcab5d38f8ee26f3e727a0c3ce34f87af8"
+    },
+    "tables/cell_E0001_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 65,
+      "committed": true,
+      "role": "declared",
+      "sha256": "885ea129ebbebf0fd755770199522fa0e85a6b62ddf69af6087348ac9f5b3040"
+    },
+    "tables/confusion_E0001_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 321,
+      "committed": true,
+      "role": "declared",
+      "sha256": "47031e58d8082feb69e25f335bf7583a0fce85debee326ec1c512e744aa6f54c"
+    },
+    "tables/confusion_E0001_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 314,
+      "committed": true,
+      "role": "declared",
+      "sha256": "83f4ad09f516723c1a6f05aa8eba83533e8d6cebd1d893aae7bb10b94777b90f"
+    },
+    "tables/confusion_E0001_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 317,
+      "committed": true,
+      "role": "declared",
+      "sha256": "03b611f41cd3514265b9debb7b8bf8a68746b5d0a5c1932918428e9bff135728"
+    }
+  },
+  "base_commit": "61524cc1777f18d937f88959323ab0d943d9c74a",
+  "candidate_commit": "96bffa0294a74340a83b432a51c4f8d155060642",
+  "code_patch_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "cell N=500; registered cell measured",
+  "disposition": "measured",
+  "empty_candidate_diff": true,
+  "ended_at": "2026-11-03T07:44:41.571080Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "execution": {
+    "executor": "local",
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "host": "vm",
+    "mode": "detached",
+    "observed_by_notary": false,
+    "receipt_sha256": "a5defb523bb7c765374f6bb95a90aabc6aa85598a756f155df08ac13b21e1f9e"
+  },
+  "exit_code": 0,
+  "experiment": "E0001",
+  "fingerprints": {
+    "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric_goal": "lower",
+  "metric_name": "val_mlogloss",
+  "metrics": {
+    "best_inner_loss": 0.6775173333333333,
+    "best_step": 383.3333333333333,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 450.0,
+    "n_inner": 50.0,
+    "n_train": 500.0,
+    "primary_metric": 0.8296473333333333,
+    "primary_metric_max": 0.853675,
+    "primary_metric_min": 0.789615,
+    "primary_metric_std": 0.034900328312686885,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 400.0,
+    "total_seconds": 30.2,
+    "train_rows": 450.0,
+    "training_seconds": 23.366666666666664,
+    "val_accuracy": 0.6953896666666667,
+    "val_balanced_accuracy": 0.6976926666666667,
+    "val_ece": 0.05162933333333333,
+    "val_macro_f1": 0.6985096666666667,
+    "val_mlogloss": 0.8296473333333333,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9891580000000001,
+    "wall_seconds": 30.233914666666664
+  },
+  "phase": "cells",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 6,
+  "predictions_requested": [],
+  "primary_metric": 0.8296473333333333,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T07:42:50.605658Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-11-03T07:44:47.411000Z",
+    "evidence_commit": "4d92eedd6728cd560ecf64fa84d6dd6782865be7",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "steps": 1200.0
+  },
+  "wall_seconds": 110.965
+}

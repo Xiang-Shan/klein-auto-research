@@ -1,0 +1,191 @@
+{
+  "artifacts": {
+    "aux_metrics.tsv": {
+      "availability": "recorded",
+      "bytes": 4385,
+      "committed": true,
+      "sha256": "ccd9d913384aacc0963599ce177fcef2e1ce45c8963dd7276d0c0302544fe3c0"
+    },
+    "runs/E0006/job.json": {
+      "availability": "recorded",
+      "bytes": 1112,
+      "committed": true,
+      "role": "job",
+      "sha256": "957eab23fbad0741cdca82406dee14e49915e22ec017014867b07d8c11bc8005"
+    },
+    "runs/E0006/job_receipt.json": {
+      "availability": "recorded",
+      "bytes": 1644,
+      "committed": true,
+      "role": "receipt",
+      "sha256": "aa8aded322f7d9a3e66f42c691c4454134433017193e9d5cad2f8bae97883777"
+    },
+    "runs/E0006/run.log": {
+      "availability": "recorded",
+      "bytes": 4711,
+      "committed": true,
+      "sha256": "d2956e0d9f6c5229469da3bf616ebe92a53da6a4a9bf1f8b96868c9e94f3b440"
+    },
+    "runs/E0006/seeds.tsv": {
+      "availability": "recorded",
+      "bytes": 686,
+      "committed": true,
+      "role": "seeds",
+      "sha256": "f1cf4d20ac0b75d47ec029de3e4d42494405ff4b490172a4db7534efa5362329"
+    },
+    "runs/E0006/usage.json": {
+      "availability": "recorded",
+      "bytes": 250,
+      "committed": true,
+      "role": "usage",
+      "sha256": "11632b02849535d91745395ecfb09b1b3630bf44a60bebea8cde465eb319bb62"
+    },
+    "tables/cell_E0006_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 68,
+      "committed": true,
+      "role": "declared",
+      "sha256": "85629ee351a7b5b79f8738f3054e8f7a745f9bb34d0e640adac755959a49dbaf"
+    },
+    "tables/cell_E0006_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 68,
+      "committed": true,
+      "role": "declared",
+      "sha256": "251e126d9295733596c77f9eeee3d5dd2bf6af867d21b538480942ff5726cd0a"
+    },
+    "tables/cell_E0006_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 68,
+      "committed": true,
+      "role": "declared",
+      "sha256": "21b4e914194ca08d2cd23665cdba60de2dfa4b2d6e3a642d560537960d0eaaa4"
+    },
+    "tables/confusion_E0006_s0.tsv": {
+      "availability": "recorded",
+      "bytes": 304,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1ad47f769665611d458f6769a7352a02fa7a73438bd35e133ecb21178c350aab"
+    },
+    "tables/confusion_E0006_s1.tsv": {
+      "availability": "recorded",
+      "bytes": 305,
+      "committed": true,
+      "role": "declared",
+      "sha256": "17fbb59b948ee6cb870064c6e75329da72f7fff61dad166502ac015b1a939eb8"
+    },
+    "tables/confusion_E0006_s2.tsv": {
+      "availability": "recorded",
+      "bytes": 306,
+      "committed": true,
+      "role": "declared",
+      "sha256": "1166face863612c0314494fa1abd4d7988a09995e91abef68261a9f6cd629fb0"
+    }
+  },
+  "base_commit": "2a0dc1f56a295caba9ae5faf22b2df34f8a53aaa",
+  "candidate_commit": "c4b9823e37842b2bb6a7d9da11c2bc5d5319166c",
+  "code_patch_hash": "938f8903b58a542c10df6d3d952b44835bdaacfd2322daf18668609b40fc9d3c",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "decision_reason": "registered cell measured",
+  "description": "cell N=16000; registered cell measured",
+  "disposition": "measured",
+  "ended_at": "2026-11-03T08:07:18.149055Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "evaluation_kind": "development",
+  "execution": {
+    "executor": "local",
+    "hardware": {
+      "cpu_count": 4,
+      "cuda_available": false,
+      "device_override": null,
+      "machine": "x86_64",
+      "mps_available": false,
+      "python": "3.13.18",
+      "system": "Linux",
+      "torch": "2.13.0+cu130"
+    },
+    "host": "vm",
+    "mode": "detached",
+    "observed_by_notary": false,
+    "receipt_sha256": "aa8aded322f7d9a3e66f42c691c4454134433017193e9d5cad2f8bae97883777"
+  },
+  "exit_code": 0,
+  "experiment": "E0006",
+  "fingerprints": {
+    "data": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+    "environment": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+    "split": "4d9f51b5d512ea8c6d95878696dd4a28aaa919b4f3f897cbf4dd106aae2502d4",
+    "split_partition": "90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05"
+  },
+  "guardrails_ok": true,
+  "incumbent": null,
+  "max_run_seconds": 5400.0,
+  "metric_goal": "lower",
+  "metric_name": "val_mlogloss",
+  "metrics": {
+    "best_inner_loss": 0.5547783333333333,
+    "best_step": 2202.6666666666665,
+    "eval_every": 56.0,
+    "n_classes": 10.0,
+    "n_fit": 14400.0,
+    "n_inner": 1600.0,
+    "n_train": 16000.0,
+    "primary_metric": 0.563684,
+    "primary_metric_max": 0.572035,
+    "primary_metric_min": 0.556876,
+    "primary_metric_std": 0.007696392466604039,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 2250.0,
+    "total_seconds": 181.13333333333333,
+    "train_rows": 14400.0,
+    "training_seconds": 173.5666666666667,
+    "val_accuracy": 0.7910663333333333,
+    "val_balanced_accuracy": 0.7918663333333332,
+    "val_ece": 0.026092333333333332,
+    "val_macro_f1": 0.788814,
+    "val_mlogloss": 0.563684,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9958966666666668,
+    "wall_seconds": 181.14098533333333
+  },
+  "phase": "cells",
+  "phase_budget_seconds": 7200.0,
+  "phase_experiment_limit": 6,
+  "predictions_requested": [],
+  "primary_metric": 0.563684,
+  "printed_scope": "block",
+  "schema_version": 3,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "started_at": "2026-11-03T07:57:51.745354Z",
+  "timed_out": false,
+  "track": "primary",
+  "transaction": {
+    "committed_at": "2026-11-03T08:07:25.144140Z",
+    "evidence_commit": "5ca03a24072270c970e99b01d9443c82e6367cd3",
+    "recovered": false,
+    "status": "complete"
+  },
+  "usage": {
+    "steps": 6750.0
+  },
+  "wall_seconds": 566.404
+}

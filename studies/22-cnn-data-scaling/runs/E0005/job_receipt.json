@@ -1,0 +1,38 @@
+{
+  "candidate_commit": "77446a4e3466afa9d4b898a41b9b2748a0d41bb5",
+  "ended_at": "2026-11-03T07:57:34.149170Z",
+  "executed_commit": "2463729cff0cf3b123fd54566e8fe8bd4d6dff3a",
+  "executor": "local",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "files": {
+    "aux_metrics.tsv": "38cb4db513dd5861e27ea6db69a08206255eed5d9e47d4a2294c7a2eff22669b",
+    "tables/cell_E0005_s0.tsv": "d262937b2028d4962233c39690a91f41d43fed85e9435c49ca4576725c826e8e",
+    "tables/cell_E0005_s1.tsv": "afe97979353d7ef38b091a38de6fc4b1c0b5295309848b1a439d951cdab4e9d6",
+    "tables/cell_E0005_s2.tsv": "8f372271910504c0120748f4e75976d1616754efcc5c25f4679eef9f2cd733cc",
+    "tables/confusion_E0005_s0.tsv": "8a9f04fe5d7e0908fb5f8a9b5f014153b55a3b132878f7f3d9f233acb2c602fe",
+    "tables/confusion_E0005_s1.tsv": "d4a15e125ada33fa05c636a7cdd0134df708aa1e1286771d5a852d850f5b4c65",
+    "tables/confusion_E0005_s2.tsv": "111c68f1fc9a6fe9ffc54349a0d10a66f8c82d6ca5dbe54a184109d1db5038a3"
+  },
+  "hardware": {
+    "cpu_count": 4,
+    "cuda_available": false,
+    "device_override": null,
+    "machine": "x86_64",
+    "mps_available": false,
+    "python": "3.13.18",
+    "system": "Linux",
+    "torch": "2.13.0+cu130"
+  },
+  "host": "vm",
+  "job_sha256": "d7c47576a112ea2941f6ff9d1381609311e9bfedd5ffce287567250ca0700af2",
+  "log_sha256": "c6997e365baf06345e1870534b653dd948ca8bb14ce2919f67ce7a0e1dc5c21f",
+  "receipt_schema": 1,
+  "started_at": "2026-11-03T07:52:46.083286Z",
+  "surface": {
+    "analyze.py": "c1f38f6936275e59bc2dc5e83baf3369c31a445c87f7a1a0bf0320950178de16"
+  },
+  "timed_out": false,
+  "wall_seconds": 288.066,
+  "written_at": "2026-11-03T07:57:34Z"
+}

@@ -1,0 +1,244 @@
+{
+  "baseline": 0.6523396666666667,
+  "block_differences": {
+    "best_inner_loss": {
+      "difference": 0.0,
+      "original": 0.64221,
+      "replicate": 0.64221
+    },
+    "best_step": {
+      "difference": 0.0,
+      "original": 1100.0,
+      "replicate": 1100.0
+    },
+    "eval_every": {
+      "difference": 0.0,
+      "original": 50.0,
+      "replicate": 50.0
+    },
+    "n_classes": {
+      "difference": 0.0,
+      "original": 10.0,
+      "replicate": 10.0
+    },
+    "n_fit": {
+      "difference": 0.0,
+      "original": 7200.0,
+      "replicate": 7200.0
+    },
+    "n_inner": {
+      "difference": 0.0,
+      "original": 800.0,
+      "replicate": 800.0
+    },
+    "n_train": {
+      "difference": 0.0,
+      "original": 8000.0,
+      "replicate": 8000.0
+    },
+    "primary_metric": {
+      "difference": 0.0,
+      "original": 0.6523396666666667,
+      "replicate": 0.6523396666666667
+    },
+    "primary_metric_max": {
+      "difference": 0.0,
+      "original": 0.660363,
+      "replicate": 0.660363
+    },
+    "primary_metric_min": {
+      "difference": 0.0,
+      "original": 0.646519,
+      "replicate": 0.646519
+    },
+    "primary_metric_std": {
+      "difference": 0.0,
+      "original": 0.0071800340760565995,
+      "replicate": 0.0071800340760565995
+    },
+    "runner_exit_code": {
+      "difference": 0.0,
+      "original": 0.0,
+      "replicate": 0.0
+    },
+    "seeds_n": {
+      "difference": 0.0,
+      "original": 3.0,
+      "replicate": 3.0
+    },
+    "steps": {
+      "difference": 0.0,
+      "original": 1125.0,
+      "replicate": 1125.0
+    },
+    "total_seconds": {
+      "difference": 8.766666666666666,
+      "original": 88.2,
+      "replicate": 79.43333333333334
+    },
+    "train_rows": {
+      "difference": 0.0,
+      "original": 7200.0,
+      "replicate": 7200.0
+    },
+    "training_seconds": {
+      "difference": 8.033333333333346,
+      "original": 80.60000000000001,
+      "replicate": 72.56666666666666
+    },
+    "val_accuracy": {
+      "difference": 0.0,
+      "original": 0.759741,
+      "replicate": 0.759741
+    },
+    "val_balanced_accuracy": {
+      "difference": 0.0,
+      "original": 0.7599006666666667,
+      "replicate": 0.7599006666666667
+    },
+    "val_ece": {
+      "difference": 0.0,
+      "original": 0.031656,
+      "replicate": 0.031656
+    },
+    "val_macro_f1": {
+      "difference": 0.0,
+      "original": 0.7535493333333333,
+      "replicate": 0.7535493333333333
+    },
+    "val_mlogloss": {
+      "difference": 0.0,
+      "original": 0.6523396666666667,
+      "replicate": 0.6523396666666667
+    },
+    "val_rows": {
+      "difference": 0.0,
+      "original": 9992.0,
+      "replicate": 9992.0
+    },
+    "val_top5_accuracy": {
+      "difference": 0.0,
+      "original": 0.9945286666666666,
+      "replicate": 0.9945286666666666
+    },
+    "wall_seconds": {
+      "difference": 8.751897999999997,
+      "original": 88.18905666666667,
+      "replicate": 79.43715866666668
+    }
+  },
+  "candidate_commit": "77446a4e3466afa9d4b898a41b9b2748a0d41bb5",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "copied_root": "data/prepared",
+  "data_fingerprint": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+  "difference": 0.0,
+  "ended_at": "2026-11-03T08:46:04.138082Z",
+  "environment": {
+    "implementation": "CPython",
+    "machine": "x86_64",
+    "platform": "Linux-6.18.44-fc-v230-x86_64-with-glibc2.39",
+    "python": "3.13.18",
+    "uv_lock_sha256": "d52abcbd815ec5892652aaaf00157d885d2f393ab41309681446abcb4070b7f9"
+  },
+  "environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "environment_match": true,
+  "evidence_id": "rep:E0005@20261103T084144Z",
+  "exit_code": 0,
+  "experiment": "E0005",
+  "log": "runs/E0005/replications/20261103T084144Z.log",
+  "max_run_seconds": 5400.0,
+  "metric_name": "val_mlogloss",
+  "mismatched_keys": [],
+  "mode": "replicate",
+  "original_block": {
+    "best_inner_loss": 0.64221,
+    "best_step": 1100.0,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 7200.0,
+    "n_inner": 800.0,
+    "n_train": 8000.0,
+    "primary_metric": 0.6523396666666667,
+    "primary_metric_max": 0.660363,
+    "primary_metric_min": 0.646519,
+    "primary_metric_std": 0.0071800340760565995,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 1125.0,
+    "total_seconds": 88.2,
+    "train_rows": 7200.0,
+    "training_seconds": 80.60000000000001,
+    "val_accuracy": 0.759741,
+    "val_balanced_accuracy": 0.7599006666666667,
+    "val_ece": 0.031656,
+    "val_macro_f1": 0.7535493333333333,
+    "val_mlogloss": 0.6523396666666667,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9945286666666666,
+    "wall_seconds": 88.18905666666667
+  },
+  "original_environment_fingerprint": "a54beac4f94771ddbe15281e9fe0f492702e9c74f2a770365535d35dba9ff860",
+  "original_primary_metric": 0.6523396666666667,
+  "record": "runs/E0005/replications/20261103T084144Z.json",
+  "replicate_block": {
+    "best_inner_loss": 0.64221,
+    "best_step": 1100.0,
+    "eval_every": 50.0,
+    "n_classes": 10.0,
+    "n_fit": 7200.0,
+    "n_inner": 800.0,
+    "n_train": 8000.0,
+    "primary_metric": 0.6523396666666667,
+    "primary_metric_max": 0.660363,
+    "primary_metric_min": 0.646519,
+    "primary_metric_std": 0.0071800340760565995,
+    "runner_exit_code": 0.0,
+    "seeds_n": 3.0,
+    "steps": 1125.0,
+    "total_seconds": 79.43333333333334,
+    "train_rows": 7200.0,
+    "training_seconds": 72.56666666666666,
+    "val_accuracy": 0.759741,
+    "val_balanced_accuracy": 0.7599006666666667,
+    "val_ece": 0.031656,
+    "val_macro_f1": 0.7535493333333333,
+    "val_mlogloss": 0.6523396666666667,
+    "val_rows": 9992.0,
+    "val_top5_accuracy": 0.9945286666666666,
+    "wall_seconds": 79.43715866666668
+  },
+  "replicate_primary_metric": 0.6523396666666667,
+  "reproduced": true,
+  "schema_version": 1,
+  "setup_command": [
+    "uv",
+    "sync",
+    "--locked",
+    "--extra",
+    "encoders",
+    "--extra",
+    "deep"
+  ],
+  "setup_exit_code": 0,
+  "setup_extras": [
+    "encoders",
+    "deep"
+  ],
+  "setup_seconds": 1.188771473000088,
+  "stamp": "20261103T084144Z",
+  "started_at": "2026-11-03T08:41:46.368070Z",
+  "timed_out": false,
+  "timestamp": "2026-11-03T08:41:44.406610Z",
+  "tolerance": 0.001,
+  "tolerance_source": "minimum_delta",
+  "track": "primary",
+  "wall_seconds": 257.7699482120006,
+  "worktree_prepared": true
+}

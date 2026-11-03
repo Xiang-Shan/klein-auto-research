@@ -1,0 +1,2 @@
+run	seed	n_train	val_mlogloss	best_step	fit_a	fit_alpha	predicted_loss	extrapolation_rel_error
+E0008	0	59992	0.395192	8400	2.125837465	0.1303601958	0.5065903039	-0.2818848414

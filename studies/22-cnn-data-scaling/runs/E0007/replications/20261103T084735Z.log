@@ -1,0 +1,147 @@
+replicate_setup: uv sync --locked --extra encoders --extra deep
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+Using CPython 3.13.18 interpreter at: /usr/local/bin/python3.13
+Creating virtual environment at: .venv
+Resolved 95 packages in 3ms
+   Building klein-auto-research @ file:///tmp/klein-replicate-mhfrhko1/worktree
+      Built klein-auto-research @ file:///tmp/klein-replicate-mhfrhko1/worktree
+Prepared 1 package in 486ms
+Installed 61 packages in 284ms
+ + category-encoders==2.9.0
+ + contourpy==1.3.3
+ + coverage==7.15.0
+ + cuda-bindings==13.3.1
+ + cuda-pathfinder==1.5.6
+ + cuda-toolkit==13.0.3.0
+ + cycler==0.12.1
+ + filelock==3.29.7
+ + fonttools==4.63.0
+ + fsspec==2026.6.0
+ + iniconfig==2.3.0
+ + jinja2==3.1.6
+ + joblib==1.5.3
+ + kiwisolver==1.5.0
+ + klein-auto-research==2.2.0 (from file:///tmp/klein-replicate-mhfrhko1/worktree)
+ + latex2mathml==3.81.0
+ + markupsafe==3.0.3
+ + matplotlib==3.11.0
+ + mpmath==1.3.0
+ + narwhals==2.23.0
+ + networkx==3.6.1
+ + numpy==2.5.1
+ + nvidia-cublas==13.1.1.3
+ + nvidia-cuda-cupti==13.0.85
+ + nvidia-cuda-nvrtc==13.0.88
+ + nvidia-cuda-runtime==13.0.96
+ + nvidia-cudnn-cu13==9.20.0.48
+ + nvidia-cufft==12.0.0.61
+ + nvidia-cufile==1.15.1.6
+ + nvidia-curand==10.4.0.35
+ + nvidia-cusolver==12.0.4.66
+ + nvidia-cusparse==12.6.3.3
+ + nvidia-cusparselt-cu13==0.8.1
+ + nvidia-nccl-cu13==2.29.7
+ + nvidia-nvjitlink==13.3.33
+ + nvidia-nvshmem-cu13==3.4.5
+ + nvidia-nvtx==13.0.85
+ + packaging==26.2
+ + pandas==3.0.3
+ + patsy==1.0.2
+ + pillow==12.3.0
+ + pluggy==1.6.0
+ + pygments==2.20.0
+ + pyparsing==3.3.2
+ + pytest==9.1.1
+ + pytest-cov==7.1.0
+ + python-dateutil==2.9.0.post0
+ + pyyaml==6.0.3
+ + ruff==0.15.21
+ + scikit-learn==1.9.0
+ + scipy==1.18.0
+ + setuptools==83.0.0
+ + six==1.17.0
+ + statsmodels==0.14.6
+ + sympy==1.14.0
+ + threadpoolctl==3.6.0
+ + torch==2.13.0
+ + triton==3.7.1
+ + typing-extensions==4.16.0
+ + ziafont==0.11
+ + ziamath==0.13
+runner_status: ok
+runner_exit_code: 0
+[KLEIN] seed 1/3 (KLEIN_SEED=0)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: tables/scaling_fit.tsv
+---
+primary_metric:    0.130360
+metric_name:       scaling_exponent
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.7
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            0.118123
+ci_high:           0.141115
+n:                 18
+wall_seconds:      0.666177
+split_fingerprint: 90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05
+fit_r2: 0.7955326389533555
+a: 2.1258374645167906
+n_sizes: 6
+predicted_loss_at_full: 0.506590303869533
+ci_clamped: 0
+runner_status: ok
+runner_exit_code: 0
+[KLEIN] seed 2/3 (KLEIN_SEED=1)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: tables/scaling_fit.tsv
+---
+primary_metric:    0.130360
+metric_name:       scaling_exponent
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.7
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            0.118123
+ci_high:           0.141115
+n:                 18
+wall_seconds:      0.722214
+split_fingerprint: 90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05
+fit_r2: 0.7955326389533555
+a: 2.1258374645167906
+n_sizes: 6
+predicted_loss_at_full: 0.506590303869533
+ci_clamped: 0
+runner_status: ok
+runner_exit_code: 0
+[KLEIN] seed 3/3 (KLEIN_SEED=2)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: tables/scaling_fit.tsv
+---
+primary_metric:    0.130360
+metric_name:       scaling_exponent
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.6
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            0.118123
+ci_high:           0.141115
+n:                 18
+wall_seconds:      0.582218
+split_fingerprint: 90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05
+fit_r2: 0.7955326389533555
+a: 2.1258374645167906
+n_sizes: 6
+predicted_loss_at_full: 0.506590303869533
+ci_clamped: 0
+runner_status: ok
+runner_exit_code: 0

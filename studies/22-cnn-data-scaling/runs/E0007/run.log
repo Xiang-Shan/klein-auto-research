@@ -1,0 +1,75 @@
+[KLEIN] seed 1/3 (KLEIN_SEED=0)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: tables/scaling_fit.tsv
+---
+primary_metric:    0.130360
+metric_name:       scaling_exponent
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.7
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            0.118123
+ci_high:           0.141115
+n:                 18
+wall_seconds:      0.737413
+split_fingerprint: 90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05
+fit_r2: 0.7955326389533555
+a: 2.1258374645167906
+n_sizes: 6
+predicted_loss_at_full: 0.506590303869533
+ci_clamped: 0
+runner_status: ok
+runner_exit_code: 0
+[KLEIN] seed 2/3 (KLEIN_SEED=1)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: tables/scaling_fit.tsv
+---
+primary_metric:    0.130360
+metric_name:       scaling_exponent
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.7
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            0.118123
+ci_high:           0.141115
+n:                 18
+wall_seconds:      0.689527
+split_fingerprint: 90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05
+fit_r2: 0.7955326389533555
+a: 2.1258374645167906
+n_sizes: 6
+predicted_loss_at_full: 0.506590303869533
+ci_clamped: 0
+runner_status: ok
+runner_exit_code: 0
+[KLEIN] seed 3/3 (KLEIN_SEED=2)
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: tables/scaling_fit.tsv
+---
+primary_metric:    0.130360
+metric_name:       scaling_exponent
+metric_goal:       higher
+training_seconds:  NA
+total_seconds:     0.8
+train_rows:        NA
+val_rows:          NA
+status:            ok
+--- aux_metrics ---
+ci_low:            0.118123
+ci_high:           0.141115
+n:                 18
+wall_seconds:      0.803490
+split_fingerprint: 90454938183548920258b7b4f9fe26d397d06c4257f377e7bfa49efa3514af05
+fit_r2: 0.7955326389533555
+a: 2.1258374645167906
+n_sizes: 6
+predicted_loss_at_full: 0.506590303869533
+ci_clamped: 0
+runner_status: ok
+runner_exit_code: 0

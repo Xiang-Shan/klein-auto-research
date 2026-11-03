@@ -1,0 +1,39 @@
+{
+  "artifacts_before": {
+    "aux_metrics.tsv": "68796d8db5902675cf8fba9bac75735a57737a4b63a3747e7bcef2fd401d05e9",
+    "figures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "models/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "base_commit": "56680b8d2f32fe62dbaff7a6ce3144656294e383",
+  "candidate_commit": "f4507418ccd38cf79e97112d8a0cf59bda758006",
+  "command": [
+    "uv",
+    "run",
+    "--locked",
+    "python",
+    "-u",
+    "analyze.py"
+  ],
+  "data_fingerprint": "bb0613f31916c5bf83dd3c641bb092eb59313d1872ef9811cf69115cae7c52f9",
+  "env": {
+    "KLEIN_EVALUATION_KIND": "development",
+    "KLEIN_EXPERIMENT_ID": "E0002",
+    "KLEIN_SMOKE": "",
+    "KLEIN_TRACK": "primary"
+  },
+  "experiment": "E0002",
+  "job_schema": 1,
+  "prepared_path": "data/prepared",
+  "printed_scope": "block",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "study": "studies/22-cnn-data-scaling",
+  "surface": {
+    "analyze.py": "861544cd81662339cbebe888f4234b080663e31c60c169a2a72352fd3089f82d"
+  },
+  "timeout_seconds": 5400.0,
+  "watched_dirs": []
+}

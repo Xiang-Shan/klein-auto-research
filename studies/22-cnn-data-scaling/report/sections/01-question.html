@@ -1,0 +1,43 @@
+<h2>The question</h2>
+
+<p>You have fitted a data-scaling exponent on small training sets. The decision is
+whether to <em>quote it</em>: how much is an exponent measured over 1.5 decades of
+training-set size worth for predicting the loss one more step out? This study makes
+that concrete on Fashion-MNIST with one fixed small CNN (23,946 parameters). It fits
+<span data-math="L(N) = a\,N^{-\alpha}"></span> to the held-out cross-entropy at six
+training-set sizes, <span data-math="N = 500, 1000, 2000, 4000, 8000, 16000"></span>,
+freezes the law, and then trains once on the full fit pool of 59,992 images and
+scores the official test set once. The sealed point is the only thing in the study
+that the law could not see.</p>
+
+<h3>The four research questions</h3>
+<ul>
+<li><strong>RQ1.</strong> What is the exponent <span data-math="\alpha"></span> over N = 500 to 16,000? The registered prior was 0.1 to 0.6.</li>
+<li><strong>RQ2.</strong> Is a pure power law, with no irreducible term, adequate over that range? The registered bar was a log-log R&sup2; of at least 0.98.</li>
+<li><strong>RQ3.</strong> Does the law predict the full-pool loss within 20 percent?</li>
+<li><strong>RQ4.</strong> If it misses, is the measured loss <em>above</em> the law (a saturating curve makes a pure law optimistic)?</li>
+</ul>
+
+<p>The study is typed <code>estimate</code> &middot; <code>image</code> &middot;
+<code>ml-research</code>, with two registered tracks and no keeps: <code>primary</code>
+measures one cell per training-set size, and <code>exponent</code> holds the one fit.
+Seven predictions (P1 to P7) were registered with arithmetic rules before the
+evidence they judge.</p>
+
+<h3>Takeaways</h3>
+<ol>
+<li><strong>The exponent is shallow and the pure law is a poor description.</strong> The fit gives
+<span data-math="\alpha = 0.1304"></span> with log-log <span data-math="R^2 = 0.7955"></span>, far under
+the registered 0.98 (claims C1, C2). The three smallest cells are flat where a power law needs a decline.</li>
+<li><strong>The sealed extrapolation missed, in the opposite direction to the registered bet.</strong>
+The law predicted 0.5066 nats at the full pool; the sealed cell measured 0.3959, a signed relative error of
+&minus;0.2802. The law was pessimistic, not optimistic (C3, C4).</li>
+<li><strong>The mechanism is not established.</strong> One reading, that the smallest cells are compute-limited at a shared
+400-step budget, is recorded as a hypothesis, untested (C9). No cell was run to test it.</li>
+</ol>
+
+<p>Two things to hold while reading. The six fit cells are scored on the
+<em>development lane</em> (official train rows 50,000 to 59,999) while the sealed cell is scored on the
+official t10k <em>test set</em>, so the extrapolation error cannot be split exactly between the law and the
+partition (C16). And the evidence block in section 5 gives the claim totals and the referee's verdict
+exactly as the records hold them.</p>

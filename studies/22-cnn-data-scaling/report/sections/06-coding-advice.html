@@ -1,0 +1,55 @@
+<h2>Training-recipe advice</h2>
+
+<p>This section walks the code that produced the evidence. The surface a candidate may change is one file,
+<code>analyze.py</code>, and one line of it: <code>CELL["n_train"]</code>. The training protocol
+(<code>lib/protocol.py</code>) and the fit arithmetic (<code>lib/scaling.py</code>) sit outside the mutable surface, so no cell can
+quietly change how it trains. The source below is included by reference to the run that executed it, not the file left on disk
+(the notary restores <code>analyze.py</code> after every run on a registered track). Each listing opens as a collapsed disclosure.</p>
+
+<h3>A development cell: E0006 (N = 16,000)</h3>
+<p>E0006 is the representative cell. Read the file top to bottom in four moves. (1) Partitions come from the contract
+through <code>load_items</code>, which prints the <code>split_fingerprint</code> the notary compares with the one frozen at the DATA gate, so
+a cell cannot silently score the wrong rows. (2) <code>draw_subsample</code> takes N images from one permutation seeded by the seed,
+which makes subsamples nested within a seed, and holds out 10 percent as an inner validation set. (3) <code>protocol.train</code> keeps the best
+inner-validation checkpoint and returns its step. (4) The cell pins <code>tables/cell_&lt;run&gt;_s&lt;seed&gt;.tsv</code>, a name the fit
+collects, while the sealed run writes <code>sealed_&lt;run&gt;_s&lt;seed&gt;.tsv</code>, a name no fit can ever pick up.</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0006"></pre>
+
+<h3>The fit: E0007</h3>
+<p>The exponent track runs the same file with <code>KLEIN_TRACK=exponent</code>, which calls <code>run_exponent</code>. It collects only cell tables whose
+run is a <code>measured</code> primary development run, whose path is pinned in its manifest, and whose bytes still hash to the pin; a table
+that fails that is not evidence. The arithmetic lives in <code>lib/scaling.py</code>: OLS on the log-log seed means, R&sup2; in log space,
+and a within-N bootstrap that the file itself labels descriptive.</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0007"></pre>
+<pre data-code="lib/scaling.py" data-lang="python"></pre>
+
+<h3>The sealed cell: E0008</h3>
+<p>Under <code>--final-test</code> the fit pool is train plus development, N is all of it (59,992), and the pinned law is read <em>before</em>
+training starts: a missing or altered fit table stops the run in seconds, not after the whole 8437-step budget. The relative error is computed per
+seed against the pinned law, and the notary averages it, which is the registered definition that erratum E1 spells out.</p>
+<pre data-code="analyze.py" data-lang="python" data-run="E0008"></pre>
+<pre data-code="lib/protocol.py" data-lang="python"></pre>
+
+<p>There is no declared verifier on this study: the evaluator <code>kleinlib.eval_multiclass</code> computes the cross-entropy and the notary reads the
+printed block, so the training script does not grade itself on a number it chose. The step rule is the single line to look at, because it
+produced the shared budget:</p>
+<pre><code class="language-python">def steps_for(n: int) -> int:
+    """max(400, ceil(20 epochs * 0.9N / 128)), capped at 12,000."""
+    n_fit = n - inner_size(n)
+    epochs_steps = -(-EPOCHS * n_fit // BATCH_SIZE)  # integer ceil
+    return min(MAX_STEPS, max(MIN_STEPS, epochs_steps))</code></pre>
+
+<h3>Pitfalls and war stories that bit this study</h3>
+<ol>
+<li><p><strong>A minimum step count is a hidden compute confound.</strong> The <code>max(400, &hellip;)</code> floor gave N=500, 1,000 and 2,000 the same 400 steps (113.8, 56.9 and 28.4 epochs) while every cell from N=4000 up trained 20 epochs, and every best checkpoint landed in the last 5 percent of its budget (C6). Whether this shaped the flat left end is the untested hypothesis C9. The recipe advice that follows from the measured part is C13: make the step budget grow with N across the whole range and check that no best checkpoint sits at the end of its budget.</p></li>
+<li><p><strong>A good in-range fit is not a forecast.</strong> R&sup2; failed here, but even a fit that passed could not have said which way it would miss. Hold the law to a sealed extrapolation point (C14). The signed miss of &minus;0.2802 and the post-hoc best case of &minus;0.0745 show that the sign you expect from theory can be the wrong one (C17).</p></li>
+<li><p><strong>Nested subsamples narrow the bootstrap.</strong> Resampling seeds within each N ignores the pairing along a seed's curve, so the printed bootstrap width (0.0230) was 2.33 times narrower than the per-seed-slope t-interval (0.0536). Report both (C15). An early docstring claimed the bootstrap &ldquo;errs wide&rdquo;; the METHOD-gate synthetic checks withdrew that before any cell ran.</p></li>
+<li><p><strong>Score the fit and the extrapolation on the same distribution.</strong> Here the fit cells used the development lane and the sealed cell the test set (C16). A control that trains at a large N and scores the development lane would split the miss into law and partition parts.</p></li>
+<li><p><strong>A tooling false positive nearly blocked the study.</strong> A 64-bit hash audit flagged most held-out silhouettes as duplicates; an exact pixel-space criterion cleared it and removed the 8 and 5 genuine near-copies (section 3).</p></li>
+<li><p><strong>Rehearse the sealed run.</strong> The sealed access can be spent once per track. The sealed dry run, which trains 60 steps on development data and spends nothing, exists so that a crash in the path cannot burn the only access; this study ran it twice before the real run.</p></li>
+<li><p><strong>Detached cells are attested, not observed.</strong> Run a re-execution of the cell you care about under observation; here that was done for E0005 within the claims' evidence.</p></li>
+<li><p><strong>Do not let the notebook outrun the claim.</strong> Three early program.md entries read the compute-limited mechanism as fact. The claim C9 was kept at &ldquo;hypothesis, untested&rdquo; and the notebook was annotated, not rewritten.</p></li>
+</ol>
+
+<h3>Hardware and cost</h3>
+<p>4-CPU x86_64 Linux VM, no GPU, torch CPU path, one thread. The sealed 3-seed array took 1883.8 s of wall time. Wall time is informational, not a budget; the budget is steps.</p>
