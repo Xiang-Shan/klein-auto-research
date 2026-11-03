@@ -594,3 +594,24 @@ def test_preflight_checks_the_declared_entrypoint_not_the_literal_train_py(
     (study / "search.py").unlink()
     check = next(c for c in preflight_checks(study, require_clean=False) if c.name == "search.py")
     assert not check.ok and check.message == "missing"
+
+
+def test_the_verifier_is_told_which_partition_the_run_was_judged_on(optimize_study) -> None:
+    """Study 24's DATA gate found it: a checker that cannot see the evaluation kind
+    must trust the lane an artifact declares for itself."""
+    repo, study = optimize_study
+    _artifact_key(study)
+    (study / "verify.py").write_text(
+        VERIFY.replace(
+            'print("wall_seconds:      0.5")',
+            'assert os.environ["KLEIN_EVALUATION_KIND"] == "development", os.environ.get("KLEIN_EVALUATION_KIND")\n'
+            'print("wall_seconds:      0.5")',
+        ),
+        encoding="utf-8",
+    )
+    _commit(repo, "a verifier that insists on knowing the partition")
+    record_gate(study, "method", acknowledged_by="tester", note="re-hash the verifier")
+    _commit(repo, "method re-recorded")
+    _search(study, reported=10, artifact_value=10)
+    manifest = run_one(study, echo=False)
+    assert manifest["disposition"] == "keep", manifest["decision_reason"]
