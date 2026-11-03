@@ -1,0 +1,133 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "Under the registered number-only instruction, qwen-flash scored 0.95 direct exact-match on 300 items of public GSM8K (E0002), 0.985 on the development twins (E0004) and 0.97 on the sealed twins (E0005), so the RQ1 prior of a direct score between 0.55 and 0.85 is refuted; the salted re-query of the anchor scored 0.9533.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "Before registering a gain threshold, check the headroom the direct arm leaves: a gain cannot exceed one minus the direct score, so at a direct score of 0.95 a registered gain of at least 0.10 was arithmetically unreachable on the public items.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "Size a template-paired contamination probe to the gap it must resolve: with 50 templates the interval on the gap was 0.075 wide on the development twins and 0.105 wide on the sealed twins, so a gap of 0.05 can be neither detected nor excluded; plan on roughly four times the templates to halve the interval.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "Treat cells that share ledger entries as one measurement: the sealed contamination cell made no new model call and re-scored the 50 original and 200 sealed chain-of-thought answers that E0003 and E0005 had already recorded, so its agreement with them is by construction; an independent check needs a salted re-query.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "Never count a ledger replay as a replication of a model result: the offline replay of E0002 reproduced with a difference of 0 because it re-scored the same recorded answers, while the salted re-query of the same cell changed 9 of 600 item-arm scores and moved the gain by 0.0167.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "On twin blocks, report the cluster bootstrap over templates, not McNemar's test: the four twins of one template share their wording and structure, and McNemar's p (0.125 on the development twins) treats them as independent and overstates the evidence.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "The notary adjudicated all six registered predictions \u2014 P1, P2, P4 and P5 refuted, P3 and P6 supported \u2014 and every refuted prediction carries a dated Decision line in program.md.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "On 300 items of public GSM8K, chain-of-thought exceeded the registered direct prompt by +0.01 exact-match, paired item-bootstrap interval [-0.01, 0.03] (E0002); the interval excludes the registered 0.10, and the salted re-query gave -0.0067, a shift of 0.0167 inside the pre-registered 0.03 tolerance.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "With chain-of-thought, exact-match on the 50 template originals exceeded their development twins by 0.02 (interval over templates [-0.015, 0.06], E0003) and the sealed twins by 0.01 ([-0.04, 0.065], E0006); no measurement detected a gap, but both upper ends exceed 0.05, so a contamination gap of 0.05 is not excluded, and the salted re-query of E0003 gave -0.025.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "The chain-of-thought gain does not appear on fresh twins either: -0.025 exact-match on the development twins (cluster bootstrap over 50 templates [-0.065, 0.005], E0004) and 0.000 on the sealed twins ([-0.055, 0.045], E0005), both intervals excluding the registered 0.10.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "The registered direct arm did not comply with the number-only instruction: 4 of 300 public replies were a bare number (0 of 200 on each twin block), its median output was 112.5 tokens against 243 for chain-of-thought, and chain-of-thought wrote only 1.85 times the direct arm's mean output tokens on public items (1.92 on the sealed twins), so em_gain here compares chain-of-thought with a terse chain-of-thought, not with answering without written steps.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "The chain-of-thought gain is near-unmeasurable here because both arms sit at the ceiling: direct and chain-of-thought exact-match lie between 0.95 and 0.985 in every cell, so the largest gain the public cell could have shown is 0.05 (one minus 0.95), and only 9 of 300 public items (E0002) and 12 of 200 sealed twins (E0005) were discordant.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "The salted re-query of the development contamination cell flipped the sign of the gap, from 0.02 to -0.025, a shift of 0.045 inside the pre-registered 0.05 tolerance: 3 of 50 originals went from right to wrong and one from wrong to right, moving em_original from 0.98 to 0.94, while 7 of 200 twin scores changed.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "On the development twins the direct arm scored above chain-of-thought (0.985 vs 0.96, gain -0.025, E0004), and on the sealed twins the two arms tied at 0.97 (E0005); the reversal did not survive fresh instances of the same templates, which is most consistent with noise, since only 7 of 200 development twins were discordant.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "Before reading any CoT-vs-direct gain, audit the direct arm's compliance from the ledger \u2014 the share of bare-number replies and the output tokens per item against the CoT arm \u2014 because here only 4 of 300 direct replies were bare and the CoT arm wrote only 1.85 times the direct arm's tokens, which turns the comparison into CoT versus terse CoT.",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "84ca15a69233d87e7221e3b2daeeb8c184efec57",
+  "klein_commit": "84ca15a69233d87e7221e3b2daeeb8c184efec57",
+  "klein_version": "2.2.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "20-llm-cot-contamination"
+}
