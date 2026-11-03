@@ -235,3 +235,7 @@ The mandatory `--final-test --dry-run` of the att track (AIPW, dw_psid, 500 reps
 ### E0009 reflection (att, sealed CPS-1, AIPW dw_psid 500 reps; adjudicates P7)
 
 Sealed att access spent, after a successful dry run (exit 0, `sealed_dryrun: 1`; the first dry run had timed out at 900 s, the limit was then raised to 10800 s by the lead with the cell unchanged). ATT 1327.54, bootstrap 95% CI [-129.17, 2835.62], gap -466.80 vs 1794.34, n_controls_used 4493 of 15,992, max_weight_share 0.0426 (far less concentrated than PSID-1's 0.135). |gap| < 1000: P7 supported by the notary. The PSID-1 specification transferred unchanged; the CI covers the experimental value and is half the width of the PSID-1 interval's relative reach. The PSID-1 selection margin was small (889 vs 1234/1244), so P7 is one sealed draw, not a ranking of estimators.
+
+### Replications and confirmation close
+
+`klein replicate` E0001 (reproduction): reproduced, difference 0, tolerance 0 (exact), record runs/E0001/replications/20261103T065031Z.json. E0006 (att, AIPW PSID-1): reproduced, difference 0, tolerance 0 (exact), record runs/E0006/replications/20261103T065104Z.json. Both tracks now hold a sealed run (E0008, E0009) and a replication record. P6 refuted (Decision above), P7 supported.

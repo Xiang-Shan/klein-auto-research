@@ -10,8 +10,8 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| reproduction | E0001 | targets_outside_tolerance = 2 (measured; P1 refuted) | development lane, as-committed anchor cell; 9/11 targets within +-1 | anchor |
-| att | E0006 | att_usd 2683.82 (gap +889.48; measured; P3 supported) | AIPW, dw_psid, selected for the sealed CPS-1 cell by the registered rule | estimators |
+| reproduction | E0001 / E0008 sealed | targets_outside_tolerance = 2 on both lanes (P1 and P6 refuted); replicated exact | as-committed reproduction cell; misses are exactly adjusted value + SE (col (5)) | confirmation |
+| att | E0006 / E0009 sealed | dev gap +889.48 (P3 supported); sealed CPS-1 att 1327.54, gap -466.80, CI [-129.17, 2835.62] (P7 supported); E0006 replicated exact | AIPW, dw_psid, 500 reps | confirmation |
 
 ## Ruled out (evidence, not opinion)
 
@@ -34,8 +34,5 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-Confirmation phase (each sealed access once, each after `--final-test --dry-run`):
-1. reproduction track, CPS-1 sealed (P6), unchanged anchor cell
-2. att track, CPS-1 sealed: AIPW, spec dw_psid, reps 500 (P7); selected at E0006 by the registered rule
-Note: AIPW at 500 reps took about 11 min on PSID-1 under load; CPS-1 has 15,992 rows against max_run_seconds 900 -- check the dry run's wall_seconds before the real run.
-Process: launch with nohup and poll; never wrap run-one in a foreground timeout.
+All registered cells are run: P1 refuted, P2 refuted, P3 supported, P4 refuted, P5 supported, P6 refuted, P7 supported. Sealed access spent on both tracks; both replication records filed. Remaining lifecycle: SYNTHESIZE (findings.md, claims.lock), REFEREE, TUTORIAL. No further development candidates are open.
+H5 (col (5) covariate set unrecovered) is confirmed on CPS-1 (E0008 diagnostics) and stays open as a next-step question for findings.
