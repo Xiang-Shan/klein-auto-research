@@ -7,7 +7,9 @@ answer, block, template, split`` — which the contract splits as
 * split ``train``, block ``original`` (50): the GSM8K test items the templates
   were made from (ids ``gsm-<line>``), ``template`` = the template id;
 * split ``development``, block ``gsm8k`` (300): the first 300 candidates of the
-  selection permutation that are NOT template sources (ids ``gsm-<line>``);
+  selection permutation that are neither template sources nor skipped template
+  candidates (``twins.SKIPPED``; one, gsm-288, has a gold the instrument shows to be
+  wrong) (ids ``gsm-<line>``);
 * split ``development``, block ``twin_dev`` (200): ``twins.generate(20261104, 4)``
   (ids ``twA-<template>-<k>``);
 * split ``test``, block ``twin_sealed`` (200): ``twins.generate(20261105, 4)``,
@@ -60,7 +62,8 @@ def main() -> None:
     print(
         f"twins.validate: {summary['templates']} templates, {summary['skipped']} skipped, "
         f"{summary['exact_text']} reproduce their question byte-for-byte, "
-        f"{summary['candidates_consumed']} candidates consumed"
+        f"{summary['candidates_consumed']} candidates consumed, "
+        f"{summary['degeneracy_scanned']} sampled twins free of degenerate steps"
     )
 
     sources = {template.source_index for template in twins.TEMPLATES}
@@ -76,7 +79,8 @@ def main() -> None:
             "split": "train",
         })
 
-    gsm8k = [index for index in twins.candidate_order() if index not in sources][:N_GSM8K_DEV]
+    excluded = sources | set(twins.SKIPPED)
+    gsm8k = [index for index in twins.candidate_order() if index not in excluded][:N_GSM8K_DEV]
     for index in gsm8k:
         record = records[index]
         rows.append({

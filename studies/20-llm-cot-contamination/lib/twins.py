@@ -28,18 +28,31 @@ Each template carries
                      negative remainder, a part larger than its whole);
 * ``ranges``       — per slot ``(lo, hi, step)``, inside 0.5x-2x of the original;
                      the default is ``ceil(v/2) .. 2v`` on a grid one decade finer
-                     than the original's trailing zeros (400 -> step 10).
+                     than the original's trailing zeros (400 -> step 10), never
+                     reaching 1 when the original is 2 or more.
 
-A twin's slot values are drawn from the ranges and REJECTED unless the rule
-solves them to a positive integer, they differ from the original's values, and
-the answer differs from the original's answer (a model that memorized "18" must
-not score on a twin whose answer is also 18).
+A twin's slot values are drawn LOG-uniformly from the ranges (:func:`log_grid`:
+on a full ``v/2 .. 2v`` range the median draw is the original value, so a twin's
+numbers are not systematically larger than its original's; an answer built from
+a small difference can still land above the original's more often than below,
+because the rule must stay positive) and REJECTED unless the rule solves them to a positive
+integer, they differ from the original's values, they are not degenerate
+(:func:`degeneracies`: no slot falls to 0 or 1 where the original's was >= 2, no
+two slots that differ in the original become equal — a 1/1 share, a 1x
+multiplier, an answer printed in the question), and the answer differs from the
+original's answer (a model that memorized "18" must not score on a twin whose
+answer is also 18). Steps a rule could still trivialize through a derived
+quantity (a 60-minute visit billed per hour, an empty third class, a one-day
+doubling) are excluded by the template's own range or ``need``.
 
 Nothing here calls a model, reads a run, or reads `program.md`.
 """
 
 from __future__ import annotations
 
+import bisect
+import functools
+import itertools
 import json
 import math
 import os
@@ -74,6 +87,9 @@ TWINS_PER_TEMPLATE: int = 4
 #: The validator's own sampling stream (never used for a block).
 VALIDATE_SEED: int = 20261199
 VALIDATE_SAMPLES: int = 200
+
+#: Instances per template the validator's degeneracy scan draws (its own stream).
+DEGENERACY_SAMPLES: int = 2000
 
 #: A template must offer at least this many distinct well-posed twins inside its
 #: ranges, so the two blocks (4 + 4) never nearly exhaust its instance space.
@@ -192,15 +208,66 @@ Range = tuple[int, int, int]
 
 
 def default_range(value: int) -> Range:
-    """``ceil(v/2) .. 2v`` on a grid one decade finer than ``v``'s trailing zeros."""
+    """``ceil(v/2) .. 2v`` on a grid one decade finer than ``v``'s trailing zeros.
+
+    The floor is 2 when ``v >= 2``: a slot of 1 would turn the original's
+    multiplier, divisor or count into a no-op (``1/1``, "1 bag ... each").
+    """
     v = int(value)
     if v <= 0:
         raise ValueError("default_range needs a positive original value")
     zeros = len(str(v)) - len(str(v).rstrip("0"))
     step = 10 ** max(0, zeros - 1)
-    lo = max(1, math.ceil(v / 2))
+    lo = max(min(v, 2), math.ceil(v / 2))
     lo = math.ceil(lo / step) * step
     return lo, 2 * v, step
+
+
+@functools.cache
+def log_grid(value: int, lo: int, hi: int, step: int) -> tuple[tuple[int, ...], tuple[float, ...]]:
+    """The grid ``lo, lo+step, .., hi`` and its cumulative LOG-uniform probabilities.
+
+    The continuous log-uniform law on ``[L, H]`` — the range widened by half a
+    step on each side and clipped to ``[v/2, 2v]`` of the original value ``v`` —
+    rounded to the nearest grid point: point ``x`` gets the log-length of its
+    cell ``[x - step/2, x + step/2]`` inside ``[L, H]``. On a full ``v/2 .. 2v``
+    range the median draw is ``v`` itself (the geometric mean of the bounds), so a
+    twin's slot is as often below the original's as above; away from the bounds the
+    mass is ``log(1 + step/x) ~ step/x``, the ``1/x`` law.
+    """
+    grid = [int(x) for x in range(int(lo), int(hi) + 1, int(step))]
+    if not grid:
+        raise ValueError(f"empty range {lo}..{hi} step {step}")
+    low = max(lo - step / 2, value / 2)
+    high = min(hi + step / 2, 2 * value)
+    mass = [max(0.0, math.log(min(x + step / 2, high) / max(x - step / 2, low))) for x in grid]
+    total = sum(mass)
+    if total <= 0:
+        raise ValueError(f"range {lo}..{hi} lies outside 0.5x-2x of {value}")
+    cdf = list(itertools.accumulate(m / total for m in mass))
+    cdf[-1] = 1.0
+    return tuple(grid), tuple(cdf)
+
+
+def log_uniform(rng: np.random.Generator, value: int, lo: int, hi: int, step: int = 1) -> int:
+    """One draw from :func:`log_grid` (``value`` is the original the range is around)."""
+    grid, cdf = log_grid(int(value), int(lo), int(hi), int(step))
+    return grid[min(bisect.bisect_right(cdf, float(rng.random())), len(grid) - 1)]
+
+
+def degeneracies(original: Mapping[str, int], values: Mapping[str, int]) -> list[str]:
+    """Why ``values`` would make a step of ``original`` trivial (empty when they don't).
+
+    A slot at 0 or 1 where the original's is 2 or more (a ``1/1`` share, a 1x
+    multiplier, an empty quantity), or two slots equal where the original's differ
+    (a ``d/d`` share, "4 times as many ... 4 times the number", an answer printed
+    in the question).
+    """
+    found = [f"{name}={int(values[name])}" for name, v in original.items()
+             if int(v) >= 2 and int(values[name]) <= 1]
+    found += [f"{a}=={b}" for a, b in itertools.combinations(original, 2)
+              if int(original[a]) != int(original[b]) and int(values[a]) == int(values[b])]
+    return found
 
 
 @dataclass(frozen=True)
@@ -232,22 +299,21 @@ class Template:
         return int(result)
 
     def draw(self, rng: np.random.Generator) -> dict[str, int]:
-        """One raw draw from the ranges (or the template's own drawer), unchecked."""
+        """One raw LOG-uniform draw from the ranges (or the template's own drawer), unchecked."""
         if self.drawer is not None:
             return {name: int(value) for name, value in self.drawer(rng).items()}
-        values: dict[str, int] = {}
-        for name in self.original:
-            lo, hi, step = self.ranges[name]
-            values[name] = lo + step * int(rng.integers(0, (hi - lo) // step + 1))
-        return values
+        return {
+            name: log_uniform(rng, int(value), *self.ranges[name])
+            for name, value in self.original.items()
+        }
 
     def sample(self, rng: np.random.Generator) -> dict[str, int]:
-        """New slot values: well-posed, integer answer, unlike the original in values and answer."""
+        """New slot values: well-posed, non-degenerate, integer answer, unlike the original."""
         original = {name: int(value) for name, value in self.original.items()}
         original_answer = self.solve(original)
         for _attempt in range(MAX_ATTEMPTS):
             values = self.draw(rng)
-            if values == original:
+            if values == original or degeneracies(original, values):
                 continue
             try:
                 answer = self.solve(values)
@@ -307,6 +373,9 @@ SKIPPED: dict[int, str] = {
     1170: "total pints must be a multiple of 6 within 6..24: only 3 alternative instances",
     288: "gold treats 75-lb flagstones as divisible (26 fit per 2000-lb truck, so 80 need 4 "
          "trucks, not 3): ambiguous gold, no faithful well-posed twin",
+    96: "a proper num/den with num >= 2 and hours a multiple of den other than den itself "
+        "(1/den and den/den shares are degenerate): 6 instances with hours 5..12, 11 even over "
+        "the full 5..18: fewer than MIN_INSTANCES twins",
     426: "whole-dollar soup and cake prices allow only 5 alternatives within 0.5x-2x",
     1149: "fish 2..6 x $1..2 of food a day gives 9 alternatives: fewer than MIN_INSTANCES twins",
     1: "blue bolts must be even within 1..4: a single alternative instance (4)",
@@ -425,6 +494,7 @@ def _t0938(v: Slots) -> Fraction:
     "A small sunflower has {doz} dozen seeds and a large sunflower has {pct}% more seeds than a "
     "small sunflower.  How many sunflower seeds are there altogether?",
     {"doz": 3, "pct": 50},
+    ranges={"pct": (25, 99)},  # "100% more" is plain doubling: the percent step is gone
 )
 def _t1290(v: Slots) -> Fraction:
     small = 12 * v.doz
@@ -489,7 +559,7 @@ def _t0976(v: Slots) -> Fraction:
     "Johanna, and each marble weighs {w}kgs, calculate the total weight of marbles Solomon has in "
     "the store.",
     {"bought": 20, "store": 50, "num": 2, "den": 5, "w": 2},
-    ranges={"num": (1, 4), "den": (3, 10), "w": (2, 4)},
+    ranges={"num": (2, 4), "den": (3, 10), "w": (2, 4)},  # "1/den times" drops the multiply
 )
 def _t0316(v: Slots) -> Fraction:
     need(v.num < v.den and math.gcd(int(v.num), int(v.den)) == 1, "a proper fraction")
@@ -623,19 +693,6 @@ def _t0610(v: Slots) -> Fraction:
 
 
 @_template(
-    96,
-    "Harry slept {h} hours last night. His friend James slept only {num}/{den} of what Harry "
-    "slept. How many more hours did Harry sleep than James?",
-    {"h": 9, "num": 2, "den": 3},
-    ranges={"h": (5, 12)},
-)
-def _t0096(v: Slots) -> Fraction:
-    need(v.num < v.den and math.gcd(int(v.num), int(v.den)) == 1, "a proper fraction")
-    james = whole(v.h * v.num / v.den)
-    return v.h - james
-
-
-@_template(
     177,
     "Zaid spends 1/4 of his salary on rent, 1/3 on car fuel and donates half of the remaining "
     "amount to his favorite charity. He gives his daughter {daughter}$ to use for her weekly "
@@ -718,7 +775,7 @@ def _t1046(v: Slots) -> Fraction:
     "${park}/hour for a mandatory minimum of {hrs} hours of parking. How much does the doctor's "
     "visit cost total?",
     {"cast": 200, "rate": 300, "mins": 30, "pill": 4, "pills": 30, "park": 6, "hrs": 2},
-    ranges={"mins": (15, 60, 5), "hrs": (2, 4)},
+    ranges={"mins": (15, 55, 5), "hrs": (2, 4)},  # a 60-minute visit bills rate x 1
 )
 def _t1062(v: Slots) -> Fraction:
     visit = whole(v.rate * v.mins / 60)
@@ -760,7 +817,7 @@ def _t1120(v: Slots) -> Fraction:
 def _t0250(v: Slots) -> Fraction:
     need(v.g1 <= v.size and v.g2 <= v.size, "more girls than students in a class")
     girls = whole(3 * v.size / 2)
-    third_girls = nonneg(girls - v.g1 - v.g2)
+    third_girls = pos(girls - v.g1 - v.g2)  # no girls would make "boys" the class size
     return pos(v.size - third_girls)
 
 
@@ -782,7 +839,9 @@ def _beanstalk_days(start: Fraction, window: Fraction) -> int:
 )
 def _t0593(v: Slots) -> Fraction:
     need(v.start < v.window, "already taller than the window")
-    return Fraction(_beanstalk_days(v.start, v.window))
+    days = _beanstalk_days(v.start, v.window)
+    need(days >= 2, "a single doubling leaves no repeated step")
+    return Fraction(days)
 
 
 @_template(
@@ -918,12 +977,14 @@ def _draw_oven(rng: np.random.Generator) -> dict[str, int]:
 
     Independent draws of the three printed numbers would almost never be
     consistent with one percentage; drawing the latent percentage keeps the
-    rejection loop short. Every printed number stays inside 0.5x-2x.
+    rejection loop short. Every printed number stays inside 0.5x-2x. The three
+    latent values are drawn LOG-uniformly (:func:`log_uniform`) on their grids,
+    around the original's 450, 4% and 500.
     """
     while True:
-        setting = 25 * int(rng.integers(12, 23))  # 300 .. 550
-        pct = int(rng.integers(2, 9))  # the oven runs 2% .. 8% hot
-        answer = 10 * int(rng.integers(26, 57))  # 260 .. 560
+        setting = log_uniform(rng, 450, 300, 550, 25)  # 300 .. 550
+        pct = log_uniform(rng, 4, 2, 8)  # the oven runs 2% .. 8% hot
+        answer = log_uniform(rng, 500, 260, 560, 10)  # 260 .. 560
         if setting * (100 + pct) % 100 == 0 and answer * (100 + pct) % 100 == 0:
             return {
                 "set": setting,
@@ -1010,6 +1071,18 @@ def _t1179(v: Slots) -> Fraction:
     fixed = v.drill + capped
     need(fixed < v.teeth, "more teeth fixed than James has")
     return fixed * 100 / v.teeth
+
+
+@_template(
+    805,
+    "James buys a ring for his bride-to-be.  The diamond cost ${diamond} and the gold cost "
+    "${gold}.  He pays a {pct}% premium for it to be made.  How much did he pay?",
+    {"diamond": 600, "gold": 300, "pct": 30},
+)
+def _t0805(v: Slots) -> Fraction:
+    materials = v.diamond + v.gold
+    premium = whole(materials * v.pct / 100)  # whole dollars, like the original's $270
+    return materials + premium
 
 
 # --------------------------------------------------------------------------
@@ -1147,7 +1220,11 @@ def validate(records: Sequence[Mapping[str, Any]] | None = None) -> dict[str, in
     ``VALIDATE_SAMPLES`` sampled instances all solve to positive integers, none
     equals the original values, none has the original's answer, every value
     stays inside 0.5x-2x of the original, and at least ``MIN_INSTANCES`` are
-    distinct. Plus the selection audit (every candidate up to the last source is
+    distinct; (d) the degeneracy scan — no slot range reaches 0 or 1 where the
+    original's value is 2 or more, and none of ``DEGENERACY_SAMPLES`` sampled
+    instances (an own stream) has a slot at 0 or 1 where the original's is >= 2 or
+    two slots equal that differ in the original (:func:`degeneracies`). Plus the
+    selection audit (every candidate up to the last source is
     templated or skipped, exactly once) and the declared blocks (complete,
     mutually disjoint, never equal to any GSM8K test question).
 
@@ -1176,6 +1253,7 @@ def validate(records: Sequence[Mapping[str, Any]] | None = None) -> dict[str, in
         failures.append(f"selection audit: unaccounted {unaccounted}, beyond the stop {stray}")
 
     exact = 0
+    scanned = 0
     for template in TEMPLATES:
         tid = template.tid
         record = records[template.source_index]
@@ -1219,6 +1297,25 @@ def validate(records: Sequence[Mapping[str, Any]] | None = None) -> dict[str, in
             distinct.add(_instance_key(values))
         if len(distinct) < MIN_INSTANCES:
             failures.append(f"{tid}: (c) only {len(distinct)} distinct twins (< {MIN_INSTANCES})")
+        # (d) the degeneracy scan.
+        if template.drawer is None:
+            floor = [f"{n}: {template.ranges[n][0]}" for n, x in original.items()
+                     if x >= 2 and template.ranges[n][0] <= 1]
+            if floor:
+                failures.append(f"{tid}: (d) ranges reach 0/1 under an original >= 2: {floor}")
+        rng = np.random.default_rng([VALIDATE_SEED, template.source_index, 1])
+        flagged: dict[str, int] = {}
+        for _ in range(DEGENERACY_SAMPLES):
+            try:
+                values = template.sample(rng)
+            except RuntimeError as exc:
+                failures.append(f"{tid}: (d) sampling failed: {exc}")
+                break
+            scanned += 1
+            for flag in degeneracies(original, values):
+                flagged[flag] = flagged.get(flag, 0) + 1
+        if flagged:
+            failures.append(f"{tid}: (d) degenerate twins in {DEGENERACY_SAMPLES} draws: {flagged}")
 
     # The declared blocks, exactly as prepare.py builds them.
     if not failures:
@@ -1243,4 +1340,5 @@ def validate(records: Sequence[Mapping[str, Any]] | None = None) -> dict[str, in
         "skipped": len(SKIPPED),
         "exact_text": exact,
         "candidates_consumed": last + 1,
+        "degeneracy_scanned": scanned,
     }

@@ -31,7 +31,7 @@ tracks:
     metric:
       name: "em_gain"
       goal: "higher"
-      minimum_delta: 0.01
+      minimum_delta: 0.03      # = the pre-registered replication tolerance (klein replicate's default ladder); program.md 2026-11-03
       exactness: stochastic
     guardrails:
       wall_seconds: {max: 3600}
@@ -43,7 +43,7 @@ tracks:
     metric:
       name: "em_gap"
       goal: "lower"
-      minimum_delta: 0.01
+      minimum_delta: 0.05      # = the pre-registered replication tolerance; program.md 2026-11-03
       exactness: stochastic
     guardrails:
       wall_seconds: {max: 3600}
@@ -70,7 +70,7 @@ policy:
 calls:
   dir: calls
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"   # any OpenAI-compatible endpoint
-  model: "qwen-flash"
+  model: "qwen-flash-2025-07-28"   # the dated snapshot, not the alias the provider can repoint
   budget_calls: 6000               # a hard stop in calls PER RUN (the largest cell needs about 600; the study about 2,700)
   budget_tokens: 4000000           # a hard stop in tokens PER RUN; prices are not pinned, so no USD cap
   max_workers: 8                   # concurrent requests from chat_many

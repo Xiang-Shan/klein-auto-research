@@ -1,0 +1,297 @@
+# The citations a `ref:<key>` evidence id resolves to. Written at the METHOD gate
+# (2026-11-03) by the method scholar. Every row was read at its source page on that
+# date (arXiv abstract page, publisher / proceedings page, Crossref or OpenAlex record,
+# or the provider's own documentation), not quoted from memory; `klein refs verify
+# --record` then resolves each DOI / arXiv id mechanically and appends resolved_*.
+#
+# One locator was left out on purpose: OpenAlex's record for the arXiv DOI of
+# GSM8K (10.48550/arXiv.2110.14168, work W3210904070) carries the right authors but
+# a corrupted title ("Socratic guiding questions in synthetic arithmetic data ..."),
+# so cobbe2021 is resolved by its arXiv id only. doi.org itself redirects that DOI to
+# arxiv.org/abs/2110.14168, i.e. the DOI is right and the index is wrong.
+references:
+  cobbe2021:
+    title: "Training Verifiers to Solve Math Word Problems"
+    authors: "Cobbe, K.; Kosaraju, V.; Bavarian, M.; Chen, M.; Jun, H.; Kaiser, L.; Plappert, M.; Tworek, J.; Hilton, J.; Nakano, R.; Hesse, C.; Schulman, J."
+    year: 2021
+    venue: "arXiv preprint (v2, 18 Nov 2021); no venue listed on the abstract page"
+    arxiv: "2110.14168"
+    url: "https://arxiv.org/abs/2110.14168"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page; export.arxiv.org API record)"
+    verified_at: "2026-11-03"
+    why: "GSM8K itself: 8.5K grade-school word problems, the bundled test split (1,319 items) is this study's public lane and the source of the 50 templates."
+    resolved_by: "klein-refs (arxiv)"
+    resolved_title: "Training Verifiers to Solve Math Word Problems"
+    resolved_at: "2026-11-03"
+  wei2022:
+    title: "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models"
+    authors: "Wei, J.; Wang, X.; Schuurmans, D.; Bosma, M.; Ichter, B.; Xia, F.; Chi, E.; Le, Q.; Zhou, D."
+    year: 2022
+    venue: "Advances in Neural Information Processing Systems 35 (NeurIPS 2022), Main Conference Track"
+    arxiv: "2201.11903"
+    doi: "10.48550/arXiv.2201.11903"
+    url: "https://proceedings.neurips.cc/paper/2022/hash/9d5609613524ecf4f15af0f7b31abca4-Abstract-Conference.html"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page; NeurIPS 2022 proceedings page via WebSearch)"
+    verified_at: "2026-11-03"
+    why: "The method: few-shot exemplars with worked steps; a 540B model with eight exemplars reported the best GSM8K accuracy of its time, ahead of a finetuned GPT-3 with a verifier. This study's cot arm is the zero-shot instruction form, not the few-shot form."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models"
+    resolved_at: "2026-11-03"
+  kojima2022:
+    title: "Large Language Models are Zero-Shot Reasoners"
+    authors: "Kojima, T.; Gu, S. S.; Reid, M.; Matsuo, Y.; Iwasawa, Y."
+    year: 2022
+    venue: "NeurIPS 2022 (arXiv comments: 'Accepted to NeurIPS2022')"
+    arxiv: "2205.11916"
+    doi: "10.48550/arXiv.2205.11916"
+    url: "https://arxiv.org/abs/2205.11916"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "Zero-shot CoT: one instruction ('Let's think step by step') took text-davinci-002 from 10.4% to 40.7% on GSM8K. The study's cot arm ('Solve the problem step by step') is this family of prompt."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Large Language Models Are Zero-Shot Reasoners"
+    resolved_at: "2026-11-03"
+  sprague2024:
+    title: "To CoT or not to CoT? Chain-of-thought helps mainly on math and symbolic reasoning"
+    authors: "Sprague, Z.; Yin, F.; Rodriguez, J. D.; Jiang, D.; Wadhwa, M.; Singhal, P.; Zhao, X.; Ye, X.; Mahowald, K.; Durrett, G."
+    year: 2024
+    venue: "ICLR 2025 (arXiv comments: 'Published at ICLR 2025'; v3, 7 May 2025)"
+    arxiv: "2409.12183"
+    doi: "10.48550/arXiv.2409.12183"
+    url: "https://arxiv.org/abs/2409.12183"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page and HTML v3, Table 7)"
+    verified_at: "2026-11-03"
+    why: "The regime anchor for P1/P2: CoT pays mainly on math; its Table 7 gives zero-shot GSM8K direct-answer vs CoT accuracy for 14 models (e.g. Qwen 2 72B 40.1 vs 94.6, GPT-4o 58.8 vs 95.8)."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "To CoT or not to CoT? Chain-of-thought helps mainly on math and symbolic reasoning"
+    resolved_at: "2026-11-03"
+  mirzadeh2024:
+    title: "GSM-Symbolic: Understanding the Limitations of Mathematical Reasoning in Large Language Models"
+    authors: "Mirzadeh, I.; Alizadeh, K.; Shahrokhi, H.; Tuzel, O.; Bengio, S.; Farajtabar, M."
+    year: 2024
+    venue: "ICLR 2025 (proceedings PDF header 'Published as a conference paper at ICLR 2025'; arXiv v1 7 Oct 2024, v2 27 Aug 2025)"
+    arxiv: "2410.05229"
+    doi: "10.48550/arXiv.2410.05229"
+    url: "https://arxiv.org/abs/2410.05229"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page; ICLR 2025 proceedings and virtual-poster pages via WebSearch)"
+    verified_at: "2026-11-03"
+    why: "The design this study copies: GSM8K questions lifted into templates and re-instantiated; performance declines when only the numbers change, with noticeable variance across instantiations."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "GSM-Symbolic: Understanding the Limitations of Mathematical Reasoning in Large Language Models"
+    resolved_at: "2026-11-03"
+  apple_gsmsymbolic_data:
+    title: "ml-gsm-symbolic: GSM-Symbolic templates and generated data (GitHub repository)"
+    authors: "Apple (Mirzadeh, I. et al.)"
+    year: 2024
+    venue: "GitHub repository github.com/apple/ml-gsm-symbolic; initial data release = root commit b6a1625025fc857300203bac9f617e5d8ec99f65 'Initial GSM-Symbolic data release', dated Dec 8, 2024 on the repository's commit list (a later commit 3b645c2, Sep 11, 2026, 'Update root files'); generated data under CC-BY-NC-ND-4.0; mirrored on Hugging Face as apple/GSM-Symbolic. Read 2026-11-03"
+    url: "https://github.com/apple/ml-gsm-symbolic"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the repository page, its commit list and the b6a1625 commit page, which lists templates/symbolic/0000-0099.json and generated_data/GSM_symbolic.jsonl among the 261 files added; WebFetch of huggingface.co/datasets/apple/GSM-Symbolic; raw templates/symbolic/0004, 0005, 0016, 0046 and 0078.json downloaded at branch main and their 'question' compared byte for byte with datasets/gsm8k-test/test.jsonl lines 1264, 116, 976, 1031 and 1088, each equal to the file's id_orig)"
+    verified_at: "2026-11-03"
+    why: "The public release of GSM-Symbolic's templates and 50 number-swapped instances per template. Five of this study's 50 template sources (t1264, t0116, t0976, t1031, t1088) are GSM-Symbolic templates, so their twins are less fresh for a model trained after December 2024. No commit SHA of main is pinned: the raw files were read at branch main."
+  dlugosz2026:
+    title: "The Importance of Being Statistically Earnest: A Critical Re-evaluation of GSM-Symbolic"
+    authors: "Długosz, D. A.; Oliveira, A.; Díaz-Rodríguez, N."
+    year: 2026
+    venue: "EMNLP 2026 main conference, Resources and Evaluation track (arXiv comments; v3, 1 Sep 2026)"
+    arxiv: "2605.28700"
+    doi: "10.48550/arXiv.2605.28700"
+    url: "https://arxiv.org/abs/2605.28700"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page; OpenAlex record)"
+    verified_at: "2026-11-03"
+    why: "The frontier critique: with per-question random effects only 8 of 20 models show significant GSM-Symbolic drops, and GSM-Symbolic's integers are shifted larger than GSM8K's (K-S 0.12) — the number-size confound this study's twins also carry."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "The Importance of Being Statistically Earnest: A Critical Re-evaluation of GSM-Symbolic"
+    resolved_at: "2026-11-03"
+  zhang2024:
+    title: "A Careful Examination of Large Language Model Performance on Grade School Arithmetic"
+    authors: "Zhang, H.; Da, J.; Lee, D.; Robinson, V.; Wu, C.; Song, W.; Zhao, T.; Raja, P.; Zhuang, C.; Slack, D.; Lyu, Q.; Hendryx, S.; Kaplan, R.; Lunati, M.; Yue, S."
+    year: 2024
+    venue: "NeurIPS 2024 Datasets and Benchmarks Track (arXiv comments; v4, 22 Nov 2024)"
+    arxiv: "2405.00332"
+    doi: "10.48550/arXiv.2405.00332"
+    url: "https://arxiv.org/abs/2405.00332"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "GSM1k, the human-written fresh-items control: drops of up to 8% (v4 abstract) from GSM8K, systematic overfitting in some families, minimal in many frontier models; the gap correlates (Spearman r^2 = 0.36) with the model's likelihood of generating GSM8K items."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "A Careful Examination of Large Language Model Performance on Grade School Arithmetic"
+    resolved_at: "2026-11-03"
+  sainz2023:
+    title: "NLP Evaluation in trouble: On the Need to Measure LLM Data Contamination for each Benchmark"
+    authors: "Sainz, O.; Campos, J. A.; García-Ferrero, I.; Etxaniz, J.; Lopez de Lacalle, O.; Agirre, E."
+    year: 2023
+    venue: "Findings of the Association for Computational Linguistics: EMNLP 2023, pp. 10776-10787 (Crossref record of the ACL Anthology DOI; the arXiv comments field reads 'Accepted at EMNLP2024-Findings', which the Anthology DOI contradicts)"
+    doi: "10.18653/v1/2023.findings-emnlp.722"
+    arxiv: "2310.18018"
+    url: "https://aclanthology.org/2023.findings-emnlp.722"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record of the DOI; WebFetch arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "The position this study's contamination audit takes: a public benchmark is presumed contaminated, and contamination has to be measured per benchmark."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "NLP Evaluation in trouble: On the Need to Measure LLM Data Contamination for each Benchmark"
+    resolved_at: "2026-11-03"
+  golchin2024:
+    title: "Time Travel in LLMs: Tracing Data Contamination in Large Language Models"
+    authors: "Golchin, S.; Surdeanu, M."
+    year: 2023
+    venue: "ICLR 2024 (Spotlight); arXiv v1 16 Aug 2023, v3 21 Feb 2024"
+    arxiv: "2308.08493"
+    doi: "10.48550/arXiv.2308.08493"
+    url: "https://arxiv.org/abs/2308.08493"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "The other family of contamination probe — ask the model to complete a partial test instance and check for verbatim recall. Positions the twin probe: it measures a consequence (score drop) rather than recall, and needs no access to training data."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Time Travel in LLMs: Tracing Data Contamination in Large Language Models"
+    resolved_at: "2026-11-03"
+  mcnemar1947:
+    title: "Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages"
+    authors: "McNemar, Q."
+    year: 1947
+    venue: "Psychometrika 12(2), 153-157"
+    doi: "10.1007/BF02295996"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record of the DOI: title, journal, volume, issue, pages)"
+    verified_at: "2026-11-03"
+    why: "The paired test on the discordant items; analyze.py prints its exact (binomial) form, kleinlib.metrology.mcnemar_exact."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages"
+    resolved_at: "2026-11-03"
+  efron1993:
+    title: "An Introduction to the Bootstrap"
+    authors: "Efron, B.; Tibshirani, R. J."
+    year: 1993
+    venue: "Chapman & Hall/CRC (book; the Crossref record of this DOI is dated 1994-05-15)"
+    doi: "10.1201/9780429246593"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record of the DOI: title, authors, publisher)"
+    verified_at: "2026-11-03"
+    why: "The percentile bootstrap interval lib/measure.py prints (10,000 replicates, fixed seed)."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "An Introduction to the Bootstrap"
+    resolved_at: "2026-11-03"
+  davison1997:
+    title: "Bootstrap Methods and their Application"
+    authors: "Davison, A. C.; Hinkley, D. V."
+    year: 1997
+    venue: "Cambridge University Press (book)"
+    doi: "10.1017/CBO9780511802843"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref and OpenAlex records of the DOI: title, authors, year, publisher)"
+    verified_at: "2026-11-03"
+    why: "The bootstrap reference text, including resampling for structured (hierarchical) data — the reason whole templates, not twins, are resampled."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Bootstrap Methods and their Application"
+    resolved_at: "2026-11-03"
+  field2007:
+    title: "Bootstrapping Clustered Data"
+    authors: "Field, C. A.; Welsh, A. H."
+    year: 2007
+    venue: "Journal of the Royal Statistical Society Series B: Statistical Methodology 69(3), 369-390"
+    doi: "10.1111/j.1467-9868.2007.00593.x"
+    verified: true
+    verified_by: "klein-method-scholar (Crossref record of the DOI: title, journal, volume, issue, pages)"
+    verified_at: "2026-11-03"
+    why: "Why the cluster (template) bootstrap is the consistent one when items share a cluster effect: resampling individual twins under-states the variance."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Bootstrapping Clustered Data"
+    resolved_at: "2026-11-03"
+  miller2024:
+    title: "Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations"
+    authors: "Miller, E."
+    year: 2024
+    venue: "arXiv preprint (stat.AP), 14 pages; no venue listed"
+    arxiv: "2411.00640"
+    doi: "10.48550/arXiv.2411.00640"
+    url: "https://arxiv.org/abs/2411.00640"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page and HTML v1: sections 2.2 clustered questions, 4.2 paired analysis, 5 power analysis)"
+    verified_at: "2026-11-03"
+    why: "The LLM-eval statement of this card's statistics: clustered standard errors for related questions, the paired standard error 'wherever practicable', and power analysis before running."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations"
+    resolved_at: "2026-11-03"
+  atil2024:
+    title: 'Non-Determinism of "Deterministic" LLM Settings'
+    authors: "Atil, B.; Aykent, S.; Chittams, A.; Fu, L.; Passonneau, R. J.; Radcliffe, E.; Rajagopal, G. R.; Sloan, A.; Tudrej, T.; Ture, F.; Wu, Z.; Xu, L.; Baldwin, B."
+    year: 2024
+    venue: "arXiv preprint (v5, 2 Apr 2025); no venue listed"
+    arxiv: "2408.04667"
+    doi: "10.48550/arXiv.2408.04667"
+    url: "https://arxiv.org/abs/2408.04667"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "Five LLMs 'configured to be deterministic', 10 runs each: accuracy varied by up to 15% across runs and no model gave repeatable accuracy on every task — temperature 0 is not determinism."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Non-Determinism of \"Deterministic\" LLM Settings"
+    resolved_at: "2026-11-03"
+  he2025:
+    title: "Defeating Nondeterminism in LLM Inference"
+    authors: "He, H.; Thinking Machines Lab"
+    year: 2025
+    venue: "Thinking Machines Lab: Connectionism (technical blog), 10 Sep 2025"
+    doi: "10.64434/tml.20250910"
+    url: "https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the post; Crossref record of the DOI)"
+    verified_at: "2026-11-03"
+    why: "The mechanism: server load changes batch size and the kernels are not batch-invariant, so a temperature-0 request is not reproducible; 1,000 temperature-0 completions from Qwen3-235B-A22B-Instruct-2507 gave 80 distinct texts."
+    resolved_by: "klein-refs (crossref)"
+    resolved_title: "Defeating Nondeterminism in LLM Inference"
+    resolved_at: "2026-11-03"
+  yang2025qwen3:
+    title: "Qwen3 Technical Report"
+    authors: "Yang, A.; Li, A.; Yang, B.; et al. (Qwen Team, 60 authors)"
+    year: 2025
+    venue: "arXiv preprint (v1, 14 May 2025); no venue listed"
+    arxiv: "2505.09388"
+    doi: "10.48550/arXiv.2505.09388"
+    url: "https://arxiv.org/abs/2505.09388"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch arXiv abstract page)"
+    verified_at: "2026-11-03"
+    why: "The open-weight Qwen3 family (dense and MoE, 0.6B-235B, a thinking and a non-thinking mode in one model). It predates the qwen-flash-2025-07-28 snapshot and does not name qwen-flash: it documents the family, not this model."
+    resolved_by: "klein-refs (openalex)"
+    resolved_title: "Qwen3 Technical Report"
+    resolved_at: "2026-11-03"
+  alibaba_qwenflash:
+    title: "Qwen-Flash (qwen-flash, qwen-flash-2025-07-28) — Alibaba Cloud Model Studio model page"
+    authors: "Alibaba Cloud"
+    year: 2026
+    venue: "Alibaba Cloud Model Studio documentation, read 2026-11-03"
+    url: "https://www.alibabacloud.com/help/en/model-studio/qwen-flash-us"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the page, 2026-11-03)"
+    verified_at: "2026-11-03"
+    why: "Everything documented about the model under test: 'Qwen3 Flash', hybrid thinking/non-thinking, the alias 'functionally equivalent to the snapshot model qwen-flash-2025-07-28', 1M context, 32,768 max output tokens. Not stated: parameter count, architecture, training data, or any open-weight base."
+  alibaba_thinking:
+    title: "Deep thinking — Alibaba Cloud Model Studio"
+    authors: "Alibaba Cloud"
+    year: 2026
+    venue: "Alibaba Cloud Model Studio documentation, read 2026-11-03"
+    url: "https://www.alibabacloud.com/help/en/model-studio/deep-thinking"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the page, 2026-11-03)"
+    verified_at: "2026-11-03"
+    why: "qwen-flash is listed as hybrid thinking with thinking NOT enabled by default; enable_thinking is a non-OpenAI parameter accepted on the compatible endpoint (extra_body in the Python SDK)."
+  alibaba_openai_compat:
+    title: "OpenAI compatibility (Chat Completions parameters) — Alibaba Cloud Model Studio"
+    authors: "Alibaba Cloud"
+    year: 2026
+    venue: "Alibaba Cloud Model Studio developer reference, read 2026-11-03"
+    url: "https://alibabacloud.com/help/en/model-studio/developer-reference/compatibility-of-openai-with-dashscope"
+    verified: true
+    verified_by: "klein-method-scholar (WebFetch of the page, 2026-11-03)"
+    verified_at: "2026-11-03"
+    why: "temperature: valid range [0, 2), 'A value of 0 is not recommended', lower values give 'more deterministic' output; seed 'controls randomness' with no reproducibility promise. The study sends temperature 0 and no seed."

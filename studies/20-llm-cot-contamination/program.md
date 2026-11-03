@@ -71,9 +71,59 @@ state and must not be hand-edited.
   is the independent one.
 - The sealed DRY run answers only from the ledger and writes no table, so it spends
   nothing; it needs the development twin answers recorded first (P3, P4 run before it).
+- 2026-11-03 — one connectivity request (lead, for study 24's instrument): "Reply with
+  the single word OK." with `enable_thinking: false` top-level — accepted. Not a GSM8K
+  item; recorded here because it confirms this study's PARAMS are accepted.
 - 2026-11-03 — Decision: CONSULT re-recorded before any run to (a) say the call and
   token caps are per run, and (b) add scouting entry S4 (templates were written from
   GSM8K items). No prediction, rule, track or phase changed.
+
+## Lead decisions after the DATA/METHOD review (2026-11-03, before any study call)
+
+- Decision: pin the model to the dated snapshot `qwen-flash-2025-07-28` (served — checked
+  with the trivial "Reply with the single word OK." request); the alias can be repointed
+  by the provider mid-study. Every call also records `model_served`.
+- Decision: the twin sampler draws slot values LOG-uniformly within [v/2, 2v] (median ≈
+  the original) instead of linearly — the review measured twins ~1.3x larger than their
+  originals, which would bias `em_gap` upward — and forbids degenerate draws (a fraction
+  of 1/1, a zero quantity, a multiplier of 1 where the original's step was non-trivial).
+- Decision: the public GSM8K block excludes the skipped template candidates (7 after the fix; one, gsm-288,
+  has a gold answer the instrument shows to be wrong); it is the next 300 permutation items
+  that are neither sources nor skipped.
+- Decision (pre-registered replication tolerances, before any run): a salted re-query
+  replication of a `cot_gain` cell reproduces when |Δ em_gain| <= 0.03, of a
+  `contamination` cell when |Δ em_gap| <= 0.05 (`klein replicate --tolerance`). The 0.01
+  resolution in the contract is the metric's resolution, not a reproduction bar: the METHOD
+  review estimates temperature-0 serving noise alone fails it in roughly half to two thirds
+  of re-queries (method_card.md §4).
+- Note: on twin blocks `mcnemar_p` treats the 4 twins of a template as independent and
+  overstates the evidence; the cluster bootstrap interval is the inference there.
+- Decision: the mechanized text near-duplicate audit FAILs BY DESIGN (each twin is a
+  number-swapped copy of its own template original, which sits in train); if the re-run
+  audit shows every hit is own-template, the DATA gate proceeds by
+  `klein gate override data --reason`, the protocol's route for a reasoned exception.
+
+## Lead decisions after the second review (2026-11-03, before any study call)
+
+- The fixed sampler is in place: 50 templates, 7 skipped, 57 candidates consumed (t0096
+  retired by the degeneracy guards, t0805 templated in its place); index.csv sha256
+  a36b5e35…, split fingerprint printed by the smoke. Twin answers are now 1.13x (dev) and
+  1.29x (sealed) their originals at the median (they were 1.31x / 1.33x); the remaining
+  drift comes from answers that must stay positive (t1281, t0466, …), not from the sampler.
+- Decision: the replication tolerances are made MECHANICAL — each track's
+  `minimum_delta` is its pre-registered tolerance (cot_gain 0.03, contamination 0.05), the
+  value `klein replicate` uses when no `--tolerance` is passed. CONSULT re-recorded.
+- Decision: 5 of the 50 template sources are GSM-Symbolic templates (t1264, t0116, t0976,
+  t1031, t1088 — byte-identical questions in apple/ml-gsm-symbolic, read at branch main,
+  no commit SHA pinned): number-swapped variants of them are public. The template set is
+  NOT changed; the contamination cells' pinned per-template tables let findings report the
+  45-template split descriptively (n=5 is too small for a test). Likewise a
+  magnitude-matched sensitivity (dropping the templates whose answers must grow) is
+  descriptive, from the same tables.
+- Decision: the DATA gate proceeds by `klein gate override data --reason`: the mechanized
+  text near-duplicate rows FAIL by design (every hit is a twin against its OWN template
+  original or a twin of the same template), proved by the auditor's block-pair matrix and
+  re-checked by an adversarial reviewer; no cross-template and no GSM8K-public hit.
 
 ## Phases and registered predictions (mirror of study.yaml)
 
