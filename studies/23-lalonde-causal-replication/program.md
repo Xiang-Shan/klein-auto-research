@@ -188,3 +188,7 @@ E0005: 1-NN matching with replacement, ATT 560.28, bootstrap 95% CI [-619.80, 38
   could not run. Only `phases[estimators].max_experiments` changes — no prediction,
   rule, track, target or other budget — and the consult gate is re-recorded with this
   reason. The crashes stay in the ledger as evidence of the driver errors.
+
+### E0006 reflection (att, aipw, dw_psid, 500 reps; adjudicates P3)
+
+ATT 2683.82, bootstrap 95% CI [689.10, 4101.53], gap +889.48 vs 1794.34, n_controls_used 1146, max_weight_share 0.135 (same weights as IPW E0002; the outcome model removes about $355 of the IPW overshoot). |gap| < 1000: P3 supported by the notary. The CI is wide (about $3.4k) and covers the benchmark. After the history repair, `klein predict list` re-checked: P2 refuted (E0002), P3 supported (E0006), P4 refuted (E0005).
