@@ -2,13 +2,13 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T05:04:32.943263Z"
+      "timestamp": "2026-11-03T05:49:55.887196Z"
     }
   },
   "artifact_hashes": {
     "research_plan.md": "6ca9d03b419a29e838c135f0bc244eb36cbb18657ac37f3d87fceba5bce4b67e",
     "scouting_ledger.md": "8ef609056a75f741d8035fcf762a3e81e23fc572f1231d70fc2d124d3f150745",
-    "study.yaml": "d8706c5a1800e7a061c9f6bf551974433a758896826cde63267690557a1bf480"
+    "study.yaml": "1902a01c907bc496a29ca25efe5f92fabdb36292114b1c539d7768a711c02aae"
   },
   "created_at": "2026-11-03T04:57:31.016139Z",
   "current_phase": "cells",
@@ -30,15 +30,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T05:04:32.943263Z",
+      "acknowledged_at": "2026-11-03T05:49:55.887196Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "77db9aa5abbc2e66e4c780091c2288df309fda2e190489f0ccb5d623f4c03845",
+        "program.md": "9551832028f78be365816e464a9a5e558d34bbda438d9dc878200f25522e2169",
         "research_plan.md": "6ca9d03b419a29e838c135f0bc244eb36cbb18657ac37f3d87fceba5bce4b67e",
         "scouting_ledger.md": "8ef609056a75f741d8035fcf762a3e81e23fc572f1231d70fc2d124d3f150745",
-        "study.yaml": "d8706c5a1800e7a061c9f6bf551974433a758896826cde63267690557a1bf480"
+        "study.yaml": "1902a01c907bc496a29ca25efe5f92fabdb36292114b1c539d7768a711c02aae"
       },
-      "note": "delegated by the repository owner's approval of the Klein 2.3 plan (exhibits 20-24); see program.md Roster",
+      "note": "RE-RECORD before any run: max_run_seconds 1800 -> 5400 (it bounds a whole 3-seed array); no prediction, rule, track or phase changed",
       "status": "recorded"
     },
     "data": {
@@ -62,5 +62,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "22-cnn-data-scaling",
-  "updated_at": "2026-11-03T05:04:32.946055Z"
+  "updated_at": "2026-11-03T05:49:55.889663Z"
 }
