@@ -73,7 +73,7 @@ calls:
   model: "qwen-flash-2025-07-28"   # the dated snapshot, not the alias the provider can repoint
   budget_calls: 6000               # a hard stop in calls PER RUN (the largest cell needs about 600; the study about 2,700)
   budget_tokens: 4000000           # a hard stop in tokens PER RUN; prices are not pinned, so no USD cap
-  max_workers: 8                   # concurrent requests from chat_many
+  max_workers: 2                   # was 8: E0001 hit the account's request limit (shared with study 24)
   # price: {input_per_mtok: 0.0, output_per_mtok: 0.0}   # from the provider's page, dated
   # budget_usd: 5.0
 
@@ -82,8 +82,8 @@ max_run_seconds: 3600
 phases:
   - id: anchor
     description: "the CoT-vs-direct cell on the public GSM8K sample (P1, P2) — the identity anchor for everything after it"
-    budget_seconds: 3600
-    max_experiments: 1
+    budget_seconds: 7200          # was 3600
+    max_experiments: 2            # was 1: E0001 crashed on a provider rate limit
   - id: twins
     description: "the contamination cell (template originals vs development twins, CoT; P3) and the CoT-vs-direct cell on the development twins (P4)"
     budget_seconds: 5400

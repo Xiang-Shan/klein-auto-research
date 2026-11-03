@@ -202,3 +202,18 @@ Chosen: #1 (the phase allows one experiment and it is the identity anchor; #2-#3
   the anchor is re-run; any such change is a deliberate instrument edit, outside the
   per-experiment diff. Decision: no prediction is refuted (none adjudicated); no rerun by
   the experimenter.
+
+- 2026-11-03 — Decision (lead): E0001 crashed on HTTP 429 (`limit_requests`) after 599 of
+  ~600 calls, despite the ledger's backoff (8 attempts over ~3 min): eight concurrent
+  workers here plus study 24's on the same account kept it over the request limit.
+  `calls.max_workers` 8 -> 2; the anchor phase gets one more slot (`max_experiments` 1 -> 2,
+  `budget_seconds` 3600 -> 7200); the re-run (E0002) starts only after study 24's LLM cell
+  has finished, and answers its first 599 requests from E0001's pinned shard. E0001 stays
+  in the ledger as a crash. Consult re-recorded.
+- 2026-11-03 — Decision (lead): the experimenter's read of E0001's responses shows the
+  direct arm does NOT comply with "Answer with the final number only." (6/300 bare numbers;
+  median 289 characters; working shown). The registered prompt is NOT changed: response
+  lengths were seen (no score was computed), and changing the instrument now would adapt it
+  to observed outputs. So P1/P2 measure the registered INSTRUCTION, not answering without
+  reasoning; findings must say so and report compliance (share of bare-number replies,
+  output tokens per arm) from the pinned ledger.
