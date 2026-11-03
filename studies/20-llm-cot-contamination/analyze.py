@@ -42,7 +42,7 @@ TRACK = os.environ.get("KLEIN_TRACK")
 TRACKS = ("cot_gain", "contamination")
 
 # The lane of this cell (cot_gain, development only): "gsm8k" (P1, P2) | "twin_dev" (P4).
-CELL = {"block": "gsm8k"}
+CELL = {"block": "twin_dev"}
 
 
 def _summary(ledger: CallLedger) -> dict[str, float]:
