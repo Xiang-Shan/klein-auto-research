@@ -1,96 +1,99 @@
-Verdict: FAIL
+Verdict: PASS-WITH-NOTES
 Referee: klein-referee (Claude Code subagent, model: claude-opus-5-5) · fresh context · independent-of-experimenter: yes
 Generation: n/a
 
-# Referee report — 22-cnn-data-scaling
+# Referee report — 22-cnn-data-scaling (round 2)
 
-> Gate 3 (REFEREE). Written in a fresh context, from `findings.md` first and
+> Gate 3 (REFEREE), round 2. Written in a fresh context, from `findings.md` first and
 > `program.md` last. Protocol: `.claude/skills/klein/references/referee-protocol.md`.
 > The first two lines above are machine-read by `klein gate record referee`; the
 > third is read by people. The study has no `generation/manifest.yaml`, so `Generation:` is `n/a`.
+> Round 1 (committed at 00200ef) returned **FAIL on check 1**. This round re-applies all
+> ten checks to the revision at HEAD b26cb8d (commits 2330879, 135526d, ec397d0,
+> 9a49a52, b26cb8d) and confirms each round-1 clearing condition and note.
 
 ## Independence
 
 Rung reached (person > tool > model > backend > fresh session): **model**. I am a
-`klein-referee` subagent running on Opus (claude-opus-5-5) in a fresh context that never saw the loop.
-Experimenter: `klein-experimenter` subagent (Sonnet tier) · Claude Code (from `program.md`
-`## Roster`, row `experimenter`, which is filled in). The synthesist (Opus tier) was a separate
-subagent. I did not reach the tool rung (same tool, Claude Code) or the person rung.
+`klein-referee` subagent on Opus (claude-opus-5-5), in a fresh context that saw neither the
+loop nor round 1's reasoning (only its committed report). Experimenter, from `program.md`
+`## Roster` (row filled in): `klein-experimenter` subagent (Sonnet tier) · Claude Code. The
+synthesist (Opus tier) was a separate subagent. The tool rung (same tool, Claude Code) and
+the person rung were not reached.
 
 ## Mechanical verifiers run
 
 | Command | Result |
 |---|---|
-| `klein verify --numbers --evidence-use --no-receipt` | 34 checks, 0 failed; evidence_use_rate 1.00 (8/8); findings numbers: 239 numerals trace to 28 pinned sources; the only WARN is "not yet refereed"; noise floor "not measured" on both tracks |
-| `klein claims verify` | 7 checks, 0 failed (20 artifacts hash as recorded; append-only holds) |
+| `klein verify --numbers --evidence-use --no-receipt` | 34 checks, 0 failed. The only WARN is "not yet refereed". evidence_use_rate 1.00 (8/8). Findings numbers: 282 scanned numerals trace to 28 pinned sources. Noise floor "not measured" on both tracks. Belief revision OK. Convergent evidence: 5 confirmed claims cite two or more evidence kinds |
+| `klein claims verify` | 7 checks, 0 failed: 20 pinned artifacts hash as recorded, append-only holds, git_head is an ancestor |
 | `klein predict list` | 2 supported (P1, P7), 5 refuted (P2–P6), 0 inconclusive, 0 open |
-| `klein status` | 8 experiments, all `measured`; primary sealed 1/1 (E0008); exponent sealed 0/1 (by design) |
-| figure re-render | **no figures exist** (`figures/` holds only `.gitkeep` and `synthesis_summary.py`; there is no `make_figures.py` and `report/` is empty). Instead I re-ran `figures/synthesis_summary.py` against a scratch copy of `tables/` + `aux_metrics.tsv`: the output `tables/synthesis_summary.tsv` is **byte-identical** to the committed one |
+| `klein status` | 8 experiments, all `measured`. Sealed access: primary 1/1 (E0008), exponent 0/1 (by design) |
+| figure re-render | **No figures exist.** `figures/` holds only `synthesis_summary.py`, there is no `make_figures.py`, and `report/` is empty. I re-ran `figures/synthesis_summary.py` (as revised) against a scratch copy of `tables/` and `aux_metrics.tsv`. The resulting `tables/synthesis_summary.tsv` is **byte-identical** to the committed one, including the two new rows `rel_error_mean_of_seeds` and `rel_error_of_seed_mean_loss` |
+
+## Round-1 clearing conditions and notes: were they addressed?
+
+| Round-1 item | Addressed? | Where |
+|---|---|---|
+| Clearing, check 1: C17 prose (§④ item 5) stated the C9 mechanism as fact | **Yes** | It now reads "One untested reading (C9) is that the protocol's shared step budget, not a floor, shaped the curve; no cell was run to test it." The locked C17 sentence is unchanged |
+| Clearing, check 1: C10 "kept steepening past N=16000" was unqualified | **Yes** | It is now "a **cross-partition reading only** … confounded with the development-vs-t10k gap (C16) and reads as steepening only if the C11 interpretation holds". "Small-end slope bias" is replaced by "the flat local slope of the three smallest cells (C7, a measured shape whose cause is untested, C9)". The closing sentence is conditional ("if the steepening is real") |
+| Note 1, controls | Yes | §① "Controls" names the positive control and says no negative control was run. It says honestly that the record is silent on why |
+| Note 2, n_comparisons | Yes | §① "Multiplicity": 7 rules (3 exponent, 4 primary), no family-wise guard, with the reason |
+| Note 3, relative-error definition | Yes, via erratum E1 | See the errata row below |
+| Note 4, noise floor | Yes | program.md "Referee note 4 / Decision: no separate noise floor" (2026-11-03); §⑤ points to it |
+| Note 5, C11 selective comparison | Yes, via erratum E2 | §③ C11 now reports the full ratio row, says "does not obviously explain" instead of "unlikely", gives the inner-set sizes, and drops "strengthens C4" |
+| Note 6, "real" in §⑥ | Yes | It now reads "present in all three paired seeds (C8)" |
+| Note 7, C1/C2 evidence | Yes | `rep:E0005@20261103T084144Z` was appended to the C1 and C2 evidence lists. The lists only grew, and append-only passes |
+| **Errata path (E1/E2)** | **Correct: re-scopes, does not rewrite** | `claims.lock` adds `errata.E1` (claims [C3]) and `errata.E2` (claims [C11]). It tags `C3.errata = [E1]` and `C11.errata = [E2]`. The locked `claim` text of C3 and C11 is byte-unchanged in the diff 00200ef..HEAD, and their strengths are unchanged (C3 confirmed, C11 exploratory). The `erratum_filed` events are sequences 56 and 57 in `events.jsonl` (chain valid). In findings, the locked C3 and C11 sentences are quoted verbatim and flagged "(As locked; re-scoped by erratum E…)". An Errata appendix gives both. The new number `rel_error_seed_mean_loss` (−0.279708) was added under C3 with a home in `art:synth`. No number was removed or mutated |
 
 ## The ten checks
 
 | # | Check | Result | Evidence rested on |
 |---|---|---|---|
-| 1 | strength matches evidence | **FAIL** | The strengths in the lock fit the evidence. C1/C2 are `confirmed` on `exponent` (`require: [replicate]`), backed by `rep:E0007@20261103T084735Z`. C3/C4/C5 are `confirmed` on `primary` (`require: [sealed, replicate]`), backed by the sealed run E0008 and `rep:E0005@20261103T084144Z`. Attested runs: E0001–E0006 are `execution.mode: detached`, `observed_by_notary: false`. Findings says so in its opening paragraph and in "Strength scoping", and E0005 has an observed re-execution, so the attested-run condition is met. **However, prose states an exploratory claim as fact.** ④ item 5 (C17) says: "the curve's shape over the measured range came from the protocol (its step schedule and checkpoint rule) as much as from any floor (E0007, E0008)". That is the C9 mechanism, which §③ itself labels "*a hypothesis, not tested*" ("no step-matched or step-extended small cell was run"). Here it is restated with no qualifier, as a causal finding, and cited to E0007/E0008, which do not test it. A second instance is in ③ C10: "So beyond the small-end slope bias, the curve kept steepening past N=16000". That inference crosses partitions (N=16000 is scored on development, the full pool on t10k). C16 says this gap "cannot be split exactly between the law and the partition". The statement only holds if the C11 interpretation holds |
-| 2 | predictions adjudicated and reported | PASS | All 7 adjudicated in `study_state.json` by `source: run` (P1/P2/P5 by E0007; P3/P4/P6/P7 by E0008). The §② table matches the ledger row for row. Every refuted prediction (P2, P3, P4, P5, P6) has a dated `Decision:` line in `program.md`, and `klein verify` "belief revision" agrees |
-| 3 | negative evidence reported | PASS | evidence_use_rate 1.00. There are no discards, crashes or sweeps. The two `sweeps/sealed_dryrun.*.log` files are disclosed as dry runs. All eight `measured` cells are cited |
-| 4 | controls | PASS (note) | A positive control exists. The method card's §4 synthetic harness recovers a planted exponent (α 0.200 at floor fraction 0; signed error +0.000) through `lib/scaling.py`, which is the fit code E0007 ran. No negative control (shuffled labels or a constant predictor at ln 10) was run. Its absence is not declared in findings, and the data card's NOTE 3 defers the chance check. This is not a FAIL, because a control is present. See note 1 |
-| 5 | multiple comparisons | PASS (note) | `n_comparisons` is not stated anywhere. Each confirmed claim (C1–C5) applies one pre-registered deterministic threshold rule to one registered cell. None is the best of a searched family, and there are no p-values, so no confirmed claim comes from an unguarded selection. See note 2 |
-| 6 | pre-registration integrity | PASS | There are two consult re-records, both before any run. 05:49:55Z: `max_run_seconds` 1800→5400, no prediction changed. 06:45:26Z: P5–P7 registered from the METHOD analysis, P3 wording names the 59,992 pool, rules unchanged. `study.yaml` was last changed at commit 20e6454 (06:45:25Z), and its hash b1b7d96b… is pinned by the gate and by `art:contract`. The first run started at 07:42:44Z (E0001). The fit E0007 (08:08Z) was frozen before the sealed access E0008 (08:09:56Z). The sealed dry runs trained 60 steps on development data only |
-| 7 | numbers traceable (hand-checked: see list) | PASS | `--numbers` passes, and there are no `klein:numbers-ok` markers in findings or the lock. I recomputed these from `runs/E000*/seeds.tsv` and `tables/scaling_fit.tsv`. (i) The predicted loss 2.125837·59992^−0.130360 = 0.50659 matches the pinned 0.5066. (ii) Predicted minus measured = 0.11073, matching the pinned 0.1107. (iii) The 3-cell OLS local exponent over 500–2000 is −0.00960, and over 4000–16000 it is 0.21270, with refit a = 4.4164 predicting 0.42536 (rel. −0.07450). These match C7/C10. (iv) The per-seed slopes are 0.14232, 0.12598 and 0.12193, and the t₂ interval is 0.10326 to 0.15689. These match C12. (v) The paired N1000−N500 gaps are 0.1490, 0.1748 and 0.0347, with mean 0.1195. These match C8. (vi) The sealed ratio 0.395864/0.363943 = 1.08771 and the cross-partition exponent 0.26742 match C11/C10. See note 3 on the rel-error definition |
-| 8 | references | PASS | All 13 `ref:` keys cited in findings resolve in `references.yaml`, and all 16 rows there are `verified: true`. The method card's `refs_verified: true` is consistent with that. No confirmed claim (C1–C5) rests on a reference |
-| 9 | figures | PASS (n/a) | No figure is committed, so nothing can be pixel-checked or axis-critiqued at this gate. The one derived-table script re-renders byte-identically (above). Figures arrive at TUTORIAL and are not refereed here |
-| 10 | vocabulary and scope | PASS (note) | No ml-research banned word appears ("SOTA", "beats", "converged", unqualified "faster"/"generalizes") in findings or the lock. No resolution is sold as materiality: ⑤ says `minimum_delta` 0.001 is "a contract resolution, not a measured floor". No simulation claim is made. There is no floor estimand to name because none was measured, and that is disclosed. See note 4 |
+| 1 | strength matches evidence | PASS | **Confirmed claims.** C1 and C2 are on `exponent` (`require: [replicate]`), backed by `rep:E0007@20261103T084735Z` and now also by `rep:E0005@20261103T084144Z`. C3, C4 and C5 are on `primary` (`require: [sealed, replicate]`), backed by the sealed run E0008 (`execution.mode: local`, run in the foreground under the notary) and by `rep:E0005@20261103T084144Z`. **Attested runs.** E0001–E0006 have `execution.mode: detached` and `observed_by_notary: false`. Findings states this in its opening paragraph. "Strength scoping" adds that rep:E0007 replicates the fit's arithmetic, not the cells, and that only E0005 was re-executed. The protocol accepts either an observed replication or such a sentence, and both exist. **Exploratory claims in prose.** I re-read every section afresh. C9 and C11 are labelled interpretation/hypothesis. C10's cross-partition reading is qualified. C17 names C9 as untested. §⑤ cites "the untested reading C9", and the post-hoc rows are labelled exploratory. One residual soft phrase is in §⑥ (note 2) and does not amount to an unqualified causal claim |
+| 2 | predictions adjudicated and reported | PASS | All 7 are adjudicated by run in state: P1, P2 and P5 by E0007 (events 39–41), and P3, P4, P6 and P7 by E0008 (events 48–51). The §② table matches `klein predict list` row for row. Each refuted prediction (P2–P6) has a dated `Decision:` line in program.md, and verify's belief-revision check agrees |
+| 3 | negative evidence reported | PASS | evidence_use_rate is 1.00 (8/8). There are no discards, crashes or sweeps, and findings discloses the two `sweeps/sealed_dryrun.*.log` files as no-spend dry runs |
+| 4 | controls | PASS | Positive control: the method card's §4 synthetic harness recovers a planted α of 0.200 at floor fraction 0, with signed error +0.000 (method_card.md lines 370–380), through `lib/scaling.py`. That control covers the fit code only, not the training or evaluation path. Negative control: not run, and findings declares the absence. It says the record gives no reason and calls the far-below-chance losses (at most 0.9492 against ln 10 ≈ 2.30) "a sanity bound, not a control". That is honest, and the FAIL condition (neither present nor declared) does not hold |
+| 5 | multiple comparisons | PASS | `n_comparisons` = 7 is stated per family (3 + 4). No guard was applied, and findings gives the reason: one deterministic threshold per pre-registered cell, no selection, no p-values. The post-hoc C6–C12 stay exploratory |
+| 6 | pre-registration integrity | PASS | Consult was recorded three times, all before the first run (07:42:44Z): 05:04:32Z initial; 05:49:55Z `max_run_seconds` 1800→5400; 06:45:26Z P5–P7 registered from METHOD analysis plus P3 wording for the 59,992 pool, rule unchanged. `study.yaml` was last changed at 20e6454 (06:45:25Z). The fit E0007 (08:08Z) came before the sealed dry runs (08:09:27Z, 08:09:53Z) and the sealed E0008 (08:09:56Z). Round 2 changed no prediction or contract |
+| 7 | numbers traceable (hand-checked: −0.2797, 1.0813, 0.1195, 0.0090, 0.0824/0.0876) | PASS | `--numbers` passes, and there are no `klein:numbers-ok` markers in findings, the lock or the report. I recomputed from `runs/E000*/seeds.tsv` and `aux_metrics.tsv`, independently of `synthesis_summary.tsv`. (i) (0.395864 − 0.50659)/0.395864 = −0.279708 (C3/E1), against a per-seed mean of −0.280152 (C3 locked). (ii) The E0004 held-out/inner ratio is 0.756999/mean(best_inner_loss) = 1.08134 (C11/E2). E0001 gives 1.22454 and E0002 gives 1.08007. (iii) The paired N1000−N500 gaps are 0.149007, 0.174837 and 0.034737, mean 0.119527 (C8). (iv) The E0008 seed sd (ddof 1) is 0.009036 (C3 row, §⑤). (v) val_ece is 0.082366 at E0002 and 0.087568 at E0003, so the "rises from N=1000 to N=2000" exception holds. ECE falls monotonically from N=2000 (0.0876 → 0.0477 → 0.0317 → 0.0261 → 0.0104). The MC5 half value 2202.67 = mean(2240, 2240, 2128) also checks out |
+| 8 | references | PASS | All 13 `ref:` keys in findings resolve in `references.yaml`. All 16 rows there are `verified: true`, and the method card's `refs_verified: true` is consistent. The confirmed claims C1–C5 rest on no reference |
+| 9 | figures | PASS (n/a) | No figure is committed, so there are no pixels or axes to critique at this gate. The derived-table script re-renders byte-identically (above). Figures arrive at TUTORIAL |
+| 10 | vocabulary and scope | PASS | None of the ml-research banned or must-qualify words ("SOTA", "state of the art", "beats", "converged", "faster", "generalizes") appears in findings or the lock. "Real" now appears only in a conditional (C10). §⑤ calls `minimum_delta` 0.001 "a contract resolution, not a measured floor", so resolution is not sold as materiality. No floor was measured, so no estimand is due; that is a recorded decision now. No simulation claims are made. §⑤ scopes the exponent "to this protocol, not of the network alone" |
 
-## Notes
+## Notes (PASS-WITH-NOTES: each needs a dated `Referee note:` answer in program.md)
 
-These must be answered with dated `Referee note:` lines in `program.md` once the FAIL is cleared.
+1. **program.md states C9 as fact (checks 1/10, documentation only).** Findings correctly
+   labels the compute-limited reading untested (C9). The lab notebook still states it
+   flatly in three places. The E0002 observation says "the small cells are compute-limited,
+   not data-limited". The E0006 observation says "the curve measures a compute-limited
+   protocol". The P4/P6 Decision says "Reading: the small-N cells were compute-limited at
+   the 400-step floor". These are contemporaneous notebook entries and must not be
+   rewritten. Add a dated `Referee note:` saying they are readings superseded by C9's
+   "hypothesis, untested" status. Otherwise the TUTORIAL stage, which mines program.md
+   for the journey, may re-promote the hypothesis to fact.
+2. **§⑥ Rosenfeld/Hoffmann/Bahri bullet.** "it says a floor, if present, was masked by the
+   steepening" is an interpretation phrased as what the data says, and the steepening
+   past N=16000 is itself only a cross-partition reading (C10). Prefer "one reading is
+   that a floor, if present, was masked by the in-range steepening (C7)". This can be
+   answered in program.md or in a findings edit before TUTORIAL. It is not a locked claim.
+3. **For the next reader (no action needed beyond acknowledgement).** The primary track's
+   `replicate` requirement is met by an observed re-execution of a development cell
+   (E0005), not of the sealed cell. The sealed cell E0008 was itself observed. Findings
+   "Strength scoping" states this correctly. The positive control also covers the fit
+   code only, not the training or evaluation pipeline, and the negative control's
+   absence has no recorded reason. Both are disclosed, and a successor study should run
+   a shuffled-label cell.
 
-1. **Controls (check 4).** Findings never says which controls exist. Add one sentence: the
-   positive control is the method card's synthetic recovery of a planted α through `lib/scaling.py`.
-   The negative control (chance-level ln 10 ≈ 2.30, or a shuffled-label cell) was not run, and
-   the reason should be given.
-2. **Multiplicity (check 5).** State `n_comparisons`: 7 registered rules, 3 on `exponent` and 4
-   on `primary`. Also say that no family-wise guard was applied, because each rule is a single
-   deterministic threshold on a pre-registered cell, not a selection.
-3. **Relative-error definition (check 7).** The quoted −0.2802 is the mean of the three per-seed
-   relative errors. The seed-mean loss gives (0.395864 − 0.506590)/0.395864 = −0.2797. The
-   difference is immaterial, but C3's sentence should say "seed mean of per-seed signed relative
-   errors". The registered method (program.md Decision on per-seed errors) already defines it that way.
-4. **Noise floor (check 10).** `policy.noise_floor: required`, yet `klein verify` reports the floor
-   "not measured" on both tracks. On registered tracks no keep bar is used, and findings says so.
-   The per-cell seed sd (`runs/E####/seeds.tsv`) is the only noise measure. Record this in program.md
-   as a decision rather than leaving it implicit.
-5. **C11's comparison is selective.** The "test looks harder" contrast uses the two largest development
-   cells (ratios 1.0158 and 1.0161). The pinned `tables/synthesis_summary.tsv` also has E0004 at 1.0813,
-   E0002 at 1.0801 and E0001 at 1.2245, so the held-out/inner ratio is not monotone in N. E0008's 1.0877
-   sits close to E0004's. The inner sets also differ in size (800/1600 vs 5,999 images), which changes
-   how optimistic the min-over-checkpoints is. C11 is labelled an interpretation and is exploratory, so
-   this is not a FAIL. Still, report the full ratio row and soften "unlikely". The clause "and so
-   strengthens C4" should go: C4 is a procedural verdict on a registered rule and needs no mechanism.
-6. **"Real" in ⑥.** "the inversion is real across all three seeds" overstates 3/3 paired seeds (a sign
-   test gives 1/8 under the null). Say "present in all three paired seeds" (C8 is exploratory).
-7. **C1/C2 evidence list.** Neither cites `rep:E0005@20261103T084144Z`, the only observed re-execution of an
-   input cell. The prose's attested-run sentence carries the disclosure, so this is not a FAIL. A future
-   claims revision could add it, without mutating the lock.
+## Clearing conditions (FAIL only)
 
-## Development-vs-test disclosure (asked for specifically)
+None. No FAIL condition holds in round 2. Round 1's two check-1 clearing conditions are met
+(see the table above).
 
-The fit cells (development lane, train rows 50,000–59,999) and the sealed cell (official t10k) are scored on
-different partitions. This is disclosed in the opening paragraph, in the C4 row and sentence, and in C11, C16,
-⑤ and the ECE sentence. It is also the subject of ⑦ item 2. Disclosure is adequate. The FAIL above is about
-C10 drawing a "kept steepening" conclusion across that very gap without qualification.
+## Recording
 
-## Clearing conditions (FAIL)
-
-- **Check 1, ④ item 5 (C17 prose).** Qualify or remove the clause "— the curve's shape over the measured
-  range came from the protocol (its step schedule and checkpoint rule) as much as from any floor (E0007,
-  E0008)". An acceptable form: "— one untested reading (C9) is that the protocol's shared step budget, not a
-  floor, shaped the curve". It must name C9 and its status. The locked C17 sentence already omits the clause
-  and does not need to change.
-- **Check 1, ③ C10 prose.** Qualify "So beyond the small-end slope bias, the curve kept steepening past
-  N=16000". It is a cross-partition reading that is confounded with the development-vs-t10k gap (C16) and
-  holds only under the C11 interpretation. "small-end slope bias" should be described as the flat local
-  slope of the three smallest cells (C7), not as a bias with a cause.
-- Then re-run `klein verify --numbers --evidence-use` and `klein claims verify` and return to REFEREE, where
-  a fresh referee pass reads the revised findings. The notes above should be answered in the same revision.
+The referee does not record its own gate (protocol, "What the referee may never do"). The
+orchestrator records it after reading this report:
+`uv run --locked klein gate record referee --study studies/22-cnn-data-scaling --acknowledged-by <orchestrator>`.
+Before `klein finalize`, notes 1–3 must be answered with dated `Referee note:` lines in
+`program.md`.
