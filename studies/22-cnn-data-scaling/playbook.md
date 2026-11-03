@@ -10,7 +10,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary (registered, no incumbent) | cells so far E0001 N=500 (0.830), E0002 N=1000 (0.949) | non-monotone start | detached 3-seed arrays | - |
+| primary (registered, no incumbent) | cells so far E0001 N=500 (0.830), E0002 N=1000 (0.949), E0003 N=2000 (0.841) | flat/noisy start | detached 3-seed arrays | - |
 
 ## Ruled out (evidence, not opinion)
 
@@ -29,3 +29,4 @@
 ## Observations
 
 - E0002: N=1000 loss > N=500 loss; best_step at the 400-step floor for both. Small cells appear step-limited (floor of 400 steps = fewer epochs at larger N). Watch whether N>=2000 (steps grow with N only above ~N=2,844) restores monotonicity.
+- E0003: N=2000 loss 0.841; first three cells flat/noisy, all on the 400-step floor with best_step 350-400. Test: N=4000 is the first cell with steps (563) above the floor.
