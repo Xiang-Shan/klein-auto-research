@@ -10,7 +10,7 @@
 
 | Track | Exp | Metric | Config one-liner | Held since |
 | --- | --- | --- | --- | --- |
-| primary (registered, no incumbent) | cells so far: N=500 0.830, 1000 0.949, 2000 0.841, 4000 0.757 (E0001-E0004) | not yet a clean power law | detached 3-seed arrays | - |
+| primary (registered, no incumbent) | cells so far: N=500 0.830, 1000 0.949, 2000 0.841, 4000 0.757, 8000 0.652 (E0001-E0005) | monotone for N>=1000-2000 | detached 3-seed arrays | - |
 
 ## Ruled out (evidence, not opinion)
 
@@ -31,3 +31,4 @@
 - E0002: N=1000 loss > N=500 loss; best_step at the 400-step floor for both. Small cells appear step-limited (floor of 400 steps = fewer epochs at larger N). Watch whether N>=2000 (steps grow with N only above ~N=2,844) restores monotonicity.
 - E0003: N=2000 loss 0.841; first three cells flat/noisy, all on the 400-step floor with best_step 350-400. Test: N=4000 is the first cell with steps (563) above the floor.
 - E0004: N=4000 loss 0.757, best_step 550-563 of 563 (end of budget). Every cell so far is compute-limited (best checkpoint at the end); remaining question is whether N=8000/16000 continue down.
+- E0005: N=8000 loss 0.652 (sd 0.007), best_step 1100/1125. Wall 288 s; N=16000 expected ~600 s.
