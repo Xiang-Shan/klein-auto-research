@@ -13,7 +13,7 @@ file is refused by its pin):
 
 Outputs (`data.prepared_path`, the directory the DATA gate fingerprints):
 
-* `data/prepared/images.npy` — uint8, shape (70000, 28, 28): the 60,000 official
+* `data/prepared/images.npy` — uint8, shape (69987, 28, 28) after the near-copy removal: the 60,000 official
   train images in file order, then the 10,000 official t10k images in file order.
   Row i is the image of index row i. Raw pixel values; the training protocol
   (`lib/protocol.py`) divides by 255.
