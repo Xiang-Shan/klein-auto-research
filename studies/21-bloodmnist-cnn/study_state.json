@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T05:17:53.894931Z"
+      "timestamp": "2026-11-03T05:50:01.865353Z"
     },
     "data": {
       "by": "lead-agent",
@@ -18,7 +18,7 @@
     "method_card.md": "239e08449bdc6242b870d0302362af0f984ceacf5f84356466ac8649a79ef7ee",
     "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
     "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
-    "study.yaml": "671a8e22fec107165100207defb02d38d41c6cc70e95fc25ac64ce15f7c23fb2"
+    "study.yaml": "429b5d61c128122a4058d2827f6a8c2d32e42422a9cdaf32c6227aa3c6c59fee"
   },
   "created_at": "2026-11-03T04:45:23.119158Z",
   "current_phase": "anchor",
@@ -40,15 +40,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T05:17:53.894931Z",
+      "acknowledged_at": "2026-11-03T05:50:01.865353Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "ce0538d93eec679a6f8b96fb9c9a6b4208ffd5a2dacb8ec5fee61b2fe5d38587",
+        "program.md": "a3689d1d192d4ab468795ae6c2981cf06d7c61ff79bee17cb753e720222a78cc",
         "research_plan.md": "4a6478f862268a3e0c6a6a4bad1b508f79e2f86dd52cc1aace0fe842485018cc",
         "scouting_ledger.md": "361c13b45cd6dce430e7a373e9e045370453d6eb5822f1c967065982e473d538",
-        "study.yaml": "671a8e22fec107165100207defb02d38d41c6cc70e95fc25ac64ce15f7c23fb2"
+        "study.yaml": "429b5d61c128122a4058d2827f6a8c2d32e42422a9cdaf32c6227aa3c6c59fee"
       },
-      "note": "RE-RECORD before any run: RQ1 prior text corrected (auto-sklearn used raw flattened pixels, not feature engineering, per MedMNIST v2 Table 3) and RQ4's probability made explicit; no prediction, rule, track or phase changed",
+      "note": "minimum_delta set from the measured noise floor: item bootstrap of the anchor macro-F1 (marginal-resplit) 0.0438435; fit_noise block recorded as provenance (seed blocks, std 0.0472)",
       "status": "recorded"
     },
     "data": {
@@ -142,5 +142,5 @@
       "sidecar_sha256": "eefad610fedb9f309819ea9c536e976861f88901f3778794198e39489b8317cd"
     }
   },
-  "updated_at": "2026-11-03T05:49:48.899784Z"
+  "updated_at": "2026-11-03T05:50:01.867266Z"
 }
