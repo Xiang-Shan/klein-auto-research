@@ -171,7 +171,28 @@ def load_state(study_dir: Path, contract: Mapping[str, Any], *, create: bool = F
             "its contract; see docs/migration-schema2-to-3.md"
         )
     reconcile_state(value, contract)
+    _repoint_unstarted_phase(study_dir, value, contract)
     return value
+
+
+def _repoint_unstarted_phase(study_dir: Path, state: dict[str, Any], contract: Mapping[str, Any]) -> None:
+    """Follow a phase ladder rewritten at CONSULT, before anything happened in it.
+
+    ``klein new`` (and every recipe) scaffolds a generic first phase; CONSULT then
+    writes the study's own ladder, leaving ``current_phase`` naming a phase the
+    contract no longer has. While NO phase has been acknowledged and NO run exists,
+    nothing was spent or decided inside that phase, so the state follows the
+    contract's first phase (in memory; the next state write persists it). Once a
+    run or a phase acknowledgement exists the mismatch stays a loud preflight
+    failure — a renamed phase with evidence in it is a contract change, not a typo.
+    """
+    ids = _phase_ids(contract)
+    current = state.get("current_phase")
+    if not ids or current in ids or state.get("phase_acknowledgements"):
+        return
+    if any((study_dir / "runs").glob("E*/manifest.json")):
+        return
+    state["current_phase"] = ids[0]
 
 
 def save_state(study_dir: Path, state: dict[str, Any]) -> None:
