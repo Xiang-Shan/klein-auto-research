@@ -1,0 +1,62 @@
+warning: The `UV_NATIVE_TLS` environment variable is deprecated and will be removed in a future release. Use `UV_SYSTEM_CERTS` instead.
+artifact: calls/E0003-000.jsonl.gz
+Traceback (most recent call last):
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 496, in <module>
+    main()
+    ~~~~^^
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 467, in main
+    pairs, extra, payload["llm"] = run_llm(orders, trials, limit, batch, optima)
+                                   ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 412, in run_llm
+    raise error
+  File "/usr/local/lib/python3.13/concurrent/futures/thread.py", line 59, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/user/wt-24/studies/24-golomb-llm-vs-search/search.py", line 335, in llm_pair
+    reply = ledger.chat(_messages(n, k, proposals, batch, previous,
+                                  None if best is None else best[-1]),
+                        sample=trial, **LLM_PARAMS)
+  File "/home/user/wt-24/kleinlib/calls.py", line 250, in chat
+    response = self.request("chat.completions", payload, sample=sample)
+  File "/home/user/wt-24/kleinlib/calls.py", line 292, in request
+    response = self.transport(self.base_url or "", payload)
+  File "/home/user/wt-24/kleinlib/calls.py", line 114, in openai_chat
+    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 189, in urlopen
+    return opener.open(url, data, timeout)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 489, in open
+    response = self._open(req, data)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 506, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+                              '_open', req)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 466, in _call_chain
+    result = func(*args)
+  File "/usr/local/lib/python3.13/urllib/request.py", line 1379, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        context=self._context)
+                        ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/urllib/request.py", line 1335, in do_open
+    r = h.getresponse()
+  File "/usr/local/lib/python3.13/http/client.py", line 1478, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/http/client.py", line 343, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/http/client.py", line 304, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/socket.py", line 723, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+  File "/usr/local/lib/python3.13/ssl.py", line 1327, in recv_into
+    return self.read(nbytes, buffer)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/ssl.py", line 1161, in read
+    return self._sslobj.read(len, buffer)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+ConnectionResetError: [Errno 104] Connection reset by peer
+runner_status: crash
+runner_exit_code: 1
