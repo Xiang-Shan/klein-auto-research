@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -234,6 +236,25 @@ def test_simulation_with_real_split_audits_like_regression(tmp_path):
     assert all(c.ok for c in checks), [(c.name, c.message) for c in checks]
     names = {c.name for c in checks}
     assert "shuffled-chance[primary]" in names  # chance rows really ran
+
+
+def test_scalar_task_with_real_split_audits_like_regression(tmp_path):
+    """Study 23's DATA gate found it: a schema-3 `task_type: scalar` study's split
+    must reproduce as the regression-shaped split contract_split gives it."""
+    yaml_text = POISSON_YAML.replace("task_type: regression", "task_type: scalar")
+    prepared, study = _write_fixture(tmp_path, _make_counts_frame(), yaml_text)
+    checks = {c.name: c for c in audit_split(prepared, target="claims", study_dir=study)}
+    assert checks["split-reproduces"].ok, checks["split-reproduces"].message
+
+
+def test_predefined_split_reproduces_from_its_column(tmp_path):
+    df = _make_counts_frame()
+    df["partition"] = np.where(df.index % 5 == 0, "test", np.where(df.index % 5 == 1, "development", "train"))
+    yaml_text = POISSON_YAML.replace("task_type: regression", "task_type: scalar")
+    yaml_text = re.sub(r"(?m)^(\s*)kind: \w+", r"\1kind: predefined\n\1split_column: partition", yaml_text, count=1)
+    prepared, study = _write_fixture(tmp_path, df, yaml_text)
+    checks = {c.name: c for c in audit_split(prepared, target="claims", study_dir=study)}
+    assert checks["split-reproduces"].ok, checks["split-reproduces"].message
 
 
 def test_simulation_custom_metric_gets_direction_and_na_chance(tmp_path):
