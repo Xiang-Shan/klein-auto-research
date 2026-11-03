@@ -2,7 +2,7 @@
   "acknowledgements": {
     "consult": {
       "by": "lead-agent",
-      "timestamp": "2026-11-03T05:18:40.202054Z"
+      "timestamp": "2026-11-03T06:15:31.245849Z"
     },
     "data": {
       "by": "lead-agent",
@@ -18,7 +18,7 @@
     "method_card.md": "058fb9f47afa5bd1f5450cfaf0f45457a2f099b4281d1a142d8b8a78456c0e85",
     "research_plan.md": "efb81b07f8ecacbd13cdb2ef70ee51e8e836e0acc6a805505b08c46cb0838973",
     "scouting_ledger.md": "ab1fce365d651104bbe24a6d8f1b38b6dcf061e912187bb7cca459bc0cede43b",
-    "study.yaml": "bf11c6566967877fab07db7770a0f7c20687b9bffac23e80e7b719c93343c80a"
+    "study.yaml": "b8cb958c06c617f35fdc05a7a24ad649ae957077412317072bc0f31436e99b7f"
   },
   "created_at": "2026-11-03T04:41:22.375465Z",
   "current_phase": "confirmation",
@@ -50,15 +50,15 @@
   },
   "gates": {
     "consult": {
-      "acknowledged_at": "2026-11-03T05:18:40.202054Z",
+      "acknowledged_at": "2026-11-03T06:15:31.245849Z",
       "acknowledged_by": "lead-agent",
       "artifacts": {
-        "program.md": "4ce004248bd10c9792a131c04eca32a8f3d048d9fa8790eb2ec88fbee77295b2",
+        "program.md": "4d2cdd58cb0c5025e1383aa1b5e2f145860d1b27eb39ee9e8edaa17d00e04f09",
         "research_plan.md": "efb81b07f8ecacbd13cdb2ef70ee51e8e836e0acc6a805505b08c46cb0838973",
         "scouting_ledger.md": "ab1fce365d651104bbe24a6d8f1b38b6dcf061e912187bb7cca459bc0cede43b",
-        "study.yaml": "bf11c6566967877fab07db7770a0f7c20687b9bffac23e80e7b719c93343c80a"
+        "study.yaml": "b8cb958c06c617f35fdc05a7a24ad649ae957077412317072bc0f31436e99b7f"
       },
-      "note": "RE-RECORD: phases[estimators].max_experiments 4 -> 6 only, because driver crashes E0003/E0004 spent two slots of the four pre-registered cells (P3, P5 not yet run); no prediction, rule, track or target changed",
+      "note": "RE-RECORD: max_run_seconds 900 -> 10800, att wall_seconds guardrail 900 -> 10800, confirmation budget_seconds 2400 -> 14400, because the mandatory ATT dry run timed out under machine load; the selected cell, predictions, rules and targets are unchanged",
       "status": "recorded"
     },
     "data": {
@@ -225,5 +225,5 @@
   "schema_version": 3,
   "status": "active",
   "study_id": "23-lalonde-causal-replication",
-  "updated_at": "2026-11-03T05:58:22.051645Z"
+  "updated_at": "2026-11-03T06:15:31.255660Z"
 }
