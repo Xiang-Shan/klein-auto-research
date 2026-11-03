@@ -165,3 +165,11 @@ Chosen order: P2, P4, P3, P5 (lead's order) -- IPW is the tie-break baseline of 
 ATT 3038.44, bootstrap 95% CI [976.01, 4501.30], gap +1244.09 vs experimental 1794.34, n_controls_used 1146 of 2490, max_weight_share 0.135 (13.5% of the control weight sits on one unit -- concentrated, as RQ3 feared). The CI covers the experimental value, but the point estimate misses the $1,000 band: P2 refuted by the notary.
 
 - 2026-11-03 — Decision: P2 REFUTED at E0002 (|gap| 1244.09 > 1000). Odds-weighted IPW on DW's PSID-1 logit overshoots by about $1.2k with a heavy single-unit weight; the prediction stays as registered, IPW remains the tie-break baseline of the selection rule.
+
+### E0003-E0005 reflection (att, match, dw_psid; adjudicates P4)
+
+Process note (driver error, recorded as data): E0003 was interrupted when the experimenter's own foreground wrapper timeout killed `klein run-one` mid-run (stale lock removed after confirming no live run; `klein recover` filed it as a crash with NA). E0004 was then launched with `CELL` still on ipw (the notary restores the surface) and was killed by the experimenter before completing: crash, NA. Both are bugs of the loop driver, not bad ideas, and carry no scientific content. E0005 is the real P4 cell.
+
+E0005: 1-NN matching with replacement, ATT 560.28, bootstrap 95% CI [-619.80, 3857.86], gap -1234.06 vs 1794.34, n_controls_used 56 (distinct matched controls), max_weight_share 0.146. The estimate undershoots by more than $1,000: P4 refuted by the notary.
+
+- 2026-11-03 — Decision: P4 REFUTED at E0005 (|gap| 1234.06 > 1000). Matching on DW's PSID-1 logit lands about $1.2k below the benchmark on only 56 distinct controls with a wide CI; direction is opposite to IPW (E0002, +1244). The prediction stays as registered.
