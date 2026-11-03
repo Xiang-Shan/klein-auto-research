@@ -1,0 +1,141 @@
+{
+  "artifacts": {},
+  "claims": {
+    "C1": {
+      "claim": "RQ1 | search | supported (prior \"at most half\" held) | confirmed | empirical-description | E0001, rep:E0001@20261103T090037Z, E0005, art:synth_summary, ref:oeis_a003022 | At a budget of 2000 candidate evaluations per pair the classical search matched the tabulated optimum in 0 of 12 development pairs, its mean gap growing from 5.667 to 35.333 length units across the four development orders, and a re-execution reproduced the count exactly. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C10": {
+      "claim": "Report a matched-evaluation budget beside its compute: at 2000 evaluations per pair",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C11": {
+      "claim": "Count an LLM arm's outcomes in orders as well as in pairs: the trials of an order",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C12": {
+      "claim": "Treat a rerun after a crash as partly the crashed run: E0004 answered 1136 of 2400",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C13": {
+      "claim": "Declare a price block before a model-calling run: this study's calls block declares",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C14": {
+      "claim": "Keep the replica's solution table when an LLM cell is re-queried: the salted",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C15": {
+      "claim": "Do not read a match on a tabulated object as search: a matched-budget comparison on",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C16": {
+      "claim": "The matched rulers re-attain upper bounds already known to be tight, length 34 at",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C2": {
+      "claim": "RQ2 | llm | refuted (prior \"about even that it reaches 9 of 12\") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:sol_E0004, art:rep_E0004, ref:oeis_a003022 | On the same development pairs the LLM arm matched the tabulated optimum in 6 of 12 pairs, all three trials of the two orders that matched and none of the other two, and a salted re-query of every call reproduced the count of 6 of 12 but not the pair-level detail: first-batch matches 2 against 1, valid rulers 788 against 719, unparsed replies 531 against 593. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C3": {
+      "claim": "RQ2 | llm vs search | inconclusive as an inference; the count difference is measured | exploratory | empirical-description | E0001, E0004, art:synth_summary | The development contrast is +6 pairs for the LLM arm over the search arm, with an exact McNemar p of 0.03125 when the 12 pairs are treated as independent, which does not clear the Bonferroni level of 0.025 for the two arm contrasts, and a p of 0.5 when the four orders are the unit, so the advantage is a measured count difference on two orders, not an established rate. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C4": {
+      "claim": "RQ3 | llm | refuted (prior \"yes for most matches\") | exploratory | empirical-description | E0004, rep:E0004@20261103T090054Z, art:synth_pairs | Only 1 of 12 development pairs held a verified optimum in its first proposal batch, and 2 of 12 in the salted re-query; 5 of 6 matched pairs first reached the optimum after verifier feedback, at proposals as late as 74 of 200, so the registered first-batch recall signature was not observed, which does not exclude recall, because a late match can be a resampled or repaired memory. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C5": {
+      "claim": "RQ4 | search, llm | supported for search (prior 0.85 held); LLM arm did not reach the optimum | confirmed | empirical-description | E0005, E0006, art:sol_E0005, art:sol_E0006, art:synth_summary, ref:robinson1979, ref:robinson1983 | On the sealed orders both arms matched the tabulated optimum in 0 of 6 pairs; the search arm's best verified lengths stayed at least 48 length units above it, and the LLM arm produced no verified ruler at all, with an invalid best in 6 of 6 pairs, 265 of 1200 replies unparsed and none of its candidates a valid Golomb ruler. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C6": {
+      "claim": "all | search, llm | procedural | confirmed | procedural-verdict | E0001, E0004, E0005, E0006 | The predictions ledger holds 2 supported and 3 refuted of the 5 registered predictions: P1 and P4 supported, P2, P3 and P5 refuted, each refutation answered by a dated Decision line in program.md. |",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C7": {
+      "claim": "Untested hypothesis: the LLM arm's matches are retrieval of tabulated rulers. Every",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C8": {
+      "claim": "Untested hypothesis: order nine failed for the LLM arm, with no valid ruler in 600",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    },
+    "C9": {
+      "claim": "The method card's prior that recall dominates the matches (first-batch matches at",
+      "class": null,
+      "errata": [],
+      "evidence": [],
+      "numbers": [],
+      "strength": "exploratory"
+    }
+  },
+  "errata": {},
+  "git_head": "614c6df266bc0f9f07b064004cef77464fbe143d",
+  "klein_commit": "614c6df266bc0f9f07b064004cef77464fbe143d",
+  "klein_version": "2.2.0",
+  "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
+  "lock_schema": 2,
+  "numbers": {},
+  "study_id": "24-golomb-llm-vs-search"
+}
