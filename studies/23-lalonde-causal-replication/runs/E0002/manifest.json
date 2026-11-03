@@ -89,8 +89,10 @@
   "timed_out": false,
   "track": "att",
   "transaction": {
-    "ready_at": "2026-11-03T05:11:08.020340Z",
-    "status": "pending"
+    "committed_at": "2026-11-03T05:11:08.148266Z",
+    "evidence_commit": "719ca216c9b8a18933983462fd0e24393010695e",
+    "recovered": false,
+    "status": "complete"
   },
   "wall_seconds": 315.15709200499987
 }
