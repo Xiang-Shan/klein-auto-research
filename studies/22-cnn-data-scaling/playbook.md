@@ -23,4 +23,4 @@
 
 ## Next-best candidates (ranked — mirror of the phase slate, see references/phase-ritual.md)
 
-1. (fill at the phase-start slate ritual)
+1. cells phase slate: N=500, 1000, 2000, 4000, 8000, 16000 in ascending order (see program.md). Then fit phase (P1, P2, P5).

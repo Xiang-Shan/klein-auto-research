@@ -137,7 +137,18 @@ propose 4-6 falsifiable candidates, score novelty / testability / expected
 information 1-3, record the table and the chosen candidate here, and mirror
 the ranked survivors into playbook.md "Next-best candidates".
 
-### Phase <id> slate
+### Phase cells slate
 
 | # | Candidate (falsifiable) | Novelty 1-3 | Testable 1-3 | Info 1-3 | Sum |
 | --- | --- | --- | --- | --- | --- |
+| 1 | Cell N=500 (detached, 3 seeds): highest loss, anchors the fit's left end; expect best_step well below 400 steps cap (overfit-limited) | 3 | 3 | 3 | 9 |
+| 2 | Cell N=1000: first doubling; expect loss drops by ~2^-alpha (0.75-0.90x) | 2 | 3 | 3 | 8 |
+| 3 | Cell N=2000: expect monotone decline; checks the curve is not already flattening | 2 | 3 | 3 | 8 |
+| 4 | Cell N=4000: mid-curve; seed spread should shrink | 2 | 3 | 3 | 8 |
+| 5 | Cell N=8000: expect best_step near the end of its budget (compute-limited onset) | 2 | 3 | 3 | 8 |
+| 6 | Cell N=16000: longest cell, anchors the extrapolation base; wall time under load is the risk | 2 | 2 | 3 | 7 |
+
+Order chosen: ascending N (cheapest first, fail-fast on the detached path). All six are
+required by the fit phase, so none is dropped. No cell adjudicates a prediction.
+
+### Cell journal
