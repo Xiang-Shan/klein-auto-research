@@ -42,7 +42,6 @@ from .checks import (
     Check,
     _artifact_hash_problems,
     _headroom_check,  # noqa: F401  (re-exported as workflow._headroom_check)
-    _legacy_results_problems,  # noqa: F401  (re-exported)
     _study_python_sources,  # noqa: F401  (re-exported)
     _v2_ledger_problems,  # noqa: F401  (re-exported)
     preflight_checks,
@@ -602,11 +601,6 @@ def _validate_requested_predictions(
     ids = [part for part in ids if part]
     if not ids:
         return []
-    if schema_version(contract) < 3:
-        raise WorkflowError(
-            "--tests adjudicates registered predictions, which are a schema-3 "
-            "contract key; this study is schema 2"
-        )
     registered = registered_predictions(contract)
     for name in ids:
         entry = registered.get(name)
@@ -682,11 +676,7 @@ def sealed_dry_run(
         log_path.parent.mkdir(parents=True, exist_ok=True)
         cmd = tuple(
             command
-            or (
-                tuple(entrypoint_spec(contract)["command"])
-                if schema_version(contract) >= 3
-                else ("uv", "run", "--locked", "python", "-u", "train.py")
-            )
+            or tuple(entrypoint_spec(contract)["command"])
         )
         untracked_before = _untracked_study_files(study_dir)
         process = run_subprocess(
@@ -941,11 +931,7 @@ def _close_transaction(
                 echo=echo,
                 required=policy(contract, "realized_split") == "required",
             )
-            if schema_version(contract) >= 3:
-                # Schema-3 only: a schema-2 study never printed `artifact:`
-                # lines, so its manifests keep exactly the artifacts the
-                # before/after inventory diff always recorded.
-                declared_artifacts.update(_declared_artifacts(study_dir, log_path))
+            declared_artifacts.update(_declared_artifacts(study_dir, log_path))
             verifier = tracks[track].get("verifier")
             if isinstance(verifier, Mapping):
                 # The checker is never the searcher: the disposition is
@@ -1493,7 +1479,7 @@ def run_one(
         surface = mutable_surface(contract)
         surface_rels = [_relative(repo, study_dir / name) for name in surface]
         surface_names = ", ".join(surface)
-        seeds = seed_array(contract) if schema_version(contract) >= 3 else None
+        seeds = seed_array(contract)
         if detach and "detached" not in execution_modes(contract):
             raise WorkflowError(
                 "run-one --detach needs `entrypoint.execution: [local, detached]` in study.yaml, "
@@ -1506,14 +1492,9 @@ def run_one(
                 "entrypoint.seeds cannot be combined with a declared verifier in Klein 2.3 "
                 "(the checker would re-score one artifact per seed); drop one of the two"
             )
-        # Schema 2 always ran train.py; schema 3 names its entrypoint by kind
-        # (a Hubble regression is not "trained"), so the default command comes
-        # from the contract.  ``--command`` still overrides either.
-        default_command: tuple[str, ...] = (
-            tuple(entrypoint_spec(contract)["command"])
-            if schema_version(contract) >= 3
-            else ("uv", "run", "--locked", "python", "-u", "train.py")
-        )
+        # The entrypoint is named by kind (a Hubble regression is not "trained"),
+        # so the default command comes from the contract; ``--command`` overrides it.
+        default_command: tuple[str, ...] = tuple(entrypoint_spec(contract)["command"])
         # On a REGISTERED track a replication IS evidence: an identical cell
         # re-run to decide a named prediction is exactly the kind of repeat
         # science wants, so `--tests P#` earns the same exemption `--allow-rerun`
@@ -1922,64 +1903,63 @@ def finalize(
         text = findings.read_text(encoding="utf-8")
         if not re.search(rf"(?i)\b{label}\b", text):
             raise WorkflowError(f"findings.md must explicitly label the study `{label}`")
-        # --- the predictions ledger closes with the study (schema 3) --------
+        # --- the predictions ledger closes with the study -------------------
         # A belief written down before the evidence is only worth writing down
         # if the study says, at the end, what became of it.  Two refusals: an
         # OPEN prediction (decided nowhere) and an UNREPORTED one (decided in
         # the ledger, absent from findings §②).
         closure: dict[str, Any] = {}
-        if schema_version(contract) >= 3:
-            still_open = open_predictions(contract, state)
-            if still_open and not allow_open_predictions:
+        still_open = open_predictions(contract, state)
+        if still_open and not allow_open_predictions:
+            raise WorkflowError(
+                "cannot finalize with open predictions: "
+                + ", ".join(still_open)
+                + " — adjudicate each (`klein run-one --tests P#`, or "
+                "`klein predict adjudicate P# --verdict … --evidence …`), or "
+                "record why they stay open with --allow-open-predictions "
+                '--reason "<why>"'
+            )
+        if still_open:
+            if not open_predictions_reason.strip():
                 raise WorkflowError(
-                    "cannot finalize with open predictions: "
-                    + ", ".join(still_open)
-                    + " — adjudicate each (`klein run-one --tests P#`, or "
-                    "`klein predict adjudicate P# --verdict … --evidence …`), or "
-                    "record why they stay open with --allow-open-predictions "
-                    '--reason "<why>"'
+                    "--allow-open-predictions requires --reason: an unadjudicated "
+                    "belief is a finding, and the receipt must say which one"
                 )
-            if still_open:
-                if not open_predictions_reason.strip():
-                    raise WorkflowError(
-                        "--allow-open-predictions requires --reason: an unadjudicated "
-                        "belief is a finding, and the receipt must say which one"
-                    )
-                closure["open_predictions"] = {
-                    "ids": still_open,
-                    "reason": open_predictions_reason,
-                }
-            problems = _findings_prediction_problems(study_dir, contract, text)
-            if problems:
-                raise WorkflowError("; ".join(problems))
-            # Gate 3: an author cannot audit their own conclusions, and neither
-            # can the model that ran the loop.  Closing without a referee is
-            # allowed and is DISCLOSED — on the receipt and in `klein status`.
-            reviewed = referee_gate(state)
-            if reviewed is None and not no_referee:
+            closure["open_predictions"] = {
+                "ids": still_open,
+                "reason": open_predictions_reason,
+            }
+        problems = _findings_prediction_problems(study_dir, contract, text)
+        if problems:
+            raise WorkflowError("; ".join(problems))
+        # Gate 3: an author cannot audit their own conclusions, and neither
+        # can the model that ran the loop.  Closing without a referee is
+        # allowed and is DISCLOSED — on the receipt and in `klein status`.
+        reviewed = referee_gate(state)
+        if reviewed is None and not no_referee:
+            raise WorkflowError(
+                "the referee gate is not recorded: REFEREE (Gate 3) runs between "
+                "SYNTHESIZE and finalize — a fresh context on a different model or "
+                "tool writes referee_report.md, then `klein gate record referee "
+                "--acknowledged-by <actor>`. To close unrefereed, pass --no-referee "
+                '--reason "<why>" (recorded; the study is labelled `unrefereed`).'
+            )
+        if reviewed is None:
+            if not referee_reason.strip():
                 raise WorkflowError(
-                    "the referee gate is not recorded: REFEREE (Gate 3) runs between "
-                    "SYNTHESIZE and finalize — a fresh context on a different model or "
-                    "tool writes referee_report.md, then `klein gate record referee "
-                    "--acknowledged-by <actor>`. To close unrefereed, pass --no-referee "
-                    '--reason "<why>" (recorded; the study is labelled `unrefereed`).'
+                    "--no-referee requires --reason: an unreviewed study says so "
+                    "on its own receipt"
                 )
-            if reviewed is None:
-                if not referee_reason.strip():
-                    raise WorkflowError(
-                        "--no-referee requires --reason: an unreviewed study says so "
-                        "on its own receipt"
-                    )
-                closure["referee"] = {"status": "unrefereed", "reason": referee_reason}
-            else:
-                closure["referee"] = {
-                    "status": "refereed",
-                    "verdict": reviewed.get("verdict"),
-                    "referee": reviewed.get("referee"),
-                    "independent_of_experimenter": reviewed.get(
-                        "independent_of_experimenter"
-                    ),
-                }
+            closure["referee"] = {"status": "unrefereed", "reason": referee_reason}
+        else:
+            closure["referee"] = {
+                "status": "refereed",
+                "verdict": reviewed.get("verdict"),
+                "referee": reviewed.get("referee"),
+                "independent_of_experimenter": reviewed.get(
+                    "independent_of_experimenter"
+                ),
+            }
         # --------------------------------------------------------------------
         if STRONG_CLAIM_RE.search(text) and not UNCERTAINTY_EVIDENCE_RE.search(text):
             # Loud warning, not a hard stop: prose like "the real dataset" is a
@@ -2018,21 +1998,14 @@ def finalize(
 def status_summary(study_dir: Path) -> str:
     contract = load_contract(study_dir)
     version = schema_version(contract)
-    if version == 1:
-        rows = max(0, len((study_dir / "results.tsv").read_text(encoding="utf-8").splitlines()) - 1)
-        return f"study: {study_dir.name}\nschema: v1 (deprecated compatibility)\nexperiments: {rows}\n"
     state = load_state(study_dir, contract)
     manifests = load_manifests(study_dir)
     counts = {key: 0 for key in VALID_DISPOSITIONS}
     for manifest in manifests:
         counts[str(manifest.get("disposition"))] = counts.get(str(manifest.get("disposition")), 0) + 1
     # A registered track has no keep chain, so `measured` is reported beside
-    # keep/discard rather than folded into either.  Shown for every schema-3
-    # study and for any ledger that actually holds one; a schema-2 status line
-    # is unchanged.
-    measured = (
-        f" measured={counts['measured']}" if version >= 3 or counts["measured"] else ""
-    )
+    # keep/discard rather than folded into either.
+    measured = f" measured={counts['measured']}"
     lines = [
         f"study: {state['study_id']}",
         f"schema: v{version}",
@@ -2058,38 +2031,37 @@ def status_summary(study_dir: Path) -> str:
             for track in normalize_tracks(contract)
         )
     )
-    if version >= 3:
-        # The four numbers the referee's rubric and findings §② are checked
-        # against.  `open` is the absence of a record, not a stored verdict.
-        tally = prediction_counts(prediction_ledger(contract, state))
-        lines.append(
-            f"predictions: {tally['supported']} supported, {tally['refuted']} refuted, "
-            f"{tally['inconclusive']} inconclusive, {tally['open']} open"
+    # The four numbers the referee's rubric and findings §② are checked
+    # against.  `open` is the absence of a record, not a stored verdict.
+    tally = prediction_counts(prediction_ledger(contract, state))
+    lines.append(
+        f"predictions: {tally['supported']} supported, {tally['refuted']} refuted, "
+        f"{tally['inconclusive']} inconclusive, {tally['open']} open"
+    )
+    reviewed = referee_gate(state)
+    closed = state.get("finalization")
+    unrefereed = (
+        closed.get("referee", {}) if isinstance(closed, Mapping) else {}
+    ).get("status") == "unrefereed"
+    if reviewed is not None:
+        independence = (
+            "yes" if reviewed.get("independent_of_experimenter") else "no"
         )
-        reviewed = referee_gate(state)
-        closed = state.get("finalization")
-        unrefereed = (
-            closed.get("referee", {}) if isinstance(closed, Mapping) else {}
-        ).get("status") == "unrefereed"
-        if reviewed is not None:
-            independence = (
-                "yes" if reviewed.get("independent_of_experimenter") else "no"
-            )
-            lines.append(
-                f"referee: {reviewed.get('verdict')} — {reviewed.get('referee')}, "
-                f"independent-of-experimenter: {independence}"
-            )
-        elif unrefereed:
-            lines.append(
-                "referee: unrefereed (finalized with --no-referee: "
-                f"{closed['referee'].get('reason')})"
-            )
-        else:
-            lines.append("referee: not recorded (Gate 3 runs before finalize)")
-        # The three D14 numbers, on the same line `klein verify` reports them:
-        # how much of the record the study actually used, how many refutations
-        # went unrecorded, how many confirmations rest on a single kind of look.
-        lines.append(evidence_use(study_dir, contract, state, manifests).summary())
+        lines.append(
+            f"referee: {reviewed.get('verdict')} — {reviewed.get('referee')}, "
+            f"independent-of-experimenter: {independence}"
+        )
+    elif unrefereed:
+        lines.append(
+            "referee: unrefereed (finalized with --no-referee: "
+            f"{closed['referee'].get('reason')})"
+        )
+    else:
+        lines.append("referee: not recorded (Gate 3 runs before finalize)")
+    # The three D14 numbers, on the same line `klein verify` reports them:
+    # how much of the record the study actually used, how many refutations
+    # went unrecorded, how many confirmations rest on a single kind of look.
+    lines.append(evidence_use(study_dir, contract, state, manifests).summary())
     pending = [m["experiment"] for m in manifests if m.get("transaction", {}).get("status") != "complete"]
     lines.append(f"pending transactions: {', '.join(pending) if pending else 'none'}")
     return "\n".join(lines) + "\n"

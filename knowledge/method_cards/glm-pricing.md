@@ -4,7 +4,7 @@ type: method-card
 domain: insurance
 status: seed
 concepts: [logistic-regression, link-function, splines, binning-linear, encoder-criticality, isotonic-calibration, threshold-tuning, weak-signal, class-weight]
-related: [../best-practices-auto-insurance.md, ../encoder-comparison.md, gbdt-tabular.md]
+related: [../domains/insurance/best-practices-auto-insurance.md, ../encoder-comparison.md, gbdt-tabular.md]
 triad:                 # asserted retroactively at v0.3 (cards predate the contract)
   theory: true
   papers: false
@@ -13,7 +13,7 @@ triad:                 # asserted retroactively at v0.3 (cards predate the contr
 
 # GLM / Logistic Regression for Insurance Risk
 
-*Seed card. Campaign anchors come from the 2026-04 insurance-claims model survey; see `../best-practices-auto-insurance.md` and `../encoder-comparison.md`. A study's Gate-2 `method_card.md` instantiates this against that study's data.*
+*Seed card. Campaign anchors come from the 2026-04 insurance-claims model survey; see `../domains/insurance/best-practices-auto-insurance.md` and `../encoder-comparison.md`. A study's Gate-2 `method_card.md` instantiates this against that study's data.*
 
 ## 1. Practitioner intuition (for actuaries)
 
@@ -122,7 +122,7 @@ entirely with feature engineering + calibration, no change of model family.
 
 ## 5. References
 
-- `../best-practices-auto-insurance.md` — Q1 lever order, the imbalance verdict, threshold targets (this campaign).
+- `../domains/insurance/best-practices-auto-insurance.md` — Q1 lever order, the imbalance verdict, threshold targets (this campaign).
 - `../encoder-comparison.md` — full per-family encoder table (the 0.4039 ordinal result and the high-cardinality treatment).
 - `../insights-and-framework.md` §2.3, §6.2–6.4 — the family-relative FE / binning / calibration asymmetries.
 - de Jong, P. & Heller, G. Z. (2008). *Generalized Linear Models for Insurance Data.* Cambridge University Press (International Series on Actuarial Science).

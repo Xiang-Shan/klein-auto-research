@@ -1,26 +1,32 @@
-"""Command-line interface for the Klein v0.2 research workflow."""
+"""Command-line interface for Klein."""
 
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import json
 import sys
 from pathlib import Path
 
-from . import __version__
+from . import __version__, api
 from .cli_claims import register as register_claims
+from .cli_demo import register as register_demo
 from .cli_doctor import register as register_doctor
-from .cli_generation import register as register_generation
 from .cli_host import register as register_host
+from .cli_map import register as register_map
 from .cli_predict import register as register_predict
+from .cli_probe import register as register_probe
 from .cli_replicate import register as register_replicate
+from .cli_skill import register as register_skill
 from .cli_stop import register as register_stop
 from .cli_sweep import register as register_sweep
-from .contract import KNOWN_KINDS, load_contract, mutable_surface
+from .contract import load_contract, mutable_surface
+from .inquiry import kind_names, modality_names, profile_names
 from .noise_floor import add_recipe_arguments
+from .plugins import cli_registrars
 from .recipes import RECIPES, apply_recipe, recipe_defaults
 from .scaffold import apply_runner, scaffold_study
-from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
 from .workflow import (
     WorkflowError,
     abandon_detached,
@@ -47,7 +53,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"klein {__version__}")
     sub = parser.add_subparsers(dest="command_name", required=True)
 
-    new = sub.add_parser("new", help="scaffold a schema-3 study (--schema-version 2 for the frozen v2 shape)")
+    new = sub.add_parser("new", help="scaffold a study: a typed contract, templates and an empty ledger")
     new.add_argument("slug", help="study id, e.g. 03-calibration")
     new.add_argument("--root", type=Path, default=Path("studies"), help="parent directory for the study (default: studies/)")
     new.add_argument("--goal", help="one-sentence falsifiable study goal")
@@ -72,35 +78,28 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
     new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
     new.add_argument(
-        "--schema-version",
-        type=int,
-        choices=(2, 3),
-        default=3,
-        help="contract rule set (default: 3 — the typed inquiry; 2 is the frozen shape)",
-    )
-    new.add_argument(
         "--kind",
-        choices=KNOWN_KINDS,
+        choices=kind_names(),
         help="the question's shape; also names the scaffolded entrypoint "
-        "(train.py / analyze.py / simulate.py / search.py). Schema 3 only",
+        "(train.py / analyze.py / simulate.py / search.py)",
     )
     new.add_argument(
         "--modality",
-        choices=KNOWN_MODALITIES,
-        help="the evidence source's shape; selects the Gate-1 card. Schema 3 only",
+        choices=modality_names(),
+        help="the evidence source's shape; selects the Gate-1 card",
     )
     new.add_argument(
         "--profile",
-        choices=KNOWN_PROFILES,
-        help="the audience whose vocabulary is honest here. Schema 3 only",
+        choices=profile_names(),
+        help="the audience whose vocabulary is honest here",
     )
     new.add_argument(
         "--profile-doc",
-        help="a repo-relative .md profile of your own, instead of --profile. Schema 3 only",
+        help="a repo-relative .md profile of your own, instead of --profile",
     )
     new.add_argument(
         "--audience",
-        help="who reads this study, in a sentence. Schema 3 only",
+        help="who reads this study, in a sentence",
     )
     new.add_argument(
         "--track",
@@ -190,8 +189,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--tests",
         metavar="P1[,P2]",
-        help="adjudicate these registered predictions against this run's printed "
-        "block (schema 3)",
+        help="adjudicate these registered predictions against this run's printed block",
     )
     run.add_argument("--quiet", action="store_true")
     run.add_argument(
@@ -243,13 +241,11 @@ def build_parser() -> argparse.ArgumentParser:
     _study_arg(recovery)
     status = sub.add_parser("status", help="show gates, frontiers, transactions, and sealed-test use")
     _study_arg(status)
-    status.add_argument("--json", action="store_true", help="machine-readable status")
     nxt = sub.add_parser(
         "next",
         help="the ONE next action this study needs, with the exact command (read-only)",
     )
     _study_arg(nxt)
-    nxt.add_argument("--json", action="store_true", help="machine-readable output")
     final = sub.add_parser("finalize", help="mark findings exploratory or confirmed")
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
@@ -289,7 +285,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     verify = sub.add_parser(
         "verify",
-        help="validate a v1 or v2 study; v1 studies get deprecation errata, never a rewrite",
+        help="re-check the whole study: contract, gates, ledger, predictions, claims, numbers; "
+        "writes a receipt (--no-receipt only reads)",
     )
     _study_arg(verify)
     verify.add_argument(
@@ -299,22 +296,21 @@ def build_parser() -> argparse.ArgumentParser:
         "prepared data, a model blob marked committed:false — is absent; use after "
         "regenerating the study's local artifacts",
     )
-    # Tri-state on purpose: absent means "the default for this study's schema"
-    # (schema 3 on, schema 2 off), so a schema-2 study's output stays byte-identical.
+    # --numbers, --claims and --evidence-use are on by default; the flags stay so
+    # that every documented `klein verify --numbers --evidence-use` keeps working.
     verify.add_argument(
         "--numbers",
         action="store_true",
         default=None,
-        help="scan findings.md for numerals with no home in a pinned artifact "
-        "(enforcing on schema 3, advisory on schema 2); report/index.html always "
-        "gets a second, always-advisory pass. Default: on for schema 3",
+        help="scan findings.md for numerals with no home in a pinned artifact; "
+        "report/index.html gets a second, always-advisory pass. On by default",
     )
     verify.add_argument(
         "--claims",
         action="store_true",
         default=None,
         help="add the claim-sentence numeral scan to the claims law's check 5 "
-        "(`references/claims-protocol.md`). Default: on for schema 3",
+        "(`references/claims-protocol.md`). On by default",
     )
     verify.add_argument(
         "--evidence-use",
@@ -324,14 +320,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="check that every discard, crash, measured cell and registered sweep is "
         "cited in program.md or findings.md (evidence_use_rate), that every refuted "
         "prediction has a dated `Decision:` line, and that confirmed claims cite two "
-        "or more evidence kinds. Default: on for schema 3",
+        "or more evidence kinds. On by default",
     )
     verify.add_argument(
         "--receipt",
         action=argparse.BooleanOptionalAction,
         default=None,
-        help="write and commit verify_receipt.json (--no-receipt to skip). "
-        "Default: on for schema 3, off for schema 2",
+        help="write and commit verify_receipt.json (default); --no-receipt only "
+        "reads — use it to check a study you do not own",
     )
     verify.add_argument(
         "--strict",
@@ -341,17 +337,111 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     register_claims(sub)  # kleinlib/cli_<group>.py owns its own verbs
+    register_demo(sub)
     register_doctor(sub)
-    register_generation(sub)
     register_host(sub)
+    register_map(sub)
     register_predict(sub)
+    register_probe(sub)
     register_replicate(sub)
+    register_skill(sub)
     register_stop(sub)
     register_sweep(sub)
+    # Everything outside the kernel arrives through the plug-in seam — the opt-in
+    # generation layer included (kleinlib/plugins.py).
+    for register in cli_registrars():
+        register(sub)
+    _mark_leaves(parser, ())
     return parser
 
 
+def _mark_leaves(parser: argparse.ArgumentParser, path: tuple[str, ...]) -> None:
+    """Give every leaf verb its name (``_verb``) and a ``--json`` flag.
+
+    One envelope for every verb (``kleinlib.api``): a verb with structured output
+    fills ``data``; any other verb's printed text comes back as ``data.text``.
+    """
+    children = [
+        action for action in parser._actions if isinstance(action, argparse._SubParsersAction)
+    ]
+    if children:
+        for action in children:
+            for name, child in action.choices.items():
+                _mark_leaves(child, (*path, name))
+        return
+    parser.set_defaults(_verb=" ".join(path))
+    if "--json" not in parser._option_string_actions:
+        parser.add_argument(
+            "--json",
+            action="store_true",
+            help="print one machine-readable envelope instead of text (kleinlib.api)",
+        )
+
+
+#: Verbs whose arguments belong to a script that ships with the skill: everything
+#: after the verb is handed over untouched, `--help` included.
+_PASSTHROUGH: tuple[tuple[tuple[str, ...], str], ...] = (
+    (("summarize",), "summarize_results.py"),
+    (("report", "build"), "build_tutorial.py"),
+)
+
+
+def main(argv: list[str] | None = None) -> int:
+    utf8_streams()
+    raw = list(sys.argv[1:] if argv is None else argv)
+    for verb, script in _PASSTHROUGH:
+        if tuple(raw[: len(verb)]) == verb:
+            from .cli_skill import _run_script
+
+            try:
+                return _run_script(script, raw[len(verb) :])
+            except WorkflowError as exc:
+                print(f"klein: error: {exc}", file=sys.stderr)
+                return 2
+    args = build_parser().parse_args(argv)
+    if not getattr(args, "json", False):
+        return _dispatch(args)
+    # --json: the verb runs exactly as in text mode, with its prints captured;
+    # what it emitted (api.emit), or the JSON it printed, becomes `data`.
+    verb = getattr(args, "_verb", "") or str(getattr(args, "command_name", ""))
+    sink: dict = {}
+    captured, errors = io.StringIO(), io.StringIO()
+    previous, api._SINK = api._SINK, sink
+    try:
+        with contextlib.redirect_stdout(captured), contextlib.redirect_stderr(errors):
+            code = _dispatch(args)
+    finally:
+        api._SINK = previous
+    data: dict = dict(sink)
+    text = captured.getvalue()
+    if not data and text.strip():
+        try:
+            printed = json.loads(text)
+        except ValueError:
+            data = {"text": text}
+        else:
+            data = printed if isinstance(printed, dict) else {"items": printed}
+    problems = [
+        {"level": "error", "code": "refused", "message": line.removeprefix("klein: error: ")}
+        for line in errors.getvalue().splitlines()
+        if line.startswith("klein: error: ")
+    ]
+    problems += [
+        {
+            "level": "error" if row["level"] == "fail" else "warn",
+            "code": "check",
+            "name": row["name"],
+            "message": row["message"],
+        }
+        for row in data.get("checks", [])
+        if isinstance(row, dict) and row.get("level") in {"fail", "warn"}
+    ]
+    print(json.dumps(api.envelope(verb, data, ok=code == 0, problems=problems), indent=2, sort_keys=True))
+    return code
+
+
 def _print_checks(checks) -> int:
+    api.emit_checks(checks)
     failures = 0
     for check in checks:
         marker = "OK" if check.ok else "FAIL"
@@ -412,17 +502,13 @@ def utf8_streams() -> None:
             continue
 
 
-def main(argv: list[str] | None = None) -> int:
-    utf8_streams()
-    args = build_parser().parse_args(argv)
+def _dispatch(args: argparse.Namespace) -> int:
     try:
         if (handler := getattr(args, "handler", None)) is not None:
             return handler(args)  # a cli_<group> module's verb, dispatched generically
         if args.command_name == "new":
             defaults: dict[str, object] = {}
             if args.recipe:
-                if args.schema_version != 3:
-                    raise WorkflowError("--recipe scaffolds a schema-3 study")
                 defaults = recipe_defaults(args.recipe)
             def pick(name: str, value: object, fallback: object = None) -> object:
                 return value if value is not None else defaults.get(name, fallback)
@@ -447,7 +533,6 @@ def main(argv: list[str] | None = None) -> int:
                 group_column=args.group_column,
                 time_column=args.time_column,
                 max_run_seconds=pick("max_run_seconds", args.max_run_seconds, 600),
-                schema_version=args.schema_version,
                 kind=pick("kind", args.kind),
                 modality=pick("modality", args.modality),
                 profile=None if explicit_profile_doc else pick("profile", args.profile),
@@ -459,6 +544,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"recipe {args.recipe}: wrote {', '.join(written)}")
             if args.runner == "python":
                 apply_runner(study, "python")
+            api.emit({"study": str(study), "branch": f"experiments/{args.slug}"})
             print(f"scaffolded {study}")
             print(f"next: git switch -c experiments/{args.slug}   # then: klein next --study {study}")
             return 0
@@ -521,6 +607,7 @@ def main(argv: list[str] | None = None) -> int:
                 phase=args.phase,
             )
             past = {"record": "recorded", "override": "overridden"}[args.gate_action]
+            api.emit({"gate": args.gate, "status": past})
             print(f"{past} gate {args.gate}")
             return 0
         if args.command_name == "headroom":
@@ -599,6 +686,7 @@ def main(argv: list[str] | None = None) -> int:
                     "sealed (recorded as discard — confirmation evidence, "
                     "excluded from the adaptive frontier)"
                 )
+            api.emit({"run": api.run_summary(manifest)})
             print(
                 f"{manifest['experiment']}: {label} "
                 f"metric={manifest['primary_metric']} commit={manifest['candidate_commit']}"
@@ -621,24 +709,21 @@ def main(argv: list[str] | None = None) -> int:
             return 0 if manifest["disposition"] != "crash" else 1
         if args.command_name == "recover":
             recovered = recover(study)
+            api.emit({"recovered": list(recovered)})
             print("recovered: " + (", ".join(recovered) if recovered else "none"))
             return 0
         if args.command_name == "status":
-            if args.json:
-                from .next_step import status_data
+            from .next_step import status_data
 
-                print(json.dumps(status_data(study), indent=2, sort_keys=True))
-                return 0
+            api.emit(status_data(study))
             print(status_summary(study), end="")
             return 0
         if args.command_name == "next":
             from .next_step import format_next, next_step
 
             result = next_step(study)
-            if args.json:
-                print(json.dumps(result, indent=2, sort_keys=True))
-            else:
-                print(format_next(result), end="")
+            api.emit(result)
+            print(format_next(result), end="")
             return 0
         if args.command_name == "finalize":
             label = finalize(
@@ -649,6 +734,7 @@ def main(argv: list[str] | None = None) -> int:
                 no_referee=args.no_referee,
                 referee_reason=args.reason,
             )
+            api.emit({"label": label})
             print(f"finalized: {label}")
             return 0
         if args.command_name == "verify":

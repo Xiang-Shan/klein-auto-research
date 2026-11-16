@@ -1,10 +1,8 @@
 """The schema-3 study fixture, and the loop invariants that change with it.
 
-``ready_study`` (in ``test_workflow_v2``) is frozen: it scaffolds the schema-2
-shape and every test in that module pins schema-2 behaviour forever.
-``ready_study_v3`` is its schema-3 sibling — typed inquiry, declared entrypoint,
-gates recorded, on an experiments branch — re-exported through ``conftest.py`` so
-sibling modules can inject it by name.
+``ready_study_v3`` — typed inquiry, declared entrypoint, gates recorded, on an
+experiments branch — is re-exported through ``conftest.py`` (also under the alias
+``ready_study``) so sibling modules can inject it by name.
 """
 
 from __future__ import annotations

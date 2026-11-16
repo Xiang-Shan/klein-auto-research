@@ -126,11 +126,14 @@ def test_cli_next_and_status_json(capsys) -> None:
     study = (ROOT / "studies" / "00-known-truth-quickstart").as_posix()
     assert main(["next", "--study", study, "--json"]) == 0
     out = json.loads(capsys.readouterr().out)
-    assert out["next"]["stage"] == "closed"
+    assert (out["verb"], out["ok"], out["format"], out["problems"]) == ("next", True, 1, [])
+    assert out["data"]["next"]["stage"] == "closed"
+    assert out["data"]["next"]["stage_id"] == "closed"
+    assert out["data"]["next"]["argv"][:2] == ["klein", "verify"]
     assert main(["next", "--study", study]) == 0
     assert "stage: closed" in capsys.readouterr().out
     assert main(["status", "--study", study, "--json"]) == 0
-    assert json.loads(capsys.readouterr().out)["study"] == "00-known-truth-quickstart"
+    assert json.loads(capsys.readouterr().out)["data"]["study"] == "00-known-truth-quickstart"
 
 
 def test_sealed_tracks_skip_a_track_that_closes_on_replication() -> None:

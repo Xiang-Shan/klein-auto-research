@@ -2,8 +2,20 @@
 
 Repo-level tooling that isn't part of the `klein` skill itself (that lives under
 `.claude/skills/klein/scripts/` — `summarize_results.py`, `build_tutorial.py`,
-`make_figures.py`; scaffolding and preflight checks are the packaged `klein new` /
-`klein preflight` CLI verbs).
+`make_figures.py`, run as `klein summarize`, `klein report build` and the
+`klein explain template:make_figures.py` template; scaffolding and preflight checks are
+the packaged `klein new` / `klein preflight` CLI verbs).
+
+## `gen_cli_reference.py`
+
+Generates `docs/cli.md`, the one list of every `klein` verb, from the command line itself
+(the parser is the spec; nothing else in the repository restates the verb list).
+`scripts/tests/test_cli_reference.py` fails when the page is stale.
+
+```bash
+uv run --locked python scripts/gen_cli_reference.py            # rewrite docs/cli.md
+uv run --locked python scripts/gen_cli_reference.py --check    # exit 1 if stale
+```
 
 ## `verify_shipped_studies.py`
 
@@ -13,7 +25,7 @@ table, and exits non-zero if any shipped ledger stops verifying. Run it before a
 engine change is committed.
 
 ```bash
-uv run --no-sync python scripts/verify_shipped_studies.py [--studies 07-iris-90years ...]
+uv run --no-sync python scripts/verify_shipped_studies.py [--studies 10-hubble-1929-replication ...]
 ```
 
 Two artifact classes are never committed by policy: prepared datasets (`.gitignore`:
@@ -80,10 +92,10 @@ Dry-run by default; `--apply` writes objects and transactions but does NOT commi
 
 ## `check_generated_tutorial_network.py`
 
-Builds a fresh temporary v2 tutorial with the real assembler, opens its `file://`
+Builds a fresh temporary tutorial with the real assembler, opens its `file://`
 URL in headless Chrome, and inspects Chrome's `URL_REQUEST_START_JOB` netlog events.
 The check fails on any HTTP(S) request and can write a small JSON evidence record.
-It intentionally does not inspect or rewrite the immutable v0.1 reports.
+It intentionally does not inspect or rewrite the immutable shipped reports.
 
 ```bash
 uv run --no-sync python scripts/check_generated_tutorial_network.py \
@@ -92,7 +104,7 @@ uv run --no-sync python scripts/check_generated_tutorial_network.py \
 
 ## `check_shipped_reports.py`
 
-Focused acceptance on the twelve reports we already shipped, measured in a real
+Focused acceptance on the reports we already shipped, measured in a real
 browser: zero page-initiated HTTP(S) requests (the sibling script's netlog
 machinery, imported so the two jobs cannot drift), no sideways scroll at
 1440/768/390/320 px, every `nav.topnav` anchor landing below the sticky nav's
@@ -104,18 +116,18 @@ The reports ship a `default-src 'none'` CSP, so the measurement cannot be
 injected into a report. Instead a wrapper page in a temp dir `<iframe>`s the
 report, measures `iframe.contentDocument`, and base64s the JSON into its own
 `<pre id="result">`, which `--dump-dom` hands back — one bounded subprocess, no
-debugging port. Schema-2 studies (03, 05–09) and any schema-3 report built before
+debugging port. Any report built before
 the builder's current layout generation (the page head's
 `<meta name="generator" content="klein build_tutorial layout-N">`) are measured
 but reported `LEGACY`: they are shipped history, and only a current-generation
-schema-3 report's FAIL sets the exit code.
+report's FAIL sets the exit code.
 
 ```bash
 uv run --locked python scripts/check_shipped_reports.py \
-  --evidence shipped-reports-evidence.json [--studies 15-iris-90years-relaunch]
+  --evidence shipped-reports-evidence.json [--studies 00-known-truth-quickstart]
 ```
 
-Exits 1 when a schema-3 report fails a check, 2 on a usage error, 0 otherwise.
+Exits 1 when a report fails a check, 2 on a usage error, 0 otherwise.
 `.github/workflows/scheduled.yml`'s `shipped-reports` job runs it weekly on
 ubuntu-latest with `poppler-utils` installed and uploads the evidence record.
 On macOS, `Google Chrome --headless=new` hangs on any page containing an iframe

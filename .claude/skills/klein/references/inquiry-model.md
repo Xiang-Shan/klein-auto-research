@@ -1,4 +1,4 @@
-# The inquiry model — what a Klein study IS (schema 3)
+# The inquiry model — what a Klein study IS
 
 Klein 1.x was a disciplined experiment loop: a `train.py` that improves a metric under
 a notary. Klein 2.0 keeps that loop and puts it inside a larger unit — **the inquiry**.
@@ -25,7 +25,7 @@ in the machine surface is hand-edited; nothing in the human surface is trusted w
 the machine surface behind it.
 
 **The evidence-design artifact supplements these five, on a study that asks for it.** A
-schema-3 study that opted into the generation layer with `--capability design` locks one
+study that opted into the generation layer with `--capability design` locks one
 `evidence_design.yaml` before the DATA gate, giving each object the fields it needs to
 say what a number MEANS rather than only what it was: the Question gains an estimand, a
 population, units, a measurement process, identification assumptions and an intended
@@ -134,7 +134,7 @@ Rules that follow from the table:
 `klein claims verify` resolves every id a claim cites; an id that resolves nowhere fails
 the study.
 
-### Generation records (schema 3, opt-in)
+### Generation records (opt-in)
 
 A study that opted into the generation layer carries a second family of ids. They are
 **sidecar ids, resolved by `klein generation verify`** — the claims law does not know
@@ -176,7 +176,7 @@ Beyond the six-axis interview, the consultant confirms:
 - `optimize`: the verifier (command, exactness, tolerance), the external incumbent with
   its source, and the vocabulary rule (found / matched / improved; never proved).
 
-## Per-kind verify rules (schema 3)
+## Per-kind verify rules
 
 `klein verify` applies the general checks to every study and adds, by kind:
 frontier kinds — headroom disclosed, incumbent chain monotone; registered kinds — every
@@ -198,17 +198,17 @@ is needed for a loop whose experiments happen outside the machine.
 
 | Study | kind | modality | mode | What the model made explicit |
 |---|---|---|---|---|
-| 03 noisy-rosenbrock | simulate | simulation | (schema 2) | known-truth lab; claims are in-silico |
-| 05 freMTPL2 gap forensics | predict | tabular | frontier | the gap needed two tracks to get two sealed numbers |
-| 06 hurricane return levels | estimate | tabular | (schema 2, hand-bent) | an estimate with CI, no incumbent — registered mode in disguise |
-| 07 iris 90 years | predict + control | tabular | frontier | headroom found by hand → the headroom law |
-| 08 iris rematch | test | tabular | (schema 2, hand-bent) | 21 challengers, 0 keeps at h = 1.015 |
-| 09 iris first lesson | test + simulate lane | tabular + simulation | (schema 2, hand-bent) | the 42-cell map lived beside the ledger → registered mode; `claims.lock` → the claims law; E1 → contract-driven splits |
 | 00 known-truth quickstart | predict | tabular (synthetic) | frontier | the headroom law shown against a KNOWN ideal |
-| 10 Hubble 1929 | replicate + estimate | tabular (24 rows) | registered | a prospective lock is not blindness, and says so |
+| 10 Hubble 1929 | replicate + estimate + simulate lanes | tabular (24 rows) | registered | a prospective lock is not blindness, and says so; one study kind, per-track overrides |
 | 11 exact-verifier construction | optimize | none | frontier | the checker is never the searcher |
 | 12 insurance claims frequency | predict | tabular | frontier | one profile, not the front door |
-| 13 char-LM fixed budget | predict | text | frontier | matched compute in steps; the training script never grades itself |
+| 20 LLM chain-of-thought contamination | test | text | registered | the item is the unit of uncertainty; a fresh sealed block as the contamination control |
+| 21 BloodMNIST CNN | predict | image | frontier | an index split of items, and a near-duplicate audit that blocked the gate |
+| 22 CNN data scaling | estimate | image | registered | seed-array cells and a fitted exponent with an interval; a sealed extrapolation |
+| 23 LaLonde causal replication | replicate + estimate lanes | tabular | registered | the lanes ARE the design: an experiment, then two observational comparison groups |
+
+The earlier exhibits (03, 05–09, 13, 15, 24) left the tree in 3.0 and are indexed in
+`studies/ARCHIVE.md`.
 
 ## Anti-patterns the model forbids
 

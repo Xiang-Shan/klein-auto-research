@@ -83,33 +83,6 @@ def test_scaffold_is_v3_by_default_from_the_cli(tmp_path: Path, capsys) -> None:
     assert verify_event_chain(study) == []
 
 
-def test_schema_2_mode_still_scaffolds_the_frozen_shape(tmp_path: Path, capsys) -> None:
-    """The old contract stays reachable, byte-for-byte, forever."""
-    rc = cli.main(
-        [
-            "new", "03-cli-v2",
-            "--root", str(tmp_path),
-            "--goal", "test the CLI",
-            "--domain", "test",
-            "--target", "y",
-            "--family", "linear",
-            "--metric", "val_auc",
-            "--goal-direction", "higher",
-            "--data", "csv:fixture.csv",
-            "--schema-version", "2",
-        ]
-    )
-    assert rc == 0
-    capsys.readouterr()
-    study = tmp_path / "03-cli-v2"
-    contract = contract_of(study)
-    assert contract["schema_version"] == 2
-    assert "kind" not in contract and "entrypoint" not in contract
-    assert "modality" not in contract["data"]
-    assert (study / "train.py").is_file()
-    assert json.loads((study / "study_state.json").read_text())["schema_version"] == 2
-
-
 @pytest.mark.parametrize("kind", sorted(ENTRYPOINT_BY_KIND))
 def test_the_entrypoint_is_named_by_kind_and_declared(tmp_path: Path, kind: str) -> None:
     study = build(
@@ -242,33 +215,19 @@ def test_the_scaffolded_notebook_states_its_own_schema_version(tmp_path: Path) -
     `program.md` is the study's own record of what it is; the scaffold used to
     hard-code "schema-v2" into every study's first Decisions line, so every
     schema-3 study was born with a false sentence in the file SYNTHESIZE later
-    mines.  Schema 2's wording is unchanged, byte for byte.
+    mines.
     """
-    for schema_version in (2, 3):
-        study = build(
-            tmp_path / f"v{schema_version}",
-            slug=f"0{schema_version}-notebook",
-            schema_version=schema_version,
-            **({"kind": "predict", "modality": "tabular", "profile": "generic"}
-               if schema_version == 3 else {}),
-        )
-        text = (study / "program.md").read_text(encoding="utf-8")
-        assert f"schema-v{schema_version} study scaffolded" in text
-        assert f"schema-v{3 if schema_version == 2 else 2} study" not in text
-
-
-def test_schema_3_options_are_refused_on_a_schema_2_scaffold(tmp_path: Path) -> None:
-    for kwargs, expected in (
-        ({"kind": "predict"}, "schema-3 options"),
-        ({"modality": "tabular"}, "schema-3 options"),
-        ({"profile": "math"}, "schema-3 options"),
-        ({"audience": "x"}, "schema-3 options"),
-        ({"split_seed": 7}, "--split-seed is a schema-3 option"),
-        ({"tracks": ["a", "b"]}, "multi-track scaffolding"),
-        ({"tracks": ["a:registered"]}, "multi-track scaffolding"),
-    ):
-        with pytest.raises(ValueError, match=expected):
-            build(tmp_path / str(sorted(kwargs)), schema_version=2, **kwargs)
+    study = build(
+        tmp_path / "v3",
+        slug="03-notebook",
+        schema_version=3,
+        kind="predict",
+        modality="tabular",
+        profile="generic",
+    )
+    text = (study / "program.md").read_text(encoding="utf-8")
+    assert "schema-v3 study scaffolded" in text
+    assert "schema-v2 study" not in text
 
 
 def test_the_scaffold_rejects_unknown_axis_values(tmp_path: Path) -> None:
@@ -284,8 +243,9 @@ def test_the_scaffold_rejects_unknown_axis_values(tmp_path: Path) -> None:
     ):
         with pytest.raises(ValueError, match=expected):
             build(tmp_path / str(sorted(kwargs)), schema_version=3, **kwargs)
-    with pytest.raises(ValueError, match="schema_version must be 2 or 3"):
-        build(tmp_path / "bad-version", schema_version=4)
+    for version in (2, 4):
+        with pytest.raises(ValueError, match="schema_version must be 3"):
+            build(tmp_path / f"bad-version-{version}", schema_version=version)
 
 
 @pytest.mark.parametrize("kind", sorted(ENTRYPOINT_BY_KIND))

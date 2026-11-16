@@ -310,32 +310,20 @@ def test_adjacent_table_cells_never_concatenate_into_a_number_nobody_wrote() -> 
 # 6. the shipped studies, at the tuned allowlist
 # ---------------------------------------------------------------------------
 
-#: Measured on the real documents at the tuned exemption list (E9 report).  The
-#: iris studies are the tuning set: 08 and 09 pin every number they quote, so a
-#: clean scan is the correct answer and any regression in the exemptions or the
-#: index shows up here as a non-zero count.  07 predates the practice of pinning
-#: derived quantities: each of its 39 hits is a real derived value (a delta, a
-#: multiple of delta, an aggregate wall time) with no pinned home — no false
-#: positives, which is what the ceiling below asserts.
-SHIPPED_FINDINGS_CEILING = {
-    "07-iris-90years": 39,
-    "08-iris-rematch": 0,
-    "09-iris-first-lesson": 0,
-}
+#: Every shipped exhibit pins every number its findings quote, so a clean scan is
+#: the correct answer: a regression in the exemption list or the index shows up
+#: here as a non-zero count.
+SHIPPED_FINDINGS = sorted(p.parent.name for p in (REPO_ROOT / "studies").glob("*/findings.md"))
 
 
-@pytest.mark.parametrize("slug", sorted(SHIPPED_FINDINGS_CEILING))
-def test_the_shipped_iris_findings_scan_at_the_reported_rate(slug: str) -> None:
+@pytest.mark.parametrize("slug", SHIPPED_FINDINGS)
+def test_the_shipped_findings_scan_clean(slug: str) -> None:
     study = REPO_ROOT / "studies" / slug
     findings = study / "findings.md"
-    if not findings.is_file():  # pragma: no cover - a trimmed checkout
-        pytest.skip(f"{slug} is not in this checkout")
     state = json.loads((study / "study_state.json").read_text(encoding="utf-8"))
     index = LiteralIndex.for_study(study, state, exclude=[findings])
     caught = unsourced_literals(findings.read_text(encoding="utf-8"), index)
-    assert len(caught) <= SHIPPED_FINDINGS_CEILING[slug], [
-        item.describe() for item in caught
-    ]
+    assert caught == [], [item.describe() for item in caught]
 
 
 def test_the_bibliographic_classes_that_made_07_s_reference_section_noisy() -> None:

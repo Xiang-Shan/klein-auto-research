@@ -32,12 +32,15 @@ RESULTS_TSV = (
 )
 
 STUDY_YAML = (
+    "schema_version: 3\n"
     'goal: "Reproduce the campaign anchors"   # one sentence\n'
     'domain: "insurance"\n'
     'target: "claim_status"\n'
-    "metric:\n"
-    '  name: "val_auc"\n'
-    "  goal: higher\n"
+    "tracks:\n"
+    "  primary:\n"
+    "    metric:\n"
+    '      name: "val_auc"\n'
+    "      goal: higher\n"
     "family: glm\n"
 )
 
@@ -132,10 +135,10 @@ def test_ledger_marker_replaced_with_results_rows(build_module, tmp_path):
     assert 'class="st-discard"' in page  # status styling hook
 
 
-def test_v2_track_metrics_are_displayed(build_module, tmp_path):
+def test_track_metrics_are_displayed(build_module, tmp_path):
     study = scaffold(tmp_path / "03-v2-meta")
     (study / "study.yaml").write_text(
-        "schema_version: 2\n"
+        "schema_version: 3\n"
         'goal: "Compare two registered tracks"\n'
         'domain: "insurance"\n'
         "tracks:\n"

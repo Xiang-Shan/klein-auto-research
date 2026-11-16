@@ -299,33 +299,12 @@ def test_citing_it_clears_the_check(uncited_study) -> None:
     assert "evidence_use_rate 1.00" in checks[0].message
 
 
-def test_schema_2_is_silent_by_default_and_advisory_when_asked(ready_study) -> None:
-    repo, study = ready_study
-    state_path = study / "study_state.json"
-    state = json.loads(state_path.read_text(encoding="utf-8"))
-    state["sweeps"] = {"floor": {"sidecar": "sweeps/floor.sidecar.tsv"}}
-    state_path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
-    commit_all(repo, "a schema-2 sweep")
-
-    assert _named(verify_study(study), "evidence use") == []
-    asked = _named(verify_study(study, evidence=True, strict=True), "evidence use")
-    assert len(asked) == 1
-    # never retro-fails: schema 2 gets the finding, not the failure
-    assert asked[0].ok is True
-    assert "advisory on schema 2" in asked[0].message
-
-
 def test_status_prints_the_three_numbers_on_schema_3(ready_study_v3) -> None:
     _repo, study = ready_study_v3
     printed = status_summary(study)
     assert "evidence use: 1.00" in printed
     assert "refutation(s) without a recorded decision" in printed
     assert "single-source confirmed claim(s)" in printed
-
-
-def test_status_on_schema_2_is_unchanged(ready_study) -> None:
-    _repo, study = ready_study
-    assert "evidence use:" not in status_summary(study)
 
 
 def test_a_refuted_prediction_without_a_decision_fails_verify(ready_study_v3) -> None:

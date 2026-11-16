@@ -149,7 +149,7 @@ def test_verify_fails_when_a_registered_file_is_deleted(study_with_sweep) -> Non
 
 
 def test_a_study_with_no_registered_sweep_gains_no_check_line(study_with_sweep) -> None:
-    """Silent like the claims law without a lock — schema-2 output is unchanged."""
+    """Silent like the claims law without a lock."""
     _repo, study = study_with_sweep
     assert "registered sweeps" not in {c.name for c in verify_study(study)}
     _register(study)

@@ -5,14 +5,14 @@ domain: ml
 status: ported
 source: "ancestor model-survey campaign (private lab), docs/insights_and_framework.md (215-experiment campaign, 2026-04)"
 concepts: [framework-priority, model-selection, gbdt-selection, deep-learning-tabular, imbalance-calibration, cross-family-ensemble, monotone-constraints, tabpfn, encoder-family-relativity]
-related: [best-practices-auto-insurance.md, gbdt-hyperparameter-guide.md, encoder-comparison.md]
+related: [domains/insurance/best-practices-auto-insurance.md, gbdt-hyperparameter-guide.md, encoder-comparison.md]
 ---
 
 # Insights & Framework — A Meta-Synthesis
 
 > Ported from the 2026-04 model-survey campaign (215 experiments, insurance-claims, best val_auc 0.6715). Original lives in the campaign repo.
 
-**Companion to:** `best-practices-auto-insurance.md`, `gbdt-hyperparameter-guide.md`, `encoder-comparison.md`.
+**Companion to:** `domains/insurance/best-practices-auto-insurance.md`, `gbdt-hyperparameter-guide.md`, `encoder-comparison.md`.
 **Anchored in:** the 215-experiment model-survey campaign (branch `experiments/model-survey`, ending at commit `6cf1d3c`) on the Kaggle insurance-claims dataset.
 **Purpose:** the per-phase docs distilled the **numbers**. This document distills the **patterns of reasoning** — what to do on the next dataset *before* any experiments are run.
 
@@ -299,7 +299,7 @@ The framework (Section 2.4) generalizes to any tabular weak-signal binary classi
 
 ## 9. Cross-references
 
-- **Empirical numbers per question:** `best-practices-auto-insurance.md` (Q2)
+- **Empirical numbers per question:** `domains/insurance/best-practices-auto-insurance.md` (Q2)
 - **Per-family GBDT recipes + Optuna importance:** `gbdt-hyperparameter-guide.md` (Q3)
 - **Encoder × family table:** `encoder-comparison.md` (Q6/Q7/Q8)
 - **Audit trail (215 experiments):** the ancestor campaign's `results.tsv` (its private

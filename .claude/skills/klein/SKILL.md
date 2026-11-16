@@ -5,10 +5,14 @@ description: Run Klein Auto Research studies — process-verifiable research for
 
 # /klein — study lifecycle router
 
-> `/klein` is the Claude Code packaging of Klein's lifecycle. Everything it routes —
-> the reference protocols, profiles, templates and helper scripts below — is plain
-> markdown/Python usable with ANY coding agent or by hand; the tool-neutral entry
-> point is the repo-root `AGENTS.md`.
+> `/klein` is the Claude Code packaging of Klein's lifecycle (as a plug-in: `/klein:klein`).
+> Everything it routes — the reference protocols, profiles, templates and helper
+> scripts below — is plain markdown/Python usable with ANY coding agent or by hand; the
+> tool-neutral entry point is the repo-root `AGENTS.md` (`klein explain manual` prints
+> it from any directory). Paths below (`references/…`, `assets/…`) are relative to this
+> skill; `klein explain <name>` prints any of them wherever you are (`klein explain
+> consult-protocol`, `klein explain profile:math`, `klein explain template:<file>`), and
+> `references/glossary.md` defines every term once (`klein explain gate`).
 
 Klein runs research **studies** under `studies/NN-slug/` through a fixed lifecycle of
 seven stages and four gates. The last three stages are what make it *research*, not
@@ -27,24 +31,25 @@ unlock a run.
 ## Stages
 
 `/klein <stage>` routes the lifecycle stages below. The STAGES are protocol routes;
-the `klein` CLI verbs (`new gate preflight run-one recover status finalize
-noise-floor verify headroom stop predict claims replicate sweep doctor generation`) are the
-machine actions each stage uses — the two are mapped here, not identical. Run stages
+the `klein` CLI verbs are the machine actions each stage uses — the two are mapped
+here, not identical (`klein --help` and `klein <verb> --help` list every verb; every
+verb takes `--json`; the generated reference is `docs/cli.md` in Klein's repository). Run stages
 in lifecycle order for a new study; `status` any time. The reference PROTOCOLS are
 the source of truth — the worker agents in `.claude/agents/` are optional
 accelerators; a solo session follows the protocols directly.
 
 | Stage | What it does | Protocol | CLI verbs used | Worker agent |
 |---|---|---|---|---|
-| `new` | Scaffold a study dir, typed by kind / modality / profile | `references/defaults-and-scaffolding.md`, `references/inquiry-model.md` | `klein new`, `klein doctor` | — |
+| `new` | Scaffold a study dir, typed by kind / modality / profile | `references/defaults-and-scaffolding.md`, `references/inquiry-model.md` | `klein new`, `klein doctor`; `klein demo` runs a tiny study live | — |
+| `explore` | Any time, including before Gate 0: look at the data on the record — a probe leaves a hash-chained line, never a claim | `references/exploration-protocol.md` | `klein probe --study S --note "…" -- <command>`; `klein probe --list` | — |
 | `consult` | Gate 0: ≤6-question interview (or fast-path); type the inquiry; register predictions with rules | `references/consult-protocol.md` | `klein gate record consult` after the **user ack**; generation-enabled, all BEFORE the ack: `klein generation init`, then `generation knowledge query`, `generation expert lock`, `generation reference record`, `generation parity lock`, `generation escalate lock` | klein-consultant |
 | `data` | Gate 1: modality-typed profile → clean-room leakage audit → ranked go/no-go → data_card.md | `references/data-gate-protocol.md`, `references/data-sources.md` | `python -m kleinlib.leakage`; `klein gate record data` (or `gate override data --reason`); generation-enabled, BEFORE the record: `klein generation design lock` | klein-data-auditor |
 | `method` | Gate 2: intuition→math→impl→refs → method_card.md (+ the verifier, hashed) | `references/method-gate-protocol.md` | `klein gate record method`; generation-enabled, at or just after the gate: `klein generation benchmark commit`, `klein generation surprise register` | klein-method-scholar |
 | `run` | One candidate transaction — or one registered cell — (edit → commit → run → verify → retain evidence) | Hard Rules below; `references/registered-mode.md`; phase starts: `references/phase-ritual.md`; sweeps: `references/sweep-rules.md` | `klein preflight`, then `klein run-one [--tests P#]`; `klein noise-floor --recipe --estimand` at Phase 0; `klein run-one --final-test --dry-run` then `--final-test`; `klein replicate`; `klein sweep register`; `klein recover` after interruption. Generation-enabled: `klein generation check` before EVERY `run-one`, with `generation slate lock\|amend\|score` and `generation premortem record\|respond` at phase starts, `generation expert bind\|repair`, `generation parity bind\|assess`, `generation contribution record`, `generation escalate record\|close\|pivot`, `generation surprise record`, `generation benchmark submit\|reveal` and `generation custody attest` as the work reaches them | klein-experimenter / klein-sweeper |
 | `synthesize` | Mine trajectory + predictions ledger → 7-section findings + claims.lock | `references/synthesis-protocol.md`, `references/claims-protocol.md` | `klein predict list`, `klein claims init\|pin\|number\|add\|verify`; generation-enabled: `klein generation label` (after both verifies pass at one HEAD) and `klein generation knowledge promote\|contest\|resolve` | klein-synthesist |
 | `referee` | Gate 3: fresh context, different model; verifiers + ten-check rubric → referee_report.md | `references/referee-protocol.md` | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after; generation-enabled: read `generation/verify_receipt.json` and `generation/label.json` and write the report's `Generation:` line — never re-derive a machine verdict | klein-referee |
-| `tutorial` | Build self-contained teaching HTML, numbers from the lock | `references/tutorial-spec.md`, `references/profiles/<profile>.md` | — (`.claude/skills/klein/scripts/build_tutorial.py`) | klein-tutor |
-| `status` | Summarize results, predictions, evidence use — and name the next action | `.claude/skills/klein/scripts/summarize_results.py` | `klein next` (read-only: the stage, what is done, the ONE next action and its exact command); `klein status [--json]`; `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation-protocol.md`) | — |
+| `tutorial` | Build self-contained teaching HTML, numbers from the lock | `references/tutorial-spec.md`, `references/profiles/<profile>.md` | `klein report build <study_dir>`; `klein explain template:make_figures.py > figures/make_figures.py` | klein-tutor |
+| `status` | Summarize results, predictions, evidence use — and name the next action | `klein summarize results.tsv` | `klein next` (read-only: the stage, what is done, the ONE next action and its exact command); `klein status [--json]`; `klein map [--html]` (the study's evidence graph: which predictions and claims each run bears on, and what is still open); `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation-protocol.md`) | — |
 
 War stories behind the guards: `references/war-stories.md`. Schema authority:
 `kleinlib/schema.py` — never restate columns anywhere. The five objects and three axes
@@ -66,7 +71,7 @@ default source; judgment stays `{{placeholders}}` the gates refuse
 
 `klein next --study <dir>` names the one next action at any point of the lifecycle.
 
-**Opt-in generation layer (schema 3).** A study may additionally record what it committed
+**Opt-in generation layer.** A study may additionally record what it committed
 to BEFORE the evidence (`klein generation init` before Gate 0, `klein generation check`
 before every `run-one`, `klein generation verify` for its own audit). A study that does
 not opt in is untouched by it. The ten capabilities and their verbs:
@@ -75,10 +80,21 @@ not opt in is untouched by it. The ten capabilities and their verbs:
 
 ## Setup
 
+Every command in this skill is spelled `klein <verb> …`. How `klein` gets onto your
+PATH depends on where you are:
+
+- **In the Klein repository:** `uv sync --locked` (add `--extra gbdt` / `--extra deep`
+  as needed), then `uv run --locked klein …` (or activate `.venv`).
+- **Anywhere else:** `pip install klein-auto-research` or `uv tool install
+  klein-auto-research`.
+- **As a Claude Code plug-in:** the launcher is already on PATH (it needs `uv`).
+
 ```bash
-uv sync --locked             # core deps + dev tools; add --extra gbdt | deep as needed
-uv run --locked klein doctor # what this machine can run; fetches nothing
+klein doctor   # what this machine can run; fetches nothing
 ```
+
+`python -m kleinlib.leakage` and `python -m kleinlib.profile_fallback` run wherever the
+`kleinlib` package is importable (the environment the commands above set up).
 
 Data resolution goes through **source tags** (`references/data-sources.md`): `csv:`,
 `parquet:`, `synthetic:<script>`, `bundled:<name>`, `hub:<name>` (the `$DATA_HUB`
@@ -97,7 +113,7 @@ acknowledgements, placeholders, artifact hashes, prepared-data / split / verifie
 fingerprints, ledger integrity, headroom, stop rule, and a clean mutable surface):
 
 ```bash
-uv run --locked klein preflight --study studies/NN-slug
+klein preflight --study studies/NN-slug
 ```
 
 The exact branch must be `experiments/<study-id>`. On a finished study merged back to
@@ -105,9 +121,8 @@ The exact branch must be `experiments/<study-id>`. On a finished study merged ba
 metric summary:
 
 ```bash
-uv run --locked klein status --study studies/NN-slug
-uv run --locked python .claude/skills/klein/scripts/summarize_results.py \
-    studies/NN-slug/results.tsv --track <track>  # omit for a one-track study
+klein status --study studies/NN-slug
+klein summarize studies/NN-slug/results.tsv --track <track>  # omit for a one-track study
 # → results_summary.md (frontier, aux panels, phase telemetry) + progress.svg
 ```
 
@@ -121,8 +136,9 @@ uv run --locked python .claude/skills/klein/scripts/summarize_results.py \
 
 Violating these has caused real data-loss and workflow failures — the specific
 incidents live in `references/war-stories.md`, and the lessons of the studies that
-paid for them are promoted in `knowledge/research-discipline.md`. Do not renegotiate
-them mid-study.
+paid for them are promoted in `knowledge/research-discipline.md` (in the repository that
+hosts your studies; Klein's own knowledge base ships in its repository, not in the
+package). Do not renegotiate them mid-study.
 
 Three layers, one division of labor: **the loop is yours** (think → edit the mutable
 surface with one falsifiable idea → run → reflect → repeat); **`run-one` is only the
@@ -146,7 +162,7 @@ after a non-keep (always, on a registered track), derives `results.tsv`, and com
 evidence transactionally. Never hand-edit the ledger. If interrupted, run:
 
 ```bash
-uv run --locked klein recover --study studies/NN-slug
+klein recover --study studies/NN-slug
 ```
 
 `keep` means a track-specific improvement of at least `minimum_delta` with every
@@ -164,7 +180,7 @@ are exempt.
 ### 2. One foreground run, with a real timeout and exit status — or one detached job whose receipt the notary checks
 
 ```bash
-uv run --locked klein run-one --study studies/NN-slug --track <track> \
+klein run-one --study studies/NN-slug --track <track> \
   --description "<one falsifiable hypothesis>" [--tests P3,P4]
 ```
 
@@ -191,10 +207,10 @@ was judged under. New studies scaffolded by `klein new --recipe …` declare it.
 ### 3. Gates and acknowledgements are machine state
 
 ```bash
-uv run --locked klein gate record consult --study studies/NN-slug --acknowledged-by <actor>
-uv run --locked klein gate record data    --study studies/NN-slug --acknowledged-by <actor>
-uv run --locked klein gate record method  --study studies/NN-slug --acknowledged-by <actor>
-uv run --locked klein gate record referee --study studies/NN-slug --acknowledged-by <actor>
+klein gate record consult --study studies/NN-slug --acknowledged-by <actor>
+klein gate record data    --study studies/NN-slug --acknowledged-by <actor>
+klein gate record method  --study studies/NN-slug --acknowledged-by <actor>
+klein gate record referee --study studies/NN-slug --acknowledged-by <actor>
 ```
 
 An override must name the gate, actor, and non-empty reason using `klein gate
@@ -207,13 +223,14 @@ Training and adaptive selection use only train/development partitions. A track g
 one confirmation access, and the rehearsal is mandatory before it:
 
 ```bash
-uv run --locked klein run-one --study studies/NN-slug --track <track> --final-test --dry-run
-uv run --locked klein run-one --study studies/NN-slug --track <track> --final-test \
+klein run-one --study studies/NN-slug --track <track> --final-test --dry-run
+klein run-one --study studies/NN-slug --track <track> --final-test \
   --description "sealed confirmation of the selected candidate"
 ```
 
 The dry-run executes the sealed entrypoint on development data and spends nothing;
-study 09 lost its only seal to a crash that ran before any data was read. The
+study 09 (archived — `studies/ARCHIVE.md`) lost its only seal to a crash that ran
+before any data was read. The
 final-test result is evidence, not another adaptive frontier candidate. What "sealed"
 means per kind, and which records `confirmed` needs (`confirmation.require ⊆
 {sealed, replicate, verify}`), is in `references/inquiry-model.md`;
@@ -232,7 +249,7 @@ phase with the slate ritual (`references/phase-ritual.md` — cells, on a regist
 track). Summarize and STOP for ack at every phase boundary:
 
 ```bash
-uv run --locked klein gate record phase --study studies/NN-slug \
+klein gate record phase --study studies/NN-slug \
   --phase <current-phase> --acknowledged-by <actor>
 ```
 
@@ -244,9 +261,9 @@ decided before it runs. Declare `metric.bound.ideal` so klein computes and discl
 it is acknowledged; a `stop:` rule works the same way:
 
 ```bash
-uv run --locked klein headroom ack --study studies/NN-slug --track <track> \
+klein headroom ack --study studies/NN-slug --track <track> \
   --acknowledged-by <actor> --note "re-scope: ... | run-anyway: <door-closed sentence>"
-uv run --locked klein stop ack --study studies/NN-slug --track <track> --acknowledged-by <actor> --note "..."
+klein stop ack --study studies/NN-slug --track <track> --acknowledged-by <actor> --note "..."
 ```
 
 Name the floor's estimand (`klein noise-floor --recipe … --estimand …`); never read
@@ -287,37 +304,32 @@ edited afterwards, run by the notary in a fresh process, and its number decides 
 disposition; the searcher's own claim is recorded beside it and a disagreement is a
 crash. The checker is never the searcher.
 
-### Schema-2 and v1 compatibility
+## Older studies
 
-`schema_version: 2` studies (03, 05–09) keep verifying under schema-2 rules forever —
-none of the schema-3 checks are enforced on them, their lock-schema-1 claims locks
-verify as numbers ledgers, and nothing is rewritten. A missing `schema_version` is v1:
-readable at tag `v1.3.0`, where the original quickstart and the v1 ledger adapter
-remain. `docs/migration-schema2-to-3.md` has the field diff.
+Klein 3 judges schema 3 only; an older study verifies with the engine that notarized it (schema 2 at tag `v2.3.1`, version 1 at `v1.3.0`) — see `studies/ARCHIVE.md`.
 
 ## Installing in another repo
 
-Klein is self-contained under `.claude/skills/klein/`:
+Three ways, from least to most manual:
 
-```bash
-cp -r .claude/skills/klein /path/to/your-repo/.claude/skills/
-```
+1. **Claude Code plug-in:** `/plugin install klein --marketplace Xiang-Shan/klein-auto-research`.
+   The skill is then `/klein:klein`, the workers are `klein:klein-<role>`, and the
+   working directory is your own project.
+2. **The package:** `pip install klein-auto-research` (or `uv tool install
+   klein-auto-research`), then `klein skill install [--target DIR]` copies this skill
+   and the worker agents into your repository. Without installing the skill, `klein
+   explain <topic>` still prints any protocol from any directory.
+3. **Work inside the Klein repository itself:** `uv sync --locked`, then
+   `uv run --locked klein …`.
 
-The engine is a dependency, not an option: every helper (`summarize_results.py`,
-`build_tutorial.py`, `make_figures.py`, the `klein` CLI) imports `kleinlib` — the
-schema, registries and templates live there and nowhere else, so nothing can drift.
-In the foreign repo, add the engine (see `assets/pyproject-study-template.toml`), then
-`uv sync --locked`:
-
-```bash
-uv add "klein-auto-research @ git+https://github.com/Xiang-Shan/klein-auto-research@v2.2.0"  # pin a tag — and record the commit
-```
-
-Pin by tag *and* record the commit in your study's lock (`klein_commit`): since 2.0.0
-the schema-3 contract, the `klein` CLI surface, and the ledger formats are stable —
-breaking changes mean a major version. `klein new` then scaffolds byte-identical
-schema-3 studies anywhere; the engine never reads this skill directory, so a
-repo-local `profile_doc` works without forking Klein.
+The engine is a dependency, not an option: every helper (`klein summarize`, `klein
+report build`, the `klein` CLI) imports `kleinlib` — the schema, registries and
+templates live there and nowhere else, so nothing can drift. A study's own project can
+pin the engine as in `assets/pyproject-study-template.toml`. Record the engine's commit
+in your study's lock (`klein_commit`): the schema-3 contract, the `klein` CLI surface,
+and the ledger formats are stable — breaking changes mean a major version. `klein new`
+scaffolds byte-identical schema-3 studies anywhere; a repo-local `profile_doc` works
+without forking Klein.
 
 ## Limitations
 
@@ -328,11 +340,14 @@ model in the loop. Know the edges:
 
 - **Evaluator shapes**: binary classification (`evaluate`), point/rate regression
   (`evaluate_regression` — RMSE/MAE/R², Poisson/Gamma/Tweedie deviance under the
-  exposure-weighted-rate convention), scalar/simulation (`evaluate_scalar`), and the
-  registered-cell shapes `evaluate_estimate`, `evaluate_test`, `evaluate_table` — all
-  printing the same canonical block. Multiclass, survival, and ranking are extension
-  points, deliberately not shipped until a worked study proves them;
-  `evaluate_with_inner_cv` is binary-only (group-aware).
+  exposure-weighted-rate convention), scalar/simulation (`evaluate_scalar`), the
+  registered-cell shapes `evaluate_estimate`, `evaluate_test`, `evaluate_table`, K-class
+  classification (`evaluate_multiclass`: accuracy, balanced accuracy, macro-F1, top-5,
+  log-loss, ECE, with a pinned confusion table), ranking (`evaluate_ranking`: NDCG@k,
+  MRR, recall@k), survival (`evaluate_survival`: Harrell's C) and segmentation
+  (`evaluate_segmentation`: mIoU, Dice) — all printing the same canonical block.
+  Detection mAP is deliberately not shipped (VOC and COCO conventions differ, and no
+  study has exercised it); `evaluate_with_inner_cv` is binary-only (group-aware).
 - **One primary metric per track.** Each track owns its direction, minimum delta,
   guardrails, bound, exactness, verifier. Everything else remains auxiliary or a
   pinned table; SYNTHESIZE weighs tradeoffs without manufacturing a global frontier.

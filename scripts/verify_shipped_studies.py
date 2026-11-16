@@ -19,7 +19,7 @@ Usage::
 
     uv run --locked python scripts/verify_shipped_studies.py
     uv run --locked python scripts/verify_shipped_studies.py \\
-        --studies 03-noisy-rosenbrock-dfo 09-iris-first-lesson
+        --studies 00-known-truth-quickstart 10-hubble-1929-replication
 
 Exit code is 1 if any study reports a failed check or its verify process
 exits non-zero; 2 on a usage error (e.g. an unknown ``--studies`` name); 0
@@ -121,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
         nargs="+",
         metavar="SLUG",
         help=(
-            "restrict to these studies (directory name, e.g. 09-iris-first-lesson, "
+            "restrict to these studies (directory name, e.g. 10-hubble-1929-replication, "
             "or studies/<name>); default: every studies/*/study.yaml found"
         ),
     )

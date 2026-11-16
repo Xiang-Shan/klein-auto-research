@@ -7,7 +7,7 @@
 # commitment. `--allow-late` records the lock anyway and FAILs `design lock`
 # permanently.
 #
-# Opt-in and schema-3 only: this file means nothing unless
+# Opt-in: this file means nothing unless
 # `generation/manifest.yaml` declares `capabilities: [design]`.
 #
 # Protocol: .claude/skills/klein/references/generation-protocol.md, "Evidence design".

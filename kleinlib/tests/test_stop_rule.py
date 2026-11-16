@@ -92,11 +92,6 @@ def test_scope_keys_do_not_collide_across_scopes() -> None:
 # --------------------------------------------------------------------------
 
 
-def test_schema_two_never_grows_a_stop_rule() -> None:
-    contract = {"schema_version": 2, "stop": {"max_consecutive_discards": 2}}
-    assert stop_spec(contract) is None
-
-
 def test_schema_three_reads_the_block_and_defaults_the_scope() -> None:
     contract = {"schema_version": 3, "stop": {"max_consecutive_discards": 4}}
     assert stop_spec(contract) == {"max_consecutive_discards": 4, "scope": "track"}

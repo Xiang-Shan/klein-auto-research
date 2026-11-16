@@ -1,6 +1,6 @@
 # Cross-study knowledge — transactions over pinned evidence
 
-`knowledge/` has always held the framework's durable lessons as markdown with
+`knowledge/` (in the repository that hosts your studies; Klein's own knowledge base ships in its repository, not in the package) holds durable lessons as markdown with
 typed claim citations, and **that convention is unchanged**: it is the human
 surface, it is greppable, and no verb described here ever writes a line of it.
 
@@ -17,16 +17,16 @@ second, machine surface beside the markdown: a repo-level store of write-once
 objects and an append-only chain of transactions over them.
 
 ```bash
-uv run --locked klein generation knowledge query   --study studies/NN-slug \
+klein generation knowledge query   --study studies/NN-slug \
     --tags calibration tabular --text "how should weak-signal scores be calibrated" \
     --reject "K1=contested outside our regime; we re-measure rather than inherit"
-uv run --locked klein generation knowledge promote --study studies/NN-slug \
+klein generation knowledge promote --study studies/NN-slug \
     --claim C3 --tags calibration tabular \
     --scope "population=weak-signal insurance-like tables" \
     --scope "measurement_regime=held-out AUC at a tuned threshold"
-uv run --locked klein generation knowledge contest --study studies/MM-other \
+klein generation knowledge contest --study studies/MM-other \
     --target K1 --evidence MM-other#C1 --rationale "measured outside the stated regime; it lost"
-uv run --locked klein generation knowledge resolve --study studies/MM-other \
+klein generation knowledge resolve --study studies/MM-other \
     --target K1 --outcome scoped --rationale "the claim holds inside its stated regime"
 ```
 

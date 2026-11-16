@@ -21,7 +21,7 @@ related: []
 > `**[C1]**, **[C2]**, ...` — never renumbered once published. Fully qualified
 > form: `<study_id>#C<n>`. The same ids live in `claims.lock` with their class,
 > strength, pinned artifact and evidence; knowledge/ docs cite them with a typed verb:
-> `(supports 03-noisy-rosenbrock-dfo#C3)` / `(refutes 09-iris-first-lesson#C15)`.
+> `(supports 10-hubble-1929-replication#C3)` / `(refutes 21-bloodmnist-cnn#C5)`.
 
 ## ① Research-question verdicts
 

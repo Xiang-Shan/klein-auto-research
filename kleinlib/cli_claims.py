@@ -6,7 +6,7 @@ hangs its handler off the parsed namespace, and ``cli.py`` carries a single
 registration line.  The verbs are the protocol's
 (``.claude/skills/klein/references/claims-protocol.md`` "Verbs"):
 
-    klein claims init    --study <dir> [--from-legacy]
+    klein claims init    --study <dir>
     klein claims pin     --study <dir> <alias> <path>
     klein claims number  --study <dir> <alias> --value … --art … [--claim …]
     klein claims add     --study <dir> <Cn> --class … --strength … --claim "…"
@@ -23,6 +23,7 @@ import argparse
 import json
 from typing import Any
 
+from .api import emit_checks
 from .claims import (
     CLAIM_CLASSES,
     STRENGTHS,
@@ -73,11 +74,6 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
         help="write the skeleton lock: claims from findings' **[Cn]** lines, numbers empty",
     )
     _study(init)
-    init.add_argument(
-        "--from-legacy",
-        action="store_true",
-        help="migrate this study's lock schema 1 ledger (studies 07-09 shape) into schema 2",
-    )
     init.set_defaults(handler=_run_init)
 
     pin = actions.add_parser("pin", help="pin an artifact by alias: study-relative path + sha256")
@@ -167,7 +163,7 @@ def _split(raw: str) -> list[str]:
 
 def _run_init(args: argparse.Namespace) -> int:
     study = resolve_study(args.study)
-    lock = init_lock(study, from_legacy=args.from_legacy)
+    lock = init_lock(study)
     print(
         f"claims.lock written: lock_schema {lock['lock_schema']}, "
         f"{len(lock['claims'])} claims, {len(lock['numbers'])} numbers, "
@@ -248,6 +244,7 @@ def _run_erratum(args: argparse.Namespace) -> int:
 def _run_verify(args: argparse.Namespace) -> int:
     study = resolve_study(args.study)
     checks = verify_lock(study, numbers=args.numbers, strict=args.strict)
+    emit_checks(checks)
     failures = 0
     for check in checks:
         print(f"[{'OK' if check.ok else 'FAIL'}] {check.name}: {check.message}")

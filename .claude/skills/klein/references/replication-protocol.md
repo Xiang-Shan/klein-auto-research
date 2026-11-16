@@ -12,10 +12,10 @@ this document directly.
 ## Internal: `klein replicate`
 
 ```bash
-uv run --locked klein replicate --study studies/NN-slug E0003 [--tolerance 0.001]
-uv run --locked klein replicate --study studies/NN-slug E0007 --verify-only   # verifier tracks
-uv run --locked klein replicate --study studies/NN-slug E0004 --replay         # call-ledger studies, offline
-uv run --locked klein replicate --study studies/NN-slug --list
+klein replicate --study studies/NN-slug E0003 [--tolerance 0.001]
+klein replicate --study studies/NN-slug E0007 --verify-only   # verifier tracks
+klein replicate --study studies/NN-slug E0004 --replay         # call-ledger studies, offline
+klein replicate --study studies/NN-slug --list
 ```
 
 - A development run is re-executed from its manifest in a **detached git worktree**

@@ -30,7 +30,6 @@ from kleinlib.workflow import (
     read_events,
     record_gate,
     status_summary,
-    verify_study,
 )
 
 REPORT = """\
@@ -217,23 +216,6 @@ def test_recording_the_gate_commits_the_report(refereed_study) -> None:
     assert porcelain.strip() == ""
 
 
-def test_the_referee_gate_is_schema_3_only(ready_study) -> None:
-    _, study = ready_study
-    (study / "referee_report.md").write_text(
-        REPORT.format(verdict="PASS", referee="R (opus)", independent="yes"), encoding="utf-8"
-    )
-    with pytest.raises(WorkflowError, match="schema-3 stage"):
-        record_gate(study, "referee", acknowledged_by="orchestrator")
-
-
-def test_a_schema_2_study_still_verifies_with_no_referee_gate(ready_study) -> None:
-    """The gate registry grew; the schema-2 check list did not."""
-    _, study = ready_study
-    names = [check.name for check in verify_study(study)]
-    assert "gate referee" not in names
-    assert {"gate consult", "gate data", "gate method"} <= set(names)
-
-
 # ---------------------------------------------------------------------------
 # 3. finalize requires the gate
 # ---------------------------------------------------------------------------
@@ -278,14 +260,6 @@ def test_no_referee_needs_a_reason_and_is_recorded_as_unrefereed(refereed_study)
 def test_status_says_the_gate_is_still_open_before_it_is_recorded(refereed_study) -> None:
     _, study = refereed_study
     assert "referee: not recorded (Gate 3 runs before finalize)" in status_summary(study)
-
-
-def test_a_schema_2_finalize_never_asks_for_a_referee(ready_study) -> None:
-    _, study = ready_study
-    (study / "findings.md").write_text(
-        "# Findings\n\nThis study is exploratory.\n", encoding="utf-8"
-    )
-    assert finalize(study, allow_exploratory=True) == "exploratory"
 
 
 # ---------------------------------------------------------------------------

@@ -19,12 +19,12 @@ records what the driver registered, recomputes what the run produced, and issues
 receipts.
 
 ```bash
-uv run --locked klein generation surprise register --study studies/NN-slug
-uv run --locked klein generation check --study studies/NN-slug \
+klein generation surprise register --study studies/NN-slug
+klein generation check --study studies/NN-slug \
     --action cell --track discovery --cell cell_residual_by_habitat --tests P4
-uv run --locked klein run-one --study studies/NN-slug --track discovery --tests P4 \
+klein run-one --study studies/NN-slug --track discovery --tests P4 \
     --description "residuals by habitat, all four segments"
-uv run --locked klein generation surprise record --study studies/NN-slug --run E0007
+klein generation surprise record --study studies/NN-slug --run E0007
 ```
 
 ## The registry — `discovery_cells.yaml`

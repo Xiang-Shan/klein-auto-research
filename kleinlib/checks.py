@@ -16,7 +16,6 @@ for schema 2 so studies 03 and 05–09 verify byte-identically.
 
 from __future__ import annotations
 
-import csv
 import json
 import os
 import platform
@@ -266,22 +265,6 @@ def _artifact_hash_problems(study_dir: Path, state: Mapping[str, Any]) -> list[s
     return problems
 
 
-def _legacy_results_problems(path: Path) -> list[str]:
-    from . import schema
-
-    if not path.is_file():
-        return ["results.tsv is missing"]
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        reader = csv.reader(handle, delimiter="\t")
-        rows = list(reader)
-    if not rows or not schema.is_valid_header("\t".join(rows[0])):
-        return ["v1 results.tsv header is incompatible"]
-    problems: list[str] = []
-    for index, row in enumerate(rows[1:], start=2):
-        problems.extend(f"line {index}: {p}" for p in schema.validate_row(row, n_columns=len(rows[0])))
-    return problems
-
-
 def _call_price_checks(contract: Mapping[str, Any]) -> list[Check]:
     """Advisory: a study that queries a model but declares no ``calls.price``.
 
@@ -321,23 +304,14 @@ def preflight_checks(
     except WorkflowError as exc:
         return [Check("study contract", False, str(exc))]
     version = schema_version(contract)
-    if version == 1:
-        checks.append(Check("schema", True, "v1 compatibility mode (deprecated, explicit warning)"))
-        problems = _legacy_results_problems(study_dir / "results.tsv")
-        checks.append(Check("legacy ledger", not problems, "; ".join(problems) or "valid five-column ledger"))
-        return checks
-
     contract_problems = validate_contract(contract, study_dir)
-    # The version is interpolated, not hardcoded: a schema-3 study was being
-    # told its contract was "schema_version 2 valid". Schema-2 output is
-    # byte-identical, which is what studies 03 and 05-09 keep verifying against.
     checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or f"schema_version {version} contract valid"))
     if cost_advisory:
         checks.extend(_call_price_checks(contract))
     for track_name, track_spec in normalize_tracks(contract).items():
         metric = track_spec["metric"]
         floor = metric.get("noise_floor")
-        if version >= 3 and metric.get("exactness") == "exact":
+        if metric.get("exactness") == "exact":
             # A k-seed floor is meaningless for a deterministic objective: the
             # spread IS zero, and `minimum_delta` is the objective's resolution
             # (1 for an integer count). The declaration is waived — but a floor
@@ -373,13 +347,13 @@ def preflight_checks(
                         " — metric.fit_noise is recorded, but a seed spread measures "
                         "the FIT, not the comparison: run --recipe split-lottery or "
                         "--recipe paired-bootstrap for the bar"
-                        if version >= 3 and isinstance(metric.get("fit_noise"), Mapping)
+                        if isinstance(metric.get("fit_noise"), Mapping)
                         else ""
                     ),
                 )
             )
             continue
-        checks.append(_floor_bar_check(track_name, metric, floor, version))
+        checks.append(_floor_bar_check(track_name, metric, floor))
     try:
         state = load_state(study_dir, contract)
     except WorkflowError as exc:
@@ -484,9 +458,8 @@ def preflight_checks(
     current_split = split_fingerprint(contract)
     recorded_split = split_policy_hash(state)
     checks.append(Check("split fingerprint", current_split == recorded_split, f"current={current_split}; recorded={recorded_split}"))
-    if version >= 3:
-        checks.append(_contract_split_check(study_dir, state))
-        checks.append(_verifier_hash_check(study_dir, contract, state))
+    checks.append(_contract_split_check(study_dir, state))
+    checks.append(_verifier_hash_check(study_dir, contract, state))
 
     ledger_problems, ledger_absences = _v2_ledger_problems(
         study_dir, require_local=require_local
@@ -850,15 +823,11 @@ def _sweep_registry_checks(study_dir: Path, state: Mapping[str, Any]) -> list[Ch
 
 
 
-def floor_bar_problems(
-    metric: Mapping[str, Any], floor: Mapping[str, Any], version: int
-) -> list[str]:
+def floor_bar_problems(metric: Mapping[str, Any], floor: Mapping[str, Any]) -> list[str]:
     """Is ``minimum_delta`` outside the floor that would have to detect it?
 
-    Schema 2 keeps its original bar, ``minimum_delta >= std`` — those studies
-    were run and closed against it and must keep verifying byte-identically.
-    Schema 3 raises it to the number the consult protocol states and study 07
-    paid for: ``minimum_delta >= max(2*std, range/2)``.  Two standard
+    The bar is the number the consult protocol states and study 07 paid for:
+    ``minimum_delta >= max(2*std, range/2)``.  Two standard
     deviations, or half the observed range, whichever is larger — on the k a
     real Phase 0 can afford the range carries information a five-sample std
     does not, and a bar set at 1 std keeps roughly a third of pure noise.
@@ -872,16 +841,6 @@ def floor_bar_problems(
         minimum_delta = float(metric.get("minimum_delta", 0))
     except (TypeError, ValueError):
         return []
-    if version < 3:
-        return (
-            []
-            if minimum_delta >= std
-            else [
-                f"minimum_delta {minimum_delta:.6g} < measured seed std {std:.6g} — "
-                "declaring a floor then keeping inside it is the exact dishonesty "
-                "the measurement exists to prevent"
-            ]
-        )
     try:
         value_range = float(floor.get("range"))
     except (TypeError, ValueError):
@@ -896,29 +855,9 @@ def floor_bar_problems(
     ]
 
 
-def _floor_bar_check(
-    track_name: str, metric: Mapping[str, Any], floor: Mapping[str, Any], version: int
-) -> Check:
-    """One ``noise floor`` line per track, at the bar its schema version sets."""
-    problems = floor_bar_problems(metric, floor, version)
-    if version < 3:
-        try:
-            std = float(floor.get("std"))
-            minimum_delta = float(metric.get("minimum_delta", 0))
-        except (TypeError, ValueError):
-            return Check("noise floor", True, f"track {track_name!r}: malformed floor block")
-        return Check(
-            "noise floor",
-            not problems,
-            f"track {track_name!r}: minimum_delta {minimum_delta:.6g} vs measured "
-            f"seed std {std:.6g}"
-            + (
-                ""
-                if not problems
-                else " — declaring a floor then keeping inside it is the exact "
-                "dishonesty the measurement exists to prevent"
-            ),
-        )
+def _floor_bar_check(track_name: str, metric: Mapping[str, Any], floor: Mapping[str, Any]) -> Check:
+    """One ``noise floor`` line per track."""
+    problems = floor_bar_problems(metric, floor)
     estimand = floor.get("estimand")
     named = f", estimand {estimand!r}" if estimand else ""
     try:
@@ -980,11 +919,19 @@ def _profile_path(study_dir: Path, contract: Mapping[str, Any]) -> Path | None:
         candidate = root / PROFILE_DIR / f"{name}.md"
         if candidate.is_file():
             return candidate
-        # A wheel install has no `.claude/` tree; the wheel carries the same
-        # profiles as package data (pyproject force-include, Klein 2.3).
-        packaged = Path(__file__).resolve().parent / "_profiles" / f"{name}.md"
-        if packaged.is_file():
+        # No copy in the study's repository: the installed package carries the
+        # same profiles (kleinlib/resources.py).
+        from .resources import profile_path
+
+        packaged = profile_path(name, study_dir)
+        if packaged is not None:
             return packaged
+        # A plug-in profile brings its own document (kleinlib.plugins).
+        from .inquiry import profile_spec
+
+        spec = profile_spec(name)
+        if spec is not None and spec.doc is not None and Path(spec.doc).is_file():
+            return Path(spec.doc)
     return None
 
 
@@ -1067,7 +1014,7 @@ def vocabulary_problems(
     except OSError:
         return {}
     problems: dict[str, list[str]] = {}
-    if schema_version(contract) >= 3 and not isinstance(contract.get("materiality"), Mapping):
+    if not isinstance(contract.get("materiality"), Mapping):
         hits = _offending_lines(text, _MATERIALITY_RE)
         if hits:
             problems["materiality"] = hits
@@ -1128,52 +1075,21 @@ def verify_study(
     strict: bool = False,
     receipt: bool | None = None,
 ) -> list[Check]:
-    """The audit ``klein verify`` prints; ``schema_version`` selects the rule set.
+    """The audit ``klein verify`` prints.
 
-    Every keyword after ``require_local`` is TRI-STATE: ``None`` means "the
-    default for this study's schema".  Schema 3 runs the numbers scan, the
-    claim-sentence scan, the evidence-use checks and writes a receipt; schema 2
-    runs none of them unless asked, and runs them advisory when it is — so
-    studies 03 and 05–09 keep printing byte-identical output as long as no new
-    flag is passed.  ``strict`` promotes every ``[WARN]`` this verb owns into a
-    failure.
+    ``numbers``, ``claims``, ``evidence`` and ``receipt`` each default to on
+    (``None`` means on); passing ``False`` turns that one pass off — the numbers
+    scan, the claim-sentence scan, the evidence-use checks, the receipt write.
+    ``strict`` promotes every ``[WARN]`` this verb owns into a failure.
     """
     contract = load_contract(study_dir)
-    if schema_version(contract) == 1:
-        problems = _legacy_results_problems(study_dir / "results.tsv")
-        return [
-            Check(
-                "legacy warning",
-                True,
-                "schema_version missing means v1; readable through the deprecated v1 adapter"
-                " — no study evidence is rewritten",
-            ),
-            Check(
-                "legacy errata",
-                True,
-                "v1 discard/crash rows may use `-` because exact candidate commits were not retained",
-            ),
-            Check(
-                "legacy errata",
-                True,
-                "v1 has no machine-recorded gates, split fingerprint, track frontier, or sealed test count",
-            ),
-            Check(
-                "legacy migration",
-                True,
-                "create a new v2 study; preserve this directory as immutable legacy evidence",
-            ),
-            Check("legacy ledger", not problems, "; ".join(problems) or "valid"),
-        ]
     from .claims import claims_checks
 
-    version = schema_version(contract)
-    schema_3 = version >= 3
     state = _state_or_empty(study_dir, contract)
-    want_numbers = schema_3 if numbers is None else numbers
-    want_claims = schema_3 if claims is None else claims
-    want_evidence = schema_3 if evidence is None else evidence
-    want_receipt = schema_3 if receipt is None else receipt
+    want_numbers = True if numbers is None else numbers
+    want_claims = True if claims is None else claims
+    want_evidence = True if evidence is None else evidence
+    want_receipt = True if receipt is None else receipt
 
     checks = preflight_checks(
         study_dir,
@@ -1185,18 +1101,16 @@ def verify_study(
         cost_advisory=False,
     )
     checks += _sweep_registry_checks(study_dir, state)
+    checks += _probe_ledger_checks(study_dir, state)
     checks += _vocabulary_checks(study_dir, contract)
-    # Gate 3 and the predictions ledger close a schema-3 study; silent below it.
-    checks += _referee_gate_checks(state, version)
-    checks += _predictions_closure_checks(study_dir, contract, state, version)
-    # The claims law (references/claims-protocol.md): enforcing on schema 3,
-    # advisory on schema 2 so 07/08/09 never retro-fail. Empty without a lock.
-    checks += claims_checks(study_dir, version, sentences=want_claims, strict=strict)
-    checks += _evidence_use_checks(
-        study_dir, contract, state, enabled=want_evidence, enforcing=schema_3, strict=strict
-    )
-    checks += _numbers_checks(study_dir, state, enabled=want_numbers, enforcing=schema_3)
-    checks += _figure_rerender_checks(study_dir, enabled=schema_3)
+    # Gate 3 and the predictions ledger close a study.
+    checks += _referee_gate_checks(state)
+    checks += _predictions_closure_checks(study_dir, contract, state)
+    # The claims law (references/claims-protocol.md). Empty without a lock.
+    checks += claims_checks(study_dir, sentences=want_claims, strict=strict)
+    checks += _evidence_use_checks(study_dir, contract, state, enabled=want_evidence, strict=strict)
+    checks += _numbers_checks(study_dir, state, enabled=want_numbers)
+    checks += _figure_rerender_checks(study_dir, enabled=True)
     # A detached run (Klein 2.3) freezes the study: the row appears only while one
     # is open, and no receipt is written over an unjudged run.
     from .primitives import open_detached_run
@@ -1213,7 +1127,7 @@ def verify_study(
         )
         want_receipt = False
     if want_receipt:
-        checks += _receipt_checks(study_dir, contract, state, checks, version)
+        checks += _receipt_checks(study_dir, contract, state, checks, schema_version(contract))
     return checks
 
 
@@ -1230,18 +1144,38 @@ def _state_or_empty(study_dir: Path, contract: Mapping[str, Any]) -> Mapping[str
 # --------------------------------------------------------------------------
 
 
-def _referee_gate_checks(state: Mapping[str, Any], version: int) -> list[Check]:
+def _probe_ledger_checks(study_dir: Path, state: Mapping[str, Any]) -> list[Check]:
+    """The exploration ledger is append-only; silent for a study that never probed."""
+    from .probe import PROBES_FILE, probe_chain_problems, read_probes
+
+    if not (study_dir / PROBES_FILE).is_file():
+        return []
+    consult = (state.get("gates") or {}).get("consult")
+    recorded = consult.get("probes") if isinstance(consult, Mapping) else None
+    problems = probe_chain_problems(study_dir, recorded=recorded if isinstance(recorded, Mapping) else None)
+    if problems:
+        return [Check("probe ledger", False, "; ".join(problems))]
+    count = len(read_probes(study_dir))
+    before = int(recorded["count"]) if isinstance(recorded, Mapping) and recorded.get("count") else 0
+    return [
+        Check(
+            "probe ledger",
+            True,
+            f"{count} probe(s), hash chain intact; {before} preceded the consult gate — "
+            "exploration is on the record and none of it is evidence for a claim",
+        )
+    ]
+
+
+def _referee_gate_checks(state: Mapping[str, Any]) -> list[Check]:
     """Was the study reviewed by someone who did not run it?
 
-    Silent below schema 3 — the referee gate does not exist there.  Before
-    finalize an unrefereed study is a ``[WARN]``: REFEREE runs between SYNTHESIZE
+    Before finalize an unrefereed study is a ``[WARN]``: REFEREE runs between SYNTHESIZE
     and finalize, and a study still in the loop has not reached it.  AFTER
     finalize it is a failure unless the closing receipt records the
     ``--no-referee`` reason, because then the study closed unreviewed and said
     nothing about it.
     """
-    if version < 3:
-        return []
     reviewed = referee_gate(state)
     if reviewed is not None:
         independence = "yes" if reviewed.get("independent_of_experimenter") else "no"
@@ -1290,7 +1224,6 @@ def _predictions_closure_checks(
     study_dir: Path,
     contract: Mapping[str, Any],
     state: Mapping[str, Any],
-    version: int,
 ) -> list[Check]:
     """Open predictions listed; every refuted one carries a recorded decision.
 
@@ -1299,8 +1232,6 @@ def _predictions_closure_checks(
     computed once, in :func:`kleinlib.evidence_use.evidence_use`, and reported
     here rather than twice.
     """
-    if version < 3:
-        return []
     rows = prediction_ledger(contract, state)
     if not rows:
         return []
@@ -1351,7 +1282,6 @@ def _evidence_use_checks(
     state: Mapping[str, Any],
     *,
     enabled: bool,
-    enforcing: bool,
     strict: bool,
 ) -> list[Check]:
     """``evidence_use_rate`` and convergent evidence; silent when not asked for."""
@@ -1386,7 +1316,7 @@ def _evidence_use_checks(
         checks.append(
             Check(
                 "convergent evidence",
-                not (single and strict and enforcing),
+                not (single and strict),
                 (
                     "[WARN] convergent evidence absent — "
                     + "; ".join(
@@ -1407,16 +1337,7 @@ def _evidence_use_checks(
                 ),
             )
         )
-    if not enforcing:
-        checks = [_advisory(check, "schema 2") for check in checks]
     return checks
-
-
-def _advisory(check: Check, label: str) -> Check:
-    """A failing check demoted to a warning — the schema-2 posture, everywhere."""
-    if check.ok:
-        return check
-    return Check(check.name, True, f"[WARN] advisory on {label}: {check.message}")
 
 
 # --------------------------------------------------------------------------
@@ -1429,9 +1350,8 @@ def _numbers_checks(
     state: Mapping[str, Any],
     *,
     enabled: bool,
-    enforcing: bool,
 ) -> list[Check]:
-    """The findings scan (enforcing on schema 3) and the tutorial scan (always advisory).
+    """The findings scan (enforcing) and the tutorial scan (always advisory).
 
     ``references/claims-protocol.md``: every numeral in findings.md is a copy of
     a value in a pinned artifact.  The tutorial pass reads ``report/index.html``
@@ -1465,10 +1385,6 @@ def _numbers_checks(
                 f"{len(index.sources)} pinned source(s)",
             )
         )
-        if not enforcing:
-            # An unsourced numeral is already a failure at any strictness; the
-            # only lever schema 2 needs is the demotion.
-            checks = [_advisory(check, "schema 2") for check in checks]
 
     tutorial = study_dir / "report" / "index.html"
     if tutorial.is_file():

@@ -34,8 +34,9 @@ Every tutorial has these sections, in order:
 
 Split the work: the tutor AUTHORS the content as seven HTML fragments, and the
 bundled assembler stitches them into one offline file with build-time typeset math
-and highlighted code. The concrete script is
-**`.claude/skills/klein/scripts/build_tutorial.py`** (dependencies: pygments +
+and highlighted code. The concrete builder is
+**`klein report build`** (its script, `.claude/skills/klein/scripts/build_tutorial.py` in
+Klein's repository, ships inside the package; dependencies: pygments +
 ziamath + latex2mathml, declared in pyproject.toml — every shipped exhibit is built
 this way):
 
@@ -50,7 +51,7 @@ this way):
   Description`, under a key line naming each track's metric and goal) and an
   `<!--EVIDENCE-->` marker in 05-findings where the claim and referee totals belong
   (see "Records, not retyping").
-- Build: `uv run --locked python .claude/skills/klein/scripts/build_tutorial.py <study_dir>
+- Build: `klein report build <study_dir>
   [--title "..."]` → writes `<study_dir>/report/index.html`. It reads study.yaml for the
   header (goal/metric), inlines every figure, renders math and code, and runs its own
   acceptance guard. Non-zero exits list the offenders: 2 missing fragments, 3 figure
@@ -97,7 +98,7 @@ inline SVG glyph paths — no fonts, no runtime script, identical pixels everywh
   evaluation kind, track, short commit, sha256 of the included bytes. That is what
   "executed" means here — the cell that produced the evidence, as the notary recorded
   it, not a reconstruction.
-- A BARE include of a file named in `entrypoint.mutable` (`train.py` on schema 2) is
+- A BARE include of a file named in `entrypoint.mutable` (`train.py` for a `predict` study) is
   REFUSED. The notary restores the mutable surface on every non-keep, and after every
   run on a registered track, so the file on disk is either the last keep's bytes with
   no run named or the restored template — a bare include cannot say which, and on a
@@ -167,7 +168,9 @@ bundled builder above is the route of record.
 
 ## Which figures to inline
 
-Pull from `figures/` (produced by `figures/make_figures.py`, which must re-render
+Pull from `figures/` (produced by `figures/make_figures.py` — a study copies the template
+with `klein explain template:make_figures.py > figures/make_figures.py`; the in-repo source
+is `.claude/skills/klein/scripts/make_figures.py` — which must re-render
 byte-identically — the referee checks), matched to the problem by the profile's
 figure sets (`references/profiles/<profile>.md` §4). Render the committed figures the
 way `klein verify` re-renders them — matplotlib's own defaults, never the machine's
@@ -194,8 +197,7 @@ significant digits), and plot on linear axes labelled with the original values (
 Always inline the decision trajectory for the journey section — one
 `plot_decision_trajectory__<track>` PNG per track (step frontier of development
 keeps, discard dots, crash rug, the sealed final-test star, phase bands;
-`make_figures.py` emits them from the run manifests). v1 studies without
-manifests fall back to the plain `plot_metric_trajectory`.
+`make_figures.py` emits them from the run manifests).
 
 Every figure in sections 4 and 5 is authored WITH a caption:
 `<img data-fig="figures/<name>.png" alt="…" data-caption="…">`, which the builder turns
@@ -211,7 +213,7 @@ form for a fragment authoring its own `<figure>`/`<figcaption>` — and bytes th
 a PNG are refused (exit 3); the decoded width and height are stamped on the `<img>`.
 
 An opening "takeaways" block in section 1 — an `<h3>` and three items naming what the
-study found, the way study 15 opens — is RECOMMENDED, not required: it hands the reader
+study found, the way `21-bloodmnist-cnn` opens — is RECOMMENDED, not required: it hands the reader
 the verdicts before the method, and the rest of the page earns them.
 
 ## Figure critique (run before any figure lands)

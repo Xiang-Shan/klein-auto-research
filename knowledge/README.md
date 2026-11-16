@@ -58,7 +58,7 @@ list the IDs a doc leans on. Everything stays greppable:
 `grep -rn "#C[0-9]" knowledge/`. Two lines citing claims that refute each other is
 a contradiction to surface in prose, never to keep silently.
 
-**Objects and events (opt-in, schema 3).** A study that declares the `knowledge`
+**Objects and events (opt-in).** A study that declares the `knowledge`
 capability of the generation layer files each promotion additionally as a machine
 record: a write-once object under `knowledge/objects/<sha256>.json` carrying the
 claim's class, strength, scope, tags and evidence roots copied verbatim from its

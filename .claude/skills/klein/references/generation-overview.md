@@ -4,7 +4,7 @@ Moved here from `SKILL.md` in Klein 2.3 so the router stays short: everything be
 optional, and a study that does not opt in is untouched by it. The normative protocol is
 `references/generation-protocol.md`; this page is the map of its capabilities.
 
-**Opt-in generation layer (schema 3).** A study may additionally record what it
+**Opt-in generation layer.** A study may additionally record what it
 committed to BEFORE the evidence: `klein generation init` before Gate 0, then one
 `klein generation check` before every `run-one`, verified separately by `klein
 generation verify` — `references/generation-protocol.md`. A study that does not opt in

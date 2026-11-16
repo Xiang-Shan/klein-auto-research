@@ -214,11 +214,11 @@ def _configured_primary_contract(
         version = int(data.get("schema_version", 1))
     except (TypeError, ValueError) as exc:
         raise ValueError("study.yaml schema_version is invalid") from exc
-    if version not in {1, 2}:
+    if version not in {1, 2, 3}:
         raise ValueError(f"unsupported study.yaml schema_version: {version}")
-    if version == 2:
+    if version >= 2:
         if v1_goal_override:
-            raise ValueError("--goal cannot override a schema-v2 track contract")
+            raise ValueError("--goal cannot override a track contract")
         raw_tracks = data.get("tracks")
         tracks: dict[str, dict[str, object]] = {}
         if isinstance(raw_tracks, dict):

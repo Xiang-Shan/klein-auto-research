@@ -248,7 +248,7 @@ _SIDECAR_TEXT = (
 def _floor_study(tmp_path: Path) -> Path:
     study = tmp_path / "studies" / "99-floor"
     study.mkdir(parents=True)
-    (study / "study.yaml").write_text("study_id: 99-floor\n", encoding="utf-8")
+    (study / "study.yaml").write_text("schema_version: 3\nstudy_id: 99-floor\n", encoding="utf-8")
     return study
 
 

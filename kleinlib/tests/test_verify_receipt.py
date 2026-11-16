@@ -151,17 +151,6 @@ def test_no_receipt_suppresses_it(ready_study_v3) -> None:
     assert _named(checks, "verify receipt") == []
 
 
-def test_schema_2_writes_no_receipt_but_can_be_asked_for_one(ready_study) -> None:
-    repo, study = ready_study
-    assert not (study / RECEIPT_NAME).exists()
-    verify_study(study)
-    assert not (study / RECEIPT_NAME).exists()
-    verify_study(study, receipt=True)
-    payload = _receipt(study)
-    assert payload["schema"] == 2
-    assert RECEIPT_NAME in git(repo, "show", "--name-only", "--format=", "HEAD")
-
-
 # ---------------------------------------------------------------------------
 # 2. the flags
 # ---------------------------------------------------------------------------
@@ -274,18 +263,6 @@ def test_the_tutorial_pass_never_fails_a_study(ready_study_v3) -> None:
     assert "advisory" in check.message and "0.987654" in check.message
 
 
-def test_schema_2_numbers_are_silent_by_default_and_advisory_when_asked(ready_study) -> None:
-    repo, study = ready_study
-    (study / "findings.md").write_text(
-        "# Findings\n\nThe gap was 0.004733.\n", encoding="utf-8"
-    )
-    commit_all(repo, "schema-2 findings")
-    assert _named(verify_study(study), "findings numbers") == []
-    asked = _named(verify_study(study, numbers=True), "findings numbers")[0]
-    assert asked.ok is True
-    assert "advisory on schema 2" in asked.message
-
-
 # ---------------------------------------------------------------------------
 # 4. the referee gate and predictions closure (Package B's helpers)
 # ---------------------------------------------------------------------------
@@ -338,14 +315,6 @@ def test_open_predictions_are_listed(ready_study_v3) -> None:
     check = _named(verify_study(study, receipt=False), "predictions closure")[0]
     assert check.ok is True
     assert "[WARN] 1 open: P1" in check.message
-
-
-def test_the_referee_and_prediction_checks_are_silent_on_schema_2(ready_study) -> None:
-    _repo, study = ready_study
-    checks = verify_study(study)
-    assert _named(checks, "referee gate") == []
-    assert _named(checks, "predictions closure") == []
-    assert _named(checks, "belief revision") == []
 
 
 # ---------------------------------------------------------------------------
@@ -579,73 +548,41 @@ def test_render_platform_is_none_without_a_fingerprint(tmp_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
-# 6. the shipped studies keep verifying, unchanged
+# 6. the shipped exhibits keep verifying, unchanged
 # ---------------------------------------------------------------------------
 
-SHIPPED = (
-    "03-noisy-rosenbrock-dfo",
-    "05-fremtpl2-gap-forensics",
-    "06-hurricane-gqls-returnlevels",
-    "07-iris-90years",
-    "08-iris-rematch",
-    "09-iris-first-lesson",
-)
+#: Two small exhibits keep the unit suite fast; CI's
+#: `scripts/verify_shipped_studies.py` re-verifies every one.
+SHIPPED = ("00-known-truth-quickstart", "10-hubble-1929-replication")
+
+
+def _study_status(study: Path) -> str:
+    return subprocess.run(
+        ["git", "status", "--porcelain", "--", str(study)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout
 
 
 @pytest.mark.parametrize("slug", SHIPPED)
-def test_a_shipped_schema_2_study_verifies_with_zero_failed_and_no_receipt(slug: str) -> None:
+def test_a_shipped_exhibit_verifies_with_zero_failed_and_leaves_the_tree_alone(slug: str) -> None:
     study = REPO_ROOT / "studies" / slug
-    if not (study / "study.yaml").is_file():  # pragma: no cover - a trimmed checkout
-        pytest.skip(f"{slug} is not in this checkout")
-    checks = verify_study(study)
+    before = _study_status(study)
+    checks = verify_study(study, receipt=False)
     assert [check.name for check in checks if not check.ok] == []
-    assert not (study / RECEIPT_NAME).exists()
-    # none of the schema-3 lines appear at all — the output is byte-identical
-    for name in (
-        "referee gate",
-        "predictions closure",
-        "belief revision",
-        "evidence use",
-        "convergent evidence",
-        "findings numbers",
-        "tutorial numbers",
-        "figure re-render",
-        "verify receipt",
-    ):
-        assert _named(checks, name) == [], name
+    for name in ("referee gate", "predictions closure", "findings numbers"):
+        assert _named(checks, name), name
+    assert _study_status(study) == before
 
 
-def test_the_shipped_studies_still_pass_through_the_cli(capsys) -> None:
-    study = REPO_ROOT / "studies" / "09-iris-first-lesson"
-    if not (study / "study.yaml").is_file():  # pragma: no cover
-        pytest.skip("09 is not in this checkout")
-    assert cli.main(["verify", "--study", str(study)]) == 0
-    printed = capsys.readouterr().out
-    assert ", 0 failed" in printed
-    assert "verify receipt" not in printed
-
-
-def test_the_repository_stays_clean_after_verifying_a_shipped_study() -> None:
-    """`klein verify` on schema 2 writes nothing, so it cannot dirty the tree."""
-    study = REPO_ROOT / "studies" / "09-iris-first-lesson"
-    if not (study / "study.yaml").is_file():  # pragma: no cover
-        pytest.skip("09 is not in this checkout")
-    before = subprocess.run(
-        ["git", "status", "--porcelain", "--", str(study)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    ).stdout
-    verify_study(study)
-    after = subprocess.run(
-        ["git", "status", "--porcelain", "--", str(study)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-        check=False,
-    ).stdout
-    assert before == after
+def test_a_shipped_exhibit_passes_through_the_cli_without_a_receipt_commit(capsys) -> None:
+    study = REPO_ROOT / "studies" / "00-known-truth-quickstart"
+    before = _study_status(study)
+    assert cli.main(["verify", "--study", str(study), "--no-receipt"]) == 0
+    assert ", 0 failed" in capsys.readouterr().out
+    assert _study_status(study) == before
 
 
 def test_load_state_and_contract_still_read_a_receipt_bearing_study(ready_study_v3) -> None:

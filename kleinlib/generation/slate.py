@@ -7,7 +7,7 @@ capability does not run that ritual, propose a candidate, or rank one: it
 ``<study>#Hn`` id, binds a run to the hypothesis it was admitted for, and at
 phase end **computes** the Brier score of the forecasts the driver typed.
 Arithmetic on authored rows, and the module is grep-guarded for exactly that in
-``kleinlib/tests/test_generation_slate.py``.
+``kleinlib/tests/generation/test_generation_slate.py``.
 
 Three properties are worth stating outright, because each closes a way of making
 a calibration number look better than the work was:

@@ -195,21 +195,6 @@ jobs:
           awk -F': *' -v t="$target" \
             '/^primary_metric:/{m=$2} END{d=m-t; if(d<0)d=-d; printf "metric=%s target=%s |delta|=%.6f tol=0.003\n", m, t, d; exit (d<=0.003)?0:1}' \
             "$RUNNER_TEMP/study12-train.log"
-      - name: Execute the Study 03 v2 anchor (seed-block determinism on Linux)
-        shell: bash
-        run: |
-          set -euo pipefail
-          copy="$RUNNER_TEMP/study03"
-          cp -R studies/03-noisy-rosenbrock-dfo "$copy"
-          cd "$copy"
-          # The committed working train.py holds the study's incumbent (4x50
-          # restarts); the anchor row E0001 used OPTIMIZER="nm". Flip the one
-          # config line on the throwaway copy to re-run the anchor cell.
-          sed -i 's/^OPTIMIZER = "[a-z_]*"/OPTIMIZER = "nm"/' train.py
-          uv --project "$GITHUB_WORKSPACE" run --no-sync python prepare.py
-          KLEIN_EVALUATION_KIND=development KLEIN_EXPERIMENT_ID=E0001 KLEIN_TRACK=primary \
-            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py | tee "$RUNNER_TEMP/study03-train.log"
-          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-1.251208; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study03-train.log"
       - name: Checked-out exhibits remain byte-clean
         run: test -z "$(git status --porcelain)"
 
@@ -502,14 +487,34 @@ jobs:
             --goal "clean wheel scaffold" --domain test --target y --family linear \
             --metric val_auc --goal-direction higher --data csv:fixture.csv
           test -s "$RUNNER_TEMP/wheel-studies/99-wheel-smoke/study_state.json"
-          # Klein 2.3: recipes and audience profiles travel inside the wheel, the
-          # profiles byte-identical to the skill copy (the vocabulary scan's source).
+          # Recipes and the whole skill travel inside the wheel, byte-identical to
+          # the repository: protocols, profiles, templates, report scripts, agents.
           "$venv/bin/klein" new 98-wheel-recipe --root "$RUNNER_TEMP/wheel-studies" --recipe math-verify --runner python
           test -s "$RUNNER_TEMP/wheel-studies/98-wheel-recipe/verify.py"
           pkg="$("$venv/bin/python" -c 'import kleinlib, pathlib; print(pathlib.Path(kleinlib.__file__).parent)')"
-          for f in "$GITHUB_WORKSPACE"/.claude/skills/klein/references/profiles/*.md; do
-            cmp "$f" "$pkg/_profiles/$(basename "$f")"
+          skill="$GITHUB_WORKSPACE/.claude/skills/klein"
+          cmp "$skill/SKILL.md" "$pkg/_skill/SKILL.md"
+          (cd "$skill" && find references assets -type f ! -name .gitkeep) | while read -r f; do
+            cmp "$skill/$f" "$pkg/_skill/$f"
           done
+          for f in build_tutorial.py summarize_results.py make_figures.py; do
+            cmp "$skill/scripts/$f" "$pkg/_skill/scripts/$f"
+          done
+          for f in "$GITHUB_WORKSPACE"/.claude/agents/klein-*.md; do
+            cmp "$f" "$pkg/_agents/$(basename "$f")"
+          done
+          test ! -d "$pkg/tests"
+          # An installed Klein is self-sufficient: no checkout, any directory.
+          "$venv/bin/klein" explain gate | grep -q "checkpoint"
+          "$venv/bin/klein" explain consult | grep -q "Gate 0"
+          "$venv/bin/klein" skill install --target "$RUNNER_TEMP/wheel-studies"
+          test -s "$RUNNER_TEMP/wheel-studies/.claude/skills/klein/SKILL.md"
+          test -s "$RUNNER_TEMP/wheel-studies/.claude/agents/klein-referee.md"
+          "$venv/bin/klein" next --study "$RUNNER_TEMP/wheel-studies/98-wheel-recipe" --json \
+            | "$venv/bin/python" -c "import json,sys; d=json.load(sys.stdin); assert d['format']==1 and d['data']['next']['stage_id']=='consult', d"
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"explain","arguments":{"topic":"referee"}}}' \
+            | "$venv/bin/klein" mcp --root "$RUNNER_TEMP/wheel-studies" | grep -q "ten checks"
       - uses: actions/upload-artifact@v4
         with:
           name: distributions

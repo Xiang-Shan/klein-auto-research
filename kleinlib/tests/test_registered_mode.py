@@ -9,8 +9,7 @@ surface always restored, identical reruns allowed when they adjudicate a
 prediction, and `artifact:` lines that make a TABLE first-class evidence.
 
 What is pinned here is the contract diff between the two modes, one property
-per test, plus the schema-2 guarantee: a schema-2 study can never produce a
-`measured` row, so none of this reaches it.
+per test.
 """
 
 from __future__ import annotations
@@ -141,7 +140,7 @@ def test_choose_disposition_measures_a_registered_cell() -> None:
     assert (disposition, reason) == ("measured", "registered cell measured")
 
 
-def test_frontier_is_the_default_mode_so_schema_2_arithmetic_is_untouched() -> None:
+def test_frontier_is_the_default_mode() -> None:
     assert choose_disposition(
         primary_metric=0.9,
         track_spec=dict(TRACK_SPEC),
@@ -366,21 +365,6 @@ def test_a_declared_artifact_that_escapes_the_study_is_a_crash(registered_study)
     )
     assert manifest["disposition"] == "crash"
     assert ARTIFACT_MISSING in manifest["decision_reason"]
-
-
-def test_a_schema_2_study_never_grows_declared_artifacts(ready_study) -> None:
-    """The schema selects the rule set: an `artifact:` line is schema-3 grammar."""
-    from test_workflow_v2 import metric_command as v2_metric_command
-
-    _, study = ready_study
-    (study / "train.py").write_text(
-        (study / "train.py").read_text(encoding="utf-8") + "\nCANDIDATE = 1\n", encoding="utf-8"
-    )
-    command = [*v2_metric_command(0.7)]
-    command[-1] += "; print('artifact: not/a/path.tsv')"
-    manifest = run_one(study, command=command, echo=False)
-    assert manifest["disposition"] == "keep"
-    assert all(meta.get("role") != "declared" for meta in manifest["artifacts"].values())
 
 
 # ---------------------------------------------------------------------------

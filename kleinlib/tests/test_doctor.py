@@ -105,7 +105,7 @@ def test_probe_study_source_malformed_yaml(tmp_path: Path) -> None:
 def test_probe_study_source_no_data_block_is_informational(tmp_path: Path) -> None:
     study = tmp_path / "study"
     study.mkdir()
-    (study / "study.yaml").write_text("goal: fixture\n", encoding="utf-8")
+    (study / "study.yaml").write_text("schema_version: 3\ngoal: fixture\n", encoding="utf-8")
     checks = doctor._probe_study_source(study)
     assert checks[0]["ok"] is True
     assert "no data.source" in checks[0]["message"]
@@ -115,7 +115,7 @@ def test_probe_study_source_resolvable_csv_tag(tmp_path: Path) -> None:
     study = tmp_path / "study"
     study.mkdir()
     (study / "x.csv").write_text("a\n1\n", encoding="utf-8")
-    (study / "study.yaml").write_text("data:\n  source: csv:x.csv\n", encoding="utf-8")
+    (study / "study.yaml").write_text("schema_version: 3\ndata:\n  source: csv:x.csv\n", encoding="utf-8")
     checks = doctor._probe_study_source(study)
     assert checks[0]["name"] == "data source"
     assert checks[0]["ok"] is True
@@ -125,18 +125,18 @@ def test_probe_study_source_unpinned_openml_is_not_ok_without_network(tmp_path: 
     monkeypatch.setattr(urllib.request, "urlopen", lambda *_a, **_k: (_ for _ in ()).throw(AssertionError))
     study = tmp_path / "study"
     study.mkdir()
-    (study / "study.yaml").write_text("data:\n  source: openml:41214\n", encoding="utf-8")
+    (study / "study.yaml").write_text("schema_version: 3\ndata:\n  source: openml:41214\n", encoding="utf-8")
     checks = doctor._probe_study_source(study)
     assert checks[0]["ok"] is False
     assert "openml" in checks[0]["message"]
 
 
 def test_probe_study_source_legacy_tag_is_reported_not_crashed(tmp_path: Path) -> None:
-    """Schema-2 studies use `data_hub:`/`kaggle:` free-text labels — doctor
-    must report them as an unresolvable tag, never raise."""
+    """A free-text `data_hub:`/`kaggle:` label is not a scheme — doctor must
+    report it as an unresolvable tag, never raise."""
     study = tmp_path / "study"
     study.mkdir()
-    (study / "study.yaml").write_text("data:\n  source: data_hub:freMTPL2\n", encoding="utf-8")
+    (study / "study.yaml").write_text("schema_version: 3\ndata:\n  source: data_hub:freMTPL2\n", encoding="utf-8")
     checks = doctor._probe_study_source(study)
     assert checks[0]["ok"] is False
     assert "unknown scheme" in checks[0]["message"]
@@ -149,7 +149,7 @@ def test_run_doctor_with_study_never_touches_network(tmp_path: Path, monkeypatch
     monkeypatch.setattr(urllib.request, "urlopen", _boom)
     study = tmp_path / "study"
     study.mkdir()
-    (study / "study.yaml").write_text("data:\n  source: url:https://example.test/a.csv\n", encoding="utf-8")
+    (study / "study.yaml").write_text("schema_version: 3\ndata:\n  source: url:https://example.test/a.csv\n", encoding="utf-8")
     report = doctor.run_doctor(study_dir=study)
     assert any(c["name"] == "data source" for c in report["checks"])
 
@@ -253,11 +253,13 @@ def test_cli_doctor_run_prints_text_by_default_and_exits_0(capsys) -> None:
     assert "summary:" in out
 
 
-def test_cli_doctor_run_json_flag_emits_valid_json(capsys) -> None:
-    rc = cli_doctor.run(_args(json=True))
-    assert rc == 0
-    payload = json.loads(capsys.readouterr().out)
-    assert "checks" in payload and "ok" in payload
+def test_cli_doctor_json_is_the_one_envelope(capsys) -> None:
+    from kleinlib import cli
+
+    assert cli.main(["doctor", "--json"]) == 0
+    reply = json.loads(capsys.readouterr().out)
+    assert reply["verb"] == "doctor" and reply["format"] == 1 and reply["ok"] is True
+    assert "checks" in reply["data"] and "ok" in reply["data"]
 
 
 def test_cli_doctor_run_strict_exits_1_only_when_not_ok(monkeypatch) -> None:

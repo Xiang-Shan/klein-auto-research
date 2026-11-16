@@ -93,6 +93,7 @@ from ..manifest import load_manifests
 from ..primitives import canonical_json, sha256_bytes, sha256_file
 from ..transaction import git_blob, relative
 from . import custody as gc
+from ._common import _fail, _pass, _warn
 from .chronology import run_started_events
 from .envelope import GENERATION_SCHEMA
 from .expert import _plain, joined
@@ -1038,18 +1039,6 @@ CEILING_CHECK = "benchmark ceiling"
 #: precision are exact rationals over small integers, so the only honest source
 #: of a gap is the scorer's own print precision — six decimals costs 5e-7.
 PRINT_TOLERANCE = 1e-6
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
 
 
 def benchmark_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:

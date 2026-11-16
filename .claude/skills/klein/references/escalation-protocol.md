@@ -14,7 +14,7 @@ says a stall happened, the ladder of responses, the budgets they may spend, and
 how the study is allowed to end. From then on, a tripped trigger blocks the next
 candidate's admission until a `<study>#Dn` decision is on the record, and the
 decision has to name the concrete resource or assumption it changes. Opt-in,
-schema-3 only, and inert unless `generation/manifest.yaml` declares `escalation`
+inert unless `generation/manifest.yaml` declares `escalation`
 (`references/generation-protocol.md`).
 
 > **The CLI neither chooses a rung nor launches, schedules, or retries work.** It
@@ -29,21 +29,21 @@ can follow this document directly.
 ## Verbs
 
 ```bash
-uv run --locked klein generation escalate lock   --study studies/NN-slug [--allow-late]
-uv run --locked klein generation escalate record --study studies/NN-slug \
+klein generation escalate lock   --study studies/NN-slug [--allow-late]
+klein generation escalate record --study studies/NN-slug \
     --trigger T1 [--track primary] --rung metric_diagnosis \
     [--skip <rung>="<why it does not apply>"]… \
     --action "…" --changed "…" --rationale "…" [--next "…"] [--successor NN-slug] \
     --estimated-cost compute=2 --estimated-cost person_time=1 \
     --estimated-cost money=0 --estimated-cost samples=0 \
     [--advisor NAME --advice "…" [--advice-accepted] [--advice-cost money=200]]
-uv run --locked klein generation escalate close  --study studies/NN-slug --decision NN-slug#D1 \
+klein generation escalate close  --study studies/NN-slug --decision NN-slug#D1 \
     --actual-cost compute=3 --actual-cost person_time=unknown \
     --actual-cost money=0 --actual-cost samples=0 \
     [--cost-evidence "…"] --outcome "…"
-uv run --locked klein generation escalate pivot  --study studies/NN-slug --decision NN-slug#D5 \
+klein generation escalate pivot  --study studies/NN-slug --decision NN-slug#D5 \
     --successor MM-slug --new-contract studies/MM-slug/study.yaml [--inherited scouted=…]
-uv run --locked klein generation escalate show   --study studies/NN-slug
+klein generation escalate show   --study studies/NN-slug
 ```
 
 Every writing verb takes the four testimony flags `--actor --tool --model
@@ -187,7 +187,7 @@ rows the selection never saw, and this receipt is what says which rows those are
 The successor cites the receipt back:
 
 ```bash
-uv run --locked klein generation init --study studies/MM-slug \
+klein generation init --study studies/MM-slug \
     --capability escalation --predecessor NN-slug --successor-receipt <pivot object sha>
 ```
 

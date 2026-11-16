@@ -167,10 +167,10 @@ def test_resolve_synthetic_missing_script_raises(tmp_path: Path) -> None:
 
 
 def test_resolve_bundled_reads_repo_dataset(capsys) -> None:
-    resolved = resolve("bundled:hurricane_top30_pl1998", study_dir=None, offline=True)
+    resolved = resolve("bundled:insurance-claims", study_dir=None, offline=True)
     assert resolved.kind is SourceKind.BUNDLED
     assert resolved.path is not None
-    assert resolved.path.name == "hurricane_top30_pl1998.csv"
+    assert resolved.path.name == "insurance_claims.csv.gz"
     assert resolved.digest == sha256_file(resolved.path)
     assert capsys.readouterr().out.strip() == f"data source: bundled — {resolved.path}"
 
@@ -182,20 +182,20 @@ def test_resolve_bundled_missing_raises() -> None:
 
 def test_resolve_bundled_shadowed_by_data_hub_raises_loudly(tmp_path: Path, monkeypatch) -> None:
     hub = tmp_path / "hub"
-    shadow_dir = hub / "hurricane_top30_pl1998"
+    shadow_dir = hub / "insurance-claims"
     shadow_dir.mkdir(parents=True)
     (shadow_dir / "data.csv").write_text("a,b\n1,2\n", encoding="utf-8")
     monkeypatch.setenv("DATA_HUB", str(hub))
 
     with pytest.raises(WorkflowError, match="almost certainly a mistake"):
-        resolve("bundled:hurricane_top30_pl1998", study_dir=None, offline=True)
+        resolve("bundled:insurance-claims", study_dir=None, offline=True)
 
 
 def test_resolve_bundled_unaffected_by_unrelated_data_hub(tmp_path: Path, monkeypatch) -> None:
     hub = tmp_path / "hub"
     hub.mkdir()
     monkeypatch.setenv("DATA_HUB", str(hub))
-    resolved = resolve("bundled:hurricane_top30_pl1998", study_dir=None, offline=True)
+    resolved = resolve("bundled:insurance-claims", study_dir=None, offline=True)
     assert resolved.path is not None
 
 
@@ -248,9 +248,9 @@ def test_resolve_hub_falls_back_to_bundled_when_data_hub_has_neither(tmp_path: P
     hub.mkdir()  # exists, but no loader module and no matching plain directory
     monkeypatch.setenv("DATA_HUB", str(hub))
 
-    resolved = resolve("hub:hurricane_top30_pl1998", study_dir=None, offline=True)
+    resolved = resolve("hub:insurance-claims", study_dir=None, offline=True)
     assert resolved.path is not None
-    assert resolved.path.name == "hurricane_top30_pl1998.csv"
+    assert resolved.path.name == "insurance_claims.csv.gz"
     assert resolved.provenance_line == f"data source: bundled — {resolved.path}"
 
 
@@ -465,7 +465,7 @@ def test_describe_csv_present_and_absent(tmp_path: Path) -> None:
 
 
 def test_describe_bundled_matches_resolve() -> None:
-    report = describe("bundled:hurricane_top30_pl1998")
+    report = describe("bundled:insurance-claims")
     assert report["resolvable"] is True
     assert report["scheme"] == "bundled"
 
@@ -544,8 +544,8 @@ def test_describe_never_touches_the_network(tmp_path: Path, monkeypatch) -> None
         "csv:x.csv",
         "parquet:x.parquet",
         "synthetic:make.py",
-        "bundled:hurricane_top30_pl1998",
-        "hub:hurricane_top30_pl1998",
+        "bundled:insurance-claims",
+        "hub:insurance-claims",
         "sklearn:load_iris",
         "openml:41214",
         "url:https://example.test/a.csv",
@@ -573,7 +573,7 @@ def test_resolve_bundled_member_file(capsys) -> None:
     assert resolved.kind is SourceKind.BUNDLED
     assert resolved.path.name == "hubble1929_table1.csv"
     assert capsys.readouterr().out.strip() == f"data source: bundled — {resolved.path}"
-    gz = resolve("bundled:tinyshakespeare/tinyshakespeare.txt.gz", study_dir=None, offline=True)
+    gz = resolve("bundled:insurance-claims/insurance_claims.csv.gz", study_dir=None, offline=True)
     assert gz.path.suffix == ".gz" and len(gz.digest) == 64
 
 

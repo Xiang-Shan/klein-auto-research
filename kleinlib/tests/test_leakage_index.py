@@ -24,7 +24,7 @@ def study(tmp_path: Path) -> Path:
     (path / "study.yaml").write_text(
         yaml.safe_dump(
             {
-                "schema_version": 2,
+                "schema_version": 3,
                 "study_id": "12-index",
                 "task_type": "classification",
                 "tracks": {"primary": {"metric": {"name": "val_auc", "goal": "higher"}}},

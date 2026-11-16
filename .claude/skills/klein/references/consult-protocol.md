@@ -38,7 +38,7 @@ interrogate. The six axes, with example phrasings:
 6. **Deliverable form.** "Besides the always-on `findings.md` + `claims.lock` +
    referee report + HTML tutorial, do you want any study-specific docs?"
 
-#**Recipe (inferred, never a seventh question).** When the typed inquiry matches a
+**Recipe (inferred, never a seventh question).** When the typed inquiry matches a
 domain recipe — `tabular-predict`, `cv-classify`, `dl-scaling`, `llm-eval`, `ds-causal`,
 `math-verify` (`references/defaults-and-scaffolding.md`) — name it in the confirm summary
 and scaffold with `klein new NN-slug --recipe <id> …`: the recipe writes the 2.3 contract
@@ -70,21 +70,22 @@ with one line of reasoning in the confirm summary:
 graphs, text, a simulator, or `none` when only a verifier exists). `profile` follows
 the audience and the field's vocabulary (`generic` unless the brief is plainly ML
 research, mathematics, or insurance — the profile files' §8 hints decide). A study
-with two lanes (a registered test beside a known-truth simulation, as study 09) keeps
-one study kind and overrides per track with `tracks.<id>.kind`.
+with several lanes (a replication beside an estimate and a known-truth simulation, as in
+`10-hubble-1929-replication`) keeps one study kind and overrides per track with
+`tracks.<id>.kind`.
 
 ## Draft the artifacts
 
 From the answers, scaffold, then fill:
 
 ```bash
-uv run --locked klein new NN-slug \
+klein new NN-slug \
     --goal "..." --kind <kind> --modality <modality> --profile <profile> \
     --metric <name> --goal-direction higher|lower --data "<source tag>" \
     --track <name>[:registered] [--track <name2>[:registered]] [--split-seed N]
 ```
 
-Fill in `study.yaml` (schema 3): `kind`, `data.modality`, `data.source` with its pin
+Fill in `study.yaml`: `kind`, `data.modality`, `data.source` with its pin
 (`references/data-sources.md`), `profile` and `audience`, `entrypoint {command,
 mutable}`, explicit `task_type` (the metric family) and `method_depth`, one or more
 track contracts — `mode` (frontier or registered), metric name / direction / minimum
@@ -143,9 +144,11 @@ assert evaluate_rule(
 - **Everything looked at before this gate goes into `scouting_ledger.md`**
   (scaffolded by `klein new`; shape and rationale in
   `assets/scouting-ledger-template.md`), committed before the gate is recorded:
-  on schema 3, `klein gate record consult` hashes it into the consult record beside
+  `klein gate record consult` hashes it into the consult record beside
   `study.yaml`, `research_plan.md` and `program.md`, so an edit afterwards fails
-  `klein verify` until the gate is re-recorded with a reason. It is the one OPTIONAL
+  `klein verify` until the gate is re-recorded with a reason. Looks at the data itself run
+  through `klein probe` so they are on the record; `scouting_ledger.md` explains what they
+  showed (`references/exploration-protocol.md`). It is the one OPTIONAL
   consult artifact — a study that scouted nothing may delete it, and the gate then
   records `scouting_ledger: absent` on the event trail so the absence is itself on
   the record. Values seen there may seed anchors and identity checks; they may
@@ -176,7 +179,7 @@ assert evaluate_rule(
   under common random numbers) — via `sweeps/noise_floor.py` → sidecar, registered
   with `klein sweep register`; then `klein noise-floor --study <dir> --recipe <r>
   --estimand <e>` prints the per-track block. Set `minimum_delta ≥ max(2×std,
-  range/2)` (schema 3 enforces it) and re-record the consult gate with
+  range/2)` (the engine enforces it) and re-record the consult gate with
   `--note "minimum_delta set from the measured noise floor"`. A seed-only spread is
   recorded as `fit_noise`, never pasted as the bar. An `exact` metric (integer or
   closed-form objectives) declares `metric.exactness: exact` with a resolution and an
@@ -192,7 +195,7 @@ assert evaluate_rule(
   door-closed branch BEFORE spending challengers. Declare `metric.bound.ideal` (+
   `on_infeasible`) and `noise_floor.estimand` so klein computes, discloses, and
   gates this automatically (`klein headroom ack` records the run-anyway branch).
-  Study 07 ran a parade at h = 0.81 with no disclosure; study 08 registered the
+  Study 07 (archived — `studies/ARCHIVE.md`) ran a parade at h = 0.81 with no disclosure; study 08 registered the
   arithmetic first and its door-ajar frontier (h = 1.015) still produced zero keeps
   in twenty-one attempts; study 09 closed the door at h = 0.33 before any challenger
   — `h >= 1` is "not excluded", never "plausible".
@@ -260,7 +263,9 @@ steps directly.
 ## Prior provenance
 
 Every research-question prior names its source in parentheses:
-`(source: knowledge/domains/insurance/gbdt-hyperparameter-guide.md#C2)`,
+`(source: knowledge/domains/insurance/gbdt-hyperparameter-guide.md#C2)` (`knowledge/` is in the
+repository that hosts your studies; Klein's own knowledge base ships in its repository, not in the
+package),
 `(source: method_card §4)`, `(source: scouted)`, `(source: uninformed)`, or — on a
 generation-enabled study — `(source: <study>#Hn)` for a prior that rests on an earlier
 slate row and `(source: knowledge:K7)` for one that rests on a store object the

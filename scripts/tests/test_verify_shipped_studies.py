@@ -31,10 +31,10 @@ def _load_module():
     return module
 
 
-def _write_study(studies_dir: Path, slug: str, *, v2: bool) -> Path:
+def _write_study(studies_dir: Path, slug: str) -> Path:
     study_dir = studies_dir / slug
     study_dir.mkdir(parents=True)
-    contract = f'schema_version: 2\nstudy_id: "{slug}"\n' if v2 else 'goal: "legacy study, no schema_version key"\n'
+    contract = f'schema_version: 3\nstudy_id: "{slug}"\n'
     (study_dir / "study.yaml").write_text(contract, encoding="utf-8")
     return study_dir
 
@@ -59,7 +59,7 @@ def _fake_run(responses: dict[str, subprocess.CompletedProcess[str]]):
 def test_discover_studies_finds_only_directories_with_a_contract(tmp_path: Path, monkeypatch) -> None:
     module = _load_module()
     studies_dir = tmp_path / "studies"
-    _write_study(studies_dir, "09-has-contract", v2=True)
+    _write_study(studies_dir, "09-has-contract")
     (studies_dir / "not-a-study").mkdir(parents=True)  # no study.yaml — must be ignored
     (studies_dir / "not-a-study" / "notes.txt").write_text("stray file", encoding="utf-8")
 
@@ -71,9 +71,9 @@ def test_discover_studies_finds_only_directories_with_a_contract(tmp_path: Path,
 def test_discover_studies_sorts_deterministically(tmp_path: Path, monkeypatch) -> None:
     module = _load_module()
     studies_dir = tmp_path / "studies"
-    _write_study(studies_dir, "09-iris-first-lesson", v2=True)
-    _write_study(studies_dir, "00-glm-claims-quickstart", v2=False)
-    _write_study(studies_dir, "03-noisy-rosenbrock-dfo", v2=True)
+    _write_study(studies_dir, "09-iris-first-lesson")
+    _write_study(studies_dir, "00-glm-claims-quickstart")
+    _write_study(studies_dir, "03-noisy-rosenbrock-dfo")
 
     monkeypatch.setattr(module, "STUDIES_DIR", studies_dir)
     found = [p.name for p in module.discover_studies()]
@@ -83,15 +83,8 @@ def test_discover_studies_sorts_deterministically(tmp_path: Path, monkeypatch) -
 def test_schema_version_reads_top_level_key(tmp_path: Path) -> None:
     module = _load_module()
     contract = tmp_path / "study.yaml"
-    contract.write_text('schema_version: 2\nstudy_id: "x"\n', encoding="utf-8")
-    assert module.schema_version(contract) == 2
-
-
-def test_schema_version_missing_key_means_v1(tmp_path: Path) -> None:
-    module = _load_module()
-    contract = tmp_path / "study.yaml"
-    contract.write_text('goal: "no schema_version here"\n', encoding="utf-8")
-    assert module.schema_version(contract) is None
+    contract.write_text('schema_version: 3\nstudy_id: "x"\n', encoding="utf-8")
+    assert module.schema_version(contract) == 3
 
 
 def test_schema_version_ignores_indented_occurrences(tmp_path: Path) -> None:
@@ -99,8 +92,10 @@ def test_schema_version_ignores_indented_occurrences(tmp_path: Path) -> None:
     contract = tmp_path / "study.yaml"
     # A nested key sharing the name must not be mistaken for the top-level
     # contract version — only a column-0 key counts.
-    contract.write_text("tracks:\n  primary:\n    schema_version: 999\n", encoding="utf-8")
-    assert module.schema_version(contract) is None
+    contract.write_text(
+        "schema_version: 3\ntracks:\n  primary:\n    schema_version: 999\n", encoding="utf-8"
+    )
+    assert module.schema_version(contract) == 3
 
 
 # --------------------------------------------------------------------------
@@ -165,7 +160,7 @@ def test_render_table_aligns_columns_with_header_and_rule() -> None:
 def test_main_all_clean_exits_zero(tmp_path: Path, monkeypatch, capsys) -> None:
     module = _load_module()
     studies_dir = tmp_path / "studies"
-    _write_study(studies_dir, "09-clean", v2=True)
+    _write_study(studies_dir, "09-clean")
     monkeypatch.setattr(module, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(module, "STUDIES_DIR", studies_dir)
     monkeypatch.setattr(
@@ -181,11 +176,10 @@ def test_main_all_clean_exits_zero(tmp_path: Path, monkeypatch, capsys) -> None:
     assert row.split() == ["studies/09-clean", "19", "0", "0", "0"]
 
 
-def test_main_any_failure_exits_one_and_v1_study_skipped_with_note(tmp_path: Path, monkeypatch, capsys) -> None:
+def test_main_any_failure_exits_one(tmp_path: Path, monkeypatch, capsys) -> None:
     module = _load_module()
     studies_dir = tmp_path / "studies"
-    _write_study(studies_dir, "00-legacy", v2=False)
-    _write_study(studies_dir, "09-broken", v2=True)
+    _write_study(studies_dir, "09-broken")
     monkeypatch.setattr(module, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(module, "STUDIES_DIR", studies_dir)
     monkeypatch.setattr(
@@ -198,7 +192,6 @@ def test_main_any_failure_exits_one_and_v1_study_skipped_with_note(tmp_path: Pat
     out, err = capsys.readouterr()
     # a red row names itself on stderr (CI logs show nothing but this script's output)
     assert "error: studies/09-broken: 2 failed check(s) (exit 2)" in err
-    assert "studies/00-legacy is schema v1 (no schema_version key) — skipped" in out
     row = next(line for line in out.splitlines() if line.startswith("studies/09-broken"))
     assert row.split() == ["studies/09-broken", "17", "0", "2", "2"]
 
@@ -206,7 +199,7 @@ def test_main_any_failure_exits_one_and_v1_study_skipped_with_note(tmp_path: Pat
 def test_main_reports_missing_summary_line_as_failure(tmp_path: Path, monkeypatch, capsys) -> None:
     module = _load_module()
     studies_dir = tmp_path / "studies"
-    _write_study(studies_dir, "09-crashed", v2=True)
+    _write_study(studies_dir, "09-crashed")
     monkeypatch.setattr(module, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(module, "STUDIES_DIR", studies_dir)
     monkeypatch.setattr(
@@ -225,8 +218,8 @@ def test_main_reports_missing_summary_line_as_failure(tmp_path: Path, monkeypatc
 def test_main_studies_filter_matches_slug_and_studies_prefix(tmp_path: Path, monkeypatch, capsys) -> None:
     module = _load_module()
     studies_dir = tmp_path / "studies"
-    _write_study(studies_dir, "03-a", v2=True)
-    _write_study(studies_dir, "09-b", v2=True)
+    _write_study(studies_dir, "03-a")
+    _write_study(studies_dir, "09-b")
     monkeypatch.setattr(module, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(module, "STUDIES_DIR", studies_dir)
     monkeypatch.setattr(
@@ -244,7 +237,7 @@ def test_main_studies_filter_matches_slug_and_studies_prefix(tmp_path: Path, mon
 def test_main_unknown_studies_filter_is_a_usage_error(tmp_path: Path, monkeypatch, capsys) -> None:
     module = _load_module()
     studies_dir = tmp_path / "studies"
-    _write_study(studies_dir, "09-b", v2=True)
+    _write_study(studies_dir, "09-b")
     monkeypatch.setattr(module, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(module, "STUDIES_DIR", studies_dir)
 

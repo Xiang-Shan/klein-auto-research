@@ -453,7 +453,7 @@ def contract_split(
             "entrypoint and print split_fingerprint yourself"
         )
     if split.get("index") or kind == PREDEFINED_SPLIT:
-        return _index_split(study, contract, split, target=target)
+        return _probe_fence(_index_split(study, contract, split, target=target))
     column = target or contract.get("target")
     if not isinstance(column, str) or not column.strip():
         raise ValueError("study.yaml:target is required to split the prepared data")
@@ -463,17 +463,32 @@ def contract_split(
         raise ValueError(f"target column {column!r} is not in the prepared data")
     X = frame.drop(columns=[column])
     y = frame[column]
-    return three_way_split(
-        X,
-        y,
-        task=_split_task(contract),
-        strategy=kind,
-        development_size=float(split.get("development_size", 0.2)),
-        test_size=float(split.get("test_size", 0.2)),
-        seed=int(split.get("seed", RANDOM_SEED)),
-        groups=frame[split["group_column"]] if kind == "group" else None,
-        time_values=frame[split["time_column"]] if kind == "time" else None,
+    return _probe_fence(
+        three_way_split(
+            X,
+            y,
+            task=_split_task(contract),
+            strategy=kind,
+            development_size=float(split.get("development_size", 0.2)),
+            test_size=float(split.get("test_size", 0.2)),
+            seed=int(split.get("seed", RANDOM_SEED)),
+            groups=frame[split["group_column"]] if kind == "group" else None,
+            time_values=frame[split["time_column"]] if kind == "time" else None,
+        )
     )
+
+
+def _probe_fence(parts: tuple) -> tuple:
+    """Inside ``klein probe`` the sealed partition comes back EMPTY.
+
+    Exploration may look at train and development rows as often as it likes; the
+    sealed rows are spent once, by ``klein run-one --final-test``, and never by a
+    look (``references/exploration-protocol.md``).
+    """
+    if os.environ.get("KLEIN_PROBE") != "1":
+        return parts
+    X_tr, X_dev, X_te, y_tr, y_dev, y_te = parts
+    return X_tr, X_dev, X_te.iloc[:0], y_tr, y_dev, y_te.iloc[:0]
 
 
 #: ``data.split.kind: predefined`` — the partitions are a column of the data
@@ -649,6 +664,11 @@ def load_partition(
     kind = kind or os.environ.get("KLEIN_EVALUATION_KIND") or "development"
     if kind not in {"development", "final_test"}:
         raise ValueError(f"invalid evaluation kind {kind!r}")
+    if kind == "final_test" and os.environ.get("KLEIN_PROBE") == "1":
+        raise ValueError(
+            "a probe may not read the sealed partition: exploration looks at train and "
+            "development data only; the sealed look is `klein run-one --final-test`, once"
+        )
     dry_run = kind == "final_test" and os.environ.get("KLEIN_SEALED_DRYRUN") == "1"
     if dry_run:
         kind = "development"

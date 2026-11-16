@@ -1,0 +1,15 @@
+{
+  "name": "klein-auto-research",
+  "owner": {
+    "name": "Xiang Shan",
+    "url": "https://github.com/Xiang-Shan"
+  },
+  "description": "Klein Auto Research — process-verifiable research studies for AI for Science.",
+  "plugins": [
+    {
+      "name": "klein",
+      "source": "./",
+      "description": "The Klein research lifecycle: the /klein skill, eight worker agents, and a read-only MCP server over your studies."
+    }
+  ]
+}

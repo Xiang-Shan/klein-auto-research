@@ -2,10 +2,11 @@
 
 ## Supported development line
 
-Security fixes target the current repository development line (`2.0.0` in
-package metadata — see `CHANGELOG.md`); "supported" means exactly that it
-receives security fixes. The shipped v0.1 studies are immutable research
-evidence, not a separately supported executable distribution.
+Security fixes target the current release line, 3.x (`3.0.0` in package
+metadata — see `CHANGELOG.md`); "supported" means exactly that it receives
+security fixes. 2.3.x remains the engine that judges schema-2 studies (tag
+`v2.3.1`) and is maintained only for that purpose. The shipped studies are
+immutable research evidence, not a separately supported executable distribution.
 
 ## Reporting a vulnerability
 
@@ -25,7 +26,7 @@ study checkout as code, not as a passive document. Review untrusted `train.py`,
 hooks, and configuration before running them, and use an isolated environment for
 untrusted studies.
 
-Model pickle/joblib payloads can execute code while loading. v0.2 manifests may
+Model pickle/joblib payloads can execute code while loading. Run manifests may
 record local artifact availability and SHA-256, but unsafe or large pickle
 payloads should not be committed or accepted from an untrusted source. A hash
 confirms identity, not safety.

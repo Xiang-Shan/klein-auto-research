@@ -121,6 +121,6 @@ fixed and re-audited).
 >
 > **Rationale:** …
 >
-> If NO-GO or any BLOCKER is open, modeling is HARD-BLOCKED. A v2 override must be
+> If NO-GO or any BLOCKER is open, modeling is HARD-BLOCKED. An override must be
 > recorded with `klein gate override data --acknowledged-by <actor> --reason <reason>`;
 > also explain it in `program.md`. A prose-only fast path does not unlock modeling.

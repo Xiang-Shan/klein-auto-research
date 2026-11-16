@@ -1,0 +1,256 @@
+archive_commit: 217cd46bfa22e2ed969c77e8586d6fac1a12b7d7
+archive_tag: v2.3.1
+note: 'Studies removed from the tree in Klein 3.0. Nothing was rewritten: every file is recoverable with
+  `git checkout <archive_commit> -- studies/<id>` and verifies there with the 2.3.1 engine.'
+studies:
+- id: 03-noisy-rosenbrock-dfo
+  schema: 2
+  kind: null
+  modality: null
+  profile: null
+  goal: At a fixed 200-evaluation budget on noisy Rosenbrock (sigma=0.5), do restarts beat plain Nelder-Mead,
+    and does SPSA beat both?
+  runs: 7
+  label: confirmed
+  referee_verdict: null
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  archived_because: schema-2 simulator exhibit; unrefereed, no claims lock
+- id: 05-fremtpl2-gap-forensics
+  schema: 2
+  kind: null
+  modality: null
+  profile: null
+  goal: On freMTPL2 claim frequency, WHERE does a gradient-boosted model's Poisson-deviance advantage
+    over a spline-shaped GLM live, how much of it transfers back into GLM-representable structure, and
+    does the gap itself survive two sealed final-test evaluations?
+  runs: 12
+  label: confirmed
+  referee_verdict: null
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  - C12
+  - C13
+  - C14
+  archived_because: schema-2 insurance exhibit; unrefereed, no claims lock
+- id: 06-hurricane-gqls-returnlevels
+  schema: 2
+  kind: null
+  modality: null
+  profile: null
+  goal: On the 30 most-damaging US hurricanes (Pielke-Landsea 1998, normalized 1995 USD), does a from-scratch
+    gQLS reproduce Adjieteh (2024) Table 6.9 within the published reporting resolution; does its robustness
+    advantage over MLE survive the thesis's 10x contamination and leave-top-k-out stress; and does that
+    advantage carry into per-event return levels - the thesis's own declared future work?
+  runs: 11
+  label: confirmed
+  referee_verdict: null
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  archived_because: schema-2 insurance exhibit; unrefereed, no claims lock
+- id: 07-iris-90years
+  schema: 2
+  kind: null
+  modality: null
+  profile: null
+  goal: On Fisher's 100 hard-pair iris rows (versicolor vs virginica, target is_virginica), does any of
+    four pre-registered post-1936 challengers - logistic regression, kNN, SVM-RBF, HGBT - improve val_brier
+    over the 1936 Fisher/LDA anchor by at least the measured split-lottery floor on the declared group-aware
+    split, and is petal-only LDA within that floor of the all-four-feature LDA?
+  runs: 9
+  label: confirmed
+  referee_verdict: null
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  - C12
+  - C13
+  - C14
+  - C15
+  - C16
+  - C17
+  - C18
+  - C19
+  archived_because: schema-2; first of four studies on the same iris question
+- id: 08-iris-rematch
+  schema: 2
+  kind: null
+  modality: null
+  profile: null
+  goal: 'Large-budget rematch: under a selection-honest registered protocol, can any of 21 modern challenger
+    families (incl. the 2025 TabPFN v2 foundation model) beat the 1936 LDA anchor on the versicolor-virginica
+    hard pair - at full n or anywhere down the data ladder'
+  runs: 25
+  label: confirmed
+  referee_verdict: null
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  - C12
+  - C13
+  - C14
+  - C15
+  - C16
+  - C17
+  - C18
+  - C19
+  - C20
+  - C21
+  archived_because: schema-2; second of four studies on the same iris question
+- id: 09-iris-first-lesson
+  schema: 2
+  kind: null
+  modality: null
+  profile: null
+  goal: Measure, with per-candidate paired resolution thresholds and a registered family selection guard,
+    whether any frozen modern challenger earns a licensed win over 1936 four-feature LDA on the fully
+    scouted iris hard pair - and record what the evidence permits us to claim
+  runs: 11
+  label: exploratory
+  referee_verdict: null
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  - C12
+  - C13
+  - C14
+  - C15
+  archived_because: schema-2; third of four studies on the same iris question
+- id: 13-charlm-fixed-budget
+  schema: 3
+  kind: predict
+  modality: text
+  profile: ml-research
+  goal: Under a fixed 2000-step training budget on a character-level corpus, which single-change training-recipe
+    edits to a small char transformer improve held-out validation loss by more than the measured run-to-run
+    floor, when every checkpoint is scored by a verifier the training script cannot touch?
+  runs: 8
+  label: confirmed
+  referee_verdict: PASS-WITH-NOTES
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  - C12
+  - C13
+  archived_because: the ml-research profile is represented by 22-cnn-data-scaling
+- id: 15-iris-90years-relaunch
+  schema: 3
+  kind: predict
+  modality: tabular
+  profile: generic
+  goal: Ninety years after Fisher's 1936 linear discriminant, does any modern post-1936 classifier — regularized
+    logistic regression, k-nearest neighbours, an RBF support-vector machine, or a histogram gradient-boosted
+    tree — separate iris versicolor from virginica measurably better than Fisher's own LDA on a held-out
+    partition of the same 100 flowers, and do the two petal measurements alone carry the separating signal
+    that all four carry?
+  runs: 12
+  label: confirmed
+  referee_verdict: PASS-WITH-NOTES
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  - C12
+  - C13
+  - C14
+  - C15
+  archived_because: schema-3 relaunch of 07; generic tabular predict is represented by 00
+- id: 24-golomb-llm-vs-search
+  schema: 3
+  kind: test
+  modality: none
+  profile: math
+  goal: At a matched budget of verifier calls, does an LLM proposing Golomb rulers as data match the known
+    optimal lengths (OEIS A003022) as often as a classical randomized search, on development orders n
+    = 8-11 and sealed orders n = 12-13 — and is a match search or recall?
+  runs: 6
+  label: confirmed
+  referee_verdict: PASS-WITH-NOTES
+  claims:
+  - C1
+  - C2
+  - C3
+  - C4
+  - C5
+  - C6
+  - C7
+  - C8
+  - C9
+  - C10
+  - C11
+  - C12
+  - C13
+  - C14
+  - C15
+  - C16
+  archived_because: the math profile is represented by 11, model calls by 20

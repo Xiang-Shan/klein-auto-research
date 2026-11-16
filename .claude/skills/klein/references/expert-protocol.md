@@ -9,7 +9,7 @@ common way AI-for-science work goes quietly wrong.
 The `expertise` capability turns the card into a falsifiable commitment: it names
 a baseline recipe from the literature, freezes the numbers that recipe should
 reproduce, and then **executes it through the ordinary notary** before any
-challenger of the driver's own is allowed to run. Opt-in, schema-3 only, and
+challenger of the driver's own is allowed to run. Opt-in, and
 inert unless `generation/manifest.yaml` declares `expertise`
 (`references/generation-protocol.md`).
 
@@ -26,11 +26,11 @@ human can follow this document directly.
 ## Verbs
 
 ```bash
-uv run --locked klein generation expert lock   --study studies/NN-slug [--allow-late]
-uv run --locked klein generation expert amend  --study studies/NN-slug
-uv run --locked klein generation expert bind   --study studies/NN-slug E0001
-uv run --locked klein generation expert repair --study studies/NN-slug --changed lib/prep.py --note "…"
-uv run --locked klein generation expert review --study studies/NN-slug --reviewer NAME \
+klein generation expert lock   --study studies/NN-slug [--allow-late]
+klein generation expert amend  --study studies/NN-slug
+klein generation expert bind   --study studies/NN-slug E0001
+klein generation expert repair --study studies/NN-slug --changed lib/prep.py --note "…"
+klein generation expert review --study studies/NN-slug --reviewer NAME \
     [--reviewer-model M] [--reviewer-tool T] [--session-receipt PATH] --statement "…"
 ```
 
@@ -79,9 +79,9 @@ After DATA and METHOD, the baseline runs like everything else runs — edit the
 surface, take an admission, run the notary:
 
 ```bash
-uv run --locked klein generation check --study studies/NN-slug --action baseline --track primary
-uv run --locked klein run-one --study studies/NN-slug
-uv run --locked klein generation expert bind --study studies/NN-slug E0001
+klein generation check --study studies/NN-slug --action baseline --track primary
+klein run-one --study studies/NN-slug
+klein generation expert bind --study studies/NN-slug E0001
 ```
 
 There is **no off-notary path**. `baseline` and `repair` are ordinary checkpoints
@@ -117,11 +117,11 @@ A failed reproduction is a finding about the driver's implementation, not about
 the target. Fix the implementation, then say so before running again:
 
 ```bash
-uv run --locked klein generation expert repair --study studies/NN-slug \
+klein generation expert repair --study studies/NN-slug \
     --changed lib/prepare_offsets.py --note "the exposure offset was omitted"
-uv run --locked klein generation check --study studies/NN-slug --action repair --track primary
-uv run --locked klein run-one --study studies/NN-slug          # --allow-rerun if the surface is byte-identical
-uv run --locked klein generation expert bind --study studies/NN-slug E0002
+klein generation check --study studies/NN-slug --action repair --track primary
+klein run-one --study studies/NN-slug          # --allow-rerun if the surface is byte-identical
+klein generation expert bind --study studies/NN-slug E0002
 ```
 
 - `--changed` records each file's sha256 AT REPAIR TIME. `klein generation
@@ -160,7 +160,7 @@ one.
 ## 4. Review rungs
 
 ```bash
-uv run --locked klein generation expert review --study studies/NN-slug \
+klein generation expert review --study studies/NN-slug \
     --reviewer "A. Practitioner" --session-receipt review-session.md \
     --statement "the recipe and the fixture match the published ones"
 ```

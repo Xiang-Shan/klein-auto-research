@@ -22,27 +22,40 @@ from kleinlib.workflow import (
     validate_contract,
     validate_manifest,
     verify_event_chain,
-    verify_study,
 )
 
 
 def _contract(study_id: str = "03-quality") -> dict:
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "study_id": study_id,
         "goal": "quality paths",
         "domain": "test",
         "target": "y",
+        "kind": "predict",
+        "profile": "generic",
+        "audience": "the maintainers of this test suite",
         "task_type": "classification",
         "method_depth": "brief",
+        "entrypoint": {
+            "command": ["uv", "run", "--locked", "python", "-u", "train.py"],
+            "mutable": ["train.py"],
+        },
         "max_run_seconds": 10,
         "tracks": {
             "primary": {
-                "metric": {"name": "val_auc", "goal": "higher", "minimum_delta": 0},
+                "mode": "frontier",
+                "metric": {
+                    "name": "val_auc",
+                    "goal": "higher",
+                    "minimum_delta": 0,
+                    "exactness": "stochastic",
+                },
                 "guardrails": {},
             }
         },
         "data": {
+            "modality": "tabular",
             "prepared_path": "data/prepared.csv",
             "split": {
                 "kind": "stratified",
@@ -60,7 +73,6 @@ def _contract(study_id: str = "03-quality") -> dict:
 
 def test_contract_validation_reports_independent_errors(tmp_path: Path) -> None:
     assert "invalid schema_version" in validate_contract({"schema_version": "nope"})[0]
-    assert "schema_version must be 2" in validate_contract({"schema_version": 1})[0]
 
     bad = _contract("wrong-name")
     bad.update(
@@ -190,9 +202,9 @@ def test_resolve_load_lock_and_event_tamper_paths(tmp_path: Path) -> None:
     study = tmp_path / "03-quality"
     study.mkdir()
     config = study / "study.yaml"
-    config.write_text("schema_version: 2\n", encoding="utf-8")
+    config.write_text("schema_version: 3\n", encoding="utf-8")
     assert resolve_study(config) == study
-    assert load_contract(study) == {"schema_version": 2}
+    assert load_contract(study) == {"schema_version": 3}
     with pytest.raises(WorkflowError, match="study directory not found"):
         resolve_study(tmp_path / "absent")
 
@@ -272,20 +284,7 @@ def test_manifest_validation_and_derived_rendering() -> None:
     assert "E0002\tprimary\tNA\tcrash" in result
 
 
-def test_legacy_reports_and_v2_exploratory_finalize(tmp_path: Path) -> None:
-    legacy = tmp_path / "legacy"
-    legacy.mkdir()
-    (legacy / "study.yaml").write_text("goal: legacy\n", encoding="utf-8")
-    (legacy / "results.tsv").write_text(
-        "experiment\tprimary_metric\tstatus\tcommit\tdescription\n"
-        "1\t0.5\tkeep\tabc1234\tbaseline\n",
-        encoding="utf-8",
-    )
-    assert "v1 (deprecated compatibility)" in status_summary(legacy)
-    checks = verify_study(legacy)
-    assert all(check.ok for check in checks)
-    assert any("deprecated v1 adapter" in check.message for check in checks)
-
+def test_exploratory_finalize_needs_the_explicit_flag(tmp_path: Path) -> None:
     study = scaffold_study(
         tmp_path,
         "03-finalize",
@@ -296,13 +295,19 @@ def test_legacy_reports_and_v2_exploratory_finalize(tmp_path: Path) -> None:
         metric_name="val_auc",
         metric_goal="higher",
         data_source="csv:fixture.csv",
+        kind="predict",
+        modality="tabular",
+        profile="generic",
+        audience="the maintainers of this test suite",
     )
     (study / "findings.md").write_text(
         "# Findings\n\nThis result remains exploratory.\n", encoding="utf-8"
     )
+    # schema 3 asks for Gate 3 first; closing unrefereed is the recorded way past it
+    unrefereed = {"no_referee": True, "referee_reason": "no second model in this test"}
     with pytest.raises(WorkflowError, match="allow-exploratory"):
-        finalize(study)
-    assert finalize(study, allow_exploratory=True) == "exploratory"
+        finalize(study, **unrefereed)
+    assert finalize(study, allow_exploratory=True, **unrefereed)
     summary = status_summary(study)
     assert "status: finalized" in summary
     assert "pending transactions: none" in summary

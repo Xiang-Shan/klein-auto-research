@@ -31,6 +31,7 @@ from .contract import (
     normalize_tracks,
     prepared_data_path,
     schema_version,
+    unsupported_schema_message,
 )
 from .errors import WorkflowError
 
@@ -119,11 +120,64 @@ def _action(
 ) -> dict[str, Any]:
     return {
         "stage": stage,
+        "stage_id": stage_id(stage),
         "action": action,
         "command": command,
+        "argv": command_argv(command),
         "protocol": protocol,
+        "explain": explain_command(protocol),
         "why": why,
     }
+
+
+def explain_command(protocol: str | None) -> str | None:
+    """``klein explain <topic>`` for a protocol path — it works from any directory."""
+    if not protocol or not protocol.endswith(".md") or "/skills/klein/" not in protocol:
+        return None
+    return f"klein explain {Path(protocol).stem}"
+
+
+#: The lifecycle positions ``klein next`` can report, as a closed vocabulary a
+#: host can switch on.  ``stage`` stays the human label (``EXPERIMENT · Phase 0``).
+STAGE_IDS: tuple[str, ...] = (
+    "scaffold",
+    "legacy",
+    "consult",
+    "data",
+    "method",
+    "experiment",
+    "synthesize",
+    "referee",
+    "tutorial",
+    "finalize",
+    "verify",
+    "closed",
+)
+
+
+def stage_id(stage: str) -> str:
+    """``EXPERIMENT · sealed`` -> ``experiment``: the stage without its detail."""
+    head = stage.split("·", 1)[0].strip().lower()
+    return head if head in STAGE_IDS else "experiment"
+
+
+def command_argv(command: str | None) -> list[str] | None:
+    """The suggested command as an argv, when it can be run as written.
+
+    None when the suggestion is a template a person must complete (an ellipsis,
+    a ``<placeholder>``, a quoted description to write) or a two-step hint.
+    """
+    if not command:
+        return None
+    first = command.split("  #", 1)[0].strip()
+    if any(mark in first for mark in ("…", "<", "...", "$(", "&&")):
+        return None
+    import shlex
+
+    try:
+        return shlex.split(first)
+    except ValueError:
+        return None
 
 
 def sealed_tracks(tracks: Mapping[str, Any], contract: Mapping[str, Any]) -> list[str]:
@@ -150,7 +204,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     result: dict[str, Any] = {"study": study.name, "done": done, "notes": notes}
 
     try:
-        contract = load_contract(study)
+        contract = load_contract(study, allow_legacy=True)
     except WorkflowError as exc:
         result["schema"] = None
         result["next"] = _action(
@@ -163,13 +217,14 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
         return result
     version = schema_version(contract)
     result["schema"] = version
-    if version == 1:
+    unsupported = unsupported_schema_message(version)
+    if unsupported is not None:
         result["next"] = _action(
             "legacy",
-            "nothing to run: a v1 study is read-only legacy evidence",
-            f"klein verify --study {s}",
+            "nothing to run here: this study is evidence from another engine version",
             None,
-            "schema_version missing means v1 (readable at tag v1.3.0)",
+            "studies/ARCHIVE.md",
+            unsupported,
         )
         return result
 
@@ -323,7 +378,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 metric = spec.get("metric", {})
                 if str(spec.get("mode", "frontier")) != "frontier":
                     continue
-                if version >= 3 and metric.get("exactness") == "exact":
+                if metric.get("exactness") == "exact":
                     continue
                 if not isinstance(metric.get("noise_floor"), Mapping):
                     result["next"] = _action(
@@ -417,12 +472,12 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             result["next"] = _action(
                 "SYNTHESIZE",
                 "mine the trajectory and write findings.md (seven sections, claim ids)",
-                f"uv run --locked python .claude/skills/klein/scripts/summarize_results.py {s}/results.tsv",
+                f"klein summarize {s}/results.tsv",
                 f"{_REF}/synthesis-protocol.md",
                 "the loop is over; the evidence must become claims",
             )
             return result
-        if version >= 3 and not (study / "claims.lock").is_file():
+        if not (study / "claims.lock").is_file():
             result["next"] = _action(
                 "SYNTHESIZE",
                 "author claims.lock: pin artifacts, give every number a home, add every claim",
@@ -431,7 +486,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 "every numeral in findings needs a pinned home",
             )
             return result
-        if version >= 3 and not _gate_recorded(state, "referee"):
+        if not _gate_recorded(state, "referee"):
             report = study / "referee_report.md"
             if not report.is_file():
                 result["next"] = _action(
@@ -466,7 +521,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
         result["next"] = _action(
             "TUTORIAL",
             "author the seven report fragments and build the teaching artifact",
-            f"uv run --locked python .claude/skills/klein/scripts/build_tutorial.py {s}",
+            f"klein report build {s}",
             f"{_REF}/tutorial-spec.md",
             "the study closes with a self-contained report/index.html",
         )
@@ -474,7 +529,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     done.append("tutorial built")
 
     receipt = study / "verify_receipt.json"
-    if version >= 3 and not receipt.is_file():
+    if not receipt.is_file():
         result["next"] = _action(
             "verify",
             "issue the verify receipt",
@@ -483,8 +538,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             "the receipt is what a stranger checks first",
         )
         return result
-    if version >= 3:
-        done.append("verify receipt present")
+    done.append("verify receipt present")
     result["next"] = _action(
         "closed",
         "nothing is required: the study is closed — promote what generalizes into knowledge/",
@@ -507,7 +561,8 @@ def format_next(result: Mapping[str, Any]) -> str:
     if nxt.get("why"):
         lines.append(f"  why: {nxt['why']}")
     if nxt.get("protocol"):
-        lines.append(f"  read: {nxt['protocol']}")
+        explain = f"   (or: {nxt['explain']})" if nxt.get("explain") else ""
+        lines.append(f"  read: {nxt['protocol']}{explain}")
     for note in result.get("notes", []):
         lines.append(f"  note: {note}")
     return "\n".join(lines) + "\n"

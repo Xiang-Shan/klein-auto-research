@@ -1,0 +1,67 @@
+"""Phase 0 metrology: how much does the SCORE move when only the partition changes?
+
+`split_lottery` re-draws the train/development partition ten times (inside the
+train+development pool -- the sealed rows are never touched), refits the ANCHOR
+rung (one feature: `mean_radius`) each time and records the development AUC. The
+spread of those ten scores, not a number anybody likes the look of, becomes the
+keep bar `minimum_delta` (`klein noise-floor --recipe split-lottery`).
+"""
+
+from __future__ import annotations
+
+import time
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+from kleinlib.contract import load_contract
+from kleinlib.data import contract_split, load_prepared
+
+ANCHOR_FEATURES = ["mean_radius"]
+SPLIT_SEEDS = (101, 202, 303, 404, 505, 606, 707, 808, 909, 1010)
+
+
+def _trial(params: dict) -> dict:
+    t0 = time.time()
+    contract = load_contract(".")
+    target = str(contract["target"])
+    frame = load_prepared(contract["data"]["prepared_path"])
+    X_train, X_dev, _, _, _, _ = contract_split(".")
+    pool = frame.loc[list(X_train.index) + list(X_dev.index)]
+    X_tr, X_ev, y_tr, y_ev = train_test_split(
+        pool[ANCHOR_FEATURES],
+        pool[target],
+        test_size=len(X_dev) / len(pool),
+        random_state=int(params["seed"]),
+        stratify=pool[target],
+    )
+    model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
+    model.fit(X_tr, y_tr)
+    return {
+        "primary_metric": float(roc_auc_score(y_ev, model.predict_proba(X_ev)[:, 1])),
+        "status": "ok",
+        "wall_seconds": time.time() - t0,
+    }
+
+
+def main() -> int:
+    from kleinlib.sweep import SweepRunner
+
+    summary = SweepRunner(
+        "split_lottery",
+        ".",
+        _trial,
+        [{"seed": seed} for seed in SPLIT_SEEDS],
+        metric_goal="higher",
+        overwrite=True,
+    ).run()
+    ok = [t.primary_metric for t in summary.trials if t.status == "ok"]
+    print(f"split_lottery: k={len(ok)} ok trials")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

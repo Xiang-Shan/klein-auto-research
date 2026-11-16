@@ -60,6 +60,9 @@ recorded; a refuted prediction must already have a dated `Decision:` line in
 `program.md` — if it does not, the study is not finished, write the decision now with
 the date it is actually written.
 
+`klein map --study <dir>` shows which predictions and claims each run bears on, and
+lists what is still open.
+
 Registered tracks (`mode: registered`) have no keep chain: mine their cells as a
 measurement program — which cells ran, which artifacts they pinned (`art:` aliases),
 which predictions they adjudicated — and never manufacture a frontier from them.
@@ -122,11 +125,11 @@ Copy `assets/findings-template.md`. Fill, in order:
 With findings drafted, produce `claims.lock` (`references/claims-protocol.md`):
 
 ```bash
-uv run --locked klein claims init   --study <dir>                       # claims from the **[Cn]** lines
-uv run --locked klein claims pin    --study <dir> results results.tsv    # every artifact a number lives in
-uv run --locked klein claims number --study <dir> <alias> --value … --art … --claim Cn
-uv run --locked klein claims add    --study <dir> Cn --class … --strength … --claim "…" --numbers … --evidence …
-uv run --locked klein claims verify --study <dir> --numbers
+klein claims init   --study <dir>                       # claims from the **[Cn]** lines
+klein claims pin    --study <dir> results results.tsv    # every artifact a number lives in
+klein claims number --study <dir> <alias> --value … --art … --claim Cn
+klein claims add    --study <dir> Cn --class … --strength … --claim "…" --numbers … --evidence …
+klein claims verify --study <dir> --numbers
 ```
 
 Every claim gets its class (five classes, each with a strength ceiling) and a strength
@@ -178,8 +181,9 @@ A synthesist who also referees has audited nothing.
 ## Promotion to knowledge/ (closing the Klein bottle)
 
 A statement promotes into `knowledge/` — the field's `knowledge/domains/<profile>/`
-for domain lessons, `knowledge/research-discipline.md` for process lessons — only
-WITH at least one claim citation —
+for domain lessons, `knowledge/research-discipline.md` for process lessons (in the
+repository that hosts your studies; Klein's own knowledge base ships in its repository,
+not in the package) — only WITH at least one claim citation —
 `(supports <study_id>#Cn)` or `(refutes <study_id>#Cn)` — so every knowledge line
 remains greppably traceable to the evidence that earned it
 (`grep -rn "#C[0-9]" knowledge/`). When two knowledge lines cite claims that

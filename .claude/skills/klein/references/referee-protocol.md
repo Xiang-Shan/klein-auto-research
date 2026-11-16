@@ -36,9 +36,12 @@ the experimenter.
   manifests, `data_card.md`, `method_card.md`; `program.md` LAST — the narrative that
   makes a conclusion feel inevitable is read only after the evidence has been weighed.
   Its `## Roster` table is the one exception: a metadata header, not narrative, read
-  whenever the rung is needed.
+  whenever the rung is needed. If `probes.jsonl` exists, read it before the predictions
+  (`references/exploration-protocol.md` §6): a prediction whose answer an earlier probe
+  already showed is a description, not a test.
 - **Read-only verbs only.** `klein verify --numbers --evidence-use`, `klein claims
-  verify`, `klein status`, `klein predict list`, and a figure re-render into a
+  verify`, `klein status`, `klein predict list`, `klein map` (the study's evidence graph:
+  what each run bears on, what is still open), and a figure re-render into a
   temporary directory compared byte-for-byte. No `run-one`, no edits to any study file,
   no gate record — the orchestrator records the gate after reading the report.
 - **A FAIL is never softened into a note.** If a FAIL condition holds, the verdict is
@@ -209,11 +212,11 @@ except WorkflowError as exc:
 ## Recording and override
 
 ```bash
-uv run --locked klein gate record referee --study studies/NN-slug --acknowledged-by <actor>
+klein gate record referee --study studies/NN-slug --acknowledged-by <actor>
 ```
 
 The gate hashes the report and stores the verdict, the referee line and the
-independence flag in state and in the event chain. Schema-3 `klein finalize` requires
+independence flag in state and in the event chain. `klein finalize` requires
 this gate; `--no-referee --reason "<why>"` is recorded, and the study is labelled
 `unrefereed` on its receipt and wherever it is listed.
 

@@ -67,6 +67,6 @@ licence in the study's data card. Studies never write into `datasets/`.
 
 ## Reproducing a hub-era study elsewhere
 
-Studies 05–09 name `hub:` sources; study 05's freMTPL2 is on OpenML (ids 41214 and
-41215). To reproduce off-hub, replace the tag with `openml:41214` plus its digest — a
+Studies written against a private data hub name `hub:` sources; for example freMTPL2
+(study 05, archived — `studies/ARCHIVE.md`) is on OpenML (ids 41214 and 41215). To reproduce off-hub, replace the tag with `openml:41214` plus its digest — a
 gate re-record with a reason, so the substitution is on the record.

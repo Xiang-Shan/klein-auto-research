@@ -1,9 +1,9 @@
-"""The claims lock: lock schema 1 (the shipped 07/08/09 ledgers) and schema 2.
+"""The claims lock (lock schema 2, the shape this engine writes).
 
-The FIRST tests here are the three real files.  They are read-only evidence of
-finished studies: under the schema-1 rules of ``references/claims-protocol.md``
-they must verify with zero failures forever, warnings and all, and no verb of
-this engine may ever rewrite them.
+The FIRST tests here are the shipped exhibits' real locks.  They are read-only
+evidence of finished studies: under the rules of ``references/claims-protocol.md``
+they must verify with zero failures forever, and no verb of this engine may
+ever rewrite them.
 """
 
 from __future__ import annotations
@@ -39,8 +39,7 @@ from kleinlib.events import read_events
 from kleinlib.references import references_path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SHIPPED = ("07-iris-90years", "08-iris-rematch", "09-iris-first-lesson")
-
+SHIPPED = tuple(sorted(p.parent.name for p in (REPO_ROOT / "studies").glob("*/claims.lock")))
 
 def _failures(checks) -> list[str]:
     return [f"{c.name}: {c.message}" for c in checks if not c.ok]
@@ -51,125 +50,27 @@ def _check(checks, name):
 
 
 # ---------------------------------------------------------------------------
-# The three shipped locks — lock schema 1, verified unchanged
+# The shipped exhibits' locks — verified unchanged
 # ---------------------------------------------------------------------------
+
+
+def test_every_exhibit_ships_a_lock() -> None:
+    assert len(SHIPPED) >= 8, SHIPPED
 
 
 @pytest.mark.parametrize("slug", SHIPPED)
 def test_shipped_lock_verifies_unchanged(slug: str) -> None:
-    """07, 08 and 09 verify with 0 failed under lock-schema-1 rules."""
+    """Every shipped exhibit's lock verifies with 0 failed, and verify never writes."""
     study = REPO_ROOT / "studies" / slug
     before = lock_path(study).read_bytes()
+    lock = load_lock(study)
+    assert detect_lock_schema(lock) == 2
+    assert numbers_map(lock, 2), "an exhibit pins its headline numbers"
     checks = verify_lock(study)
     assert len(checks) == 7, [c.name for c in checks]
     assert _failures(checks) == []
-    assert lock_path(study).read_bytes() == before, "verify must never rewrite a lock"
-
-
-def test_study09_lock_verifies_unchanged() -> None:
-    """The named first test of the package, spelled out (E8, plan item)."""
-    study = REPO_ROOT / "studies" / "09-iris-first-lesson"
-    checks = verify_lock(study)
-    assert _failures(checks) == []
-    assert _check(checks, "claims artifacts").message.startswith("16 pinned artifacts")
     assert _check(checks, "claims append-only").ok
-    assert _check(checks, "claims ancestry").message == "git_head is an ancestor of HEAD"
-
-
-@pytest.mark.parametrize("slug", SHIPPED)
-def test_shipped_locks_are_lock_schema_one(slug: str) -> None:
-    lock = load_lock(REPO_ROOT / "studies" / slug)
-    assert detect_lock_schema(lock) == 1
-    assert "lock_schema" not in lock
-    # The schema-1 quirks the protocol names, present in the real files.
-    numbers = numbers_map(lock, 1)
-    assert numbers, "the schema-1 'claims' map IS the numbers ledger"
-    entries = [e for e in numbers.values() if isinstance(e, dict)]
-    spellings = {"art" if "art" in e else "artifact" for e in entries if "art" in e or "artifact" in e}
-    assert spellings <= {"art", "artifact"} and spellings
-    for meta in lock["artifacts"].values():
-        assert meta["path"].startswith("studies/"), "schema-1 paths are repo-relative"
-
-
-def test_study07_carries_a_non_dict_entry_and_still_passes() -> None:
-    """07 pins ``"klein_version": "1.2.0"`` as a bare scalar; that is a warning."""
-    study = REPO_ROOT / "studies" / "07-iris-90years"
-    lock = load_lock(study)
-    assert lock["claims"]["klein_version"] == "1.2.0"
-    shape = _check(verify_lock(study), "claims shape")
-    assert shape.ok and "schema-1 scalar entry" in shape.message
-
-
-def test_shipped_locks_carry_non_claim_ids_and_prose_values() -> None:
-    lock = load_lock(REPO_ROOT / "studies" / "07-iris-90years")
-    assert lock["claims"]["minimum_delta"]["claim"] == "floor"
-    assert isinstance(lock["claims"]["floor_recipe"]["value"], str)
-    checks = verify_lock(REPO_ROOT / "studies" / "07-iris-90years")
-    assert _failures(checks) == []
-    assert "value is prose" in _check(checks, "claims numbers").message
-
-
-@pytest.mark.parametrize("slug", SHIPPED)
-def test_strict_reports_the_schema_one_warnings_as_failures(slug: str) -> None:
-    """``--strict`` has teeth: the legacy locks' derived values surface as failures."""
-    checks = verify_lock(REPO_ROOT / "studies" / slug, strict=True)
-    assert any(not c.ok for c in checks)
-    assert lock_path(REPO_ROOT / "studies" / slug).is_file()
-
-
-@pytest.mark.parametrize("slug", SHIPPED)
-def test_shipped_locks_are_never_rewritten_by_a_mutating_verb(slug: str, tmp_path: Path) -> None:
-    """Every mutating verb refuses a lock schema 1 ledger outright."""
-    study = tmp_path / slug
-    study.mkdir()
-    for name in ("claims.lock", "findings.md", "study.yaml"):
-        source = REPO_ROOT / "studies" / slug / name
-        if source.is_file():
-            (study / name).write_bytes(source.read_bytes())
-    before = (study / "claims.lock").read_bytes()
-    with pytest.raises(WorkflowError, match="lock schema 1"):
-        pin_artifact(study, "results", "findings.md", commit=False)
-    with pytest.raises(WorkflowError, match="lock schema 1"):
-        add_number(study, "x", value=1.0, art="results", commit=False)
-    with pytest.raises(WorkflowError, match="lock schema 1"):
-        add_claim(
-            study,
-            "C1",
-            claim_class="empirical-description",
-            strength="exploratory",
-            claim="x",
-            commit=False,
-        )
-    with pytest.raises(WorkflowError, match="lock schema 1"):
-        file_erratum(study, "E1", claims=["C1"], note="n", commit=False)
-    assert (study / "claims.lock").read_bytes() == before
-
-
-def test_from_legacy_migrates_a_copy_and_keeps_every_number(tmp_path: Path) -> None:
-    slug = "08-iris-rematch"
-    shipped = REPO_ROOT / "studies" / slug
-    study = tmp_path / slug
-    study.mkdir()
-    for name in ("claims.lock", "findings.md", "study.yaml"):
-        (study / name).write_bytes((shipped / name).read_bytes())
-    original = load_lock(study)
-
-    migrated = init_lock(study, from_legacy=True, commit=False)
-
-    assert migrated["lock_schema"] == 2
-    assert set(migrated["numbers"]) == set(original["claims"])
-    for alias, before in original["claims"].items():
-        after = migrated["numbers"][alias]
-        assert after["value"] == before["value"]
-        assert after.get("art") == (before.get("art") or before.get("artifact"))
-        assert after.get("claim") == before.get("claim")
-    # Nothing is ever removed: the whole original ledger survives verbatim.
-    assert migrated["legacy"]["claims"] == original["claims"]
-    # Repo-relative paths become study-relative, with the hashes untouched.
-    assert migrated["artifacts"]["results"]["path"] == "results.tsv"
-    assert migrated["artifacts"]["results"]["sha256"] == original["artifacts"]["results"]["sha256"]
-    # The shipped file itself is untouched.
-    assert (shipped / "claims.lock").read_bytes() != (study / "claims.lock").read_bytes()
+    assert lock_path(study).read_bytes() == before, "verify must never rewrite a lock"
 
 
 # ---------------------------------------------------------------------------
@@ -185,7 +86,7 @@ def _git(repo: Path, *args: str) -> str:
 
 @pytest.fixture
 def locked_study(ready_study) -> tuple[Path, Path]:
-    """A schema-2 study carrying findings, an artifact and a finished lock."""
+    """A study carrying findings, an artifact and a finished lock."""
     repo, study = ready_study
     (study / "findings.md").write_text(
         "# Findings\n\n"
@@ -674,19 +575,11 @@ def test_pin_refuses_absolute_paths_and_missing_files(locked_study, tmp_path: Pa
 
 
 def test_cli_claims_verify_prints_the_seven_checks(capsys) -> None:
-    rc = cli.main(["claims", "verify", "--study", str(REPO_ROOT / "studies" / "09-iris-first-lesson")])
+    rc = cli.main(["claims", "verify", "--study", str(REPO_ROOT / "studies" / "10-hubble-1929-replication")])
     out = capsys.readouterr().out
     assert rc == 0
     assert "summary: 7 checks, 0 failed" in out
     assert "[OK] claims append-only" in out
-
-
-def test_cli_claims_verify_strict_exits_nonzero(capsys) -> None:
-    rc = cli.main(
-        ["claims", "verify", "--study", str(REPO_ROOT / "studies" / "08-iris-rematch"), "--strict"]
-    )
-    assert rc == 1
-    assert "FAIL" in capsys.readouterr().out
 
 
 def test_cli_claims_pin_number_add_are_wired(locked_study, capsys) -> None:
@@ -729,32 +622,28 @@ def test_mutating_verbs_self_commit_the_lock(locked_study) -> None:
     assert len(revisions) >= 4  # init, pin, number, add, add
 
 
-def test_verify_study_runs_the_law_advisory_on_schema_two(monkeypatch, locked_study) -> None:
+def test_verify_study_enforces_the_law_on_schema_three(locked_study) -> None:
     _repo, study = locked_study
     lock = load_lock(study)
     lock["claims"]["C1"]["class"] = None  # a failing shape
     write_lock(study, lock)
 
-    advisory = claims_checks(study, 2)
-    assert len(advisory) == 7
-    assert all(c.ok for c in advisory)
-    assert any("[WARN] advisory on schema 2" in c.message for c in advisory)
-
-    enforcing = claims_checks(study, 3)
+    enforcing = claims_checks(study)
+    assert len(enforcing) == 7
     assert any(not c.ok for c in enforcing)
 
 
 def test_verify_study_adds_nothing_without_a_lock(ready_study) -> None:
     _repo, study = ready_study
     assert not lock_path(study).is_file()
-    assert claims_checks(study, 3) == []
+    assert claims_checks(study) == []
 
 
-def test_shipped_study_verify_adds_seven_advisory_checks() -> None:
+def test_shipped_study_verify_includes_the_seven_claims_checks() -> None:
     from kleinlib.workflow import verify_study
 
-    study = REPO_ROOT / "studies" / "07-iris-90years"
-    checks = verify_study(study)
+    study = REPO_ROOT / "studies" / "10-hubble-1929-replication"
+    checks = verify_study(study, receipt=False)
     claims_named = [c for c in checks if c.name.startswith("claims ")]
     assert len(claims_named) == 7
     assert all(c.ok for c in claims_named)

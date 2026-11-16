@@ -64,7 +64,7 @@ Usage::
 
     uv run --locked python scripts/check_shipped_reports.py
     uv run --locked python scripts/check_shipped_reports.py \\
-        --studies 15-iris-90years-relaunch --evidence shipped-reports-evidence.json
+        --studies 00-known-truth-quickstart --evidence shipped-reports-evidence.json
 
 Exit code is 1 if any schema-3 report fails a check, 2 on a usage error (e.g. an
 unknown ``--studies`` name, or a browser that cannot be found), 0 otherwise.
@@ -99,7 +99,7 @@ DEFAULT_WIDTHS = (1440, 768, 390, 320)
 # tall and nothing is ever swallowed, so asserting there only adds noise.  The
 # measurement still runs at every width and lands in the evidence record.
 NAV_REVEAL_WIDTHS = (390, 320)
-DEFAULT_PRINT_STUDY = "15-iris-90years-relaunch"
+DEFAULT_PRINT_STUDY = "00-known-truth-quickstart"
 
 # Elements allowed to scroll horizontally INSIDE themselves.  A wide code block,
 # a wide ledger, a wide equation and the nav's own wrap are deliberate local
@@ -783,7 +783,7 @@ def main(argv: list[str] | None = None) -> int:
         "--studies",
         nargs="+",
         metavar="SLUG",
-        help="restrict to these studies (directory name, e.g. 15-iris-90years-relaunch, or studies/<name>)",
+        help="restrict to these studies (directory name, e.g. 00-known-truth-quickstart, or studies/<name>)",
     )
     parser.add_argument("--chrome", help="Chrome/Chromium executable (auto-detected by default)")
     parser.add_argument(

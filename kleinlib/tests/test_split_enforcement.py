@@ -263,7 +263,3 @@ def test_preflight_recognises_the_index_wrapper_load_items(split_study) -> None:
     assert "no study source calls" not in check.message
     assert "train.py" in check.message
 
-
-def test_schema_2_never_sees_the_contract_split_check(ready_study) -> None:
-    _, study = ready_study
-    assert not [c for c in preflight_checks(study) if c.name == "contract-driven split"]

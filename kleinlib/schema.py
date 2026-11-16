@@ -15,6 +15,8 @@ from __future__ import annotations
 
 import math
 
+from . import inquiry as _inquiry
+
 # --------------------------------------------------------------------------
 # results.tsv
 # --------------------------------------------------------------------------
@@ -53,69 +55,28 @@ VALID_STATUSES: frozenset[str] = frozenset({"keep", "discard", "measured", "cras
 # The three axes of a schema-3 inquiry (references/inquiry-model.md)
 # --------------------------------------------------------------------------
 
-#: Audience profiles that ship with Klein.  A repo that needs its own writes a
-#: markdown profile and points ``profile_doc:`` at it — the ENGINE never reads
-#: the skill directory, so a wheel installed in a foreign repo keeps working.
-KNOWN_PROFILES: tuple[str, ...] = (
-    "generic",
-    "ml-research",
-    "math",
-    "insurance",
-    "llm",
-    "cv",
-    "data-science",
-)
-
-#: The evidence source's shape.  Selects the Gate-1 card variant and the split
-#: vocabulary; it never changes what the engine checks.
-KNOWN_MODALITIES: tuple[str, ...] = (
-    "tabular",
-    "timeseries",
-    "image",
-    "sequence",
-    "graph",
-    "text",
-    "simulation",
-    "none",
-)
-
-_CARD_SECTIONS_EVERY: tuple[str, ...] = (
-    "Source & shape",
-    "Ranked go / no-go issues",
-    "Go / no-go",
-)
-_CARD_SECTIONS_TABLE: tuple[str, ...] = (
-    "Profile summary",
-    "Clean-room leakage audit",
-)
+#: The tables live in :mod:`kleinlib.inquiry`; the names below are views of what
+#: ships with Klein, kept because protocols and docs point at them.  A plug-in
+#: may register more (``kleinlib.plugins``); the engine asks the registry.
+KNOWN_PROFILES: tuple[str, ...] = _inquiry.BUILTIN_PROFILES
+KNOWN_MODALITIES: tuple[str, ...] = _inquiry.BUILTIN_MODALITIES
 
 #: Headings ``data_card.md`` must carry for each modality.  The DATA gate checks
 #: heading PRESENCE only — the prose that belongs under each lives in
-#: ``references/data-gate-protocol.md`` and ``assets/data-card-template.md``, and
-#: this registry is what those two documents point at.
-MODALITY_CARD_SECTIONS: dict[str, tuple[str, ...]] = {
-    "tabular": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE,
-    "timeseries": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Time policy",),
-    "image": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
-    "sequence": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
-    "graph": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
-    "text": _CARD_SECTIONS_EVERY + _CARD_SECTIONS_TABLE + ("Group policy",),
-    "simulation": _CARD_SECTIONS_EVERY + ("DGP card",),
-    "none": _CARD_SECTIONS_EVERY + ("Verifier card",),
-}
+#: ``references/data-gate-protocol.md`` and ``assets/data-card-template.md``.
+MODALITY_CARD_SECTIONS: dict[str, tuple[str, ...]] = _inquiry._sections_view(
+    KNOWN_MODALITIES, "card_sections"
+)
 
-#: Headings a study that sets ``policy.card_sections: enforce`` (Klein 2.3) must
-#: ALSO carry, beyond :data:`MODALITY_CARD_SECTIONS`.  Kept separate so that
-#: registry — and every card written before 2.3 — is unchanged: enforcement is
-#: opt-in and never retroactive.  Keyed by modality, then by profile.
-POLICY_CARD_SECTIONS: dict[str, tuple[str, ...]] = {
-    "image": ("Near-duplicate audit",),
-    "sequence": ("Near-duplicate audit",),
-    "graph": ("Near-duplicate audit",),
-    "text": ("Near-duplicate audit",),
-}
+#: Headings a study that sets ``policy.card_sections: enforce`` must ALSO carry.
+#: Keyed by modality, then by profile.
+POLICY_CARD_SECTIONS: dict[str, tuple[str, ...]] = _inquiry._sections_view(
+    KNOWN_MODALITIES, "policy_sections"
+)
 PROFILE_CARD_SECTIONS: dict[str, tuple[str, ...]] = {
-    "llm": ("Contamination audit",),
+    name: _inquiry._PROFILES[name].card_sections
+    for name in KNOWN_PROFILES
+    if _inquiry._PROFILES[name].card_sections
 }
 
 #: Placeholder in the commit field for a row with no surviving commit.

@@ -46,8 +46,23 @@ def test_started_http_urls_uses_request_start_boundary() -> None:
     ]
 
 
-def test_build_fresh_tutorial_has_csp_and_inline_figure(tmp_path: Path) -> None:
+def test_build_fresh_tutorial_has_csp_and_inline_figure(tmp_path: Path, monkeypatch) -> None:
     module = _load_module()
+    # The script's fixture scaffolds with the default schema (now 3), which
+    # needs the three inquiry axes; type the fixture here.
+    scaffold = module.scaffold_study
+    monkeypatch.setattr(
+        module,
+        "scaffold_study",
+        lambda *args, **kwargs: scaffold(
+            *args,
+            kind="predict",
+            modality="tabular",
+            profile="generic",
+            audience="the maintainers of this test suite",
+            **kwargs,
+        ),
+    )
     page = module.build_fresh_tutorial(tmp_path)
     text = page.read_text(encoding="utf-8")
     assert 'http-equiv="Content-Security-Policy"' in text

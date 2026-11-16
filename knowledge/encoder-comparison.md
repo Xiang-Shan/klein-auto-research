@@ -5,7 +5,7 @@ domain: ml
 status: ported
 source: "ancestor model-survey campaign (private lab), docs/encoder_comparison.md (215-experiment campaign, 2026-04)"
 concepts: [one-hot-encoding, ordinal-encoding, target-encoding, native-cat, high-cardinality, encoder-by-family, hashing, encoder-diversity]
-related: [best-practices-auto-insurance.md, gbdt-hyperparameter-guide.md, insights-and-framework.md]
+related: [domains/insurance/best-practices-auto-insurance.md, gbdt-hyperparameter-guide.md, insights-and-framework.md]
 ---
 
 # Encoder Comparison (insurance-claims, Phases 1-3)

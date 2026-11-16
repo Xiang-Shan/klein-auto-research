@@ -29,19 +29,10 @@ def _metric(minimum_delta: float) -> dict:
 # --------------------------------------------------------------------------
 
 
-def test_schema_two_keeps_its_one_std_bar() -> None:
-    floor = _floor(0.01, 0.04)  # bar would be max(0.02, 0.02) = 0.02 on schema 3
-    assert floor_bar_problems(_metric(0.015), floor, 2) == []
-    assert floor_bar_problems(_metric(0.01), floor, 2) == []
-    problems = floor_bar_problems(_metric(0.009), floor, 2)
-    assert len(problems) == 1
-    assert "the exact dishonesty the measurement exists to prevent" in problems[0]
-
-
 def test_schema_three_requires_twice_the_std() -> None:
     floor = _floor(0.01, 0.01)  # max(0.02, 0.005) = 0.02
-    assert floor_bar_problems(_metric(0.02), floor, 3) == []
-    problems = floor_bar_problems(_metric(0.015), floor, 3)
+    assert floor_bar_problems(_metric(0.02), floor) == []
+    problems = floor_bar_problems(_metric(0.015), floor)
     assert len(problems) == 1
     assert "max(2*std 0.02, range/2 0.005) = 0.02" in problems[0]
     assert "a delta inside its own floor" in problems[0]
@@ -50,22 +41,16 @@ def test_schema_three_requires_twice_the_std() -> None:
 def test_schema_three_requires_half_the_range_when_that_is_larger() -> None:
     """A 20-draw lottery with one wild draw: the range is the honest bar."""
     floor = _floor(std=0.2236, value_range=1.0)  # max(0.4472, 0.5) = 0.5
-    assert floor_bar_problems(_metric(0.5), floor, 3) == []
-    problems = floor_bar_problems(_metric(0.46), floor, 3)
+    assert floor_bar_problems(_metric(0.5), floor) == []
+    problems = floor_bar_problems(_metric(0.46), floor)
     assert "range/2 0.5" in problems[0]
-
-
-def test_a_delta_that_cleared_schema_two_can_fail_schema_three() -> None:
-    floor = _floor(0.03, 0.06)
-    assert floor_bar_problems(_metric(0.04), floor, 2) == []
-    assert floor_bar_problems(_metric(0.04), floor, 3) != []
 
 
 def test_a_malformed_block_is_left_to_the_contract_check() -> None:
     """One voice per problem: validate_contract already reported it."""
-    assert floor_bar_problems(_metric(0.1), {"std": "wide"}, 3) == []
-    assert floor_bar_problems(_metric(0.1), {"std": 0.01}, 3) == []  # no range
-    assert floor_bar_problems({"minimum_delta": None}, _floor(0.01, 0.01), 3) == []
+    assert floor_bar_problems(_metric(0.1), {"std": "wide"}) == []
+    assert floor_bar_problems(_metric(0.1), {"std": 0.01}) == []  # no range
+    assert floor_bar_problems({"minimum_delta": None}, _floor(0.01, 0.01)) == []
 
 
 # --------------------------------------------------------------------------
@@ -109,25 +94,6 @@ def test_preflight_enforces_the_schema_three_bar(ready_study_v3) -> None:
     assert not check.ok
     assert "the schema-3 bar" in check.message
     assert "track 'primary'" in check.message
-
-
-def test_preflight_keeps_the_schema_two_message_verbatim(ready_study) -> None:
-    _repo, study = ready_study
-    _set_floor(study, minimum_delta=0.015, std=0.01, value_range=0.04)
-    check = _floor_check(study)
-    # 0.015 >= std 0.01 — passes schema 2 though it would fail the schema-3 bar.
-    assert check.ok
-    assert check.message == (
-        "track 'primary': minimum_delta 0.015 vs measured seed std 0.01"
-    )
-
-    _set_floor(study, minimum_delta=0.005, std=0.01, value_range=0.04)
-    check = _floor_check(study)
-    assert not check.ok
-    assert check.message.endswith(
-        "— declaring a floor then keeping inside it is the exact dishonesty the "
-        "measurement exists to prevent"
-    )
 
 
 def test_fit_noise_alone_is_named_as_not_being_the_bar(ready_study_v3) -> None:
@@ -215,23 +181,12 @@ def test_an_exact_metric_still_waives_the_floor(ready_study_v3) -> None:
     (0.1, 1.0, 0.49, False),
 ])
 def test_the_bar_is_exactly_the_maximum_of_the_two_terms(std, rng, delta, ok) -> None:
-    assert (floor_bar_problems(_metric(delta), _floor(std, rng), 3) == []) is ok
+    assert (floor_bar_problems(_metric(delta), _floor(std, rng)) == []) is ok
 
 
 def test_preflight_names_the_schema_version_it_actually_validated(ready_study_v3) -> None:
-    """The contract check reported "schema_version 2 contract valid" for every
-    study; a schema-3 study now sees its own version (schema-2 text unchanged)."""
+    """The contract check once reported "schema_version 2 contract valid" for
+    every study; a schema-3 study sees its own version."""
     _repo, study = ready_study_v3
     check = next(c for c in preflight_checks(study) if c.name == "study contract")
     assert check.ok and check.message == "schema_version 3 contract valid"
-
-    path = study / "study.yaml"
-    contract = yaml.safe_load(path.read_text(encoding="utf-8"))
-    contract["schema_version"] = 2
-    for key in ("kind", "profile", "audience", "entrypoint", "predictions", "confirmation"):
-        contract.pop(key, None)
-    contract["tracks"]["primary"].pop("mode", None)
-    contract["data"].pop("modality", None)
-    path.write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
-    check = next(c for c in preflight_checks(study) if c.name == "study contract")
-    assert check.message == "schema_version 2 contract valid"

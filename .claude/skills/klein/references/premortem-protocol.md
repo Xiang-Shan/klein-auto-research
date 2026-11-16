@@ -8,7 +8,7 @@ answers every objection. A mechanical defect the reviewer called blocking must b
 FIXED — and the fix must produce a new slate version — before any hypothesis of
 that phase is admitted.
 
-Opt-in, schema-3 only, inert unless `generation/manifest.yaml` declares
+Opt-in, inert unless `generation/manifest.yaml` declares
 `premortem` (which requires `slates` — `references/generation-protocol.md`).
 
 > **The critic is not the closing referee.** A reviewer whose name matches
@@ -29,9 +29,9 @@ arrange, with a second agent, a colleague, or a person.
 ## Verbs
 
 ```bash
-uv run --locked klein generation premortem record  --study studies/NN-slug --phase <id> \
+klein generation premortem record  --study studies/NN-slug --phase <id> \
     [--session-receipt review-session.md] [--allow-late]
-uv run --locked klein generation premortem respond --study studies/NN-slug --phase <id>
+klein generation premortem respond --study studies/NN-slug --phase <id>
 ```
 
 Both take the four testimony flags `--actor --tool --model --session` (recorded,

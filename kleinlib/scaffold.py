@@ -1,4 +1,4 @@
-"""Self-contained v2 study scaffolding used by ``klein new``.
+"""Self-contained study scaffolding used by ``klein new``.
 
 Templates live HERE and only here, so the command works from an installed wheel
 and nothing can drift. The card templates under ``.claude/skills/klein/assets``
@@ -15,13 +15,8 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from .contract import (
-    ENTRYPOINT_BY_KIND,
-    KNOWN_KINDS,
-    SUPPORTED_SCHEMA_VERSIONS,
-    VALID_TRACK_MODES,
-)
-from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
+from .contract import SCHEMA_VERSION, VALID_TRACK_MODES
+from .inquiry import DEFAULT_KIND, kind_names, kind_spec, modality_names, profile_names
 from .workflow import (
     IDENTIFIER_RE,
     STUDY_ID_RE,
@@ -31,79 +26,11 @@ from .workflow import (
     initial_state,
 )
 
+#: The contract TYPES the inquiry: the question's shape (``kind``), the evidence
+#: source's shape (``data.modality``), and the audience (``profile``/``audience``).
+#: Placeholders that CONSULT must fill are left as ``{{...}}`` so the consult gate
+#: refuses an untyped contract.
 STUDY_YAML = """\
-schema_version: 2
-study_id: "{{STUDY_ID}}"
-goal: "{{GOAL}}"
-domain: "{{DOMAIN}}"
-target: "{{TARGET}}"
-task_type: "{{TASK_TYPE}}"       # classification | regression | simulation
-method_depth: "{{METHOD_DEPTH}}" # brief | full
-family: "{{FAMILY}}"
-
-# A track owns its metric frontier. Never compare unrelated research tasks globally.
-tracks:
-  {{TRACK}}:
-    metric:
-      name: "{{METRIC_NAME}}"
-      goal: "{{METRIC_GOAL}}"     # higher | lower
-      minimum_delta: {{MINIMUM_DELTA}}
-      # noise_floor:                # measured at Phase 0, never guessed —
-      #   k: 5                      # klein noise-floor prints this block
-      #   std: ...
-      #   range: ...
-      #   estimand: marginal-resplit  # or paired-comparison — name WHICH
-      #                             # question the floor answers (required once
-      #                             # metric.bound is declared; measure both
-      #                             # spreads before choosing)
-      # bound:                      # arms the headroom (detection-limit) audit:
-      #   ideal: 0.0                # best achievable score (0.0 brier/logloss,
-      #                             # 1.0 auc); h = (incumbent - ideal) / delta
-      #   on_infeasible: ack        # ack | warn | block when h < 1
-    guardrails: {}
-
-data:
-  source: "{{DATA_SOURCE}}"
-  prepared_path: "{{DATA_PATH}}"
-  split:
-    kind: {{SPLIT_KIND}}           # stratified | random | group | time | none (simulation)
-    seed: 42
-{{SPLIT_SIZES}}
-{{SPLIT_COLUMN}}
-    # group_column: account_id     # required when kind=group
-    # time_column: event_time      # required when kind=time
-
-# Per-run, per-phase time, and experiment-count limits are intentionally separate.
-max_run_seconds: {{MAX_RUN_SECONDS}}
-phases:
-  - id: adaptive-1
-    description: "split-identity anchor, baseline, then bounded adaptive work"
-    budget_seconds: 3600
-    max_experiments: 4
-  - id: confirmation
-    description: "one sealed final-test evaluation per track"
-    budget_seconds: 900
-    max_experiments: 1
-
-research_questions:
-  - id: RQ1
-    question: "{{RQ1_QUESTION}}"
-    prior: "{{RQ1_PRIOR}}"
-
-predictions_to_falsify:
-  - lever: "{{LEVER_1}}"
-    predicted_delta: "{{DELTA_1}}"
-
-deliverables:
-  - findings.md
-  - report/index.html
-"""
-
-#: Schema 3 keeps every schema-2 key and TYPES the inquiry on top of it: the
-#: question's shape (``kind``), the evidence source's shape (``data.modality``),
-#: and the audience (``profile``/``audience``).  Placeholders that CONSULT must
-#: fill are left as ``{{...}}`` so the consult gate refuses an untyped contract.
-STUDY_YAML_V3 = """\
 schema_version: 3
 study_id: "{{STUDY_ID}}"
 goal: "{{GOAL}}"
@@ -193,7 +120,7 @@ deliverables:
   - report/index.html
 """
 
-#: One track's block inside ``STUDY_YAML_V3``.  Rendered once per ``--track``.
+#: One track's block inside ``STUDY_YAML``.  Rendered once per ``--track``.
 TRACK_BLOCK_V3 = """\
   {{TRACK}}:
     mode: {{TRACK_MODE}}          # frontier (climbs an incumbent) | registered (measures a cell)
@@ -239,7 +166,7 @@ VERIFIER_BLOCK = """\
       artifact_key: solution      # gate, and ITS number decides the disposition.
 """
 
-#: Schema 3 only, spliced into ``PROGRAM`` as ``{{ROSTER}}``. The referee reads
+#: Spliced into ``PROGRAM`` as ``{{ROSTER}}``. The referee reads
 #: this table for the independence rung (``references/referee-protocol.md``);
 #: nothing else in a study says what model or tool ran the loop, so a blank
 #: experimenter row caps the rung at "fresh session".
@@ -344,7 +271,7 @@ exploratory or confirmed.
 4. Run the chosen track candidate once on the sealed final test.
 """
 
-#: Schema 3 only: the pre-registration disclosure the consult gate hashes. It
+#: The pre-registration disclosure the consult gate hashes. It
 #: ships SCAFFOLDED (not copied by hand from ``assets/scouting-ledger-template.md``)
 #: so that every new study has one and the gate's hash is the norm rather than the
 #: exception — and it ships placeholder-free, because an unresolved ``{{…}}`` in a
@@ -725,7 +652,7 @@ def scaffold_study(
     group_column: str | None = None,
     time_column: str | None = None,
     max_run_seconds: int = 600,
-    schema_version: int = 2,
+    schema_version: int = SCHEMA_VERSION,
     kind: str | None = None,
     modality: str | None = None,
     profile: str | None = None,
@@ -735,56 +662,35 @@ def scaffold_study(
 ) -> Path:
     """Write one study directory from the templates in THIS module.
 
-    ``schema_version`` selects the contract shape.  The Python default stays 2
-    so the frozen schema-2 fixtures keep scaffolding schema-2 studies unchanged;
-    ``klein new`` passes 3, which is the default the docs promise for a NEW
-    study.  Schema 3 additionally types the inquiry (``kind``, ``modality``,
-    ``profile``/``profile_doc``, ``audience``), names the entrypoint by kind, and
-    accepts repeatable ``tracks`` as ``NAME[:MODE]``.
+    The contract types the inquiry (``kind``, ``modality``, ``profile`` or
+    ``profile_doc``, ``audience``), names the entrypoint by kind, and accepts
+    repeatable ``tracks`` as ``NAME[:MODE]``.  ``schema_version`` exists only to
+    refuse anything but the one schema this engine writes.
     """
     from .eval import get_metric_spec
 
-    if schema_version not in SUPPORTED_SCHEMA_VERSIONS:
-        raise ValueError("schema_version must be 2 or 3")
-    schema_3 = schema_version >= 3
+    if schema_version != SCHEMA_VERSION:
+        raise ValueError(f"schema_version must be {SCHEMA_VERSION}: this engine writes one schema")
     if not STUDY_ID_RE.fullmatch(slug):
         raise ValueError("study id must match NN-lowercase-slug")
-    if schema_3:
-        if kind is not None and kind not in KNOWN_KINDS:
-            raise ValueError(f"kind must be one of {list(KNOWN_KINDS)}")
-        if modality is not None and modality not in KNOWN_MODALITIES:
-            raise ValueError(f"modality must be one of {list(KNOWN_MODALITIES)}")
-        if profile is not None and profile not in KNOWN_PROFILES:
-            raise ValueError(f"profile must be one of {list(KNOWN_PROFILES)}")
-        if profile is not None and profile_doc is not None:
-            raise ValueError("give profile or profile_doc, not both")
-        if profile_doc is not None and not str(profile_doc).endswith(".md"):
-            raise ValueError("profile_doc must point at a .md file")
-    else:
-        if any(v is not None for v in (kind, modality, profile, profile_doc, audience)):
-            raise ValueError(
-                "kind, modality, profile, profile_doc and audience are schema-3 "
-                "options — pass schema_version=3"
-            )
-        if tracks is not None and (len(tracks) > 1 or ":" in str(tracks[0] if tracks else "")):
-            raise ValueError(
-                "multi-track scaffolding and NAME:MODE are schema-3 options — pass "
-                "schema_version=3 (a schema-2 study adds tracks by editing study.yaml)"
-            )
-        if split_seed != 42:
-            raise ValueError("--split-seed is a schema-3 option — pass schema_version=3")
+    if kind is not None and kind not in kind_names():
+        raise ValueError(f"kind must be one of {list(kind_names())}")
+    if modality is not None and modality not in modality_names():
+        raise ValueError(f"modality must be one of {list(modality_names())}")
+    if profile is not None and profile not in profile_names():
+        raise ValueError(f"profile must be one of {list(profile_names())}")
+    if profile is not None and profile_doc is not None:
+        raise ValueError("give profile or profile_doc, not both")
+    if profile_doc is not None and not str(profile_doc).endswith(".md"):
+        raise ValueError("profile_doc must point at a .md file")
     # `kind` fixes the default track mode: predict and optimize climb a
     # frontier; every registered kind measures cells (references/inquiry-model.md).
-    default_mode = "registered" if kind in {"estimate", "test", "simulate", "replicate", "discover"} else "frontier"
+    spec_of_kind = kind_spec(kind or DEFAULT_KIND)
+    default_mode = spec_of_kind.track_mode
     track_specs = _normalize_tracks_argument(tracks or [track], default_mode)
     track = track_specs[0][0]
-    if task_type not in {"classification", "regression", "simulation"} | (
-        {"scalar"} if schema_3 else set()
-    ):
-        raise ValueError(
-            "task_type must be classification, regression, or simulation"
-            + (" (or scalar)" if schema_3 else "")
-        )
+    if task_type not in {"classification", "regression", "scalar", "simulation"}:
+        raise ValueError("task_type must be classification, regression, or scalar")
     if method_depth not in {"brief", "full"}:
         raise ValueError("method_depth must be brief or full")
     scalar_family = task_type in {"simulation", "scalar"}
@@ -817,7 +723,7 @@ def scaffold_study(
         metric_goal = spec.goal
     elif metric_goal is not None:
         raise ValueError("metric_name is required when metric_goal is supplied")
-    entrypoint = ENTRYPOINT_BY_KIND.get(kind or "predict", "train.py") if schema_3 else "train.py"
+    entrypoint = spec_of_kind.entrypoint
     study_dir = root.resolve() / slug
     if study_dir.exists():
         raise FileExistsError(f"refusing to overwrite existing study: {study_dir}")
@@ -856,8 +762,6 @@ def scaffold_study(
             else ""
         ),
         "MAX_RUN_SECONDS": str(int(max_run_seconds)),
-        # Schema 2 renders the roster line away entirely, so its program.md stays
-        # byte-identical to the frozen shape every schema-2 fixture pins.
         "ROSTER": "",
         "RQ1_QUESTION": "{{RQ1_QUESTION}}",
         "RQ1_PRIOR": "{{RQ1_PRIOR}}",
@@ -865,41 +769,40 @@ def scaffold_study(
         "DELTA_1": "{{DELTA_1}}",
         "ENTRYPOINT": entrypoint,
     }
-    if schema_3:
-        values.update(
-            {
-                "ROSTER": _render(ROSTER, values),
-                "KIND": kind or "{{KIND}}",
-                "MODALITY": modality or "{{MODALITY}}",
-                "PROFILE_LINE": (
-                    f"profile_doc: {profile_doc}   # a repo-local profile of your own"
-                    if profile_doc is not None
-                    else f'profile: "{profile or "{{PROFILE}}"}"'
-                    "            # generic | ml-research | math | insurance | llm | cv | data-science\n"
-                    "# profile_doc: profiles/my-field.md   # ... or a repo-relative profile of your own"
-                ),
-                "AUDIENCE": _quote_text(audience or "{{AUDIENCE}}"),
-                # The final phase must have room for one sealed run per track.
-                "ADAPTIVE_EXPERIMENTS": str(max(4, len(track_specs))),
-                "CONFIRMATION_EXPERIMENTS": str(len(track_specs)),
-                "TRACK_BLOCK": "".join(
-                    _render(
-                        TRACK_BLOCK_V3,
-                        {
-                            **values,
-                            "TRACK": name,
-                            "TRACK_MODE": mode,
-                            # `optimize` cannot validate without one, so it is
-                            # scaffolded real, not as a comment.
-                            "VERIFIER_BLOCK": (
-                                VERIFIER_BLOCK if kind == "optimize" else VERIFIER_HINT
-                            ),
-                        },
-                    )
-                    for name, mode in track_specs
-                ),
-            }
-        )
+    values.update(
+        {
+            "ROSTER": _render(ROSTER, values),
+            "KIND": kind or "{{KIND}}",
+            "MODALITY": modality or "{{MODALITY}}",
+            "PROFILE_LINE": (
+                f"profile_doc: {profile_doc}   # a repo-local profile of your own"
+                if profile_doc is not None
+                else f'profile: "{profile or "{{PROFILE}}"}"'
+                "            # generic | ml-research | math | insurance | llm | cv | data-science\n"
+                "# profile_doc: profiles/my-field.md   # ... or a repo-relative profile of your own"
+            ),
+            "AUDIENCE": _quote_text(audience or "{{AUDIENCE}}"),
+            # The final phase must have room for one sealed run per track.
+            "ADAPTIVE_EXPERIMENTS": str(max(4, len(track_specs))),
+            "CONFIRMATION_EXPERIMENTS": str(len(track_specs)),
+            "TRACK_BLOCK": "".join(
+                _render(
+                    TRACK_BLOCK_V3,
+                    {
+                        **values,
+                        "TRACK": name,
+                        "TRACK_MODE": mode,
+                        # `optimize` cannot validate without one, so it is
+                        # scaffolded real, not as a comment.
+                        "VERIFIER_BLOCK": (
+                            VERIFIER_BLOCK if spec_of_kind.requires_verifier else VERIFIER_HINT
+                        ),
+                    },
+                )
+                for name, mode in track_specs
+            ),
+        }
+    )
 
     study_dir.mkdir(parents=True)
     for dirname in ("figures", "models", "report", "runs", "sweeps"):
@@ -912,19 +815,17 @@ def scaffold_study(
         else _render(ENTRYPOINT_STUB, ENTRYPOINT_WORDING[entrypoint])
     )
     files = {
-        "study.yaml": STUDY_YAML_V3 if schema_3 else STUDY_YAML,
+        "study.yaml": STUDY_YAML,
         "program.md": PROGRAM,
         "playbook.md": PLAYBOOK,
         "research_plan.md": RESEARCH_PLAN,
         "prepare.py": PREPARE,
         entrypoint: entrypoint_template,
     }
-    if schema_3:
-        # Every schema-3 study starts with a ledger, so the consult gate's hash of
-        # it (kleinlib.contract.GATE_OPTIONAL_ARTIFACTS) is the norm, not the
-        # exception. Schema 2 keeps its frozen file set.
-        files["scouting_ledger.md"] = SCOUTING_LEDGER
-    if schema_3 and kind == "optimize":
+    # Every study starts with a ledger, so the consult gate's hash of it
+    # (kleinlib.contract.GATE_OPTIONAL_ARTIFACTS) is the norm, not the exception.
+    files["scouting_ledger.md"] = SCOUTING_LEDGER
+    if spec_of_kind.requires_verifier:
         files["verify.py"] = VERIFY
     for name, template in files.items():
         (study_dir / name).write_text(_render(template, values), encoding="utf-8")

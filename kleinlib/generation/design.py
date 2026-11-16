@@ -66,6 +66,7 @@ from ..decision import COMBINATOR_KEYS
 from ..errors import WorkflowError
 from ..primitives import sha256_file
 from ..transaction import relative
+from ._common import _fail, _pass
 from .chronology import gate_events, introducing_commit, is_ancestor
 from .envelope import GENERATION_SCHEMA
 from .ledger import read_object
@@ -481,14 +482,6 @@ def _rule_cell_needs_a_locked_design(ctx: Any) -> list[str]:
 # --------------------------------------------------------------------------
 # the verify family
 # --------------------------------------------------------------------------
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
 
 
 def _lock_order_problems(

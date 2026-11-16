@@ -125,7 +125,6 @@ PRIVATE_SURFACE: dict[str, tuple[str, str]] = {
     "_headroom_check": ("kleinlib.checks", "_headroom_check"),
     "_headroom_context": ("kleinlib.decision", "_headroom_context"),
     "_incumbent": ("kleinlib.decision", "_incumbent"),
-    "_legacy_results_problems": ("kleinlib.checks", "_legacy_results_problems"),
     "_manifest_paths": ("kleinlib.manifest", "_manifest_paths"),
     "_method_card_triad": ("kleinlib.state", "_method_card_triad"),
     "_noise_floor_problems": ("kleinlib.contract", "_noise_floor_problems"),

@@ -11,7 +11,7 @@
 # permanently: a stall rule written once the study is running cannot constrain
 # it, and editing a threshold later cannot discharge a stall it already declared.
 #
-# Opt-in and schema-3 only: this file means nothing unless
+# Opt-in: this file means nothing unless
 # `generation/manifest.yaml` declares `capabilities: [escalation]`.
 #
 # Protocol: .claude/skills/klein/references/escalation-protocol.md.

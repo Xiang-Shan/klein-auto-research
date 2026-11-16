@@ -157,31 +157,6 @@ def test_class_counts_are_alphabetical_and_strength_is_ranked(build_module, tmp_
     assert page.index("aardvark-class <code>") < page.index("empirical-description <code>")
 
 
-def test_v1_lock_shape_is_reported_as_not_recorded(build_module, tmp_path):
-    """Study 07's lock has no lock_schema and {art, claim, value} entries."""
-    study = scaffold(tmp_path / "00-lockv1", fragments=with_evidence_marker())
-    write_json(
-        study / "claims.lock",
-        {
-            "study": "07-iris-90years",
-            "git_head": "abc",
-            "claims": {"C1": {"art": "results.tsv", "claim": "…", "value": "1.0"}},
-        },
-    )
-    assert build_module.main([str(study)]) == 0
-    page = (study / "report" / "index.html").read_text(encoding="utf-8")
-    assert "not recorded (schema 2)" in page
-    assert "by strength" not in page
-
-
-def test_missing_records_are_named_not_guessed(build_module, tmp_path):
-    study = scaffold(tmp_path / "00-norecords", fragments=with_evidence_marker())
-    assert build_module.main([str(study)]) == 0
-    page = (study / "report" / "index.html").read_text(encoding="utf-8")
-    assert "not recorded (schema 2)" in page  # claims.lock
-    assert "finalization</dt><dd>not recorded" in page
-
-
 def test_missing_finalization_with_a_lock_present(build_module, tmp_path):
     study = scaffold(tmp_path / "00-nofinal", fragments=with_evidence_marker())
     write_json(study / "claims.lock", lock_v2())
@@ -206,7 +181,7 @@ def test_unrefereed_study_copies_the_recorded_reason(build_module, tmp_path):
     """`klein finalize --no-referee --reason` writes {status, reason}; the reason
     is the study's own disclosure and is copied, never paraphrased."""
     study = scaffold(tmp_path / "00-unrefereed", fragments=with_evidence_marker())
-    (study / "study.yaml").write_text("schema_version: 3\n" + STUDY_YAML, encoding="utf-8")
+    (study / "study.yaml").write_text(STUDY_YAML, encoding="utf-8")
     write_json(
         study / "study_state.json",
         {
@@ -225,7 +200,7 @@ def test_schema3_study_without_records_says_not_recorded_without_blaming_schema_
     build_module, tmp_path
 ):
     study = scaffold(tmp_path / "00-s3-norecords", fragments=with_evidence_marker())
-    (study / "study.yaml").write_text("schema_version: 3\n" + STUDY_YAML, encoding="utf-8")
+    (study / "study.yaml").write_text(STUDY_YAML, encoding="utf-8")
     write_json(study / "study_state.json", {"finalization": {"label": "exploratory"}})
     assert build_module.main([str(study)]) == 0
     page = (study / "report" / "index.html").read_text(encoding="utf-8")
@@ -447,8 +422,6 @@ def test_an_unknown_attribute_fails_closed(build_module, tmp_path, capsys):
 
 
 def test_mutable_surface_mirrors_the_contract_rule(build_module, tmp_path):
-    assert build_module.mutable_surface({}) == ("train.py",)
-    assert build_module.mutable_surface({"schema_version": 2, "mutable": ["a.py"]}) == ("train.py",)
     assert build_module.mutable_surface({"schema_version": 3, "mutable": ["a.py", "b.py"]}) == (
         "a.py",
         "b.py",
@@ -539,7 +512,7 @@ def test_ledger_shows_track_and_kind_when_the_records_carry_them(build_module, t
 
 def test_ledger_key_is_omitted_when_study_yaml_declares_no_metric(build_module, tmp_path):
     study = scaffold(tmp_path / "00-nokey")
-    (study / "study.yaml").write_text('goal: "No metric"\n', encoding="utf-8")
+    (study / "study.yaml").write_text('schema_version: 3\ngoal: "No metric"\n', encoding="utf-8")
     assert build_module.main([str(study)]) == 0
     page = (study / "report" / "index.html").read_text(encoding="utf-8")
     assert 'class="ledger-key"' not in page

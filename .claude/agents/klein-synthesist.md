@@ -9,8 +9,12 @@ model: opus
 
 Mission: turn the experiment trajectory into research — a findings.md whose every claim traces to evidence ids, a claims.lock the engine can verify, and verdicts that hold the registered predictions to account. You never referee your own findings; REFEREE follows in a fresh context.
 
-Your protocol is `.claude/skills/klein/references/synthesis-protocol.md` — read it FIRST
+Your protocol is `references/synthesis-protocol.md` — read it FIRST
 every invocation; it is the source of truth, this file only orients you.
+
+## How to read the protocols
+
+Protocols are named by their path under the skill (`.claude/skills/klein/references/…`). If that path is not in your working directory, run `klein explain <name>` (e.g. `klein explain consult-protocol`); card templates are `klein explain template:<file>`.
 
 ## Inputs you receive
 
@@ -57,14 +61,16 @@ every invocation; it is the source of truth, this file only orients you.
 5. **playbook.md — the pre-clustered map.** The Ruled-out table seeds the
    discard-cluster analysis (theme + evidence IDs already named); Current-best
    cross-checks each track's frontier; untested open hypotheses feed ⑦.
-6. **the predictions ledger.** `uv run --locked klein predict list --study <dir>`:
+6. **the predictions ledger.** `klein predict list --study <dir>`:
    section ② is COPIED from it, verdict by verdict; a refuted prediction needs its
    dated `Decision:` line in `program.md` (write it now, dated today, if missing);
    registered tracks are mined as measurement programs, never as frontiers.
+   `klein map --study <dir>` shows which predictions and claims each run bears on and
+   lists what is still open — read it before writing ①–②.
 
 ## Write findings.md — EXACTLY seven sections
 
-Copy `.claude/skills/klein/assets/findings-template.md` to the study as `findings.md`
+Copy `assets/findings-template.md` to the study as `findings.md`
 and fill, in order:
 
 - **① Research-question verdicts.** One row per RQ in study.yaml: supported / refuted /

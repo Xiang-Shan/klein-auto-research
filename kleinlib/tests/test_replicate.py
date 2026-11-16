@@ -27,6 +27,7 @@ from typing import Any
 
 import pytest
 import yaml
+from test_referee_gate import write_report
 
 from kleinlib import cli
 from kleinlib.errors import WorkflowError
@@ -476,7 +477,7 @@ def verifier_study(ready_study, tmp_path: Path):
         study,
         lambda c: c["tracks"]["primary"].update(
             verifier={
-                "command": [sys.executable, "-u", "verify.py"],
+                "command": ["python", "-u", "verify.py"],
                 "tolerance": 1e-6,
                 # the KEY train.py prints the artifact path under (package A's
                 # `run-one` resolves the artifact from that printed line)
@@ -567,7 +568,9 @@ def test_verify_only_refuses_a_checker_that_changed(verifier_study) -> None:
     with pytest.raises(WorkflowError, match="verifier script verify.py changed since E0001"):
         replicate_run(study, "E0001", verify_only=True, echo=False)
     verify.unlink()
-    with pytest.raises(WorkflowError, match="verifier script verify.py .* is missing"):
+    # schema 3 validates the contract (which names the checker) before any
+    # replication code runs, so a deleted checker is refused there
+    with pytest.raises(WorkflowError, match="verifier script does not exist: verify.py"):
         replicate_run(study, "E0001", verify_only=True, echo=False)
 
 
@@ -589,6 +592,9 @@ def _findings(study: Path) -> None:
         "by the evidence its contract requires.\n",
         encoding="utf-8",
     )
+    # schema 3 finalizes only after Gate 3
+    write_report(study)
+    record_gate(study, "referee", acknowledged_by="tester")
 
 
 @pytest.fixture
@@ -623,8 +629,6 @@ def test_required_confirmation_reads_the_track_then_the_study_then_the_kind() ->
     assert required_confirmation({}, {"kind": "predict"}) == {"sealed"}
     assert required_confirmation({"kind": "optimize"}, {"kind": "predict"}) == {"verify"}
     assert required_confirmation({}, {"kind": "discover"}) == set()
-    # an untyped (schema-2) contract closes on sealed, so nothing here fires
-    assert required_confirmation({}, {}) == {"sealed"}
     # a bare mapping with no contract carries no kind to default from
     assert required_confirmation({}) == set()
 
@@ -646,7 +650,7 @@ def test_a_schema_3_optimize_track_defaults_to_wanting_a_verify_record(replicabl
     assert confirmation_gaps(study, {"kind": "discover", "tracks": tracks}, manifests) == {}
 
 
-def test_a_schema_2_study_declares_nothing_and_finalizes_unchanged(sealed_study) -> None:
+def test_a_study_declaring_no_requirement_finalizes_confirmed_on_its_sealed_run(sealed_study) -> None:
     _repo, study, _value, _marker, _manifest = sealed_study
     assert confirmation_gaps(study, load_contract(study), []) == {}
     assert finalize(study) == "confirmed"
@@ -761,10 +765,6 @@ def test_a_registered_track_follows_the_cells_confirmed_claims_cite(sealed_study
         ),
         encoding="utf-8",
     )
-    assert "E0001" in confirmation_gaps(study, contract, manifests)["primary"][0]
-
-    # A legacy lock-schema-1 ledger carries no claim entries: fall back.
-    lock.write_text(json.dumps({"claims": {"k": {"value": 1, "art": "a"}}}), encoding="utf-8")
     assert "E0001" in confirmation_gaps(study, contract, manifests)["primary"][0]
 
 

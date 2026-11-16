@@ -1261,8 +1261,6 @@ def _confirmed_evidence_ids(study_dir: Path) -> set[str] | None:
     when the study has no lock or the lock cannot be read, so the caller can tell
     "no index exists" (fall back to every measured cell) apart from "the index
     exists and names nothing" (nothing is confirmed, so nothing is required).
-    A lock-schema-1 legacy ledger has no ``claims`` entries at all and also
-    reads as ``None``.
     """
     from .claims import claims_map, detect_lock_schema, load_lock, lock_path
 

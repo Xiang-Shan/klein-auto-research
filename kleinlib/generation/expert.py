@@ -55,6 +55,7 @@ from ..manifest import load_manifests
 from ..primitives import canonical_json, sha256_bytes, sha256_file
 from ..references import REFERENCES_NAME, is_verified, load_references
 from ..transaction import git_blob, relative
+from ._common import _fail, _pass, _warn
 from .chronology import (
     changed_paths_between,
     gate_events,
@@ -570,18 +571,6 @@ def _rule_challenger_needs_a_reproduced_baseline(ctx: Any) -> list[str]:
 # --------------------------------------------------------------------------
 # the verify family
 # --------------------------------------------------------------------------
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
 
 
 def _card_checks(ctx: FamilyContext, locks: list[tuple[Mapping[str, Any], dict[str, Any]]]) -> list[Check]:

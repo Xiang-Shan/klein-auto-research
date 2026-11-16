@@ -81,7 +81,7 @@ runtimes, one process, no fix by ordering.
 SKILL.md sanctions): a torch-only child subprocess fits the net and dumps CPU-numpy
 `.pkl` caches (never imports lightgbm); the parent imports lightgbm FIRST, loads the
 caches, and runs the GBDT head (torch bound passively, never operated). Run the launcher
-through `klein run-one` (or `scripts/run_with_log.py` for v1): it enforces unbuffered
+through `klein run-one`: it enforces unbuffered
 output, process-group timeout, and the real child exit status without a masking tee
 pipeline. Prove isolation preserved determinism with one
 bit-exact rerun (study 01: E3 = sweep trial 2 = 0.668271). Pattern: `main()`

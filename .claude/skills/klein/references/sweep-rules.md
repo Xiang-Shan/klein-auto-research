@@ -32,7 +32,7 @@ Uses `kleinlib.sweep.SweepRunner`.
 3. **Exactly ONE derived result.** The sweep contributes one candidate transaction —
    the winner rerun through `klein run-one`. Its description references the sidecar
    (for example, "swap-rate sweep, 9 trials; see sweeps/swaprate.sidecar.tsv; best
-   rate=0.15"). Never append a v2 `results.tsv` row by hand.
+   rate=0.15"). Never append a `results.tsv` row by hand.
 4. **Snapshot the winner into train.py.** Copy the winning config back into `train.py` so
    the committed mutable surface reproduces the winner with NO sweep machinery.
 5. **Record the winner artifact safely.** Persist the winning model locally via
@@ -41,7 +41,7 @@ Uses `kleinlib.sweep.SweepRunner`.
 6. **Commit the sweep evidence, then transact the winner.** Commit the sweep script and
    completed sidecar, copy the winner into `train.py`, and invoke `klein run-one`. It
    commits the candidate before its confirmation run, creates the immutable manifest,
-   and derives the one v2 ledger row transactionally.
+   and derives the one ledger row transactionally.
 7. **No improving trial → `discard`.** Put the best trial in `train.py` and let
    `klein run-one` compare its confirmation metric with the track frontier. If it does
    not clear the configured minimum delta and guardrails, it is a `discard` and the
@@ -72,6 +72,9 @@ uv run --locked python ../../scripts/run_with_log.py \
   --timeout-seconds <total-sweep-seconds> --log sweep.log -- \
   uv run --locked python -u sweeps/<name>.py
 ```
+
+(`scripts/run_with_log.py` is a helper of the Klein repository; in another project run the
+same command under `timeout <total-sweep-seconds>` with its output redirected to `sweep.log`.)
 
 <!-- test:sweep-runner:start -->
 ```python
@@ -120,8 +123,7 @@ commit sweeps/<name>.py  →  execute it once with scripts/run_with_log.py
 
 The sidecar is the trial-level audit trail; the run manifest is the winner-decision
 audit trail. This keeps each track's frontier honest even when a search ran 50 trials
-underneath. A legacy v1 study retains its manual one-row winner discipline, but should
-use the same `SweepRunner(...).run()` API and the exit-safe runner.
+underneath. Every sweep uses the `SweepRunner(...).run()` API and the exit-safe runner.
 
 ## Carve-out: measurement sweeps — and how they become citable evidence
 
@@ -132,15 +134,15 @@ all** — its evidence is the sidecar, the `noise_floor:` block it produces in
 `study.yaml`, and the consult-gate re-record event. Rule 7 governs search sweeps; a
 measurement is not a search.
 
-In schema 3 a measurement sweep is **registered** so findings and the claims lock can
+A measurement sweep is **registered** so findings and the claims lock can
 cite it as `sweep:<name>`:
 
 ```bash
-uv run --locked klein sweep register --study studies/NN-slug <name> \
+klein sweep register --study studies/NN-slug <name> \
   --sidecar sweeps/<name>.sidecar.tsv --script sweeps/<name>.py
 ```
 
 The verb hashes the sidecar and the script into `state.sweeps`, counts ok and crash
 rows, and appends the event `sweep_registered`. Crash rows stay in the sidecar — they
-are data about where a method breaks (studies 07 and 08 kept a registered crash rung
+are data about where a method breaks (studies 07 and 08 — archived, `studies/ARCHIVE.md` — kept a registered crash rung
 for exactly that reason). A sidecar edited after registration fails `klein verify`.

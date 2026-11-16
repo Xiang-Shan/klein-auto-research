@@ -8,7 +8,7 @@ capability closes each of those routes with an artifact locked before the
 evidence exists, and it does so on ONE sealed evaluation that scores both
 pipelines together.
 
-Opt-in, schema-3 only, inert unless `generation/manifest.yaml` declares `parity`
+Opt-in, inert unless `generation/manifest.yaml` declares `parity`
 (`references/generation-protocol.md`). `parity` requires `expertise`: the
 "expert" side of the comparison is the recipe the domain card froze and the
 notary reproduced (`references/expert-protocol.md`), not a re-implementation
@@ -29,18 +29,18 @@ document directly.
 ## Verbs
 
 ```bash
-uv run --locked klein generation parity lock   --study studies/NN-slug [--allow-late]
-uv run --locked klein generation parity amend  --study studies/NN-slug
-uv run --locked klein generation parity bind   --study studies/NN-slug \
+klein generation parity lock   --study studies/NN-slug [--allow-late]
+klein generation parity amend  --study studies/NN-slug
+klein generation parity bind   --study studies/NN-slug \
     [--floor-run E0002] --ai-snapshot pipelines/ai.py --expert-snapshot pipelines/expert.py
-uv run --locked klein generation parity assess --study studies/NN-slug --run E0007
-uv run --locked klein generation parity show   --study studies/NN-slug
+klein generation parity assess --study studies/NN-slug --run E0007
+klein generation parity show   --study studies/NN-slug
 
-uv run --locked klein generation contribution record --study studies/NN-slug \
+klein generation contribution record --study studies/NN-slug \
     --kind proposal --subject NN-slug#H3 --origin ai --actor <name> \
     [--decision accepted --human-acceptor <name>] [--implementation-ref E0005] \
     [--refs P2,E0005] [--outcome "…"] [--cost "…"] [--transcript-hash <sha>]
-uv run --locked klein generation contribution show --study studies/NN-slug
+klein generation contribution show --study studies/NN-slug
 ```
 
 Every one takes the four testimony flags `--actor --tool --model --session`
@@ -141,7 +141,7 @@ generous equivalence margin; resolution is not materiality.
 ## 4. Bind before any sealed access, on any track
 
 ```bash
-uv run --locked klein generation parity bind --study studies/NN-slug \
+klein generation parity bind --study studies/NN-slug \
     --ai-snapshot models/ai_pipeline.json --expert-snapshot lib/expert_glm.py
 ```
 
@@ -170,11 +170,11 @@ edit was never frozen at all.
 One registered cell, the comparison track's **sole** sealed evaluation:
 
 ```bash
-uv run --locked klein run-one --study studies/NN-slug --track comparison \
+klein run-one --study studies/NN-slug --track comparison \
     --final-test --dry-run                      # mandatory rehearsal
-uv run --locked klein generation check --study studies/NN-slug \
+klein generation check --study studies/NN-slug \
     --action sealed --track comparison --tests P1 P2 P3   # every parity P, or refused
-uv run --locked klein run-one --study studies/NN-slug --track comparison \
+klein run-one --study studies/NN-slug --track comparison \
     --final-test --tests P1,P2,P3 --description "AI vs expert, joint comparison"
 ```
 
@@ -246,7 +246,7 @@ undefined metric never agrees either.
 ## 7. Assessment and verification
 
 ```bash
-uv run --locked klein generation parity assess --study studies/NN-slug --run E0007
+klein generation parity assess --study studies/NN-slug --run E0007
 ```
 
 `assess` re-reads `tables/parity_units.tsv` (checking its sha256 against the one

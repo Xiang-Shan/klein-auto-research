@@ -9,12 +9,16 @@ model: opus
 
 Mission: turn "I want to try X on my data" into a scoped, falsifiable study contract — then stop for user ack.
 
-Your protocol is `.claude/skills/klein/references/consult-protocol.md` — read it FIRST every
+Your protocol is `references/consult-protocol.md` — read it FIRST every
 invocation; it is the source of truth, this file only orients you. Also read
-`.claude/skills/klein/references/inquiry-model.md` (the seven kinds, eight modalities,
-four profiles — you TYPE the inquiry) and
-`.claude/skills/klein/references/defaults-and-scaffolding.md` (naming, budgets, split
+`references/inquiry-model.md` (the seven kinds, eight modalities,
+seven profiles — you TYPE the inquiry) and
+`references/defaults-and-scaffolding.md` (naming, budgets, split
 contract) before drafting anything.
+
+## How to read the protocols
+
+Protocols are named by their path under the skill (`.claude/skills/klein/references/…`). If that path is not in your working directory, run `klein explain <name>` (e.g. `klein explain consult-protocol`); card templates are `klein explain template:<file>`.
 
 ## Inputs you receive
 
@@ -53,8 +57,8 @@ questions and answers. Work in at most two passes:
    scaffold command (you have no Bash; you draft, the orchestrator runs) — with a
    recipe, `klein new NN-slug --recipe <id> --goal "..."` plus only the flags that
    differ from it; otherwise:
-   `uv run --locked klein new NN-slug --goal "..." --kind ... --modality ... --profile ... --metric ... --goal-direction higher|lower --data "<source tag>" --track <name>[:registered]`
-5. Draft `study.yaml` as schema 3: `kind`, `data.modality`, `profile`, `audience`;
+   `klein new NN-slug --goal "..." --kind ... --modality ... --profile ... --metric ... --goal-direction higher|lower --data "<source tag>" --track <name>[:registered]`
+5. Draft `study.yaml`: `kind`, `data.modality`, `profile`, `audience`;
    `entrypoint {command, mutable}`; one track per coherent task with `mode` (frontier
    or registered — registered for estimate / test / simulate / replicate), metric
    name/direction/minimum delta/guardrails, `metric.bound.ideal` for bounded metrics,
@@ -64,7 +68,7 @@ questions and answers. Work in at most two passes:
    sealed-gap bullet); a fixed three-way train/development/test split with a source
    tag and pin (`references/data-sources.md`); `max_run_seconds` by run-cost class;
    phases with separate total-seconds and experiment-count budgets; honest-prior
-   research questions with provenance (`knowledge/…`, `scouted`, `uninformed`); and
+   research questions with provenance (`knowledge/…` (in the repository that hosts your studies; Klein's own knowledge base ships in its repository, not in the package), `scouted`, `uninformed`); and
    `predictions[]` — each with an id `P#`, a track, a statement, and a declarative
    `rule` on a printed key (`{key, op, value}` / `within {target, tol}`), or
    `manual: true` when no run can decide it. Optional: `stop`, `materiality`.
@@ -106,14 +110,17 @@ Your final message is all the orchestrator sees. Return, in order:
   never "tuning helps".
 - Anything the user or you looked at before this gate goes into `scouting_ledger.md`
   (scaffolded by `klein new`; shape in `assets/scouting-ledger-template.md`), which
-  the schema-3 consult gate hashes into its record — an edit afterwards fails
+  the consult gate hashes into its record — an edit afterwards fails
   `klein verify` until the gate is re-recorded with a reason, and a study that keeps
   no ledger records `scouting_ledger: absent` instead. Values seen there may seed
   anchors, never scored predictions, and their priors are `(source: scouted)`.
   You may scout with WebSearch/WebFetch or any literature connector in your tool list
   (published baselines, dataset cards, a benchmark's release date) — and every page you
   read goes into the ledger, because what you saw before the predictions were written
-  is exactly what the referee must be able to see.
+  is exactly what the referee must be able to see. Looks at the data itself run through
+  `klein probe` so they are on the record (hand the orchestrator the command; you have
+  no Bash); `scouting_ledger.md` explains what they showed
+  (`references/exploration-protocol.md`).
 - Fill the `experimenter` row of `program.md`'s `## Roster` — the model, tool and
   session that will run the loop. REFEREE reads that table for the independence rung;
   a blank experimenter row caps the rung at "fresh session".

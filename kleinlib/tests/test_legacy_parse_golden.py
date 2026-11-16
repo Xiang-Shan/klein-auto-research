@@ -48,9 +48,10 @@ CASES = _cases()
 
 
 def test_golden_corpus_is_not_empty() -> None:
-    # The shipped exhibits carry well over a hundred eligible runs; an empty
+    # The shipped exhibits carry over twenty whole-log runs (block-scoped runs are
+    # judged by the block channel and excluded above); an empty
     # corpus would mean this guard silently stopped guarding.
-    assert len(CASES) >= 50
+    assert len(CASES) >= 20
 
 
 @pytest.mark.parametrize("manifest_path", [path for _, path in CASES], ids=[rel for rel, _ in CASES])

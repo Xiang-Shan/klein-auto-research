@@ -58,6 +58,7 @@ from ..contract import PREDICTION_ID_RE, mutable_surface, normalize_tracks, regi
 from ..errors import WorkflowError
 from ..primitives import sha256_bytes, sha256_file
 from ..transaction import git_blob, relative
+from ._common import _fail, _pass, _warn
 from .admission import Context, load_receipts
 from .calibration import numbers_agree
 from .chronology import gate_events, introducing_commit, is_ancestor
@@ -1253,18 +1254,6 @@ RECORDS_CHECK = "surprise records"
 RECEIPTS_CHECK = "surprise receipts"
 CLAIMS_CHECK = "surprise claims"
 FINDINGS_CHECK = "surprise findings"
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
 
 
 def _cells_checks(ctx: FamilyContext, versions: Sequence[Mapping[str, Any]]) -> list[Check]:

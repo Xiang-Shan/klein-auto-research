@@ -5,9 +5,10 @@ registered prediction, notarized evidence, a locked claim, an independent refere
 generation layer records the other half — what the driver committed to BEFORE the
 evidence existed — so a stranger can check the ORDER of the work, not only its result.
 
-It is **opt-in and schema-3 only**. A study without `generation/manifest.yaml` is
+It is **opt-in**, and a plug-in: it lives entirely in `kleinlib/generation/` (its CLI is
+`kleinlib/generation/cli/`) and the core never depends on it. A study without `generation/manifest.yaml` is
 untouched by every rule here, `klein verify` never prints the word "generation", and
-no core verb, receipt or disposition changes. Schema-2 studies are refused outright.
+no core verb, receipt or disposition changes.
 
 > **The layer records, hashes, and computes arithmetic on rows the driver wrote; it
 > never proposes, ranks, selects, schedules, or retries.** No generation verb calls
@@ -20,30 +21,30 @@ Any agent or human can follow this document directly.
 ## Verbs
 
 ```bash
-uv run --locked klein generation init    --study studies/NN-slug [--capability NAME]… [--allow-late]
-uv run --locked klein generation check   --study studies/NN-slug --action run --track primary [--tests P1]
-uv run --locked klein generation verify  --study studies/NN-slug
-uv run --locked klein generation label   --study studies/NN-slug
-uv run --locked klein generation status  --study studies/NN-slug
-uv run --locked klein generation recover --study studies/NN-slug
+klein generation init    --study studies/NN-slug [--capability NAME]… [--allow-late]
+klein generation check   --study studies/NN-slug --action run --track primary [--tests P1]
+klein generation verify  --study studies/NN-slug
+klein generation label   --study studies/NN-slug
+klein generation status  --study studies/NN-slug
+klein generation recover --study studies/NN-slug
 ```
 
 Beside those six, each capability adds its own verb group — plus one group that
 belongs to no capability at all. Every group in this release, in dependency order:
 
 ```bash
-uv run --locked klein generation expert lock|amend|bind|repair|review --study studies/NN-slug
-uv run --locked klein generation reference record                     --study studies/NN-slug
-uv run --locked klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
-uv run --locked klein generation design lock                 --study studies/NN-slug [--allow-late]
-uv run --locked klein generation premortem record|respond    --study studies/NN-slug --phase <id>
-uv run --locked klein generation parity lock|amend|bind|assess|show --study studies/NN-slug
-uv run --locked klein generation contribution record|show    --study studies/NN-slug
-uv run --locked klein generation escalate lock|record|close|pivot|show --study studies/NN-slug
-uv run --locked klein generation knowledge promote|contest|resolve|query|decide|show --study studies/NN-slug
-uv run --locked klein generation surprise register|record|show --study studies/NN-slug [--run E####]
-uv run --locked klein generation benchmark commit|submit|reveal|retire|show --study studies/NN-slug
-uv run --locked klein generation custody attest              --study studies/NN-slug
+klein generation expert lock|amend|bind|repair|review --study studies/NN-slug
+klein generation reference record                     --study studies/NN-slug
+klein generation slate lock|amend|score|show --study studies/NN-slug --phase <id>
+klein generation design lock                 --study studies/NN-slug [--allow-late]
+klein generation premortem record|respond    --study studies/NN-slug --phase <id>
+klein generation parity lock|amend|bind|assess|show --study studies/NN-slug
+klein generation contribution record|show    --study studies/NN-slug
+klein generation escalate lock|record|close|pivot|show --study studies/NN-slug
+klein generation knowledge promote|contest|resolve|query|decide|show --study studies/NN-slug
+klein generation surprise register|record|show --study studies/NN-slug [--run E####]
+klein generation benchmark commit|submit|reveal|retire|show --study studies/NN-slug
+klein generation custody attest              --study studies/NN-slug
 ```
 
 `expert` and `reference` are the two groups of the single `expertise` capability
@@ -72,7 +73,7 @@ Exit codes are three-valued, and the two failing values mean different things.
 
 `0` did it. `1` is an ERROR, printed to **stderr**: the question could not be ASKED —
 a malformed argument, an argument naming a file, run, claim, trigger or decision that
-does not exist, or a study that is not schema 3, has no manifest, a broken chain,
+does not exist, or a study that has no manifest, a broken chain,
 orphan objects, a dirty tree, or no git repository at all. Nothing is recorded. `2`
 is a REFUSAL or a failing audit, printed to **stdout**: the question was asked and a
 rule of the study, the ledger or the authored artifact answered no. The reasons are
@@ -167,7 +168,7 @@ an **orphan** — see Recovery.
 ## Admission: a receipt before every action
 
 ```bash
-uv run --locked klein generation check --study studies/NN-slug --action run --track primary --tests P1
+klein generation check --study studies/NN-slug --action run --track primary --tests P1
 ```
 
 `--action` names the checkpoint: `run` (an ordinary development transaction), `sealed`
@@ -248,7 +249,7 @@ label.
 ## Verification
 
 ```bash
-uv run --locked klein generation verify --study studies/NN-slug
+klein generation verify --study studies/NN-slug
 ```
 
 A **separate verb writing a separate receipt** (`generation/verify_receipt.json`), by
@@ -290,10 +291,10 @@ prints `<name>: <integrity> / <outcome>` once a receipt exists.
 everything in this section.*
 
 ```bash
-uv run --locked klein generation slate lock  --study studies/NN-slug --phase adaptive-1
-uv run --locked klein generation slate amend --study studies/NN-slug --phase adaptive-1
-uv run --locked klein generation slate score --study studies/NN-slug --phase adaptive-1
-uv run --locked klein generation slate show  --study studies/NN-slug [--phase <id>]
+klein generation slate lock  --study studies/NN-slug --phase adaptive-1
+klein generation slate amend --study studies/NN-slug --phase adaptive-1
+klein generation slate score --study studies/NN-slug --phase adaptive-1
+klein generation slate show  --study studies/NN-slug [--phase <id>]
 ```
 
 **You write the slate; Klein records it.** `slates/<phase>.yaml` is authored by hand at
@@ -326,7 +327,7 @@ different hypothesis, or restate the frozen `base_rate_forecast` and `cohort_win
 ### Admission: a run is bound to the hypothesis it was admitted for
 
 ```bash
-uv run --locked klein generation check --study studies/NN-slug --action run \
+klein generation check --study studies/NN-slug --action run \
   --track primary --hypothesis NN-slug#H1 --tests P2
 ```
 
@@ -411,7 +412,7 @@ one the ledger implies.
 ## The label
 
 ```bash
-uv run --locked klein generation label --study studies/NN-slug
+klein generation label --study studies/NN-slug
 ```
 
 Issued only when the core `verify_receipt.json` has `summary.failed == 0`, the
@@ -508,7 +509,7 @@ FAIL path: losing the opt-in is a finding, not an exemption.
 *The `design` capability — declared with `klein generation init --capability design`.*
 
 ```bash
-uv run --locked klein generation design lock --study studies/NN-slug [--allow-late]
+klein generation design lock --study studies/NN-slug [--allow-late]
 ```
 
 The five objects (`references/inquiry-model.md`) run a study; they do not say what a

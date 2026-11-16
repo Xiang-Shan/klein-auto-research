@@ -12,7 +12,7 @@ from kleinlib.data import three_way_split
 from kleinlib.leakage import audit_split, main
 
 STUDY_YAML = """\
-schema_version: 2
+schema_version: 3
 study_id: "99-audit-fixture"
 task_type: classification
 max_run_seconds: 60
@@ -230,7 +230,7 @@ def test_leaky_poisson_predictor_fails_shuffled_chance(tmp_path):
 def test_simulation_with_real_split_audits_like_regression(tmp_path):
     """The soak F3 fix: study 04's committed shape — task_type simulation,
     registry deviance metric, real random split — must audit end to end."""
-    yaml_text = POISSON_YAML.replace("task_type: regression", "task_type: simulation")
+    yaml_text = POISSON_YAML.replace("task_type: regression", "task_type: scalar")
     prepared, study = _write_fixture(tmp_path, _make_counts_frame(), yaml_text)
     checks = audit_split(prepared, target="claims", study_dir=study)
     assert all(c.ok for c in checks), [(c.name, c.message) for c in checks]
@@ -259,7 +259,7 @@ def test_predefined_split_reproduces_from_its_column(tmp_path):
 
 def test_simulation_custom_metric_gets_direction_and_na_chance(tmp_path):
     yaml_text = (
-        STUDY_YAML.replace("task_type: classification", "task_type: simulation")
+        STUDY_YAML.replace("task_type: classification", "task_type: scalar")
         .replace(
             "metric: {name: val_auc, goal: higher, minimum_delta: 0.002}",
             "metric: {name: mean_final_gap, goal: lower, minimum_delta: 0.002}",
@@ -277,7 +277,7 @@ def test_simulation_custom_metric_gets_direction_and_na_chance(tmp_path):
 
 def test_simulation_kind_none_reports_na_and_exits_zero(tmp_path, capsys):
     yaml_text = (
-        STUDY_YAML.replace("task_type: classification", "task_type: simulation")
+        STUDY_YAML.replace("task_type: classification", "task_type: scalar")
         .replace(
             "metric: {name: val_auc, goal: higher, minimum_delta: 0.002}",
             "metric: {name: mean_final_gap, goal: lower, minimum_delta: 0.002}",
@@ -294,16 +294,11 @@ def test_simulation_kind_none_reports_na_and_exits_zero(tmp_path, capsys):
 def test_schema3_scalar_custom_metric_is_accepted(tmp_path):
     """Regression: a schema-3 `task_type: scalar` study with a CUSTOM metric name.
 
-    `task_type` spells the scalar metric family `scalar` in schema 3 and
-    `simulation` in schema 2 (`kleinlib.contract.task_family` owns the alias).
-    This check used to test only the retired spelling, so every schema-3
-    registered track — whose metrics are custom by construction — failed
-    `metric-direction` and the DATA gate reported a BLOCKER, while the
-    byte-identical schema-2 contract passed.
+    Every schema-3 registered track — whose metrics are custom by construction —
+    once failed `metric-direction` and the DATA gate reported a BLOCKER.
     """
     yaml_text = (
-        STUDY_YAML.replace("schema_version: 2", "schema_version: 3")
-        .replace("task_type: classification", "task_type: scalar")
+        STUDY_YAML.replace("task_type: classification", "task_type: scalar")
         .replace(
             "metric: {name: val_auc, goal: higher, minimum_delta: 0.002}",
             "metric: {name: targets_outside_tolerance, goal: lower, minimum_delta: 1}",

@@ -12,7 +12,7 @@ part of the opt-in generation layer (`references/generation-protocol.md`) and
 applies to a study whose `generation/manifest.yaml` declares `expertise`.
 
 ```bash
-uv run --locked klein generation reference record --study studies/NN-slug \
+klein generation reference record --study studies/NN-slug \
     --id collins2010 --title "Tacit and Explicit Knowledge" --year 2010 \
     --authors "Collins, H." --identifier isbn:9780226113807 \
     --locator isbn:9780226113807 \

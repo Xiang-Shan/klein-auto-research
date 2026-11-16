@@ -76,6 +76,7 @@ from ..primitives import (
     utc_now,
 )
 from ..transaction import git, git_blob, relative
+from ._common import _fail, _pass, _warn
 from .envelope import GENERATION_SCHEMA, testimony
 from .ledger import read_object
 from .registry import Capability, FamilyContext
@@ -827,18 +828,6 @@ def contest_evidence_problems(
 # --------------------------------------------------------------------------
 # the verify family
 # --------------------------------------------------------------------------
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
 
 
 def _query_order_problems(

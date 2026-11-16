@@ -8,7 +8,7 @@ before any participant sees the data, submissions frozen before the truth is
 disclosed, a matching rule fixed at METHOD, one sealed scoring cell, and a
 verification that recomputes every match from the same bytes.
 
-Opt-in, schema-3 only, inert unless `generation/manifest.yaml` declares
+Opt-in, inert unless `generation/manifest.yaml` declares
 `benchmark` (`references/generation-protocol.md`). `benchmark` requires `parity`,
 which requires `expertise`: the arms are compared on matched budgets against a
 reproduced expert control, so the custodian study is already a parity study
@@ -51,16 +51,16 @@ without exposing the answer (`references/data-gate-protocol.md`, "simulation").
 ## Verbs
 
 ```bash
-uv run --locked klein generation benchmark commit --study studies/NN-slug \
+klein generation benchmark commit --study studies/NN-slug \
     --private <path to the private bundle> --salt-file <path to the salt>
-uv run --locked klein generation benchmark submit --study studies/NN-slug \
+klein generation benchmark submit --study studies/NN-slug \
     --arm <id> --file <the participant's frozen submission>
-uv run --locked klein generation benchmark reveal --study studies/NN-slug \
+klein generation benchmark reveal --study studies/NN-slug \
     --private <the bundle, now inside the study> --salt-file <the same salt> \
     [--missing-arm <id> <reason>]â€¦
-uv run --locked klein generation benchmark retire --study studies/NN-slug --reason <text>
-uv run --locked klein generation benchmark show   --study studies/NN-slug
-uv run --locked klein generation custody attest   --study studies/NN-slug \
+klein generation benchmark retire --study studies/NN-slug --reason <text>
+klein generation benchmark show   --study studies/NN-slug
+klein generation custody attest   --study studies/NN-slug \
     --holder <name> --mechanism <text> --statement <text> [--subject <text>] [--receipt <path>]
 ```
 
@@ -179,11 +179,11 @@ ONE sealed registered cell covers **all** arms. It is an ordinary transaction â€
 there is no benchmark-specific execution path:
 
 ```bash
-uv run --locked klein run-one --study studies/NN-slug --track scoring \
+klein run-one --study studies/NN-slug --track scoring \
     --final-test --dry-run                        # mandatory rehearsal
-uv run --locked klein generation check --study studies/NN-slug \
+klein generation check --study studies/NN-slug \
     --action sealed --track scoring --tests P_recall_alpha P_recall_beta
-uv run --locked klein run-one --study studies/NN-slug --track scoring \
+klein run-one --study studies/NN-slug --track scoring \
     --final-test --tests P_recall_alpha,P_recall_beta
 ```
 

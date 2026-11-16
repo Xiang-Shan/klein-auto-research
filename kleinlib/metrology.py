@@ -29,7 +29,7 @@ series can never be resampled out of step.  Nothing here can be told to use two
 draws — the API has no seam for it.
 
 :func:`family_maxt` is the sign-flip max-t **selection guard**, ported from the
-frozen study-08 reference ``studies/08-iris-rematch/sweeps/rematch_analysis.py``
+frozen study-08 reference ``studies/08-iris-rematch/sweeps/rematch_analysis.py`` (archived, ``studies/ARCHIVE.md``)
 and re-verified against study 09's recorded ``sweeps/arena_verdicts.tsv``.  Read
 its docstring before quoting an adjusted score: it limits family-wise false
 DETECTION under a registered sign-symmetry assumption and says nothing about the

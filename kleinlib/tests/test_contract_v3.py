@@ -2,9 +2,8 @@
 
 Two properties are load-bearing and each gets a test of its own:
 
-1. **``schema_version`` selects the rule set.** A schema-2 contract sees exactly
-   the checks it was notarized under; nothing schema 3 adds can retro-fail the
-   shipped studies.
+1. **``schema_version`` selects the rule set.** The version key is read first
+   and decides which checks run.
 2. **Nothing in the contract is ever executed.** A prediction is decided by
    arithmetic on a closed operator set — no ``eval``, no ``exec``, no
    ``compile`` — and the last test in this module greps for that.
@@ -25,7 +24,6 @@ from kleinlib.contract import (
     SOURCE_TAG_RE,
     SUPPORTED_SCHEMA_VERSIONS,
     confirmation_require,
-    entrypoint_spec,
     mutable_surface,
     normalize_tracks,
     schema_version,
@@ -110,30 +108,19 @@ def problems(contract: dict, study: Path | None = None) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
-def test_both_rule_sets_are_supported_and_nothing_else_is() -> None:
-    assert SUPPORTED_SCHEMA_VERSIONS == {2, 3}
-    for bad in (1, 4, 0):
+def test_one_schema_is_judged_and_every_other_is_pointed_at_its_engine() -> None:
+    assert SUPPORTED_SCHEMA_VERSIONS == {3}
+    assert "tag v2.3.1" in problems({"schema_version": 2})[0]
+    assert "tag v1.3.0" in problems({"schema_version": 1})[0]
+    assert "tag v1.3.0" in problems({})[0]  # no key at all is version 1
+    for bad in (4, 0):
         assert problems({"schema_version": bad}) == [
-            f"schema_version must be 2 or 3 (got {bad}; version-1 studies are "
-            "readable at tag v1.3.0)"
+            f"schema_version must be 3 (got {bad}); a newer study needs a newer klein"
         ]
 
 
 def test_a_valid_v3_contract_has_no_problems(study_dir: Path) -> None:
     assert problems(base(), study_dir) == []
-
-
-def test_schema_2_never_sees_a_schema_3_rule(study_dir: Path) -> None:
-    """The whole safety argument: drop the version and every schema-3 key stops
-    being checked — which is why studies 03 and 05-09 keep verifying forever."""
-    contract = base()
-    contract["schema_version"] = 2
-    for key in ("kind", "profile", "audience", "entrypoint"):
-        contract.pop(key)
-    contract["data"].pop("modality")
-    contract["tracks"]["primary"].pop("mode")
-    contract["predictions"] = [{"id": "not-an-id", "nonsense": True}]
-    assert problems(contract, study_dir) == []
 
 
 # ---------------------------------------------------------------------------
@@ -260,13 +247,8 @@ def test_the_scaffolded_entrypoint_is_named_by_kind() -> None:
     }
 
 
-def test_mutable_surface_defaults_to_train_py_on_schema_2() -> None:
+def test_mutable_surface_is_the_declared_entrypoint_mutable() -> None:
     contract = base()
-    contract["schema_version"] = 2
-    assert mutable_surface(contract) == ("train.py",)
-    assert entrypoint_spec({})["command"][-1] == "train.py"
-
-    contract["schema_version"] = 3
     contract["entrypoint"]["mutable"] = ["search.py", "lib/moves.py"]
     assert mutable_surface(contract) == ("search.py", "lib/moves.py")
 
@@ -276,13 +258,10 @@ def test_mutable_surface_defaults_to_train_py_on_schema_2() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_mode_defaults_to_frontier_only_on_schema_3() -> None:
-    """Setting the key on a schema-2 contract would change what schema-2 sees."""
+def test_mode_defaults_to_frontier() -> None:
     contract = base()
     contract["tracks"]["primary"].pop("mode")
     assert normalize_tracks(contract)["primary"]["mode"] == "frontier"
-    contract["schema_version"] = 2
-    assert "mode" not in normalize_tracks(contract)["primary"]
 
 
 def test_mode_is_closed(study_dir: Path) -> None:
@@ -596,17 +575,9 @@ def test_scalar_is_the_schema_3_spelling_of_the_simulation_family(study_dir: Pat
     assert problems(contract, study_dir) == []
     assert task_family(contract) == "scalar"
 
-    # ... and it stays a schema-3 spelling: schema 2 knows the three it shipped.
-    contract["schema_version"] = 2
-    contract["task_type"] = "scalar"
-    assert "task_type must be classification, regression, or simulation" in problems(
-        contract, study_dir
-    )
-
 
 def test_schema_version_reads_the_contract() -> None:
     assert schema_version({"schema_version": 3}) == 3
-    assert schema_version({}) == 1
 
 
 def test_a_phase_ladder_rewritten_at_consult_is_followed_until_work_starts(tmp_path) -> None:

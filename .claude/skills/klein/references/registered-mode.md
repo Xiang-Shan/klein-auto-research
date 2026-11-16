@@ -3,9 +3,9 @@
 Frontier mode answers "which candidate wins?". Most science asks something else: "what
 is the value?", "does H hold?", "does the method recover the truth?", "does the paper's
 number reproduce?". Those questions have no incumbent to beat. In Klein 1.x they were
-bent into the frontier by hand — study 09 kept its 42-cell permission map in a sweep
-sidecar beside the ledger and invented `claims.lock` to re-anchor it. Schema 3 gives
-them a track mode of their own.
+bent into the frontier by hand — study 09 (archived — `studies/ARCHIVE.md`) kept its
+42-cell permission map in a sweep sidecar beside the ledger and invented `claims.lock`
+to re-anchor it. Registered mode gives them a track mode of their own.
 
 Role: the driving agent. Any agent or human can follow this document directly.
 
@@ -106,7 +106,7 @@ measurement, on which partition, adjudicating which prediction, at what cost. A 
 runs through the same notary:
 
 ```bash
-uv run --locked klein run-one --study studies/NN-slug --track estimate \
+klein run-one --study studies/NN-slug --track estimate \
   --tests P4 --description "bootstrap CI of K (1000 resamples, seed block A)"
 ```
 
@@ -155,13 +155,11 @@ what it selected.
 - Not exempt from the floor: a registered cell that compares two things needs the
   paired floor like any comparison, and its rule's tolerance says so.
 
-## Worked example — study 09's permission map, restated
+## Worked example — a registered cell, adjudicated
 
-Study 09 asked whether any of 42 candidate cells (7 families × 6 feature sets) had
-permission to contest the anchor. In schema 2 the map lived in
-`sweeps/rq0_map.sidecar.tsv`, cited from prose. In schema 3 it is one registered cell:
-the entrypoint builds the 42-row table, prints `primary_metric:` as the count of cells
-with permission, pins the table with `artifact: sweeps/rq0_map.tsv`, and `--tests P1`
-adjudicates "at most 3 of 7 families clear the floor" by the rule
-`{key: primary_metric, op: "<=", value: 3}`. The claim in the lock then cites `E0002`
-and `art:rq0_map`, and the numbers law finds every count in the table.
+`10-hubble-1929-replication` is registered end to end. Its reproduction cell (E0002)
+fits Hubble's Table 1 two ways, pins the fits table with an `artifact:` line
+(`tables/two_parameter_fits.tsv`), and prints `min_abs_gap_465`; `--tests P1`
+adjudicates "neither fit reproduces K = 465 within 10" by the rule
+`{key: min_abs_gap_465, op: ">", value: 10}`. The claim in the lock then cites `E0002`
+and `art:fits`, and the numbers law finds every number in the table.
