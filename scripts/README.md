@@ -38,16 +38,18 @@ should use `klein verify --require-local`, which turns absence back into a failu
 
 ## `verify_e2e.py`
 
-Local, one-command proof that the legacy compatibility pipeline still works on
-this machine: build an explicit v1 fixture, run a real three-experiment loop,
-preflight, summarize, and render figures without touching the real checkout. It
-owns a random temporary worktree/branch, uses the committed lockfile, streams each
-run through the timeout-safe subprocess helper, and tears down only resources this
-invocation created.
-
-This is intentionally separate from the schema-v2 acceptance fixture. The v2
-keep/discard/crash transaction, candidate-commit resolution, recovery, and sealed
-final-test checks live in `kleinlib/tests/test_workflow_v2.py` and run in CI.
+Local, one-command proof that the Klein pipeline works on this machine. One lane,
+`schema3`: a typed study walked from `klein new` to `report/index.html` with the CLI
+and nothing else (gates, a measured floor, keep/discard/measured dispositions,
+registered predictions, the sealed rehearsal and its one spend, a replication,
+registered sweeps, `klein summarize`, `klein map`, the claims lock and its tamper
+check, the referee gate, `klein finalize`, the verify receipt), plus a read-only
+check of the committed `00-known-truth-quickstart` exhibit. `--lane schema3` and
+`--lane all` run the same single lane. Version 1 and schema 2 are no longer read by
+the engine (they verify at tags `v1.3.0` / `v2.3.1`), so no compatibility lane
+exists. The proof owns a random temporary worktree/branch, uses the committed
+lockfile, streams each run through the timeout-safe subprocess helper, and tears
+down only resources this invocation created.
 
 Stdlib-only and cross-platform (Linux, macOS, Windows — no bash, no `awk`/`sed`,
 every subprocess call goes through `subprocess.run` with an explicit argument

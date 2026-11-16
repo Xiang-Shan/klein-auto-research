@@ -122,20 +122,13 @@ def test_parse_wrapper_dom_surfaces_an_in_browser_error() -> None:
 # --- LEGACY classification --------------------------------------------------
 
 
-def test_schema_version_reads_only_the_top_level_key() -> None:
-    module = _load_module()
-    contract = "study: 09-iris\nschema_version: 3\ntracks:\n  primary:\n    schema_version: 99\n"
-    assert module.schema_version(contract) == 3
-    assert module.schema_version("schema_version: 3\n") == 3
-
-
 CURRENT_PAGE = '<!doctype html>\n<html><head><meta charset="utf-8">\n<meta name="generator" content="klein build_tutorial layout-2">\n<title>t</title></head><body></body></html>\n'
 
 
 def test_a_current_schema_three_page_is_not_legacy() -> None:
     module = _load_module()
-    assert module.is_legacy(3, CURRENT_PAGE) is False
-    assert module.legacy_reason(3, CURRENT_PAGE) is None
+    assert module.is_legacy(CURRENT_PAGE) is False
+    assert module.legacy_reason(CURRENT_PAGE) is None
 
 
 def test_a_schema_three_page_built_before_the_layout_generation_is_legacy() -> None:
@@ -146,11 +139,11 @@ def test_a_schema_three_page_built_before_the_layout_generation_is_legacy() -> N
         '<meta name="generator" content="klein build_tutorial layout-2">\n', ""
     )
     assert module.layout_generation(untagged) is None
-    assert module.is_legacy(3, untagged) is True
-    assert "no generator tag" in module.legacy_reason(3, untagged)
+    assert module.is_legacy(untagged) is True
+    assert "no generator tag" in module.legacy_reason(untagged)
     older = CURRENT_PAGE.replace("layout-2", "layout-1")
     assert module.layout_generation(older) == 1
-    assert module.legacy_reason(3, older) == "built at layout generation 1, check asserts 2"
+    assert module.legacy_reason(older) == "built at layout generation 1, check asserts 2"
     assert module.layout_generation(CURRENT_PAGE) == 2
 
 
@@ -319,6 +312,19 @@ def test_evaluate_print_asserts_the_ledger_header_and_longest_code_line() -> Non
     )
     assert not ok
     assert "missing the ledger's last column header 'Description'" in message
+
+
+def test_evaluate_print_accepts_a_code_line_wrapped_where_the_source_had_no_space() -> None:
+    """The print stylesheet wraps a long line at a bracket; that is printed, not clipped."""
+    module = _load_module()
+    report = '<pre class="klein-code">eta = np.asarray(json.loads(P.read_text())["true_log_odds"])</pre>'
+    pdf = b"<< /Type /Page >> << /Type /Page >>"
+    text = 'Description\neta = np.asarray(json.loads(P.read_text())\n["true_log_odds"])\n'
+    ok, message, _ = module.evaluate_print(pdf, text, report)
+    assert ok, message
+    clipped = 'Description\neta = np.asarray(json.loads(P.read_text())\n'
+    ok, message, _ = module.evaluate_print(pdf, clipped, report)
+    assert not ok and "missing the longest code line" in message
 
 
 def test_evaluate_print_reports_but_never_fails_near_empty_pages() -> None:

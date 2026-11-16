@@ -68,7 +68,7 @@ class TestMetricDetection:
         assert summarize_module.infer_goal("val_logloss", None) == "lower"
         assert summarize_module.infer_goal("log_loss", None) == "lower"
 
-    def test_primary_direction_is_required_without_v1_override(
+    def test_primary_direction_is_required(
         self, summarize_module, tmp_path
     ):
         path = write_tsv(tmp_path, CANONICAL)

@@ -14,10 +14,9 @@ experiment loop, so regenerating figures is normally unnecessary — reach for
 this script only for a synthesis/tutorial pass, or if a PNG was deleted or
 edited by hand outside the loop.
 
-Schema-v2 studies (`runs/*/manifest.json` present) additionally get one
-decision trajectory per study.yaml track
-(`figures/plot_decision_trajectory__<track>.png`); v1 studies keep the plain
-metric trajectory only.
+Studies with run manifests (`runs/*/manifest.json`) get one decision
+trajectory per study.yaml track (`figures/plot_decision_trajectory__<track>.png`);
+a study with a results.tsv but no manifests yet gets the plain metric trajectory.
 
 Predictions contract (optional, beyond the always-available trajectory):
 `<study_dir>/models/latest_val_preds.npz` with keys `y_true` + `proba`
@@ -50,8 +49,8 @@ def main() -> None:
         print(f"skipping decision trajectories: {exc}")
 
     if not manifests:
-        # v1 studies only: integer experiment ids, plain metric trajectory. A v2
-        # study's E#### ids belong to the decision trajectory below instead.
+        # No manifests yet: integer experiment ids, plain metric trajectory. A
+        # study with E#### manifests gets the decision trajectory below instead.
         results_path = args.study_dir / "results.tsv"
         if results_path.exists():
             with results_path.open(newline="") as f:

@@ -121,7 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # The fixture job in ci.yml is the gate on every push; this one measures the
-    # twelve reports we already shipped, which no push can change. A regression
+    # eight reports we already shipped, which no push can change. A regression
     # here is a real regression, so it blocks the scheduled run.
     continue-on-error: false
     steps:

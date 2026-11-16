@@ -67,7 +67,7 @@ def find_chrome(explicit: str | None = None) -> str:
 
 
 def build_fresh_tutorial(root: Path) -> Path:
-    """Generate the minimal complete v2 tutorial fixture under *root*."""
+    """Generate the minimal complete schema-3 tutorial fixture under *root*."""
     study = scaffold_study(
         root,
         "99-csp-browser-fixture",
@@ -82,6 +82,10 @@ def build_fresh_tutorial(root: Path) -> Path:
         data_source="csv:fixture.csv",
         data_path="data/prepared.csv",
         max_run_seconds=30,
+        kind="predict",
+        modality="tabular",
+        profile="generic",
+        audience="the maintainers of this check",
     )
     for filename in ("study.yaml", "program.md", "research_plan.md"):
         path = study / filename
@@ -99,7 +103,7 @@ def build_fresh_tutorial(root: Path) -> Path:
     (study / "data" / "prepared.csv").write_text("x,y\n0,0\n1,1\n", encoding="utf-8")
     contract_problems = validate_contract(load_contract(study), study)
     if contract_problems:
-        raise RuntimeError("generated v2 fixture is invalid: " + "; ".join(contract_problems))
+        raise RuntimeError("generated schema-3 fixture is invalid: " + "; ".join(contract_problems))
     sections = study / "report" / "sections"
     sections.mkdir()
     for index, name in enumerate(SECTION_NAMES, start=1):

@@ -83,7 +83,11 @@ three new verbs for exploring and understanding a study. The rationale is
 - `AGENTS.md`: exploration is a sanctioned off-loop path; the verb list and the war
   stories point at their single sources.
 - CI: the package job proves the installed wheel is self-sufficient (explain, skill
-  install, the envelope, an MCP round trip) and byte-identical to the repository's skill.
+  install, the envelope, an MCP round trip) and byte-identical to the repository's skill;
+  the `--help` smoke walks the parser instead of a hand-kept list.
+- `scripts/verify_e2e.py` has one lane: the version-1 lane is gone, and the remaining
+  proof now also exercises `klein summarize` and `klein map`. The two report scripts read
+  schema 3 only.
 
 ### Fixed
 
@@ -94,6 +98,12 @@ three new verbs for exploring and understanding a study. The rationale is
 - The README's noise-floor example used an estimand that yields no keep bar.
 - The release workflow's package-data check looked for a directory that did not exist and
   passed silently; a missing directory now fails the release.
+- `scripts/check_generated_tutorial_network.py` scaffolded an untyped fixture and failed
+  on every run (a test had been masking it); `scripts/check_shipped_reports.py` rejected a
+  long code line that the print stylesheet had correctly wrapped.
+- CI's exhibit job decided whether to run `prepare.py` from an exit code, so an
+  unparseable `klein doctor` read as "skip"; the answer is now printed and a parse error
+  fails the step.
 
 ### Known limitations
 
