@@ -77,6 +77,11 @@ def run_logged(
     # A stale VIRTUAL_ENV from a driving session makes uv warn into every
     # archived run.log; uv resolves the project env itself, so drop it.
     env.pop("VIRTUAL_ENV", None)
+    # Only `klein probe` sets the probe variables, through `env_overrides` below.
+    # An exported KLEIN_PROBE=1 must never reach a run, a rehearsal, a replication
+    # or a verifier: it would hand them an empty sealed partition.
+    for key in ("KLEIN_PROBE", "KLEIN_PROBE_ID", "KLEIN_PROBE_DIR"):
+        env.pop(key, None)
     env["PYTHONUNBUFFERED"] = "1"
     # The pump below decodes UTF-8; on Windows a child's piped stdout would
     # otherwise use the ANSI code page and crash on the first non-ASCII

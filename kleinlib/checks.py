@@ -1144,24 +1144,58 @@ def _state_or_empty(study_dir: Path, contract: Mapping[str, Any]) -> Mapping[str
 # --------------------------------------------------------------------------
 
 
+def _third_party_plugins() -> dict[str, list[str]]:
+    """``{"plugins": [...]}`` when third-party plug-ins were loaded in this process.
+
+    A plug-in cannot change a check, but it is code that ran here: a receipt
+    issued with one loaded says so.  Empty (no key at all) for a stock install,
+    so a receipt written without plug-ins is unchanged.
+    """
+    from .plugins import BUILTIN, loaded_plugins
+
+    builtin = {target.partition(":")[0] for target in BUILTIN}
+    extra = sorted(name for name in loaded_plugins() if name not in builtin)
+    return {"plugins": extra} if extra else {}
+
+
 def _probe_ledger_checks(study_dir: Path, state: Mapping[str, Any]) -> list[Check]:
     """The exploration ledger is append-only; silent for a study that never probed."""
-    from .probe import PROBES_FILE, probe_chain_problems, read_probes
+    from .events import read_events
+    from .probe import (
+        EVENT_TYPE,
+        PROBES_DIR,
+        PROBES_FILE,
+        probe_chain_problems,
+        probes_before_consult,
+        read_probes,
+    )
 
-    if not (study_dir / PROBES_FILE).is_file():
-        return []
     consult = (state.get("gates") or {}).get("consult")
     recorded = consult.get("probes") if isinstance(consult, Mapping) else None
+    try:
+        in_events = any(event.get("type") == EVENT_TYPE for event in read_events(study_dir))
+    except WorkflowError:
+        in_events = False
+    # Silent only for a study that never probed. A ledger that was deleted still
+    # has witnesses: the event chain, the consult gate's anchor, leftover logs.
+    if not (
+        (study_dir / PROBES_FILE).is_file()
+        or in_events
+        or (isinstance(recorded, Mapping) and recorded.get("count"))
+        or (study_dir / PROBES_DIR).is_dir()
+    ):
+        return []
     problems = probe_chain_problems(study_dir, recorded=recorded if isinstance(recorded, Mapping) else None)
     if problems:
         return [Check("probe ledger", False, "; ".join(problems))]
     count = len(read_probes(study_dir))
-    before = int(recorded["count"]) if isinstance(recorded, Mapping) and recorded.get("count") else 0
+    placed = probes_before_consult(study_dir)
+    when = "no consult gate yet" if placed is None else f"{placed} preceded the consult gate"
     return [
         Check(
             "probe ledger",
             True,
-            f"{count} probe(s), hash chain intact; {before} preceded the consult gate — "
+            f"{count} probe(s), ledger and event chain agree; {when} — "
             "exploration is on the record and none of it is evidence for a claim",
         )
     ]
@@ -1754,6 +1788,7 @@ def verify_receipt(
     return {
         "klein_version": __version__,
         "klein_commit": _engine_commit(),
+        **_third_party_plugins(),
         "git_head": _study_head(study_dir),
         "timestamp": utc_now(),
         "schema": version,

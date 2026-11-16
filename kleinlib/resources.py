@@ -242,23 +242,35 @@ def explain_topic(topic: str, study_dir: Path | None = None) -> dict[str, Any]:
 # --------------------------------------------------------------------------
 
 
-def _copy_tree(source: Path, target: Path, *, force: bool) -> list[str]:
-    written: list[str] = []
+def _plan_copy(source: Path, target: Path, *, force: bool) -> list[tuple[Path, Path]]:
+    """Every ``(from, to)`` of a tree copy — refused as a whole before anything is written."""
+    plan: list[tuple[Path, Path]] = []
     for path in sorted(source.rglob("*")):
         if path.is_dir() or "__pycache__" in path.parts or path.name == ".gitkeep":
             continue
         if "tests" in path.relative_to(source).parts:
             continue
-        destination = target / path.relative_to(source)
-        if destination.exists() and not force and destination.read_bytes() != path.read_bytes():
-            raise WorkflowError(
-                f"{destination} exists and differs — pass --force to overwrite it "
-                "(a study pins the protocols it ran under; overwrite deliberately)"
-            )
+        plan.append((path, target / path.relative_to(source)))
+    differing = [
+        destination
+        for path, destination in plan
+        if destination.exists() and destination.read_bytes() != path.read_bytes()
+    ]
+    if differing and not force:
+        shown = ", ".join(str(path) for path in differing[:3])
+        more = f" and {len(differing) - 3} more" if len(differing) > 3 else ""
+        raise WorkflowError(
+            f"{shown}{more} exist(s) and differ(s) — nothing was written. Pass --force to "
+            "overwrite (a study pins the protocols it ran under; overwrite deliberately)"
+        )
+    return plan
+
+
+def _write_copy(plan: list[tuple[Path, Path]]) -> list[str]:
+    for path, destination in plan:
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(path, destination)
-        written.append(destination.as_posix())
-    return written
+    return [destination.as_posix() for _path, destination in plan]
 
 
 def install_skill(target: Path, *, agents: bool = True, force: bool = False) -> dict[str, Any]:
@@ -276,11 +288,13 @@ def install_skill(target: Path, *, agents: bool = True, force: bool = False) -> 
     destination = target / SKILL_REL
     if source.resolve() == destination.resolve():
         raise WorkflowError(f"the skill is already at {destination}")
-    written = _copy_tree(source, destination, force=force)
-    agent_files: list[str] = []
+    skill_plan = _plan_copy(source, destination, force=force)
+    agent_plan: list[tuple[Path, Path]] = []
     agent_source = agents_root()
     if agents and agent_source is not None and agent_source.resolve() != (target / AGENTS_REL).resolve():
-        agent_files = _copy_tree(agent_source, target / AGENTS_REL, force=force)
+        agent_plan = _plan_copy(agent_source, target / AGENTS_REL, force=force)
+    written = _write_copy(skill_plan)
+    agent_files = _write_copy(agent_plan)
     return {
         "target": str(target),
         "skill": str(destination),

@@ -16,11 +16,12 @@ so a host has three equivalent seams and one shape to parse::
       ]
     }
 
-Reading is free and safe (``next``, ``status``, ``preflight``, ``verify`` with
-``receipt=False``, ``claims_verify``, ``predictions``, ``study_map``,
+Reading is free and safe (``next_action``, ``status``, ``preflight``, ``verify``
+with ``receipt=False``, ``claims_verify``, ``predictions``, ``study_map``,
 ``explain``).  Writing goes through the same notary the command line uses
-(``run_one``, ``gate``, ``finalize``, ``probe``): nothing here bypasses a gate,
-and a refusal comes back as ``ok: false`` with the reason, never as a traceback.
+(``run_one``, ``sealed_dry_run``, ``gate``, ``finalize``, ``probe``): nothing here
+bypasses a gate, and a refusal comes back as ``ok: false`` with the reason, never
+as a traceback.
 """
 
 from __future__ import annotations
@@ -48,6 +49,7 @@ __all__ = [
     "probe",
     "refusal",
     "run_one",
+    "sealed_dry_run",
     "status",
     "study_map",
     "verify",
@@ -88,10 +90,33 @@ def refusal(verb: str, exc: BaseException, *, data: Mapping[str, Any] | None = N
 
 
 def _guard(verb: str, body: Callable[[], dict[str, Any]]) -> dict[str, Any]:
+    """Run one API call the way the command line runs a verb, minus the printing.
+
+    Anything the engine prints while it works (a notice that an unrelated edit was
+    left uncommitted, a warning) comes back as a ``warn`` problem instead of
+    reaching the host's standard output.  The probe variables are cleared for the
+    duration: set in THIS process they would empty the sealed partition a gate
+    fingerprints (they belong to a probe's child only).
+    """
+    import contextlib
+    import io
+    import os
+
+    from .probe import PROBE_ENV_KEYS
+
+    saved = {key: os.environ.pop(key) for key in PROBE_ENV_KEYS if key in os.environ}
+    printed = io.StringIO()
     try:
-        return body()
+        with contextlib.redirect_stdout(printed):
+            reply = body()
     except REFUSALS as exc:
-        return refusal(verb, exc)
+        reply = refusal(verb, exc)
+    finally:
+        os.environ.update(saved)
+    for line in printed.getvalue().splitlines():
+        if line.strip():
+            reply["problems"].append({"level": "warn", "code": "notice", "message": line.strip()})
+    return reply
 
 
 # --------------------------------------------------------------------------
@@ -300,6 +325,27 @@ def run_one(
         )
 
     return _guard("run-one", body)
+
+
+def sealed_dry_run(
+    study: str | Path,
+    *,
+    track: str | None = None,
+    timeout_seconds: float | None = None,
+) -> dict[str, Any]:
+    """``klein run-one --final-test --dry-run``: rehearse the sealed run; spends nothing.
+
+    Mandatory before ``run_one(final_test=True)``: the rehearsal runs the real
+    entrypoint on development data and proves it would have reached the sealed
+    read.  ``ok`` is true only when it did.
+    """
+    from .workflow import sealed_dry_run as _sealed_dry_run
+
+    def body() -> dict[str, Any]:
+        code = _sealed_dry_run(Path(study), track=track, timeout_seconds=timeout_seconds, echo=False)
+        return envelope("run-one --final-test --dry-run", {"exit_code": code}, ok=code == 0)
+
+    return _guard("run-one --final-test --dry-run", body)
 
 
 def gate(

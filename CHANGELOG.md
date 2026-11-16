@@ -44,10 +44,11 @@ three new verbs for exploring and understanding a study. The rationale is
   of the lifecycle live, with real gates and real runs, in about 15 seconds, offline, from
   a checkout or from an installed wheel.
 - **`klein probe`** — exploration on the record: one bounded command, appended to a
-  hash-chained `probes.jsonl`, fenced from the sealed partition (`KLEIN_PROBE=1`), never
-  evidence for a claim. The consult gate records how many probes preceded it; `klein
-  verify` checks the chain when a ledger exists. Protocol:
-  `references/exploration-protocol.md`.
+  hash-chained `probes.jsonl` and witnessed by a `probe_recorded` event in the study's
+  event chain, fenced from the sealed partition (`KLEIN_PROBE=1`), never evidence for a
+  claim (nothing under `probes/` can be pinned). The first consult record anchors how
+  many probes preceded it; `klein verify` fails a ledger that was edited, truncated or
+  deleted. Protocol: `references/exploration-protocol.md`.
 - **`klein map`** — the study as a graph: questions, predictions, runs, claims and
   decisions, the links between them, what is still `open`, and the `leads` a follow-up
   would start from. Text, `--json`, or `--html` (one self-contained page). Also an MCP
@@ -57,12 +58,14 @@ three new verbs for exploring and understanding a study. The rationale is
   repository. **`klein summarize`** and **`klein report build`** run the two report
   scripts from wherever Klein is installed.
 - **`--json` on every verb** and **`kleinlib.api`**, a stable Python surface returning the
-  same envelope and never printing. `klein next` adds `stage_id` (a closed vocabulary),
+  same envelope and never printing (engine notices come back as `warn` problems); it
+  includes `sealed_dry_run`, the mandatory rehearsal. `klein next` adds `stage_id` (a closed vocabulary),
   `argv` (the command as a runnable list, when complete) and `explain`.
 - **A plug-in seam** (`kleinlib/plugins.py`, entry-point group `klein.plugins`): a plug-in
   may add verbs, audience profiles, evidence modalities and read-only MCP tools — never
   anything that changes how a run is judged. The generation layer is loaded through it.
-  `klein doctor` reports what loaded and what failed.
+  A plug-in that fails, or reaches for a core verb, is undone; `klein doctor` reports
+  what loaded and what failed; a receipt names third-party plug-ins that were loaded.
 - **A Claude Code plug-in** (`.claude-plugin/`): the skill, eight agents, a `bin/klein`
   launcher and the read-only MCP server, installable into any project.
 - **One registry for the inquiry model** (`kleinlib/inquiry.py`): kinds, modalities and
@@ -96,8 +99,12 @@ three new verbs for exploring and understanding a study. The rationale is
 
 - Every study still runs the whole lifecycle; a declared quick-look tier is the next
   release's main item (design doc §7).
-- A probe's fence covers Klein's own loaders. A script that opens raw files itself is
-  recorded, not stopped.
+- A probe's fence covers Klein's row-partition loaders. A script that opens raw files
+  itself, or a simulator that picks its own sealed seeds, is recorded, not stopped.
+- A plug-in is installed code in the same process: Klein prevents shadowing and undoes a
+  failed plug-in, but cannot sandbox one.
+- `klein run-one --final-test` does not yet require a recorded rehearsal mechanically;
+  the rehearsal is mandatory by protocol.
 - `bin/klein` (the plug-in launcher) is a POSIX shell script and needs `uv`.
 - Recipes do not yet scaffold the Phase 0 noise-floor script; `klein demo` leaves a
   working example.

@@ -80,9 +80,13 @@ import list. It is now loaded through `kleinlib/plugins.py` exactly as a third-p
 plug-in would be, its commands split one module per capability. A plug-in that fails to
 load is reported by `klein doctor` and cannot break a core verb.
 
-**A plug-in can add, never judge.** The plug-in surface is verbs, profiles, modalities and
-read-only MCP tools. Dispositions, the claims law and the receipts are not on it. A study
-that uses no plug-in cannot be affected by one.
+**A plug-in can add, never judge — as far as a surface can promise.** The plug-in surface
+is verbs, profiles, modalities and read-only MCP tools. Dispositions, the claims law and
+the receipts are not on it; a built-in name cannot be shadowed; a plug-in that fails, or
+reaches for a core verb, is undone and reported. But a plug-in is installed Python code in
+the same process, and no surface can stop code from misbehaving. So the honest version of
+the promise has a second half: a receipt issued with third-party plug-ins loaded names
+them, and `KLEIN_NO_PLUGINS=1` verifies a study without any.
 
 **A probe is not a light run.** The tempting design was a "quick run" with fewer gates.
 That would have created a second, weaker kind of evidence. A probe is deliberately not
@@ -92,8 +96,18 @@ exploratory and the confirmatory stay separate by construction.
 
 **The fence is honest about what it fences.** Under `KLEIN_PROBE=1` the split loader
 returns the sealed partition empty and refuses a sealed read. A script that opens the raw
-file itself is not stopped — and the protocol says so, because the script's hash is on the
-record and a referee reads it. A guarantee Klein cannot enforce is not claimed.
+file itself, or a simulator that picks its own sealed seeds, is not stopped — and the
+protocol says so, because the script's hash is on the record and a referee reads it. A
+guarantee Klein cannot enforce is not claimed. The variable itself is fenced the other
+way too: only a probe's child ever sees it, so an exported `KLEIN_PROBE=1` cannot empty
+the sealed partition a gate fingerprints.
+
+**A probe ledger has two witnesses.** A hash chain alone detects edits, not truncation
+or deletion. Each probe therefore also leaves an event in the study's own event chain,
+and verification compares the two; the first consult record is the anchor for "what was
+looked at before the question was fixed", and re-recording the gate cannot move it. Both
+weaknesses were found by the independent review this release was put through before it
+shipped — the same rule the framework applies to studies.
 
 **The map is derived, never a record.** `klein map` joins what the contract, the ledger,
 the manifests, the lock and the notebook already say. It writes nothing of its own, so it

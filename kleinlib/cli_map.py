@@ -23,7 +23,7 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         const="",
         default=None,
         metavar="PATH",
-        help="write the map as one self-contained HTML page (default path: <study>/report/map.html)",
+        help="write the map as one self-contained HTML page (default path: ./<study>-map.html)",
     )
     parser.set_defaults(handler=_run)
 

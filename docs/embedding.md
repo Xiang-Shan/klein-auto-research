@@ -56,7 +56,9 @@ if not reply["ok"]:
 
 Functions never print and never raise for a refusal. Reading: `next_action`, `status`,
 `preflight`, `verify`, `claims_verify`, `predictions`, `study_map`, `explain`. Writing,
-through the notary: `run_one`, `gate`, `finalize`, `probe`.
+through the notary: `run_one`, `sealed_dry_run` (the mandatory rehearsal before
+`run_one(final_test=True)`), `gate`, `finalize`, `probe`. Anything the engine would have
+printed (a notice, a warning) comes back in `problems` with `level: "warn"`.
 
 ### 2. Command line — `klein <verb> --json`
 
@@ -153,9 +155,14 @@ bi = "my_bi_pack:register"
 
 A plug-in can add an audience profile (wording, banned words, section headings), an
 evidence modality (the headings its data card must carry), verbs, and read-only MCP
-tools. It cannot change how a run is judged: question kinds, outcomes, the claims rules
-and the receipts are not on the plug-in surface. A plug-in that fails to load is
-reported by `klein doctor` and never breaks a core verb; `KLEIN_NO_PLUGINS=1` loads the
+tools. Question kinds, outcomes, the claims rules and the receipts are not on the
+plug-in surface. What Klein enforces: a plug-in cannot shadow a built-in profile,
+modality, verb or MCP tool; one that fails to load, or that tries to replace a core
+verb, is undone and reported by `klein doctor` without breaking any core verb; and a
+verify receipt issued with third-party plug-ins loaded names them. What Klein cannot
+enforce: a plug-in is Python code you chose to install, running in the same process.
+Install plug-ins you trust, and note that a study typed with a plug-in's profile or
+modality validates only where that plug-in is installed. `KLEIN_NO_PLUGINS=1` loads the
 built-ins only. Klein's own optional generation layer is loaded through this same seam.
 
 ## What is not built yet

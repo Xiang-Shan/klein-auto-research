@@ -349,10 +349,45 @@ def build_parser() -> argparse.ArgumentParser:
     register_sweep(sub)
     # Everything outside the kernel arrives through the plug-in seam — the opt-in
     # generation layer included (kleinlib/plugins.py).
-    for register in cli_registrars():
-        register(sub)
+    _register_plugin_verbs(sub)
     _mark_leaves(parser, ())
     return parser
+
+
+def _register_plugin_verbs(sub: argparse._SubParsersAction) -> None:
+    """Add each plug-in's verbs; one that fails, or reaches for a core verb, is undone.
+
+    The promise is "a plug-in can add, never judge, and never breaks a core verb".
+    What is enforced here: a registrar that raises is recorded (``klein doctor``
+    reports it) and every verb it added is removed; a registrar may not replace
+    or re-handle a verb that existed before it ran.
+    """
+    from . import plugins
+
+    for index, register in enumerate(cli_registrars()):
+        before = dict(sub.choices)
+        handlers = {name: parser.get_default("handler") for name, parser in before.items()}
+        listed = list(sub._choices_actions)
+        try:
+            register(sub)
+            touched = sorted(
+                name
+                for name, parser in before.items()
+                if sub.choices.get(name) is not parser
+                or parser.get_default("handler") is not handlers[name]
+            )
+            if touched:
+                raise ValueError(f"a plug-in may not replace an existing verb: {', '.join(touched)}")
+        except Exception as exc:  # noqa: BLE001 - a broken plug-in must not break the kernel
+            for name in list(sub.choices):
+                if name not in before:
+                    del sub.choices[name]
+            for name, parser in before.items():
+                sub.choices[name] = parser
+                parser.set_defaults(handler=handlers[name])
+            sub._choices_actions[:] = listed
+            label = getattr(register, "__module__", None) or f"plug-in verbs #{index + 1}"
+            plugins.record_error(f"{label} (verbs)", exc)
 
 
 def _mark_leaves(parser: argparse.ArgumentParser, path: tuple[str, ...]) -> None:
@@ -388,19 +423,41 @@ _PASSTHROUGH: tuple[tuple[tuple[str, ...], str], ...] = (
 
 def main(argv: list[str] | None = None) -> int:
     utf8_streams()
+    # The probe variables mean something only inside a probe's child process. In
+    # THIS process they would empty the sealed partition a gate fingerprints.
+    from .probe import clear_probe_environment
+
+    clear_probe_environment()
     raw = list(sys.argv[1:] if argv is None else argv)
     for verb, script in _PASSTHROUGH:
         if tuple(raw[: len(verb)]) == verb:
             from .cli_skill import _run_script
 
+            rest = raw[len(verb) :]
+            as_json = "--json" in rest
+            captured = io.StringIO()
             try:
-                return _run_script(script, raw[len(verb) :])
+                if as_json:
+                    with contextlib.redirect_stdout(captured):
+                        code = _run_script(script, [arg for arg in rest if arg != "--json"])
+                else:
+                    code = _run_script(script, rest)
             except WorkflowError as exc:
-                print(f"klein: error: {exc}", file=sys.stderr)
+                if as_json:
+                    print(json.dumps(api.refusal(" ".join(verb), exc), indent=2, sort_keys=True))
+                else:
+                    print(f"klein: error: {exc}", file=sys.stderr)
                 return 2
+            if as_json:
+                reply = api.envelope(" ".join(verb), {"text": captured.getvalue()}, ok=code == 0)
+                print(json.dumps(reply, indent=2, sort_keys=True))
+            return code
     args = build_parser().parse_args(argv)
     if not getattr(args, "json", False):
         return _dispatch(args)
+    if getattr(args, "_verb", "") == "mcp":
+        print("klein: error: `klein mcp` is a server on stdio; it has no --json mode", file=sys.stderr)
+        return 2
     # --json: the verb runs exactly as in text mode, with its prints captured;
     # what it emitted (api.emit), or the JSON it printed, becomes `data`.
     verb = getattr(args, "_verb", "") or str(getattr(args, "command_name", ""))
@@ -425,6 +482,12 @@ def main(argv: list[str] | None = None) -> int:
         {"level": "error", "code": "refused", "message": line.removeprefix("klein: error: ")}
         for line in errors.getvalue().splitlines()
         if line.startswith("klein: error: ")
+    ]
+    # Nothing a verb said is dropped: warnings and notices come back as problems.
+    problems += [
+        {"level": "warn", "code": "notice", "message": line.removeprefix("klein: warning: ")}
+        for line in (*errors.getvalue().splitlines(), *(text.splitlines() if data else ()))
+        if line.startswith(("klein: warning: ", "note: "))
     ]
     problems += [
         {

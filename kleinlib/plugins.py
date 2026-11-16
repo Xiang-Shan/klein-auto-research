@@ -39,6 +39,7 @@ __all__ = [
     "load_errors",
     "loaded_plugins",
     "mcp_tools",
+    "record_error",
     "register_plugin",
     "reset",
 ]
@@ -104,6 +105,11 @@ def register_plugin(name: str, register: Callable[[PluginAPI], None]) -> None:
         _STATE.errors[name] = f"{type(exc).__name__}: {exc}"
         return
     _STATE.names.append(name)
+
+
+def record_error(name: str, exc: BaseException) -> None:
+    """Note that part of a plug-in failed (``klein doctor`` reports it)."""
+    _STATE.errors[name] = f"{type(exc).__name__}: {exc}"
 
 
 def _resolve(target: str) -> Callable[[PluginAPI], None]:

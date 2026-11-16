@@ -99,14 +99,16 @@ def _run_script(name: str, argv: list[str]) -> int:
     path = script_path(name)
     if path is None:
         raise WorkflowError(f"{name} is not on this machine (a damaged installation?)")
-    argv = [arg for arg in argv if arg != "--json"]
     saved = sys.argv
     sys.argv = [str(path), *argv]
     try:
         runpy.run_path(str(path), run_name="__main__")
     except SystemExit as exc:
         code = exc.code
-        return code if isinstance(code, int) else (0 if code is None else 1)
+        if isinstance(code, int) or code is None:
+            return code or 0
+        print(code, file=sys.stderr)  # `sys.exit("message")`: the message is the error
+        return 1
     finally:
         sys.argv = saved
     return 0

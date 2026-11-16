@@ -166,6 +166,9 @@ def lock_path(study_dir: Path) -> Path:
 
 
 def load_lock(study_dir: Path) -> dict[str, Any]:
+    """The study's lock.  Every claims verb reads it through here, so this is
+    also where a study of a schema this engine does not judge is refused."""
+    _require_judged_study(study_dir)
     path = lock_path(study_dir)
     if not path.is_file():
         raise WorkflowError(f"{LOCK_NAME} not found under {study_dir}")
@@ -1166,10 +1169,20 @@ def _require_schema2(lock: Mapping[str, Any], verb: str) -> None:
     detect_lock_schema(lock)
 
 
+def _require_judged_study(study_dir: Path) -> None:
+    """Refuse a study of a schema this engine does not judge, as every other verb does.
+
+    A directory with no ``study.yaml`` at all (a lock checked on its own) passes.
+    """
+    if (study_dir / "study.yaml").is_file():
+        load_contract(study_dir)
+
+
 def init_lock(study_dir: Path, *, commit: bool = True) -> dict[str, Any]:
     """Write the skeleton lock: claims from findings' ``**[Cn]**`` lines, numbers empty."""
     from . import __version__
 
+    _require_judged_study(study_dir)
     path = lock_path(study_dir)
     if path.is_file():
         raise WorkflowError(
@@ -1225,6 +1238,14 @@ def pin_artifact(study_dir: Path, alias: str, rel_path: str, *, commit: bool = T
         posix = target.resolve().relative_to(study_dir.resolve()).as_posix()
     except ValueError as exc:
         raise WorkflowError(f"claims pin: {rel_path} escapes the study directory") from exc
+    from .probe import is_probe_path
+
+    if is_probe_path(posix):
+        raise WorkflowError(
+            f"claims pin: {posix} is a probe's output — a probe is a lead, never evidence "
+            "(references/exploration-protocol.md). Register what it suggested as a prediction "
+            "and pin the table of the run that tested it"
+        )
     artifacts = lock.setdefault("artifacts", {})
     entry = {"path": posix, "sha256": sha256_file(target)}
     artifacts[alias] = entry

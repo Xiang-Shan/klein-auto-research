@@ -178,9 +178,9 @@ def load_contract(study_dir: str | Path, *, allow_legacy: bool = False) -> dict[
 
     A study of a schema this engine does not judge is refused here, once, with
     the tag where it still verifies (:func:`unsupported_schema_message`).
-    ``allow_legacy=True`` returns it anyway — for the read-only verbs that only
-    need to SAY a study is legacy (``klein next``, ``klein status``, the MCP
-    listing), never to judge it.
+    ``allow_legacy=True`` returns it anyway — for ``klein next`` (and the MCP
+    listing built on it), which only needs to SAY a study is legacy and where it
+    verifies, never to judge it.
 
     Takes a string or a Path, like every neighbouring loader
     (:func:`resolve_study`, :func:`kleinlib.data.contract_split`,

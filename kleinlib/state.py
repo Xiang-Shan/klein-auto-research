@@ -583,9 +583,14 @@ def record_gate(
             # probes that existed when the contract was acknowledged.
             from .probe import probe_head
 
-            head = probe_head(study_dir)
-            if head["count"]:
-                gate_state["probes"] = head
+            # The FIRST consult record is the anchor. Re-recording the gate later
+            # (after a measured floor, say) must not relabel a look taken after
+            # the question was fixed as one taken before it.
+            earlier = state.get("gates", {}).get("consult")
+            anchor = earlier.get("probes") if isinstance(earlier, Mapping) else None
+            head = anchor if isinstance(anchor, Mapping) else probe_head(study_dir)
+            if head.get("count"):
+                gate_state["probes"] = dict(head)
                 probe_facts = {"probes_before_consult": head["count"], "probe_head": head["head"]}
         state["gates"][gate] = gate_state
         state.setdefault("acknowledgements", {})[gate] = {

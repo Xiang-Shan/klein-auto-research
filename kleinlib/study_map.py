@@ -490,9 +490,14 @@ def render_html(data: Mapping[str, Any]) -> str:
 
 
 def write_html(study_dir: str | Path, out: str | Path | None = None) -> Path:
-    """Write the HTML map (default ``<study>/report/map.html``) and return its path."""
+    """Write the HTML map and return its path.
+
+    The default is ``./<study>-map.html`` in the working directory — outside the
+    study, like ``klein notebook``: a derived reading copy must not leave an
+    untracked file that the next ``run-one`` would refuse as a dirty tree.
+    """
     study = Path(study_dir)
-    target = Path(out) if out is not None else study / "report" / "map.html"
+    target = Path(out) if out is not None else Path.cwd() / f"{study.resolve().name}-map.html"
     if target.exists() and target.is_dir():
         raise WorkflowError(f"{target} is a directory")
     target.parent.mkdir(parents=True, exist_ok=True)

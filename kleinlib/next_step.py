@@ -215,7 +215,14 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             str(exc),
         )
         return result
-    version = schema_version(contract)
+    try:
+        version = schema_version(contract)
+    except WorkflowError as exc:
+        result["schema"] = None
+        result["next"] = _action(
+            "scaffold", "fix study.yaml: schema_version must be 3", None, f"{_REF}/defaults-and-scaffolding.md", str(exc)
+        )
+        return result
     result["schema"] = version
     unsupported = unsupported_schema_message(version)
     if unsupported is not None:

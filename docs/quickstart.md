@@ -50,7 +50,7 @@ running, so the transcript is also a script you could type yourself.
 Then explore what it left:
 
 ```bash
-klein map    --study klein-demo/studies/01-demo --html      # writes report/map.html — open it
+klein map    --study klein-demo/studies/01-demo --html      # writes ./01-demo-map.html — open it
 klein verify --study klein-demo/studies/01-demo --no-receipt
 git -C klein-demo log --oneline                             # every gate and run is a commit
 cat klein-demo/studies/01-demo/study.yaml                   # the contract

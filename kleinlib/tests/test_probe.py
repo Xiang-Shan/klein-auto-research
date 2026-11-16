@@ -25,7 +25,7 @@ from kleinlib.checks import verify_study
 from kleinlib.claims import add_claim, verify_lock
 from kleinlib.data import contract_split, load_partition
 from kleinlib.errors import WorkflowError
-from kleinlib.primitives import sha256_file
+from kleinlib.primitives import canonical_json, sha256_bytes, sha256_file
 from kleinlib.probe import (
     PROBES_DIR,
     PROBES_FILE,
@@ -104,7 +104,12 @@ def test_a_probe_is_recorded_hashed_and_committed_alone(ready_study) -> None:
     assert "hi" in log.read_text(encoding="utf-8")
     assert record["log"] == {"path": "probes/X0001.log", "sha256": sha256_file(log)}
     assert _porcelain(repo) == ""
-    assert _head_files(repo) == {"studies/03-demo/probes.jsonl", "studies/03-demo/probes/X0001.log"}
+    # the probe's own event rides with it; study_state.json and nothing else does
+    assert _head_files(repo) == {
+        "studies/03-demo/events.jsonl",
+        "studies/03-demo/probes.jsonl",
+        "studies/03-demo/probes/X0001.log",
+    }
     assert git(repo, "log", "-1", "--format=%s") == "klein: probe X0001"
     assert record["git_head"] and probe_chain_problems(study) == []
 
@@ -276,13 +281,18 @@ def test_replacing_a_probe_the_consult_gate_recorded_is_reported(ready_study) ->
     state = record_gate(study, "consult", acknowledged_by="tester")
     recorded = state["gates"]["consult"]["probes"]
     assert probe_chain_problems(study, recorded=recorded) == []
-    (study / PROBES_FILE).unlink()
-    for log in (study / PROBES_DIR).glob("*.log"):
-        log.unlink()
-    run_probe(study, [PY, "-c", "print('a different first look')"], echo=False, commit=False)
-    assert probe_chain_problems(study) == []  # the chain alone is internally consistent ...
-    problems = probe_chain_problems(study, recorded=recorded)  # ... but it is not the one recorded
+    # Replace the recorded look with a different, internally consistent one.
+    original = json.loads((study / PROBES_FILE).read_text(encoding="utf-8"))
+    forged = {k: v for k, v in original.items() if k != "hash"}
+    forged["note"] = "a different first look"
+    forged["hash"] = sha256_bytes(canonical_json(forged).encode())
+    (study / PROBES_FILE).write_text(canonical_json(forged) + "\n", encoding="utf-8")
+    problems = probe_chain_problems(study, recorded=recorded)
     assert any("not the ones the consult gate recorded" in p for p in problems)
+    assert any("differs from the probe events.jsonl recorded" in p for p in problems)
+    # ... and a new probe refuses to build on a damaged ledger
+    with pytest.raises(WorkflowError, match="ledger is damaged"):
+        run_probe(study, PRINT_HI, echo=False)
     failed = [c for c in verify_study(study, receipt=False) if c.name == "probe ledger"]
     assert len(failed) == 1 and not failed[0].ok
     assert "not the ones the consult gate recorded" in failed[0].message
@@ -294,7 +304,9 @@ def test_verify_has_a_probe_ledger_check_only_for_a_study_that_probed(ready_stud
     run_probe(study, PRINT_HI, echo=False)
     checks = [c for c in verify_study(study, receipt=False) if c.name == "probe ledger"]
     assert len(checks) == 1 and checks[0].ok
-    assert "1 probe(s), hash chain intact" in checks[0].message and "none of it is evidence" in checks[0].message
+    assert "1 probe(s), ledger and event chain agree" in checks[0].message
+    assert "0 preceded the consult gate" in checks[0].message  # the gates were recorded first
+    assert "none of it is evidence" in checks[0].message
     with (study / "probes" / "X0001.log").open("a", encoding="utf-8") as handle:
         handle.write("x")
     checks = [c for c in verify_study(study, receipt=False) if c.name == "probe ledger"]
