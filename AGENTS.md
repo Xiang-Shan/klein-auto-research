@@ -93,6 +93,13 @@ file on disk), claim totals and the referee's verdict copied from the records, h
 numbers read from `claims.lock`; no CDN, no fonts, no runtime rendering; must open from
 `file://`.
 
+**Proportional rigor.** A study may declare `policy: {rigor: quick}` (default `full`).
+A *quick look* is a real study that needs only the CONSULT and DATA gates, has no sealed
+run, can claim `exploratory` at most, and closes without a referee. `klein promote`
+lifts it to full rigor later. The consultant proposes the tier from the brief and the
+user confirms it — it is never a seventh question
+(`.claude/skills/klein/references/consult-protocol.md`).
+
 ## The stage map
 
 The protocols are the source of truth. They live under `.claude/skills/klein/` —
@@ -102,12 +109,12 @@ this same table routed as the `/klein` skill.)
 
 | Stage | Protocol (source of truth) | Key outputs | Helper |
 |---|---|---|---|
-| scaffold | `references/defaults-and-scaffolding.md` | study dir + templates, typed by kind / modality / profile | `klein new` (`klein demo` runs a tiny study live) |
+| scaffold | `references/defaults-and-scaffolding.md` | study dir + templates, typed by kind / modality / profile | `klein new` (`--rigor quick` for a quick look; `klein demo` runs a tiny study live) |
 | EXPLORE (any time, incl. before Gate 0) | `references/exploration-protocol.md` | `probes.jsonl` — looks on the record, never claim evidence | `klein probe -- <command>` |
 | CONSULT | `references/consult-protocol.md` + `references/inquiry-model.md` | study.yaml (predictions with rules), research_plan.md, program.md, scouting_ledger.md | `klein doctor --study` |
 | DATA | `references/data-gate-protocol.md` + `references/data-sources.md` | data_card.md (modality-typed go/no-go) | `python -m kleinlib.profile_fallback`, `python -m kleinlib.leakage` |
 | METHOD | `references/method-gate-protocol.md` | method_card.md, references.yaml, the verifier script | `klein refs verify` (network: resolves every DOI / arXiv id, title match) |
-| EXPERIMENT | loop contract below + `SKILL.md` Hard Rules; `references/registered-mode.md` | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one [--tests P#]`; `klein run-one --final-test --dry-run` before every sealed run |
+| EXPERIMENT | loop contract below + `SKILL.md` Hard Rules; `references/registered-mode.md` | immutable run manifests + derived results, models/, figures/ | `klein preflight`, then `klein run-one [--tests P#]`; `klein run-one --final-test --dry-run` before every sealed run (a quick look has none); `klein promote` lifts a quick look to full rigor |
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction; measurement sweeps registered as `sweep:<name>` | `kleinlib.sweep.SweepRunner`, `klein sweep register` |
 | REPLICATE (any time after a run) | `references/replication-protocol.md` | `runs/E####/replications/<ts>.json` | `klein replicate E#### [--verify-only \| --replay]` |
 | MODEL CALLS (studies that query a model) | `references/model-calls-protocol.md` | `calls/E####-NNN.jsonl.gz`, `manifest.usage` | `kleinlib.calls.CallLedger`; `klein replicate --replay` |
@@ -230,6 +237,11 @@ The standing rules around those layers:
   estimand and `klein noise-floor --recipe --estimand` prints the contract block;
   preflight fails a delta declared inside its own floor (schema 3: below
   `max(2×std, range/2)`); an `exact` metric declares its resolution instead.
+- **A quick look claims `exploratory` at most.** Under `policy.rigor: quick` there is no
+  sealed run (`run-one --final-test` and its rehearsal are refused), `klein claims add`
+  refuses `confirmed`, and the claims law fails a lock that carries one; the cap does not
+  block `refuted`. To go further, `klein promote --study DIR --reason TEXT --promoted-by NAME`
+  — a recorded amendment: CONSULT is acknowledged again and METHOD becomes required.
 - Adaptive work uses train/development data only. Each track may access its sealed
   evidence once with `klein run-one --final-test`; confirmation evidence is excluded
   from the adaptive frontier. `klein replicate E####` re-executes a development run
@@ -269,7 +281,8 @@ The standing rules around those layers:
   kinds are closed (a kind changes judging); modalities and profiles are open, and a
   plug-in may register more (`kleinlib/plugins.py`). Registries that docs may name:
   `KNOWN_PROFILES`, `KNOWN_MODALITIES`, `MODALITY_CARD_SECTIONS`, `VALID_STATUSES`,
-  `EVALUATOR_PRINTED_KEYS`.
+  `EVALUATOR_PRINTED_KEYS`. Rigor is a fourth declaration, `policy.rigor` (`full` |
+  `quick`, default `full`) — not a kind; the `policy` block refuses unknown keys and values.
 - Track metrics carry their own name, direction, minimum delta, guardrails, optional
   bound, exactness, external incumbent, and verifier. `keep` means a frontier
   improvement on that track satisfying those guardrails; `measured` is a registered

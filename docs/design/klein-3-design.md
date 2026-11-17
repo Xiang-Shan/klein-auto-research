@@ -209,12 +209,8 @@ one: [`../embedding.md`](../embedding.md).
 
 ## 7. Roadmap
 
-**Proportional rigor.** Every study runs the whole lifecycle today. Many real questions —
-most questions in a BI product — deserve less: a typed question, a data check, one
-registered analysis, a claim with a pinned number. The design is a declared tier in the
-contract that fixes which gates are required and *caps the strength a claim can reach*,
-so a quick look can never be quoted as a confirmed result, and can be promoted to a full
-study without restarting. This is the next release's main item.
+**Proportional rigor** is built in Klein 3.1: a declared tier that caps what a claim can
+reach, designed in [`klein-3.1-quick-look.md`](klein-3.1-quick-look.md).
 
 **A cross-study map.** `klein map` draws one study. The same join across studies — which
 claim in study A became a prior in study B, which lesson in `knowledge/` rests on which

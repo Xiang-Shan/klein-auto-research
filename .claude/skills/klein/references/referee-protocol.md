@@ -11,6 +11,12 @@ Role: referee. Any agent or human can execute this protocol directly; Claude Cod
 it pre-wired as the `klein-referee` worker, which must run on a different model than
 the experimenter.
 
+A study that declares `policy.rigor: quick` has no Gate 3: `klein finalize` closes it
+with the referee recorded as `not-required`. A referee asked to review one anyway reviews
+it as exploratory: no claim there can be `confirmed`, and a missing METHOD gate or sealed
+run is expected, not a finding. To rely on the result, the study is promoted
+(`klein promote`) and refereed in full.
+
 ## Rules of the seat
 
 - **Fresh context.** The referee has not seen the loop. It receives the study

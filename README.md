@@ -77,6 +77,11 @@ A **gate** is a checkpoint a person acknowledges. Nothing is run before the firs
 | 2 — Method | Is the method understood — intuition, maths, a minimal implementation? | a method card with verified references |
 | 3 — Referee | Do the findings follow from the record? | an independent verdict |
 
+Not every question needs all four. A study may declare `policy: {rigor: quick}` — a
+**quick look**: it needs only Gates 0 and 1, has no sealed run, can claim `exploratory`
+at most, and closes without a referee. `klein new --rigor quick` starts one, and
+`klein promote` lifts it to full rigor when someone wants to rely on the answer.
+
 Between Gate 2 and Gate 3 is the loop. One idea, one run, one honest outcome:
 
 - **You (or your agent) decide what to try.** Klein never proposes or retries anything.
@@ -128,7 +133,7 @@ LLM evaluation, causal analysis and verifier-checked maths (`klein new --help`).
 **Elsewhere.** `pip install klein-auto-research` gives you the same `klein` command with
 every procedure built in; `klein skill install` copies them into your repository.
 
-## Ten words to know
+## Eleven words to know
 
 | Word | Meaning |
 |---|---|
@@ -139,9 +144,10 @@ every procedure built in; `klein skill install` copies them into your repository
 | **run** | one execution of the study's code, recorded whether it worked or not |
 | **noise floor** | how much the metric moves when nothing real changed; sets the smallest gain that counts |
 | **sealed data** | the part of the data nobody looks at until the single confirming run |
-| **probe** | a quick look, on the record, that can never be used as evidence |
+| **probe** | a look at the data, on the record, that can never be used as evidence |
 | **claim** | one numbered sentence the study asserts, with its supporting runs and its strength |
 | **referee** | a reviewer who did not run the study |
+| **quick look** | a study that asks for less: two gates, no sealed run, claims capped at `exploratory`, no referee; `klein promote` lifts it |
 
 The full glossary: [`glossary.md`](https://github.com/Xiang-Shan/klein-auto-research/blob/main/.claude/skills/klein/references/glossary.md), or `klein explain <word>`.
 

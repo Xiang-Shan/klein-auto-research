@@ -44,7 +44,7 @@ The outcome of a run: `keep`, `discard`, `measured` or `crash`. A crash is recor
 crash, with no metric — never silently retried.
 
 ### probe
-A quick look, on the record (`klein probe`): a histogram, a rough fit, "what happens
+A look at the data, on the record (`klein probe`): a histogram, a rough fit, "what happens
 if". Cheap — no gate, no outcome — but logged and hash-chained, never allowed to read
 the sealed data, and never usable as evidence for a claim. A probe earns a *prediction*,
 which a run then tests.
@@ -98,6 +98,19 @@ Re-running a recorded run from its saved code to check that it reproduces.
 A reviewer in a fresh context — a different model, tool or person from whoever ran the
 study — who checks the findings against the record and writes a verdict. A study closed
 without one is labelled `unrefereed`.
+
+### rigor / quick look
+`policy.rigor` in the contract: `full` (the default) or `quick`. A **quick look** is a
+study that asks for less and may claim less: it needs only the CONSULT and DATA gates,
+has no sealed run, can claim `exploratory` at most, and closes without a referee. It
+still registers predictions before the evidence and records every run through the
+notary. Every report, status and map shows the words "quick look" beside its label.
+
+### promote
+`klein promote`: lift a quick look to full rigor. It is a recorded amendment (the reason
+and who promoted it are kept). CONSULT is acknowledged again and METHOD becomes
+required; the sealed look and the referee then apply. Nothing is re-run, and claims made
+as a quick look stay `exploratory`.
 
 ### receipt
 A small file a verb writes to prove it ran and what it found (`verify_receipt.json`).

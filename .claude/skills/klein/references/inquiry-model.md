@@ -69,6 +69,14 @@ CONFIRMS them in its summary — they are never a seventh interview question.
   never changes what the engine checks; it changes headings, audience sentences,
   figure sets, doctrine anchors, budgets, and banned words (`profiles/README.md`).
 
+### A fourth declaration: rigor
+
+**`policy.rigor`** — `full` (default) or `quick` — says how much of the lifecycle the
+study asks for. It is orthogonal to the three axes and is **not a kind**: any kind can be
+a quick look. It caps what the study may claim (`exploratory`), drops the METHOD gate,
+the sealed look and the referee, and changes nothing else about how a run is judged.
+`klein promote` lifts a quick look to `full`.
+
 ## The seven kinds
 
 | kind | The question | Default track mode | What "sealed" means | `confirmation.require` default | Strength ceiling |

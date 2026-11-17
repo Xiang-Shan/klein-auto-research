@@ -96,13 +96,15 @@ evidence, which is all they ever were. A claim made under `quick` stays `explora
 until evidence earned under `full` supports a new, stronger claim; the claims law's
 append-only history shows both.
 
-Demotion (`full → quick`) is refused once any sealed access has been spent, and
-otherwise is an ordinary recorded amendment.
+Going the other way (`full → quick`) has no verb. It is an ordinary amendment — edit the
+contract, acknowledge CONSULT again — and it can only lower what the study may claim: a
+`confirmed` claim then fails the claims law, and the study closes `exploratory`.
 
 ## 6. Entry points
 
-- `klein new --rigor quick` (and `--recipe quick-look`): a scaffold with the two cards a
-  quick look needs and no method-card template.
+- `klein new --rigor quick`: the ordinary scaffold with `policy.rigor: quick` in the contract
+  and one sentence in the plan and the notebook saying what a quick look is. The method-card
+  template stays in place; it is optional. (A dedicated `quick-look` recipe is not built.)
 - `klein next` drives it: consult → data → run(s) → findings → claims → finalize.
 - `kleinlib.api`: the same functions; `status` and `next` carry `rigor`.
 - `docs/embedding.md`: "a BI question, end to end" — the host types the question, the

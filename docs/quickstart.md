@@ -196,6 +196,39 @@ klein verify --study $S
 The result is one self-contained `report/index.html` that opens offline, with figures
 inlined, the code of a named run included, and every number traced to its source.
 
+## A quick look instead
+
+Not every question needs the whole path. A **quick look** is the same study with less
+asked of it and less claimed from it: it needs only the two first gates, it never reads
+the sealed data, its claims stay `exploratory`, and it closes without a referee. Start
+one with `--rigor quick`:
+
+```bash
+klein new 31-my-look --recipe tabular-predict --data csv:data/my.csv --target outcome --rigor quick
+```
+
+What you do is the same up to Gate 1 and the runs. What you drop:
+
+| Step | In a full study | In a quick look |
+|---|---|---|
+| Gate 2 (`klein gate record method`) | required before a run | not required |
+| The sealed run (`--final-test`, `--dry-run`) | once per track | refused |
+| Claim strength | `exploratory` or `confirmed` | `exploratory` only (`--strength confirmed` is refused) |
+| Referee and `klein gate record referee` | required before `klein finalize` | not required |
+| `klein finalize` | `--allow-exploratory` or a referee | needs neither; closes as `exploratory` |
+| The teaching report | expected | optional |
+
+`klein status` and `klein map` print "quick look" beside the label, so the answer is
+never read as more than it is. When you want to rely on it, lift the study:
+
+```bash
+klein promote --study $S --reason "the decision now depends on this" --promoted-by "<your name>"
+```
+
+`promote` records the change; you then acknowledge Gate 0 again and write the method card
+(Gate 2), and the sealed run and the referee apply from there. Nothing already run is
+redone.
+
 ## Where to go next
 
 | You want to | Read |

@@ -74,6 +74,21 @@ with several lanes (a replication beside an estimate and a known-truth simulatio
 `10-hubble-1929-replication`) keeps one study kind and overrides per track with
 `tracks.<id>.kind`.
 
+## Choose the rigor tier — proposed, then confirmed
+
+`policy.rigor` is `full` (the default) or `quick`. Propose one in the confirm summary with
+one line of reasoning, and let the user change it; it is never a seventh question.
+
+- **`quick`** when the answer informs a reversible decision or is a first look at the
+  data. A quick look needs only this gate and DATA, has no sealed run, claims
+  `exploratory` at most, and closes without a referee.
+- **`full`** when someone will build on the result, or it will be quoted as established.
+- When unsure, start `quick`: `klein promote` lifts it later, and the sealed data stays
+  unspent.
+
+Scaffold a quick look with `klein new --rigor quick`
+(`references/defaults-and-scaffolding.md`).
+
 ## Draft the artifacts
 
 From the answers, scaffold, then fill:

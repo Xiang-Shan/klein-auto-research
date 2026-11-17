@@ -76,6 +76,14 @@ absolute.
 `refuted` is never written at first authoring; it is set only by an erratum or by a
 later study's `(refutes <study>#Cn)` record, and the claim stays in the lock.
 
+**The quick-look cap.** When the contract declares `policy.rigor: quick`, no claim may
+have strength `confirmed`: `klein claims add` refuses it, and the claims law fails a lock
+that carries one. The ceilings in the table above apply only up to `exploratory`.
+The cap does not block `refuted` (set, as above, by an erratum or a later study's
+refutation): a quick look may kill an idea. After `klein promote` the cap
+no longer applies, but a claim made under `quick` stays `exploratory`; a stronger claim
+needs evidence earned under `full`.
+
 ## The claims law — the seven checks `klein claims verify` runs
 
 1. **Shape.** Every field above is present and typed; every class and strength is

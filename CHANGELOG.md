@@ -6,6 +6,97 @@ All notable changes to Klein Auto Research. Format follows
 command line, the JSON envelope or the ledger formats means a major version. Releases
 before 2.0 are in [`docs/history/CHANGELOG-1.x.md`](docs/history/CHANGELOG-1.x.md).
 
+## [3.1.0] — 2026-11-17
+
+**Proportional rigor: the quick look.** A study may now say how much rigor it is asking
+for, and what it says caps what it can claim. Nothing else about judging changed: every
+existing study is `full`, and the eight shipped exhibits verify with the same checks as
+under 3.0.0. The rationale is
+[`docs/design/klein-3.1-quick-look.md`](docs/design/klein-3.1-quick-look.md).
+
+### Added
+
+- **The quick look.** A study declares `policy: {rigor: quick}` (the default is `full`).
+  A quick look is a real study — a typed question, a data check, registered predictions
+  decided by the notary, claims with pinned numbers — that skips what a first look does
+  not need. Four things change:
+  - it needs only the CONSULT and DATA gates before a run (METHOD may be recorded, and is
+    not required; `klein verify` says "not required (quick look)" instead of dropping the
+    check);
+  - there is no sealed run: `run-one --final-test` and its `--dry-run` rehearsal are
+    refused, so the sealed partition stays untouched;
+  - claims are capped at `exploratory`: `klein claims add` refuses `confirmed`, and the
+    claims law fails a lock that carries one. The cap does not block `refuted`;
+  - `klein finalize` needs no referee and no `--allow-exploratory`; it closes the study as
+    `exploratory` and records `rigor: quick` and a referee status of `not-required`.
+
+  What does not change: predictions are registered before their evidence, every run goes
+  through the notary, the event chain, the claims law, the numbers law and `klein verify`
+  apply in full. The `policy` block refuses unknown keys, so a 3.0.0 engine refuses a
+  quick study instead of judging it by rules it does not meet.
+- **`klein promote --study DIR --reason TEXT --promoted-by NAME`** — lifts a quick look to
+  full rigor. It is a recorded amendment: `policy.rigor` becomes `full` and one
+  `rigor_promoted` event keeps the reason, the actor and the contract's hash before and
+  after. CONSULT must then be acknowledged again, and METHOD becomes required, before the
+  next run. Nothing is re-run or rewritten; claims made as a quick look stay
+  `exploratory`. A study that is already full, or a finalized quick look, is refused.
+  Also `kleinlib.api.promote`.
+- **`klein new --rigor quick`** — scaffolds a quick look: `policy.rigor` is written into
+  the contract, and the plan and notebook say what a quick look is and how to promote it.
+  A full study's scaffold is unchanged.
+- **The `rigor` field.** `klein status --json`, `klein next --json` and `klein map --json`
+  carry `rigor` (`full` or `quick`); the verify receipt of a quick look carries it too.
+  New JSON Schema: `promote` (`klein schema promote`).
+- **The tier is shown wherever the label is.** `klein status`, `klein map` (text and
+  HTML), the verify receipt and the report builder say "quick look" beside the label, so
+  a result quoted from a quick look is quoted with its tier. `klein next` names no METHOD
+  stop, no sealed action and no REFEREE stage for a quick look, and calls the tutorial
+  optional.
+- **`klein replicate --tolerance seed-std`** — states the replicated run's own recorded
+  seed-to-seed spread as the tolerance, by name (`tolerance_source: seed-std`). For a
+  seed-array run this is the honest scale across machines: a CNN's three-seed mean
+  reproduced exactly on one runner and moved 0.003 on another, against a spread of 0.035.
+  The weekly job uses it for study 22 instead of computing the number in shell.
+- **Preflight warns about a contract key that is nearly a known one** (`polcy`,
+  `predicitons`). An unknown top-level key is legal and ignored — two exhibits carry keys
+  of their own — so a typo changed judging without a word. A study's own keys are left
+  alone, and `klein verify` gains no row.
+
+### Changed
+
+- **`klein next` notices a gate whose artifact changed after it was acknowledged** and
+  names the re-record, where before it only checked that the gate was recorded. This
+  applies to full studies too; it is the path a study takes after `klein promote`.
+- **A recipe merges its policy keys into an existing `policy:` block** instead of writing
+  a second block, which would have dropped `rigor` silently.
+
+### Fixed
+
+- **The rehearsal rule notices a rehearsal the chain does not record.** A rehearsal log
+  newer than the track's latest recorded rehearsal, named by no event, refuses the sealed
+  run: an interrupted rehearsal, or a failed one whose event was cut from the end of the
+  chain (the 3.0 review's finding). Rehearsing again clears it.
+- CI: the Windows suite runs as two jobs side by side (it took 34 to 48 minutes as one);
+  `actions/checkout` moves from v4 to v5.
+
+### Known limitations
+
+- The rehearsal rule covers the command, the mutable surface and the scripts the command
+  names. It does not cover library code the command does not name (`lib/`,
+  `prepare.py`), a declared verifier, or a detached host; and it reads the event chain,
+  which is tamper-evident, not tamper-proof (a forged event satisfies it, and so does a
+  truncated chain once the rehearsal's log is deleted too). The guard is against a
+  hurried honest run, not a forger.
+- Not in this release, though planned for it: recording CPU, BLAS and thread detail beside
+  the environment fingerprint; rehearsing a declared verifier; an anchor for the event
+  chain's head; a `quick-look` recipe.
+- A plug-in is installed code in the same process: Klein prevents shadowing and undoes a
+  failed plug-in, but cannot sandbox one.
+- A quick look's loop ends when its registered predictions are decided or its findings are
+  written. That is a heuristic in `klein next`, not a judging rule: the engine does not
+  stop a quick look from running more.
+- Merging and tagging a release are manual.
+
 ## [3.0.0] — 2026-11-17
 
 **From a notary to a research instrument.** The kernel's judgment is unchanged — the

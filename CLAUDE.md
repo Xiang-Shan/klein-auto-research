@@ -14,9 +14,9 @@ your client does not resolve imports, read `AGENTS.md` directly before working h
   status`).
 - The machine actions are the packaged **`klein` CLI** verbs:
   `new | demo | probe | gate | preflight | run-one | job | recover | status | next |
-  map | finalize | noise-floor | verify | headroom | stop | predict | claims |
-  replicate | sweep | summarize | report | explain | skill | doctor | refs |
-  notebook | mcp | generation` (every sub-verb is in `docs/cli.md`) — the SKILL.md
+  map | promote | finalize | noise-floor | verify | headroom | stop | predict |
+  claims | replicate | sweep | summarize | report | explain | skill | doctor |
+  refs | notebook | mcp | schema | generation` (every sub-verb is in `docs/cli.md`) — the SKILL.md
   stage table maps each stage to its verbs;
   `klein next --study <dir>` names the one next action a study needs, and every verb
   takes `--json`.

@@ -40,7 +40,7 @@ accelerators; a solo session follows the protocols directly.
 
 | Stage | What it does | Protocol | CLI verbs used | Worker agent |
 |---|---|---|---|---|
-| `new` | Scaffold a study dir, typed by kind / modality / profile | `references/defaults-and-scaffolding.md`, `references/inquiry-model.md` | `klein new`, `klein doctor`; `klein demo` runs a tiny study live | — |
+| `new` | Scaffold a study dir, typed by kind / modality / profile | `references/defaults-and-scaffolding.md`, `references/inquiry-model.md` | `klein new` (`--rigor quick` for a quick look), `klein doctor`; `klein demo` runs a tiny study live; `klein promote` lifts a quick look to full rigor | — |
 | `explore` | Any time, including before Gate 0: look at the data on the record — a probe leaves a hash-chained line, never a claim | `references/exploration-protocol.md` | `klein probe --study S --note "…" -- <command>`; `klein probe --list` | — |
 | `consult` | Gate 0: ≤6-question interview (or fast-path); type the inquiry; register predictions with rules | `references/consult-protocol.md` | `klein gate record consult` after the **user ack**; generation-enabled, all BEFORE the ack: `klein generation init`, then `generation knowledge query`, `generation expert lock`, `generation reference record`, `generation parity lock`, `generation escalate lock` | klein-consultant |
 | `data` | Gate 1: modality-typed profile → clean-room leakage audit → ranked go/no-go → data_card.md | `references/data-gate-protocol.md`, `references/data-sources.md` | `python -m kleinlib.leakage`; `klein gate record data` (or `gate override data --reason`); generation-enabled, BEFORE the record: `klein generation design lock` | klein-data-auditor |
@@ -306,6 +306,21 @@ checkpoint-scored study), the checker script is hashed at the METHOD gate, never
 edited afterwards, run by the notary in a fresh process, and its number decides the
 disposition; the searcher's own claim is recorded beside it and a disagreement is a
 crash. The checker is never the searcher.
+
+## Proportional rigor: the quick look (Klein 3.1)
+
+A study may declare `policy: {rigor: quick}` (default `full`). A quick look is a real
+study with fewer stops, and its tier caps what it can claim:
+
+- Gates: CONSULT and DATA only. METHOD may be recorded, it is not required.
+- No sealed run: `run-one --final-test` and its rehearsal are refused.
+- Claims: `exploratory` at most (`claims add` refuses `confirmed`); the cap does not block `refuted`.
+- Closing: `klein finalize` needs no referee; the label is `exploratory`, shown as `quick look`.
+- Lift it with `klein promote --study S --reason "…" --promoted-by NAME`: CONSULT is
+  acknowledged again, METHOD becomes required, the sealed look and the referee apply.
+
+Predictions before evidence, the notary, the event chain and the claims and numbers laws
+are the same in both tiers. Choosing the tier: `references/consult-protocol.md`.
 
 ## Older studies
 
