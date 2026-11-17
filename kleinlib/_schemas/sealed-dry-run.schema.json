@@ -7,7 +7,7 @@
   "properties": {
     "exit_code": {
       "type": "integer",
-      "description": "0 passed; 3 the entrypoint exited 0 without acknowledging the rehearsal; otherwise the child's exit code (124 on a time-out)."
+      "description": "0 passed; 3 the entrypoint exited 0 without acknowledging the rehearsal; 4 it acknowledged but printed no metric the notary can judge; otherwise the child's exit code (124 on a time-out)."
     },
     "passed": {
       "type": "boolean"

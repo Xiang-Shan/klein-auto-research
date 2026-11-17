@@ -466,6 +466,13 @@ def load_partition(evaluation_kind: str):
     `kleinlib.data.contract_split(study_dir)` / `load_partition(kind)` read
     study.yaml:data.split and print the `split_fingerprint:` line the notary
     checks. A literal split seed here is a DATA-gate BLOCKER (war story 8).
+
+    The sealed look is rehearsed first (`klein run-one --final-test --dry-run`)
+    and the sealed run is refused without a passing rehearsal. Under the
+    rehearsal the entrypoint must use development evidence and print
+    `sealed_dryrun: 1`: `kleinlib.data.load_partition` does both for a row
+    partition; with no row partition (a simulator, a search), call
+    `kleinlib.data.sealed_dryrun()` and branch on what it returns.
     """
     if evaluation_kind not in {"development", "final_test"}:
         raise RuntimeError(f"invalid KLEIN_EVALUATION_KIND={evaluation_kind!r}")

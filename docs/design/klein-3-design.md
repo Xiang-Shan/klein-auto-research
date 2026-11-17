@@ -143,9 +143,13 @@ reader needs.
 **"Mandatory" means the notary refuses.** The sealed-run rehearsal was a rule in a
 protocol, and a rehearsal that timed out still counted as done. It is now one function
 (`kleinlib/rehearsal.py`) that the notary and `klein next` both call: the track's latest
-rehearsal passed, on the same command and the same mutable surface, or the sealed run
-does not start. It covers the surface and the command, not library code, and says so.
-There is no bypass flag, because a rehearsal spends nothing.
+rehearsal passed — same command, same mutable surface and scripts, a metric the notary
+can judge, within the time the sealed run is allowed — or the sealed run does not start.
+An independent review of the first version found it could be satisfied by a rehearsal of
+a script that later changed, of an entrypoint that printed no metric, or of a run longer
+than the real one's budget; each is closed. What it still does not reach (library code
+the command does not name, a declared verifier, a detached host, a forged event) is
+written at the top of the module. There is no bypass flag: a rehearsal spends nothing.
 
 **"Exact" is a claim about a machine.** An exact metric replicates bit for bit where it
 ran. Across CPUs an iterative solver moves in its last digits, so a cross-machine

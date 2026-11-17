@@ -28,6 +28,7 @@ from typing import Any
 from .contract import (
     PLACEHOLDER_RE,
     _phase_ids,
+    entrypoint_spec,
     load_contract,
     normalize_tracks,
     prepared_data_path,
@@ -35,7 +36,7 @@ from .contract import (
     unsupported_schema_message,
 )
 from .errors import WorkflowError
-from .rehearsal import rehearsal_problem
+from .rehearsal import latest_rehearsal, rehearsal_problem
 
 __all__ = ["format_next", "next_step", "status_data"]
 
@@ -429,12 +430,19 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                     continue
                 # The notary's own rule (kleinlib/rehearsal.py): the latest rehearsal
                 # passed, on the command and the mutable surface about to run.
-                unrehearsed = rehearsal_problem(study, contract, name, events=events)
+                # A rehearsal run with `--command` covers a sealed run of that command,
+                # so the suggestion follows what was actually rehearsed.
+                rehearsed = latest_rehearsal(events, name)
+                override = list(rehearsed.get("command") or []) if rehearsed else []
+                if override == list(entrypoint_spec(contract)["command"]):
+                    override = []
+                suffix = (" --command " + shlex.join(override)) if override else ""
+                unrehearsed = rehearsal_problem(study, contract, name, command=override or None, events=events)
                 if unrehearsed:
                     result["next"] = _action(
                         "EXPERIMENT · sealed",
                         f"rehearse track {name!r}'s one sealed look (spends nothing)",
-                        f"klein run-one --study {s} --track {name} --final-test --dry-run",
+                        f"klein run-one --study {s} --track {name} --final-test --dry-run{suffix}",
                         ".claude/skills/klein/SKILL.md",
                         f"the sealed run is refused until its rehearsal passes: {unrehearsed}",
                     )
@@ -442,7 +450,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 result["next"] = _action(
                     "EXPERIMENT · sealed",
                     f"spend track {name!r}'s single sealed look on the frozen configuration",
-                    f'klein run-one --study {s} --track {name} --final-test --description "sealed confirmation"',
+                    f'klein run-one --study {s} --track {name} --final-test --description "sealed confirmation"{suffix}',
                     ".claude/skills/klein/SKILL.md",
                     "each track may access its sealed evidence exactly once",
                 )

@@ -735,6 +735,12 @@ def _cmd_run_one(args: argparse.Namespace) -> int:
                 "--dry-run adjudicates nothing: a rehearsal on development "
                 "data is not evidence for a registered prediction"
             )
+        if args.detach:
+            raise WorkflowError(
+                "--dry-run rehearses here, on this machine: it cannot be combined with "
+                "--detach (a detached host is not rehearsed — run the rehearsal locally, "
+                "then detach the sealed run)"
+            )
         code = sealed_dry_run(
             study,
             track=args.track,

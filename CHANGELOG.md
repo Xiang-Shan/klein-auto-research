@@ -37,8 +37,11 @@ three new verbs for exploring and understanding a study. The rationale is
   `studies/ARCHIVE.md` / `studies/archive.yaml`, and recoverable from commit `217cd46`.
 - **A sealed run requires its rehearsal.** `klein run-one --final-test` is refused unless
   the track's latest `--dry-run` rehearsal exited 0, did not time out, printed its
-  acknowledgement, and ran the same command over the same mutable surface (the
-  `sealed_dryrun` event now records the surface digest). The rule is one function,
+  acknowledgement and a metric the notary can judge, ran the same command over the same
+  mutable surface and the same scripts that command names, and fits the time the sealed
+  run is allowed (the `sealed_dryrun` event now records the digests). A rehearsal that
+  prints no `primary_metric:` line now fails with exit code 4. An entrypoint with no row
+  partition acknowledges a rehearsal with the new `kleinlib.data.sealed_dryrun()`. The rule is one function,
   `kleinlib/rehearsal.py`, shared by the notary and `klein next`; there is no bypass
   flag. A study mid-flight rehearses once more. Until now the rehearsal was mandatory
   by protocol only, and one that timed out counted as done (war story 11).
@@ -149,9 +152,11 @@ three new verbs for exploring and understanding a study. The rationale is
   itself, or a simulator that picks its own sealed seeds, is recorded, not stopped.
 - A plug-in is installed code in the same process: Klein prevents shadowing and undoes a
   failed plug-in, but cannot sandbox one.
-- The rehearsal rule covers the command and the mutable surface, not library code
-  outside it (`lib/`, `prepare.py`): a change there between rehearsal and sealed run is
-  visible in git, not refused.
+- The rehearsal rule covers the command, the mutable surface and the scripts the command
+  names. It does not cover library code the command does not name (`lib/`,
+  `prepare.py`), a declared verifier, or a detached host; and it reads the event chain,
+  which is tamper-evident, not tamper-proof (a forged or tail-truncated event satisfies
+  it). The guard is against a hurried honest run, not a forger.
 - An `exact` metric replicates bit for bit on the machine that ran it; across machines a
   replication states its tolerance (`--tolerance`). The engine does not yet record enough
   of the environment (CPU, BLAS, threads) to explain a cross-machine difference.

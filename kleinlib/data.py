@@ -642,6 +642,24 @@ def partition_fingerprints(study_dir: str | Path = ".") -> dict[str, str]:
     }
 
 
+def sealed_dryrun() -> bool:
+    """True during a sealed-run rehearsal — and say so on the printed block.
+
+    For an entrypoint with no row partition to route through
+    :func:`load_partition` (a simulator choosing sealed seeds, a search, a
+    verifier-only construction): call this once; when it returns True, use
+    development evidence only — never the sealed seeds, cells or instances.
+    It prints ``sealed_dryrun: 1``, the acknowledgement
+    ``klein run-one --final-test --dry-run`` requires: a rehearsal that exits 0
+    without it is read as "the entrypoint ignored the flag and would have read
+    the sealed evidence", and the sealed run is refused.
+    """
+    if os.environ.get("KLEIN_SEALED_DRYRUN") != "1":
+        return False
+    print(f"{SEALED_DRYRUN_KEY}: 1", flush=True)
+    return True
+
+
 def load_partition(
     kind: str | None = None,
     *,

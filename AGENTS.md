@@ -212,8 +212,9 @@ The standing rules around those layers:
   `run-one` force-clears the flag in its child so ambient smoke can never suppress
   real evidence. `klein run-one --final-test --dry-run` is the ONE sanctioned
   rehearsal of a sealed run: it spends nothing, and the notary refuses the real one
-  unless the track's latest rehearsal passed on the same command and the same mutable
-  surface (`kleinlib/rehearsal.py`).
+  unless the track's latest rehearsal passed — same command, same mutable surface and
+  scripts, a judgeable metric, within the time the sealed run is allowed
+  (`kleinlib/rehearsal.py` says what the rule covers and what it does not).
 - **Looking is done on the record.** `klein probe -- <command>` is the ONE sanctioned
   way to look at data or behaviour outside a run — before the gates or after: bounded,
   logged, hash-chained in `probes.jsonl`, fenced from the sealed partition

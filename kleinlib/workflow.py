@@ -136,7 +136,7 @@ from .primitives import (
     sha256_file,
     utc_now,
 )
-from .rehearsal import rehearsal_problem, surface_digest
+from .rehearsal import command_files_digest, rehearsal_command, rehearsal_problem, surface_digest
 from .runner import run_logged
 from .schema import (
     AUTO_PRINTED_METRIC_KEYS,
@@ -200,6 +200,7 @@ __all__ = [
     "ProcessResult",
     "RUN_ID_RE",
     "SCHEMA_VERSION",
+    "SEALED_DRYRUN_NO_METRIC",
     "SEALED_DRYRUN_UNACKNOWLEDGED",
     "SPLIT_FINGERPRINT_MISMATCH",
     "STRONG_CLAIM_RE",
@@ -584,6 +585,9 @@ def _untracked_study_files(study_dir: Path) -> set[str]:
 
 #: What a sealed dry-run exits with when the child never acknowledged it.
 SEALED_DRYRUN_UNACKNOWLEDGED = 3
+#: The rehearsal exited 0 and acknowledged, but printed no metric the notary
+#: could judge: the sealed run would be recorded as a crash and spend the seal.
+SEALED_DRYRUN_NO_METRIC = 4
 
 
 def _validate_requested_predictions(
@@ -647,10 +651,13 @@ def sealed_dry_run(
     real sealed run is refused unless its latest rehearsal passed on the same
     surface and command (:mod:`kleinlib.rehearsal`, war story 11).
 
-    Exit 0 when the child exited 0 AND printed the acknowledgement;
-    :data:`SEALED_DRYRUN_UNACKNOWLEDGED` when it exited 0 without it — an
-    entrypoint that ignores the flag would have read the sealed rows, so a
-    silent success is exactly the outcome that must not be reported as a pass.
+    Exit 0 when the child exited 0, printed the acknowledgement AND printed a
+    metric the notary can judge; :data:`SEALED_DRYRUN_UNACKNOWLEDGED` when it
+    exited 0 without the acknowledgement — an entrypoint that ignores the flag
+    would have read the sealed rows, so a silent success is exactly the outcome
+    that must not be reported as a pass; :data:`SEALED_DRYRUN_NO_METRIC` when it
+    printed no finite ``primary_metric:`` line (a track with a declared verifier
+    is exempt: the checker produces its number, and the checker is not rehearsed).
     """
     contract = load_contract(study_dir)
     problems = validate_contract(contract, study_dir)
@@ -683,27 +690,46 @@ def sealed_dry_run(
             or tuple(entrypoint_spec(contract)["command"])
         )
         untracked_before = _untracked_study_files(study_dir)
-        # What is about to be executed, hashed BEFORE the child can touch it.
+        # What is about to be executed, hashed BEFORE the child can touch it: the
+        # mutable surface, and any study file the command names (`--command python
+        # other.py` runs a script the surface need not contain).
         rehearsed_surface = surface_digest(study_dir, contract)[0]
+        rehearsed_scripts = command_files_digest(study_dir, cmd)[0]
+        seeds = seed_array(contract)
+        rehearsal_env = {
+            "KLEIN_EVALUATION_KIND": "final_test",
+            "KLEIN_EXPERIMENT_ID": "DRYRUN",
+            "KLEIN_TRACK": track,
+            "KLEIN_SEALED_DRYRUN": "1",
+            "KLEIN_SMOKE": "",
+        }
+        if seeds:  # an entrypoint that requires KLEIN_SEED is rehearsed on the first seed
+            rehearsal_env["KLEIN_SEED"] = str(seeds[0])
         process = run_subprocess(
             cmd,
             cwd=study_dir,
             log_path=log_path,
             timeout_seconds=timeout,
             echo=echo,
-            env_overrides={
-                "KLEIN_EVALUATION_KIND": "final_test",
-                "KLEIN_EXPERIMENT_ID": "DRYRUN",
-                "KLEIN_TRACK": track,
-                "KLEIN_SEALED_DRYRUN": "1",
-                "KLEIN_SMOKE": "",
-            },
+            env_overrides=rehearsal_env,
         )
         acknowledged = "1" in printed_values(log_path, "sealed_dryrun")
+        # A sealed run that prints no judgeable metric is a crash that spends the
+        # seal. With a declared verifier the number is the checker's, so the
+        # entrypoint's own block is not required (None: not applicable).
+        metric_parsed: bool | None = None
+        if process.exit_code == 0 and not isinstance(tracks[track].get("verifier"), Mapping):
+            try:
+                parse_metric_log(log_path, scope=printed_scope(contract))
+                metric_parsed = True
+            except WorkflowError:
+                metric_parsed = False
         if process.exit_code != 0:
             exit_code = process.exit_code
         elif not acknowledged:
             exit_code = SEALED_DRYRUN_UNACKNOWLEDGED
+        elif metric_parsed is False:
+            exit_code = SEALED_DRYRUN_NO_METRIC
         else:
             exit_code = 0
         append_event(
@@ -717,6 +743,8 @@ def sealed_dry_run(
             acknowledged=acknowledged,
             wall_seconds=process.wall_seconds,
             surface_digest=rehearsed_surface,
+            command_files=rehearsed_scripts,
+            metric_parsed=metric_parsed,
         )
         # The rehearsal runs the REAL entrypoint (KLEIN_SMOKE is force-cleared),
         # so its evaluator appends DRYRUN-keyed rows to aux_metrics.tsv. Those
@@ -739,8 +767,16 @@ def sealed_dry_run(
             print(
                 "sealed dry-run FAILED: the entrypoint exited 0 but never printed "
                 "`sealed_dryrun: 1` — it ignored KLEIN_SEALED_DRYRUN and would have read "
-                "the sealed partition. Route the partition through "
-                "kleinlib.data.load_partition before spending the seal."
+                "the sealed evidence. Route a row partition through "
+                "kleinlib.data.load_partition; a simulator, a search or any other "
+                "entrypoint calls kleinlib.data.sealed_dryrun() and, when it returns True, "
+                "uses development evidence only."
+            )
+        elif exit_code == SEALED_DRYRUN_NO_METRIC:
+            print(
+                "sealed dry-run FAILED: the entrypoint exited 0 but printed no finite "
+                "`primary_metric:` line — the sealed run would be recorded as a crash "
+                "and the seal spent. Print the metric block, then rehearse again."
             )
         else:
             print(f"sealed dry-run FAILED: the entrypoint exited {exit_code}; the seal is intact")
@@ -1417,16 +1453,6 @@ def run_one(
                     f"sealed final test is allowed only in final phase {final_phase_id!r}; "
                     f"current phase is {phase_id!r}"
                 )
-            # The one look is rehearsed first, and the rehearsal must be OF THIS RUN:
-            # the track's latest one passed, on the same command and the same
-            # mutable surface. Before any id, commit or seal — a refusal spends nothing.
-            unrehearsed = rehearsal_problem(study_dir, contract, track, command=command)
-            if unrehearsed:
-                raise WorkflowError(
-                    f"sealed final test for track {track!r} is not rehearsed: {unrehearsed}. "
-                    f"Rehearse it first (it spends nothing): klein run-one --study "
-                    f"{study_dir} --track {track} --final-test --dry-run"
-                )
         elif phase_id == final_phase_id:
             raise WorkflowError(
                 f"development runs are forbidden in final phase {final_phase_id!r}; "
@@ -1474,6 +1500,25 @@ def run_one(
                 f"timeout must be > 0 and <= configured max_run_seconds={configured_timeout:g}"
             )
         timeout = min(timeout, remaining_budget)
+        if final_test:
+            # The one look is rehearsed first, and the rehearsal must be OF THIS RUN:
+            # the track's latest one passed — on the same command, the same mutable
+            # surface and the same scripts — and fits the time this run is allowed.
+            # Before any id, commit or seal: a refusal spends nothing.
+            unrehearsed = rehearsal_problem(
+                study_dir,
+                contract,
+                track,
+                command=command,
+                budget_seconds=timeout,
+                runs=len(seed_array(contract) or ()) or 1,
+            )
+            if unrehearsed:
+                raise WorkflowError(
+                    f"sealed final test for track {track!r} is not rehearsed: {unrehearsed}. "
+                    "Rehearse it first (it spends nothing): "
+                    + rehearsal_command(study_dir, track, command)
+                )
         manifests = load_manifests(study_dir)
         # `references/registered-mode.md`: a registered track runs CELLS of a
         # pre-registered measurement program.  It holds no incumbent, so the

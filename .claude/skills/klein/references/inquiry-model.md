@@ -81,6 +81,15 @@ CONFIRMS them in its summary — they are never a seventh interview question.
 | `discover` | what structure or hypotheses exist | registered (frontier for screening) | none — a discovery is a hypothesis, not a result | `[]` | exploratory; promotion needs a follow-up `test` study that cites it |
 | `optimize` | find an object that maximizes F, judged by a verifier | frontier | independent re-verification of the pinned artifact | `[verify]` | confirmed |
 
+**The sealed look is rehearsed, whatever "sealed" means for the kind.** `klein run-one
+--final-test --dry-run` runs the real entrypoint with `KLEIN_SEALED_DRYRUN=1`; the
+entrypoint must then use development evidence only and print `sealed_dryrun: 1`, and
+the notary refuses the sealed run until the track's latest rehearsal has passed on the
+same code. A row partition gets both from `kleinlib.data.load_partition`. An entrypoint
+with no row partition — a simulator drawing a fresh seed block, a search, a
+verifier-only construction — calls `kleinlib.data.sealed_dryrun()` once and, when it
+returns True, takes its development seeds, cells or instances instead of the sealed ones.
+
 Rules that follow from the table:
 
 - **`predict` and `optimize` are the frontier kinds.** They hold an incumbent, obey the

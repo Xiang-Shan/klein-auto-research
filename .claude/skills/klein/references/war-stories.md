@@ -192,10 +192,14 @@ diligence, not by mechanism. A rule that a careful person follows and a hurried 
 yet a guard; and a rehearsal of an earlier version of the code rehearses nothing.
 
 **The guard.** `klein run-one --final-test` refuses unless the track's latest
-rehearsal exited 0, did not time out, printed its acknowledgement, and ran the same
-mutable surface, byte for byte, that the sealed run is about to execute (the
-rehearsal's event records the surface digest). The refusal prints the command to
-run. There is no flag to skip it: a rehearsal spends nothing.
+rehearsal exited 0, did not time out, printed its acknowledgement and a metric the
+notary can judge, ran the same command over the same mutable surface and the same
+scripts that command names, byte for byte, and took no longer than the sealed run is
+allowed (the rehearsal's event records the digests and the time). The refusal prints
+the command to run. There is no flag to skip it: a rehearsal spends nothing. What the
+guard does not reach is written at the top of `kleinlib/rehearsal.py`: library code
+the command does not name, a declared verifier, a detached host, and a forged or
+truncated event chain.
 
 ## The meta-lesson
 

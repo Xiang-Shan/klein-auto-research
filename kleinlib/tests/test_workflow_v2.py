@@ -504,32 +504,62 @@ def test_phase_boundary_and_evaluation_kind_are_enforced(ready_study) -> None:
         )
 
 
-def test_confirmation_run_is_capped_by_remaining_phase_budget(ready_study) -> None:
-    repo, study = ready_study
+_METRIC_BLOCK = (
+    "print('primary_metric:    0.7'); print('metric_name:       val_auc'); "
+    "print('metric_goal:       higher')"
+)
+
+
+def _sleeper(seconds: float) -> list[str]:
+    """Acknowledges the rehearsal flag, sleeps, then prints a metric block."""
+    return [
+        sys.executable,
+        "-c",
+        "import os, time; "
+        "print('sealed_dryrun: 1') if os.environ.get('KLEIN_SEALED_DRYRUN') == '1' else None; "
+        f"time.sleep({seconds}); " + _METRIC_BLOCK,
+    ]
+
+
+def _enter_bounded_confirmation(repo: Path, study: Path, budget_seconds: float) -> None:
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
-    contract["phases"][-1]["budget_seconds"] = 0.05
+    contract["phases"][-1]["budget_seconds"] = budget_seconds
     (study / "study.yaml").write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
     record_gate(study, "consult", acknowledged_by="tester")
     commit_all(repo, "enter bounded confirmation")
 
-    sleeper = [
-        sys.executable,
-        "-c",
-        "import os; "
-        "print('sealed_dryrun: 1') if os.environ.get('KLEIN_SEALED_DRYRUN') == '1' else None; "
-        "import time; time.sleep(1)",
-    ]
-    rehearse(study, command=sleeper)  # the rehearsal gets the contract's full budget
-    result = run_one(
-        study,
-        final_test=True,
-        command=sleeper,
-        echo=False,
-    )
-    assert result["disposition"] == "crash"
-    assert result["timed_out"]
-    assert 0 < result["max_run_seconds"] <= 0.05
+
+def test_a_rehearsal_slower_than_the_remaining_phase_budget_refuses_and_spends_nothing(
+    ready_study,
+) -> None:
+    repo, study = ready_study
+    _enter_bounded_confirmation(repo, study, 0.05)
+    sleeper = _sleeper(1)
+    rehearse(study, command=sleeper)  # the rehearsal gets the contract's full time limit
+    head = git(repo, "rev-parse", "HEAD")
+
+    with pytest.raises(WorkflowError, match="it would time out and spend the seal"):
+        run_one(study, final_test=True, command=sleeper, echo=False)
+
+    state = json.loads((study / "study_state.json").read_text(encoding="utf-8"))
+    assert state["final_holdout_access"]["primary"]["count"] == 0
+    assert not list((study / "runs").glob("E*"))
+    assert git(repo, "rev-parse", "HEAD") == head
+
+
+def test_confirmation_run_is_capped_by_remaining_phase_budget(ready_study) -> None:
+    """A rehearsal that fits the small phase budget still starts, and the run is
+    capped at what the phase has left."""
+    repo, study = ready_study
+    _enter_bounded_confirmation(repo, study, 3)
+    fast = _sleeper(0.2)
+    rehearse(study, command=fast)
+
+    result = run_one(study, final_test=True, command=fast, echo=False)
+
+    assert result["disposition"] == "discard"
+    assert 0 < result["max_run_seconds"] <= 3
     assert result["phase"] == "confirmation"
 
 
@@ -912,7 +942,9 @@ def test_crashed_sealed_run_does_not_confirm_findings(ready_study) -> None:
         sys.executable,
         "-c",
         "import os, sys; dry = os.environ.get('KLEIN_SEALED_DRYRUN') == '1'; "
-        "print('sealed_dryrun: 1') if dry else None; sys.exit(0 if dry else 7)",
+        "print('sealed_dryrun: 1') if dry else None; "
+        + _METRIC_BLOCK
+        + "; sys.exit(0 if dry else 7)",
     ]
     rehearse(study, command=crash_when_real)
     crashed = run_one(

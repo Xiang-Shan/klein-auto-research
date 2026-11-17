@@ -37,6 +37,7 @@ PUBLIC_SURFACE: dict[str, tuple[str, str]] = {
     "ProcessResult": ("kleinlib.workflow", "ProcessResult"),
     "RUN_ID_RE": ("kleinlib.manifest", "RUN_ID_RE"),
     "SCHEMA_VERSION": ("kleinlib.contract", "SCHEMA_VERSION"),
+    "SEALED_DRYRUN_NO_METRIC": ("kleinlib.workflow", "SEALED_DRYRUN_NO_METRIC"),
     "SEALED_DRYRUN_UNACKNOWLEDGED": ("kleinlib.workflow", "SEALED_DRYRUN_UNACKNOWLEDGED"),
     "SPLIT_FINGERPRINT_MISMATCH": ("kleinlib.workflow", "SPLIT_FINGERPRINT_MISMATCH"),
     "STRONG_CLAIM_RE": ("kleinlib.workflow", "STRONG_CLAIM_RE"),
