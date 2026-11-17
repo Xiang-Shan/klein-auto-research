@@ -47,6 +47,7 @@ __all__ = [
     "predictions",
     "preflight",
     "probe",
+    "promote",
     "refusal",
     "run_one",
     "schema",
@@ -434,6 +435,16 @@ def finalize(
         return envelope("finalize", {"label": label})
 
     return _guard("finalize", body)
+
+
+def promote(study: str | Path, *, reason: str, promoted_by: str) -> dict[str, Any]:
+    """``klein promote``: lift a quick look to full rigor (a recorded amendment)."""
+    from .workflow import promote_study
+
+    return _guard(
+        "promote",
+        lambda: envelope("promote", promote_study(Path(study), reason=reason, promoted_by=promoted_by)),
+    )
 
 
 def probe(

@@ -11,6 +11,13 @@
     "schema": {
       "type": "integer"
     },
+    "rigor": {
+      "enum": [
+        "full",
+        "quick"
+      ],
+      "description": "The study's declared rigor (`policy.rigor`): `quick` is a quick look (two gates, no sealed run, claims capped at exploratory, no referee). Absent when the contract could not be read."
+    },
     "kind": {
       "type": [
         "string",

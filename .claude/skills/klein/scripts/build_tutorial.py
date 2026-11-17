@@ -756,6 +756,11 @@ def build_evidence(study_dir: Path) -> str:
             # the reason is the study's own disclosure, so it is copied verbatim.
             reason = html.escape(str(referee.get("reason") or "no reason recorded"))
             rows.append(("referee", f"unrefereed (finalized with --no-referee: {reason})"))
+        elif isinstance(referee, dict) and referee.get("status") == "not-required":
+            # A quick look (`policy.rigor: quick`): `klein finalize` records exactly this.
+            rows.append(
+                ("referee", "quick look — claims capped at exploratory; not refereed (not required)")
+            )
         elif not isinstance(referee, dict):
             rows.append(("referee", "not recorded"))
         else:

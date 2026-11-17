@@ -385,9 +385,15 @@ def apply_recipe(study_dir: Path, recipe_id: str, *, split_seed: int = 42) -> li
         r"\n# Per-run, per-phase",
         _render(recipe.split_yaml, {"SPLIT_SEED": str(int(split_seed))}),
     )
+    policy_yaml = _POLICY_YAML
+    if re.search(r"^policy:\n", text, flags=re.MULTILINE):
+        # A quick look already carries `policy: {rigor: quick}`: merge, never a second block.
+        knobs = policy_yaml.split("policy:\n", 1)[1].strip("\n") + "\n"
+        text = re.sub(r"^policy:\n", lambda _m: "policy:\n" + knobs, text, count=1, flags=re.MULTILINE)
+        policy_yaml = ""
     text = text.replace(
         "# Per-run, per-phase time, and experiment-count limits are intentionally separate.",
-        _POLICY_YAML
+        policy_yaml
         + recipe.calls_yaml
         + "# Per-run, per-phase time, and experiment-count limits are intentionally separate.",
         1,

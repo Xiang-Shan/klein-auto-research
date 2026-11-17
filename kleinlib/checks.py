@@ -1805,6 +1805,8 @@ def verify_receipt(
         "timestamp": utc_now(),
         "schema": version,
         "study": state.get("study_id", study_dir.name),
+        # keyed only for a quick look: a full study's receipt keeps its exact shape
+        **({"rigor": "quick"} if rigor(contract) == "quick" else {}),
         "checks": [
             {"name": check.name, "ok": check.ok, "message": check.message}
             for check in checks

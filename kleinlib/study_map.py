@@ -21,7 +21,7 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-from .contract import load_contract, normalize_tracks
+from .contract import load_contract, normalize_tracks, rigor
 from .errors import WorkflowError
 
 __all__ = ["build_map", "format_map", "render_html"]
@@ -273,6 +273,7 @@ def build_map(study_dir: str | Path) -> dict[str, Any]:
         "profile": contract.get("profile"),
         "status": state.get("status"),
         "label": finalization.get("label"),
+        "rigor": rigor(contract),
         "gates": {name: value.get("status") for name, value in gates.items() if isinstance(value, Mapping)},
         "tracks": sorted(normalize_tracks(contract)),
         "counts": counts,
@@ -307,7 +308,9 @@ def format_map(data: Mapping[str, Any]) -> str:
     counts = data["counts"]
     out = [
         f"study: {data['study']}  ({data.get('kind')} · {data.get('modality')} · {data.get('profile')})",
-        f"status: {data.get('status')}" + (f" — {data['label']}" if data.get("label") else ""),
+        f"status: {data.get('status')}"
+        + (f" — {data['label']}" if data.get("label") else "")
+        + (" · quick look" if data.get("rigor") == "quick" else ""),
         "",
         f"{counts['question']} question(s) · {counts['prediction']} prediction(s) · {counts['run']} run(s) · "
         f"{counts['claim']} claim(s) · {counts['decision']} decision(s)"
@@ -458,7 +461,8 @@ def render_html(data: Mapping[str, Any]) -> str:
         f"<h1>{esc(data['study'])}</h1>",
         f'<p class="meta">{esc(str(data.get("kind")))} · {esc(str(data.get("modality")))} · '
         f'{esc(str(data.get("profile")))} — status: {esc(str(data.get("status")))}'
-        + (f" ({esc(str(data['label']))})" if data.get("label") else "") + "</p>",
+        + (f" ({esc(str(data['label']))})" if data.get("label") else "")
+        + (" · quick look" if data.get("rigor") == "quick" else "") + "</p>",
         f'<p class="goal">{esc(data.get("goal") or "")}</p>',
         f'<h2>The map — {counts["question"]} questions, {counts["prediction"]} predictions, '
         f'{counts["run"]} runs, {counts["claim"]} claims</h2>',

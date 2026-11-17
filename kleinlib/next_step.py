@@ -26,12 +26,16 @@ from pathlib import Path
 from typing import Any
 
 from .contract import (
+    GATE_ARTIFACTS,
+    GATE_OPTIONAL_ARTIFACTS,
     PLACEHOLDER_RE,
     _phase_ids,
     entrypoint_spec,
     load_contract,
     normalize_tracks,
     prepared_data_path,
+    required_gates,
+    rigor,
     schema_version,
     unsupported_schema_message,
 )
@@ -103,6 +107,30 @@ def _gate_recorded(state: Mapping[str, Any], gate: str) -> bool:
     gates = state.get("gates")
     entry = gates.get(gate) if isinstance(gates, Mapping) else None
     return isinstance(entry, Mapping) and entry.get("status") in {"recorded", "overridden"}
+
+
+def _changed_gate_artifacts(study_dir: Path, state: Mapping[str, Any], gate: str) -> list[str]:
+    """The gate's hashed artifacts that no longer match what was acknowledged.
+
+    The same comparison ``klein preflight`` makes ("recorded gate artifact changed
+    after acknowledgement"), read per gate so ``klein next`` can name the re-record.
+    """
+    from .primitives import sha256_file
+
+    hashes = state.get("artifact_hashes")
+    if not isinstance(hashes, Mapping):
+        return []
+    changed: list[str] = []
+    for name in (*GATE_ARTIFACTS.get(gate, ()), *GATE_OPTIONAL_ARTIFACTS.get(gate, ())):
+        path = study_dir / name
+        if name in hashes and path.is_file() and sha256_file(path) != hashes[name]:
+            changed.append(name)
+    return changed
+
+
+def _gate_names(gates: tuple[str, ...]) -> str:
+    names = [g.upper() for g in gates]
+    return ", ".join(names[:-1]) + " and " + names[-1]
 
 
 def _placeholder_files(study_dir: Path, names: tuple[str, ...]) -> list[str]:
@@ -238,6 +266,9 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
         )
         return result
 
+    quick = rigor(contract) == "quick"
+    required = required_gates(contract)
+    result["rigor"] = "quick" if quick else "full"
     state = _read_json(study / "study_state.json")
     if not isinstance(state, dict):
         state = {}
@@ -248,6 +279,23 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     # --- CONSULT ---------------------------------------------------------------
     consult_files = ("study.yaml", "research_plan.md", "program.md")
     unfilled = _placeholder_files(study, consult_files)
+    prior_final = state.get("finalization")
+    # A closed study's record is not re-acknowledged: the stale-gate path is for open ones.
+    open_study = not (isinstance(prior_final, Mapping) and bool(prior_final.get("label")))
+    consult_changed = (
+        _changed_gate_artifacts(study, state, "consult") if open_study and _gate_recorded(state, "consult") else []
+    )
+    if consult_changed:
+        result["next"] = _action(
+            "CONSULT",
+            "the contract changed after Gate 0 (" + ", ".join(consult_changed) + "): "
+            "review the amendment with the user, then record Gate 0 again with a note",
+            f'klein gate record consult --study {s} --acknowledged-by "<name>" --note "<what changed and why>"',
+            f"{_REF}/consult-protocol.md",
+            "a recorded gate artifact changed after acknowledgement (for example `klein promote`); "
+            "preflight refuses every run until the gate is re-acknowledged",
+        )
+        return result
     if not _gate_recorded(state, "consult"):
         if unfilled:
             result["next"] = _action(
@@ -264,12 +312,22 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             "summarize the contract to the user, get their explicit ack, then record Gate 0",
             f'klein gate record consult --study {s} --acknowledged-by "<name>"',
             f"{_REF}/consult-protocol.md",
-            "modeling is blocked until CONSULT, DATA and METHOD are recorded",
+            "modeling is blocked until " + _gate_names(required) + " are recorded",
         )
         return result
     done.append("CONSULT (Gate 0) recorded")
 
     # --- DATA ------------------------------------------------------------------
+    data_changed = _changed_gate_artifacts(study, state, "data") if open_study and _gate_recorded(state, "data") else []
+    if data_changed:
+        result["next"] = _action(
+            "DATA",
+            "data_card.md changed after Gate 1: re-read it, then record Gate 1 again with a note",
+            f'klein gate record data --study {s} --acknowledged-by "<name>" --note "<what changed and why>"',
+            f"{_REF}/data-gate-protocol.md",
+            "a recorded gate artifact changed after acknowledgement; preflight refuses every run until re-acknowledged",
+        )
+        return result
     if not _gate_recorded(state, "data"):
         try:
             prepared = prepared_data_path(study, contract)
@@ -307,7 +365,21 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     done.append("DATA (Gate 1) recorded")
 
     # --- METHOD ----------------------------------------------------------------
-    if not _gate_recorded(state, "method"):
+    method_changed = (
+        _changed_gate_artifacts(study, state, "method") if open_study and _gate_recorded(state, "method") else []
+    )
+    if method_changed:
+        result["next"] = _action(
+            "METHOD",
+            "method_card.md changed after Gate 2: re-read it, then record Gate 2 again with a note",
+            f'klein gate record method --study {s} --acknowledged-by "<name>" --note "<what changed and why>"',
+            f"{_REF}/method-gate-protocol.md",
+            "a recorded gate artifact changed after acknowledgement; preflight refuses every run until re-acknowledged",
+        )
+        return result
+    if "method" not in required and not _gate_recorded(state, "method"):
+        notes.append("METHOD (Gate 2) is not required for a quick look; a method card may still be written")
+    elif not _gate_recorded(state, "method"):
         card = study / "method_card.md"
         if not card.is_file() or PLACEHOLDER_RE.search(card.read_text(encoding="utf-8")):
             result["next"] = _action(
@@ -327,7 +399,8 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             "a declared verifier is hashed here and never changes again",
         )
         return result
-    done.append("METHOD (Gate 2) recorded")
+    if _gate_recorded(state, "method"):
+        done.append("METHOD (Gate 2) recorded")
 
     finalization = state.get("finalization")
     finalized = isinstance(finalization, Mapping) and bool(finalization.get("label"))
@@ -423,7 +496,32 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
         sealed_spent = {
             str(m.get("track")) for m in manifests if m.get("evaluation_kind") == "final_test"
         }
-        if current_phase == final_phase:
+        ledger_rows = (
+            {str(pid): row for pid, row in state["predictions"].items()}
+            if isinstance(state.get("predictions"), Mapping)
+            else {}
+        )
+        open_preds = [
+            str(p.get("id"))
+            for p in contract.get("predictions", []) or []
+            if isinstance(p, Mapping) and str(p.get("id")) not in ledger_rows
+        ]
+        if quick:
+            # A quick look has no sealed run and every phase is adaptive. Its loop is over
+            # when the runs exist and every registered prediction is decided — or when the
+            # findings are already written.
+            findings_path = study / "findings.md"
+            findings_written = findings_path.is_file() and not PLACEHOLDER_RE.search(
+                findings_path.read_text(encoding="utf-8")
+            )
+            loop_over = findings_written or (bool(manifests) and bool(contract.get("predictions")) and not open_preds)
+            if loop_over:
+                done.append("quick look: runs made, every registered prediction decided")
+        else:
+            loop_over = False
+        if loop_over:
+            pass
+        elif current_phase == final_phase and not quick:
             events = _events(study)
             for name in sealed_tracks(tracks, contract):
                 if name in sealed_spent:
@@ -456,15 +554,6 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 )
                 return result
         else:
-            ledger_rows = {
-                str(pid): row
-                for pid, row in (state.get("predictions") or {}).items()
-            } if isinstance(state.get("predictions"), Mapping) else {}
-            open_preds = [
-                str(p.get("id"))
-                for p in contract.get("predictions", []) or []
-                if isinstance(p, Mapping) and str(p.get("id")) not in ledger_rows
-            ]
             track_name = next(iter(tracks)) if len(tracks) == 1 else "<track>"
             tests = f" --tests {','.join(open_preds[:3])}" if open_preds else ""
             result["next"] = _action(
@@ -476,10 +565,12 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 f'--description "<one idea>"{tests}',
                 f"{_REF}/phase-ritual.md",
                 f"{len(phase_runs)}/{limit or '?'} runs used in phase {current_phase!r}"
-                + (f"; open predictions: {', '.join(open_preds)}" if open_preds else ""),
+                + (f"; open predictions: {', '.join(open_preds)}" if open_preds else "")
+                + ("; quick look: no sealed run, claims stay exploratory" if quick else ""),
             )
             return result
-        done.append("sealed evidence spent on every track")
+        if not quick:
+            done.append("sealed evidence spent on every track")
 
     # --- SYNTHESIZE / REFEREE / finalize / TUTORIAL ------------------------------
     findings = study / "findings.md"
@@ -502,7 +593,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 "every numeral in findings needs a pinned home",
             )
             return result
-        if not _gate_recorded(state, "referee"):
+        if not quick and not _gate_recorded(state, "referee"):
             report = study / "referee_report.md"
             if not report.is_file():
                 result["next"] = _action(
@@ -522,6 +613,15 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 "finalize runs only after the referee gate",
             )
             return result
+        if quick:
+            result["next"] = _action(
+                "finalize",
+                "close the quick look: it is labelled exploratory and needs no referee",
+                f"klein finalize --study {s}",
+                None,
+                "a quick look has no REFEREE stage and no sealed run; finalize still refuses open predictions",
+            )
+            return result
         result["next"] = _action(
             "finalize",
             "label the study exploratory or confirmed from its evidence",
@@ -533,16 +633,23 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     done.append(f"finalized ({finalization.get('label')})")
 
     report = study / "report" / "index.html"
-    if not report.is_file():
+    receipt_present = (study / "verify_receipt.json").is_file()
+    if not report.is_file() and not (quick and receipt_present):
         result["next"] = _action(
             "TUTORIAL",
             "author the seven report fragments and build the teaching artifact",
             f"klein report build {s}",
             f"{_REF}/tutorial-spec.md",
-            "the study closes with a self-contained report/index.html",
+            (
+                "the report is optional for a quick look: build it, or skip to "
+                f"`klein verify --study {s}`"
+                if quick
+                else "the study closes with a self-contained report/index.html"
+            ),
         )
         return result
-    done.append("tutorial built")
+    if report.is_file():
+        done.append("tutorial built")
 
     receipt = study / "verify_receipt.json"
     if not receipt.is_file():
@@ -642,6 +749,7 @@ def status_data(study_dir: str | Path = ".") -> dict[str, Any]:
     return {
         "study": str(state.get("study_id") or contract.get("study_id") or study.name),
         "schema": version,
+        "rigor": rigor(contract),
         "kind": contract.get("kind"),
         "modality": (contract.get("data") or {}).get("modality") if isinstance(contract.get("data"), Mapping) else None,
         "profile": contract.get("profile") or contract.get("profile_doc"),

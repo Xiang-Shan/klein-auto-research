@@ -13,6 +13,7 @@
   "gate record": "gate",
   "gate override": "gate",
   "finalize": "finalize",
+  "promote": "promote",
   "probe": "probe",
   "doctor": "doctor",
   "new": "new",

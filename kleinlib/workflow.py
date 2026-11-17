@@ -239,6 +239,7 @@ __all__ = [
     "preflight_checks",
     "printed_values",
     "prepared_data_path",
+    "promote_study",
     "read_events",
     "reconcile_state",
     "record_gate",
@@ -2174,6 +2175,11 @@ def status_summary(study_dir: Path) -> str:
         f"study: {state['study_id']}",
         f"schema: v{version}",
         f"status: {state.get('status')}",
+        *(
+            ["rigor: quick look (claims capped at exploratory; promote with klein promote)"]
+            if rigor(contract) == "quick"
+            else []
+        ),
         f"current phase: {state.get('current_phase')}",
         f"experiments: {len(manifests)} (keep={counts['keep']} discard={counts['discard']}"
         f"{measured} crash={counts['crash']})",
@@ -2215,6 +2221,8 @@ def status_summary(study_dir: Path) -> str:
             f"referee: {reviewed.get('verdict')} — {reviewed.get('referee')}, "
             f"independent-of-experimenter: {independence}"
         )
+    elif rigor(contract) == "quick":
+        lines.append("referee: not required (quick look)")
     elif unrefereed:
         lines.append(
             "referee: unrefereed (finalized with --no-referee: "

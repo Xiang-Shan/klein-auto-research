@@ -35,6 +35,7 @@ from .workflow import (
     collect_detached,
     finalize,
     preflight_checks,
+    promote_study,
     record_gate,
     recover,
     resolve_study,
@@ -76,6 +77,13 @@ def build_parser() -> argparse.ArgumentParser:
         default="uv",
         help="how the entrypoint is launched: `uv run --locked python` (default) or plain "
         "`python` for hosts without uv (conda envs, Claude Science task environments)",
+    )
+    new.add_argument(
+        "--rigor",
+        choices=("full", "quick"),
+        default="full",
+        help="proportional rigor (Klein 3.1): quick = two gates (CONSULT, DATA), no sealed run, "
+        "claims capped at exploratory, no referee; `klein promote` lifts it to full",
     )
     new.add_argument("--method-depth", choices=("brief", "full"), default="full", help="METHOD-gate depth: full = 5-part method card")
     new.add_argument("--family", help="model family the study explores, e.g. linear, gbdt")
@@ -254,6 +262,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     nxt.set_defaults(handler=_cmd_next)
     _study_arg(nxt)
+    promote = sub.add_parser(
+        "promote",
+        help="lift a quick look to full rigor: a recorded amendment (re-acknowledge CONSULT, then METHOD)",
+    )
+    promote.set_defaults(handler=_cmd_promote)
+    _study_arg(promote)
+    promote.add_argument("--reason", required=True, help="why the study now deserves the full path (recorded)")
+    promote.add_argument("--promoted-by", required=True, help="who promotes it (recorded)")
     final = sub.add_parser("finalize", help="mark findings exploratory or confirmed")
     final.set_defaults(handler=_cmd_finalize)
     _study_arg(final)
@@ -609,6 +625,7 @@ def _cmd_new(args: argparse.Namespace) -> int:
         profile=None if explicit_profile_doc else pick("profile", args.profile),
         profile_doc=args.profile_doc,
         audience=args.audience,
+        rigor=args.rigor,
     )
     if args.recipe:
         written = apply_recipe(study, args.recipe, split_seed=args.split_seed)
@@ -617,6 +634,8 @@ def _cmd_new(args: argparse.Namespace) -> int:
         apply_runner(study, "python")
     api.emit({"study": str(study), "branch": f"experiments/{args.slug}"})
     print(f"scaffolded {study}")
+    if args.rigor == "quick":
+        print("quick look: two gates (CONSULT, DATA), no sealed run, claims capped at exploratory; `klein promote` to go further")
     print(f"next: git switch -c experiments/{args.slug}   # then: klein next --study {study}")
     return 0
 
@@ -844,6 +863,15 @@ def _cmd_finalize(args: argparse.Namespace) -> int:
     )
     api.emit({"label": label})
     print(f"finalized: {label}")
+    return 0
+
+
+def _cmd_promote(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    result = promote_study(study, reason=args.reason, promoted_by=args.promoted_by)
+    api.emit(result)
+    print("promoted: policy.rigor is now full (the contract changed, so CONSULT must be acknowledged again)")
+    print(f"next: klein gate record consult --study {study} --acknowledged-by <name>   # then METHOD")
     return 0
 
 
