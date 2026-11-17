@@ -749,3 +749,65 @@ def test_sealed_dryrun_helper_acknowledges_only_under_the_flag(capsys, monkeypat
     monkeypatch.setenv("KLEIN_SEALED_DRYRUN", "1")
     assert sealed_dryrun() is True
     assert capsys.readouterr().out == "sealed_dryrun: 1\n"
+
+
+# --------------------------------------------------------------------------
+# A rehearsal the chain does not record (the 3.0 review's tail-truncation finding)
+# --------------------------------------------------------------------------
+
+
+def _log_stamp() -> str:
+    from kleinlib.primitives import utc_now
+
+    return utc_now().replace(":", "").replace("-", "")
+
+
+def test_a_failed_rehearsal_cut_from_the_chain_is_noticed_by_its_log(sealed_ready) -> None:
+    import time
+
+    from kleinlib.events import verify_event_chain
+
+    repo, study = sealed_ready
+    assert sealed_dry_run(study, echo=False) == 0
+    time.sleep(1.1)  # rehearsal logs are stamped to the second
+    crash = _script(repo, study, "raise SystemExit(5)\n")
+    assert sealed_dry_run(study, command=crash, echo=False) == 5
+
+    events = study / "events.jsonl"
+    lines = events.read_text(encoding="utf-8").splitlines(keepends=True)
+    assert json.loads(lines[-1])["type"] == "sealed_dryrun"
+    events.write_text("".join(lines[:-1]), encoding="utf-8")
+    _commit(repo, "cut the failed rehearsal from the end of the chain")
+
+    assert verify_event_chain(study) == []  # the chain alone cannot tell
+    _assert_refused(study, "no event records")
+
+    time.sleep(1.1)
+    assert sealed_dry_run(study, echo=False) == 0  # the honest way forward
+    assert rehearsal_problem(study, load_contract(study), "primary") is None
+
+
+def test_an_interrupted_rehearsal_is_refused_until_the_track_is_rehearsed_again(sealed_ready) -> None:
+    import time
+
+    repo, study = sealed_ready
+    assert sealed_dry_run(study, echo=False) == 0
+    time.sleep(1.1)
+    # A rehearsal killed between writing its log and recording its event.
+    (study / "sweeps" / f"sealed_dryrun.{_log_stamp()}.log").write_text("killed\n", encoding="utf-8")
+    _commit(repo, "a rehearsal that never reached the chain")
+
+    _assert_refused(study, "no event records")
+
+    time.sleep(1.1)
+    assert sealed_dry_run(study, echo=False) == 0
+    assert rehearsal_problem(study, load_contract(study), "primary") is None
+
+
+def test_an_older_unrecorded_log_does_not_block_a_recorded_rehearsal(sealed_ready) -> None:
+    repo, study = sealed_ready
+    (study / "sweeps").mkdir(exist_ok=True)
+    (study / "sweeps" / "sealed_dryrun.20200101T000000Z.log").write_text("ancient\n", encoding="utf-8")
+    _commit(repo, "a stray log from long ago")
+    assert sealed_dry_run(study, echo=False) == 0
+    assert rehearsal_problem(study, load_contract(study), "primary") is None

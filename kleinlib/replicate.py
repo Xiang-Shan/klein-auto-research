@@ -157,6 +157,10 @@ def _finite(value: Any, what: str) -> float:
     return number
 
 
+#: ``--tolerance seed-std``: the replicated run's own recorded seed-to-seed spread.
+SEED_STD = "seed-std"
+
+
 def tolerance_ladder(
     track_spec: Mapping[str, Any],
     *,
@@ -774,7 +778,7 @@ def replicate_run(
     study_dir: Path,
     run_id: str,
     *,
-    tolerance: float | None = None,
+    tolerance: float | str | None = None,
     verify_only: bool = False,
     replay: bool = False,
     timeout_seconds: float | None = None,
@@ -816,9 +820,23 @@ def replicate_run(
     )
     if limit <= 0:
         raise WorkflowError("timeout must be greater than zero")
-    tolerance_value, tolerance_source = tolerance_ladder(
-        track_spec, override=tolerance, mode=mode
-    )
+    if tolerance == SEED_STD:
+        # A stated tolerance with a name: the run's OWN recorded seed-to-seed spread.
+        # On the machine that ran it a seeded run reproduces far inside this; on
+        # another CPU it is the honest scale for "the same result" (a CNN's
+        # three-seed mean moved 0.003 across runners against a spread of 0.035).
+        metrics = manifest.get("metrics")
+        spread = metrics.get("primary_metric_std") if isinstance(metrics, Mapping) else None
+        if spread is None:
+            raise WorkflowError(
+                f"--tolerance {SEED_STD} needs a run made with a seed array: {run_id}'s manifest "
+                "records no primary_metric_std"
+            )
+        tolerance_value, tolerance_source = _finite(spread, "primary_metric_std"), SEED_STD
+    else:
+        tolerance_value, tolerance_source = tolerance_ladder(
+            track_spec, override=tolerance, mode=mode
+        )
 
     with StudyLock(study_dir):
         directory = _replications_dir(study_dir, run_id)

@@ -33,6 +33,7 @@ from .contract import (
     _guardrail_entries,
     _phase_ids,
     load_contract,
+    misspelled_keys,
     mutable_surface,
     normalize_tracks,
     prepared_data_path,
@@ -310,6 +311,19 @@ def preflight_checks(
     checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or f"schema_version {version} contract valid"))
     if cost_advisory:
         checks.extend(_call_price_checks(contract))
+        # Preflight only, like the price advisory, and only when there is something
+        # to say: `klein verify` and every existing receipt keep their rows.
+        typos = misspelled_keys(contract)
+        if typos:
+            checks.append(
+                Check(
+                    "contract keys",
+                    True,
+                    "[WARN] "
+                    + "; ".join(f"`{key}` is not a contract key — did you mean `{known}`?" for key, known in typos)
+                    + " An unknown key is ignored, so a typo changes nothing and says nothing.",
+                )
+            )
     for track_name, track_spec in normalize_tracks(contract).items():
         metric = track_spec["metric"]
         floor = metric.get("noise_floor")

@@ -21,9 +21,19 @@ import argparse
 
 from .contract import resolve_study
 from .errors import WorkflowError
-from .replicate import list_replications, replicate_run
+from .replicate import SEED_STD, list_replications, replicate_run
 
 __all__ = ["register"]
+
+
+def _tolerance(text: str) -> float | str:
+    """``--tolerance``: a number, or the named rule ``seed-std``."""
+    if text == SEED_STD:
+        return text
+    try:
+        return float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"expected a number or `{SEED_STD}`, got {text!r}") from None
 
 
 def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
@@ -59,8 +69,10 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     parser.add_argument("--study", default=".", help="study directory (default: .)")
     parser.add_argument(
         "--tolerance",
-        type=float,
-        help="top rung of the tolerance ladder; overrides minimum_delta / floor std / exact",
+        type=_tolerance,
+        metavar="NUMBER|seed-std",
+        help="top rung of the tolerance ladder; overrides minimum_delta / floor std / exact. "
+        "`seed-std` states the run's own recorded seed-to-seed spread (a seed-array run)",
     )
     parser.add_argument(
         "--verify-only",

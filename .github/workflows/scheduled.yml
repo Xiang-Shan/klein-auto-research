@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # the anchors restore files from candidate commits
       - uses: astral-sh/setup-uv@v8.3.2
@@ -61,7 +61,7 @@ jobs:
     env:
       PYTORCH_MPS_HIGH_WATERMARK_RATIO: "0.0"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # the anchors restore files from candidate commits
       - uses: astral-sh/setup-uv@v8.3.2
@@ -95,7 +95,7 @@ jobs:
     env:
       KLEIN_DEVICE: cpu
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - uses: astral-sh/setup-uv@v8.3.2
@@ -120,16 +120,13 @@ jobs:
           # - Study 22 trains a CNN over three seeds. On one runner the mean reproduced
           #   to the last digit, on another it moved 0.003 against a 0.001 analysis
           #   resolution (run 44014605418). The assertion is the run's own recorded
-          #   seed-to-seed standard deviation (`primary_metric_std` in its manifest):
-          #   another machine must land inside one seed's worth of noise.
+          #   seed-to-seed standard deviation (`--tolerance seed-std`, read from its
+          #   manifest): another machine must land inside one seed's worth of noise.
           # - Study 21 replicates within its measured noise floor; no override.
           for triple in 23-lalonde-causal-replication:E0002:0.01 21-bloodmnist-cnn:E0001: 22-cnn-data-scaling:E0001:seed-std; do
             IFS=: read -r slug run tolerance <<<"$triple"
             study="studies/$slug"
             test -d "$study" || { echo "skip $study (not present)"; continue; }
-            if [ "$tolerance" = "seed-std" ]; then
-              tolerance="$(uv run --no-sync python -c 'import json,sys; print(json.load(open(sys.argv[1]))["metrics"]["primary_metric_std"])' "$study/runs/$run/manifest.json")"
-            fi
             ( cd "$study" && uv run --no-sync python -u prepare.py )
             uv run --no-sync klein replicate --study "$study" "$run" --quiet ${tolerance:+--tolerance "$tolerance"}
           done
@@ -152,7 +149,7 @@ jobs:
     # here is a real regression, so it blocks the scheduled run.
     continue-on-error: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v8.3.2
         with:
           python-version: "3.13"
