@@ -81,6 +81,13 @@ under 3.0.0. The rationale is
 
 ### Fixed
 
+- **The release check looks at the installed wheel.** The step that guards a release ran
+  Python from the repository root, so it inspected the source tree — which has no `_skill`
+  folder — instead of the wheel. The `v3.0.0` release run failed there and published
+  nothing, although its wheel was complete. The check is now one file,
+  `scripts/check_installed_wheel.py`, run from outside the checkout by both the release
+  workflow and CI's wheel job, and it refuses a source tree. Before this the release-only
+  step was never run by a pull request.
 - **The claims history lets a strength go down, never up.** The `erratum` verb always
   refused an upgrade, but the history check accepted any strength change that came with an
   erratum, so a hand-edited lock could raise a claim to `confirmed`. Found by the review of
@@ -127,6 +134,10 @@ What changed is everything around it: one schema, a smaller and extensible engin
 installed package that needs no checkout, one machine-readable shape for every verb, and
 three new verbs for exploring and understanding a study. The rationale is
 [`docs/design/klein-3-design.md`](docs/design/klein-3-design.md).
+
+> **Not on PyPI.** The tag `v3.0.0` exists, but its release run failed in a faulty check
+> (fixed in 3.1.0) and published nothing. Install 3.0.0 from the git tag, or use 3.1.0,
+> which contains all of it.
 
 ### Breaking
 
