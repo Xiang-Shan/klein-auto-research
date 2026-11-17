@@ -138,6 +138,9 @@ three new verbs for exploring and understanding a study. The rationale is
   now states the tolerance the study's contract declares (one cent). The MPS canary asked
   for a runner image GitHub retired on 2026-11-02. Study 20's replay step never prepared
   its data, which only showed once the steps before it passed.
+  Study 22's CNN run reproduced to the last digit on one runner and moved 0.003 on another,
+  against a 0.001 analysis resolution; across machines the job now asserts the run's own
+  recorded seed-to-seed standard deviation.
 - `replication-protocol.md` gave the tolerance ladder in the wrong order (`exact` is
   checked before `minimum_delta`), and it and the replicate message told the reader to
   compare fields no record holds.

@@ -110,17 +110,26 @@ jobs:
           set -euo pipefail
           # replicate files its own record as a local commit (never pushed).
           git config user.name "klein-ci"; git config user.email "klein-ci@users.noreply.github.com"
-          # Study 23's `att` metric is declared exact, so a replication on the machine
-          # that ran it must match to the last bit (tolerance 0) — and does. This runner
-          # is a different CPU and BLAS: an iterative logit moves in its last digits
-          # (6e-7 relative, measured). Across machines the honest assertion is the
-          # resolution the study's own contract declares, one cent, and the record says
-          # so (`tolerance_source: --tolerance`). Studies 21 and 22 are stochastic and
-          # replicate within their measured floor, which needs no override.
-          for triple in 23-lalonde-causal-replication:E0002:0.01 21-bloodmnist-cnn:E0001: 22-cnn-data-scaling:E0001:; do
+          # A replication on the machine that ran a study must match at the study's own
+          # tolerance. This runner is another CPU and BLAS, and which one varies from
+          # run to run; across machines the job states the tolerance it asserts, and
+          # the record says so (`tolerance_source: --tolerance`):
+          # - Study 23's `att` metric is declared exact (tolerance 0 at home). An
+          #   iterative logit moves in its last digits elsewhere (6e-7 relative,
+          #   measured); the assertion is the resolution the contract declares, one cent.
+          # - Study 22 trains a CNN over three seeds. On one runner the mean reproduced
+          #   to the last digit, on another it moved 0.003 against a 0.001 analysis
+          #   resolution (run 44014605418). The assertion is the run's own recorded
+          #   seed-to-seed standard deviation (`primary_metric_std` in its manifest):
+          #   another machine must land inside one seed's worth of noise.
+          # - Study 21 replicates within its measured noise floor; no override.
+          for triple in 23-lalonde-causal-replication:E0002:0.01 21-bloodmnist-cnn:E0001: 22-cnn-data-scaling:E0001:seed-std; do
             IFS=: read -r slug run tolerance <<<"$triple"
             study="studies/$slug"
             test -d "$study" || { echo "skip $study (not present)"; continue; }
+            if [ "$tolerance" = "seed-std" ]; then
+              tolerance="$(uv run --no-sync python -c 'import json,sys; print(json.load(open(sys.argv[1]))["metrics"]["primary_metric_std"])' "$study/runs/$run/manifest.json")"
+            fi
             ( cd "$study" && uv run --no-sync python -u prepare.py )
             uv run --no-sync klein replicate --study "$study" "$run" --quiet ${tolerance:+--tolerance "$tolerance"}
           done
