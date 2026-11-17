@@ -42,6 +42,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
+# One canonical form for everything Klein hashes: the event chain, the probe ledger
+# and the call ledger's request keys must never drift apart (re-exported here).
+from .primitives import canonical_json
+
 __all__ = [
     "BudgetExceeded",
     "CacheMiss",
@@ -65,10 +69,6 @@ class BudgetExceeded(RuntimeError):
 
 class CacheMiss(RuntimeError):
     """``KLEIN_OFFLINE=1`` (or replay mode) and the ledger holds no answer for this request."""
-
-
-def canonical_json(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
 def request_key(endpoint: str, payload: Mapping[str, Any], *, sample: int = 0, namespace: str = "study") -> str:

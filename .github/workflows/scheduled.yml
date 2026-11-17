@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: "17 5 * * 1"
   workflow_dispatch:
+  # A change to this workflow is proved in the pull request that makes it, not on
+  # the following Monday: two defects sat red on main for weeks that way.
+  pull_request:
+    paths: [".github/workflows/scheduled.yml"]
 
 permissions:
   contents: read

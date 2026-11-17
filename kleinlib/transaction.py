@@ -12,11 +12,12 @@ patching ``workflow._git_commit``.
 
 from __future__ import annotations
 
+import os
 import platform
 import shutil
 import subprocess
 import tempfile
-from collections.abc import Callable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, MutableMapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -131,6 +132,29 @@ def git_blob(repo: Path, commit: str, path: str) -> bytes | None:
         check=False,
     )
     return result.stdout if result.returncode == 0 else None
+
+
+def unsigned_git_environment(env: MutableMapping[str, str] | None = None) -> MutableMapping[str, str]:
+    """Make git, in ``env`` and every child that inherits it, never sign a commit or tag.
+
+    For THROWAWAY repositories only — a test suite, the end-to-end proof, the demo.
+    They commit thousands of times; under a global ``commit.gpgsign = true`` each
+    commit would call the signer (a prompt, or enough load to exhaust a signing
+    agent). ``GIT_CONFIG_COUNT`` pairs rank as command-line configuration, above any
+    file. A real study is never run this way: a researcher who signs their commits
+    keeps signed evidence.
+    """
+    target = os.environ if env is None else env
+    try:
+        count = int(target.get("GIT_CONFIG_COUNT") or 0)
+    except ValueError:
+        count = 0
+    for key in ("commit.gpgsign", "tag.gpgsign"):
+        target[f"GIT_CONFIG_KEY_{count}"] = key
+        target[f"GIT_CONFIG_VALUE_{count}"] = "false"
+        count += 1
+    target["GIT_CONFIG_COUNT"] = str(count)
+    return target
 
 
 def git_commit(

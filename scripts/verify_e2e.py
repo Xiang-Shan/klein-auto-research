@@ -2230,7 +2230,24 @@ def main(argv: list[str] | None = None) -> int:
         print(exc.message, file=sys.stderr)
         return exc.exit_code
 
+    _never_sign_throwaway_commits()
     return run(repo_root, lanes)
+
+
+def _never_sign_throwaway_commits() -> None:
+    """The proof commits dozens of times in a throwaway worktree; under a global
+    ``commit.gpgsign = true`` each would call the signer. Same rule as the test
+    suite's root conftest (``kleinlib.transaction.unsigned_git_environment``),
+    inlined because this script must run before the engine is importable."""
+    try:
+        count = int(os.environ.get("GIT_CONFIG_COUNT") or 0)
+    except ValueError:
+        count = 0
+    for key in ("commit.gpgsign", "tag.gpgsign"):
+        os.environ[f"GIT_CONFIG_KEY_{count}"] = key
+        os.environ[f"GIT_CONFIG_VALUE_{count}"] = "false"
+        count += 1
+    os.environ["GIT_CONFIG_COUNT"] = str(count)
 
 
 if __name__ == "__main__":

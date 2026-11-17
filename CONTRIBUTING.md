@@ -13,6 +13,12 @@ uv run --no-sync python scripts/verify_shipped_studies.py   # every shipped ledg
 uv run --locked python scripts/verify_e2e.py   # or: bash scripts/verify_e2e.sh
 ```
 
+The suites commit thousands of times in throwaway repositories. They never sign those
+commits, whatever your git configuration says (the root `conftest.py`; `klein demo` and
+`scripts/verify_e2e.py` do the same for their own repositories), so the tests neither
+prompt for a passphrase nor load a signing agent. Commits in a real study keep your
+signing settings.
+
 CI additionally runs Python 3.11–3.14, all-extras deep/GBDT tests, an 80% engine
 coverage floor, CPU reproduction anchors, macOS/Windows CLI smokes, and a clean
 wheel installation. Scheduled jobs check dependency resolution and Apple MPS.

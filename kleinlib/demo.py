@@ -153,9 +153,12 @@ def _same_interpreter() -> Iterator[None]:
         bin_dir = exe.parent
     else:  # e.g. only `python3` on this interpreter's directory: a tiny launcher
         shim = Path(tempfile.mkdtemp(prefix="klein-demo-bin-"))
-        launcher = shim / "python"
-        launcher.write_text(f'#!/bin/sh\nexec "{exe}" "$@"\n', encoding="utf-8")
-        launcher.chmod(0o755)
+        if os.name == "nt":  # cmd resolves `python` to python.cmd through PATHEXT
+            (shim / "python.cmd").write_text(f'@"{exe}" %*\r\n', encoding="utf-8")
+        else:
+            launcher = shim / "python"
+            launcher.write_text(f'#!/bin/sh\nexec "{exe}" "$@"\n', encoding="utf-8")
+            launcher.chmod(0o755)
         bin_dir = shim
     previous = os.environ.get("PATH")
     os.environ["PATH"] = str(bin_dir) + os.pathsep + (previous or "")
@@ -242,6 +245,10 @@ def _init_repo(repo: Path) -> None:
     for key, value in (("user.name", "Klein demo"), ("user.email", "klein-demo@example.invalid")):
         if not _git(repo, "config", "--get", key, check=False):
             _git(repo, "config", key, value)  # repo-local only, and only when git has none
+    # The demo repository is a throwaway: about fifteen commits in as many seconds must
+    # never ask your signer fifteen times. Repo-local, so nothing of yours changes.
+    for key in ("commit.gpgsign", "tag.gpgsign"):
+        _git(repo, "config", key, "false")
     (repo / ".gitignore").write_text(_GITIGNORE, encoding="utf-8")
     _commit_all(repo, "klein demo: repository skeleton")
     _git(repo, "switch", "-q", "-c", BRANCH)
