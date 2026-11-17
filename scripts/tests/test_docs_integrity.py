@@ -79,7 +79,7 @@ ASSET_SUFFIXES = ("md", "toml", "yaml", "json", "py")
 ASSET_REF_RE = re.compile(
     r"`(?:\.claude/skills/klein/)?"
     r"(references/[A-Za-z0-9_./<>-]+\.md"
-    rf"|assets/[A-Za-z0-9_.-]+\.(?:{'|'.join(ASSET_SUFFIXES)}))`"
+    rf"|assets/[A-Za-z0-9_./-]+\.(?:{'|'.join(ASSET_SUFFIXES)}))`"
 )
 
 
@@ -102,12 +102,14 @@ def test_no_orphan_asset() -> None:
     template nobody will find, and the fix is the pointer — never a narrower test.
     """
     corpus = "\n".join(_read(p) for p in NORMATIVE_MD)
+    # recursive: the opt-in generation layer's templates live in `assets/generation/`
+    # and are checked by their path relative to `assets/`, like every core asset
     orphans = [
-        asset.name
-        for asset in sorted(ASSETS.iterdir())
+        asset.relative_to(ASSETS).as_posix()
+        for asset in sorted(ASSETS.rglob("*"))
         if asset.is_file()
         and asset.suffix.lstrip(".") in ASSET_SUFFIXES
-        and f"assets/{asset.name}" not in corpus
+        and f"assets/{asset.relative_to(ASSETS).as_posix()}" not in corpus
     ]
     assert not orphans, f"assets nobody points at: {orphans}"
 

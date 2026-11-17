@@ -48,7 +48,7 @@ klein generation custody attest              --study studies/NN-slug
 ```
 
 `expert` and `reference` are the two groups of the single `expertise` capability
-(`references/expert-protocol.md`, `references/reference-protocol.md`). Each group from
+(`references/generation/expert-protocol.md`, `references/generation/reference-protocol.md`). Each group from
 `slate` to `benchmark` is one capability, named the same but for two: the `slate` group
 is the `slates` capability and the `escalate` group is `escalation`. A capability not
 declared at `init` is inert: its verbs exit 1 rather than write, because the opt-in is
@@ -56,7 +56,7 @@ immutable and a study that wants one declares it at `init` or succeeds itself.
 
 `custody attest` is **capability-agnostic**: it needs the opt-in and nothing else,
 because a hidden benchmark bundle, a custodian-held later time block and a wet-lab
-sample chain are the same receipt (`references/planted-truth-protocol.md`).
+sample chain are the same receipt (`references/generation/planted-truth-protocol.md`).
 
 Every WRITING verb (`init`, `check`, `label`, `recover`,
 `expert lock|amend|bind|repair|review`, `reference record`,
@@ -102,13 +102,13 @@ generation_schema: 1
 study_id: NN-slug
 capabilities: []            # subset of the ten-name vocabulary; [] = admission discipline only
 protocol_hashes:              # the spine's protocol, plus one file per DECLARED capability
-  references/generation-protocol.md: <sha256 at init>
+  references/generation/generation-protocol.md: <sha256 at init>
 predecessor: null           # or {study_id, successor_receipt, inherited_exposure: []}
 custody: null               # or {holder, mechanism}
 ```
 
 `protocol_hashes` pins which RULES the study opted in under: always
-`references/generation-protocol.md`, plus the protocol file of each declared
+`references/generation/generation-protocol.md`, plus the protocol file of each declared
 capability that has one (`expertise` → `expert-protocol.md`, `premortem` →
 `premortem-protocol.md`, `parity` and `contribution` → `expert-parity-protocol.md`,
 `surprise` → `surprise-protocol.md`, `escalation` → `escalation-protocol.md`,
@@ -118,7 +118,7 @@ carries the same set. Drift stays a WARN — the rules may legitimately be impro
 mid-study — but it is now visible for the documents that decide almost everything,
 rather than for the spine's alone.
 
-`assets/generation-manifest-template.yaml` carries the same shape with comments.
+`assets/generation/generation-manifest-template.yaml` carries the same shape with comments.
 
 **Capabilities** are a fixed vocabulary — `expertise, slates, premortem, parity,
 contribution, surprise, escalation, knowledge, benchmark, design` — and a versioned
@@ -128,10 +128,10 @@ version cannot check is refused as *not available*. The dependency table is fixe
 `benchmark ⇒ parity`, `surprise ⇒ design`. **This release supports all ten:
 `expertise`, `slates`, `design`, `premortem`, `parity`, `contribution`,
 `escalation`, `knowledge`, `surprise` and `benchmark`** (see
-`references/expert-protocol.md`, "Slates and calibration" and "Evidence design"
-below, `references/premortem-protocol.md`, `references/expert-parity-protocol.md`,
-`references/escalation-protocol.md`, `references/knowledge-protocol.md`,
-`references/surprise-protocol.md`, and `references/planted-truth-protocol.md`) —
+`references/generation/expert-protocol.md`, "Slates and calibration" and "Evidence design"
+below, `references/generation/premortem-protocol.md`, `references/generation/expert-parity-protocol.md`,
+`references/generation/escalation-protocol.md`, `references/generation/knowledge-protocol.md`,
+`references/generation/surprise-protocol.md`, and `references/generation/planted-truth-protocol.md`) —
 so the *not available* refusal is what a study meets when it is carried back to an
 older Klein, or to a build whose modules were trimmed. Opting in with
 `capabilities: []` still buys the admission discipline and the chronology witnesses,
@@ -302,7 +302,7 @@ the phase start, exactly as `references/phase-ritual.md` has always asked: 4–6
 falsifiable candidates, each scored 1–3 on novelty / testability / expected
 information, before the mutable surface is touched. Nothing here proposes a candidate,
 compares two, or orders the rows — the axis scores are validated and copied verbatim,
-and the arithmetic below is arithmetic on rows you typed. `assets/slate-template.yaml`
+and the arithmetic below is arithmetic on rows you typed. `assets/generation/slate-template.yaml`
 carries the full shape with comments.
 
 `slate lock` refuses 3 rows or 7, a duplicate statement, a probability that is not
@@ -538,7 +538,7 @@ estimand, validity condition or warrant is a successor study, not a second lock.
 `warrant` is closed: `prediction | conditional-estimation | causal-inference |
 exploratory-structure | checked-witness` — a warrant nobody can name is a warrant nobody
 can review. `continuation` is closed too: `continue | stop | escalate | pivot`.
-Template: `assets/evidence-design-template.yaml`.
+Template: `assets/generation/evidence-design-template.yaml`.
 
 **A validity condition is executable, or it is decoration.** Each
 `validity_conditions[].rule_ref` names a registered prediction (`P#`) in `study.yaml`,
@@ -587,7 +587,7 @@ advance, in a form a stranger can compare against what the study ended up claimi
 ## Discovery cells
 
 *The `surprise` capability, which requires `design`. Its rules are long enough to have
-their own file: `references/surprise-protocol.md`.*
+their own file: `references/generation/surprise-protocol.md`.*
 
 `klein generation surprise register` freezes `discovery_cells.yaml` — the cells, their
 adapters and inputs with pinned hashes, their frozen segment inventories, `minimum_n`,

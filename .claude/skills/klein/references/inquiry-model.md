@@ -36,7 +36,7 @@ acquisition ledger; the Claim gains a named warrant; the Decision gains a typed
 continuation with its predecessor and successor. **The id grammar below does not change
 and neither does any engine rule** — the artifact adds vocabulary a stranger can review,
 and the generation layer's `design` family checks only that it was locked first and has
-not moved since (`references/generation-protocol.md`, "Evidence design"). A study that
+not moved since (`references/generation/generation-protocol.md`, "Evidence design"). A study that
 does not opt in is untouched by all of it.
 
 **The Decision object is typed, and one of its types links two studies.** A decision is
@@ -49,7 +49,7 @@ with reasons, the concrete changed resource or assumption, unit-bearing estimate
 actual costs, and the condition that would close it — and **a pivot links a predecessor
 and a successor contract**, pinning both `study.yaml` hashes and the exposure the
 successor inherits. A successor id restores no blindness
-(`references/escalation-protocol.md`). Like every generation record, `<study>#Dn` is a
+(`references/generation/escalation-protocol.md`). Like every generation record, `<study>#Dn` is a
 sidecar id resolved by the extension: it is cited in prose, and reaches `claims.lock`
 only through an `art:` alias — see "Generation records" below.
 
@@ -143,11 +143,11 @@ them. They are always written fully qualified.
 
 | Form | Resolves to |
 |---|---|
-| `<study>#Hn` | one row of a locked hypothesis slate: its statement, track, forecast `p_success`, provenance, axis scores and `success_P` (`references/generation-protocol.md`, "Slates and calibration"). Permanent and never recycled; an admitted run binds to it through the receipt, never through prose. |
-| `<study>#Sn` | one surprise receipt: a violating segment of a registered discovery cell, with its pinned table (`references/surprise-protocol.md`). A **bare `S#` is a scouting-ledger entry**, not this. |
-| `<study>#Dn` | one escalation decision: the trigger it answers, the rung, the rungs skipped with reasons, the changed resource, its costs, and the condition that would close it (`references/escalation-protocol.md`). A pivot additionally links a predecessor and a successor contract. |
-| `knowledge/objects/<sha256>.json` | a promoted claim or method card, addressed by its own content hash rather than a `<study>#…` id, with its `promote` / `contest` / `resolve` transactions on `knowledge/events.jsonl` (`references/knowledge-protocol.md`) |
-| `generation/objects/<sha256>.json` | any other generation record with no id grammar of its own — an admission receipt, a benchmark commitment or reveal, a custody attestation — cited by its object sha (`references/planted-truth-protocol.md`) |
+| `<study>#Hn` | one row of a locked hypothesis slate: its statement, track, forecast `p_success`, provenance, axis scores and `success_P` (`references/generation/generation-protocol.md`, "Slates and calibration"). Permanent and never recycled; an admitted run binds to it through the receipt, never through prose. |
+| `<study>#Sn` | one surprise receipt: a violating segment of a registered discovery cell, with its pinned table (`references/generation/surprise-protocol.md`). A **bare `S#` is a scouting-ledger entry**, not this. |
+| `<study>#Dn` | one escalation decision: the trigger it answers, the rung, the rungs skipped with reasons, the changed resource, its costs, and the condition that would close it (`references/generation/escalation-protocol.md`). A pivot additionally links a predecessor and a successor contract. |
+| `knowledge/objects/<sha256>.json` | a promoted claim or method card, addressed by its own content hash rather than a `<study>#…` id, with its `promote` / `contest` / `resolve` transactions on `knowledge/events.jsonl` (`references/generation/knowledge-protocol.md`) |
+| `generation/objects/<sha256>.json` | any other generation record with no id grammar of its own — an admission receipt, a benchmark commitment or reveal, a custody attestation — cited by its object sha (`references/generation/planted-truth-protocol.md`) |
 
 An `Sn` is exploratory by construction: `klein generation verify` FAILs a `confirmed`
 claim that cites a discovery cell's table or names a receipt, and the confirmation is a

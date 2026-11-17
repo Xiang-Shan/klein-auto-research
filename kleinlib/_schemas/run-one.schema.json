@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/run-one.schema.json",
+  "title": "klein run-one",
+  "description": "One candidate transaction. `run` is the summary of the manifest (the full manifest is on disk under `runs/E####/`). A crash has `ok: false` and a `run` with `disposition: crash`, not a refusal. `klein run-one --final-test --dry-run` returns the rehearsal instead (`exit_code`, `passed` — see `sealed-dry-run`); a `--detach` run has no structured result on the command line and comes back as `text`. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "run": {
+      "type": "object",
+      "properties": {
+        "experiment": {
+          "type": "string",
+          "description": "`E####`."
+        },
+        "track": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "disposition": {
+          "enum": [
+            "keep",
+            "discard",
+            "measured",
+            "crash"
+          ]
+        },
+        "primary_metric": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "null for a crash."
+        },
+        "metric_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evaluation_kind": {
+          "type": "string",
+          "description": "`development` or `final_test`."
+        },
+        "exit_code": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "candidate_commit": {
+          "type": "string"
+        },
+        "base_commit": {
+          "type": "string"
+        },
+        "incumbent": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The experiment id that was the incumbent when this run was judged."
+        },
+        "description": {
+          "type": "string"
+        },
+        "predictions": {
+          "description": "Predictions this run adjudicated, when it named any."
+        },
+        "tests": {
+          "description": "The prediction ids named with `--tests`."
+        }
+      },
+      "required": [
+        "experiment",
+        "disposition"
+      ],
+      "additionalProperties": true
+    },
+    "text": {
+      "type": "string",
+      "description": "Only for `--dry-run` / `--detach`: what the verb printed."
+    },
+    "exit_code": {
+      "type": "integer",
+      "description": "Rehearsal only (`--final-test --dry-run`)."
+    },
+    "passed": {
+      "type": "boolean",
+      "description": "Rehearsal only."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "anyOf": [
+      {
+        "required": [
+          "run"
+        ]
+      },
+      {
+        "required": [
+          "text"
+        ]
+      },
+      {
+        "required": [
+          "exit_code",
+          "passed"
+        ]
+      }
+    ]
+  }
+}

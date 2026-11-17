@@ -41,7 +41,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "decision BEFORE the next candidate, close it with its actual costs, and "
             "pivot to a successor study when the question itself has to change. This "
             "verb neither chooses a rung nor launches, schedules or retries work. See "
-            ".claude/skills/klein/references/escalation-protocol.md."
+            ".claude/skills/klein/references/generation/escalation-protocol.md."
         ),
     )
     escalate_actions = escalate.add_subparsers(dest="escalate_action", required=True)
@@ -237,7 +237,7 @@ def _run_escalate_lock(args: argparse.Namespace) -> int:
     path = ge.plan_path(study)
     if not path.is_file():
         return _error(
-            f"{ge.PLAN_NAME} is missing — copy assets/escalation-plan-template.yaml into "
+            f"{ge.PLAN_NAME} is missing — copy assets/generation/escalation-plan-template.yaml into "
             "the study and fill its triggers, budgets and terminal actions"
         )
     try:

@@ -11,7 +11,7 @@ a baseline recipe from the literature, freezes the numbers that recipe should
 reproduce, and then **executes it through the ordinary notary** before any
 challenger of the driver's own is allowed to run. Opt-in, and
 inert unless `generation/manifest.yaml` declares `expertise`
-(`references/generation-protocol.md`).
+(`references/generation/generation-protocol.md`).
 
 > **Passing establishes reproduction of THAT recipe, on THAT fixture, to THOSE
 > tolerances. It does not establish representative domain expertise**, that the
@@ -42,7 +42,7 @@ question was asked and answered no. `expert bind` exits `2` on `mismatch` or
 
 ## 1. The domain card, locked before CONSULT
 
-Copy `assets/domain-card-template.md` to the study as `domain_card.md`, fill its
+Copy `assets/generation/domain-card-template.md` to the study as `domain_card.md`, fill its
 frontmatter, and lock it **before `klein gate record consult`**. The lock is what
 makes the card evidence: it hashes the file, copies the frontmatter verbatim into
 a write-once object, and anchors it in the core chain ahead of the gate. A card
@@ -53,7 +53,7 @@ study.
 | Frontmatter key | Rule at lock |
 |---|---|
 | `type`, `study`, `scope`, `as_of`, `incumbent` | present, non-empty |
-| `sources[]` | non-empty; each `{record_id, role}` with `role ∈ doctrine, pipeline, metric, incumbent, pitfall`, and each `record_id` resolving to `knowledge/references/<id>.json` (`references/reference-protocol.md`) |
+| `sources[]` | non-empty; each `{record_id, role}` with `role ∈ doctrine, pipeline, metric, incumbent, pitfall`, and each `record_id` resolving to `knowledge/references/<id>.json` (`references/generation/reference-protocol.md`) |
 | `pipeline_steps[]`, `metrics[]` | non-empty — what the field actually runs, and what it actually measures |
 | `method_shortlist[]` | non-empty. **It precedes METHOD**: the shortlist is what the method card will choose FROM, so writing it after the choice is writing the exam after the answer |
 | `doctrine[]`, `pitfalls[]`, `unknowns[]` | lists; may be empty. An empty `unknowns` is a claim, not an omission |
@@ -174,7 +174,7 @@ klein generation expert review --study studies/NN-slug \
 Independence is checked as **string inequality against the roster cell and each
 of its `model · tool · session` components** — testimony, exactly like the
 referee's rung, never authenticated identity
-(`references/generation-protocol.md`, "what this does NOT establish"). A review
+(`references/generation/generation-protocol.md`, "what this does NOT establish"). A review
 with no session receipt, or by an actor the roster already names, is a WARN and
 raises nothing. A blank experimenter row means independence cannot be
 established at all — the same cap the referee protocol applies.

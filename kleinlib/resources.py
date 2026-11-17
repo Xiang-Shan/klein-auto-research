@@ -18,6 +18,7 @@ repository.
 
 from __future__ import annotations
 
+import json
 import re
 import shutil
 from pathlib import Path
@@ -28,11 +29,15 @@ from .errors import WorkflowError
 __all__ = [
     "SKILL_REL",
     "agents_root",
+    "asset_path",
     "explain_topic",
     "glossary",
     "install_skill",
+    "load_schema",
     "profile_path",
     "reference_path",
+    "schema_index",
+    "schema_names",
     "script_path",
     "skill_root",
     "topics",
@@ -84,6 +89,25 @@ def reference_path(name: str, study_dir: Path | None = None) -> Path | None:
     return _find(f"references/{name}", study_dir)
 
 
+def asset_path(name: str, study_dir: Path | None = None) -> Path | None:
+    """The shipped asset ``name`` (``benchmark-submission.schema.json``), wherever it resolves.
+
+    ``name`` may carry a subfolder (``generation/slate-template.yaml``); a bare file
+    name is searched for recursively, so the opt-in generation layer's assets
+    (``assets/generation/``) are found by name like the core ones.
+    """
+    direct = _find(f"assets/{name}", study_dir)
+    if direct is not None:
+        return direct
+    for root in _candidates(study_dir):
+        base = root / "assets"
+        if base.is_dir():
+            for path in sorted(base.rglob(Path(name).name)):
+                if path.is_file() and path.relative_to(base).as_posix().endswith(name):
+                    return path
+    return None
+
+
 def profile_path(name: str, study_dir: Path | None = None) -> Path | None:
     """The shipped audience profile ``<name>.md``."""
     return _find(f"references/profiles/{name}.md", study_dir)
@@ -100,6 +124,34 @@ def agents_root() -> Path | None:
         if root.is_dir() and any(root.glob("klein-*.md")):
             return root
     return None
+
+
+# --------------------------------------------------------------------------
+# schemas
+# --------------------------------------------------------------------------
+
+_SCHEMAS = _PACKAGE / "_schemas"
+_SCHEMA_SUFFIX = ".schema.json"
+
+
+def schema_names() -> list[str]:
+    """Every shipped JSON Schema's name (``envelope``, ``next``, ...), sorted."""
+    return sorted(path.name[: -len(_SCHEMA_SUFFIX)] for path in _SCHEMAS.glob(f"*{_SCHEMA_SUFFIX}"))
+
+
+def schema_index() -> dict[str, str]:
+    """``{verb path: data schema name}`` from ``_schemas/index.json`` (``*`` is the default)."""
+    return json.loads((_SCHEMAS / "index.json").read_text(encoding="utf-8"))
+
+
+def load_schema(name: str) -> dict[str, Any]:
+    """One shipped JSON Schema (draft 2020-12) by name; an unknown name is a refusal."""
+    names = schema_names()
+    if name not in names:
+        close = ", ".join(n for n in names if name and name in n)
+        hint = f" — did you mean: {close}?" if close else ""
+        raise WorkflowError(f"no schema {name!r}{hint} (run `klein schema` for the list: {', '.join(names)})")
+    return json.loads((_SCHEMAS / f"{name}{_SCHEMA_SUFFIX}").read_text(encoding="utf-8"))
 
 
 # --------------------------------------------------------------------------
@@ -156,8 +208,8 @@ def topics(study_dir: Path | None = None) -> dict[str, Path]:
         else:
             key = path.stem
         found.setdefault(key, path)
-    for path in sorted((root / "assets").glob("*")):
-        if path.is_file() and path.name != ".gitkeep":
+    for path in sorted((root / "assets").rglob("*")):
+        if path.is_file() and path.name != ".gitkeep" and "__pycache__" not in path.parts:
             found.setdefault(f"template:{path.name}", path)
     figures = root / "scripts" / "make_figures.py"
     if figures.is_file():

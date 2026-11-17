@@ -13,7 +13,7 @@
 # `commit` refuses a file that does not validate, computes the public bundle's
 # digest and the salted private commitment, pins the scorer and the submission
 # schema, and hashes this file. Every field below is then immutable.
-# Protocol: references/planted-truth-protocol.md.
+# Protocol: references/generation/planted-truth-protocol.md.
 
 type: benchmark
 study: NN-slug                      # the CUSTODIAN study's id
@@ -69,7 +69,7 @@ arms:
     budget: {person_hours: 3}
 
 # The participant-facing submission contract, copied into the study by `commit`
-# from assets/benchmark-submission.schema.json and hashed there.
+# from assets/generation/benchmark-submission.schema.json and hashed there.
 submission_schema: benchmark-submission.schema.json
 
 # At most this many structures per arm (six is a workable default). The cap is
@@ -111,6 +111,6 @@ reveal_policy: after-all-arms
 
 # The study-local scorer, hashed by `commit` and re-read at the scoring cell's
 # candidate commit. NEVER in the mutable surface: the checker is never the
-# searcher (assets/score_submissions_template.py).
+# searcher (assets/generation/score_submissions_template.py).
 scorer:
   path: lib/score_submissions.py

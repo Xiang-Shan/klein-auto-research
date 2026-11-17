@@ -12,7 +12,7 @@
 # `lock` REWRITES this file with the ids it assigned and hashes the result: from
 # then on the forecasts are immutable, and an edit FAILs `klein generation verify`
 # for the life of the study.  Revise through `amend`, which keeps both versions.
-# Rules and semantics: references/generation-protocol.md "Slates and calibration".
+# Rules and semantics: references/generation/generation-protocol.md "Slates and calibration".
 
 type: slate
 study: NN-slug                    # this study's id

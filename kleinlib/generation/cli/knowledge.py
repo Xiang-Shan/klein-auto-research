@@ -39,7 +39,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "the consultation receipt CONSULT cites, with complete hits, their contest "
             "closure, and a use/reject reason for each. The markdown under knowledge/ "
             "stays the human surface and is never rewritten. See "
-            ".claude/skills/klein/references/knowledge-protocol.md."
+            ".claude/skills/klein/references/generation/knowledge-protocol.md."
         ),
     )
     knowledge_actions = knowledge.add_subparsers(dest="knowledge_action", required=True)

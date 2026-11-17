@@ -10,7 +10,7 @@
 # Opt-in: this file means nothing unless
 # `generation/manifest.yaml` declares `capabilities: [design]`.
 #
-# Protocol: .claude/skills/klein/references/generation-protocol.md, "Evidence design".
+# Protocol: .claude/skills/klein/references/generation/generation-protocol.md, "Evidence design".
 # Copy this file to the study root, fill every field, then:
 #
 #   uv run --locked klein generation design lock --study studies/NN-slug

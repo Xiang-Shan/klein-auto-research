@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/predictions.schema.json",
+  "title": "klein predict list",
+  "description": "Every registered prediction and its current verdict, in contract order. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "predictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "track": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "statement": {
+            "type": "string"
+          },
+          "rule": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The registered rule as text; null for a manual prediction."
+          },
+          "manual": {
+            "type": "boolean",
+            "description": "No machine rule: adjudicated by hand."
+          },
+          "verdict": {
+            "enum": [
+              "supported",
+              "refuted",
+              "inconclusive",
+              "open"
+            ]
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "How the verdict was recorded (e.g. `run`)."
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explanation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "acknowledged_by": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "recorded_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "artifacts": {
+            "type": "object"
+          },
+          "revisions": {
+            "type": "integer",
+            "description": "How many earlier verdicts this one replaced."
+          }
+        },
+        "required": [
+          "id",
+          "track",
+          "statement",
+          "rule",
+          "manual",
+          "verdict",
+          "evidence",
+          "artifacts",
+          "revisions"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "supported": {
+          "type": "integer"
+        },
+        "refuted": {
+          "type": "integer"
+        },
+        "inconclusive": {
+          "type": "integer"
+        },
+        "open": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "supported",
+        "refuted",
+        "inconclusive",
+        "open"
+      ],
+      "additionalProperties": {
+        "type": "integer"
+      }
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "predictions",
+      "counts"
+    ]
+  }
+}

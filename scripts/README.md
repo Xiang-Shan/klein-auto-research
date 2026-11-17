@@ -77,7 +77,7 @@ as a subprocess through the shim.
 
 The one-off that seeds the repo-level knowledge store from the typed claim
 citations already in `knowledge/**/*.md`
-(`.claude/skills/klein/references/knowledge-protocol.md`). It opens every markdown
+(`.claude/skills/klein/references/generation/knowledge-protocol.md`). It opens every markdown
 file read-only — **no markdown is ever written** — skips any cited study whose
 `claims.lock` does not verify right now, copies each claim's class, strength and
 evidence roots verbatim, deduplicates by evidence roots, and leaves the scope

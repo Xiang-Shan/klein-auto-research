@@ -4,7 +4,7 @@
 # calls no model and spawns nothing.  The DRIVER writes `responses`, afterwards,
 # once each objection has been answered.  Nothing here is scored, ranked or
 # selected — the reviewer supplies arguments and checks, the driver keeps every
-# selection judgement (references/premortem-protocol.md, references/phase-ritual.md).
+# selection judgement (references/generation/premortem-protocol.md, references/phase-ritual.md).
 #
 #   uv run --locked klein generation premortem record  --study studies/NN-slug --phase <phase>
 #   uv run --locked klein generation premortem respond --study studies/NN-slug --phase <phase>

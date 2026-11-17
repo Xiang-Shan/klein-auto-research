@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/checks.schema.json",
+  "title": "Check lists (verify, preflight, claims verify)",
+  "description": "A list of named checks and a summary (`kleinlib.api.checks_data`). The envelope's `ok` is true exactly when `summary.failed` is 0; each `fail` and `warn` row is repeated in the envelope's `problems` (`code: check`). A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "level": {
+            "enum": [
+              "ok",
+              "warn",
+              "fail"
+            ],
+            "description": "`warn` rows have ok true and a message starting `[WARN]`."
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "ok",
+          "level",
+          "message"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "integer"
+        },
+        "warned": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "failed",
+        "warned"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "checks",
+      "summary"
+    ]
+  }
+}

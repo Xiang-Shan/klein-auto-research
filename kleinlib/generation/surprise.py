@@ -236,7 +236,7 @@ def parse_cells(path: Path) -> dict[str, Any]:
     if not path.is_file():
         raise WorkflowError(
             f"{CELLS_NAME} does not exist — copy "
-            "`.claude/skills/klein/assets/discovery-cells-template.yaml` into the study "
+            "`.claude/skills/klein/assets/generation/discovery-cells-template.yaml` into the study "
             "and declare the cells before their evidence"
         )
     try:

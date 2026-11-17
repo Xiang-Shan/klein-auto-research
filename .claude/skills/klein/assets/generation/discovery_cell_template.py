@@ -22,7 +22,7 @@ What this file is responsible for, and nothing else:
 
 It computes no verdicts and applies no multiplicity rule. Those belong to
 `klein generation surprise record`, once, afterwards, from the pinned bytes —
-`.claude/skills/klein/references/surprise-protocol.md`.
+`.claude/skills/klein/references/generation/surprise-protocol.md`.
 """
 
 from __future__ import annotations

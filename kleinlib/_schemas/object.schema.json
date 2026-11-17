@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/object.schema.json",
+  "title": "Structured, not yet schematized",
+  "description": "The `data` of a verb that returns structured data this schema set does not yet describe (`demo`, `refs verify`): any JSON object.",
+  "type": "object",
+  "additionalProperties": true
+}

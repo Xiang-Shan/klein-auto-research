@@ -209,7 +209,7 @@ def read_parity_file(study_dir: Path) -> dict[str, Any]:
     if not path.is_file():
         raise WorkflowError(
             f"{PARITY_NAME} does not exist — author it first "
-            "(`.claude/skills/klein/assets/parity-template.yaml`)"
+            "(`.claude/skills/klein/assets/generation/parity-template.yaml`)"
         )
     try:
         value = yaml.safe_load(path.read_text(encoding="utf-8"))

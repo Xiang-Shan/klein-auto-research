@@ -789,12 +789,12 @@ def test_c12_a_receipt_pins_the_declared_capabilities_protocols(tmp_path: Path) 
     assert gm.protocol_keys() == (gm.SPINE_PROTOCOL,)
     assert gm.protocol_keys(["design", "surprise"]) == (
         gm.SPINE_PROTOCOL,
-        "references/surprise-protocol.md",
+        "references/generation/surprise-protocol.md",
     )
     # parity and contribution share one document, and it is listed once
     assert gm.protocol_keys(["parity", "contribution"]) == (
         gm.SPINE_PROTOCOL,
-        "references/expert-parity-protocol.md",
+        "references/generation/expert-parity-protocol.md",
     )
     # every declarable capability's protocol, where it has one, is a real file
     root = REPO_ROOT / gm.SKILL_ROOT
@@ -807,12 +807,12 @@ def test_c12_a_receipt_pins_the_declared_capabilities_protocols(tmp_path: Path) 
     ) == 0
     manifest = yaml.safe_load((study / "generation" / "manifest.yaml").read_text("utf-8"))
     assert set(manifest["protocol_hashes"]) == {
-        "references/generation-protocol.md",
-        "references/surprise-protocol.md",
+        "references/generation/generation-protocol.md",
+        "references/generation/surprise-protocol.md",
     }
-    # the fixture repo has no .claude/skills tree, so every hash is null and
-    # drift simply cannot be observed — the KEY SET is what this pins
-    assert set(manifest["protocol_hashes"].values()) == {None}
+    # the fixture repo has no .claude/skills tree, so the hashes come from the
+    # skill this engine ships (the package, or the checkout it runs from)
+    assert None not in set(manifest["protocol_hashes"].values())
     assert set(gm.protocol_hashes(REPO_ROOT, ["surprise"])) == set(manifest["protocol_hashes"])
 
     _gates(repo, study)

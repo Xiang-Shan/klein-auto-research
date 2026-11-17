@@ -502,7 +502,7 @@ def register_custody(actions: argparse._SubParsersAction) -> None:
             "accounts, containers or machines denied access — and Klein reports it as the "
             "testimony it is. Any generation-enabled study may use it; no capability is "
             "required. Without one, a benchmark outcome reads `unverified`. See "
-            ".claude/skills/klein/references/planted-truth-protocol.md."
+            ".claude/skills/klein/references/generation/planted-truth-protocol.md."
         ),
     )
     custody_actions = custody.add_subparsers(dest="custody_action", required=True)

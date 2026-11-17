@@ -169,7 +169,7 @@ def read_slate_file(study_dir: Path, phase: str) -> dict[str, Any]:
     if not path.is_file():
         raise WorkflowError(
             f"{path.relative_to(study_dir).as_posix()} does not exist — author the slate "
-            "first (`.claude/skills/klein/assets/slate-template.yaml`)"
+            "first (`.claude/skills/klein/assets/generation/slate-template.yaml`)"
         )
     try:
         value = yaml.safe_load(path.read_text(encoding="utf-8"))

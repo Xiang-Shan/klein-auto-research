@@ -37,7 +37,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "recomputes every segment, applies the declared family rule and issues one "
             "<study>#Sn receipt per violation - retaining the null and inconclusive "
             "segments, and inventing no explanations. See "
-            ".claude/skills/klein/references/surprise-protocol.md."
+            ".claude/skills/klein/references/generation/surprise-protocol.md."
         ),
     )
     surprise_actions = surprise.add_subparsers(dest="surprise_action", required=True)

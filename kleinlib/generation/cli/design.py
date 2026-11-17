@@ -34,7 +34,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "evidence representations and their acquisition custody, the warrant that "
             "carries the evidence to a claim, and the typed continuation. See the "
             "'Evidence design' section of "
-            ".claude/skills/klein/references/generation-protocol.md."
+            ".claude/skills/klein/references/generation/generation-protocol.md."
         ),
     )
     design_actions = design.add_subparsers(dest="design_action", required=True)
@@ -99,7 +99,7 @@ def _run_design_lock(args: argparse.Namespace) -> int:
     path = study / gd.DESIGN_NAME
     if not path.is_file():
         return _error(
-            f"{gd.DESIGN_NAME} is missing — copy assets/evidence-design-template.yaml "
+            f"{gd.DESIGN_NAME} is missing — copy assets/generation/evidence-design-template.yaml "
             "into the study and fill its five blocks"
         )
     try:

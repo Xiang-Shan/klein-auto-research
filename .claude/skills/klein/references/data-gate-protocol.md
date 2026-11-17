@@ -198,7 +198,7 @@ the prepared table and the split index, and a provenance story is neither.
 
 **Planted-truth benchmarks: the DGP card belongs to the custodian.** A benchmark
 splits one simulation across two studies, so the `## DGP card` above splits with it
-(`references/planted-truth-protocol.md`). The CUSTODIAN's `simulate` study carries the
+(`references/generation/planted-truth-protocol.md`). The CUSTODIAN's `simulate` study carries the
 card **in full** — generating process, every parameter, the seed blocks for
 development and sealed, the sample sizes, what "recover" means numerically — and that
 is where the simulation disclosure requirement is satisfied. Each PARTICIPANT's

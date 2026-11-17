@@ -252,7 +252,7 @@ The standing rules around those layers:
   needs BOTH that receipt and the core `klein verify` receipt passing at the same HEAD.
   The core never depends on it: a study that does not opt in is untouched, no core verb,
   receipt or disposition changes, and the layer never proposes, ranks, selects,
-  schedules or retries. `.claude/skills/klein/references/generation-protocol.md`.
+  schedules or retries. `.claude/skills/klein/references/generation/generation-protocol.md`.
 - **One schema, and nothing notarized is ever rewritten.** Klein 3 reads and judges
   schema 3 only. An older study is never re-judged by newer rules: it verifies with
   the engine that notarized it — schema 2 at tag `v2.3.1`, version 1 at `v1.3.0` — and
@@ -369,7 +369,7 @@ in that release's `CHANGELOG.md` entry.
   `escalate`, `knowledge`, `surprise`, `benchmark`) and `generation custody attest`;
   every sub-verb is listed in `docs/cli.md`. It writes nothing outside
   `<study>/generation/` except the human artifacts a capability names
-  (`references/generation-protocol.md` lists them).
+  (`references/generation/generation-protocol.md` lists them).
 - `uv sync --locked` to set up; extras compose and must be named together:
   `uv sync --locked --extra gbdt --extra deep` (naming only some extras removes
   the others from the environment). `KLEIN_OFFLINE=1` refuses every network data

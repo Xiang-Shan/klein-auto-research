@@ -116,7 +116,7 @@ manifest, in `study_state.json`, and as the event `prediction_adjudicated`. A mi
 key yields `inconclusive`, never a guess.
 
 On a **generation-enabled study** each cell also carries the `<study>#Hn` id of the
-slate row it is (`references/generation-protocol.md`): `klein generation check --action
+slate row it is (`references/generation/generation-protocol.md`): `klein generation check --action
 cell --track <id> --hypothesis <study>#Hn --tests P4` before the run, and the receipt
 binds the id, the slate's hash and the exact surface. The `--tests` set must cover the
 row's `success_P` — the same ids the slate named as its definition of success — because
@@ -127,7 +127,7 @@ hypothesis on an enabled study is refused unless it is a typed obligation (`cali
 A study that declares the **`parity`** capability registers one more cell, and it is a
 special one: the **AI-vs-expert comparison**, the comparison track's SOLE sealed
 evaluation, scoring both frozen pipelines together and pinning
-`tables/parity_units.tsv` (`references/expert-parity-protocol.md`). It **precedes every
+`tables/parity_units.tsv` (`references/generation/expert-parity-protocol.md`). It **precedes every
 other sealed access in the study** — `klein generation check --action sealed` is refused
 on ANY track until `klein generation parity bind` has frozen both pipelines and every
 measured floor, and a `final_test` run recorded before that anchor FAILs the `parity`
@@ -141,7 +141,7 @@ include the cell's registered `expectation_P`: the notary adjudicates the expect
 that run's printed block, and nothing else decides it. The cell's entrypoint prints its
 per-unit table as an ordinary `artifact:` line; `klein generation surprise record --run
 E####` reads those pinned bytes afterwards and applies the declared multiplicity rule
-once (`references/surprise-protocol.md`). A discovery cell may never run on the sealed
+once (`references/generation/surprise-protocol.md`). A discovery cell may never run on the sealed
 partition — the seal is a track's single confirmation look, and a screen cannot confirm
 what it selected.
 

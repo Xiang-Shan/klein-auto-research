@@ -49,6 +49,7 @@ __all__ = [
     "probe",
     "refusal",
     "run_one",
+    "schema",
     "sealed_dry_run",
     "status",
     "study_map",
@@ -264,6 +265,23 @@ def explain(topic: str) -> dict[str, Any]:
     return _guard("explain", lambda: envelope("explain", explain_topic(topic)))
 
 
+def schema(name: str = "") -> dict[str, Any]:
+    """``klein schema``: a JSON Schema by name, or the list and the verb index.
+
+    ``data`` is ``{"name", "schema"}`` for a name and ``{"schemas", "verbs"}`` without one;
+    ``verbs`` maps each verb path to the schema its ``data`` follows (``"*"`` is the default).
+    """
+    from .resources import load_schema, schema_index, schema_names
+
+    def body() -> dict[str, Any]:
+        wanted = name.strip()
+        if wanted:
+            return envelope("schema", {"name": wanted, "schema": load_schema(wanted)})
+        return envelope("schema", {"schemas": schema_names(), "verbs": schema_index()})
+
+    return _guard("schema", body)
+
+
 # --------------------------------------------------------------------------
 # Writing — through the notary
 # --------------------------------------------------------------------------
@@ -332,18 +350,25 @@ def sealed_dry_run(
     *,
     track: str | None = None,
     timeout_seconds: float | None = None,
+    command: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     """``klein run-one --final-test --dry-run``: rehearse the sealed run; spends nothing.
 
-    Mandatory before ``run_one(final_test=True)``: the rehearsal runs the real
-    entrypoint on development data and proves it would have reached the sealed
-    read.  ``ok`` is true only when it did.
+    Required before ``run_one(final_test=True)``, which is refused unless the
+    track's latest rehearsal passed on the same command and the same mutable
+    surface (``kleinlib/rehearsal.py``).  The rehearsal runs the real entrypoint on
+    development data and proves it would have reached the sealed read.  ``ok`` is
+    true only when it did.
     """
     from .workflow import sealed_dry_run as _sealed_dry_run
 
     def body() -> dict[str, Any]:
-        code = _sealed_dry_run(Path(study), track=track, timeout_seconds=timeout_seconds, echo=False)
-        return envelope("run-one --final-test --dry-run", {"exit_code": code}, ok=code == 0)
+        code = _sealed_dry_run(
+            Path(study), track=track, timeout_seconds=timeout_seconds, command=command, echo=False
+        )
+        return envelope(
+            "run-one --final-test --dry-run", {"exit_code": code, "passed": code == 0}, ok=code == 0
+        )
 
     return _guard("run-one --final-test --dry-run", body)
 

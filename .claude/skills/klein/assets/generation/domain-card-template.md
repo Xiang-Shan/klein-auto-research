@@ -6,8 +6,8 @@
 # Do not hand-edit after the lock: an edit fails `expert card`. A change is
 # `klein generation expert amend`, and it may NOT move a baseline target.
 #
-# Protocol: .claude/skills/klein/references/expert-protocol.md
-# Records:  .claude/skills/klein/references/reference-protocol.md
+# Protocol: .claude/skills/klein/references/generation/expert-protocol.md
+# Records:  .claude/skills/klein/references/generation/reference-protocol.md
 
 type: domain-card
 study: NN-slug

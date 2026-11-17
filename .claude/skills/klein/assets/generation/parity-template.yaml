@@ -13,7 +13,7 @@
 # `lock` hashes this file: from then on the criteria are immutable, and an edit
 # FAILs `klein generation verify` for the life of the study.  Revise through
 # `amend`, which keeps both versions and cannot move a margin.
-# Rules and semantics: references/expert-parity-protocol.md.
+# Rules and semantics: references/generation/expert-parity-protocol.md.
 
 type: parity
 study: NN-slug                    # this study's id
@@ -103,7 +103,7 @@ aggregation: conjunction          # the only value in this version: three metric
 
 scorer:
   path: lib/parity_score.py       # study library code, NEVER the mutable surface;
-                                  # `bind` pins its sha256 (assets/parity_score_template.py)
+                                  # `bind` pins its sha256 (assets/generation/parity_score_template.py)
 
 # Who set the margins.  May NOT be program.md's roster `experimenter`: the actor
 # being compared cannot set the bar it is measured against.  Testimony, compared

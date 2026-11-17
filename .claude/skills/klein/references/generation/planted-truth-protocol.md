@@ -9,10 +9,10 @@ disclosed, a matching rule fixed at METHOD, one sealed scoring cell, and a
 verification that recomputes every match from the same bytes.
 
 Opt-in, inert unless `generation/manifest.yaml` declares
-`benchmark` (`references/generation-protocol.md`). `benchmark` requires `parity`,
+`benchmark` (`references/generation/generation-protocol.md`). `benchmark` requires `parity`,
 which requires `expertise`: the arms are compared on matched budgets against a
 reproduced expert control, so the custodian study is already a parity study
-(`references/expert-parity-protocol.md`).
+(`references/generation/expert-parity-protocol.md`).
 
 > **Recovering a planted structure establishes in-silico performance on this
 > generator, at this sample size, under this matching rule.** It does not
@@ -71,7 +71,7 @@ not be asked, `2` refused — and a refusal is on the record first.
 
 ## 1. `benchmark.yaml`, committed at METHOD
 
-Authored from `assets/benchmark-template.yaml` into the custodian study root,
+Authored from `assets/generation/benchmark-template.yaml` into the custodian study root,
 then frozen by `benchmark commit`. The commitment happens **after the custodian's
 METHOD gate** — the matching rule and the scorer are frozen there, before any arm
 sees the data — and **before any participant access**. `commit` refuses if a
@@ -87,7 +87,7 @@ once and the terms are frozen from that moment.
 | `private_commitment` | computed by `commit` as `sha256(salt ‖ canonical bundle bytes)`, beside `sha256(salt)` |
 | `custody` | the declared holder and mechanism, and the attestation document if there is one |
 | `arms[]` | `id`, `description`, `model`, `framework` (`klein-2.1` / `klein-2.0` / `none`), `budget` — arms without matched resources were not compared |
-| `submission_schema` | the participant-facing contract — `assets/benchmark-submission.schema.json`, copied into the study by `commit` and hashed there |
+| `submission_schema` | the participant-facing contract — `assets/generation/benchmark-submission.schema.json`, copied into the study by `commit` and hashed there |
 | `hypothesis_cap` | at most this many structures per arm (A5 suggests six) — the cap is what makes precision mean something |
 | `matching_rule` | `variables: exact`, `relationship: exact`, `direction: sign`, and `context:` as a preregistered SENTENCE |
 | `false_positive_penalty` | charged per submitted structure that matches no planted truth |
@@ -188,7 +188,7 @@ klein run-one --study studies/NN-slug --track scoring \
 ```
 
 Its entrypoint calls `lib/score_submissions.py`
-(`assets/score_submissions_template.py`), which prints `recall_<arm>`,
+(`assets/generation/score_submissions_template.py`), which prints `recall_<arm>`,
 `precision_<arm>`, `null_fp_<arm>` and `cost_<arm>` per arm — `predictive_<arm>`
 too where the arm produced a model, `NA` allowed — and pins
 `tables/benchmark_scores.tsv` with one row per arm × submitted structure:

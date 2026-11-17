@@ -11,7 +11,7 @@
 # life of the study. Cells may be ADDED later; a cell added once any cell has
 # produced a table is forced `post_observation: true`.
 #
-# Full rules: .claude/skills/klein/references/surprise-protocol.md
+# Full rules: .claude/skills/klein/references/generation/surprise-protocol.md
 # Opt-in: `klein generation init --capability design --capability surprise`
 #         (a cell measures something; the evidence design says what).
 

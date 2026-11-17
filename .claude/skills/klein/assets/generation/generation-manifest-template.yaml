@@ -5,7 +5,7 @@
 # re-hashed by every `klein generation verify`. Do not hand-edit this file — an edit
 # fails `generation manifest` permanently.
 #
-# Protocol: .claude/skills/klein/references/generation-protocol.md
+# Protocol: .claude/skills/klein/references/generation/generation-protocol.md
 
 # The manifest's own schema. 1 is the only value.
 generation_schema: 1
@@ -28,15 +28,15 @@ study_id: NN-slug
 # name outside the vocabulary is refused as unknown, and a name the running release
 # cannot check is refused with a different message, on purpose; `klein generation init
 # --capability <name>` names what this release supports. Supported today: all ten —
-# `expertise` (references/expert-protocol.md), `slates`
-# (references/generation-protocol.md, "Slates and calibration"), `design`
-# (references/generation-protocol.md, "Evidence design"), `premortem`
-# (references/premortem-protocol.md), `parity` and `contribution`
-# (references/expert-parity-protocol.md), `escalation`
-# (references/escalation-protocol.md), `knowledge`
-# (references/knowledge-protocol.md), `surprise`
-# (references/surprise-protocol.md), and `benchmark`
-# (references/planted-truth-protocol.md — the CUSTODIAN declares it, never a
+# `expertise` (references/generation/expert-protocol.md), `slates`
+# (references/generation/generation-protocol.md, "Slates and calibration"), `design`
+# (references/generation/generation-protocol.md, "Evidence design"), `premortem`
+# (references/generation/premortem-protocol.md), `parity` and `contribution`
+# (references/generation/expert-parity-protocol.md), `escalation`
+# (references/generation/escalation-protocol.md), `knowledge`
+# (references/generation/knowledge-protocol.md), `surprise`
+# (references/generation/surprise-protocol.md), and `benchmark`
+# (references/generation/planted-truth-protocol.md — the CUSTODIAN declares it, never a
 # participant).
 capabilities: []
 
@@ -45,7 +45,7 @@ capabilities: []
 # absent (Klein installed as a dependency of a foreign repo), in which case drift
 # simply cannot be observed. Drift is a WARN, never a FAIL.
 protocol_hashes:
-  references/generation-protocol.md: null
+  references/generation/generation-protocol.md: null
 
 # Set by `--predecessor <study_id>` when this study succeeds another one. A successor
 # id restores no blindness: `inherited_exposure` names the sealed blocks and the
@@ -60,7 +60,7 @@ predecessor: null
 # verification: the mechanism cannot check that a bundle stayed unread. Isolation
 # means accounts, containers or machines — not directories. The standing testimony
 # is `klein generation custody attest`, which any generation-enabled study may
-# record (references/planted-truth-protocol.md); this field is the declaration the
+# record (references/generation/planted-truth-protocol.md); this field is the declaration the
 # study opted in with.
 custody: null
 # custody:

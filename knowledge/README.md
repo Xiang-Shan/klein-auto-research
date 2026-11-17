@@ -69,7 +69,7 @@ the one that was earned — and its retrieval is deterministic so a consultation
 be replayed. **The markdown in this directory stays the human surface; no verb
 ever rewrites a line of it**, the typed claim citations above remain required, and
 a promoted line on an enabled study simply names its object id as well
-(`.claude/skills/klein/references/knowledge-protocol.md`).
+(`.claude/skills/klein/references/generation/knowledge-protocol.md`).
 
 Promotion can continue outward: a finding that belongs in a personal topic vault
 (the author's harness registers note vaults with Q&A and concept-page skills; any

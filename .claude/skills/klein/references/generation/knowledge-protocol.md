@@ -87,7 +87,7 @@ Two refusals enforce that:
   what makes two rows the same row.
 
 `--method` promotes the study's `method_card.md` instead, pinned with its
-reference records (`references/reference-protocol.md`): the roots are the
+reference records (`references/generation/reference-protocol.md`): the roots are the
 `ref:<key>` rows of `references.yaml` that name a resolvable `record_id`, and a
 method promotion with none is refused rather than filed unpinned.
 

@@ -18,6 +18,7 @@ from .cli_map import register as register_map
 from .cli_predict import register as register_predict
 from .cli_probe import register as register_probe
 from .cli_replicate import register as register_replicate
+from .cli_schema import register as register_schema
 from .cli_skill import register as register_skill
 from .cli_stop import register as register_stop
 from .cli_sweep import register as register_sweep
@@ -355,6 +356,7 @@ def build_parser() -> argparse.ArgumentParser:
     register_probe(sub)
     register_replicate(sub)
     register_skill(sub)
+    register_schema(sub)
     register_stop(sub)
     register_sweep(sub)
     # Everything outside the kernel arrives through the plug-in seam — the opt-in
@@ -733,13 +735,17 @@ def _cmd_run_one(args: argparse.Namespace) -> int:
                 "--dry-run adjudicates nothing: a rehearsal on development "
                 "data is not evidence for a registered prediction"
             )
-        return sealed_dry_run(
+        code = sealed_dry_run(
             study,
             track=args.track,
             timeout_seconds=args.timeout_seconds,
             command=args.command or None,
             echo=not args.quiet,
         )
+        # The same shape `kleinlib.api.sealed_dry_run` returns: a host must not have
+        # to read prose to learn whether the rehearsal passed.
+        api.emit({"exit_code": code, "passed": code == 0})
+        return code
     manifest = run_one(
         study,
         track=args.track,

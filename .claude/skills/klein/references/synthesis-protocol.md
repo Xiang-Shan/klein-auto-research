@@ -107,7 +107,7 @@ Copy `assets/findings-template.md`. Fill, in order:
 - **③ Surprises & why.** What defied the prior — AND the mechanism you believe explains
   it. A surprise with no explanation is a loose end **to be recorded as `unresolved`,
   never invented**. On a study that declared the `surprise` capability, cite the
-  `<study>#Sn` receipts (`references/surprise-protocol.md`) and pin the cell's table;
+  `<study>#Sn` receipts (`references/generation/surprise-protocol.md`) and pin the cell's table;
   a bare `S#` means a scouting-ledger entry, so an id here is always fully qualified.
 - **④ Practical advice.** "On your own data do X, avoid Y" — concrete, numbered, in the
   best-practices voice.
@@ -201,4 +201,4 @@ promoted markdown line then cites its object id alongside the typed claim
 citation: `(supports <study_id>#Cn; knowledge:K7)`. A later study that measures
 the claim outside its stated scope files `knowledge contest`, not an edit — and a
 prediction that merely failed to transfer is a prediction verdict, not a contest
-(`references/knowledge-protocol.md`).
+(`references/generation/knowledge-protocol.md`).

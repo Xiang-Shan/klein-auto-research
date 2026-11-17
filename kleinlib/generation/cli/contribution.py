@@ -28,7 +28,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "chain. Coverage includes rejections; an accepted row with no human acceptor "
             "is recorded as agent-accepted and never promoted; causal AI value requires a "
             "matched frozen-2.0 ablation, which parity.yaml's ablation_study cites. See "
-            ".claude/skills/klein/references/expert-parity-protocol.md."
+            ".claude/skills/klein/references/generation/expert-parity-protocol.md."
         ),
     )
     contribution_actions = contribution.add_subparsers(dest="contribution_action", required=True)

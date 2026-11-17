@@ -33,7 +33,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "ordinary run-one transaction after METHOD, and bind that run to the "
             "targets frozen at the lock. Targets never move: a repair changes the "
             "IMPLEMENTATION, never the bar. See "
-            ".claude/skills/klein/references/expert-protocol.md."
+            ".claude/skills/klein/references/generation/expert-protocol.md."
         ),
     )
     expert_actions = expert.add_subparsers(dest="expert_action", required=True)
@@ -104,7 +104,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "locator, the statement it is cited for, the hash of the bytes that were "
             "read, and the verification basis (read-at-source > bibliography > "
             "abstract-only > hash-only). Klein copies no bytes. See "
-            ".claude/skills/klein/references/reference-protocol.md."
+            ".claude/skills/klein/references/generation/reference-protocol.md."
         ),
     )
     reference_actions = reference.add_subparsers(dest="reference_action", required=True)
@@ -234,7 +234,7 @@ def _run_expert_lock(args: argparse.Namespace) -> int:
     card = study / ge.CARD_NAME
     if not card.is_file():
         return _error(
-            f"{ge.CARD_NAME} is missing — copy assets/domain-card-template.md into the "
+            f"{ge.CARD_NAME} is missing — copy assets/generation/domain-card-template.md into the "
             "study and fill its frontmatter"
         )
     try:

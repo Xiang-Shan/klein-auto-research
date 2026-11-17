@@ -32,7 +32,7 @@ GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("Gates", ("gate", "headroom", "stop")),
     ("Run", ("preflight", "noise-floor", "run-one", "job", "recover", "sweep", "replicate")),
     ("Close", ("summarize", "predict", "claims", "refs", "report", "finalize", "verify")),
-    ("Hosts", ("mcp", "notebook")),
+    ("Hosts", ("mcp", "notebook", "schema")),
     ("Plug-ins", ("generation",)),
 )
 

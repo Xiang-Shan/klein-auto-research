@@ -9,7 +9,7 @@ it differs from the dishonest version in exactly one respect: whether the search
 was written down before it ran.
 
 This protocol is that bookkeeping. It is part of the opt-in generation layer
-(`references/generation-protocol.md`) and applies to a study whose
+(`references/generation/generation-protocol.md`) and applies to a study whose
 `generation/manifest.yaml` declares `surprise`. Because a cell measures something
 and the evidence design says what, `surprise` requires `design`, and
 `klein generation init` refuses the pair without it.
@@ -29,7 +29,7 @@ klein generation surprise record --study studies/NN-slug --run E0007
 
 ## The registry — `discovery_cells.yaml`
 
-Study root, authored by hand from `assets/discovery-cells-template.yaml`,
+Study root, authored by hand from `assets/generation/discovery-cells-template.yaml`,
 registered **after METHOD and before any cell evidence**. After METHOD because
 the adapters a cell freezes are the ones the method card named; before evidence
 because a search space written once its outputs are visible is a description of
@@ -124,7 +124,7 @@ shares a sign with which unit of another is fixed by position in the file. The
 per-segment summary is derived — by `record`, and again by `verify`, from the
 same bytes.
 
-The cell's entrypoint (skeleton: `assets/discovery_cell_template.py`) writes
+The cell's entrypoint (skeleton: `assets/generation/discovery_cell_template.py`) writes
 `tables/<cell_id>.tsv`, prints `artifact: tables/<cell_id>.tsv`, and prints the
 summaries `templates.printed_summary` returns — `cell_segments`, `cell_units`,
 `cell_min_n`, `cell_expected`, `cell_max_abs_deviation`, and one
@@ -228,7 +228,7 @@ On a study that also declares `escalation`, that hand-off has a machine record:
 `klein generation escalate pivot` files the lineage — both contract hashes, the
 inherited exposure, and every `<study>#Hn` / `<study>#Sn` id the predecessor issued
 — and the successor cites the receipt back at `generation init --predecessor …
---successor-receipt …` (`references/escalation-protocol.md`). Without that
+--successor-receipt …` (`references/generation/escalation-protocol.md`). Without that
 capability the same link is prose, and the referee reads it as prose.
 
 ## What this establishes, and what it does not

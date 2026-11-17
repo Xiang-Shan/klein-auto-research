@@ -154,7 +154,7 @@ def parse_card(path: Path) -> tuple[dict[str, Any], str]:
     if not text.startswith("---"):
         raise WorkflowError(
             f"{CARD_NAME} must open with a `---` YAML frontmatter block "
-            "(assets/domain-card-template.md)"
+            "(assets/generation/domain-card-template.md)"
         )
     end = text.find("\n---", 3)
     if end == -1:
@@ -508,7 +508,7 @@ def _components(value: str) -> set[str]:
 def same_actor(name: str | None, roster_cell: str | None) -> bool:
     """Is this reviewer the experimenter, as far as the record can tell?
 
-    String comparison, never authentication (``references/generation-protocol.md``
+    String comparison, never authentication (``references/generation/generation-protocol.md``
     "what this does NOT establish").  Both sides are split on ``· | / ,`` and the
     component sets are INTERSECTED, so the answer does not depend on which side
     happens to be the compound one: a reviewer recorded as

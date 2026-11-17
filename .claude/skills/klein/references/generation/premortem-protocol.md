@@ -9,7 +9,7 @@ FIXED — and the fix must produce a new slate version — before any hypothesis
 that phase is admitted.
 
 Opt-in, inert unless `generation/manifest.yaml` declares
-`premortem` (which requires `slates` — `references/generation-protocol.md`).
+`premortem` (which requires `slates` — `references/generation/generation-protocol.md`).
 
 > **The critic is not the closing referee.** A reviewer whose name matches
 > `program.md`'s `## Roster` **referee** row FAILs verification: a study that
@@ -69,7 +69,7 @@ clears them.
 
 ## 2. The artifact
 
-Copy `assets/premortem-template.yaml` to the study as `premortem/<phase>.yaml`.
+Copy `assets/generation/premortem-template.yaml` to the study as `premortem/<phase>.yaml`.
 The reviewer writes `issues`; the driver writes `responses` afterwards.
 
 | Key | Rule at `record` |

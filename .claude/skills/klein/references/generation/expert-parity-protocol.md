@@ -9,9 +9,9 @@ evidence exists, and it does so on ONE sealed evaluation that scores both
 pipelines together.
 
 Opt-in, inert unless `generation/manifest.yaml` declares `parity`
-(`references/generation-protocol.md`). `parity` requires `expertise`: the
+(`references/generation/generation-protocol.md`). `parity` requires `expertise`: the
 "expert" side of the comparison is the recipe the domain card froze and the
-notary reproduced (`references/expert-protocol.md`), not a re-implementation
+notary reproduced (`references/generation/expert-protocol.md`), not a re-implementation
 whose weakness nobody measured.
 
 > **Passing establishes that on this population, at this sampling unit, under
@@ -53,7 +53,7 @@ negative evidence is evidence.
 
 ## 1. `parity.yaml`, locked before CONSULT
 
-Copy `assets/parity-template.yaml` to the study as `parity.yaml`, fill it, and
+Copy `assets/generation/parity-template.yaml` to the study as `parity.yaml`, fill it, and
 lock it **before `klein gate record consult`**. Criteria registered after the
 study is under way constrain nothing they did not already know; `--allow-late`
 records the lock anyway and `parity lock` FAILs for the life of the study.
@@ -179,7 +179,7 @@ klein run-one --study studies/NN-slug --track comparison \
 ```
 
 The entrypoint calls the study's `lib/parity_score.py`
-(`assets/parity_score_template.py` is the skeleton). It must:
+(`assets/generation/parity_score_template.py` is the skeleton). It must:
 
 1. Score BOTH pipelines on the SAME units, in the SAME order.
 2. Write `tables/parity_units.tsv` — one row per sampling unit, columns

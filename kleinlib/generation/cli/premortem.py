@@ -38,7 +38,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "and the issues; `respond` records one disposition per issue. A blocking "
             "mechanical issue must be accepted, and the acceptance must name a NEW slate "
             "version, before any hypothesis of the phase is admitted. Nothing here scores, "
-            "ranks or selects - see references/premortem-protocol.md."
+            "ranks or selects - see references/generation/premortem-protocol.md."
         ),
     )
     premortem_actions = premortem.add_subparsers(dest="premortem_action", required=True)

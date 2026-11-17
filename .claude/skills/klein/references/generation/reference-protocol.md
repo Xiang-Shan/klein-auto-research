@@ -8,7 +8,7 @@ as easily as one read at the source. **Citation laundering** is not fabrication 
 it is a real work, cited for a statement nobody checked it makes.
 
 A reference RECORD answers the question in a form a stranger can audit. It is
-part of the opt-in generation layer (`references/generation-protocol.md`) and
+part of the opt-in generation layer (`references/generation/generation-protocol.md`) and
 applies to a study whose `generation/manifest.yaml` declares `expertise`.
 
 ```bash
@@ -70,7 +70,7 @@ does not. That keeps the store licence-safe and small, and it is the reason
 
 `blob_retained` is the driver's statement about whether they still hold those
 bytes. It is not verified and cannot be: byte integrity is not custody
-(`references/generation-protocol.md`, "what this does NOT establish").
+(`references/generation/generation-protocol.md`, "what this does NOT establish").
 
 ## Write-once, and how a correction works
 

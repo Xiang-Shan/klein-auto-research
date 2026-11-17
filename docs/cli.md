@@ -80,6 +80,7 @@ Every verb accepts `--help` (the full text) and `--json` (one versioned envelope
 |---|---|---|
 | `klein mcp` | serve read-only Klein tools over MCP stdio (list_studies, next, status, map, doctor, preflight, verify, predictions, claims_verify, explain) | `--root` |
 | `klein notebook` | write a run as a reading-copy .ipynb: the executed source at its candidate commit + its printed block | `--study` `--out` |
+| `klein schema` | the JSON Schemas for the --json envelope and each verb's data (list, or print one) |  |
 
 ## Plug-ins
 

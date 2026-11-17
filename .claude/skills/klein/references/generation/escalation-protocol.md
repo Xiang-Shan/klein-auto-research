@@ -15,7 +15,7 @@ how the study is allowed to end. From then on, a tripped trigger blocks the next
 candidate's admission until a `<study>#Dn` decision is on the record, and the
 decision has to name the concrete resource or assumption it changes. Opt-in,
 inert unless `generation/manifest.yaml` declares `escalation`
-(`references/generation-protocol.md`).
+(`references/generation/generation-protocol.md`).
 
 > **The CLI neither chooses a rung nor launches, schedules, or retries work.** It
 > reconstructs counts from the manifests, refuses an admission while a declared
@@ -54,7 +54,7 @@ commits nothing.
 
 ## 1. The plan, locked before CONSULT
 
-Copy `assets/escalation-plan-template.yaml` to the study as
+Copy `assets/generation/escalation-plan-template.yaml` to the study as
 `escalation_plan.yaml`, fill it, and lock it before `klein gate record consult`:
 
 ```yaml
@@ -182,7 +182,7 @@ with `--inherited kind=ref`), and every `<study>#Hn` / `<study>#Sn` id the
 predecessor issued. A pivot out of a screen is the usual case for the `#Sn` half:
 a surprising segment is confirmed only by a separately registered `test` study on
 rows the selection never saw, and this receipt is what says which rows those are
-(`references/surprise-protocol.md`).
+(`references/generation/surprise-protocol.md`).
 
 The successor cites the receipt back:
 
@@ -234,5 +234,5 @@ holds, that the advice was good, or that the successor's question is better. Tha
 the `next_condition` was met: it is prose, recorded and never evaluated. That the
 costs are accurate — they are testimony. And, as everywhere in this layer, local
 ordering is not independently established chronology: a party who rewrites both
-chains and git history wholesale is not detected (`references/generation-protocol.md`,
+chains and git history wholesale is not detected (`references/generation/generation-protocol.md`,
 "What the witnesses do not prove").

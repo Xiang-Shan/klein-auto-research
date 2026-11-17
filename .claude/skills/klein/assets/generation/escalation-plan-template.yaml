@@ -14,7 +14,7 @@
 # Opt-in: this file means nothing unless
 # `generation/manifest.yaml` declares `capabilities: [escalation]`.
 #
-# Protocol: .claude/skills/klein/references/escalation-protocol.md.
+# Protocol: .claude/skills/klein/references/generation/escalation-protocol.md.
 # Copy this file to the study root, fill every field, then:
 #
 #   uv run --locked klein generation escalate lock --study studies/NN-slug

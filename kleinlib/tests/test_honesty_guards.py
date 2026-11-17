@@ -307,7 +307,7 @@ def test_the_api_offers_the_mandatory_sealed_rehearsal(ready_study, monkeypatch)
 
     monkeypatch.setattr("kleinlib.workflow.sealed_dry_run", fake)
     reply = api.sealed_dry_run(study, track="primary")
-    assert reply["ok"] and reply["data"] == {"exit_code": 0}
+    assert reply["ok"] and reply["data"] == {"exit_code": 0, "passed": True}
     assert seen["track"] == "primary" and seen["echo"] is False
 
 

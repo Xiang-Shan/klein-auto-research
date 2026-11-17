@@ -49,7 +49,7 @@ accelerators; a solo session follows the protocols directly.
 | `synthesize` | Mine trajectory + predictions ledger → 7-section findings + claims.lock | `references/synthesis-protocol.md`, `references/claims-protocol.md` | `klein predict list`, `klein claims init\|pin\|number\|add\|verify`; generation-enabled: `klein generation label` (after both verifies pass at one HEAD) and `klein generation knowledge promote\|contest\|resolve` | klein-synthesist |
 | `referee` | Gate 3: fresh context, different model; verifiers + ten-check rubric → referee_report.md | `references/referee-protocol.md` | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after; generation-enabled: read `generation/verify_receipt.json` and `generation/label.json` and write the report's `Generation:` line — never re-derive a machine verdict | klein-referee |
 | `tutorial` | Build self-contained teaching HTML, numbers from the lock | `references/tutorial-spec.md`, `references/profiles/<profile>.md` | `klein report build <study_dir>`; `klein explain template:make_figures.py > figures/make_figures.py` | klein-tutor |
-| `status` | Summarize results, predictions, evidence use — and name the next action | `klein summarize results.tsv` | `klein next` (read-only: the stage, what is done, the ONE next action and its exact command); `klein status [--json]`; `klein map [--html]` (the study's evidence graph: which predictions and claims each run bears on, and what is still open); `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation-protocol.md`) | — |
+| `status` | Summarize results, predictions, evidence use — and name the next action | `klein summarize results.tsv` | `klein next` (read-only: the stage, what is done, the ONE next action and its exact command); `klein status [--json]`; `klein map [--html]` (the study's evidence graph: which predictions and claims each run bears on, and what is still open); `klein verify` for any-study validation (writes the receipt); `klein generation verify\|status` on a generation-enabled study (`references/generation/generation-protocol.md`) | — |
 
 War stories behind the guards: `references/war-stories.md`. Schema authority:
 `kleinlib/schema.py` — never restate columns anywhere. The five objects and three axes
@@ -75,8 +75,8 @@ default source; judgment stays `{{placeholders}}` the gates refuse
 to BEFORE the evidence (`klein generation init` before Gate 0, `klein generation check`
 before every `run-one`, `klein generation verify` for its own audit). A study that does
 not opt in is untouched by it. The ten capabilities and their verbs:
-`references/generation-overview.md`; the normative protocol:
-`references/generation-protocol.md`.
+`references/generation/generation-overview.md`; the normative protocol:
+`references/generation/generation-protocol.md`.
 
 ## Setup
 
@@ -357,14 +357,14 @@ model in the loop. Know the edges:
 - **Single machine, one experiment at a time** (blocking foreground). No parallel
   dispatch, no scheduler: a cluster run is a blocking submit-and-wait entrypoint.
 - **The generation layer records and scores; it never generates.** The opt-in
-  layer (`references/generation-protocol.md`) hashes admission receipts, checks their
+  layer (`references/generation/generation-protocol.md`) hashes admission receipts, checks their
   order against local witnesses, and computes arithmetic on rows the driver wrote. It
   never proposes, ranks, selects, schedules or retries — and local ordering is not
   independently established chronology. A slate's 1–3 axis scores are validated and
   copied verbatim; nothing sorts on them, and a Brier score over a four-row slate
   proves the arithmetic, not calibration in general.
 - **A screen selects what to look at; it cannot also confirm it.** Surprise mining
-  (`references/surprise-protocol.md`) proves that the search space and its
+  (`references/generation/surprise-protocol.md`) proves that the search space and its
   multiplicity rule predate the evidence and that every registered segment is
   accounted for — not that a segmentation is meaningful or that a violation means
   anything about the world. `metrology.family_maxt` is a randomization diagnostic
@@ -376,11 +376,11 @@ model in the loop. Know the edges:
   claim about it, and an unattested benchmark is reported `unverified` rather than
   accused. Recovering a planted structure establishes performance on that generator
   — a `confirmed` claim resting on the scoring table is refused
-  (`references/planted-truth-protocol.md`).
+  (`references/generation/planted-truth-protocol.md`).
 - **No learned meta-controller.** The agent reasons conversationally; `playbook.md`
   is the within-study memory and `knowledge/` the cross-study memory — priors promote
   through claim-cited findings, not learned weights. The knowledge store's retrieval
-  is deterministic lexical/tag overlap (`references/knowledge-protocol.md`) chosen
+  is deterministic lexical/tag overlap (`references/generation/knowledge-protocol.md`) chosen
   because it replays, not because it retrieves well: it proves what a study SAW, not
   that the field was searched adequately or that the scope tags are honest.
 - **The referee is independent by mechanism, not by magic.** A fresh session of the

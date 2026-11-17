@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/probe.schema.json",
+  "title": "klein probe",
+  "description": "One exploratory look, on the record (`probe`), or with `--list` the whole ledger (`probes`, `problems`). `ok` is false when the probed command exited non-zero; a probe is never evidence for a claim. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "probe": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "`X####`."
+        },
+        "sequence": {
+          "type": "integer"
+        },
+        "timestamp": {
+          "type": "string"
+        },
+        "command": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "note": {
+          "type": "string"
+        },
+        "exit_code": {
+          "type": "integer"
+        },
+        "timed_out": {
+          "type": "boolean"
+        },
+        "wall_seconds": {
+          "type": "number"
+        },
+        "files": {
+          "type": "object"
+        },
+        "unpinned": {
+          "type": "array"
+        },
+        "log": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "sha256": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "path",
+            "sha256"
+          ],
+          "additionalProperties": true
+        },
+        "git_head": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "previous_hash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The previous probe's hash; null for the first (the ledger is a hash chain)."
+        },
+        "hash": {
+          "type": "string"
+        },
+        "restored_state": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Study files the probe touched and the notary restored; present only then."
+        }
+      },
+      "required": [
+        "id",
+        "sequence",
+        "timestamp",
+        "command",
+        "note",
+        "exit_code",
+        "timed_out",
+        "wall_seconds",
+        "files",
+        "unpinned",
+        "log",
+        "git_head",
+        "previous_hash",
+        "hash"
+      ],
+      "additionalProperties": true
+    },
+    "probes": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "`--list`: every probe record."
+    },
+    "problems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "`--list`: why the hash chain is damaged; empty when intact."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "anyOf": [
+      {
+        "required": [
+          "probe"
+        ]
+      },
+      {
+        "required": [
+          "probes",
+          "problems"
+        ]
+      }
+    ]
+  }
+}

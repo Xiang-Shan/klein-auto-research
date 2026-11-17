@@ -39,7 +39,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "has submitted or has a recorded missing trial; score all arms in ONE sealed "
             "registered cell. A hash is not secrecy: isolation is accounts, containers or "
             "machines, and the only record of it is `klein generation custody attest`. See "
-            ".claude/skills/klein/references/planted-truth-protocol.md."
+            ".claude/skills/klein/references/generation/planted-truth-protocol.md."
         ),
     )
     benchmark_actions = benchmark.add_subparsers(dest="benchmark_action", required=True)

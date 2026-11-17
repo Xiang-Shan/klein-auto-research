@@ -21,7 +21,7 @@ three right-skewed numerics: +0.002 val_auc" is; "bootstrap CI of K, 1000 resamp
 seed block A, adjudicates P4" is. Draw from the playbook's open hypotheses, the
 method card's when-it-pays conditions, and the contract's `predictions`.
 
-On a **generation-enabled study** (`references/generation-protocol.md`) the same 4–6
+On a **generation-enabled study** (`references/generation/generation-protocol.md`) the same 4–6
 candidates are also written as rows of `slates/<phase>.yaml`, and each row carries four
 more fields so the forecast can be scored later against what actually happened:
 
@@ -68,7 +68,7 @@ disposition per issue. A `blocking` + `mechanical` issue must be `accept`ed with
 hash of the NEW slate version that fixed it, or no hypothesis of the phase is
 admitted. A scientific disagreement may be rejected with a rationale: the reviewer
 supplies arguments and checks, never a veto, and never a score.
-The reviewer may not be the study's referee — `references/premortem-protocol.md`.
+The reviewer may not be the study's referee — `references/generation/premortem-protocol.md`.
 
 ## 4. Record the slate in program.md
 
@@ -103,7 +103,7 @@ On a study that also declared `escalation`, a tripped trigger comes BEFORE the n
 slate: while a declared stall stands undischarged, no `run` or `--hypothesis` admission
 is granted, so the ritual's first move is `klein generation escalate record` — one
 `<study>#Dn` receipt naming the rung and what it concretely changes — and only then the
-4–6 candidates (`references/escalation-protocol.md`).
+4–6 candidates (`references/generation/escalation-protocol.md`).
 
 ## Worked example
 

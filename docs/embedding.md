@@ -55,7 +55,7 @@ if not reply["ok"]:
 ```
 
 Functions never print and never raise for a refusal. Reading: `next_action`, `status`,
-`preflight`, `verify`, `claims_verify`, `predictions`, `study_map`, `explain`. Writing,
+`preflight`, `verify`, `claims_verify`, `predictions`, `study_map`, `explain`, `schema`. Writing,
 through the notary: `run_one`, `sealed_dry_run` (the mandatory rehearsal before
 `run_one(final_test=True)`), `gate`, `finalize`, `probe`. Anything the engine would have
 printed (a notice, a warning) comes back in `problems` with `level: "warn"`.
@@ -74,7 +74,7 @@ klein map    --study studies/30-churn --json
 
 Verbs with structured results fill `data` (`next`, `status`, `map`, `verify`,
 `preflight`, `claims verify`, `predict list`, `run-one`, `gate`, `finalize`, `recover`,
-`probe`, `doctor`, `explain`, `new`, `skill …`). Any other verb returns its printed text
+`probe`, `doctor`, `explain`, `schema`, `new`, `skill …`). Any other verb returns its printed text
 as `data.text`. The full list of verbs is [`cli.md`](cli.md).
 
 ### 3. MCP — `klein mcp --root <project>`
@@ -103,6 +103,31 @@ The shape of `data.next` (the wording of `action` and `why` varies by stage):
 - `argv` is the command as a ready-to-run list when it is complete; `null` when a person
   has to fill something in (the `command` text then shows the template).
 - `explain` is the portable way to read the procedure for this stage.
+
+## Schemas
+
+A host that wants to validate what Klein returns does not have to read the code: the
+envelope and the `data` of every structured verb have JSON Schemas (draft 2020-12).
+
+- **Where.** `kleinlib/_schemas/` inside the package, so they ship in the wheel:
+  `envelope.schema.json` (the wrapper, closed), one `<name>.schema.json` per kind of
+  `data` (`next`, `status`, `map`, `checks`, `predictions`, `explain`, `run-one`, `gate`,
+  `finalize`, `probe`, `doctor`, `text`, …) and `index.json`, which maps each verb path
+  (`"claims verify"`) to the name of its data schema, with `"*": "text"` as the default.
+- **`klein schema`** lists the schemas and which verbs use each; `klein schema envelope`
+  prints one as JSON; `klein schema --json` (and `kleinlib.api.schema(name="")`) returns
+  the same as an envelope — `{"schemas": [...], "verbs": {...}}`, or `{"name", "schema"}`.
+- **Validating.** Validate the whole reply against `envelope`, then `reply["data"]`
+  against the schema `verbs[reply["verb"]]` names (`verbs["*"]` when the verb is not
+  listed). A refused verb has `ok: false`, an empty `data` and the reason in `problems`;
+  every data schema accepts that empty object, and requires its keys otherwise.
+- **`$id`.** `https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/<name>.schema.json`.
+  The `v1` is the envelope `format`: the ids of a format never change meaning.
+- **Compatibility, in plain words.** Within `format: 1` keys are only ever *added*.
+  Removing or renaming a key, or changing a key's type, raises `format` (and the `v1` in
+  the `$id`). The wrapper is closed because its six keys are the contract; every `data`
+  schema is open, so a validator keeps passing when a later release adds a key — do not
+  turn that off in your own copy.
 
 ## Rules for a host
 

@@ -225,7 +225,7 @@ def test_the_packaged_json_schema_and_the_python_validator_agree() -> None:
     """The asset is the participant's copy of exactly these rules."""
     root = Path(__file__).resolve().parents[3]
     schema = json.loads(
-        (root / ".claude" / "skills" / "klein" / "assets" / gb.SCHEMA_NAME).read_text("utf-8")
+        (root / ".claude" / "skills" / "klein" / "assets" / "generation" / gb.SCHEMA_NAME).read_text("utf-8")
     )
     assert schema["required"] == ["study", "arm", "structures"]
     item = schema["properties"]["structures"]["items"]

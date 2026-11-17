@@ -39,7 +39,7 @@ def register(actions: argparse._SubParsersAction) -> None:
             "rationale for that margin); bind the scorer, both frozen snapshots and the "
             "measured floors BEFORE any sealed access on any track; measure in one sealed "
             "registered cell; assess the verdict from the pinned per-unit table. See "
-            ".claude/skills/klein/references/expert-parity-protocol.md."
+            ".claude/skills/klein/references/generation/expert-parity-protocol.md."
         ),
     )
     parity_actions = parity.add_subparsers(dest="parity_action", required=True)

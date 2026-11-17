@@ -8,7 +8,7 @@ spine's verbs live in :mod:`.spine`, each capability's in its own module
 (:mod:`.expert`, :mod:`.slate`, …), and what more than one of them needs in
 :mod:`._shared`.  The plug-in seam (:mod:`kleinlib.generation.plugin`) calls
 :func:`register`.  The verbs are the protocol's
-(``.claude/skills/klein/references/generation-protocol.md`` "Verbs"):
+(``.claude/skills/klein/references/generation/generation-protocol.md`` "Verbs"):
 
     klein generation init    --study <dir> [--capability X]… [--allow-late]
     klein generation check   --study <dir> --action <checkpoint> --track <id>
@@ -36,7 +36,7 @@ order of :data:`kleinlib.generation.capabilities.MODULES`:
     klein generation custody      attest
 
 ``expert`` and ``reference`` are both the ``expertise`` capability
-(``references/expert-protocol.md``, ``references/reference-protocol.md``);
+(``references/generation/expert-protocol.md``, ``references/generation/reference-protocol.md``);
 ``custody`` belongs to no capability at all and any generation-enabled study may
 record one.  Every group takes ``--study <dir>``.
 
@@ -93,7 +93,7 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
             "existed. It records, hashes, and computes arithmetic on rows the driver "
             "wrote; it never proposes, ranks, selects, schedules, or retries. Opt in "
             "before the CONSULT gate. Schema 3 only. See "
-            ".claude/skills/klein/references/generation-protocol.md."
+            ".claude/skills/klein/references/generation/generation-protocol.md."
         ),
     )
     actions = generation.add_subparsers(dest="generation_action", required=True)

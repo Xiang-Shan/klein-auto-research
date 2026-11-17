@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/sealed-dry-run.schema.json",
+  "title": "Sealed dry run (the rehearsal a sealed run requires)",
+  "description": "The rehearsal of a sealed run: its exit code and whether it passed. `ok` is true only when it passed. The Python API returns it as verb `run-one --final-test --dry-run`; the command line returns the same `data` as verb `run-one`. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "exit_code": {
+      "type": "integer",
+      "description": "0 passed; 3 the entrypoint exited 0 without acknowledging the rehearsal; otherwise the child's exit code (124 on a time-out)."
+    },
+    "passed": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "exit_code"
+    ]
+  }
+}

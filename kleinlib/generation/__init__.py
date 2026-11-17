@@ -35,7 +35,7 @@ must stay cheap, and the CLI imports what a handler actually needs.
 - :mod:`kleinlib.generation.label` — ``generation/label.json``
 - :mod:`kleinlib.generation.recover` — voiding orphans, filing an uncommitted ledger
 
-The protocol is ``.claude/skills/klein/references/generation-protocol.md``.
+The protocol is ``.claude/skills/klein/references/generation/generation-protocol.md``.
 """
 
 from __future__ import annotations
