@@ -81,8 +81,9 @@ have strength `confirmed`: `klein claims add` refuses it, and the claims law fai
 that carries one. The ceilings in the table above apply only up to `exploratory`.
 The cap does not block `refuted` (set, as above, by an erratum or a later study's
 refutation): a quick look may kill an idea. After `klein promote` the cap
-no longer applies, but a claim made under `quick` stays `exploratory`; a stronger claim
-needs evidence earned under `full`.
+no longer applies, but a claim made under `quick` stays `exploratory` — the lock's history
+lets an erratum lower a claim, never raise it. A stronger result is a new claim. The engine
+does not check that its evidence was earned after the promotion; the referee does.
 
 ## The claims law — the seven checks `klein claims verify` runs
 

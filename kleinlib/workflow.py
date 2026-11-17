@@ -138,6 +138,7 @@ from .primitives import (
     utc_now,
 )
 from .rehearsal import command_files_digest, rehearsal_command, rehearsal_problem, surface_digest
+from .rigor import refuse_if_not_a_quick_look
 from .runner import run_logged
 from .schema import (
     AUTO_PRINTED_METRIC_KEYS,
@@ -1436,6 +1437,7 @@ def run_one(
         phase = _phase_spec(contract, phase_id)
         final_phase_id = _phase_ids(contract)[-1]
         quick = rigor(contract) == "quick"
+        refuse_if_not_a_quick_look(study_dir, contract, state, verb="run-one")
         if final_test and quick:
             # Proportional rigor: a quick look claims `exploratory` at most and so
             # has no use for confirmation evidence. Leaving it untouched is what
@@ -1970,6 +1972,16 @@ def finalize(
             else "exploratory"
         )
         quick = rigor(contract) == "quick"
+        refuse_if_not_a_quick_look(study_dir, contract, state, verb="finalize")
+        if quick and (study_dir / "claims.lock").is_file():
+            # The cap is the point of the tier, so the tier does not close over a
+            # breach of it: a quick look holding a `confirmed` claim is refused here,
+            # not left for a later verify to find.
+            from .claims import load_lock, rigor_cap_problems
+
+            capped = rigor_cap_problems(study_dir, load_lock(study_dir))
+            if capped:
+                raise WorkflowError("finalize: " + "; ".join(capped))
         if quick:
             # Proportional rigor: a quick look closes exploratory by construction —
             # whatever its tracks' confirmation records say — and needs no flag to
@@ -2092,7 +2104,7 @@ def finalize(
         return label
 
 
-_RIGOR_LINE_RE = re.compile(r"(\brigor:[ \t]*)([\"']?)quick\2")
+_RIGOR_LINE_RE = re.compile(r"(\brigor:[ \t]*)([\"']?)quick\2(?![\w-])")
 
 
 def promote_study(study_dir: Path, *, reason: str, promoted_by: str) -> dict[str, Any]:
@@ -2102,8 +2114,9 @@ def promote_study(study_dir: Path, *, reason: str, promoted_by: str) -> dict[str
     ``rigor_promoted`` event records who, why, and the contract's hash before and
     after. Nothing is re-run and nothing already recorded changes: the runs made
     under ``quick`` stay development evidence, and a claim made under ``quick``
-    stays ``exploratory`` until evidence earned under ``full`` supports a stronger
-    one. From here the full rules apply to the whole study — the CONSULT gate now
+    stays ``exploratory`` (the claims history lets an erratum lower a claim, never
+    raise it — a stronger result is a new claim; the engine does not check which
+    evidence predates the promotion, the referee does). From here the full rules apply to the whole study — the CONSULT gate now
     hashes a changed contract and is acknowledged again (its first-probe anchor
     is kept), METHOD is required before the next run, the sealed look becomes
     available and is rehearsed, and the referee is required before closing.
@@ -2125,33 +2138,66 @@ def promote_study(study_dir: Path, *, reason: str, promoted_by: str) -> dict[str
                 "this quick look is finalized: its record is closed. Start a full study that "
                 "cites it (`klein new`), rather than reopening a closed one"
             )
+        if any(
+            not isinstance(m.get("transaction"), Mapping)
+            or m.get("transaction", {}).get("status") != "complete"
+            for m in load_manifests(study_dir)
+        ):
+            raise WorkflowError("an interrupted transaction exists; run `klein recover` first")
         path = study_dir / "study.yaml"
+        events_file = events_path(study_dir)
+        # An amendment records ONE change. An uncommitted edit to the contract would
+        # ride into the promotion's commit under its message (the review moved a
+        # decided prediction's threshold that way), so the contract and the chain
+        # must be as committed.
+        repo = repo_root_for(study_dir)
+        dirty = _git(
+            repo, ["status", "--porcelain", "--", _relative(repo, path), _relative(repo, events_file)]
+        ).stdout.strip()
+        if dirty:
+            raise WorkflowError(
+                "klein promote changes one line of a committed contract: commit or discard the "
+                "pending changes to study.yaml / events.jsonl first"
+            )
         before = path.read_text(encoding="utf-8")
+        events_before = events_file.read_bytes() if events_file.is_file() else None
         if len(_RIGOR_LINE_RE.findall(before)) != 1:
             raise WorkflowError(
                 "could not find exactly one `rigor: quick` in study.yaml — set "
                 "`policy.rigor: full` by hand, then run `klein gate record consult`"
             )
         sha_before = sha256_file(path)
-        path.write_text(_RIGOR_LINE_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}full{m.group(2)}", before), encoding="utf-8")
         try:
+            path.write_text(
+                _RIGOR_LINE_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}full{m.group(2)}", before),
+                encoding="utf-8",
+            )
             amended = load_contract(study_dir)
             problems = validate_contract(amended, study_dir)
             if problems or rigor(amended) != "full":
                 raise WorkflowError("; ".join(problems) or "the amended contract is not at full rigor")
-        except WorkflowError as exc:
-            path.write_text(before, encoding="utf-8")  # leave the study exactly as it was
-            raise WorkflowError(f"promotion would leave an invalid contract, nothing changed: {exc}") from exc
-        event = append_event(
-            study_dir,
-            "rigor_promoted",
-            **{"from": "quick", "to": "full"},
-            reason=reason,
-            promoted_by=promoted_by,
-            contract_sha256_before=sha_before,
-            contract_sha256_after=sha256_file(path),
-        )
-        _commit_state_writes(study_dir, "klein: promote the study to full rigor", paths=("study.yaml",), scope="own")
+            event = append_event(
+                study_dir,
+                "rigor_promoted",
+                **{"from": "quick", "to": "full"},
+                reason=reason,
+                promoted_by=promoted_by,
+                contract_sha256_before=sha_before,
+                contract_sha256_after=sha256_file(path),
+            )
+            _commit_state_writes(
+                study_dir, "klein: promote the study to full rigor", paths=("study.yaml",), scope="own"
+            )
+        except BaseException as exc:
+            # All or nothing: the contract and the chain go back to their committed bytes.
+            path.write_text(before, encoding="utf-8")
+            if events_before is None:
+                events_file.unlink(missing_ok=True)
+            else:
+                events_file.write_bytes(events_before)
+            if isinstance(exc, WorkflowError):
+                raise WorkflowError(f"promotion failed, nothing changed: {exc}") from exc
+            raise
     return {
         "study": str(study_dir),
         "rigor": "full",

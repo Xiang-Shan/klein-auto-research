@@ -750,6 +750,10 @@ def build_evidence(study_dir: Path) -> str:
         rows.append(("finalization", "not recorded"))
     else:
         rows.append(("label", html.escape(str(final.get("label") or "not recorded"))))
+        if final.get("rigor") == "quick":
+            # Beside the label, always — whether or not a referee was also recorded.
+            # A full study's finalization carries no `rigor`, so its rows are unchanged.
+            rows.append(("rigor", "quick look — claims capped at exploratory"))
         referee = final.get("referee")
         if isinstance(referee, dict) and referee.get("status") == "unrefereed":
             # `klein finalize --no-referee --reason` writes exactly this shape;

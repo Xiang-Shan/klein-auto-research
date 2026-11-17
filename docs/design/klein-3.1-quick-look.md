@@ -61,8 +61,8 @@ construction, not by convention.
    of judging it by full rules it does not meet.
 2. **Gates.** Required modeling gates become a function of the contract:
    `required_gates(contract)` returns `(consult, data)` for quick and
-   `(consult, data, method)` for full. Every reader of `MODELING_GATES` calls it
-   (`workflow.run_one`, `checks`, `state`, `next_step`). A method card may still be
+   `(consult, data, method)` for full. Everything that enforces or reports the gates
+   calls it (`workflow.run_one`, `checks`, `next_step`). A method card may still be
    written and its gate recorded; it is not required.
 3. **No sealed access.** `run-one --final-test` (and its rehearsal) is refused:
    "a quick look does not spend sealed evidence — promote the study first". The sealed
@@ -71,7 +71,7 @@ construction, not by convention.
    fails a lock that carries one, when the study's rigor is quick. `refuted` is allowed:
    a quick look may kill an idea.
 5. **Closing.** `klein finalize` needs no `--allow-exploratory` and no referee; it records
-   `closure.rigor: quick` and `closure.referee: {status: "not-required"}`. Open
+   `finalization.rigor: quick` and `finalization.referee: {status: "not-required"}`. Open
    predictions are still refused, findings are still required, the label is
    `exploratory`.
 6. **Visible everywhere.** `klein status`, `klein map`, the verify receipt and the report
@@ -92,13 +92,19 @@ construction, not by convention.
   next run, the sealed look becomes available (and rehearsed), the referee is required.
 
 Nothing is re-run and nothing is rewritten. Runs made under `quick` stay development
-evidence, which is all they ever were. A claim made under `quick` stays `exploratory`
-until evidence earned under `full` supports a new, stronger claim; the claims law's
-append-only history shows both.
+evidence, which is all they ever were. A claim made under `quick` stays `exploratory`:
+the claims history lets an erratum lower a claim, never raise it, so a stronger result is
+a new claim. What the engine does **not** check is which evidence predates the promotion —
+after it, a new claim is judged as any full study's claim is, and the referee, now
+required, is the one who asks whether its evidence was earned under full rigor.
 
-Going the other way (`full → quick`) has no verb. It is an ordinary amendment — edit the
-contract, acknowledge CONSULT again — and it can only lower what the study may claim: a
-`confirmed` claim then fails the claims law, and the study closes `exploratory`.
+**The record has the last word on the tier** (`kleinlib/rigor.py`). The tier is a line in a
+contract, and a contract can be edited. A study that has spent sealed evidence, or closed
+`confirmed`, is not a quick look whatever its contract now says: the gates, the notary,
+`finalize` and `verify` all refuse it. So going the other way (`full → quick`) is an
+ordinary amendment only *before* the sealed look; after it there is no way down. The
+independent review of this release showed why: without the rule, a full study could take
+its sealed look, edit itself to `quick`, and close with no referee and no word about it.
 
 ## 6. Entry points
 

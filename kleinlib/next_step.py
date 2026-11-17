@@ -281,7 +281,11 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     unfilled = _placeholder_files(study, consult_files)
     prior_final = state.get("finalization")
     # A closed study's record is not re-acknowledged: the stale-gate path is for open ones.
-    open_study = not (isinstance(prior_final, Mapping) and bool(prior_final.get("label")))
+    # ...and not for one frozen by a detached run: the lock refuses a gate record
+    # there, so "collect the run" must stay the next action.
+    open_study = not (isinstance(prior_final, Mapping) and bool(prior_final.get("label"))) and not (
+        study / ".klein-detached"
+    ).is_file()
     consult_changed = (
         _changed_gate_artifacts(study, state, "consult") if open_study and _gate_recorded(state, "consult") else []
     )
@@ -514,9 +518,28 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             findings_written = findings_path.is_file() and not PLACEHOLDER_RE.search(
                 findings_path.read_text(encoding="utf-8")
             )
-            loop_over = findings_written or (bool(manifests) and bool(contract.get("predictions")) and not open_preds)
+            decided = bool(manifests) and bool(contract.get("predictions")) and not open_preds
+            # The last phase of a quick look has no acknowledgement that opens another:
+            # when it is full, the notary refuses the next run, so the next action is to
+            # write up — never a run that cannot start.
+            phase_full = (
+                current_phase == final_phase and bool(limit) and len(phase_runs) >= limit
+            )
+            loop_over = findings_written or decided or phase_full
             if loop_over:
-                done.append("quick look: runs made, every registered prediction decided")
+                done.append(
+                    "quick look: runs made, every registered prediction decided"
+                    if decided
+                    else "quick look: the loop is over"
+                    + (f" (phase {current_phase!r} is full, {len(phase_runs)}/{limit})" if phase_full else "")
+                )
+                if open_preds and not findings_written:
+                    notes.append(
+                        "open predictions remain ("
+                        + ", ".join(open_preds)
+                        + "): decide each with `klein predict adjudicate`, or record why it stays "
+                        "open — `klein finalize` refuses open predictions"
+                    )
         else:
             loop_over = False
         if loop_over:

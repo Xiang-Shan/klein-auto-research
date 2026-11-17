@@ -41,6 +41,15 @@ under 3.0.0. The rationale is
   next run. Nothing is re-run or rewritten; claims made as a quick look stay
   `exploratory`. A study that is already full, or a finalized quick look, is refused.
   Also `kleinlib.api.promote`.
+- **The record has the last word on the tier** (`kleinlib/rigor.py`). A study that has
+  spent sealed evidence, or closed `confirmed`, is not a quick look whatever its contract
+  now says: every gate, the notary, `finalize` and `verify` (a `rigor` row, for a quick
+  look only) refuse it. Without this a full study could take its sealed look, edit itself
+  down to `quick`, and close with no referee and no disclosure — the independent review of
+  this release did exactly that. `finalize` also refuses a quick look whose lock holds a
+  `confirmed` claim, instead of leaving it for a later verify. `klein promote` changes one
+  line of a committed contract, all or nothing: it refuses pending changes to the contract
+  or the event chain, and restores both if any step fails.
 - **`klein new --rigor quick`** — scaffolds a quick look: `policy.rigor` is written into
   the contract, and the plan and notebook say what a quick look is and how to promote it.
   A full study's scaffold is unchanged.
@@ -72,6 +81,10 @@ under 3.0.0. The rationale is
 
 ### Fixed
 
+- **The claims history lets a strength go down, never up.** The `erratum` verb always
+  refused an upgrade, but the history check accepted any strength change that came with an
+  erratum, so a hand-edited lock could raise a claim to `confirmed`. Found by the review of
+  this release; it predates it.
 - **The rehearsal rule notices a rehearsal the chain does not record.** A rehearsal log
   newer than the track's latest recorded rehearsal, named by no event, refuses the sealed
   run: an interrupted rehearsal, or a failed one whose event was cut from the end of the
@@ -95,6 +108,15 @@ under 3.0.0. The rationale is
 - A quick look's loop ends when its registered predictions are decided or its findings are
   written. That is a heuristic in `klein next`, not a judging rule: the engine does not
   stop a quick look from running more.
+- After `klein promote` a new claim is judged as any full study's claim is: the engine does
+  not check that its evidence was earned after the promotion. The referee, now required,
+  does. Promoting by hand (editing the contract and recording CONSULT again) works and
+  leaves no `rigor_promoted` event.
+- A 3.0.0 engine refuses to validate, run, gate or verify a quick study, but its read-only
+  verbs (`status`, `map`, `next`) do not validate the contract and show a quick look
+  without its tier. Read a quick look with 3.1.0 or later.
+- `klein new --rigor quick` keeps the scaffold's `confirmation` phase text, which describes
+  a sealed run a quick look never takes.
 - Merging and tagging a release are manual.
 
 ## [3.0.0] — 2026-11-17

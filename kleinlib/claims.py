@@ -990,6 +990,22 @@ def _diff_revision(
                     "erratum naming it in the same revision"
                 )
             )
+        elif (
+            authored
+            and entry.get("strength") in STRENGTH_RANK
+            and after.get("strength") in STRENGTH_RANK
+            and STRENGTH_RANK[after["strength"]] > STRENGTH_RANK[entry["strength"]]
+        ):
+            # An erratum re-scopes DOWNWARD. The `erratum` verb has always refused an
+            # upgrade; a hand-edited lock that raised a strength under cover of any
+            # erratum passed this check until Klein 3.1.
+            problems.append(
+                _fail(
+                    f"{where}: claim {cid} strength was raised "
+                    f"({entry.get('strength')!r} -> {after.get('strength')!r}) — an erratum "
+                    "only lowers a claim; a stronger result is a new claim with its own evidence"
+                )
+            )
     return problems
 
 
@@ -1051,6 +1067,11 @@ def _is_quick(study_dir: Path) -> bool:
         return rigor(load_contract(study_dir)) == "quick"
     except WorkflowError:
         return False
+
+
+def rigor_cap_problems(study_dir: Path, lock: Mapping[str, Any]) -> list[str]:
+    """The cap's breaches as plain messages (for ``finalize``)."""
+    return [problem.message for problem in _check_rigor_cap(study_dir, lock)]
 
 
 def _check_rigor_cap(study_dir: Path, lock: Mapping[str, Any]) -> list[Problem]:

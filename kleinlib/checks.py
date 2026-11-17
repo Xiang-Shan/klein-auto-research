@@ -1127,6 +1127,19 @@ def verify_study(
     checks += _vocabulary_checks(study_dir, contract)
     # Gate 3 and the predictions ledger close a study.
     checks += _referee_gate_checks(state, quick=rigor(contract) == "quick")
+    if rigor(contract) == "quick":
+        # Only a quick look gets this row: a full study's receipt keeps its rows.
+        from .rigor import quick_record_problems
+
+        contradictions = quick_record_problems(study_dir, contract, state)
+        checks.append(
+            Check(
+                "rigor",
+                not contradictions,
+                "; ".join(contradictions)
+                or "quick look: no sealed evidence spent, claims capped at exploratory",
+            )
+        )
     checks += _predictions_closure_checks(study_dir, contract, state)
     # The claims law (references/claims-protocol.md). Empty without a lock.
     checks += claims_checks(study_dir, sentences=want_claims, strict=strict)

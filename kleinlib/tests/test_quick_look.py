@@ -24,9 +24,10 @@ from test_workflow_v3 import _fill, commit_all, git, metric_command, rehearse
 
 from kleinlib import api, cli
 from kleinlib import contract as contract_module
-from kleinlib.claims import add_claim, init_lock, load_lock, verify_lock, write_lock
+from kleinlib.claims import add_claim, file_erratum, init_lock, load_lock, verify_lock, write_lock
 from kleinlib.contract import load_contract, required_gates, rigor, validate_contract
 from kleinlib.next_step import next_step, status_data
+from kleinlib.rigor import quick_record_problems, refuse_if_not_a_quick_look
 from kleinlib.scaffold import scaffold_study
 from kleinlib.study_map import build_map, format_map, render_html
 from kleinlib.workflow import (
@@ -644,3 +645,292 @@ def test_git_is_clean_after_the_whole_quick_life(quick_study) -> None:
     repo, study = quick_study
     close_quick(repo, study)
     assert subprocess.run(["git", "status", "--porcelain"], cwd=repo, text=True, capture_output=True).stdout.strip() == ""
+
+
+# ---------------------------------------------------------------------------
+# 12. switching tiers: the record has the last word on the contract's line
+# ---------------------------------------------------------------------------
+
+
+def full_study(tmp_path: Path, **kwargs) -> tuple[Path, Path]:
+    return make_study(tmp_path, rigor_value="full", gates=("consult", "data", "method"), **kwargs)
+
+
+def spend_the_seal(repo: Path, study: Path) -> None:
+    """A full study decides P1, takes its rehearsal and spends its one sealed look."""
+    run_candidate(study, "development", tests="P1")
+    commit_all(repo, "development run")
+    record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
+    commit_all(repo, "phase acknowledged")
+    rehearse(study, command=metric_command(0.7))
+    sealed = run_one(study, final_test=True, command=metric_command(0.7), echo=False)
+    assert sealed["evaluation_kind"] == "final_test"
+    commit_all(repo, "sealed look")
+
+
+def edit_contract(study: Path, transform) -> None:
+    path = study / "study.yaml"
+    contract = yaml.safe_load(path.read_text(encoding="utf-8"))
+    transform(contract)
+    path.write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
+
+
+def demote(repo: Path, study: Path) -> None:
+    """Edit the contract down to quick and commit it WITHOUT re-recording the gate."""
+    edit_contract(study, lambda c: c.setdefault("policy", {}).update(rigor="quick"))
+    commit_all(repo, "edit the contract down to quick")
+
+
+def test_a_gate_is_refused_once_a_spent_seal_meets_a_quick_contract(tmp_path: Path) -> None:
+    repo, study = full_study(tmp_path)
+    spend_the_seal(repo, study)
+    edit_contract(study, lambda c: c.setdefault("policy", {}).update(rigor="quick"))
+    with pytest.raises(WorkflowError, match="sealed evidence has been spent"):
+        record_gate(study, "consult", acknowledged_by="tester", note="demoted")
+
+
+def test_the_record_check_reports_a_spent_seal_under_a_quick_contract(tmp_path: Path) -> None:
+    repo, study = full_study(tmp_path)
+    spend_the_seal(repo, study)
+    demote(repo, study)
+    contract = load_contract(study)
+    state = load_state(study, contract)
+    problems = quick_record_problems(study, contract, state)
+    assert len(problems) == 1 and "sealed evidence has been spent" in problems[0]
+    with pytest.raises(WorkflowError, match="sealed evidence has been spent"):
+        refuse_if_not_a_quick_look(study, contract, state, verb="test")
+
+
+def test_finalize_refuses_a_study_that_spent_its_seal_and_now_says_quick(tmp_path: Path) -> None:
+    repo, study = full_study(tmp_path)
+    spend_the_seal(repo, study)
+    (study / "findings.md").write_text(FINDINGS, encoding="utf-8")
+    demote(repo, study)
+    with pytest.raises(WorkflowError, match="sealed evidence has been spent"):
+        finalize(study)
+    assert load_state(study, load_contract(study)).get("status") != "finalized"
+
+
+def test_run_one_is_refused_for_a_study_that_spent_its_seal_and_was_edited_down_to_quick(
+    tmp_path: Path,
+) -> None:
+    # The edited contract is also a stale gate artifact, and that refusal comes first;
+    # the quick-record refusal inside run_one is unreachable without writing the gate
+    # hash by hand, so it is pinned directly by the record-check test above.
+    repo, study = full_study(tmp_path)
+    spend_the_seal(repo, study)
+    demote(repo, study)
+    candidate(study, "after the demotion")
+    with pytest.raises(WorkflowError, match="changed after acknowledgement"):
+        run_one(study, command=metric_command(0.72), echo=False)
+    assert len(load_manifests(study)) == 2  # the development run and the sealed look only
+
+
+def test_a_study_finalized_confirmed_and_edited_to_quick_fails_the_record_check_and_verify(
+    tmp_path: Path,
+) -> None:
+    repo, study = full_study(tmp_path)
+    spend_the_seal(repo, study)
+    (study / "findings.md").write_text(FINDINGS.replace("exploratory", "confirmed"), encoding="utf-8")
+    commit_all(repo, "findings")
+    assert finalize(study, no_referee=True, referee_reason="solo test run") == "confirmed"
+    commit_all(repo, "closed")
+    demote(repo, study)
+    contract = load_contract(study)
+    problems = quick_record_problems(study, contract, load_state(study, contract))
+    assert any("finalized `confirmed`" in problem for problem in problems), problems
+    row = next(c for c in verify_study(study) if c.name == "rigor")
+    assert not row.ok and "finalized `confirmed`" in row.message
+
+
+def test_a_clean_quick_looks_verify_has_a_passing_rigor_row(quick_study) -> None:
+    _, study = quick_study
+    row = next(c for c in verify_study(study) if c.name == "rigor")
+    assert row.ok
+    assert row.message == "quick look: no sealed evidence spent, claims capped at exploratory"
+
+
+def test_a_full_studys_verify_has_no_rigor_row(tmp_path: Path) -> None:
+    _, study = full_study(tmp_path)
+    assert "rigor" not in [c.name for c in verify_study(study)]
+
+
+# ---------------------------------------------------------------------------
+# 13. closing a quick look honestly
+# ---------------------------------------------------------------------------
+
+
+def test_finalize_under_quick_refuses_a_confirmed_claim_in_the_lock(quick_study) -> None:
+    repo, study = quick_study
+    _lock_with_a_confirmed_claim(repo, study)
+    commit_all(repo, "a lock that over-claims")
+    with pytest.raises(WorkflowError, match="capped at 'exploratory'"):
+        finalize(study)
+    assert load_state(study, load_contract(study)).get("status") != "finalized"
+    assert "finalization" not in load_state(study, load_contract(study)) or not load_state(
+        study, load_contract(study)
+    ).get("finalization")
+
+
+def test_finalize_under_quick_still_refuses_open_predictions(quick_study) -> None:
+    repo, study = quick_study
+    run_candidate(study)  # no --tests: P1 stays open
+    (study / "findings.md").write_text(FINDINGS, encoding="utf-8")
+    commit_all(repo, "findings")
+    with pytest.raises(WorkflowError, match="open predictions: P1"):
+        finalize(study)
+    assert load_state(study, load_contract(study)).get("status") != "finalized"
+
+
+# ---------------------------------------------------------------------------
+# 14. a claim's strength only goes down between lock revisions
+# ---------------------------------------------------------------------------
+
+
+def _append_only(study: Path):
+    return next(c for c in verify_lock(study) if c.name == "claims append-only")
+
+
+def _erratum_entry(lock: dict, strength: str) -> None:
+    lock["claims"]["C1"]["strength"] = strength
+    lock["claims"]["C1"]["errata"] = ["E1"]
+    lock["errata"] = {
+        "E1": {"claims": ["C1"], "note": "the strength was re-scoped", "filed": "2026-11-17"}
+    }
+
+
+def test_a_revision_that_raises_a_strength_beside_an_erratum_fails_append_only(tmp_path: Path) -> None:
+    repo, study = full_study(tmp_path)
+    lock_with_claim(repo, study)
+    commit_all(repo, "exploratory lock")
+    lock = load_lock(study)
+    _erratum_entry(lock, "confirmed")
+    write_lock(study, lock)
+    row = _append_only(study)
+    assert not row.ok
+    assert "strength was raised" in row.message
+
+
+def test_a_revision_that_lowers_a_strength_beside_an_erratum_passes_append_only(tmp_path: Path) -> None:
+    repo, study = full_study(tmp_path)
+    run_candidate(study, tests="P1")
+    (study / "findings.md").write_text(FINDINGS, encoding="utf-8")
+    commit_all(repo, "run and findings")
+    init_lock(study)
+    add_claim(study, "C1", strength="confirmed", evidence=["E0001"], **CLAIM)  # confirmed from the start
+    lock = load_lock(study)
+    _erratum_entry(lock, "exploratory")
+    write_lock(study, lock)
+    row = _append_only(study)
+    assert row.ok, row.message
+    assert "strength was raised" not in row.message
+    _ = file_erratum  # the verb that writes this shape is covered in test_claims
+
+
+# ---------------------------------------------------------------------------
+# 15. promotion is one recorded change, all or nothing
+# ---------------------------------------------------------------------------
+
+
+def _chain(study: Path) -> bytes:
+    return (study / "events.jsonl").read_bytes()
+
+
+def test_promote_refuses_an_uncommitted_edit_to_the_contract_and_changes_nothing(quick_study) -> None:
+    repo, study = quick_study
+    path = study / "study.yaml"
+    path.write_text(path.read_text(encoding="utf-8") + "# a sneaked edit\n", encoding="utf-8")
+    yaml_before, chain_before, head = path.read_bytes(), _chain(study), git(repo, "rev-parse", "HEAD")
+    with pytest.raises(WorkflowError, match="commit or discard"):
+        promote_study(study, reason="why", promoted_by="alice")
+    assert path.read_bytes() == yaml_before
+    assert _chain(study) == chain_before
+    assert git(repo, "rev-parse", "HEAD") == head
+    assert not [e for e in read_events(study) if e["type"] == "rigor_promoted"]
+
+
+def test_promote_is_all_or_nothing_when_the_commit_step_fails(quick_study, monkeypatch) -> None:
+    from kleinlib import workflow
+
+    repo, study = quick_study
+    yaml_before, chain_before = (study / "study.yaml").read_bytes(), _chain(study)
+
+    def fail(*_args, **_kwargs):
+        raise WorkflowError("injected commit failure")
+
+    monkeypatch.setattr(workflow, "_commit_state_writes", fail)
+    with pytest.raises(WorkflowError, match="nothing changed"):
+        promote_study(study, reason="why", promoted_by="alice")
+    assert (study / "study.yaml").read_bytes() == yaml_before
+    assert _chain(study) == chain_before
+    assert rigor(load_contract(study)) == "quick"
+
+
+def test_promote_refuses_when_rigor_quick_also_appears_in_a_comment(quick_study) -> None:
+    repo, study = quick_study
+    path = study / "study.yaml"
+    path.write_text("# rigor: quick\n" + path.read_text(encoding="utf-8"), encoding="utf-8")
+    commit_all(repo, "a comment that matches")
+    with pytest.raises(WorkflowError, match="exactly one"):
+        promote_study(study, reason="why", promoted_by="alice")
+    assert rigor(load_contract(study)) == "quick"
+
+
+def test_promote_leaves_a_comment_saying_rigor_quickly_untouched(quick_study) -> None:
+    repo, study = quick_study
+    path = study / "study.yaml"
+    comment = "# rigor: quickly, said a colleague\n"
+    path.write_text(comment + path.read_text(encoding="utf-8"), encoding="utf-8")
+    commit_all(repo, "a comment that almost matches")
+    promote_study(study, reason="why", promoted_by="alice")
+    after = path.read_text(encoding="utf-8")
+    assert after.startswith(comment)
+    assert rigor(load_contract(study)) == "full"
+    assert after.count("rigor: quickly") == 1 and "rigor: quick\n" not in after
+
+
+# ---------------------------------------------------------------------------
+# 16. klein next at the edges
+# ---------------------------------------------------------------------------
+
+
+def _full_final_phase(repo: Path, study: Path) -> None:
+    _enter_final_phase(repo, study)
+    run_candidate(study, "second", value=0.72)  # the final phase allows one run: now full
+    commit_all(repo, "the final phase is full")
+
+
+@pytest.mark.parametrize("registered", [True, False])
+def test_next_under_quick_with_a_full_final_phase_is_not_another_run(tmp_path: Path, registered: bool) -> None:
+    repo, study = make_study(tmp_path, rigor_value="quick", predictions=registered)
+    _full_final_phase(repo, study)
+    result = next_step(study)
+    assert "run-one" not in (result["next"]["command"] or "")
+    assert result["next"]["stage_id"] != "experiment"
+    if registered:
+        assert any("P1" in note and "open predictions" in note for note in result["notes"])
+
+
+def test_next_keeps_the_detached_run_first_even_when_the_contract_was_edited(tmp_path: Path) -> None:
+    _, study = full_study(tmp_path)
+    path = study / "study.yaml"
+    path.write_text(path.read_text(encoding="utf-8") + "# an edit after the gate\n", encoding="utf-8")
+    assert next_step(study)["next"]["action"].startswith("the contract changed after Gate 0")
+    (study / ".klein-detached").write_text("E0001\n", encoding="utf-8")
+    nxt = next_step(study)["next"]
+    assert nxt["stage"] == "EXPERIMENT · detached"
+    assert "detached run E0001" in nxt["action"]
+
+
+def test_a_detached_sealed_run_is_refused_under_quick_with_the_promote_message(quick_study) -> None:
+    repo, study = quick_study
+    edit_contract(
+        study,
+        lambda c: c["entrypoint"].update(printed="block", execution=["local", "detached"]),
+    )
+    record_gate(study, "consult", acknowledged_by="tester", note="declare detached execution")
+    commit_all(repo, "declare detached execution")
+    with pytest.raises(WorkflowError, match="promote"):
+        run_one(study, final_test=True, detach=True, command=metric_command(0.7), echo=False)
+    assert not list((study / "runs").glob("E*"))
+    assert not (study / ".klein-detached").exists()
