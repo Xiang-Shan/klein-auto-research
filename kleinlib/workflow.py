@@ -50,7 +50,6 @@ from .checks import (
 from .contract import (
     GATE_ARTIFACTS,
     IDENTIFIER_RE,
-    MODELING_GATES,
     PLACEHOLDER_RE,
     SCHEMA_VERSION,
     STUDY_ID_RE,
@@ -72,7 +71,9 @@ from .contract import (
     prepared_data_path,
     printed_scope,
     registered_predictions,
+    required_gates,
     resolve_study,
+    rigor,
     schema_version,
     seed_array,
     split_fingerprint,
@@ -670,6 +671,11 @@ def sealed_dry_run(
         track = next(iter(tracks))
     if track not in tracks:
         raise WorkflowError(f"unknown track {track!r}; choose one of {sorted(tracks)}")
+    if rigor(contract) == "quick":
+        raise WorkflowError(
+            "a quick look (policy.rigor: quick) has no sealed run to rehearse: promote the "
+            f"study first (klein promote --study {study_dir} --reason \"...\")"
+        )
     repo = repo_root_for(study_dir)
     expected_branch = f"experiments/{contract['study_id']}"
     if current_branch(repo) != expected_branch:
@@ -1395,9 +1401,10 @@ def run_one(
     with StudyLock(study_dir):
         state = load_state(study_dir, contract)
         gates = state.get("gates")
-        # The hard-block rule: CONSULT, DATA and METHOD. The referee gate comes
-        # after synthesize and is enforced at `finalize`.
-        for gate in MODELING_GATES:
+        # The hard-block rule: CONSULT, DATA and METHOD — CONSULT and DATA for a
+        # quick look (`policy.rigor: quick`). The referee gate comes after
+        # synthesize and is enforced at `finalize`.
+        for gate in required_gates(contract):
             entry = gates.get(gate) if isinstance(gates, Mapping) else None
             if (
                 not isinstance(entry, Mapping)
@@ -1427,6 +1434,17 @@ def run_one(
         phase_id = str(state.get("current_phase"))
         phase = _phase_spec(contract, phase_id)
         final_phase_id = _phase_ids(contract)[-1]
+        quick = rigor(contract) == "quick"
+        if final_test and quick:
+            # Proportional rigor: a quick look claims `exploratory` at most and so
+            # has no use for confirmation evidence. Leaving it untouched is what
+            # lets the study be promoted later without having spent anything.
+            raise WorkflowError(
+                "a quick look (policy.rigor: quick) does not spend sealed evidence. "
+                f"Promote the study first — klein promote --study {study_dir} --reason "
+                '"<why it now deserves the full path>" — then rehearse and run the sealed '
+                "look under full rigor"
+            )
         if final_test:
             # The ledger is the tamper-evident record (manifests are
             # hash-committed; study_state.json is not): a sealed access
@@ -1453,7 +1471,8 @@ def run_one(
                     f"sealed final test is allowed only in final phase {final_phase_id!r}; "
                     f"current phase is {phase_id!r}"
                 )
-        elif phase_id == final_phase_id:
+        elif phase_id == final_phase_id and not quick:
+            # (A quick look has no sealed phase to protect: every phase is adaptive.)
             raise WorkflowError(
                 f"development runs are forbidden in final phase {final_phase_id!r}; "
                 "use --final-test"
@@ -1949,7 +1968,13 @@ def finalize(
             and not confirmation_gaps
             else "exploratory"
         )
-        if label == "exploratory" and not allow_exploratory:
+        quick = rigor(contract) == "quick"
+        if quick:
+            # Proportional rigor: a quick look closes exploratory by construction —
+            # whatever its tracks' confirmation records say — and needs no flag to
+            # admit it. The label is the cap, written where every reader looks.
+            label = "exploratory"
+        if label == "exploratory" and not allow_exploratory and not quick:
             reason = "not every track that requires one has a successful sealed final-test evaluation"
             if confirmation_gaps:
                 reason += "; missing confirmation records — " + "; ".join(
@@ -1998,7 +2023,14 @@ def finalize(
         # can the model that ran the loop.  Closing without a referee is
         # allowed and is DISCLOSED — on the receipt and in `klein status`.
         reviewed = referee_gate(state)
-        if reviewed is None and not no_referee:
+        if reviewed is None and quick:
+            # A quick look claims `exploratory` at most; Gate 3 guards what it
+            # cannot claim. Recorded as not required, never as refereed.
+            closure["referee"] = {
+                "status": "not-required",
+                "reason": "quick look (policy.rigor: quick): claims are capped at exploratory",
+            }
+        elif reviewed is None and not no_referee:
             raise WorkflowError(
                 "the referee gate is not recorded: REFEREE (Gate 3) runs between "
                 "SYNTHESIZE and finalize — a fresh context on a different model or "
@@ -2006,14 +2038,14 @@ def finalize(
                 "--acknowledged-by <actor>`. To close unrefereed, pass --no-referee "
                 '--reason "<why>" (recorded; the study is labelled `unrefereed`).'
             )
-        if reviewed is None:
+        elif reviewed is None:
             if not referee_reason.strip():
                 raise WorkflowError(
                     "--no-referee requires --reason: an unreviewed study says so "
                     "on its own receipt"
                 )
             closure["referee"] = {"status": "unrefereed", "reason": referee_reason}
-        else:
+        if reviewed is not None:
             closure["referee"] = {
                 "status": "refereed",
                 "verdict": reviewed.get("verdict"),
@@ -2036,6 +2068,8 @@ def finalize(
         state["status"] = "finalized"
         state["finalization"] = {
             "label": label,
+            # keyed only for a quick look: a full study's receipt keeps its exact shape
+            **({"rigor": "quick"} if quick else {}),
             "timestamp": utc_now(),
             "final_holdout_counts": counts,
             "successful_confirmation": successful_confirmation,
@@ -2055,6 +2089,74 @@ def finalize(
         )
         _commit_state_writes(study_dir, f"klein: finalized {label}")
         return label
+
+
+_RIGOR_LINE_RE = re.compile(r"(\brigor:[ \t]*)([\"']?)quick\2")
+
+
+def promote_study(study_dir: Path, *, reason: str, promoted_by: str) -> dict[str, Any]:
+    """Lift a quick look to full rigor — a recorded amendment, never a rewrite.
+
+    ``policy.rigor: quick`` becomes ``full`` in ``study.yaml``; one
+    ``rigor_promoted`` event records who, why, and the contract's hash before and
+    after. Nothing is re-run and nothing already recorded changes: the runs made
+    under ``quick`` stay development evidence, and a claim made under ``quick``
+    stays ``exploratory`` until evidence earned under ``full`` supports a stronger
+    one. From here the full rules apply to the whole study — the CONSULT gate now
+    hashes a changed contract and is acknowledged again (its first-probe anchor
+    is kept), METHOD is required before the next run, the sealed look becomes
+    available and is rehearsed, and the referee is required before closing.
+    """
+    if not reason.strip():
+        raise WorkflowError("klein promote requires --reason: an amendment says why")
+    if not promoted_by.strip():
+        raise WorkflowError("klein promote requires --promoted-by: an amendment names who")
+    contract = load_contract(study_dir)
+    problems = validate_contract(contract, study_dir)
+    if problems:
+        raise WorkflowError("invalid study contract: " + "; ".join(problems))
+    if rigor(contract) != "quick":
+        raise WorkflowError("this study is already at full rigor: there is nothing to promote")
+    with StudyLock(study_dir):
+        state = load_state(study_dir, contract)
+        if state.get("status") == "finalized":
+            raise WorkflowError(
+                "this quick look is finalized: its record is closed. Start a full study that "
+                "cites it (`klein new`), rather than reopening a closed one"
+            )
+        path = study_dir / "study.yaml"
+        before = path.read_text(encoding="utf-8")
+        if len(_RIGOR_LINE_RE.findall(before)) != 1:
+            raise WorkflowError(
+                "could not find exactly one `rigor: quick` in study.yaml — set "
+                "`policy.rigor: full` by hand, then run `klein gate record consult`"
+            )
+        sha_before = sha256_file(path)
+        path.write_text(_RIGOR_LINE_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}full{m.group(2)}", before), encoding="utf-8")
+        try:
+            amended = load_contract(study_dir)
+            problems = validate_contract(amended, study_dir)
+            if problems or rigor(amended) != "full":
+                raise WorkflowError("; ".join(problems) or "the amended contract is not at full rigor")
+        except WorkflowError as exc:
+            path.write_text(before, encoding="utf-8")  # leave the study exactly as it was
+            raise WorkflowError(f"promotion would leave an invalid contract, nothing changed: {exc}") from exc
+        event = append_event(
+            study_dir,
+            "rigor_promoted",
+            **{"from": "quick", "to": "full"},
+            reason=reason,
+            promoted_by=promoted_by,
+            contract_sha256_before=sha_before,
+            contract_sha256_after=sha256_file(path),
+        )
+        _commit_state_writes(study_dir, "klein: promote the study to full rigor", paths=("study.yaml",), scope="own")
+    return {
+        "study": str(study_dir),
+        "rigor": "full",
+        "event": event.get("sequence"),
+        "next": "acknowledge the amended contract: klein gate record consult",
+    }
 
 
 def status_summary(study_dir: Path) -> str:

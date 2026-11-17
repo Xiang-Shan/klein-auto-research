@@ -1043,6 +1043,41 @@ def _roll_up(name: str, problems: Iterable[Problem], ok_message: str, *, strict:
     return Check(name, True, ok_message)
 
 
+def _is_quick(study_dir: Path) -> bool:
+    """True when the study declares ``policy.rigor: quick`` (Klein 3.1)."""
+    from .contract import rigor
+
+    try:
+        return rigor(load_contract(study_dir)) == "quick"
+    except WorkflowError:
+        return False
+
+
+def _check_rigor_cap(study_dir: Path, lock: Mapping[str, Any]) -> list[Problem]:
+    """Proportional rigor: a quick look claims ``exploratory`` at most.
+
+    A quick study skips the METHOD gate, the sealed look and the referee, so it
+    never collects what ``confirmed`` means. The cap is what stops a quick answer
+    being quoted as a confirmed result; ``refuted`` stays available, because a
+    quick look may kill an idea. Promotion (``klein promote``) lifts the cap for
+    claims earned under full rigor afterwards.
+    """
+    if not _is_quick(study_dir):
+        return []
+    claims = lock.get("claims")
+    problems: list[Problem] = []
+    for cid, entry in (claims.items() if isinstance(claims, Mapping) else ()):
+        if isinstance(entry, Mapping) and entry.get("strength") == "confirmed":
+            problems.append(
+                _fail(
+                    f"claim {cid!r}: strength 'confirmed' in a quick look (policy.rigor: quick) "
+                    "— a quick look is capped at 'exploratory'; promote the study "
+                    "(`klein promote`) and earn the confirmation under full rigor"
+                )
+            )
+    return problems
+
+
 def verify_lock(study_dir: Path, *, numbers: bool = False, strict: bool = False) -> list[Check]:
     """The seven checks of the claims law, in the protocol's order.
 
@@ -1054,7 +1089,12 @@ def verify_lock(study_dir: Path, *, numbers: bool = False, strict: bool = False)
     repo = _repo_root(study_dir)
     label = f"lock schema {schema}"
     return [
-        _roll_up("claims shape", _check_shape(lock, schema), f"{label}: fields and classes valid", strict=strict),
+        _roll_up(
+            "claims shape",
+            [*_check_shape(lock, schema), *_check_rigor_cap(study_dir, lock)],
+            f"{label}: fields and classes valid",
+            strict=strict,
+        ),
         _roll_up(
             "claims artifacts",
             _check_artifacts(study_dir, lock, repo),
@@ -1390,6 +1430,13 @@ def add_claim(
         raise WorkflowError(
             f"claims add: class {claim_class!r} ceilings at {ceiling!r} — "
             f"{strength!r} exceeds it (claims-protocol.md, the five classes)"
+        )
+    if strength == "confirmed" and _is_quick(study_dir):
+        raise WorkflowError(
+            "claims add: this study is a quick look (policy.rigor: quick), whose claims are "
+            "capped at 'exploratory' — record it as exploratory, or promote the study "
+            "(`klein promote --study <dir> --reason \"...\"`) and earn the confirmation "
+            "under full rigor"
         )
     if strength == "refuted":
         raise WorkflowError(

@@ -36,6 +36,8 @@ from .contract import (
     mutable_surface,
     normalize_tracks,
     prepared_data_path,
+    required_gates,
+    rigor,
     schema_version,
     split_fingerprint,
     validate_contract,
@@ -408,6 +410,7 @@ def preflight_checks(
     gates = state.get("gates", {})
     # The gates that block MODELING. The referee gate (Gate 3) is checked at
     # `finalize`, not here: a study cannot be refereed before it has run.
+    required = required_gates(contract)
     for gate in MODELING_GATES:
         entry = gates.get(gate, {}) if isinstance(gates, Mapping) else {}
         valid = (
@@ -417,6 +420,11 @@ def preflight_checks(
             and bool(entry.get("acknowledged_by"))
         )
         status = entry.get("status", "missing") if isinstance(entry, Mapping) else "invalid"
+        if gate not in required and not valid:
+            # Said, not skipped: a quick look does not need this gate, and the
+            # check says so on the record instead of disappearing.
+            checks.append(Check(f"gate {gate}", True, "not required (quick look)"))
+            continue
         checks.append(Check(f"gate {gate}", valid, f"status={status}"))
 
     artifact_problems = _artifact_hash_problems(study_dir, state)
@@ -1104,7 +1112,7 @@ def verify_study(
     checks += _probe_ledger_checks(study_dir, state)
     checks += _vocabulary_checks(study_dir, contract)
     # Gate 3 and the predictions ledger close a study.
-    checks += _referee_gate_checks(state)
+    checks += _referee_gate_checks(state, quick=rigor(contract) == "quick")
     checks += _predictions_closure_checks(study_dir, contract, state)
     # The claims law (references/claims-protocol.md). Empty without a lock.
     checks += claims_checks(study_dir, sentences=want_claims, strict=strict)
@@ -1201,7 +1209,7 @@ def _probe_ledger_checks(study_dir: Path, state: Mapping[str, Any]) -> list[Chec
     ]
 
 
-def _referee_gate_checks(state: Mapping[str, Any]) -> list[Check]:
+def _referee_gate_checks(state: Mapping[str, Any], *, quick: bool = False) -> list[Check]:
     """Was the study reviewed by someone who did not run it?
 
     Before finalize an unrefereed study is a ``[WARN]``: REFEREE runs between SYNTHESIZE
@@ -1211,6 +1219,10 @@ def _referee_gate_checks(state: Mapping[str, Any]) -> list[Check]:
     nothing about it.
     """
     reviewed = referee_gate(state)
+    if reviewed is None and quick:
+        # Proportional rigor: a quick look claims `exploratory` at most and closes
+        # without Gate 3. Said on the record, like every other departure.
+        return [Check("referee gate", True, "not required (quick look: claims are capped at exploratory)")]
     if reviewed is not None:
         independence = "yes" if reviewed.get("independent_of_experimenter") else "no"
         return [
