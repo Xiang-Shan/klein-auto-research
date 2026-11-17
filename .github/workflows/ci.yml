@@ -416,6 +416,9 @@ jobs:
       # from drifting behind the real verb tree. (`klein summarize` and `klein
       # report build` hand --help through to their scripts; both must exit 0.)
       - name: Public command surface is importable (every leaf verb, walked from the parser)
+        # bash, not pwsh: the heredoc below is not PowerShell syntax (run 43929422855
+        # failed here on windows-latest, which also skipped the full suite after it).
+        shell: bash
         run: |
           uv run --no-sync python - <<'PY'
           import argparse

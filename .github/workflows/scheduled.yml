@@ -47,7 +47,9 @@ jobs:
 
   apple-mps:
     name: Apple Silicon MPS canary
-    runs-on: macos-14
+    # macos-latest is Apple Silicon. A pinned image is retired on GitHub's calendar
+    # (macos-14 went on 2026-11-02 and this job was cancelled at start from then on).
+    runs-on: macos-latest
     timeout-minutes: 25
     # The hosted runner has run out of MPS memory weekly since 2026-08-17 (a runner
     # defect, not an engine one): the canary reports but never blocks.
@@ -104,11 +106,19 @@ jobs:
           set -euo pipefail
           # replicate files its own record as a local commit (never pushed).
           git config user.name "klein-ci"; git config user.email "klein-ci@users.noreply.github.com"
-          for pair in 23-lalonde-causal-replication:E0002 21-bloodmnist-cnn:E0001 22-cnn-data-scaling:E0001; do
-            study="studies/${pair%%:*}"; run="${pair##*:}"
+          # Study 23's `att` metric is declared exact, so a replication on the machine
+          # that ran it must match to the last bit (tolerance 0) — and does. This runner
+          # is a different CPU and BLAS: an iterative logit moves in its last digits
+          # (6e-7 relative, measured). Across machines the honest assertion is the
+          # resolution the study's own contract declares, one cent, and the record says
+          # so (`tolerance_source: --tolerance`). Studies 21 and 22 are stochastic and
+          # replicate within their measured floor, which needs no override.
+          for triple in 23-lalonde-causal-replication:E0002:0.01 21-bloodmnist-cnn:E0001: 22-cnn-data-scaling:E0001:; do
+            IFS=: read -r slug run tolerance <<<"$triple"
+            study="studies/$slug"
             test -d "$study" || { echo "skip $study (not present)"; continue; }
             ( cd "$study" && uv run --no-sync python -u prepare.py )
-            uv run --no-sync klein replicate --study "$study" "$run" --quiet
+            uv run --no-sync klein replicate --study "$study" "$run" --quiet ${tolerance:+--tolerance "$tolerance"}
           done
           if [ -d studies/20-llm-cot-contamination ]; then
             KLEIN_OFFLINE=1 uv run --no-sync klein replicate --study studies/20-llm-cot-contamination E0002 --replay --quiet

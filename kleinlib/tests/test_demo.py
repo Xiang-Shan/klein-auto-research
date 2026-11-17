@@ -133,5 +133,6 @@ def test_nested_in_another_repository_never_touches_it(
     assert _git(outer, "branch", "--list") == branches
     assert _git(outer, "rev-parse", "HEAD") == head
     inner = outer / "klein-demo"
-    assert _git(inner, "rev-parse", "--show-toplevel") == str(inner.resolve())
+    # git prints forward slashes on Windows; compare paths, not strings.
+    assert Path(_git(inner, "rev-parse", "--show-toplevel")).resolve() == inner.resolve()
     assert _git(inner, "symbolic-ref", "--short", "HEAD") == "experiments/01-demo"
