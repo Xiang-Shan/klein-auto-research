@@ -16,6 +16,7 @@ not a pass.
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -311,16 +312,34 @@ def test_dry_run_refuses_an_unknown_track(dryrun_study) -> None:
 
 
 @pytest.fixture
-def sealed_ready(dryrun_study) -> tuple[Path, Path]:
+def sealed_ready(dryrun_study, monkeypatch) -> tuple[Path, Path]:
     """A study one step from its sealed look: ``train.py`` is an honest entrypoint
     (the contract's own command runs it), one development run is on the ledger, the
     adaptive phase is acknowledged, and the tree is clean."""
     repo, study = dryrun_study
+    # The scaffold's default command is `uv run --locked python -u train.py`. In a
+    # throwaway repository with no project of its own, `uv` chooses an interpreter
+    # from its environment (UV_PYTHON, the active venv) — not necessarily the one
+    # running this suite. A contract may not name an absolute path, so it is amended
+    # to plain `python` — the suite's interpreter directory leads PATH below — and
+    # the consult gate re-acknowledged.
+    contract_path = study / "study.yaml"
+    text = contract_path.read_text(encoding="utf-8")
+    scaffolded = 'command: ["uv", "run", "--locked", "python", "-u", "train.py"]'
+    assert text.count(scaffolded) == 1
+    contract_path.write_text(
+        text.replace(scaffolded, 'command: ["python", "-u", "train.py"]'),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("PATH", str(Path(sys.executable).parent) + os.pathsep + os.environ.get("PATH", ""))
+    record_gate(study, "consult", acknowledged_by="tester")
+    _commit(repo, "the entrypoint runs under this interpreter")
     train = study / "train.py"
     train.write_text(HONEST_ENTRYPOINT, encoding="utf-8")
     _commit(repo, "an honest entrypoint")
     train.write_text(HONEST_ENTRYPOINT + "# the one development candidate\n", encoding="utf-8")
-    run_one(study, description="baseline", echo=False)
+    baseline = run_one(study, description="baseline", echo=False)
+    assert baseline["disposition"] == "keep", baseline  # the entrypoint really ran
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     _commit(repo, "acknowledge the adaptive phase")
     assert _git(repo, "status", "--porcelain") == ""
