@@ -141,6 +141,12 @@ three new verbs for exploring and understanding a study. The rationale is
 - `replication-protocol.md` gave the tolerance ladder in the wrong order (`exact` is
   checked before `minimum_delta`), and it and the replicate message told the reader to
   compare fields no record holds.
+- **Windows: a bare `python` in a contract ran the wrong interpreter.** Windows looks a
+  program up in the running program's own directory before `PATH`, and inside a virtual
+  environment that is the base interpreter's. `klein demo` and every study scaffolded
+  with `--runner python` crashed there. The engine's one launch point now resolves a bare
+  program name on the child's `PATH`, as POSIX always did; the command is recorded as the
+  contract wrote it. Found by the first full Windows run of the suite on 3.0.
 - `klein next` suggested a command that split in two when the study path held a space.
 - `klein demo`'s interpreter shim could not work on Windows.
 
