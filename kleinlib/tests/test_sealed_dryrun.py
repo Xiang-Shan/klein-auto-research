@@ -16,6 +16,7 @@ not a pass.
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -24,13 +25,18 @@ import pandas as pd
 import pytest
 
 from kleinlib import cli
+from kleinlib.contract import load_contract
 from kleinlib.data import load_partition, partition_fingerprints
+from kleinlib.events import append_event
+from kleinlib.next_step import next_step
+from kleinlib.rehearsal import rehearsal_problem
 from kleinlib.workflow import (
     SEALED_DRYRUN_UNACKNOWLEDGED,
     WorkflowError,
     load_manifests,
     read_events,
     record_gate,
+    run_one,
     sealed_dry_run,
 )
 
@@ -296,3 +302,184 @@ def test_dry_run_refuses_an_unknown_track(dryrun_study) -> None:
     _, study = dryrun_study
     with pytest.raises(WorkflowError, match="unknown track"):
         sealed_dry_run(study, track="ghost", echo=False)
+
+
+# ---------------------------------------------------------------------------
+# The rule: a sealed run is refused unless the track's latest rehearsal passed,
+# on the same command, over the same mutable surface (kleinlib/rehearsal.py)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def sealed_ready(dryrun_study) -> tuple[Path, Path]:
+    """A study one step from its sealed look: ``train.py`` is an honest entrypoint
+    (the contract's own command runs it), one development run is on the ledger, the
+    adaptive phase is acknowledged, and the tree is clean."""
+    repo, study = dryrun_study
+    train = study / "train.py"
+    train.write_text(HONEST_ENTRYPOINT, encoding="utf-8")
+    _commit(repo, "an honest entrypoint")
+    train.write_text(HONEST_ENTRYPOINT + "# the one development candidate\n", encoding="utf-8")
+    run_one(study, description="baseline", echo=False)
+    record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
+    _commit(repo, "acknowledge the adaptive phase")
+    assert _git(repo, "status", "--porcelain") == ""
+    return repo, study
+
+
+def _rehearsal_command(study: Path) -> str:
+    return f"klein run-one --study {study} --track primary --final-test --dry-run"
+
+
+def _assert_refused(study: Path, reason: str, *, command: list[str] | None = None) -> str:
+    with pytest.raises(WorkflowError, match="is not rehearsed") as raised:
+        run_one(study, final_test=True, command=command, echo=False)
+    message = str(raised.value)
+    assert reason in message
+    return message
+
+
+def test_a_sealed_run_with_no_rehearsal_is_refused_and_spends_nothing(sealed_ready) -> None:
+    repo, study = sealed_ready
+    head = _git(repo, "rev-parse", "HEAD")
+    runs = sorted(p.name for p in (study / "runs").glob("E*"))
+    events = len(read_events(study))
+
+    message = _assert_refused(study, "no rehearsal is on record")
+
+    assert "track 'primary'" in message
+    assert _rehearsal_command(study) in message
+    assert sorted(p.name for p in (study / "runs").glob("E*")) == runs
+    assert _state(study)["final_holdout_access"]["primary"]["count"] == 0
+    assert len(read_events(study)) == events
+    assert [e["type"] for e in read_events(study)].count("run_started") == 1  # the baseline only
+    assert _git(repo, "rev-parse", "HEAD") == head
+    assert _git(repo, "status", "--porcelain") == ""
+
+
+def test_a_rehearsal_that_crashed_does_not_count(sealed_ready) -> None:
+    _, study = sealed_ready
+    crash = _entrypoint_command(study, "raise SystemExit(9)\n")
+    assert sealed_dry_run(study, command=crash, echo=False) == 9
+    _assert_refused(study, "failed with exit code 9", command=crash)
+
+
+def test_a_rehearsal_without_the_acknowledgement_does_not_count(sealed_ready) -> None:
+    _, study = sealed_ready
+    blind = _entrypoint_command(study, BLIND_ENTRYPOINT)
+    assert sealed_dry_run(study, command=blind, echo=False) == SEALED_DRYRUN_UNACKNOWLEDGED
+    _assert_refused(study, "never printed `sealed_dryrun: 1`", command=blind)
+
+
+def test_a_rehearsal_that_timed_out_does_not_count_even_if_it_acknowledged(sealed_ready) -> None:
+    _, study = sealed_ready
+    slow = _entrypoint_command(
+        study,
+        "import time\nprint('sealed_dryrun: 1', flush=True)\ntime.sleep(30)\n",
+    )
+    assert sealed_dry_run(study, command=slow, timeout_seconds=1, echo=False) != 0
+    event = read_events(study)[-1]
+    assert (event["timed_out"], event["acknowledged"]) == (True, True)
+    _assert_refused(study, "timed out", command=slow)
+
+
+def test_editing_the_mutable_surface_after_a_rehearsal_refuses_the_sealed_run(
+    sealed_ready,
+) -> None:
+    repo, study = sealed_ready
+    assert sealed_dry_run(study, echo=False) == 0
+
+    train = study / "train.py"
+    train.write_text(train.read_text(encoding="utf-8") + "# edited after the rehearsal\n",
+                     encoding="utf-8")
+    _commit(repo, "edit the entrypoint after rehearsing")
+    assert _git(repo, "status", "--porcelain") == ""  # clean: only the rehearsal rule objects
+    _assert_refused(study, "the code changed")
+
+    assert sealed_dry_run(study, echo=False) == 0
+    assert run_one(study, final_test=True, echo=False)["evaluation_kind"] == "final_test"
+
+
+def test_a_failing_rehearsal_after_a_passing_one_is_a_refusal(sealed_ready, tmp_path) -> None:
+    _, study = sealed_ready
+    flag = tmp_path / "fail.flag"
+    command = _entrypoint_command(
+        study,
+        "import pathlib, sys\n"
+        "print('sealed_dryrun: 1')\n"
+        f"sys.exit(5 if pathlib.Path({str(flag)!r}).exists() else 0)\n",
+    )
+    assert sealed_dry_run(study, command=command, echo=False) == 0
+    assert rehearsal_problem(study, load_contract(study), "primary", command=command) is None
+
+    flag.write_text("fail the next rehearsal\n", encoding="utf-8")
+    assert sealed_dry_run(study, command=command, echo=False) == 5
+    _assert_refused(study, "failed with exit code 5", command=command)
+
+
+def test_a_rehearsal_of_a_different_command_does_not_cover_the_sealed_run(sealed_ready) -> None:
+    _, study = sealed_ready
+    rehearsed = [sys.executable, "train.py"]
+    assert sealed_dry_run(study, command=rehearsed, echo=False) == 0
+    _assert_refused(study, "ran a different command", command=[sys.executable, "-u", "train.py"])
+
+
+def test_a_rehearsal_event_without_a_surface_digest_predates_the_rule(sealed_ready) -> None:
+    repo, study = sealed_ready
+    command = [sys.executable, "-u", "train.py"]
+    # Exactly what an older engine wrote: no surface_digest.
+    append_event(
+        study, "sealed_dryrun", track="primary", command=command, log="x",
+        exit_code=0, timed_out=False, acknowledged=True, wall_seconds=0.1,
+    )
+    _commit(repo, "an old-style rehearsal event")
+    _assert_refused(study, "predates the surface digest", command=command)
+
+
+def test_rehearse_then_seal_succeeds_and_the_event_pins_the_surface(sealed_ready) -> None:
+    repo, study = sealed_ready
+    assert sealed_dry_run(study, echo=False) == 0
+    event = read_events(study)[-1]
+    assert event["type"] == "sealed_dryrun"
+    assert re.fullmatch(r"[0-9a-f]{64}", event["surface_digest"])
+
+    manifest = run_one(study, final_test=True, echo=False)
+
+    assert manifest["evaluation_kind"] == "final_test"
+    assert _state(study)["final_holdout_access"]["primary"]["count"] == 1
+    assert _git(repo, "status", "--porcelain") == ""
+
+
+def test_next_step_names_the_rehearsal_until_the_latest_one_passes(sealed_ready) -> None:
+    _, study = sealed_ready
+
+    def argv() -> list[str]:
+        return next_step(study)["next"]["argv"]
+
+    assert argv()[-2:] == ["--final-test", "--dry-run"]  # no rehearsal yet
+
+    slow = _entrypoint_command(
+        study, "import time\nprint('sealed_dryrun: 1', flush=True)\ntime.sleep(30)\n"
+    )
+    sealed_dry_run(study, command=slow, timeout_seconds=1, echo=False)
+    assert argv()[-2:] == ["--final-test", "--dry-run"]  # timed out
+
+    sealed_dry_run(study, command=_entrypoint_command(study, "raise SystemExit(9)\n"), echo=False)
+    assert argv()[-2:] == ["--final-test", "--dry-run"]  # failed
+
+    assert sealed_dry_run(study, echo=False) == 0
+    after = argv()
+    assert "--final-test" in after and "--dry-run" not in after  # the real sealed run
+
+
+def test_rehearsal_problem_is_none_only_after_a_passing_rehearsal(sealed_ready) -> None:
+    _, study = sealed_ready
+    contract = load_contract(study)
+    assert rehearsal_problem(study, contract, "primary") == "no rehearsal is on record"
+
+    assert sealed_dry_run(study, echo=False) == 0
+    assert rehearsal_problem(study, contract, "primary") is None
+    assert "different command" in (
+        rehearsal_problem(study, contract, "primary", command=["python", "other.py"]) or ""
+    )
+    assert rehearsal_problem(study, contract, "other-track") == "no rehearsal is on record"

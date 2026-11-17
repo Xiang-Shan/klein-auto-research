@@ -54,6 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="command_name", required=True)
 
     new = sub.add_parser("new", help="scaffold a study: a typed contract, templates and an empty ledger")
+    new.set_defaults(handler=_cmd_new)
     new.add_argument("slug", help="study id, e.g. 03-calibration")
     new.add_argument("--root", type=Path, default=Path("studies"), help="parent directory for the study (default: studies/)")
     new.add_argument("--goal", help="one-sentence falsifiable study goal")
@@ -124,6 +125,7 @@ def build_parser() -> argparse.ArgumentParser:
     new.add_argument("--max-run-seconds", type=int, default=None, help="hard per-run timeout enforced by run-one (default: 600, or the recipe's)")
 
     gate = sub.add_parser("gate", help="record or explicitly override a gate")
+    gate.set_defaults(handler=_cmd_gate)
     gate_sub = gate.add_subparsers(dest="gate_action", required=True)
     gate_help = {
         "record": "record a gate acknowledgement (artifact must exist, placeholder-free)",
@@ -151,6 +153,7 @@ def build_parser() -> argparse.ArgumentParser:
         "headroom",
         help="acknowledge a keep-infeasible frontier (headroom h < 1) before spending transactions",
     )
+    headroom.set_defaults(handler=_cmd_headroom)
     headroom_sub = headroom.add_subparsers(dest="headroom_action", required=True)
     headroom_ack = headroom_sub.add_parser(
         "ack",
@@ -170,10 +173,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     preflight = sub.add_parser("preflight", help="enforce gates, git, fingerprints, and ledger integrity")
+    preflight.set_defaults(handler=_cmd_preflight)
     _study_arg(preflight)
     preflight.add_argument("--allow-dirty", action="store_true", help=argparse.SUPPRESS)
 
     run = sub.add_parser("run-one", help="commit and execute exactly one candidate transaction")
+    run.set_defaults(handler=_cmd_run_one)
     _study_arg(run)
     run.add_argument("--track")
     run.add_argument("--description", default="")
@@ -182,9 +187,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--dry-run",
         action="store_true",
-        help="with --final-test: rehearse the sealed run on development data. "
-        "Spends no id, commit, manifest, row or seal; exits 3 if the entrypoint "
-        "never printed `sealed_dryrun: 1`",
+        help="with --final-test: rehearse the sealed run on development data. Spends no experiment id, no manifest, no result row and no seal; leaves a log and one sealed_dryrun event, which the real sealed run requires.",
     )
     run.add_argument(
         "--tests",
@@ -222,6 +225,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     job = sub.add_parser("job", help="execute a detached run's job bundle (Klein 2.3)")
+    job.set_defaults(handler=_cmd_job)
     job_sub = job.add_subparsers(dest="job_action", required=True)
     job_exec = job_sub.add_parser(
         "exec",
@@ -238,15 +242,19 @@ def build_parser() -> argparse.ArgumentParser:
     job_exec.add_argument("--quiet", action="store_true")
 
     recovery = sub.add_parser("recover", help="finish an interrupted evidence transaction")
+    recovery.set_defaults(handler=_cmd_recover)
     _study_arg(recovery)
     status = sub.add_parser("status", help="show gates, frontiers, transactions, and sealed-test use")
+    status.set_defaults(handler=_cmd_status)
     _study_arg(status)
     nxt = sub.add_parser(
         "next",
         help="the ONE next action this study needs, with the exact command (read-only)",
     )
+    nxt.set_defaults(handler=_cmd_next)
     _study_arg(nxt)
     final = sub.add_parser("finalize", help="mark findings exploratory or confirmed")
+    final.set_defaults(handler=_cmd_finalize)
     _study_arg(final)
     final.add_argument("--allow-exploratory", action="store_true")
     final.add_argument(
@@ -271,6 +279,7 @@ def build_parser() -> argparse.ArgumentParser:
         "noise-floor",
         help="compute the measured noise floor from a k-seed sweep; prints the study.yaml block",
     )
+    floor.set_defaults(handler=_cmd_noise_floor)
     _study_arg(floor)
     floor.add_argument("--track", default="primary", help="track the floor belongs to")
     floor.add_argument(
@@ -288,6 +297,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="re-check the whole study: contract, gates, ledger, predictions, claims, numbers; "
         "writes a receipt (--no-receipt only reads)",
     )
+    verify.set_defaults(handler=_cmd_verify)
     _study_arg(verify)
     verify.add_argument(
         "--require-local",
@@ -565,253 +575,286 @@ def utf8_streams() -> None:
             continue
 
 
+def _cmd_new(args: argparse.Namespace) -> int:
+    defaults: dict[str, object] = {}
+    if args.recipe:
+        defaults = recipe_defaults(args.recipe)
+    def pick(name: str, value: object, fallback: object = None) -> object:
+        return value if value is not None else defaults.get(name, fallback)
+    explicit_profile_doc = args.profile_doc is not None
+    study = scaffold_study(
+        args.root,
+        args.slug,
+        goal=args.goal,
+        domain=args.domain,
+        target=pick("target", args.target),
+        task_type=pick("task_type", args.task_type, "classification"),
+        method_depth=args.method_depth,
+        family=pick("family", args.family),
+        tracks=args.track,
+        metric_name=pick("metric_name", args.metric),
+        metric_goal=pick("metric_goal", args.goal_direction),
+        minimum_delta=args.minimum_delta,
+        data_source=pick("data_source", args.data),
+        data_path=pick("data_path", args.prepared_path),
+        split_kind=pick("split_kind", args.split_kind),
+        split_seed=args.split_seed,
+        group_column=args.group_column,
+        time_column=args.time_column,
+        max_run_seconds=pick("max_run_seconds", args.max_run_seconds, 600),
+        kind=pick("kind", args.kind),
+        modality=pick("modality", args.modality),
+        profile=None if explicit_profile_doc else pick("profile", args.profile),
+        profile_doc=args.profile_doc,
+        audience=args.audience,
+    )
+    if args.recipe:
+        written = apply_recipe(study, args.recipe, split_seed=args.split_seed)
+        print(f"recipe {args.recipe}: wrote {', '.join(written)}")
+    if args.runner == "python":
+        apply_runner(study, "python")
+    api.emit({"study": str(study), "branch": f"experiments/{args.slug}"})
+    print(f"scaffolded {study}")
+    print(f"next: git switch -c experiments/{args.slug}   # then: klein next --study {study}")
+    return 0
+
+
+def _cmd_noise_floor(args: argparse.Namespace) -> int:
+    from .noise_floor import (
+        floor_from_sidecar,
+        floor_report,
+        resolve_estimand,
+        summarize_noise,
+    )
+
+    method = args.recipe or args.method
+    if args.values:
+        seeds = [int(v) for v in args.seeds.split(",")] if args.seeds else None
+        floor_stats = summarize_noise(
+            [float(v) for v in args.values.split(",")], seeds=seeds
+        )
+        source = "--values"
+    else:
+        study = resolve_study(args.study)
+        sidecar = _resolve_sidecar(study, args.sidecar)
+        floor_stats = floor_from_sidecar(sidecar)
+        try:
+            source = sidecar.resolve().relative_to(study.resolve()).as_posix()
+        except ValueError:
+            source = sidecar.as_posix()
+        # Unchanged default when no recipe is declared: a bare
+        # `klein noise-floor --sidecar ...` prints exactly what it did.
+        method = method or "seed-sweep"
+    print(
+        floor_report(
+            args.track,
+            floor_stats,
+            source=source,
+            measured_after=args.measured_after,
+            method=method,
+            estimand=resolve_estimand(args.recipe, args.estimand),
+        ),
+        end="",
+    )
+    return 0
+
+
+def _cmd_job(args: argparse.Namespace) -> int:
+    from .job import exec_job
+
+    result = exec_job(args.job_json, executor=args.executor, echo=not args.quiet)
+    receipt = json.loads((result / "receipt.json").read_text(encoding="utf-8"))
+    print(
+        f"job {receipt['experiment']}: exit {receipt['exit_code']}"
+        f"{' (timeout)' if receipt['timed_out'] else ''} — receipt at {result / 'receipt.json'}"
+    )
+    return 0
+
+
+def _cmd_gate(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    record_gate(
+        study,
+        args.gate,
+        acknowledged_by=args.acknowledged_by,
+        note=args.note,
+        override_reason=getattr(args, "reason", None),
+        phase=args.phase,
+    )
+    past = {"record": "recorded", "override": "overridden"}[args.gate_action]
+    api.emit({"gate": args.gate, "status": past})
+    print(f"{past} gate {args.gate}")
+    return 0
+
+
+def _cmd_headroom(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    entry = acknowledge_headroom(
+        study,
+        track=args.track,
+        acknowledged_by=args.acknowledged_by,
+        note=args.note,
+    )
+    print(
+        f"acknowledged: track {args.track!r} headroom h={entry['h']:.3f} < 1 — "
+        "the closed door is now on the record"
+    )
+    return 0
+
+
+def _cmd_preflight(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
+
+
+def _cmd_run_one(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    if args.collect or args.abandon:
+        if args.collect and args.abandon:
+            raise WorkflowError("--collect and --abandon are different acts; pick one")
+        if args.collect:
+            manifest = collect_detached(study, args.collect, echo=not args.quiet)
+        else:
+            manifest = abandon_detached(study, args.abandon, reason=args.reason)
+        print(
+            f"{manifest['experiment']}: {manifest['disposition']} "
+            f"metric={manifest['primary_metric']} (detached; attested, not observed)"
+        )
+        return 0 if manifest["disposition"] != "crash" or args.abandon else 1
+    if args.dry_run:
+        if not args.final_test:
+            raise WorkflowError(
+                "--dry-run rehearses a sealed run: pass it with --final-test "
+                "(a development run needs no rehearsal — it spends nothing "
+                "that cannot be spent again)"
+            )
+        if args.tests:
+            raise WorkflowError(
+                "--dry-run adjudicates nothing: a rehearsal on development "
+                "data is not evidence for a registered prediction"
+            )
+        return sealed_dry_run(
+            study,
+            track=args.track,
+            timeout_seconds=args.timeout_seconds,
+            command=args.command or None,
+            echo=not args.quiet,
+        )
+    manifest = run_one(
+        study,
+        track=args.track,
+        description=args.description,
+        timeout_seconds=args.timeout_seconds,
+        final_test=args.final_test,
+        command=args.command or None,
+        echo=not args.quiet,
+        allow_rerun=args.allow_rerun,
+        tests=args.tests,
+        detach=args.detach,
+    )
+    if args.detach:
+        job = f"{study}/runs/{manifest['experiment']}/job.json"
+        print(f"{manifest['experiment']}: detached — candidate {manifest['candidate_commit'][:12]}")
+        print(f"next: klein job exec {job}   (on the host; --executor local runs it here in a worktree)")
+        print(f"then: klein run-one --study {study} --collect {manifest['experiment']}")
+        return 0
+    label = manifest["disposition"]
+    if (
+        manifest.get("evaluation_kind") == "final_test"
+        and label == "discard"
+    ):
+        # Correct mechanics, clearer vocabulary: the sealed run is
+        # confirmation evidence, recorded as discard so it never
+        # enters the adaptive frontier.
+        label = (
+            "sealed (recorded as discard — confirmation evidence, "
+            "excluded from the adaptive frontier)"
+        )
+    api.emit({"run": api.run_summary(manifest)})
+    print(
+        f"{manifest['experiment']}: {label} "
+        f"metric={manifest['primary_metric']} commit={manifest['candidate_commit']}"
+    )
+    restored = (
+        manifest["disposition"] != "keep"
+        or manifest.get("evaluation_kind") == "final_test"
+    )
+    if restored and manifest.get("base_commit"):
+        anchor = manifest.get("incumbent")
+        holder = (
+            f"(= {anchor}'s kept config)" if anchor else "(pre-candidate scaffold state)"
+        )
+        surface = ", ".join(mutable_surface(load_contract(study)))
+        print(
+            f"{surface} restored to pre-candidate base "
+            f"{manifest['base_commit'][:12]} {holder}; "
+            f"candidate stays resolvable at {manifest['candidate_commit'][:12]}"
+        )
+    return 0 if manifest["disposition"] != "crash" else 1
+
+
+def _cmd_recover(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    recovered = recover(study)
+    api.emit({"recovered": list(recovered)})
+    print("recovered: " + (", ".join(recovered) if recovered else "none"))
+    return 0
+
+
+def _cmd_status(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    from .next_step import status_data
+
+    api.emit(status_data(study))
+    print(status_summary(study), end="")
+    return 0
+
+
+def _cmd_next(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    from .next_step import format_next, next_step
+
+    result = next_step(study)
+    api.emit(result)
+    print(format_next(result), end="")
+    return 0
+
+
+def _cmd_finalize(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    label = finalize(
+        study,
+        allow_exploratory=args.allow_exploratory,
+        allow_open_predictions=args.allow_open_predictions,
+        open_predictions_reason=args.reason,
+        no_referee=args.no_referee,
+        referee_reason=args.reason,
+    )
+    api.emit({"label": label})
+    print(f"finalized: {label}")
+    return 0
+
+
+def _cmd_verify(args: argparse.Namespace) -> int:
+    study = resolve_study(args.study)
+    return _print_checks(
+        verify_study(
+            study,
+            require_local=args.require_local,
+            numbers=args.numbers,
+            claims=args.claims,
+            evidence=args.evidence_use,
+            strict=args.strict,
+            receipt=args.receipt,
+        )
+    )
+
+
+
 def _dispatch(args: argparse.Namespace) -> int:
     try:
         if (handler := getattr(args, "handler", None)) is not None:
-            return handler(args)  # a cli_<group> module's verb, dispatched generically
-        if args.command_name == "new":
-            defaults: dict[str, object] = {}
-            if args.recipe:
-                defaults = recipe_defaults(args.recipe)
-            def pick(name: str, value: object, fallback: object = None) -> object:
-                return value if value is not None else defaults.get(name, fallback)
-            explicit_profile_doc = args.profile_doc is not None
-            study = scaffold_study(
-                args.root,
-                args.slug,
-                goal=args.goal,
-                domain=args.domain,
-                target=pick("target", args.target),
-                task_type=pick("task_type", args.task_type, "classification"),
-                method_depth=args.method_depth,
-                family=pick("family", args.family),
-                tracks=args.track,
-                metric_name=pick("metric_name", args.metric),
-                metric_goal=pick("metric_goal", args.goal_direction),
-                minimum_delta=args.minimum_delta,
-                data_source=pick("data_source", args.data),
-                data_path=pick("data_path", args.prepared_path),
-                split_kind=pick("split_kind", args.split_kind),
-                split_seed=args.split_seed,
-                group_column=args.group_column,
-                time_column=args.time_column,
-                max_run_seconds=pick("max_run_seconds", args.max_run_seconds, 600),
-                kind=pick("kind", args.kind),
-                modality=pick("modality", args.modality),
-                profile=None if explicit_profile_doc else pick("profile", args.profile),
-                profile_doc=args.profile_doc,
-                audience=args.audience,
-            )
-            if args.recipe:
-                written = apply_recipe(study, args.recipe, split_seed=args.split_seed)
-                print(f"recipe {args.recipe}: wrote {', '.join(written)}")
-            if args.runner == "python":
-                apply_runner(study, "python")
-            api.emit({"study": str(study), "branch": f"experiments/{args.slug}"})
-            print(f"scaffolded {study}")
-            print(f"next: git switch -c experiments/{args.slug}   # then: klein next --study {study}")
-            return 0
-        if args.command_name == "noise-floor":
-            from .noise_floor import (
-                floor_from_sidecar,
-                floor_report,
-                resolve_estimand,
-                summarize_noise,
-            )
-
-            method = args.recipe or args.method
-            if args.values:
-                seeds = [int(v) for v in args.seeds.split(",")] if args.seeds else None
-                floor_stats = summarize_noise(
-                    [float(v) for v in args.values.split(",")], seeds=seeds
-                )
-                source = "--values"
-            else:
-                study = resolve_study(args.study)
-                sidecar = _resolve_sidecar(study, args.sidecar)
-                floor_stats = floor_from_sidecar(sidecar)
-                try:
-                    source = sidecar.resolve().relative_to(study.resolve()).as_posix()
-                except ValueError:
-                    source = sidecar.as_posix()
-                # Unchanged default when no recipe is declared: a bare
-                # `klein noise-floor --sidecar ...` prints exactly what it did.
-                method = method or "seed-sweep"
-            print(
-                floor_report(
-                    args.track,
-                    floor_stats,
-                    source=source,
-                    measured_after=args.measured_after,
-                    method=method,
-                    estimand=resolve_estimand(args.recipe, args.estimand),
-                ),
-                end="",
-            )
-            return 0
-        if args.command_name == "job":
-            from .job import exec_job
-
-            result = exec_job(args.job_json, executor=args.executor, echo=not args.quiet)
-            receipt = json.loads((result / "receipt.json").read_text(encoding="utf-8"))
-            print(
-                f"job {receipt['experiment']}: exit {receipt['exit_code']}"
-                f"{' (timeout)' if receipt['timed_out'] else ''} — receipt at {result / 'receipt.json'}"
-            )
-            return 0
-        study = resolve_study(args.study)
-        if args.command_name == "gate":
-            record_gate(
-                study,
-                args.gate,
-                acknowledged_by=args.acknowledged_by,
-                note=args.note,
-                override_reason=getattr(args, "reason", None),
-                phase=args.phase,
-            )
-            past = {"record": "recorded", "override": "overridden"}[args.gate_action]
-            api.emit({"gate": args.gate, "status": past})
-            print(f"{past} gate {args.gate}")
-            return 0
-        if args.command_name == "headroom":
-            entry = acknowledge_headroom(
-                study,
-                track=args.track,
-                acknowledged_by=args.acknowledged_by,
-                note=args.note,
-            )
-            print(
-                f"acknowledged: track {args.track!r} headroom h={entry['h']:.3f} < 1 — "
-                "the closed door is now on the record"
-            )
-            return 0
-        if args.command_name == "preflight":
-            return _print_checks(preflight_checks(study, require_clean=not args.allow_dirty))
-        if args.command_name == "run-one":
-            if args.collect or args.abandon:
-                if args.collect and args.abandon:
-                    raise WorkflowError("--collect and --abandon are different acts; pick one")
-                if args.collect:
-                    manifest = collect_detached(study, args.collect, echo=not args.quiet)
-                else:
-                    manifest = abandon_detached(study, args.abandon, reason=args.reason)
-                print(
-                    f"{manifest['experiment']}: {manifest['disposition']} "
-                    f"metric={manifest['primary_metric']} (detached; attested, not observed)"
-                )
-                return 0 if manifest["disposition"] != "crash" or args.abandon else 1
-            if args.dry_run:
-                if not args.final_test:
-                    raise WorkflowError(
-                        "--dry-run rehearses a sealed run: pass it with --final-test "
-                        "(a development run needs no rehearsal — it spends nothing "
-                        "that cannot be spent again)"
-                    )
-                if args.tests:
-                    raise WorkflowError(
-                        "--dry-run adjudicates nothing: a rehearsal on development "
-                        "data is not evidence for a registered prediction"
-                    )
-                return sealed_dry_run(
-                    study,
-                    track=args.track,
-                    timeout_seconds=args.timeout_seconds,
-                    command=args.command or None,
-                    echo=not args.quiet,
-                )
-            manifest = run_one(
-                study,
-                track=args.track,
-                description=args.description,
-                timeout_seconds=args.timeout_seconds,
-                final_test=args.final_test,
-                command=args.command or None,
-                echo=not args.quiet,
-                allow_rerun=args.allow_rerun,
-                tests=args.tests,
-                detach=args.detach,
-            )
-            if args.detach:
-                job = f"{study}/runs/{manifest['experiment']}/job.json"
-                print(f"{manifest['experiment']}: detached — candidate {manifest['candidate_commit'][:12]}")
-                print(f"next: klein job exec {job}   (on the host; --executor local runs it here in a worktree)")
-                print(f"then: klein run-one --study {study} --collect {manifest['experiment']}")
-                return 0
-            label = manifest["disposition"]
-            if (
-                manifest.get("evaluation_kind") == "final_test"
-                and label == "discard"
-            ):
-                # Correct mechanics, clearer vocabulary: the sealed run is
-                # confirmation evidence, recorded as discard so it never
-                # enters the adaptive frontier.
-                label = (
-                    "sealed (recorded as discard — confirmation evidence, "
-                    "excluded from the adaptive frontier)"
-                )
-            api.emit({"run": api.run_summary(manifest)})
-            print(
-                f"{manifest['experiment']}: {label} "
-                f"metric={manifest['primary_metric']} commit={manifest['candidate_commit']}"
-            )
-            restored = (
-                manifest["disposition"] != "keep"
-                or manifest.get("evaluation_kind") == "final_test"
-            )
-            if restored and manifest.get("base_commit"):
-                anchor = manifest.get("incumbent")
-                holder = (
-                    f"(= {anchor}'s kept config)" if anchor else "(pre-candidate scaffold state)"
-                )
-                surface = ", ".join(mutable_surface(load_contract(study)))
-                print(
-                    f"{surface} restored to pre-candidate base "
-                    f"{manifest['base_commit'][:12]} {holder}; "
-                    f"candidate stays resolvable at {manifest['candidate_commit'][:12]}"
-                )
-            return 0 if manifest["disposition"] != "crash" else 1
-        if args.command_name == "recover":
-            recovered = recover(study)
-            api.emit({"recovered": list(recovered)})
-            print("recovered: " + (", ".join(recovered) if recovered else "none"))
-            return 0
-        if args.command_name == "status":
-            from .next_step import status_data
-
-            api.emit(status_data(study))
-            print(status_summary(study), end="")
-            return 0
-        if args.command_name == "next":
-            from .next_step import format_next, next_step
-
-            result = next_step(study)
-            api.emit(result)
-            print(format_next(result), end="")
-            return 0
-        if args.command_name == "finalize":
-            label = finalize(
-                study,
-                allow_exploratory=args.allow_exploratory,
-                allow_open_predictions=args.allow_open_predictions,
-                open_predictions_reason=args.reason,
-                no_referee=args.no_referee,
-                referee_reason=args.reason,
-            )
-            api.emit({"label": label})
-            print(f"finalized: {label}")
-            return 0
-        if args.command_name == "verify":
-            return _print_checks(
-                verify_study(
-                    study,
-                    require_local=args.require_local,
-                    numbers=args.numbers,
-                    claims=args.claims,
-                    evidence=args.evidence_use,
-                    strict=args.strict,
-                    receipt=args.receipt,
-                )
-            )
+            return handler(args)  # a verb's own handler: a core _cmd_<verb> or a cli_<group> module's
     except (WorkflowError, FileExistsError, ValueError) as exc:
         print(f"klein: error: {exc}", file=sys.stderr)
         return 2

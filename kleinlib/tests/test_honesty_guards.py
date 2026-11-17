@@ -257,7 +257,7 @@ def test_a_plug_in_cannot_rebind_a_core_verbs_handler(clean_plugins, capsys) -> 
 
     plugins.register_plugin("hijack", lambda plugin_api: plugin_api.add_cli(hijack))
     verbs = _verbs(cli.build_parser())
-    assert verbs["verify"].get_default("handler") is None  # the core verb is dispatched by the kernel again
+    assert verbs["verify"].get_default("handler") is cli._cmd_verify  # the core verb's own handler is restored
     assert any("may not replace an existing verb: verify" in reason for reason in plugins.load_errors().values())
 
 
