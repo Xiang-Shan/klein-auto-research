@@ -417,7 +417,10 @@ def test_the_refusal_names_the_command_override_in_its_rehearsal_command(sealed_
     command = _script(repo, study, ACK + METRIC)
     message = _assert_refused(study, "no rehearsal is on record", command=command)
     assert rehearsal_command(study, "primary", command) in message
-    assert message.rstrip().endswith(" ".join(shlex.quote(part) for part in command))
+    # The suggestion ends with the override itself, quoted for this platform's shell
+    # (POSIX quoting would wrap a Windows path in single quotes `cmd` does not read).
+    quoted = subprocess.list2cmdline(command) if os.name == "nt" else shlex.join(command)
+    assert message.rstrip().endswith("--command " + quoted)
 
 
 def test_a_rehearsal_that_crashed_does_not_count(sealed_ready) -> None:

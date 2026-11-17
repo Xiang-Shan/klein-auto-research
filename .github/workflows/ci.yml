@@ -385,7 +385,11 @@ jobs:
     # before 2.1, and the 2.1 generation tests (hundreds of small git
     # transactions, ~9 min on a fast Mac) pushed the step past 20. A cap, not
     # a target: run 34028212643 timed out at 20 with every other lane green.
-    timeout-minutes: 60
+    # 3.0 added about two hundred tests that each make git commits, which are slow
+    # on Windows: the suite took 34 minutes on one runner and 47 on another (run
+    # 44020634406). 90 leaves room for a slow runner; splitting the suite across
+    # parallel jobs is the real fix.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
