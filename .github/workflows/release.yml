@@ -49,19 +49,9 @@ jobs:
           uv venv "$RUNNER_TEMP/clean"
           VIRTUAL_ENV="$RUNNER_TEMP/clean" uv pip install dist/*.whl
           "$RUNNER_TEMP/clean/bin/klein" --version
-          "$RUNNER_TEMP/clean/bin/python" - <<'PY'
-          import importlib.resources as r
-          root = r.files("kleinlib")
-          # A missing directory fails the release: an installed Klein must carry
-          # its recipes, its skill (protocols, profiles, templates, scripts) and agents.
-          for sub in ("recipes", "_skill/references", "_skill/references/profiles",
-                      "_skill/references/generation", "_skill/assets",
-                      "_skill/assets/generation", "_skill/scripts", "_agents", "_schemas"):
-              path = root.joinpath(*sub.split("/"))
-              assert path.is_dir(), f"package data missing from the wheel: kleinlib/{sub}"
-              print(sub, sorted(p.name for p in path.iterdir())[:6])
-          assert not root.joinpath("tests").is_dir(), "the test suite must not ship in the wheel"
-          PY
+          # From outside the checkout: run in the repository, `import kleinlib` finds
+          # the source tree, not the wheel (that is how the first v3.0.0 run failed).
+          cd "$RUNNER_TEMP" && "$RUNNER_TEMP/clean/bin/python" "$GITHUB_WORKSPACE/scripts/check_installed_wheel.py"
           cd "$RUNNER_TEMP" && "$RUNNER_TEMP/clean/bin/klein" explain gate
       - uses: actions/upload-artifact@v4
         with:

@@ -488,6 +488,8 @@ jobs:
           cd "$RUNNER_TEMP"
           "$venv/bin/python" -c "import importlib.metadata as m; import kleinlib; v = m.version('klein-auto-research'); assert v == kleinlib.__version__ and v.count('.') == 2, v; print(v, kleinlib.__file__)"
           "$venv/bin/klein" --help
+          # The same check the release workflow runs before it publishes.
+          cd "$RUNNER_TEMP" && "$venv/bin/python" "$GITHUB_WORKSPACE/scripts/check_installed_wheel.py"
           "$venv/bin/klein" new 99-wheel-smoke \
             --root "$RUNNER_TEMP/wheel-studies" \
             --goal "clean wheel scaffold" --domain test --target y --family linear \
