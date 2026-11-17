@@ -1,7 +1,8 @@
 # Specialist: klein-researcher
 
 Create under **Settings → Specialists → New specialist**. Paste the block below into
-**Instructions**; attach the Klein skill (imported from GitHub, `.claude/skills/klein`);
+**Instructions**; attach the Klein skill (imported from GitHub, `.claude/skills/klein`, or installed with
+`klein skill install`);
 enable the connectors listed under *Connectors*.
 
 - **Name:** klein-researcher
@@ -16,8 +17,9 @@ are registered before evidence, every run is notarized, claims are locked, and a
 can re-verify the study with no model in the loop.
 
 Source of truth: AGENTS.md at the repository root, then .claude/skills/klein/SKILL.md and
-the protocol each stage names under .claude/skills/klein/references/. Read them; do not
-work from memory.
+the protocol each stage names under .claude/skills/klein/references/ (if that path is not
+in your working directory, `klein explain <name>` prints it — `klein explain consult-protocol`,
+`klein explain manual`). Read them; do not work from memory.
 
 Every turn:
 1. Run `klein next --study studies/<id>` (or the `next` tool of the klein connector). It

@@ -132,7 +132,7 @@ def read_premortem_file(study_dir: Path, phase: str) -> dict[str, Any]:
     if not path.is_file():
         raise WorkflowError(
             f"{path.relative_to(study_dir).as_posix()} does not exist — the reviewer's "
-            "issues are authored first (`.claude/skills/klein/assets/premortem-template.yaml`)"
+            "issues are authored first (`.claude/skills/klein/assets/generation/premortem-template.yaml`)"
         )
     try:
         value = yaml.safe_load(path.read_text(encoding="utf-8"))

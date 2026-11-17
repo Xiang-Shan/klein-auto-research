@@ -1,0 +1,62 @@
+---
+modality: tabular
+---
+
+# Data card -- Wisconsin breast-cancer table (klein demo)
+
+Written by the demo driver from the real prepared table and the real audit output below;
+in a real study the DATA auditor writes every line from their own reading
+(`references/data-gate-protocol.md`).
+
+## Source & shape
+
+`sklearn:load_breast_cancer` -- the Wisconsin diagnostic table, bundled with scikit-learn
+(no network). One row per tumour sample: @@ROWS@@ rows x @@FEATURES@@ numeric features
+(measurements of cell nuclei: radius, texture, perimeter, ... each as mean, error and
+worst value) plus the label column `target` (1 = benign, 0 = malignant). The contract
+carves it by a stratified split with seed @@SEED@@ into @@TRAIN@@ train, @@DEV@@
+development and @@TEST@@ sealed rows; the sealed rows are never read before the one
+confirmation run a real study would spend.
+
+## Profile summary
+
+Checked by value pattern, never by dtype:
+
+| Check | Result |
+|---|---|
+| numeric feature columns | @@FEATURES@@ of @@FEATURES@@ parse as finite floats |
+| missing values | @@MISSING@@ |
+| constant columns | @@CONSTANT@@ |
+| label values | only 0 and 1; @@BENIGN@@ benign |
+| row identifier or free text | none |
+
+## Clean-room leakage audit
+
+Run as `python -m kleinlib.leakage data/prepared/prepared.csv --target target --study .`:
+
+```
+@@LEAKAGE@@
+```
+
+Four rows, one verdict each: the split reproduces from the contract; no duplicate row
+straddles two partitions; a constant predictor scores chance; a label-shuffled predictor
+scores chance. All pass.
+
+## Ranked go / no-go issues
+
+1. **WARN -- small sample.** Only @@DEV@@ development rows: a score moves visibly when the
+   partition is re-drawn. That is exactly what Phase 0 measures and what the keep bar
+   will be built from.
+2. **WARN -- strong, correlated features.** Radius, perimeter and area measure the same
+   thing three ways, so a model can be very good and its coefficients will not be
+   interpretable one by one. Fine for a ranking score, wrong for a causal reading.
+3. **INFO -- a published, heavily studied table.** The headline AUC will be high for
+   any reasonable model; the demo's point is the process around the number.
+4. No BLOCKER found.
+
+## Go / no-go
+
+Nothing blocks modeling. The two warnings above travel with every claim a study on this
+table makes.
+
+> **Decision:** GO

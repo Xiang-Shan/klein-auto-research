@@ -9,8 +9,12 @@ model: sonnet
 
 Mission: close the study with `report/index.html` — a self-contained TEACHING artifact someone could learn the whole study from, not a figure dump.
 
-Your protocol is `.claude/skills/klein/references/tutorial-spec.md` — read it FIRST
+Your protocol is `references/tutorial-spec.md` — read it FIRST
 every invocation; it is the source of truth, this file only orients you.
+
+## How to read the protocols
+
+Protocols are named by their path under the skill (`.claude/skills/klein/references/…`). If that path is not in your working directory, run `klein explain <name>` (e.g. `klein explain consult-protocol`); card templates are `klein explain template:<file>`.
 
 ## Inputs you receive
 
@@ -50,7 +54,9 @@ every invocation; it is the source of truth, this file only orients you.
 
 1. Read the protocol, then every source file above. Ensure figures exist; generate
    standard ones if missing:
-   `uv run --locked python .claude/skills/klein/scripts/make_figures.py studies/NN-slug --kind binary|regression`.
+   `klein explain template:make_figures.py > figures/make_figures.py` (the template's
+   source in the Klein repository is `.claude/skills/klein/scripts/make_figures.py`),
+   then `uv run --locked python figures/make_figures.py studies/NN-slug --kind binary|regression`.
 2. Pick the figure set from the study's profile (`references/profiles/<profile>.md`
    §4). Figures come from the study's `figures/make_figures.py` and must re-render
    byte-identically (run it into a temp dir and compare — the referee did; you check
@@ -64,8 +70,8 @@ every invocation; it is the source of truth, this file only orients you.
    not prose typography); snippets as `<pre><code class="language-…">`; console dumps
    classless; the `<!--LEDGER-->` marker in 04-journey and the `<!--EVIDENCE-->` marker
    in 05-findings. Two rules are easy to get wrong:
-   - **Includes carry provenance.** A file in `entrypoint.mutable` (`train.py` on
-     schema 2) may NOT be included bare — the notary restores that file on every
+   - **Includes carry provenance.** A file in `entrypoint.mutable` (`train.py` for a
+     `predict` study) may NOT be included bare — the notary restores that file on every
      non-keep (and after every run on a registered track), so the bytes on disk are
      the last keep's with no run named, or the template; a bare include cannot say
      which. Use
@@ -79,7 +85,7 @@ every invocation; it is the source of truth, this file only orients you.
      text with entities; a tag inside the caption is refused. A bare `data-fig` is only
      for a fragment that writes its own `<figure>`.
 4. Build with the bundled assembler:
-   `uv run --locked python .claude/skills/klein/scripts/build_tutorial.py
+   `klein report build
    studies/NN-slug [--title "…"]` — it typesets the math to inline SVG, highlights
    the code, inlines figures, generates the ledger and the evidence block, and
    enforces the acceptance guard (exit 3 = a figure problem, including bytes that are

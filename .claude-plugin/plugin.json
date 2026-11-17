@@ -1,0 +1,31 @@
+{
+  "name": "klein",
+  "displayName": "Klein Auto Research",
+  "version": "3.0.0",
+  "description": "Process-verifiable research studies: a typed question, predictions registered before their evidence, notarized runs, claims locked to pinned numbers, an independent referee and a teaching report.",
+  "author": {
+    "name": "Xiang Shan",
+    "url": "https://github.com/Xiang-Shan"
+  },
+  "homepage": "https://github.com/Xiang-Shan/klein-auto-research",
+  "repository": "https://github.com/Xiang-Shan/klein-auto-research",
+  "license": "MIT",
+  "keywords": ["research", "ai-for-science", "experiments", "reproducibility", "pre-registration", "statistics"],
+  "skills": ["./.claude/skills/"],
+  "agents": [
+    "./.claude/agents/klein-consultant.md",
+    "./.claude/agents/klein-data-auditor.md",
+    "./.claude/agents/klein-method-scholar.md",
+    "./.claude/agents/klein-experimenter.md",
+    "./.claude/agents/klein-sweeper.md",
+    "./.claude/agents/klein-synthesist.md",
+    "./.claude/agents/klein-referee.md",
+    "./.claude/agents/klein-tutor.md"
+  ],
+  "mcpServers": {
+    "klein": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/klein",
+      "args": ["mcp", "--root", "${CLAUDE_PROJECT_DIR}"]
+    }
+  }
+}

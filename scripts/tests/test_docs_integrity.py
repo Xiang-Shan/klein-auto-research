@@ -12,6 +12,7 @@ import re
 from pathlib import Path
 
 import pytest
+import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SKILL_DIR = REPO_ROOT / ".claude" / "skills" / "klein"
@@ -42,6 +43,10 @@ NORMATIVE_MD = [
 STATUS_VOCAB = {"seed", "ported", "promoted", "validated", "contested", "moved", "superseded"}
 CITATION_RE = re.compile(r"\((supports|refutes) (\d{2}-[a-z0-9-]+)#C\d+\)")
 KNOWN_STUDIES = {p.name for p in (REPO_ROOT / "studies").iterdir() if p.is_dir()}
+#: Studies that left the tree stay citable: `studies/archive.yaml` lists each one's
+#: claim ids and the commit where its files verify (`studies/ARCHIVE.md`).
+ARCHIVE = yaml.safe_load((REPO_ROOT / "studies" / "archive.yaml").read_text(encoding="utf-8"))
+ARCHIVED_CLAIMS = {s["id"]: set(s["claims"]) for s in ARCHIVE["studies"]}
 
 
 def _read(path: Path) -> str:
@@ -74,7 +79,7 @@ ASSET_SUFFIXES = ("md", "toml", "yaml", "json", "py")
 ASSET_REF_RE = re.compile(
     r"`(?:\.claude/skills/klein/)?"
     r"(references/[A-Za-z0-9_./<>-]+\.md"
-    rf"|assets/[A-Za-z0-9_.-]+\.(?:{'|'.join(ASSET_SUFFIXES)}))`"
+    rf"|assets/[A-Za-z0-9_./-]+\.(?:{'|'.join(ASSET_SUFFIXES)}))`"
 )
 
 
@@ -97,12 +102,14 @@ def test_no_orphan_asset() -> None:
     template nobody will find, and the fix is the pointer — never a narrower test.
     """
     corpus = "\n".join(_read(p) for p in NORMATIVE_MD)
+    # recursive: the opt-in generation layer's templates live in `assets/generation/`
+    # and are checked by their path relative to `assets/`, like every core asset
     orphans = [
-        asset.name
-        for asset in sorted(ASSETS.iterdir())
+        asset.relative_to(ASSETS).as_posix()
+        for asset in sorted(ASSETS.rglob("*"))
         if asset.is_file()
         and asset.suffix.lstrip(".") in ASSET_SUFFIXES
-        and f"assets/{asset.name}" not in corpus
+        and f"assets/{asset.relative_to(ASSETS).as_posix()}" not in corpus
     ]
     assert not orphans, f"assets nobody points at: {orphans}"
 
@@ -155,8 +162,8 @@ def test_knowledge_frontmatter_status_vocabulary_and_typed_citations() -> None:
         if fm.get("status") not in STATUS_VOCAB:
             problems.append(f"{rel}: status {fm.get('status')!r} not in {sorted(STATUS_VOCAB)}")
         for verb, study in CITATION_RE.findall(_read(doc)):
-            if study not in KNOWN_STUDIES:
-                problems.append(f"{rel}: ({verb} {study}#…) cites a study that is not in studies/")
+            if study not in KNOWN_STUDIES and study not in ARCHIVED_CLAIMS:
+                problems.append(f"{rel}: ({verb} {study}#…) cites a study that is neither in studies/ nor in studies/archive.yaml")
     assert not problems, "\n".join(problems)
 
 
@@ -166,6 +173,10 @@ def test_research_discipline_cites_claims_that_exist() -> None:
     assert cited, "research-discipline.md carries no typed citations"
     missing = []
     for study, claim in sorted(cited):
+        if study in ARCHIVED_CLAIMS:
+            if claim not in ARCHIVED_CLAIMS[study]:
+                missing.append(f"{study}#{claim} (archived)")
+            continue
         findings = _read(REPO_ROOT / "studies" / study / "findings.md")
         if not re.search(rf"(\*\*\[{claim}\]\*\*|\[{claim}\]|\b{claim} ·)", findings):
             missing.append(f"{study}#{claim}")
@@ -189,3 +200,11 @@ def test_each_profile_has_the_eight_sections(path: Path) -> None:
     text = _read(path)
     for n, key in enumerate(("Audience", "§⑤ heading", "Doctrine", "Figures", "Knowledge", "Budgets", "Vocabulary", "CONSULT hints"), start=1):
         assert re.search(rf"^## {n}\. {re.escape(key)}", text, re.M), f"{path.name}: section {n} ({key}) missing"
+
+
+def test_archive_index_is_disjoint_from_the_tree_and_names_a_real_commit() -> None:
+    assert not (set(ARCHIVED_CLAIMS) & KNOWN_STUDIES), "a study is either shipped or archived, never both"
+    assert re.fullmatch(r"[0-9a-f]{40}", ARCHIVE["archive_commit"])
+    page = _read(REPO_ROOT / "studies" / "ARCHIVE.md")
+    for study in ARCHIVED_CLAIMS:
+        assert f"`{study}`" in page, f"studies/ARCHIVE.md does not list {study}"

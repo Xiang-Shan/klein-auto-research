@@ -1,20 +1,21 @@
-"""The sign-flip max-t selection guard, checked against study 09's shipped numbers.
+"""The sign-flip max-t selection guard, checked against study 09's published numbers.
 
 `kleinlib.metrology.family_maxt` is a port of the frozen study-08 reference
-(`studies/08-iris-rematch/sweeps/rematch_analysis.py`, re-used verbatim by
-study 09's `sweeps/analysis.py`).  The port is only worth having if it
-reproduces what those studies published, so the anchor test rebuilds study 09's
-42-cell permission map from its committed arena sidecars and compares every
-adjusted score with `sweeps/arena_verdicts.tsv` — and the headline
-`0/42` recorded in `claims.lock` under the `guard` alias.
+(`sweeps/rematch_analysis.py`, re-used verbatim by study 09's `sweeps/analysis.py`).
+The port is only worth having if it reproduces what those studies published, so the
+anchor test feeds it study 09's 42-cell family and compares every adjusted score with
+the study's `sweeps/arena_verdicts.tsv` — and with the headline `0/42` its
+`claims.lock` records under the `guard` alias.
 
-Nothing here writes to `studies/`.
+Studies 08 and 09 are archived (`studies/ARCHIVE.md`).  `fixtures/study09_maxt.json`
+freezes the guard's input — one repeat-level mean paired delta per unit, rebuilt from
+the committed arena sidecars — together with the published scores and the sha256 of
+every source file at the archive commit.
 """
 
 from __future__ import annotations
 
 import json
-import statistics
 from pathlib import Path
 
 import numpy as np
@@ -22,95 +23,37 @@ import pytest
 
 from kleinlib.metrology import family_maxt
 
-REPO = Path(__file__).resolve().parents[2]
-STUDY09 = REPO / "studies" / "09-iris-first-lesson"
-SWEEPS = STUDY09 / "sweeps"
-
-#: Study 09's registered guard: repeat-level units, full enumeration of 2**10.
-REPEATS = 10
-FOLDS = 4
-ANCHOR = "anchor_lda4"
-#: `alpha = 0.05` lands between 51/1024 and 52/1024 on the enumeration grid.
-ALPHA = 0.05
-
-pytestmark = pytest.mark.skipif(
-    not (SWEEPS / "arena_verdicts.tsv").is_file(),
-    reason="study 09 evidence is not present in this checkout",
+FIXTURE = json.loads(
+    (Path(__file__).parent / "fixtures" / "study09_maxt.json").read_text(encoding="utf-8")
 )
 
 
-def _sidecar_cells(name: str) -> dict[tuple[str, int, int, int], float]:
-    """(family, rung, repeat, fold) -> primary_metric for the ok rows."""
-    import csv
-
-    out: dict[tuple[str, int, int, int], float] = {}
-    with (SWEEPS / name).open(encoding="utf-8", newline="") as stream:
-        for row in csv.DictReader(stream, delimiter="\t"):
-            if row["status"] != "ok" or row["primary_metric"] in ("", "NA"):
-                continue
-            params = json.loads(row["params_json"])
-            key = (
-                params["family"],
-                int(params["rung"]),
-                int(params["repeat"]),
-                int(params["fold"]),
-            )
-            out[key] = float(row["primary_metric"])
-    return out
-
-
-def _recorded_verdicts() -> list[dict[str, str]]:
-    import csv
-
-    with (SWEEPS / "arena_verdicts.tsv").open(encoding="utf-8", newline="") as stream:
-        return list(csv.DictReader(stream, delimiter="\t"))
-
-
-def _study09_family() -> tuple[dict[str, np.ndarray], list[dict[str, str]]]:
-    """Rebuild the guard's input: one repeat-level mean paired delta per unit."""
-    anchor = _sidecar_cells("arena_anchor.sidecar.tsv")
-    challengers = _sidecar_cells("arena.sidecar.tsv")
-    verdicts = _recorded_verdicts()
-    deltas: dict[str, np.ndarray] = {}
-    for row in verdicts:
-        family, rung = row["family"], int(row["rung"])
-        units = []
-        for repeat in range(1, REPEATS + 1):
-            # Positive = the challenger improved on the anchor's Brier.
-            paired = [
-                anchor[(ANCHOR, rung, repeat, fold)] - challengers[(family, rung, repeat, fold)]
-                for fold in range(FOLDS)
-                if (ANCHOR, rung, repeat, fold) in anchor
-                and (family, rung, repeat, fold) in challengers
-            ]
-            units.append(statistics.fmean(paired) if paired else float("nan"))
-        deltas[f"{family}@{rung}"] = np.array(units)
-    return deltas, verdicts
+def _study09_family() -> dict[str, np.ndarray]:
+    return {
+        cell: np.array([np.nan if unit is None else unit for unit in units], dtype=float)
+        for cell, units in FIXTURE["deltas"].items()
+    }
 
 
 def test_reproduces_every_adjusted_score_study_09_published() -> None:
-    deltas, verdicts = _study09_family()
+    deltas = _study09_family()
     assert len(deltas) == 42, "study 09's registered family is 7 challengers x 6 rungs"
 
-    adjusted = family_maxt(deltas, n_perm=1024, seed=0)
+    adjusted = family_maxt(deltas, n_perm=FIXTURE["n_perm"], seed=FIXTURE["seed"])
 
     mismatches = [
-        (row["family"], row["rung"], row["p_guard"], adjusted[f"{row['family']}@{row['rung']}"])
-        for row in verdicts
-        if round(adjusted[f"{row['family']}@{row['rung']}"], 4) != float(row["p_guard"])
+        (cell, published, adjusted[cell])
+        for cell, published in FIXTURE["p_guard"].items()
+        if round(adjusted[cell], 4) != published
     ]
-    assert not mismatches, f"adjusted scores drifted from the shipped table: {mismatches}"
+    assert not mismatches, f"adjusted scores drifted from the published table: {mismatches}"
 
 
 def test_reproduces_the_zero_of_forty_two_recorded_in_the_claims_lock() -> None:
-    lock = json.loads((STUDY09 / "claims.lock").read_text(encoding="utf-8"))
-    recorded = lock["claims"]["guard"]["value"]["bar1_cleared"]
+    adjusted = family_maxt(_study09_family(), n_perm=FIXTURE["n_perm"], seed=FIXTURE["seed"])
+    cleared = [cell for cell, p in adjusted.items() if p <= FIXTURE["alpha"]]
 
-    deltas, _ = _study09_family()
-    adjusted = family_maxt(deltas, n_perm=1024, seed=0)
-    cleared = [cell for cell, p in adjusted.items() if p <= ALPHA]
-
-    assert f"{len(cleared)}/{len(adjusted)}" == recorded == "0/42"
+    assert f"{len(cleared)}/{len(adjusted)}" == FIXTURE["bar1_cleared"] == "0/42"
 
 
 def test_full_enumeration_is_exact_and_ignores_the_seed() -> None:

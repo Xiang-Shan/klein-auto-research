@@ -53,7 +53,15 @@ JPEG_BYTES = base64.b64decode(
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/9k="
 )
 
-STUDY_YAML = 'goal: "Accept the layout"\ndomain: "framework"\nmetric:\n  name: "val_auc"\n'
+STUDY_YAML = (
+    "schema_version: 3\n"
+    'goal: "Accept the layout"\n'
+    'domain: "framework"\n'
+    "tracks:\n"
+    "  primary:\n"
+    "    metric:\n"
+    '      name: "val_auc"\n'
+)
 
 BASE_FRAGMENTS = {
     "01-question.html": "<h2>The Question</h2><p>Can the page read on a phone?</p>",

@@ -52,11 +52,17 @@ jobs:
           "$RUNNER_TEMP/clean/bin/python" - <<'PY'
           import importlib.resources as r
           root = r.files("kleinlib")
-          for sub in ("recipes", "profiles"):
-              path = root / sub
-              if path.is_dir():
-                  print(sub, sorted(p.name for p in path.iterdir())[:8])
+          # A missing directory fails the release: an installed Klein must carry
+          # its recipes, its skill (protocols, profiles, templates, scripts) and agents.
+          for sub in ("recipes", "_skill/references", "_skill/references/profiles",
+                      "_skill/references/generation", "_skill/assets",
+                      "_skill/assets/generation", "_skill/scripts", "_agents", "_schemas"):
+              path = root.joinpath(*sub.split("/"))
+              assert path.is_dir(), f"package data missing from the wheel: kleinlib/{sub}"
+              print(sub, sorted(p.name for p in path.iterdir())[:6])
+          assert not root.joinpath("tests").is_dir(), "the test suite must not ship in the wheel"
           PY
+          cd "$RUNNER_TEMP" && "$RUNNER_TEMP/clean/bin/klein" explain gate
       - uses: actions/upload-artifact@v4
         with:
           name: dist

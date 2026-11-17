@@ -25,7 +25,7 @@ interrogate. The six axes, with example phrasings:
    On a study whose generation manifest declares `expertise`, this answer is read from
    `domain_card.md`'s `method_shortlist[]` rather than invented here — the shortlist is
    locked before this gate and is what METHOD chooses FROM
-   (`references/expert-protocol.md`).
+   (`references/generation/expert-protocol.md`).
 4. **Metric & decision use.** "For each distinct task, what primary metric should its
    track use, higher or lower, what minimum delta matters, and which guardrails
    must hold?" Never combine unrelated tasks into one global frontier. Declare
@@ -38,7 +38,7 @@ interrogate. The six axes, with example phrasings:
 6. **Deliverable form.** "Besides the always-on `findings.md` + `claims.lock` +
    referee report + HTML tutorial, do you want any study-specific docs?"
 
-#**Recipe (inferred, never a seventh question).** When the typed inquiry matches a
+**Recipe (inferred, never a seventh question).** When the typed inquiry matches a
 domain recipe — `tabular-predict`, `cv-classify`, `dl-scaling`, `llm-eval`, `ds-causal`,
 `math-verify` (`references/defaults-and-scaffolding.md`) — name it in the confirm summary
 and scaffold with `klein new NN-slug --recipe <id> …`: the recipe writes the 2.3 contract
@@ -70,21 +70,22 @@ with one line of reasoning in the confirm summary:
 graphs, text, a simulator, or `none` when only a verifier exists). `profile` follows
 the audience and the field's vocabulary (`generic` unless the brief is plainly ML
 research, mathematics, or insurance — the profile files' §8 hints decide). A study
-with two lanes (a registered test beside a known-truth simulation, as study 09) keeps
-one study kind and overrides per track with `tracks.<id>.kind`.
+with several lanes (a replication beside an estimate and a known-truth simulation, as in
+`10-hubble-1929-replication`) keeps one study kind and overrides per track with
+`tracks.<id>.kind`.
 
 ## Draft the artifacts
 
 From the answers, scaffold, then fill:
 
 ```bash
-uv run --locked klein new NN-slug \
+klein new NN-slug \
     --goal "..." --kind <kind> --modality <modality> --profile <profile> \
     --metric <name> --goal-direction higher|lower --data "<source tag>" \
     --track <name>[:registered] [--track <name2>[:registered]] [--split-seed N]
 ```
 
-Fill in `study.yaml` (schema 3): `kind`, `data.modality`, `data.source` with its pin
+Fill in `study.yaml`: `kind`, `data.modality`, `data.source` with its pin
 (`references/data-sources.md`), `profile` and `audience`, `entrypoint {command,
 mutable}`, explicit `task_type` (the metric family) and `method_depth`, one or more
 track contracts — `mode` (frontier or registered), metric name / direction / minimum
@@ -143,9 +144,11 @@ assert evaluate_rule(
 - **Everything looked at before this gate goes into `scouting_ledger.md`**
   (scaffolded by `klein new`; shape and rationale in
   `assets/scouting-ledger-template.md`), committed before the gate is recorded:
-  on schema 3, `klein gate record consult` hashes it into the consult record beside
+  `klein gate record consult` hashes it into the consult record beside
   `study.yaml`, `research_plan.md` and `program.md`, so an edit afterwards fails
-  `klein verify` until the gate is re-recorded with a reason. It is the one OPTIONAL
+  `klein verify` until the gate is re-recorded with a reason. Looks at the data itself run
+  through `klein probe` so they are on the record; `scouting_ledger.md` explains what they
+  showed (`references/exploration-protocol.md`). It is the one OPTIONAL
   consult artifact — a study that scouted nothing may delete it, and the gate then
   records `scouting_ledger: absent` on the event trail so the absence is itself on
   the record. Values seen there may seed anchors and identity checks; they may
@@ -153,7 +156,7 @@ assert evaluate_rule(
   generation-enabled study the same rule types the slate: a hypothesis whose outcome the
   ledger already observed carries `provenance: scouted`, is EXCLUDED from prospective
   calibration, and is reported in a descriptive panel of its own
-  (`references/generation-protocol.md`).
+  (`references/generation/generation-protocol.md`).
 - **Fill the `experimenter` row of `program.md`'s `## Roster`** with the model, tool
   and session that will run the loop. REFEREE reads that table for the independence
   rung (`references/referee-protocol.md`); left blank, the rung is capped at "fresh
@@ -168,7 +171,7 @@ assert evaluate_rule(
   and `klein generation expert bind E0001` discharges it. A `mismatch` or `crash`
   BLOCKS every challenger admission until a versioned `expert repair` reproduces —
   "STOP if off" stops being a discipline the driver keeps and becomes one the notary
-  keeps (`references/expert-protocol.md`).
+  keeps (`references/generation/expert-protocol.md`).
 - **Then measure the noise floor — never guess `minimum_delta`.** After the anchor,
   run the floor recipe that matches the question — `seed-sweep` (fit noise; k=5
   default, k=3 if one run exceeds ~5 minutes), `split-lottery` (marginal-resplit), or
@@ -176,7 +179,7 @@ assert evaluate_rule(
   under common random numbers) — via `sweeps/noise_floor.py` → sidecar, registered
   with `klein sweep register`; then `klein noise-floor --study <dir> --recipe <r>
   --estimand <e>` prints the per-track block. Set `minimum_delta ≥ max(2×std,
-  range/2)` (schema 3 enforces it) and re-record the consult gate with
+  range/2)` (the engine enforces it) and re-record the consult gate with
   `--note "minimum_delta set from the measured noise floor"`. A seed-only spread is
   recorded as `fit_noise`, never pasted as the bar. An `exact` metric (integer or
   closed-form objectives) declares `metric.exactness: exact` with a resolution and an
@@ -192,7 +195,7 @@ assert evaluate_rule(
   door-closed branch BEFORE spending challengers. Declare `metric.bound.ideal` (+
   `on_infeasible`) and `noise_floor.estimand` so klein computes, discloses, and
   gates this automatically (`klein headroom ack` records the run-anyway branch).
-  Study 07 ran a parade at h = 0.81 with no disclosure; study 08 registered the
+  Study 07 (archived — `studies/ARCHIVE.md`) ran a parade at h = 0.81 with no disclosure; study 08 registered the
   arithmetic first and its door-ajar frontier (h = 1.015) still produced zero keeps
   in twenty-one attempts; study 09 closed the door at h = 0.33 before any challenger
   — `h >= 1` is "not excluded", never "plausible".
@@ -220,13 +223,13 @@ assert evaluate_rule(
 ## Confirm — and STOP for ack
 
 **Generation-enabled studies first.** If this study opts into the generation layer
-(`references/generation-protocol.md`), `klein generation init` must already be
+(`references/generation/generation-protocol.md`), `klein generation init` must already be
 anchored before the gate is recorded — a consult record that precedes the opt-in fails
 `klein generation verify` permanently, because a commitment registered after seeing
 what it was supposed to constrain constrains nothing.
 So must `klein generation expert lock` when the manifest declares `expertise`: the
 method shortlist and the baseline targets have to precede the gate for the same
-reason (`references/expert-protocol.md`).
+reason (`references/generation/expert-protocol.md`).
 And so must `klein generation knowledge query` when the manifest declares
 `knowledge`: the consultation receipt is what the summary below cites. Present the
 hits it returned with their contest closure, record a `use` or `reject` reason for
@@ -234,7 +237,7 @@ every one (`--use K1=<why>` / `--reject K2=<why>`, or `knowledge decide` before 
 ack), and cite the explicit `no_match` receipt when the store held nothing — an
 empty store is consulted, never skipped. A store read after the ack is a
 bibliography, not a consultation, and FAILs `knowledge query`
-(`references/knowledge-protocol.md`).
+(`references/generation/knowledge-protocol.md`).
 
 Present a concise summary: goal; kind / modality / profile with one line of reasoning
 each; the track contracts (mode, metric, floor recipe, bound, verifier); the data
@@ -260,12 +263,14 @@ steps directly.
 ## Prior provenance
 
 Every research-question prior names its source in parentheses:
-`(source: knowledge/domains/insurance/gbdt-hyperparameter-guide.md#C2)`,
+`(source: knowledge/domains/insurance/gbdt-hyperparameter-guide.md#C2)` (`knowledge/` is in the
+repository that hosts your studies; Klein's own knowledge base ships in its repository, not in the
+package),
 `(source: method_card §4)`, `(source: scouted)`, `(source: uninformed)`, or — on a
 generation-enabled study — `(source: <study>#Hn)` for a prior that rests on an earlier
 slate row and `(source: knowledge:K7)` for one that rests on a store object the
 consultation receipt returned and the study recorded as `use`
-(`references/knowledge-protocol.md`). Findings §⑥ then settles the scorecard — did knowledge-sourced priors
+(`references/generation/knowledge-protocol.md`). Findings §⑥ then settles the scorecard — did knowledge-sourced priors
 outpredict uninformed ones? — with scouted priors excluded, which is what makes the
 knowledge promotion loop measurable rather than devotional. An enabled study's scorecard
 also carries the slate calibration panels (`unscouted` and `derived` scored,

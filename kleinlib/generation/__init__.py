@@ -6,11 +6,11 @@ referee.  This subpackage records the *generation* half — what was committed t
 BEFORE the evidence existed — without touching one line of that core.
 
 Three boundaries hold this package in place and are tested (see
-``kleinlib/tests/test_generation_spine.py``):
+``kleinlib/tests/generation/test_generation_spine.py``):
 
 1. **Core never imports generation.**  Import direction is strictly
    ``generation → core read helpers``.  ``kleinlib.cli`` carries two lines that
-   register the verb group; the handlers in :mod:`kleinlib.cli_generation`
+   register the verb group; the handlers in :mod:`kleinlib.generation.cli`
    import this package lazily, so a defect here cannot break ``klein run-one``
    or any legacy verb at import time.
 2. **The layer records, hashes, and computes arithmetic on rows the driver
@@ -35,7 +35,7 @@ must stay cheap, and the CLI imports what a handler actually needs.
 - :mod:`kleinlib.generation.label` — ``generation/label.json``
 - :mod:`kleinlib.generation.recover` — voiding orphans, filing an uncommitted ledger
 
-The protocol is ``.claude/skills/klein/references/generation-protocol.md``.
+The protocol is ``.claude/skills/klein/references/generation/generation-protocol.md``.
 """
 
 from __future__ import annotations

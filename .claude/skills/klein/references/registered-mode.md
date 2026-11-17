@@ -3,9 +3,9 @@
 Frontier mode answers "which candidate wins?". Most science asks something else: "what
 is the value?", "does H hold?", "does the method recover the truth?", "does the paper's
 number reproduce?". Those questions have no incumbent to beat. In Klein 1.x they were
-bent into the frontier by hand — study 09 kept its 42-cell permission map in a sweep
-sidecar beside the ledger and invented `claims.lock` to re-anchor it. Schema 3 gives
-them a track mode of their own.
+bent into the frontier by hand — study 09 (archived — `studies/ARCHIVE.md`) kept its
+42-cell permission map in a sweep sidecar beside the ledger and invented `claims.lock`
+to re-anchor it. Registered mode gives them a track mode of their own.
 
 Role: the driving agent. Any agent or human can follow this document directly.
 
@@ -106,7 +106,7 @@ measurement, on which partition, adjudicating which prediction, at what cost. A 
 runs through the same notary:
 
 ```bash
-uv run --locked klein run-one --study studies/NN-slug --track estimate \
+klein run-one --study studies/NN-slug --track estimate \
   --tests P4 --description "bootstrap CI of K (1000 resamples, seed block A)"
 ```
 
@@ -116,7 +116,7 @@ manifest, in `study_state.json`, and as the event `prediction_adjudicated`. A mi
 key yields `inconclusive`, never a guess.
 
 On a **generation-enabled study** each cell also carries the `<study>#Hn` id of the
-slate row it is (`references/generation-protocol.md`): `klein generation check --action
+slate row it is (`references/generation/generation-protocol.md`): `klein generation check --action
 cell --track <id> --hypothesis <study>#Hn --tests P4` before the run, and the receipt
 binds the id, the slate's hash and the exact surface. The `--tests` set must cover the
 row's `success_P` — the same ids the slate named as its definition of success — because
@@ -127,7 +127,7 @@ hypothesis on an enabled study is refused unless it is a typed obligation (`cali
 A study that declares the **`parity`** capability registers one more cell, and it is a
 special one: the **AI-vs-expert comparison**, the comparison track's SOLE sealed
 evaluation, scoring both frozen pipelines together and pinning
-`tables/parity_units.tsv` (`references/expert-parity-protocol.md`). It **precedes every
+`tables/parity_units.tsv` (`references/generation/expert-parity-protocol.md`). It **precedes every
 other sealed access in the study** — `klein generation check --action sealed` is refused
 on ANY track until `klein generation parity bind` has frozen both pipelines and every
 measured floor, and a `final_test` run recorded before that anchor FAILs the `parity`
@@ -141,7 +141,7 @@ include the cell's registered `expectation_P`: the notary adjudicates the expect
 that run's printed block, and nothing else decides it. The cell's entrypoint prints its
 per-unit table as an ordinary `artifact:` line; `klein generation surprise record --run
 E####` reads those pinned bytes afterwards and applies the declared multiplicity rule
-once (`references/surprise-protocol.md`). A discovery cell may never run on the sealed
+once (`references/generation/surprise-protocol.md`). A discovery cell may never run on the sealed
 partition — the seal is a track's single confirmation look, and a screen cannot confirm
 what it selected.
 
@@ -155,13 +155,11 @@ what it selected.
 - Not exempt from the floor: a registered cell that compares two things needs the
   paired floor like any comparison, and its rule's tolerance says so.
 
-## Worked example — study 09's permission map, restated
+## Worked example — a registered cell, adjudicated
 
-Study 09 asked whether any of 42 candidate cells (7 families × 6 feature sets) had
-permission to contest the anchor. In schema 2 the map lived in
-`sweeps/rq0_map.sidecar.tsv`, cited from prose. In schema 3 it is one registered cell:
-the entrypoint builds the 42-row table, prints `primary_metric:` as the count of cells
-with permission, pins the table with `artifact: sweeps/rq0_map.tsv`, and `--tests P1`
-adjudicates "at most 3 of 7 families clear the floor" by the rule
-`{key: primary_metric, op: "<=", value: 3}`. The claim in the lock then cites `E0002`
-and `art:rq0_map`, and the numbers law finds every count in the table.
+`10-hubble-1929-replication` is registered end to end. Its reproduction cell (E0002)
+fits Hubble's Table 1 two ways, pins the fits table with an `artifact:` line
+(`tables/two_parameter_fits.tsv`), and prints `min_abs_gap_465`; `--tests P1`
+adjudicates "neither fit reproduces K = 465 within 10" by the rule
+`{key: min_abs_gap_465, op: ">", value: 10}`. The claim in the lock then cites `E0002`
+and `art:fits`, and the numbers law finds every number in the table.

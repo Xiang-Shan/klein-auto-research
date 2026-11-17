@@ -22,12 +22,12 @@ with the source recorded as ``manual`` so a reader can tell them apart.
 from __future__ import annotations
 
 import argparse
-import json
 
-from .contract import load_contract, registered_predictions, resolve_study, schema_version
+from .api import emit
+from .contract import load_contract, registered_predictions, resolve_study
 from .decision import VALID_VERDICTS
 from .errors import WorkflowError
-from .predictions import format_ledger, ledger, pin_evidence, record_verdict
+from .predictions import counts, format_ledger, ledger, pin_evidence, record_verdict
 from .primitives import StudyLock
 from .state import load_state, save_state
 from .transaction import commit_state_writes
@@ -116,9 +116,7 @@ def _run_list(args: argparse.Namespace) -> int:
     rows = ledger(contract, load_state(study, contract))
     if args.only_open:
         rows = [row for row in rows if row["verdict"] == "open"]
-    if args.json:
-        print(json.dumps(rows, indent=2))
-        return 0
+    emit({"predictions": rows, "counts": counts(rows)})
     print(format_ledger(rows), end="")
     return 0
 
@@ -126,10 +124,6 @@ def _run_list(args: argparse.Namespace) -> int:
 def _run_adjudicate(args: argparse.Namespace) -> int:
     study = resolve_study(args.study)
     contract = load_contract(study)
-    if schema_version(contract) < 3:
-        raise WorkflowError(
-            "the predictions ledger is a schema-3 mechanism; this study is schema 2"
-        )
     name = args.prediction
     entry = registered_predictions(contract).get(name)
     if entry is None:

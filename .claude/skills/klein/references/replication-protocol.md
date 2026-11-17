@@ -12,10 +12,10 @@ this document directly.
 ## Internal: `klein replicate`
 
 ```bash
-uv run --locked klein replicate --study studies/NN-slug E0003 [--tolerance 0.001]
-uv run --locked klein replicate --study studies/NN-slug E0007 --verify-only   # verifier tracks
-uv run --locked klein replicate --study studies/NN-slug E0004 --replay         # call-ledger studies, offline
-uv run --locked klein replicate --study studies/NN-slug --list
+klein replicate --study studies/NN-slug E0003 [--tolerance 0.001]
+klein replicate --study studies/NN-slug E0007 --verify-only   # verifier tracks
+klein replicate --study studies/NN-slug E0004 --replay         # call-ledger studies, offline
+klein replicate --study studies/NN-slug --list
 ```
 
 - A development run is re-executed from its manifest in a **detached git worktree**
@@ -23,8 +23,14 @@ uv run --locked klein replicate --study studies/NN-slug --list
   removed afterwards; the prepared data is copied in and its fingerprint asserted;
   the child runs with `KLEIN_REPLICATION=1` and every smoke or dry-run flag cleared.
 - The printed block is compared with the manifest's within a tolerance chosen from
-  this ladder: `--tolerance` > the track's `minimum_delta` > the floor's std > exact
-  (for `metric.exactness: exact`).
+  this ladder, first match wins: `--tolerance` > `0` when the track declares
+  `metric.exactness: exact` > the track's `minimum_delta` > the floor's std.
+  **Exact means bit-identical on the machine that ran it.** A closed-form or integer
+  metric is also identical elsewhere; an iterative solver (a logit fitted by lbfgs)
+  moves in its last digits on another CPU or BLAS. A replication on a different
+  machine therefore states its tolerance — the resolution the contract declares in
+  `exactness_note` — with `--tolerance`, and the record says so
+  (`tolerance_source: "--tolerance"`).
 - The record is `runs/E####/replications/<ts>.json` (`reproduced: true|false`, both
   blocks, the difference, the tolerance, the environment fingerprint) plus the log;
   the event `run_replicated` is appended; the manifest is never touched. The evidence
@@ -85,8 +91,9 @@ and the receipt says which record is missing.
 
 ## Reading a failed replication
 
-`reproduced: false` is evidence, not a scandal. In order: compare the two environment
-fingerprints (device, library versions, thread counts); look for undeclared
+`reproduced: false` is evidence, not a scandal. In order: compare the two environments
+the record holds (platform, machine, python, the `uv.lock` hash — a different machine
+always has a different fingerprint, so read the fields, not the hash); look for undeclared
 nondeterminism (seeds not set, hash-ordered iteration, GPU kernels); decide whether the
 difference exceeds the floor. If it does and a claim rested on the run, file an
 erratum (`klein claims erratum`) that re-scopes the claim to what still holds. Never

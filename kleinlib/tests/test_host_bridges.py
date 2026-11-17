@@ -16,7 +16,7 @@ from kleinlib.notebook import notebook_for_run, write_notebook
 from kleinlib.refs_net import resolve_reference, title_match, verify_references
 
 ROOT = Path(__file__).resolve().parents[2]
-STUDY = "15-iris-90years-relaunch"
+STUDY = "00-known-truth-quickstart"
 
 
 def _tree_state() -> str:

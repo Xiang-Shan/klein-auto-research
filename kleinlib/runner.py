@@ -7,6 +7,7 @@ status, timeout, process-group termination, and log semantics cannot drift.
 from __future__ import annotations
 
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -51,6 +52,28 @@ def _pump(source: TextIO, log: TextIO, *, echo: bool) -> None:
             sys.stdout.flush()
 
 
+def _resolved(command: Sequence[str], env: Mapping[str, str]) -> list[str]:
+    """``command`` with a bare program name looked up on the CHILD's ``PATH``.
+
+    POSIX does this already. Windows does not: it searches the directory of the
+    running program first — inside a virtual environment that is the BASE
+    interpreter's directory — and only then the parent's ``PATH``. A contract that
+    says ``python -u train.py`` then ran the base Python, which has neither
+    ``kleinlib`` nor the study's libraries (``klein demo`` and every
+    ``klein new --runner python`` study crashed on Windows that way). Resolving
+    here makes every platform launch what the child's ``PATH`` names. The command
+    is RECORDED as the contract wrote it; only the launch uses the resolved path.
+    """
+    argv = list(command)
+    program = argv[0]
+    if os.path.dirname(program):
+        return argv  # a path, relative or absolute: launched as written
+    found = shutil.which(program, path=env.get("PATH"))
+    if found:
+        argv[0] = found
+    return argv
+
+
 def run_logged(
     command: Sequence[str],
     *,
@@ -77,6 +100,11 @@ def run_logged(
     # A stale VIRTUAL_ENV from a driving session makes uv warn into every
     # archived run.log; uv resolves the project env itself, so drop it.
     env.pop("VIRTUAL_ENV", None)
+    # Only `klein probe` sets the probe variables, through `env_overrides` below.
+    # An exported KLEIN_PROBE=1 must never reach a run, a rehearsal, a replication
+    # or a verifier: it would hand them an empty sealed partition.
+    for key in ("KLEIN_PROBE", "KLEIN_PROBE_ID", "KLEIN_PROBE_DIR"):
+        env.pop(key, None)
     env["PYTHONUNBUFFERED"] = "1"
     # The pump below decodes UTF-8; on Windows a child's piped stdout would
     # otherwise use the ANSI code page and crash on the first non-ASCII
@@ -93,7 +121,7 @@ def run_logged(
     started = time.monotonic()
     with log_path.open("a" if append else "w", encoding="utf-8", newline="") as log:
         process = subprocess.Popen(
-            list(command),
+            _resolved(command, env),
             cwd=cwd,
             env=env,
             stdout=subprocess.PIPE,

@@ -30,9 +30,9 @@ GITATTRIBUTES = REPO_ROOT / ".gitattributes"
 # from (kleinlib/schema.py — read-only reference here, never edited by this
 # test).
 PINNED_FILES = (
-    "studies/09-iris-first-lesson/claims.lock",
-    "studies/09-iris-first-lesson/results.tsv",
-    "studies/09-iris-first-lesson/events.jsonl",
+    "studies/10-hubble-1929-replication/claims.lock",
+    "studies/10-hubble-1929-replication/results.tsv",
+    "studies/10-hubble-1929-replication/events.jsonl",
     "kleinlib/schema.py",
 )
 

@@ -28,7 +28,7 @@ made stays readable forever.
 
 What this does NOT establish: that the ``supported_statement`` is actually
 supported by the locator.  Overclaim is a REFEREE obligation
-(``references/reference-protocol.md``); no hash can check it.
+(``references/generation/reference-protocol.md``); no hash can check it.
 """
 
 from __future__ import annotations

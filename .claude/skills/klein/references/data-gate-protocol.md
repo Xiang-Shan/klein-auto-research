@@ -3,7 +3,7 @@
 No modeling until the evidence source is profiled and ruled fit. Output:
 `data_card.md` with a ranked go/no-go issue list. The gate encodes two war stories as
 mandatory checks — the string-dtype boolean (story 1) and the hardcoded retired split
-seed (story 8) — and in schema 3 it is **typed by modality**: a table, a time series,
+seed (story 8) — and it is **typed by modality**: a table, a time series,
 images, sequences, graphs, text, a simulator, or nothing but a verifier each get the
 card variant that can actually catch their failures.
 
@@ -55,6 +55,9 @@ uv run --locked python ../../scripts/run_with_log.py \
   --timeout-seconds <max-run-seconds> --log prepare.log -- \
   uv run --locked python -u prepare.py
 ```
+
+(`scripts/run_with_log.py` is a helper of the Klein repository; in another project run
+`timeout <max-run-seconds> uv run --locked python -u prepare.py > prepare.log 2>&1`.)
 
 `prepare.py` obtains its partitions from the contract — `kleinlib.data.contract_split(
 study_dir)` / `load_partition(kind)` — never from a literal seed. For a non-tabular
@@ -195,7 +198,7 @@ the prepared table and the split index, and a provenance story is neither.
 
 **Planted-truth benchmarks: the DGP card belongs to the custodian.** A benchmark
 splits one simulation across two studies, so the `## DGP card` above splits with it
-(`references/planted-truth-protocol.md`). The CUSTODIAN's `simulate` study carries the
+(`references/generation/planted-truth-protocol.md`). The CUSTODIAN's `simulate` study carries the
 card **in full** — generating process, every parameter, the seed blocks for
 development and sealed, the sample sizes, what "recover" means numerically — and that
 is where the simulation disclosure requirement is satisfied. Each PARTICIPANT's
@@ -291,20 +294,19 @@ cautions noted), the prepared artifact exists, and DATA is recorded. After expli
 acknowledgement:
 
 ```bash
-uv run --locked klein gate record data --study studies/NN-slug \
+klein gate record data --study studies/NN-slug \
   --acknowledged-by <actor> --note "<cautions accepted>"
 ```
 
-This fingerprints the prepared artifact, the gate card, and — in schema 3 — the
+This fingerprints the prepared artifact, the gate card, and the
 realized partitions (`state.fingerprints.split`), which every later run's printed
 `split_fingerprint:` must match. Re-recording the gate refreshes those fingerprints
 only while no run exists; a split-policy change after E0001 is refused. If accepting a
 documented risk, use the machine-enforced override instead:
 
 ```bash
-uv run --locked klein gate override data --study studies/NN-slug \
+klein gate override data --study studies/NN-slug \
   --acknowledged-by <actor> --reason "<specific reason>"
 ```
 
-Also explain the decision in `program.md`; prose alone never unlocks a v2 run. Legacy
-v1 fast-path notes remain historical evidence but do not satisfy the preflight.
+Also explain the decision in `program.md`; prose alone never unlocks a run.

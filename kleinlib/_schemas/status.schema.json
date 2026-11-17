@@ -1,0 +1,310 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/status.schema.json",
+  "title": "klein status",
+  "description": "Gates, tracks, incumbents, predictions and the next action as data (`kleinlib.next_step.status_data`). A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "study": {
+      "type": "string"
+    },
+    "schema": {
+      "type": "integer"
+    },
+    "kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "modality": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The study's lifecycle status, e.g. `active` or `finalized`."
+    },
+    "current_phase": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "description": "Gate name to its status (`recorded`, `overridden`, ...); null when unrecorded."
+    },
+    "experiments": {
+      "type": "object",
+      "properties": {
+        "total": {
+          "type": "integer"
+        },
+        "keep": {
+          "type": "integer"
+        },
+        "discard": {
+          "type": "integer"
+        },
+        "measured": {
+          "type": "integer"
+        },
+        "crash": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "total",
+        "keep",
+        "discard",
+        "measured",
+        "crash"
+      ],
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "pending_transactions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Experiment ids whose transaction is not complete."
+    },
+    "tracks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "`frontier` or `registered`."
+          },
+          "metric": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "goal": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "`higher` or `lower`."
+          },
+          "minimum_delta": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "noise_floor_measured": {
+            "type": "boolean"
+          },
+          "runs": {
+            "type": "integer"
+          },
+          "incumbent": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "experiment": {
+                "type": "string"
+              },
+              "primary_metric": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "experiment",
+              "primary_metric"
+            ]
+          },
+          "sealed": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "experiment": {
+                "type": "string"
+              },
+              "primary_metric": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "experiment",
+              "primary_metric"
+            ]
+          }
+        },
+        "required": [
+          "mode",
+          "metric",
+          "goal",
+          "minimum_delta",
+          "noise_floor_measured",
+          "runs",
+          "incumbent",
+          "sealed"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "predictions": {
+      "type": "object",
+      "properties": {
+        "supported": {
+          "type": "integer"
+        },
+        "refuted": {
+          "type": "integer"
+        },
+        "inconclusive": {
+          "type": "integer"
+        },
+        "open": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "supported",
+        "refuted",
+        "inconclusive",
+        "open"
+      ],
+      "additionalProperties": true
+    },
+    "finalization": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Null until `klein finalize`; then the closing record (`label`, `timestamp`, `referee`, ...)."
+    },
+    "next": {
+      "type": "object",
+      "properties": {
+        "stage": {
+          "type": "string",
+          "description": "Human label, e.g. `EXPERIMENT · Phase 0`; the wording varies."
+        },
+        "stage_id": {
+          "enum": [
+            "scaffold",
+            "legacy",
+            "consult",
+            "data",
+            "method",
+            "experiment",
+            "synthesize",
+            "referee",
+            "tutorial",
+            "finalize",
+            "verify",
+            "closed"
+          ],
+          "description": "Closed vocabulary a host can switch on."
+        },
+        "action": {
+          "type": "string"
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The suggested command as text; may be a template with placeholders."
+        },
+        "argv": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "The command as a ready-to-run list; null when a person must complete it."
+        },
+        "protocol": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Path of the protocol that governs this stage."
+        },
+        "explain": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "`klein explain <topic>` for the protocol."
+        },
+        "why": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage",
+        "stage_id",
+        "action",
+        "command",
+        "argv",
+        "protocol",
+        "explain",
+        "why"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "study",
+      "schema",
+      "kind",
+      "modality",
+      "profile",
+      "status",
+      "current_phase",
+      "gates",
+      "experiments",
+      "pending_transactions",
+      "tracks",
+      "predictions",
+      "finalization",
+      "next"
+    ]
+  }
+}

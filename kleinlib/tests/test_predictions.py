@@ -328,15 +328,6 @@ def test_tests_refuses_a_manual_prediction(ledger_study) -> None:
         run_one(study, command=metric_command(0.7), tests="P3", echo=False)
 
 
-def test_tests_refuses_a_schema_2_study(ready_study) -> None:
-    _, study = ready_study
-    (study / "train.py").write_text(
-        (study / "train.py").read_text(encoding="utf-8") + "\nX = 1\n", encoding="utf-8"
-    )
-    with pytest.raises(WorkflowError, match="schema-3 contract key"):
-        run_one(study, tests="P1", echo=False)
-
-
 # ---------------------------------------------------------------------------
 # 4. hand adjudication, with the evidence pinned
 # ---------------------------------------------------------------------------
@@ -453,7 +444,10 @@ def test_predict_list_prints_the_four_numbers_and_json(ledger_study, capsys) -> 
     assert "P2" in open_out and "P3" in open_out and "P1 " not in open_out
 
     assert cli.main(["predict", "list", "--study", str(study), "--json"]) == 0
-    rows = json.loads(capsys.readouterr().out)
+    reply = json.loads(capsys.readouterr().out)
+    assert reply["verb"] == "predict list" and reply["ok"] is True and reply["format"] == 1
+    rows = reply["data"]["predictions"]
+    assert reply["data"]["counts"]["open"] == 2
     assert [row["id"] for row in rows] == ["P1", "P2", "P3"]
     assert rows[0]["rule"] == "primary_metric > 0.6"
     assert rows[2]["manual"] is True
@@ -543,14 +537,6 @@ def test_finalize_refuses_findings_with_no_section_two(ledger_study) -> None:
             allow_open_predictions=True,
             open_predictions_reason="still open",
         )
-
-
-def test_a_schema_2_finalize_is_untouched_by_the_ledger(ready_study) -> None:
-    _, study = ready_study
-    (study / "findings.md").write_text(
-        "# Findings\n\nThis study is exploratory.\n", encoding="utf-8"
-    )
-    assert finalize(study, allow_exploratory=True) == "exploratory"
 
 
 # --- findings §② parsing ----------------------------------------------------

@@ -9,9 +9,13 @@ model: sonnet
 
 Mission: rule the prepared data fit or unfit for modeling BEFORE any experiment runs, in a ranked, evidence-backed `data_card.md`.
 
-Your protocol is `.claude/skills/klein/references/data-gate-protocol.md` — read it FIRST
+Your protocol is `references/data-gate-protocol.md` — read it FIRST
 every invocation; it is the source of truth, this file only orients you. The mandatory
 value-pattern check encodes a real war story (`references/war-stories.md`, story 1).
+
+## How to read the protocols
+
+Protocols are named by their path under the skill (`.claude/skills/klein/references/…`). If that path is not in your working directory, run `klein explain <name>` (e.g. `klein explain consult-protocol`); card templates are `klein explain template:<file>`.
 
 ## Inputs you receive
 
@@ -22,17 +26,19 @@ value-pattern check encodes a real war story (`references/war-stories.md`, story
 
 ## Steps
 
-1. Read the protocol, `study.yaml`, and `prepare.py`. All Python runs through `uv run`,
-   never bare `python`. Note the declared modality — it decides which card sections
+1. Read the protocol, `study.yaml`, and `prepare.py`. All Python runs through the study's environment (`uv run --locked python …` in a
+   uv project), never a bare system `python`. Note the declared modality — it decides which card sections
    you must write (time policy, group policy, DGP card, verifier card) — and run
-   `uv run --locked klein doctor --study <dir>` to confirm the source tag resolves on
+   `klein doctor --study <dir>` to confirm the source tag resolves on
    this machine and its pin is present when required.
    **Grep for literal partition seeds** — `grep -n "random_state\|seed\|train_test_split"
    prepare.py <entrypoint> lib/*.py` — anything that decides a partition outside
    `kleinlib.data.contract_split` / `load_partition` is a BLOCKER (war story 8).
 2. Run prep so you profile the PREPARED artifact — the thing train.py will actually see:
    from the study directory use `uv run --locked python ../../scripts/run_with_log.py
-   --timeout-seconds <limit> --log prepare.log -- uv run --locked python -u prepare.py`.
+   --timeout-seconds <limit> --log prepare.log -- uv run --locked python -u prepare.py`
+   (`scripts/run_with_log.py` is a helper of the Klein repository; in another project use
+   `timeout <limit> uv run --locked python -u prepare.py > prepare.log 2>&1`).
    If prep crashes or times out, that is itself a BLOCKER; report it, do not paper over it.
 3. Profile. Prefer the global `dataset-profiler` skill: check for it with Glob
    (`~/.claude/skills/dataset-profiler/SKILL.md` or `.claude/skills/dataset-profiler/`);
@@ -56,7 +62,7 @@ value-pattern check encodes a real war story (`references/war-stories.md`, story
    `simulation` write the DGP card and for `none` the verifier card instead (with the
    positive and negative control the verifier must pass); the leakage rows read N/A
    with that reason.
-6. Copy `.claude/skills/klein/assets/data-card-template.md` to the study as
+6. Copy `assets/data-card-template.md` to the study as
    `data_card.md`; fill the profile summary table from the profiler output.
 7. Rank every issue most-severe first, each with a severity and a recommended action:
    - **BLOCKER** — must fix before modeling (leakage, broken encoding, unusable split).
@@ -96,4 +102,4 @@ Your final message is all the orchestrator sees. Report compactly:
 - Modeling stays HARD-BLOCKED until this card says GO (or GO-WITH-CAUTIONS) AND
   `method_card.md` exists and all gates are machine-recorded. The orchestrator records
   DATA with `klein gate record data`; an exception requires `klein gate override data`
-  with actor and reason. A prose-only fast path is invalid for v2.
+  with actor and reason. A prose-only fast path is invalid.

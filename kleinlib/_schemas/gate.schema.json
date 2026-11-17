@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/gate.schema.json",
+  "title": "klein gate record / override",
+  "description": "A gate recorded or overridden. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "gate": {
+      "type": "string",
+      "description": "The gate's name, e.g. `consult`, `data`, `method`, `referee`, `phase`."
+    },
+    "status": {
+      "enum": [
+        "recorded",
+        "overridden"
+      ]
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "description": "Every gate's status after the write. Present from `kleinlib.api.gate`; the command line omits it."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "gate",
+      "status"
+    ]
+  }
+}

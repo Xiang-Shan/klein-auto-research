@@ -19,6 +19,7 @@ by the verb it points at.
 from __future__ import annotations
 
 import json
+import shlex
 import subprocess
 from collections.abc import Mapping
 from pathlib import Path
@@ -27,12 +28,15 @@ from typing import Any
 from .contract import (
     PLACEHOLDER_RE,
     _phase_ids,
+    entrypoint_spec,
     load_contract,
     normalize_tracks,
     prepared_data_path,
     schema_version,
+    unsupported_schema_message,
 )
 from .errors import WorkflowError
+from .rehearsal import latest_rehearsal, rehearsal_problem
 
 __all__ = ["format_next", "next_step", "status_data"]
 
@@ -119,11 +123,62 @@ def _action(
 ) -> dict[str, Any]:
     return {
         "stage": stage,
+        "stage_id": stage_id(stage),
         "action": action,
         "command": command,
+        "argv": command_argv(command),
         "protocol": protocol,
+        "explain": explain_command(protocol),
         "why": why,
     }
+
+
+def explain_command(protocol: str | None) -> str | None:
+    """``klein explain <topic>`` for a protocol path — it works from any directory."""
+    if not protocol or not protocol.endswith(".md") or "/skills/klein/" not in protocol:
+        return None
+    return f"klein explain {Path(protocol).stem}"
+
+
+#: The lifecycle positions ``klein next`` can report, as a closed vocabulary a
+#: host can switch on.  ``stage`` stays the human label (``EXPERIMENT · Phase 0``).
+STAGE_IDS: tuple[str, ...] = (
+    "scaffold",
+    "legacy",
+    "consult",
+    "data",
+    "method",
+    "experiment",
+    "synthesize",
+    "referee",
+    "tutorial",
+    "finalize",
+    "verify",
+    "closed",
+)
+
+
+def stage_id(stage: str) -> str:
+    """``EXPERIMENT · sealed`` -> ``experiment``: the stage without its detail."""
+    head = stage.split("·", 1)[0].strip().lower()
+    return head if head in STAGE_IDS else "experiment"
+
+
+def command_argv(command: str | None) -> list[str] | None:
+    """The suggested command as an argv, when it can be run as written.
+
+    None when the suggestion is a template a person must complete (an ellipsis,
+    a ``<placeholder>``, a quoted description to write) or a two-step hint.
+    """
+    if not command:
+        return None
+    first = command.split("  #", 1)[0].strip()
+    if any(mark in first for mark in ("…", "<", "...", "$(", "&&")):
+        return None
+    try:
+        return shlex.split(first)
+    except ValueError:
+        return None
 
 
 def sealed_tracks(tracks: Mapping[str, Any], contract: Mapping[str, Any]) -> list[str]:
@@ -144,13 +199,15 @@ def sealed_tracks(tracks: Mapping[str, Any], contract: Mapping[str, Any]) -> lis
 def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     """The study's position and its single next action, as a JSON-able mapping."""
     study = Path(study_dir)
-    s = _rel(study)
+    # Quoted for a shell and for `command_argv`: a study under a path with a space
+    # (a home directory named `A B`) must come back as ONE argument, not two.
+    s = shlex.quote(_rel(study))
     done: list[str] = []
     notes: list[str] = []
     result: dict[str, Any] = {"study": study.name, "done": done, "notes": notes}
 
     try:
-        contract = load_contract(study)
+        contract = load_contract(study, allow_legacy=True)
     except WorkflowError as exc:
         result["schema"] = None
         result["next"] = _action(
@@ -161,15 +218,23 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             str(exc),
         )
         return result
-    version = schema_version(contract)
+    try:
+        version = schema_version(contract)
+    except WorkflowError as exc:
+        result["schema"] = None
+        result["next"] = _action(
+            "scaffold", "fix study.yaml: schema_version must be 3", None, f"{_REF}/defaults-and-scaffolding.md", str(exc)
+        )
+        return result
     result["schema"] = version
-    if version == 1:
+    unsupported = unsupported_schema_message(version)
+    if unsupported is not None:
         result["next"] = _action(
             "legacy",
-            "nothing to run: a v1 study is read-only legacy evidence",
-            f"klein verify --study {s}",
+            "nothing to run here: this study is evidence from another engine version",
             None,
-            "schema_version missing means v1 (readable at tag v1.3.0)",
+            "studies/ARCHIVE.md",
+            unsupported,
         )
         return result
 
@@ -323,7 +388,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 metric = spec.get("metric", {})
                 if str(spec.get("mode", "frontier")) != "frontier":
                     continue
-                if version >= 3 and metric.get("exactness") == "exact":
+                if metric.get("exactness") == "exact":
                     continue
                 if not isinstance(metric.get("noise_floor"), Mapping):
                     result["next"] = _action(
@@ -359,27 +424,33 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             str(m.get("track")) for m in manifests if m.get("evaluation_kind") == "final_test"
         }
         if current_phase == final_phase:
-            rehearsed = {
-                str(e.get("track"))
-                for e in _events(study)
-                if e.get("type") == "sealed_dryrun" and e.get("acknowledged")
-            }
+            events = _events(study)
             for name in sealed_tracks(tracks, contract):
                 if name in sealed_spent:
                     continue
-                if name not in rehearsed:
+                # The notary's own rule (kleinlib/rehearsal.py): the latest rehearsal
+                # passed, on the command and the mutable surface about to run.
+                # A rehearsal run with `--command` covers a sealed run of that command,
+                # so the suggestion follows what was actually rehearsed.
+                rehearsed = latest_rehearsal(events, name)
+                override = list(rehearsed.get("command") or []) if rehearsed else []
+                if override == list(entrypoint_spec(contract)["command"]):
+                    override = []
+                suffix = (" --command " + shlex.join(override)) if override else ""
+                unrehearsed = rehearsal_problem(study, contract, name, command=override or None, events=events)
+                if unrehearsed:
                     result["next"] = _action(
                         "EXPERIMENT · sealed",
                         f"rehearse track {name!r}'s one sealed look (spends nothing)",
-                        f"klein run-one --study {s} --track {name} --final-test --dry-run",
+                        f"klein run-one --study {s} --track {name} --final-test --dry-run{suffix}",
                         ".claude/skills/klein/SKILL.md",
-                        "the dry run is mandatory before every real sealed run",
+                        f"the sealed run is refused until its rehearsal passes: {unrehearsed}",
                     )
                     return result
                 result["next"] = _action(
                     "EXPERIMENT · sealed",
                     f"spend track {name!r}'s single sealed look on the frozen configuration",
-                    f'klein run-one --study {s} --track {name} --final-test --description "sealed confirmation"',
+                    f'klein run-one --study {s} --track {name} --final-test --description "sealed confirmation"{suffix}',
                     ".claude/skills/klein/SKILL.md",
                     "each track may access its sealed evidence exactly once",
                 )
@@ -417,12 +488,12 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             result["next"] = _action(
                 "SYNTHESIZE",
                 "mine the trajectory and write findings.md (seven sections, claim ids)",
-                f"uv run --locked python .claude/skills/klein/scripts/summarize_results.py {s}/results.tsv",
+                f"klein summarize {s}/results.tsv",
                 f"{_REF}/synthesis-protocol.md",
                 "the loop is over; the evidence must become claims",
             )
             return result
-        if version >= 3 and not (study / "claims.lock").is_file():
+        if not (study / "claims.lock").is_file():
             result["next"] = _action(
                 "SYNTHESIZE",
                 "author claims.lock: pin artifacts, give every number a home, add every claim",
@@ -431,7 +502,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
                 "every numeral in findings needs a pinned home",
             )
             return result
-        if version >= 3 and not _gate_recorded(state, "referee"):
+        if not _gate_recorded(state, "referee"):
             report = study / "referee_report.md"
             if not report.is_file():
                 result["next"] = _action(
@@ -466,7 +537,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
         result["next"] = _action(
             "TUTORIAL",
             "author the seven report fragments and build the teaching artifact",
-            f"uv run --locked python .claude/skills/klein/scripts/build_tutorial.py {s}",
+            f"klein report build {s}",
             f"{_REF}/tutorial-spec.md",
             "the study closes with a self-contained report/index.html",
         )
@@ -474,7 +545,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     done.append("tutorial built")
 
     receipt = study / "verify_receipt.json"
-    if version >= 3 and not receipt.is_file():
+    if not receipt.is_file():
         result["next"] = _action(
             "verify",
             "issue the verify receipt",
@@ -483,8 +554,7 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             "the receipt is what a stranger checks first",
         )
         return result
-    if version >= 3:
-        done.append("verify receipt present")
+    done.append("verify receipt present")
     result["next"] = _action(
         "closed",
         "nothing is required: the study is closed — promote what generalizes into knowledge/",
@@ -507,7 +577,8 @@ def format_next(result: Mapping[str, Any]) -> str:
     if nxt.get("why"):
         lines.append(f"  why: {nxt['why']}")
     if nxt.get("protocol"):
-        lines.append(f"  read: {nxt['protocol']}")
+        explain = f"   (or: {nxt['explain']})" if nxt.get("explain") else ""
+        lines.append(f"  read: {nxt['protocol']}{explain}")
     for note in result.get("notes", []):
         lines.append(f"  note: {note}")
     return "\n".join(lines) + "\n"

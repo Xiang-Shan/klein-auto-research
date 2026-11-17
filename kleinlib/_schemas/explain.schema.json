@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/explain.schema.json",
+  "title": "klein explain",
+  "description": "A protocol, a glossary term, or (with no topic) the index of both. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "topic": {
+      "type": "string",
+      "description": "The resolved topic; empty for the index."
+    },
+    "kind": {
+      "enum": [
+        "index",
+        "term",
+        "protocol"
+      ]
+    },
+    "path": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "The file a protocol was read from; null for a term or the index."
+    },
+    "text": {
+      "type": "string"
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Index only: every explainable protocol."
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Index only: every glossary term."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "topic",
+      "kind",
+      "path",
+      "text"
+    ]
+  }
+}

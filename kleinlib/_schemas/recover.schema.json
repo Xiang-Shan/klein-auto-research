@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/recover.schema.json",
+  "title": "klein recover",
+  "description": "Experiments whose interrupted transaction was recovered. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "recovered": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Experiment ids; empty when nothing needed recovery."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "recovered"
+    ]
+  }
+}

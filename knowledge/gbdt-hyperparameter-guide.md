@@ -5,7 +5,7 @@ domain: ml
 status: ported
 source: "ancestor model-survey campaign (private lab), docs/gbdt_hyperparameter_guide.md (215-experiment campaign, 2026-04)"
 concepts: [lightgbm, xgboost, catboost, optuna-importance, monotone-constraints, tree-size, subsample, early-stopping, soft-voting]
-related: [best-practices-auto-insurance.md, encoder-comparison.md, insights-and-framework.md]
+related: [domains/insurance/best-practices-auto-insurance.md, encoder-comparison.md, insights-and-framework.md]
 ---
 
 # GBDT Hyperparameter Guide (insurance-claims, Phase 3)

@@ -1,7 +1,7 @@
 # Claims protocol — the lock, the law, the numbers
 
 `findings.md` is what a study says. `claims.lock` is what a stranger can check. Studies
-07, 08 and 09 hand-built the lock as JSON and a one-sentence "law" because a talk deck
+07, 08 and 09 (archived — `studies/ARCHIVE.md`) hand-built the lock as JSON and a one-sentence "law" because a talk deck
 needed numbers that could be traced without trusting the author; Klein 2.0 makes the
 engine produce and verify it. The markdown convention stays the human surface — claim
 ids in `findings.md` are still `**[Cn]**` lines — and the lock is the machine surface
@@ -11,12 +11,11 @@ Role: the synthesist authors the lock at SYNTHESIZE; the referee verifies it; `k
 finalize` refuses a strength the evidence does not support; every downstream
 deliverable reads it. Any agent or human can follow this protocol directly.
 
-## The lock (shape) — lock schema 2
+## The lock (shape)
 
-Studies 07, 08 and 09 wrote **lock schema 1**: a numbers ledger — every headline
-number keyed by an alias, with its value, the artifact it lives in, and the claim id it
-belongs to. Schema 2 keeps that map under `numbers` and adds a real `claims` map, so a
-claim carries its class, strength, evidence and errata and a number carries its home.
+The lock is a numbers ledger plus a claims map: every headline number is keyed by an
+alias under `numbers`, with its value, the artifact it lives in, and the claim id it
+belongs to; a claim carries its class, strength, evidence and errata.
 
 ```json
 {
@@ -24,7 +23,7 @@ claim carries its class, strength, evidence and errata and a number carries its 
   "study_id": "10-hubble-1929-replication",
   "git_head": "<repo commit the lock describes>",
   "klein_commit": "<engine commit that produced it>",
-  "klein_version": "2.0.0",
+  "klein_version": "3.0.0",
   "law": "Every number in findings.md, this lock and report/index.html is a copy of a value in a pinned artifact; every claim cites evidence that resolves; claims and numbers are appended or erratum-tagged, never removed.",
   "artifacts": {
     "results": {"path": "results.tsv",        "sha256": "…"},
@@ -63,14 +62,6 @@ or a short list, `art` an alias in `artifacts`, `precision` the decimals the num
 law matches at (default 3), `claim` the id it belongs to (or `"floor"` /
 `"contract"` for contract quantities). Paths are study-relative and POSIX, never
 absolute.
-
-**Lock schema 1 (legacy, studies 07–09)** has no `lock_schema` key: its `claims` map
-is what schema 2 calls `numbers` (`art` or `artifact` both occur, entries may carry
-free-form notes, paths are repo-relative). `klein claims verify` recognises it and
-applies the schema-1 rules — artifact hashes, numbers found in their artifacts, claim
-ids present in findings, append-only history, `git_head` resolvable — and never
-rewrites it; `klein claims init --from-legacy` migrates a copy into schema 2 for a
-study that is being re-opened.
 
 ## The five classes and their ceilings
 
@@ -187,8 +178,8 @@ default; a study declares `policy: {numerals: identifier-aware}` at CONSULT to h
 law skip a digit run that directly follows a letter (a hyphen still separates —
 `depth-2` is two — and a trailing unit still scans — `60k` is a number). Without it the
 honest workaround is study 20's: an identifier alias labelled "not a measured value".
-`klein verify --numbers` mechanizes the scan (enforcing on schema 3, advisory on
-schema 2, always advisory on the tutorial).
+`klein verify --numbers` mechanizes the scan (enforcing; always advisory on the
+tutorial).
 
 The law exists because it catches operators: study 09's erratum E1 was found by the
 tutorial's unsourced-numeral scan, not by anyone re-reading the code.
@@ -196,14 +187,14 @@ tutorial's unsourced-numeral scan, not by anyone re-reading the code.
 ## Verbs
 
 ```bash
-uv run --locked klein claims init    --study studies/NN-slug [--from-legacy]   # skeleton: claims from findings' **[Cn]** lines (class null), numbers empty
-uv run --locked klein claims pin     --study studies/NN-slug results results.tsv
-uv run --locked klein claims number  --study studies/NN-slug k_free_intercept --value 454.16 --art boot_k --claim C2 [--precision 2] [--note "…"]
-uv run --locked klein claims add     --study studies/NN-slug C2 --class empirical-description \
+klein claims init    --study studies/NN-slug                   # skeleton: claims from findings' **[Cn]** lines (class null), numbers empty
+klein claims pin     --study studies/NN-slug results results.tsv
+klein claims number  --study studies/NN-slug k_free_intercept --value 454.16 --art boot_k --claim C2 [--precision 2] [--note "…"]
+klein claims add     --study studies/NN-slug C2 --class empirical-description \
     --strength exploratory --claim "…" --numbers k_free_intercept --evidence E0003
-uv run --locked klein claims erratum --study studies/NN-slug E2 --claims C3,C7 \
+klein claims erratum --study studies/NN-slug E2 --claims C3,C7 \
     --note "…" [--strength exploratory]                                 # downgrade only
-uv run --locked klein claims verify  --study studies/NN-slug [--numbers] [--strict]
+klein claims verify  --study studies/NN-slug [--numbers] [--strict]
 ```
 
 Every verb rewrites `claims.lock` canonically and self-commits it (the lock is a

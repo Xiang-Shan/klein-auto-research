@@ -153,14 +153,6 @@ def test_a_priced_block_licenses_the_word(ready_study_v3) -> None:
     assert "materiality" not in vocabulary_problems(study, contract)
 
 
-def test_schema_two_findings_are_never_scanned_for_materiality(ready_study) -> None:
-    """03 and 05-09 were written before the rule and must not retro-fail."""
-    _repo, study = ready_study
-    contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
-    _write_findings(study, "# Findings\n\nThe lift is material and actionable.\n")
-    assert "materiality" not in vocabulary_problems(study, contract)
-
-
 def test_related_words_are_not_false_positives(ready_study_v3) -> None:
     _repo, study = ready_study_v3
     contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))

@@ -15,7 +15,7 @@ klein run-one --detach   ──job──▶   klein job exec … --executor here
 ```
 
 The full doctrine is in `.claude/skills/klein/references/compute-and-devices.md`
-("Detached runs"). From a terminal with plain `ssh`, `sbatch --wait` or `modal run`, a
+(`klein explain compute`; "Detached runs"). From a terminal with plain `ssh`, `sbatch --wait` or `modal run`, a
 blocking wrapper entrypoint is still simpler — use detached runs when the *app* runs the
 job, or when a run must outlive the session.
 
@@ -68,7 +68,7 @@ if command -v uv >/dev/null; then
   KLEIN="uv run --locked klein"; PY="uv run --locked python"
 else
   python -m venv .venv && . .venv/bin/activate
-  pip install --quiet "klein-auto-research[deep]==2.3.*"
+  pip install --quiet "klein-auto-research[deep]==3.0.*"
   KLEIN="klein"; PY="python"
 fi
 # data/ is gitignored: regenerate it exactly as the DATA gate froze it.

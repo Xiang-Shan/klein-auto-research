@@ -15,9 +15,9 @@ same convention on a verb group with sub-subcommands).
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
 
+from .api import emit
 from .doctor import format_report, run_doctor
 
 
@@ -50,10 +50,8 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 def run(args: argparse.Namespace) -> int:
     host = getattr(args, "host", None)
     report = run_doctor(study_dir=args.study, **({"host": host} if host else {}))
-    if args.json:
-        print(json.dumps(report, indent=2, sort_keys=False))
-    else:
-        print(format_report(report), end="")
+    emit(report)
+    print(format_report(report), end="")
     if args.strict and not report["ok"]:
         return 1
     return 0

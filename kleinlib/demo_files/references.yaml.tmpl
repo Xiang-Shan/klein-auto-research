@@ -1,0 +1,19 @@
+# Written at the METHOD gate. The klein demo runs offline, so NOTHING below was
+# resolved against a publisher: every row says verified: false. `klein refs verify`
+# resolves each DOI and compares the title once a network is available.
+references:
+  cox1958:
+    title: "The regression analysis of binary sequences"
+    authors: "Cox, D. R."
+    year: 1958
+    venue: "Journal of the Royal Statistical Society: Series B 20(2), 215-232"
+    verified: false
+    why: "The logistic regression model the demo's three candidates are built on."
+  hanley1982:
+    title: "The meaning and use of the area under a receiver operating characteristic (ROC) curve"
+    authors: "Hanley, J. A.; McNeil, B. J."
+    year: 1982
+    venue: "Radiology 143(1), 29-36"
+    doi: "10.1148/radiology.143.1.7063747"
+    verified: false
+    why: "AUC as the probability that a random positive outscores a random negative: the metric every run here reports."

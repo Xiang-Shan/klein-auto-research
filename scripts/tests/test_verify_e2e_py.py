@@ -1,7 +1,7 @@
 """Unit tests for the pure/small helpers in scripts/verify_e2e.py.
 
 These exercise table rendering, branch-name refusal, and the temp-dir
-containment guard in isolation -- none of them run the full three-experiment
+containment guard in isolation -- none of them run the full end-to-end
 proof (that is exercised by test_verify_e2e.py's subprocess-level tests and by
 a manual `uv run --locked python scripts/verify_e2e.py` for the final table).
 """
@@ -85,48 +85,6 @@ def test_record_appends_and_prints(capsys: pytest.CaptureFixture[str]) -> None:
     verify_e2e.record(results, "PASS", "did the thing")
     assert results == [verify_e2e.CheckResult("PASS", "did the thing")]
     assert "[PASS] did the thing" in capsys.readouterr().out
-
-
-# ---------------------------------------------------------------------------
-# results.tsv row validation (the awk VALIDATE block, ported)
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize(
-    "row",
-    [
-        ["1", "0.9123", "keep", "abc1234", "desc"],
-        ["2", "NA", "crash", "-", "desc"],
-        ["3", "-0.5", "discard", "-", "desc"],
-        ["4", "1.2e-3", "keep", "0123456789abcdef", "desc"],
-    ],
-)
-def test_validate_results_row_accepts_well_formed_rows(row: list[str]) -> None:
-    ok, rendered = verify_e2e.validate_results_row(row)
-    assert ok is True
-    assert rendered.startswith("OK: ")
-
-
-@pytest.mark.parametrize(
-    "row",
-    [
-        ["x", "0.9", "keep", "abc1234", "desc"],  # non-numeric experiment id
-        ["1", "0.9", "bogus", "abc1234", "desc"],  # bad status
-        ["1", "0.5", "crash", "-", "desc"],  # crash must have metric NA
-        ["1", "NA", "keep", "abc1234", "desc"],  # keep must have numeric metric
-        ["1", "0.9", "keep", "zz", "desc"],  # commit not a hex short-hash
-    ],
-)
-def test_validate_results_row_rejects_malformed_rows(row: list[str]) -> None:
-    ok, rendered = verify_e2e.validate_results_row(row)
-    assert ok is False
-    assert rendered.startswith("ERROR: ")
-
-
-def test_validate_results_row_rejects_wrong_column_count() -> None:
-    ok, rendered = verify_e2e.validate_results_row(["1", "0.9", "keep"])
-    assert ok is False
-    assert rendered.startswith("ERROR: ")
 
 
 # ---------------------------------------------------------------------------
@@ -312,15 +270,13 @@ def test_replace_once_refuses_zero_or_many_matches() -> None:
             verify_e2e.replace_once(text, "a a a" if text == "a a" else "b", "c", what="thing")
 
 
-def test_lane_branch_override_suffixes_only_when_lanes_share_a_run() -> None:
-    """Each lane owns its own branch, and a name that already exists is refused —
-    so a two-lane run cannot hand both lanes the same override."""
-    assert verify_e2e.lane_branch_override(None, "legacy", verify_e2e.LANES) is None
-    assert verify_e2e.lane_branch_override("b", "schema3", ("schema3",)) == "b"
-    # the first lane keeps the exact name, so a collision is refused before any
-    # lane does work
-    assert verify_e2e.lane_branch_override("b", "legacy", verify_e2e.LANES) == "b"
-    assert verify_e2e.lane_branch_override("b", "schema3", verify_e2e.LANES) == "b-schema3"
+def test_lane_branch_override_keeps_the_exact_name_for_the_first_lane() -> None:
+    """A name that already exists is refused before any lane does work, so the
+    first lane keeps the caller's exact name; a later lane would be suffixed."""
+    assert verify_e2e.LANES == ("schema3",)
+    assert verify_e2e.lane_branch_override(None, "schema3", verify_e2e.LANES) is None
+    assert verify_e2e.lane_branch_override("b", "schema3", verify_e2e.LANES) == "b"
+    assert verify_e2e.lane_branch_override("b", "other", ("schema3", "other")) == "b-other"
 
 
 def test_the_lane_reads_artifact_values_as_raw_strings(tmp_path: Path) -> None:
@@ -391,5 +347,12 @@ def test_main_parses_the_lane_option() -> None:
     parser = verify_e2e.build_parser()
     assert parser.parse_args([]).lane == "all"
     assert parser.parse_args(["--lane", "schema3"]).lane == "schema3"
-    with pytest.raises(SystemExit):
-        parser.parse_args(["--lane", "nope"])
+    for rejected in ("nope", "legacy"):  # version 1 no longer exists
+        with pytest.raises(SystemExit):
+            parser.parse_args(["--lane", rejected])
+
+
+def test_the_legacy_lane_and_its_helpers_are_gone() -> None:
+    for name in ("write_fixture", "run_mini_loop", "run_preflight_and_figures",
+                 "validate_results_row"):
+        assert not hasattr(verify_e2e, name), name

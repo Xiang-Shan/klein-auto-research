@@ -45,13 +45,13 @@ jobs:
         run: >-
           uv run --no-sync ruff check --output-format github
           kleinlib scripts .claude/skills/klein/scripts
-      - name: Core, lifecycle, legacy compatibility, and verifier safety tests
+      - name: Core, lifecycle, and verifier safety tests
         run: >-
           uv run --no-sync pytest -q
           kleinlib/tests
           .claude/skills/klein/scripts/tests
           scripts/tests
-      - name: Every shipped study verifies clean (schema 2 and 3)
+      - name: Every shipped study verifies clean (all schema 3)
         if: matrix.python-version == '3.13'
         run: uv run --no-sync python scripts/verify_shipped_studies.py
 
@@ -195,21 +195,6 @@ jobs:
           awk -F': *' -v t="$target" \
             '/^primary_metric:/{m=$2} END{d=m-t; if(d<0)d=-d; printf "metric=%s target=%s |delta|=%.6f tol=0.003\n", m, t, d; exit (d<=0.003)?0:1}' \
             "$RUNNER_TEMP/study12-train.log"
-      - name: Execute the Study 03 v2 anchor (seed-block determinism on Linux)
-        shell: bash
-        run: |
-          set -euo pipefail
-          copy="$RUNNER_TEMP/study03"
-          cp -R studies/03-noisy-rosenbrock-dfo "$copy"
-          cd "$copy"
-          # The committed working train.py holds the study's incumbent (4x50
-          # restarts); the anchor row E0001 used OPTIMIZER="nm". Flip the one
-          # config line on the throwaway copy to re-run the anchor cell.
-          sed -i 's/^OPTIMIZER = "[a-z_]*"/OPTIMIZER = "nm"/' train.py
-          uv --project "$GITHUB_WORKSPACE" run --no-sync python prepare.py
-          KLEIN_EVALUATION_KIND=development KLEIN_EXPERIMENT_ID=E0001 KLEIN_TRACK=primary \
-            uv --project "$GITHUB_WORKSPACE" run --no-sync python -u train.py | tee "$RUNNER_TEMP/study03-train.log"
-          awk -F': *' '/^primary_metric:/{m=$2} END{d=m-1.251208; if(d<0)d=-d; printf "metric=%s |delta|=%.6f\n", m, d; exit (d<=0.001)?0:1}' "$RUNNER_TEMP/study03-train.log"
       - name: Checked-out exhibits remain byte-clean
         run: test -z "$(git status --porcelain)"
 
@@ -282,7 +267,7 @@ jobs:
                   bad.append(tag)
           assert not bad, f"bundled sources that do not resolve offline: {bad}"
           PY
-      - name: Every shipped schema-2 study verifies clean
+      - name: Every shipped study verifies clean
         shell: bash
         run: |
           set -euo pipefail
@@ -305,8 +290,11 @@ jobs:
               # KLEIN_OFFLINE=1 unless cached; such an exhibit renders its figures
               # from committed tables only, so prepare is skipped here and re-run by
               # the weekly network job (scheduled.yml) instead.
-              if uv run --no-sync klein doctor --study "$study" --json \
-                  | python -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if all(c["ok"] for c in d["checks"] if c["name"]=="data source") else 1)'; then
+              # The answer is printed, not carried by an exit code: a doctor that
+              # cannot be parsed must fail this step, never read as "skip prepare".
+              ready="$(uv run --no-sync klein doctor --study "$study" --json \
+                  | python -c 'import json,sys; d=json.load(sys.stdin)["data"]; print("yes" if all(c["ok"] for c in d["checks"] if c["name"]=="data source") else "no")')"
+              if [ "$ready" = "yes" ]; then
                 ( cd "$study" && uv --project "$GITHUB_WORKSPACE" run --no-sync python -u prepare.py )
               else
                 echo "note: $study's pinned source is not available offline — prepare skipped (weekly network job covers it)"
@@ -363,10 +351,10 @@ jobs:
         run: test -z "$(git status --porcelain)"
 
   e2e:
-    name: both lanes end to end / ${{ matrix.os }}
+    name: end to end / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    # Two lanes now: the v1 compatibility path and the schema-3 proof, each in
-    # its own throwaway worktree with its own uv sync.
+    # One lane: the schema-3 proof, in its own throwaway worktree with its own
+    # uv sync (version 1 and schema 2 are no longer read; they verify at tags).
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -385,7 +373,7 @@ jobs:
           enable-cache: true
       - name: Locked outer environment (the script syncs its own throwaway worktree separately)
         run: uv sync --locked
-      - name: Both lanes — v1 compatibility, and one typed inquiry end to end
+      - name: One typed inquiry end to end (klein new to report/index.html)
         run: uv run --no-sync python scripts/verify_e2e.py --lane all
 
   cli-portability:
@@ -397,7 +385,11 @@ jobs:
     # before 2.1, and the 2.1 generation tests (hundreds of small git
     # transactions, ~9 min on a fast Mac) pushed the step past 20. A cap, not
     # a target: run 34028212643 timed out at 20 with every other lane green.
-    timeout-minutes: 60
+    # 3.0 added about two hundred tests that each make git commits, which are slow
+    # on Windows: the suite took 34 minutes on one runner and 47 on another (run
+    # 44020634406). 90 leaves room for a slow runner; splitting the suite across
+    # parallel jobs is the real fix.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -421,48 +413,41 @@ jobs:
         run: uv sync --locked --extra encoders
       - name: Split determinism holds on ${{ matrix.os }}
         run: uv run --no-sync pytest -q kleinlib/tests/test_data_splits.py
-      # Every verb and sub-verb the 2.0 documents promise (AGENTS.md, README.md,
-      # CLAUDE.md, the protocols under .claude/skills/klein/references/): a verb
-      # a document names but the parser does not carry is a broken instruction,
-      # and --help is the cheapest way to prove the whole surface loads on a
-      # platform that is not Linux.
-      - name: Public command surface is importable
+      # Every leaf verb the parser carries (docs/cli.md is generated from the same
+      # parser): a verb a document names but the parser does not carry is a broken
+      # instruction, and --help is the cheapest way to prove the whole surface
+      # loads on a platform that is not Linux. Walking the parser keeps this list
+      # from drifting behind the real verb tree. (`klein summarize` and `klein
+      # report build` hand --help through to their scripts; both must exit 0.)
+      - name: Public command surface is importable (every leaf verb, walked from the parser)
+        # bash, not pwsh: the heredoc below is not PowerShell syntax (run 43929422855
+        # failed here on windows-latest, which also skipped the full suite after it).
+        shell: bash
         run: |
-          uv run --no-sync klein --help
-          uv run --no-sync klein new --help
-          uv run --no-sync klein gate --help
-          uv run --no-sync klein gate record --help
-          uv run --no-sync klein gate override --help
-          uv run --no-sync klein preflight --help
-          uv run --no-sync klein run-one --help
-          uv run --no-sync klein recover --help
-          uv run --no-sync klein status --help
-          uv run --no-sync klein finalize --help
-          uv run --no-sync klein noise-floor --help
-          uv run --no-sync klein verify --help
-          uv run --no-sync klein headroom --help
-          uv run --no-sync klein headroom ack --help
-          uv run --no-sync klein stop --help
-          uv run --no-sync klein stop ack --help
-          uv run --no-sync klein predict --help
-          uv run --no-sync klein predict list --help
-          uv run --no-sync klein predict adjudicate --help
-          uv run --no-sync klein claims --help
-          uv run --no-sync klein claims init --help
-          uv run --no-sync klein claims pin --help
-          uv run --no-sync klein claims number --help
-          uv run --no-sync klein claims add --help
-          uv run --no-sync klein claims erratum --help
-          uv run --no-sync klein claims verify --help
-          uv run --no-sync klein replicate --help
-          uv run --no-sync klein sweep --help
-          uv run --no-sync klein sweep register --help
-          uv run --no-sync klein doctor --help
-          uv run --no-sync klein generation --help
-          uv run --no-sync klein generation init --help
-          uv run --no-sync klein generation check --help
-          uv run --no-sync klein generation verify --help
-          uv run --no-sync klein generation label --help
+          uv run --no-sync python - <<'PY'
+          import argparse
+          import subprocess
+          import sys
+
+          from kleinlib.cli import build_parser
+
+
+          def leaves(parser, path=()):
+              subs = [a for a in parser._actions if isinstance(a, argparse._SubParsersAction)]
+              if not subs:
+                  yield path
+                  return
+              for name, child in subs[0].choices.items():
+                  yield from leaves(child, (*path, name))
+
+
+          paths = [(), *sorted(leaves(build_parser()))]
+          for path in paths:
+              cmd = [sys.executable, "-m", "kleinlib.cli", *path, "--help"]
+              print("$ klein", *path, "--help", flush=True)
+              subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
+          print(f"{len(paths)} commands answered --help")
+          PY
       - name: Full engine + scripts test suite on Windows (no coverage)
         if: matrix.os == 'windows-latest'
         # bash, not pwsh: a multi-line pwsh step exits with its LAST command's
@@ -502,14 +487,39 @@ jobs:
             --goal "clean wheel scaffold" --domain test --target y --family linear \
             --metric val_auc --goal-direction higher --data csv:fixture.csv
           test -s "$RUNNER_TEMP/wheel-studies/99-wheel-smoke/study_state.json"
-          # Klein 2.3: recipes and audience profiles travel inside the wheel, the
-          # profiles byte-identical to the skill copy (the vocabulary scan's source).
+          # Recipes and the whole skill travel inside the wheel, byte-identical to
+          # the repository: protocols, profiles, templates, report scripts, agents.
           "$venv/bin/klein" new 98-wheel-recipe --root "$RUNNER_TEMP/wheel-studies" --recipe math-verify --runner python
           test -s "$RUNNER_TEMP/wheel-studies/98-wheel-recipe/verify.py"
           pkg="$("$venv/bin/python" -c 'import kleinlib, pathlib; print(pathlib.Path(kleinlib.__file__).parent)')"
-          for f in "$GITHUB_WORKSPACE"/.claude/skills/klein/references/profiles/*.md; do
-            cmp "$f" "$pkg/_profiles/$(basename "$f")"
+          skill="$GITHUB_WORKSPACE/.claude/skills/klein"
+          cmp "$skill/SKILL.md" "$pkg/_skill/SKILL.md"
+          (cd "$skill" && find references assets -type f ! -name .gitkeep) | while read -r f; do
+            cmp "$skill/$f" "$pkg/_skill/$f"
           done
+          for f in build_tutorial.py summarize_results.py make_figures.py; do
+            cmp "$skill/scripts/$f" "$pkg/_skill/scripts/$f"
+          done
+          for f in "$GITHUB_WORKSPACE"/.claude/agents/klein-*.md; do
+            cmp "$f" "$pkg/_agents/$(basename "$f")"
+          done
+          test ! -d "$pkg/tests"
+          # An installed Klein is self-sufficient: no checkout, any directory.
+          "$venv/bin/klein" explain gate | grep -q "checkpoint"
+          "$venv/bin/klein" explain consult | grep -q "Gate 0"
+          # The opt-in layer's protocols live in a subfolder and resolve by name; the
+          # envelope's JSON Schema ships as package data.
+          "$venv/bin/klein" explain generation-protocol | grep -qi "generation"
+          test -s "$pkg/_skill/references/generation/generation-protocol.md"
+          "$venv/bin/klein" schema envelope | "$venv/bin/python" -c "import json,sys; s=json.load(sys.stdin); assert s['properties']['format']['const'] == 1, s"
+          "$venv/bin/klein" skill install --target "$RUNNER_TEMP/wheel-studies"
+          test -s "$RUNNER_TEMP/wheel-studies/.claude/skills/klein/SKILL.md"
+          test -s "$RUNNER_TEMP/wheel-studies/.claude/agents/klein-referee.md"
+          "$venv/bin/klein" next --study "$RUNNER_TEMP/wheel-studies/98-wheel-recipe" --json \
+            | "$venv/bin/python" -c "import json,sys; d=json.load(sys.stdin); assert d['format']==1 and d['data']['next']['stage_id']=='consult', d"
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}' \
+            '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"explain","arguments":{"topic":"referee"}}}' \
+            | "$venv/bin/klein" mcp --root "$RUNNER_TEMP/wheel-studies" | grep -q "ten checks"
       - uses: actions/upload-artifact@v4
         with:
           name: distributions

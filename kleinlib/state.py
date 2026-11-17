@@ -27,7 +27,6 @@ from .contract import (
     GATE_OPTIONAL_ARTIFACTS,
     MODELING_GATES,
     PLACEHOLDER_RE,
-    SUPPORTED_SCHEMA_VERSIONS,
     _phase_ids,
     load_contract,
     normalize_tracks,
@@ -158,17 +157,18 @@ def load_state(study_dir: Path, contract: Mapping[str, Any], *, create: bool = F
     except (OSError, json.JSONDecodeError) as exc:
         raise WorkflowError(f"invalid study_state.json: {exc}") from exc
     declared = schema_version(contract)
-    if not isinstance(value, dict) or value.get("schema_version") not in SUPPORTED_SCHEMA_VERSIONS:
-        raise WorkflowError("study_state.json must be a schema_version 2 or 3 object")
+    if not isinstance(value, dict):
+        raise WorkflowError("study_state.json must be an object")
     recorded = value.get("schema_version")
     if declared != recorded:
-        # A contract that says 3 over state written under 2 would run schema-3
-        # rules against schema-2 receipts.  Nothing notarized is ever rewritten
-        # in place, so this is a migration, not a load.
+        # A contract that says 3 over state written under 2 would run today's
+        # rules against receipts another engine wrote.  Nothing notarized is ever
+        # rewritten in place: a study is not migrated by editing its contract.
         raise WorkflowError(
             f"study.yaml declares schema_version {declared} but study_state.json was "
             f"written at schema_version {recorded} — a study is not migrated by editing "
-            "its contract; see docs/migration-schema2-to-3.md"
+            "its contract; start a new study and keep this one as evidence "
+            "(studies/ARCHIVE.md)"
         )
     reconcile_state(value, contract)
     _repoint_unstarted_phase(study_dir, value, contract)
@@ -243,9 +243,9 @@ def verifier_script_hashes(study_dir: Path, contract: Mapping[str, Any]) -> dict
 def split_policy_hash(state: Mapping[str, Any]) -> Any:
     """The declared-policy hash, whichever shape ``fingerprints.split`` has.
 
-    Schema 2 stores the policy hash as a bare string; schema 3 stores a mapping
-    that also carries the REALIZED ``development`` / ``final_test`` fingerprints
-    frozen at the DATA gate.  Readers that only want the policy use this.
+    The record is a mapping that also carries the REALIZED ``development`` /
+    ``final_test`` fingerprints frozen at the DATA gate; a state written before
+    the gate holds the bare policy hash.  Readers that only want the policy use this.
     """
     recorded = state.get("fingerprints", {}).get("split")
     return recorded.get("policy") if isinstance(recorded, Mapping) else recorded
@@ -264,7 +264,7 @@ def registered_partition_fingerprints(state: Mapping[str, Any]) -> dict[str, str
 
 
 def _freeze_split(study_dir: Path, contract: Mapping[str, Any], state: dict[str, Any]) -> None:
-    """Record the policy hash AND what the split actually realizes (schema 3).
+    """Record the policy hash AND what the split actually realizes.
 
     Realizing the partitions means reading the prepared data, which can fail for
     reasons that must not block a gate (a modality with no dataframe, a target
@@ -385,16 +385,11 @@ def referee_gate(state: Mapping[str, Any]) -> Mapping[str, Any] | None:
 
 def required_card_sections(contract: Mapping[str, Any]) -> tuple[str, ...]:
     """Headings ``data_card.md`` must carry under ``policy.card_sections: enforce``."""
-    from .schema import MODALITY_CARD_SECTIONS, POLICY_CARD_SECTIONS, PROFILE_CARD_SECTIONS
+    from .inquiry import required_card_sections as sections_for
 
     data = contract.get("data")
     modality = str(data.get("modality")) if isinstance(data, Mapping) else "tabular"
-    profile = str(contract.get("profile") or "")
-    return (
-        *MODALITY_CARD_SECTIONS.get(modality, ()),
-        *POLICY_CARD_SECTIONS.get(modality, ()),
-        *PROFILE_CARD_SECTIONS.get(profile, ()),
-    )
+    return sections_for(modality, str(contract.get("profile") or ""))
 
 
 def missing_card_sections(contract: Mapping[str, Any], card_text: str) -> list[str]:
@@ -421,8 +416,6 @@ def record_gate(
     phase: str | None = None,
 ) -> dict[str, Any]:
     contract = load_contract(study_dir)
-    if schema_version(contract) not in SUPPORTED_SCHEMA_VERSIONS:
-        raise WorkflowError("gate state is available only for schema_version 2 or 3 studies")
     if not acknowledged_by.strip():
         raise WorkflowError("--acknowledged-by is required")
     with StudyLock(study_dir):
@@ -494,34 +487,29 @@ def record_gate(
             if PLACEHOLDER_RE.search(text):
                 raise WorkflowError(f"cannot {verb} {gate}: unresolved placeholder in {name}")
             artifact_hashes[name] = sha256_file(path)
-        # Optional artifacts (schema 3): hashed when present, their ABSENCE
+        # Optional artifacts: hashed when present, their ABSENCE
         # recorded when not. `scouting_ledger.md` is the only one today — the
         # protocol's "the gate hashes it" becomes true here, and a study that
         # scouted nothing says so on the record instead of leaving a silence.
         optional_present: list[str] = []
         optional_absent: dict[str, str] = {}
-        if schema_version(contract) >= 3:
-            for name in GATE_OPTIONAL_ARTIFACTS.get(gate, ()):
-                path = study_dir / name
-                if not path.is_file():
-                    optional_absent[Path(name).stem] = "absent"
-                    continue
-                if PLACEHOLDER_RE.search(path.read_text(encoding="utf-8")):
-                    raise WorkflowError(
-                        f"cannot {verb} {gate}: unresolved placeholder in {name}"
-                    )
-                artifact_hashes[name] = sha256_file(path)
-                optional_present.append(name)
+        for name in GATE_OPTIONAL_ARTIFACTS.get(gate, ()):
+            path = study_dir / name
+            if not path.is_file():
+                optional_absent[Path(name).stem] = "absent"
+                continue
+            if PLACEHOLDER_RE.search(path.read_text(encoding="utf-8")):
+                raise WorkflowError(
+                    f"cannot {verb} {gate}: unresolved placeholder in {name}"
+                )
+            artifact_hashes[name] = sha256_file(path)
+            optional_present.append(name)
         referee_facts: dict[str, Any] = {}
         if gate == "referee":
-            if schema_version(contract) < 3:
-                raise WorkflowError(
-                    "the referee gate is a schema-3 stage; this study is schema 2"
-                )
             referee_facts = referee_report_facts(
                 (study_dir / "referee_report.md").read_text(encoding="utf-8")
             )
-        if gate == "method" and schema_version(contract) >= 3:
+        if gate == "method":
             state["fingerprints"]["verifier"] = verifier_script_hashes(study_dir, contract)
         if gate == "method" and override_reason is None:
             triad = _method_card_triad(
@@ -567,8 +555,7 @@ def record_gate(
             data_hash = fingerprint_path(data_path)
             state["fingerprints"]["data"] = data_hash
             state["prepared_data"] = {"path": data_path.as_posix(), "sha256": data_hash}
-            if schema_version(contract) >= 3:
-                _freeze_split(study_dir, contract, state)
+            _freeze_split(study_dir, contract, state)
         status = "overridden" if override_reason is not None else "recorded"
         gate_state = {
             "status": status,
@@ -590,6 +577,21 @@ def record_gate(
                     "acknowledged_by": acknowledged_by,
                 }
             )
+        probe_facts: dict[str, Any] = {}
+        if gate == "consult":
+            # What was looked at before the question was fixed, on a hash: the
+            # probes that existed when the contract was acknowledged.
+            from .probe import probe_head
+
+            # The FIRST consult record is the anchor. Re-recording the gate later
+            # (after a measured floor, say) must not relabel a look taken after
+            # the question was fixed as one taken before it.
+            earlier = state.get("gates", {}).get("consult")
+            anchor = earlier.get("probes") if isinstance(earlier, Mapping) else None
+            head = anchor if isinstance(anchor, Mapping) else probe_head(study_dir)
+            if head.get("count"):
+                gate_state["probes"] = dict(head)
+                probe_facts = {"probes_before_consult": head["count"], "probe_head": head["head"]}
         state["gates"][gate] = gate_state
         state.setdefault("acknowledgements", {})[gate] = {
             "timestamp": now,
@@ -612,6 +614,7 @@ def record_gate(
             artifact_hashes=artifact_hashes,
             **optional_absent,
             **referee_facts,
+            **probe_facts,
         )
         save_state(study_dir, state)
         # The gate's own artifacts are committed with the record: every one of
@@ -641,8 +644,6 @@ def acknowledge_headroom(
     (a pre-committed door-closed sentence, study-08 style).
     """
     contract = load_contract(study_dir)
-    if schema_version(contract) not in SUPPORTED_SCHEMA_VERSIONS:
-        raise WorkflowError("headroom state is available only for schema_version 2 or 3 studies")
     if not acknowledged_by.strip():
         raise WorkflowError("--acknowledged-by is required")
     if not note.strip():

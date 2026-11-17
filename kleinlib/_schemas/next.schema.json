@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/next.schema.json",
+  "title": "klein next",
+  "description": "The study's position and the one next action it needs (`kleinlib.next_step.next_step`). A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "study": {
+      "type": "string",
+      "description": "The study directory's name."
+    },
+    "schema": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "The study's schema_version; null when the contract is missing or unreadable."
+    },
+    "done": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What has already been completed, in order."
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Observations that do not change the next action."
+    },
+    "next": {
+      "type": "object",
+      "properties": {
+        "stage": {
+          "type": "string",
+          "description": "Human label, e.g. `EXPERIMENT · Phase 0`; the wording varies."
+        },
+        "stage_id": {
+          "enum": [
+            "scaffold",
+            "legacy",
+            "consult",
+            "data",
+            "method",
+            "experiment",
+            "synthesize",
+            "referee",
+            "tutorial",
+            "finalize",
+            "verify",
+            "closed"
+          ],
+          "description": "Closed vocabulary a host can switch on."
+        },
+        "action": {
+          "type": "string"
+        },
+        "command": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The suggested command as text; may be a template with placeholders."
+        },
+        "argv": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "The command as a ready-to-run list; null when a person must complete it."
+        },
+        "protocol": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Path of the protocol that governs this stage."
+        },
+        "explain": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "`klein explain <topic>` for the protocol."
+        },
+        "why": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "stage",
+        "stage_id",
+        "action",
+        "command",
+        "argv",
+        "protocol",
+        "explain",
+        "why"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "study",
+      "schema",
+      "done",
+      "notes",
+      "next"
+    ]
+  }
+}

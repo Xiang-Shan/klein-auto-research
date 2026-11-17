@@ -18,6 +18,7 @@ from typing import Any
 import yaml
 
 from .errors import WorkflowError
+from .inquiry import KINDS, modality_names, profile_names
 from .primitives import canonical_json, sha256_bytes
 
 __all__ = [
@@ -28,6 +29,8 @@ __all__ = [
     "ENTRYPOINT_KEYS",
     "IDENTIFIER_RE",
     "KNOWN_KINDS",
+    "LEGACY_ENGINE_COMMITS",
+    "LEGACY_ENGINE_TAGS",
     "MODELING_GATES",
     "PLACEHOLDER_RE",
     "PRINTED_SCOPES",
@@ -59,15 +62,23 @@ __all__ = [
     "study_kind",
     "task_family",
     "track_kind",
+    "unsupported_schema_message",
     "validate_contract",
 ]
 
-SCHEMA_VERSION = 2
+#: The one study schema this engine reads and writes.
+SCHEMA_VERSION = 3
 
-#: Both rule sets the engine enforces.  ``schema_version`` SELECTS one; a
-#: schema-2 study is validated by exactly the checks it was notarized under and
-#: never retro-fails, and every schema-3 addition lives behind ``version >= 3``.
-SUPPORTED_SCHEMA_VERSIONS: frozenset[int] = frozenset({2, 3})
+#: Klein 3 judges schema 3 only.  Older studies are never rewritten and never
+#: re-judged by newer rules: each one verifies with the engine that notarized it,
+#: at the release tag below (``studies/ARCHIVE.md``).
+SUPPORTED_SCHEMA_VERSIONS: frozenset[int] = frozenset({SCHEMA_VERSION})
+LEGACY_ENGINE_TAGS: dict[int, str] = {1: "v1.3.0", 2: "v2.3.1"}
+#: The same engines by commit: a pointer that resolves in any clone, tag fetched or not.
+LEGACY_ENGINE_COMMITS: dict[int, str] = {
+    1: "9f87a01",
+    2: "217cd46",
+}
 
 STUDY_ID_RE = re.compile(r"^\d{2}-[a-z0-9][a-z0-9-]*$")
 IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
@@ -103,52 +114,29 @@ PINNED_SOURCE_SCHEMES: frozenset[str] = frozenset({"openml", "url", "hf"})
 VALID_GOALS = frozenset({"higher", "lower"})
 
 #: What one run transaction may conclude.  ``keep``/``discard`` belong to a
-#: frontier track; ``measured`` to a registered one (schema 3,
+#: frontier track; ``measured`` to a registered one (
 #: ``references/registered-mode.md``) — a cell of a pre-registered measurement
 #: program has nothing to beat, so it is neither kept nor discarded; ``crash``
 #: belongs to both.
 VALID_DISPOSITIONS = frozenset({"keep", "discard", "measured", "crash"})
 
-#: The seven question shapes (``references/inquiry-model.md``).
-KNOWN_KINDS: tuple[str, ...] = (
-    "predict",
-    "estimate",
-    "test",
-    "simulate",
-    "replicate",
-    "discover",
-    "optimize",
-)
+#: The seven question shapes (``references/inquiry-model.md``).  The table itself
+#: lives in :mod:`kleinlib.inquiry`; these three names are views of it.
+KNOWN_KINDS: tuple[str, ...] = tuple(KINDS)
 
 VALID_TRACK_MODES: frozenset[str] = frozenset({"frontier", "registered"})
 VALID_EXACTNESS: frozenset[str] = frozenset({"exact", "stochastic"})
 VALID_CONFIRMATION: frozenset[str] = frozenset({"sealed", "replicate", "verify"})
 
-#: What ``confirmation.require`` means when the contract leaves it out, per the
-#: kind table in ``references/inquiry-model.md``.  ``discover`` closes nothing:
-#: a discovery is a hypothesis, and its promotion is a follow-up ``test`` study.
+#: What ``confirmation.require`` means when the contract leaves it out.
 CONFIRMATION_DEFAULTS: dict[str, tuple[str, ...]] = {
-    "predict": ("sealed",),
-    "estimate": ("sealed",),
-    "test": ("sealed",),
-    "simulate": ("sealed",),
-    "replicate": ("sealed",),
-    "discover": (),
-    "optimize": ("verify",),
+    name: spec.confirmation for name, spec in KINDS.items()
 }
 
 #: The mutable surface a scaffold writes for each kind.  Normative text says
 #: "the entrypoint"; ``train.py`` is only the ``predict`` default (a Hubble
 #: regression is not "trained").
-ENTRYPOINT_BY_KIND: dict[str, str] = {
-    "predict": "train.py",
-    "estimate": "analyze.py",
-    "test": "analyze.py",
-    "replicate": "analyze.py",
-    "discover": "analyze.py",
-    "simulate": "simulate.py",
-    "optimize": "search.py",
-}
+ENTRYPOINT_BY_KIND: dict[str, str] = {name: spec.entrypoint for name, spec in KINDS.items()}
 
 #: Every recordable gate and the artifact(s) it hashes.  ``referee`` is Gate 3
 #: (``references/referee-protocol.md``) and sits AFTER synthesize, so it is not
@@ -160,7 +148,7 @@ GATE_ARTIFACTS: dict[str, tuple[str, ...]] = {
     "referee": ("referee_report.md",),
 }
 
-#: Artifacts a gate hashes WHEN THEY EXIST, schema 3 only.  ``scouting_ledger.md``
+#: Artifacts a gate hashes WHEN THEY EXIST.  ``scouting_ledger.md``
 #: is the pre-registration disclosure of everything looked at before the contract
 #: was written (``references/consult-protocol.md``): the protocol has always said
 #: "the gate hashes it", but a study that scouted nothing legitimately has no
@@ -191,8 +179,14 @@ def resolve_study(path: str | Path) -> Path:
     return study
 
 
-def load_contract(study_dir: str | Path) -> dict[str, Any]:
+def load_contract(study_dir: str | Path, *, allow_legacy: bool = False) -> dict[str, Any]:
     """The study contract as written.
+
+    A study of a schema this engine does not judge is refused here, once, with
+    the tag where it still verifies (:func:`unsupported_schema_message`).
+    ``allow_legacy=True`` returns it anyway — for ``klein next`` (and the MCP
+    listing built on it), which only needs to SAY a study is legacy and where it
+    verifies, never to judge it.
 
     Takes a string or a Path, like every neighbouring loader
     (:func:`resolve_study`, :func:`kleinlib.data.contract_split`,
@@ -207,6 +201,10 @@ def load_contract(study_dir: str | Path) -> dict[str, Any]:
         raise WorkflowError(f"could not read study.yaml: {exc}") from exc
     if not isinstance(raw, dict):
         raise WorkflowError("study.yaml must contain a top-level mapping")
+    if not allow_legacy:
+        message = unsupported_schema_message(schema_version(raw))
+        if message is not None:
+            raise WorkflowError(message)
     return raw
 
 
@@ -216,6 +214,29 @@ def schema_version(contract: Mapping[str, Any]) -> int:
         return int(value)
     except (TypeError, ValueError) as exc:
         raise WorkflowError(f"invalid schema_version: {value!r}") from exc
+
+
+def unsupported_schema_message(version: int) -> str | None:
+    """Why this engine will not judge a study of ``version``; None when it will.
+
+    The single place the engine explains itself to an older (or newer) study:
+    every verb that loads a contract goes through :func:`load_contract`, which
+    raises this message, so no rule set is ever applied to a study it was not
+    written for.
+    """
+    if version in SUPPORTED_SCHEMA_VERSIONS:
+        return None
+    tag = LEGACY_ENGINE_TAGS.get(version)
+    if tag is not None:
+        return (
+            f"this study is schema {version}; Klein 3 reads schema {SCHEMA_VERSION} only. "
+            f"Nothing is lost: verify it with the engine that judged it, at tag {tag} "
+            f"(commit {LEGACY_ENGINE_COMMITS[version]}; see studies/ARCHIVE.md)"
+        )
+    return (
+        f"schema_version must be {SCHEMA_VERSION} (got {version}); "
+        "a newer study needs a newer klein"
+    )
 
 
 def _placeholder_locations(value: Any, prefix: str = "") -> list[str]:
@@ -243,7 +264,6 @@ def normalize_tracks(contract: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
             if isinstance(value, Mapping) and value.get("id"):
                 item = dict(value)
                 output[str(item.pop("id"))] = item
-    schema_3 = contract.get("schema_version", 1) not in (1, 2)
     for track, spec in output.items():
         metric = spec.get("metric")
         if not isinstance(metric, Mapping):
@@ -254,12 +274,8 @@ def normalize_tracks(contract: Mapping[str, Any]) -> dict[str, dict[str, Any]]:
             }
         spec["metric"] = dict(metric)
         spec.setdefault("guardrails", {})
-        if schema_3:
-            # Schema 3 only: a track that does not say otherwise climbs a
-            # frontier, exactly as every schema-2 track always did.  Setting
-            # the key on a schema-2 contract would change what schema-2 code
-            # sees, so it is guarded.
-            spec.setdefault("mode", "frontier")
+        # A track that does not say otherwise climbs a frontier.
+        spec.setdefault("mode", "frontier")
         output[track] = spec
     return output
 
@@ -286,8 +302,8 @@ def task_family(contract: Mapping[str, Any]) -> str:
     """The METRIC family ``task_type`` names, with ``simulation`` -> ``scalar``.
 
     ``task_type`` says which evaluator shape prints the block; the INQUIRY's
-    shape is ``kind``.  Schema 3 spells the scalar family ``scalar`` and keeps
-    ``simulation`` as a readable alias so no schema-2 contract has to change.
+    shape is ``kind``.  The scalar family is spelled ``scalar``; ``simulation``
+    stays a readable alias.
     """
     task = contract.get("task_type")
     return "scalar" if task in {"simulation", "scalar"} else str(task)
@@ -296,14 +312,11 @@ def task_family(contract: Mapping[str, Any]) -> str:
 def mutable_surface(contract: Mapping[str, Any]) -> tuple[str, ...]:
     """The study-relative files ONE candidate may change.
 
-    Schema 2 has exactly one, by construction and forever: ``train.py``.  Schema
-    3 declares it (``entrypoint.mutable``) because the entrypoint is named by
-    kind — a Hubble regression is not "trained" — and a study may keep its
-    per-experiment surface in more than one file.  Everything else (``lib/``,
+    The contract declares it (``entrypoint.mutable``) because the entrypoint is
+    named by kind — a Hubble regression is not "trained" — and a study may keep
+    its per-experiment surface in more than one file.  Everything else (``lib/``,
     ``prepare.py``, the declared verifier) is outside it by definition.
     """
-    if schema_version(contract) < 3:
-        return ("train.py",)
     mutable = entrypoint_spec(contract)["mutable"]
     return tuple(str(item) for item in mutable) or ("train.py",)
 
@@ -389,7 +402,7 @@ def printed_scope(contract: Mapping[str, Any]) -> str:
 
 
 def entrypoint_spec(contract: Mapping[str, Any]) -> dict[str, Any]:
-    """The declared entrypoint, defaulted to the schema-2 ``train.py`` surface."""
+    """The declared entrypoint, defaulted to a ``train.py`` surface."""
     raw = contract.get("entrypoint")
     if not isinstance(raw, Mapping):
         return {"command": ["uv", "run", "--locked", "python", "-u", "train.py"], "mutable": ["train.py"]}
@@ -461,30 +474,24 @@ def _guardrail_contract_problems(guardrails: Any) -> list[str]:
 
 
 def validate_contract(contract: Mapping[str, Any], study_dir: Path | None = None) -> list[str]:
-    """Every problem in a study contract, under the rule set its version selects.
+    """Every problem in a study contract.
 
-    ``schema_version`` is the switch: 2 gets exactly the checks it was notarized
-    under (frozen — the shipped studies must keep verifying forever), 3 gets
-    those plus :func:`_schema3_problems`.
+    A study of another schema is not judged at all: the one problem returned is
+    where it verifies (:func:`unsupported_schema_message`).
     """
     try:
         version = schema_version(contract)
     except WorkflowError as exc:
         return [str(exc)]
-    if version not in SUPPORTED_SCHEMA_VERSIONS:
-        return [
-            f"schema_version must be {SCHEMA_VERSION} or 3 "
-            f"(got {version}; version-1 studies are readable at tag v1.3.0)"
-        ]
-    problems = _common_problems(contract, study_dir, version)
-    if version >= 3:
-        problems.extend(_schema3_problems(contract, study_dir))
+    unsupported = unsupported_schema_message(version)
+    if unsupported is not None:
+        return [unsupported]
+    problems = _common_problems(contract, study_dir)
+    problems.extend(_typed_inquiry_problems(contract, study_dir))
     return problems
 
 
-def _common_problems(
-    contract: Mapping[str, Any], study_dir: Path | None, version: int
-) -> list[str]:
+def _common_problems(contract: Mapping[str, Any], study_dir: Path | None) -> list[str]:
     from .eval import get_metric_spec
 
     problems: list[str] = []
@@ -500,23 +507,11 @@ def _common_problems(
             )
     if contract.get("method_depth") not in {"brief", "full"}:
         problems.append("method_depth must be brief or full")
-    # ``task_type`` names the METRIC family, not the inquiry — schema 3 spells
-    # the scalar family ``scalar`` and keeps ``simulation`` as a readable alias
-    # (the inquiry's shape is ``kind``).  Schema 2 knows only the three names it
-    # was notarized with.
-    task_names = {"classification", "regression", "simulation"}
-    if version >= 3:
-        task_names = task_names | {"scalar"}
-    if contract.get("task_type") not in task_names:
-        problems.append(
-            "task_type must be classification, regression, or simulation"
-            + (" (or scalar, its schema-3 spelling)" if version >= 3 else "")
-        )
-    # A schema-2 contract that misspells task_type as ``scalar`` keeps failing
-    # exactly as it did; only a schema-3 contract earns the scalar family here.
-    scalar_family = contract.get("task_type") == "simulation" or (
-        version >= 3 and contract.get("task_type") == "scalar"
-    )
+    # ``task_type`` names the METRIC family, not the inquiry (whose shape is
+    # ``kind``): ``scalar`` is the scalar family, ``simulation`` its alias.
+    if contract.get("task_type") not in {"classification", "regression", "scalar", "simulation"}:
+        problems.append("task_type must be classification, regression, or scalar")
+    scalar_family = task_family(contract) == "scalar"
     try:
         max_run_seconds = float(contract.get("max_run_seconds", 0))
         if not math.isfinite(max_run_seconds) or max_run_seconds <= 0:
@@ -961,9 +956,24 @@ def _predictions_problems(contract: Mapping[str, Any]) -> list[str]:
             "rule",
             "manual",
             "inconclusive_if",
+            "question",
         }
         if unknown:
             problems.append(f"{label}: unknown keys {sorted(unknown)}")
+        # Optional: the research question this prediction bears on (`klein map`
+        # draws the link). It must name a question the contract declares.
+        question = entry.get("question")
+        if question is not None:
+            declared = {
+                str(row.get("id"))
+                for row in contract.get("research_questions") or []
+                if isinstance(row, Mapping)
+            }
+            if not isinstance(question, str) or question not in declared:
+                problems.append(
+                    f"{label}: question must name a declared research question "
+                    f"({sorted(declared) or 'none declared'})"
+                )
         statement = entry.get("statement")
         if not isinstance(statement, str) or not statement.strip():
             problems.append(f"{label}: statement is required")
@@ -1148,9 +1158,10 @@ def _data_inputs_problems(data: Mapping[str, Any]) -> list[str]:
     return problems
 
 
-def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> list[str]:
-    """Everything schema 3 adds on top of the frozen schema-2 rule set."""
-    from .schema import KNOWN_MODALITIES, KNOWN_PROFILES
+def _typed_inquiry_problems(contract: Mapping[str, Any], study_dir: Path | None) -> list[str]:
+    """The typed inquiry: kind, modality, profile, entrypoint, predictions, policy."""
+    known_modalities = modality_names()
+    known_profiles = profile_names()
 
     problems: list[str] = []
 
@@ -1162,11 +1173,11 @@ def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> li
     profile_doc = contract.get("profile_doc")
     if profile is None and profile_doc is None:
         problems.append(
-            f"profile must be one of {list(KNOWN_PROFILES)}, or profile_doc must name a "
+            f"profile must be one of {list(known_profiles)}, or profile_doc must name a "
             "repo-relative .md profile"
         )
-    if profile is not None and profile not in KNOWN_PROFILES:
-        problems.append(f"profile must be one of {list(KNOWN_PROFILES)} (got {profile!r})")
+    if profile is not None and profile not in known_profiles:
+        problems.append(f"profile must be one of {list(known_profiles)} (got {profile!r})")
     if profile_doc is not None:
         if not isinstance(profile_doc, str) or not profile_doc.strip().endswith(".md"):
             problems.append("profile_doc must be a repo-relative path to a .md file")
@@ -1184,8 +1195,8 @@ def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> li
     data = contract.get("data")
     if isinstance(data, Mapping):
         modality = data.get("modality")
-        if modality not in KNOWN_MODALITIES:
-            problems.append(f"data.modality is required and must be one of {list(KNOWN_MODALITIES)}")
+        if modality not in known_modalities:
+            problems.append(f"data.modality is required and must be one of {list(known_modalities)}")
         problems.extend(_data_source_problems(data))
         problems.extend(_data_inputs_problems(data))
     problems.extend(_policy_problems(contract.get("policy")))
@@ -1204,9 +1215,9 @@ def _schema3_problems(contract: Mapping[str, Any], study_dir: Path | None) -> li
         verifier = spec.get("verifier")
         if verifier is not None:
             problems.extend(_verifier_problems(label, verifier, mutable, study_dir))
-        elif this_kind == "optimize":
+        elif this_kind in KINDS and KINDS[this_kind].requires_verifier:
             problems.append(
-                f"{label}: kind 'optimize' requires a declared verifier — the objective "
+                f"{label}: kind {this_kind!r} requires a declared verifier — the objective "
                 "is computed by the checker, never reported by the search"
             )
 

@@ -28,7 +28,7 @@ the experimenter.
   incomplete roster is a NOTE in the report (and a capped rung), never a FAIL — the
   roster is documentation, not evidence.
 - **A slate-time critic is not a referee.** On a generation-enabled study the
-  pre-mortem reviewer's rung is recorded separately (`references/premortem-protocol.md`)
+  pre-mortem reviewer's rung is recorded separately (`references/generation/premortem-protocol.md`)
   and does not raise the referee rung; a reviewer who is also the roster's `referee`
   FAILs that capability's own verification rather than earning independence twice.
 - **Reading order is part of the method.** `findings.md` FIRST, forming a view of what
@@ -36,9 +36,12 @@ the experimenter.
   manifests, `data_card.md`, `method_card.md`; `program.md` LAST — the narrative that
   makes a conclusion feel inevitable is read only after the evidence has been weighed.
   Its `## Roster` table is the one exception: a metadata header, not narrative, read
-  whenever the rung is needed.
+  whenever the rung is needed. If `probes.jsonl` exists, read it before the predictions
+  (`references/exploration-protocol.md` §6): a prediction whose answer an earlier probe
+  already showed is a description, not a test.
 - **Read-only verbs only.** `klein verify --numbers --evidence-use`, `klein claims
-  verify`, `klein status`, `klein predict list`, and a figure re-render into a
+  verify`, `klein status`, `klein predict list`, `klein map` (the study's evidence graph:
+  what each run bears on, what is still open), and a figure re-render into a
   temporary directory compared byte-for-byte. No `run-one`, no edits to any study file,
   no gate record — the orchestrator records the gate after reading the report.
 - **A FAIL is never softened into a note.** If a FAIL condition holds, the verdict is
@@ -82,7 +85,7 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   how two answers appear. Report what the receipt says, and whether the study's prose
   agrees with it.
 - Confirm the roster's pre-mortem reviewer is not the roster's referee — that is you
-  (`references/premortem-protocol.md`).
+  (`references/generation/premortem-protocol.md`).
 - Confirm that **accepted pre-mortem corrections reached the executed artifacts** in
   substance. The layer checks that an acceptance named a new slate version and that
   the version was the one in force; only a reader can say whether the correction
@@ -98,7 +101,7 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   each margin's `margin_rationale` justifies the margin by a decision rather than by the
   measured floor. The one thing the machine cannot see is an **under-tuned expert**: a
   control weakened in a way that still passes its own fixture is a referee obligation
-  (`references/expert-parity-protocol.md`).
+  (`references/generation/expert-parity-protocol.md`).
 - **Contribution.** Read `ai_value.jsonl`: confirm rejections are present, that no
   agent-accepted row is written up as human-accepted, and that any causal AI-value
   language cites the matched ablation the lock names.
@@ -111,7 +114,7 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   two things the machine cannot see: whether the **planted families resemble a
   scientific task at all**, and whether the `context` adjudication was applied as
   preregistered rather than widened once it was clear which arm it would fail. Both
-  are yours (`references/planted-truth-protocol.md`).
+  are yours (`references/generation/planted-truth-protocol.md`).
 - **Escalation.** Read `escalation_plan.yaml` and every `<study>#Dn` decision: confirm
   each names the trigger it answers, the rung taken, the lower rungs skipped WITH their
   reasons, and the concrete resource or assumption that changed — and that findings
@@ -119,19 +122,19 @@ are unchanged** — these are additional reading obligations, not an eleventh ch
   successor lineage (both contract hashes, the inherited exposure, the `#Hn` / `#Sn` ids
   handed over) is the one place a reader can see what blindness the successor does NOT
   have. Whether work labelled "method family" deserves that rung is your judgement, not
-  the machine's (`references/escalation-protocol.md`).
+  the machine's (`references/generation/escalation-protocol.md`).
 - **Knowledge.** Read the pre-CONSULT `knowledge query` receipt and any contests:
   confirm the study's prose reflects the hits it recorded — including a hit it rejected
   and a contest closure it saw — and that an imported claim is never written up as
   stronger than the class and strength copied from its source lock. `lex-1` retrieval
   replays, which proves what the study SAW; whether the field was searched adequately is
-  yours (`references/knowledge-protocol.md`).
+  yours (`references/generation/knowledge-protocol.md`).
 - **Surprise.** Read `discovery_cells.yaml`, the pinned per-unit tables and every
   `<study>#Sn` receipt: confirm the COMPLETE inventory is reported — nulls and
   `inconclusive` slices included, not only the violations — that an `unresolved`
   explanation is left as `unresolved` rather than narrated, and that no `confirmed`
   claim rests on a screen. Whether a segmentation is scientifically meaningful is
-  yours (`references/surprise-protocol.md`).
+  yours (`references/generation/surprise-protocol.md`).
 
 Add one line beneath the two machine-read lines of the report:
 
@@ -209,11 +212,11 @@ except WorkflowError as exc:
 ## Recording and override
 
 ```bash
-uv run --locked klein gate record referee --study studies/NN-slug --acknowledged-by <actor>
+klein gate record referee --study studies/NN-slug --acknowledged-by <actor>
 ```
 
 The gate hashes the report and stores the verdict, the referee line and the
-independence flag in state and in the event chain. Schema-3 `klein finalize` requires
+independence flag in state and in the event chain. `klein finalize` requires
 this gate; `--no-referee --reason "<why>"` is recorded, and the study is labelled
 `unrefereed` on its receipt and wherever it is listed.
 

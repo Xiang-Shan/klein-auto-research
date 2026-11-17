@@ -1,0 +1,70 @@
+---
+type: method-card
+domain: "medical diagnostics (klein demo)"
+profile: "generic"
+status: draft
+concepts: [logistic-regression, roc-auc]
+related: []
+refs_verified: false
+triad:
+  theory: true
+  papers: false
+  practice: true
+---
+
+# Method card -- logistic regression, and the AUC it is judged by
+
+> Gate 2 (METHOD). Written BEFORE modeling. Protocol:
+> `.claude/skills/klein/references/method-gate-protocol.md`.
+
+## 1. Intuition (for a practitioner)
+
+Logistic regression scores each tumour by adding up its measurements, each multiplied by
+a weight the fit chooses, and squashing the total into a probability between 0 and 1.
+Think of a set of sliders, one per measurement: the fit moves them until malignant
+samples score low and benign ones score high. With ONE slider the model can only say
+"bigger nuclei, more likely malignant". With thirty it can combine size, texture and
+shape. The score is judged by AUC: the chance that a randomly chosen benign sample
+outscores a randomly chosen malignant one (0.5 is a coin flip, 1.0 is perfect).
+
+## 2. Math core
+
+| Symbol | Meaning |
+|---|---|
+| x | the standardized feature vector of one sample |
+| w, b | the weights and intercept the fit chooses |
+| p | the predicted probability that the sample is benign |
+
+$$ p(x) = \sigma(w^\top x + b), \qquad \sigma(z) = \frac{1}{1 + e^{-z}} $$
+
+$$ \hat w, \hat b = \arg\min_{w,b} \; -\sum_i \big[y_i \log p(x_i) + (1-y_i)\log(1 - p(x_i))\big] + \tfrac{1}{2C}\lVert w\rVert^2 $$
+
+$$ \mathrm{AUC} = \Pr\big(p(x_{+}) > p(x_{-})\big) $$
+
+## 3. Minimal from-scratch implementation plan
+
+`train.py` realizes this with scikit-learn: `StandardScaler` then `LogisticRegression`
+(L2-penalised, C = 1). The three candidates differ in one block only: which columns the
+model sees (`mean_radius` alone, then all 30) and whether every degree-2 product of the
+features is added first (`PolynomialFeatures(2)`, 495 columns). The partition comes from
+`kleinlib.data.load_partition`, the score from `kleinlib.eval.evaluate`.
+
+## 4. When it pays / when it doesn't
+
+| Regime | Data size | Signal | Verdict |
+|---|---|---|---|
+| few strong, roughly linear features | hundreds of rows | strong | a linear model is near the ceiling; capacity buys nothing |
+| many features, few rows | rows < features | strong | pairwise products add more columns than the data can pin down: expect no gain |
+| curved or interacting signal | thousands of rows | moderate | interactions or trees pay |
+
+**Falsifiable priors this study will test.** P1: the plain 30-feature model clears
+val_auc 0.97. P2: adding all degree-2 interactions improves on it by more than one
+measured floor -- the card's own expectation is that it will not (495 columns on 341
+rows).
+
+## 5. Verified references
+
+Offline demo: these are NOT verified. `klein refs verify` resolves each DOI against the
+publisher and checks the title when a network is available; until it has, no claim may
+rest on them (`references.yaml` marks each `verified: false`), which is why the triad's
+papers leg is false and the gate note says so.

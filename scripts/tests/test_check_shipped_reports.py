@@ -122,25 +122,13 @@ def test_parse_wrapper_dom_surfaces_an_in_browser_error() -> None:
 # --- LEGACY classification --------------------------------------------------
 
 
-def test_schema_version_reads_only_the_top_level_key() -> None:
-    module = _load_module()
-    contract = "study: 09-iris\nschema_version: 2\ntracks:\n  primary:\n    schema_version: 99\n"
-    assert module.schema_version(contract) == 2
-    assert module.schema_version("study: old\n") is None
-    assert module.schema_version("schema_version: 3\n") == 3
-
-
 CURRENT_PAGE = '<!doctype html>\n<html><head><meta charset="utf-8">\n<meta name="generator" content="klein build_tutorial layout-2">\n<title>t</title></head><body></body></html>\n'
 
 
-def test_schema_two_and_v1_are_legacy_and_a_current_schema_three_page_is_not() -> None:
+def test_a_current_schema_three_page_is_not_legacy() -> None:
     module = _load_module()
-    assert module.is_legacy(None, CURRENT_PAGE) is True
-    assert module.is_legacy(2, CURRENT_PAGE) is True
-    assert module.is_legacy(3, CURRENT_PAGE) is False
-    assert module.legacy_reason(2, CURRENT_PAGE) == "schema 2 study"
-    assert module.legacy_reason(None, CURRENT_PAGE) == "schema v1 study"
-    assert module.legacy_reason(3, CURRENT_PAGE) is None
+    assert module.is_legacy(CURRENT_PAGE) is False
+    assert module.legacy_reason(CURRENT_PAGE) is None
 
 
 def test_a_schema_three_page_built_before_the_layout_generation_is_legacy() -> None:
@@ -151,11 +139,11 @@ def test_a_schema_three_page_built_before_the_layout_generation_is_legacy() -> N
         '<meta name="generator" content="klein build_tutorial layout-2">\n', ""
     )
     assert module.layout_generation(untagged) is None
-    assert module.is_legacy(3, untagged) is True
-    assert "no generator tag" in module.legacy_reason(3, untagged)
+    assert module.is_legacy(untagged) is True
+    assert "no generator tag" in module.legacy_reason(untagged)
     older = CURRENT_PAGE.replace("layout-2", "layout-1")
     assert module.layout_generation(older) == 1
-    assert module.legacy_reason(3, older) == "built at layout generation 1, check asserts 2"
+    assert module.legacy_reason(older) == "built at layout generation 1, check asserts 2"
     assert module.layout_generation(CURRENT_PAGE) == 2
 
 
@@ -326,6 +314,19 @@ def test_evaluate_print_asserts_the_ledger_header_and_longest_code_line() -> Non
     assert "missing the ledger's last column header 'Description'" in message
 
 
+def test_evaluate_print_accepts_a_code_line_wrapped_where_the_source_had_no_space() -> None:
+    """The print stylesheet wraps a long line at a bracket; that is printed, not clipped."""
+    module = _load_module()
+    report = '<pre class="klein-code">eta = np.asarray(json.loads(P.read_text())["true_log_odds"])</pre>'
+    pdf = b"<< /Type /Page >> << /Type /Page >>"
+    text = 'Description\neta = np.asarray(json.loads(P.read_text())\n["true_log_odds"])\n'
+    ok, message, _ = module.evaluate_print(pdf, text, report)
+    assert ok, message
+    clipped = 'Description\neta = np.asarray(json.loads(P.read_text())\n'
+    ok, message, _ = module.evaluate_print(pdf, clipped, report)
+    assert not ok and "missing the longest code line" in message
+
+
 def test_evaluate_print_reports_but_never_fails_near_empty_pages() -> None:
     module = _load_module()
     report = '<pre class="klein-code">x = 1</pre>'
@@ -367,54 +368,6 @@ def test_render_row_leads_with_the_status() -> None:
     )
     assert line.startswith("FAIL   15-iris")
     assert line.endswith("#method hidden")
-
-
-def test_check_report_labels_every_row_legacy_for_a_schema_two_study(tmp_path, monkeypatch) -> None:
-    """A schema-2 report is still measured — its numbers just cannot fail the run."""
-    module = _load_module()
-    study = tmp_path / "09-iris-first-lesson"
-    (study / "report").mkdir(parents=True)
-    (study / "report" / "index.html").write_text("<html></html>", encoding="utf-8")
-
-    class _FakeNetwork:
-        @staticmethod
-        def _run_chrome(chrome, target, work_dir):
-            return [], None
-
-        @staticmethod
-        def page_initiated_urls(urls, noise_hosts):
-            return []
-
-    measurement = {
-        "ok": True,
-        "images": [
-            {
-                "natural_width": 0,
-                "natural_height": 0,
-                "attr_width": None,
-                "attr_height": None,
-                "alt": "broken",
-            }
-        ],
-        "widths": [
-            _width_result(
-                width=390,
-                scroll_width=900,
-                reveal=[{"id": "method", "top": 2.0, "nav_bottom": 41.0}],
-            )
-        ],
-    }
-    monkeypatch.setattr(module, "run_chrome_dump", lambda *args, **kwargs: _dumped_dom(measurement))
-
-    rows, evidence = module.check_report(
-        study, "/fake/chrome", _FakeNetwork, set(), tmp_path, (390,), True, 5.0, 60.0
-    )
-    assert evidence["legacy"] is True
-    assert {row["status"] for row in rows} == {module.LEGACY}
-    assert module.decide_exit(rows) == 0
-    # The measurement itself is preserved verbatim, defects and all.
-    assert any("page scrollWidth 900 > innerWidth 390" in row["detail"] for row in rows)
-    assert any("did not decode" in row["detail"] for row in rows)
 
 
 def test_check_report_fails_the_same_defects_on_a_schema_three_study(tmp_path, monkeypatch) -> None:

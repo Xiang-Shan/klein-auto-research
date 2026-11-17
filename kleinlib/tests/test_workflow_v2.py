@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from test_workflow_v3 import rehearse
 
 import kleinlib.workflow as workflow
 from kleinlib import cli
@@ -54,52 +55,6 @@ def commit_all(repo: Path, message: str) -> None:
     )
 
 
-@pytest.fixture
-def ready_study(tmp_path: Path) -> tuple[Path, Path]:
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    git(repo, "init", "-q")
-    (repo / "uv.lock").write_text("version = 1\n", encoding="utf-8")
-    study = scaffold_study(
-        repo / "studies",
-        "03-demo",
-        goal="compare a candidate",
-        domain="test",
-        target="y",
-        task_type="classification",
-        method_depth="brief",
-        family="linear",
-        metric_name="val_auc",
-        metric_goal="higher",
-        data_source="csv:fixture.csv",
-        data_path="data/prepared/fixture.csv",
-        max_run_seconds=5,
-    )
-    for name in ("study.yaml", "program.md", "research_plan.md"):
-        path = study / name
-        path.write_text(
-            path.read_text(encoding="utf-8")
-            .replace("{{RQ1_QUESTION}}", "does it improve?")
-            .replace("{{RQ1_PRIOR}}", "no")
-            .replace("{{LEVER_1}}", "candidate")
-            .replace("{{DELTA_1}}", "+0.1 score"),
-            encoding="utf-8",
-        )
-    data = study / "data" / "prepared"
-    data.mkdir(parents=True)
-    (data / "fixture.csv").write_text("x,y\n1,0\n2,1\n", encoding="utf-8")
-    (study / "data_card.md").write_text(
-        "# Data card\n\n> **Decision:** **GO**\n", encoding="utf-8"
-    )
-    (study / "method_card.md").write_text("# Method card\n\nBrief method.\n", encoding="utf-8")
-    record_gate(study, "consult", acknowledged_by="tester")
-    record_gate(study, "data", acknowledged_by="tester")
-    record_gate(study, "method", acknowledged_by="tester")
-    commit_all(repo, "ready study")
-    git(repo, "switch", "-q", "-c", "experiments/03-demo")
-    return repo, study
-
-
 def metric_command(
     value: float,
     *,
@@ -107,14 +62,16 @@ def metric_command(
     expected_experiment: str | None = None,
     expected_track: str | None = None,
 ) -> list[str]:
-    check = ""
+    # A rehearsal (`klein run-one --final-test --dry-run`) runs the SAME command with
+    # KLEIN_SEALED_DRYRUN=1 and KLEIN_EXPERIMENT_ID=DRYRUN: like a real entrypoint (which
+    # gets this from kleinlib.data.load_partition) it acknowledges the flag, and it skips
+    # the experiment-id assert, which only a real run can satisfy.
+    check = "import os; dry = os.environ.get('KLEIN_SEALED_DRYRUN') == '1'; "
+    check += "print('sealed_dryrun: 1') if dry else None; "
     if expected_kind:
-        check = (
-            "import os; "
-            f"assert os.environ['KLEIN_EVALUATION_KIND'] == {expected_kind!r}; "
-        )
+        check += f"assert os.environ['KLEIN_EVALUATION_KIND'] == {expected_kind!r}; "
     if expected_experiment:
-        check += f"assert os.environ['KLEIN_EXPERIMENT_ID'] == {expected_experiment!r}; "
+        check += f"assert dry or os.environ['KLEIN_EXPERIMENT_ID'] == {expected_experiment!r}; "
     if expected_track:
         check += f"assert os.environ['KLEIN_TRACK'] == {expected_track!r}; "
     return [
@@ -126,7 +83,7 @@ def metric_command(
     ]
 
 
-def test_scaffold_is_v2_and_template_passes_eval_identity(tmp_path: Path) -> None:
+def test_scaffold_is_v3_and_template_passes_eval_identity(tmp_path: Path) -> None:
     study = scaffold_study(
         tmp_path,
         "03-smoke",
@@ -137,9 +94,13 @@ def test_scaffold_is_v2_and_template_passes_eval_identity(tmp_path: Path) -> Non
         metric_name="val_auc",
         metric_goal="higher",
         data_source="csv:x",
+        kind="predict",
+        modality="tabular",
+        profile="generic",
+        audience="the maintainers of this test suite",
     )
     contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
-    assert contract["schema_version"] == 2
+    assert contract["schema_version"] == 3
     assert contract["method_depth"] == "full"
     assert contract["data"]["split"]["development_size"] == 0.2
     assert (study / "results.tsv").read_text().splitlines()[0] == "\t".join(
@@ -205,6 +166,10 @@ def test_simulation_contract_accepts_custom_scalar_metric_and_kind_none(tmp_path
         metric_goal="lower",
         data_source="synthetic:noisy_rosenbrock_v1",
         data_path="data/prepared/reference_cell.csv",
+        kind="simulate",
+        modality="simulation",
+        profile="math",
+        audience="optimization researchers",
     )
     contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
     assert contract["task_type"] == "simulation"
@@ -224,6 +189,10 @@ def test_simulation_contract_accepts_custom_scalar_metric_and_kind_none(tmp_path
             "04-no-goal",
             task_type="simulation",
             metric_name="my_custom_gap",
+            kind="simulate",
+            modality="simulation",
+            profile="math",
+            audience="optimization researchers",
         )
     # kind none is simulation-only
     classification = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
@@ -385,6 +354,7 @@ def test_run_transactions_keep_discard_crash_and_seal(ready_study) -> None:
         note="adaptive phase reviewed",
     )
     commit_all(repo, "acknowledge adaptive phase")
+    rehearse(study, command=metric_command(0.69, expected_kind="final_test"))
     final = run_one(
         study,
         description="confirmation",
@@ -460,6 +430,7 @@ def test_cli_labels_the_sealed_confirmation(ready_study, capsys) -> None:
     run_one(study, description="baseline", command=metric_command(0.7), echo=False)
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "ack phase")
+    rehearse(study, command=metric_command(0.69, expected_kind="final_test"))
     capsys.readouterr()
     assert cli.main([
         "run-one", "--study", str(study), "--final-test", "--quiet",
@@ -533,24 +504,62 @@ def test_phase_boundary_and_evaluation_kind_are_enforced(ready_study) -> None:
         )
 
 
-def test_confirmation_run_is_capped_by_remaining_phase_budget(ready_study) -> None:
-    repo, study = ready_study
+_METRIC_BLOCK = (
+    "print('primary_metric:    0.7'); print('metric_name:       val_auc'); "
+    "print('metric_goal:       higher')"
+)
+
+
+def _sleeper(seconds: float) -> list[str]:
+    """Acknowledges the rehearsal flag, sleeps, then prints a metric block."""
+    return [
+        sys.executable,
+        "-c",
+        "import os, time; "
+        "print('sealed_dryrun: 1') if os.environ.get('KLEIN_SEALED_DRYRUN') == '1' else None; "
+        f"time.sleep({seconds}); " + _METRIC_BLOCK,
+    ]
+
+
+def _enter_bounded_confirmation(repo: Path, study: Path, budget_seconds: float) -> None:
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     contract = yaml.safe_load((study / "study.yaml").read_text(encoding="utf-8"))
-    contract["phases"][-1]["budget_seconds"] = 0.05
+    contract["phases"][-1]["budget_seconds"] = budget_seconds
     (study / "study.yaml").write_text(yaml.safe_dump(contract, sort_keys=False), encoding="utf-8")
     record_gate(study, "consult", acknowledged_by="tester")
     commit_all(repo, "enter bounded confirmation")
 
-    result = run_one(
-        study,
-        final_test=True,
-        command=[sys.executable, "-c", "import time; time.sleep(1)"],
-        echo=False,
-    )
-    assert result["disposition"] == "crash"
-    assert result["timed_out"]
-    assert 0 < result["max_run_seconds"] <= 0.05
+
+def test_a_rehearsal_slower_than_the_remaining_phase_budget_refuses_and_spends_nothing(
+    ready_study,
+) -> None:
+    repo, study = ready_study
+    _enter_bounded_confirmation(repo, study, 0.05)
+    sleeper = _sleeper(1)
+    rehearse(study, command=sleeper)  # the rehearsal gets the contract's full time limit
+    head = git(repo, "rev-parse", "HEAD")
+
+    with pytest.raises(WorkflowError, match="it would time out and spend the seal"):
+        run_one(study, final_test=True, command=sleeper, echo=False)
+
+    state = json.loads((study / "study_state.json").read_text(encoding="utf-8"))
+    assert state["final_holdout_access"]["primary"]["count"] == 0
+    assert not list((study / "runs").glob("E*"))
+    assert git(repo, "rev-parse", "HEAD") == head
+
+
+def test_confirmation_run_is_capped_by_remaining_phase_budget(ready_study) -> None:
+    """A rehearsal that fits the small phase budget still starts, and the run is
+    capped at what the phase has left."""
+    repo, study = ready_study
+    _enter_bounded_confirmation(repo, study, 3)
+    fast = _sleeper(0.2)
+    rehearse(study, command=fast)
+
+    result = run_one(study, final_test=True, command=fast, echo=False)
+
+    assert result["disposition"] == "discard"
+    assert 0 < result["max_run_seconds"] <= 3
     assert result["phase"] == "confirmation"
 
 
@@ -777,7 +786,8 @@ def test_noise_floor_contract_validation_and_preflight_honesty(ready_study) -> N
         if c.name == "noise floor"
     ]
     assert len(floor_checks) == 1 and not floor_checks[0].ok
-    assert "dishonesty" in floor_checks[0].message
+    assert "the schema-3 bar" in floor_checks[0].message
+    assert "cannot be detected" in floor_checks[0].message
 
     # honest minimum_delta passes
     metric["minimum_delta"] = 0.004
@@ -865,56 +875,25 @@ def test_phase_ladder_drift_is_caught_by_preflight(ready_study) -> None:
     assert "renamed" in ladder[0].message or "not in the contract" in ladder[0].message
 
 
-def test_v1_verify_is_read_only_with_errata(tmp_path: Path) -> None:
-    study = tmp_path / "legacy"
-    study.mkdir()
-    (study / "study.yaml").write_text("goal: legacy\n", encoding="utf-8")
-    results = study / "results.tsv"
-    results.write_text(
-        "experiment\tprimary_metric\tstatus\tcommit\tdescription\n"
-        "1\t0.5\tkeep\tabc1234\tbaseline\n",
-        encoding="utf-8",
-    )
-    before = results.read_bytes()
-    checks = verify_study(study)
-    assert checks[0].name == "legacy warning"
-    assert "deprecated" in checks[0].message
-    messages = " ".join(check.message for check in checks)
-    assert "exact candidate commits were not retained" in messages
-    assert "create a new v2 study" in messages
-    assert all(check.ok for check in checks)
-    assert results.read_bytes() == before
-    assert "schema: v1 (deprecated compatibility)" in status_summary(study)
-
-
-def test_v1_and_v2_cli_compatibility_round_trips(ready_study, tmp_path: Path, capsys) -> None:
-    _, v2 = ready_study
-    assert cli.main(["status", "--study", str(v2)]) == 0
-    assert "schema: v2" in capsys.readouterr().out
-    assert cli.main(["verify", "--study", str(v2)]) == 0
+def test_cli_status_and_verify_round_trip(ready_study, capsys) -> None:
+    _, study = ready_study
+    assert cli.main(["status", "--study", str(study)]) == 0
+    assert "schema: v3" in capsys.readouterr().out
+    assert cli.main(["verify", "--study", str(study)]) == 0
     assert "0 failed" in capsys.readouterr().out
 
-    v1 = tmp_path / "legacy-cli"
-    v1.mkdir()
-    (v1 / "study.yaml").write_text("goal: legacy\n", encoding="utf-8")
-    ledger = v1 / "results.tsv"
-    ledger.write_text(
-        "experiment\tprimary_metric\tstatus\tcommit\tdescription\n"
-        "1\t0.5\tkeep\tabc1234\tbaseline\n",
-        encoding="utf-8",
-    )
-    before = ledger.read_bytes()
-    assert cli.main(["status", "--study", str(v1)]) == 0
-    assert "v1 (deprecated compatibility)" in capsys.readouterr().out
-    assert cli.main(["verify", "--study", str(v1)]) == 0
-    out = capsys.readouterr().out
-    assert "legacy warning" in out
-    assert "no study evidence is rewritten" in out
-    assert ledger.read_bytes() == before
+
+def _record_referee(study: Path) -> None:
+    """Schema 3 finalizes only after Gate 3."""
+    from test_referee_gate import write_report
+
+    write_report(study)
+    record_gate(study, "referee", acknowledged_by="tester")
 
 
 def test_finalize_requires_explicit_exploratory_or_confirmed_label(ready_study, capsys) -> None:
     repo, study = ready_study
+    _record_referee(study)
     (study / "findings.md").write_text(
         "# Findings\n\nThis study is exploratory.\n", encoding="utf-8"
     )
@@ -939,6 +918,7 @@ def test_finalize_confirmed_after_one_sealed_run(ready_study) -> None:
     repo, study = ready_study
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "enter confirmation")
+    rehearse(study, command=metric_command(0.7, expected_kind="final_test"))
     run_one(
         study,
         final_test=True,
@@ -949,6 +929,7 @@ def test_finalize_confirmed_after_one_sealed_run(ready_study) -> None:
         "# Findings\n\nThis study is confirmed, with uncertainty still stated.\n",
         encoding="utf-8",
     )
+    _record_referee(study)
     assert finalize(study) == "confirmed"
 
 
@@ -956,10 +937,20 @@ def test_crashed_sealed_run_does_not_confirm_findings(ready_study) -> None:
     repo, study = ready_study
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "enter confirmation")
+    # Rehearses cleanly (the flag is acknowledged), then crashes in the real sealed run.
+    crash_when_real = [
+        sys.executable,
+        "-c",
+        "import os, sys; dry = os.environ.get('KLEIN_SEALED_DRYRUN') == '1'; "
+        "print('sealed_dryrun: 1') if dry else None; "
+        + _METRIC_BLOCK
+        + "; sys.exit(0 if dry else 7)",
+    ]
+    rehearse(study, command=crash_when_real)
     crashed = run_one(
         study,
         final_test=True,
-        command=[sys.executable, "-c", "import sys; sys.exit(7)"],
+        command=crash_when_real,
         echo=False,
     )
     assert crashed["disposition"] == "crash"
@@ -967,6 +958,7 @@ def test_crashed_sealed_run_does_not_confirm_findings(ready_study) -> None:
         "# Findings\n\nThis study remains exploratory after confirmation crashed.\n",
         encoding="utf-8",
     )
+    _record_referee(study)
     with pytest.raises(WorkflowError, match="successful sealed final-test"):
         finalize(study)
     assert finalize(study, allow_exploratory=True) == "exploratory"
@@ -1279,6 +1271,11 @@ def test_sealed_gate_passes_after_the_top_up(ready_study) -> None:
         study, "phase", phase="adaptive-1", acknowledged_by="tester", note="reviewed"
     )
     commit_all(repo, "acknowledge adaptive phase")
+    rehearse(
+        study,
+        track="gbdt",
+        command=metric_command(0.69, expected_kind="final_test", expected_track="gbdt"),
+    )
     final = run_one(
         study,
         track="gbdt",
@@ -1309,6 +1306,7 @@ def test_second_sealed_access_is_refused_from_the_ledger_even_if_state_is_wiped(
         study, "phase", phase="adaptive-1", acknowledged_by="tester", note="reviewed"
     )
     commit_all(repo, "acknowledge adaptive phase")
+    rehearse(study, command=metric_command(0.69, expected_kind="final_test"))
     final = run_one(
         study,
         final_test=True,

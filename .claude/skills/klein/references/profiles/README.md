@@ -9,9 +9,9 @@ for the fields its domain packs serve:
 | profile | File | Audience | Reference exhibit |
 |---|---|---|---|
 | `generic` | `profiles/generic.md` | any scientist or analyst | `00-known-truth-quickstart`, `10-hubble-1929-replication` |
-| `ml-research` | `profiles/ml-research.md` | an ML / deep-learning researcher | `13-charlm-fixed-budget` |
+| `ml-research` | `profiles/ml-research.md` | an ML / deep-learning researcher | `22-cnn-data-scaling` |
 | `math` | `profiles/math.md` | a mathematician or algorithm designer | `11-exact-verifier-construction` |
-| `insurance` | `profiles/insurance.md` | an actuary or pricing analyst | `12-insurance-claims-frequency`, studies 05–09 |
+| `insurance` | `profiles/insurance.md` | an actuary or pricing analyst | `12-insurance-claims-frequency` |
 | `llm` | `profiles/llm.md` | an ML / NLP researcher evaluating or prompting language models | `20-llm-cot-contamination` |
 | `cv` | `profiles/cv.md` | a computer-vision researcher or a scientist with images | `21-bloodmnist-cnn` |
 | `data-science` | `profiles/data-science.md` | a data scientist, economist or epidemiologist estimating effects | `23-lalonde-causal-replication` |
@@ -36,11 +36,13 @@ default and nothing in the core text assumes it.
 ## Adding a profile (no engine change)
 
 1. Write `profiles/<name>.md` with the eight sections below, in order.
-2. Either register the name in `kleinlib/schema.py: KNOWN_PROFILES` (a one-line pull
-   request) or point a study at the file directly: `profile_doc: docs/profiles/<name>.md`
-   (repo-relative). The engine reads neither file — it only checks that the name or path
-   exists — so a foreign repo can carry its own profile without forking Klein.
-3. Seed `knowledge/domains/<name>/README.md` with the doctrine anchor and one typed
+2. Either register the name in the one registry, `kleinlib/inquiry.py` (a `ProfileSpec`;
+   a pull request), or ship it from a plug-in (`kleinlib/plugins.py`:
+   `api.add_profile(ProfileSpec(...))`), or point a study at the file directly:
+   `profile_doc: docs/profiles/<name>.md` (repo-relative). The engine reads neither file —
+   it only checks that the name or path exists — so a foreign repo can carry its own
+   profile without forking Klein.
+3. Seed `knowledge/domains/<name>/README.md` (in the repository that hosts your studies; Klein's own knowledge base ships in its repository, not in the package) with the doctrine anchor and one typed
    claim citation once a study in that profile has closed.
 
 ## The eight sections of a profile file

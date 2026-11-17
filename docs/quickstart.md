@@ -1,702 +1,209 @@
-# Klein quick start
+# Quickstart — from an empty folder to a signed study
 
-One complete study, end to end, on synthetic data with a known truth. The commands run
-in minutes; the thinking between them is yours.
+Three steps: **watch** a study run, **read** a finished one, then **run** your own. Every
+command on this page is real; the first half is exactly what `klein demo` executes, so you
+can compare your screen with it line by line. Words in *italics* are defined in the
+[glossary](../.claude/skills/klein/references/glossary.md) — or run `klein explain <word>`.
 
-Every command below was executed, in this order, in a fresh clone of this repository.
-The outputs are real and trimmed; long hashes and machine paths are shortened. The
-study id used throughout is `16-quickstart-walkthrough`.
+## 0. Install
 
----
-
-## 0. Install, check the machine, verify a study that already exists
-
-Start by proving the framework works before you ask it to do anything. `klein doctor`
-never fetches and never mutates a study; `klein verify` re-checks a shipped ledger from
-its own receipts.
+You need Python ≥ 3.11, [uv](https://docs.astral.sh/uv/) and git (with `user.name` and
+`user.email` set — Klein records its work as commits).
 
 ```bash
 git clone https://github.com/Xiang-Shan/klein-auto-research
 cd klein-auto-research
 uv sync --locked --extra encoders
-uv run --no-sync klein doctor
-uv run --no-sync klein verify --study studies/00-known-truth-quickstart
+uv run klein doctor          # what this machine can run; fetches nothing
 ```
 
-```
-[OK] python: 3.13.3 at <repo>/.venv/bin/python
-[OK] git: git version 2.39.3 (Apple Git-146)
-[OK] extra: encoders: installed
-[WARN] extra: gbdt: missing lightgbm, xgboost, catboost — uv sync --locked --extra gbdt
-[OK] tutorial renderer: installed (pygments, ziamath, latex2mathml)
-summary: 11 checks, 4 not-ok (never fetches; exit code reflects --strict only)
-```
+`doctor` reports a few `[WARN]` lines for optional extras you did not install
+(gradient boosting, PyTorch). That is expected. Add them when a study needs them — and
+name every extra together, because `uv sync` removes the ones you leave out:
+`uv sync --locked --extra encoders --extra gbdt --extra deep`.
 
-```
-[OK] referee gate: PASS-WITH-NOTES — klein-referee, independent-of-experimenter: no
-[OK] predictions closure: 5 registered prediction(s), all adjudicated
-[OK] claims numbers: every pinned value is found in its artifact
-[OK] findings numbers: all 50 scanned numerals trace to 13 pinned source(s)
-[OK] tutorial numbers: all 59 rendered numerals trace to a pinned source
-summary: 36 checks, 0 failed
-```
+In the rest of this page `klein …` means `uv run klein …` inside this repository, or
+plain `klein …` after `pip install klein-auto-research`.
 
-The `[WARN]` lines are optional extras; nothing below needs them. Now look at what a
-finished study produces. The report is one self-contained file — no CDN, no fonts, no
-server — so open it straight from disk (`open` on macOS, `xdg-open` on Linux):
+## 1. Watch a study run
 
 ```bash
-ls -lh studies/00-known-truth-quickstart/report/index.html
+klein demo
 ```
 
-**What just happened.** `verify` re-derived 36 checks from a ledger somebody else
-wrote — gates, hashes, an event chain, every numeral in the findings traced back to a
-pinned artifact. That is the whole promise in miniature.
+In about 15 seconds this builds `./klein-demo` — its own git repository — and runs the
+first half of a real study on scikit-learn's breast-cancer table, offline. Nothing is
+simulated: these are the engine's real gates and real runs. It prints each command it is
+running, so the transcript is also a script you could type yourself.
 
----
+| Step | What happens | The command |
+|---|---|---|
+| Scaffold | A study folder with a typed *contract*, a notebook and an empty ledger, on its own branch | `klein new 01-demo --recipe tabular-predict` |
+| Look | One *probe*: class balance and the strongest single features. Logged, never evidence | `klein probe --note "…" -- python look.py` |
+| Gate 0 — consult | The question and two *predictions* are fixed, each with the rule that will decide it | `klein gate record consult` |
+| Gate 1 — data | A data card with a go / no-go decision; a leakage audit must pass | `python -m kleinlib.leakage …` then `klein gate record data` |
+| Gate 2 — method | A short method card: intuition, maths, plan, when it pays | `klein gate record method` |
+| Phase 0 | The *noise floor* is measured by re-drawing the split ten times; it becomes the smallest gain that counts | `klein noise-floor --recipe split-lottery --estimand marginal-resplit` |
+| Three runs | A baseline (kept), the full model (kept; prediction 1 supported), an over-engineered idea (discarded; prediction 2 refuted) | `klein run-one --description "…" --tests P2` |
+| The state | Status, the *evidence map*, and the one next action | `klein status`, `klein map`, `klein next` |
 
-## 1. Scaffold the study, and get off `main`
+Then explore what it left:
 
 ```bash
-uv run --no-sync klein new 16-quickstart-walkthrough \
-  --kind predict --modality tabular --profile generic \
-  --goal "On a synthetic table whose Bayes-optimal AUC is known from the declared generating process, does a linear model handed the true interaction term beat a boosted tree that is told nothing?" \
-  --domain synthetic --target y --task-type classification --family linear \
-  --audience "Someone running their first Klein study end to end." \
-  --metric val_auc --goal-direction higher \
-  --data "synthetic:prepare.py" --split-kind stratified --split-seed 20260906 \
-  --track primary --max-run-seconds 60
-git switch -c experiments/16-quickstart-walkthrough
+klein map    --study klein-demo/studies/01-demo --html      # writes ./01-demo-map.html — open it
+klein verify --study klein-demo/studies/01-demo --no-receipt
+git -C klein-demo log --oneline                             # every gate and run is a commit
+cat klein-demo/studies/01-demo/study.yaml                   # the contract
 ```
 
-```
-scaffolded <repo>/studies/16-quickstart-walkthrough
-next: git switch -c experiments/16-quickstart-walkthrough
-```
+Two things worth noticing. The discarded run is still there, with its code — a failed
+idea is evidence. And prediction 2 was refuted by arithmetic on a rule written before the
+run, after which the notebook had to record a dated `Decision:` line; a refutation that
+changes nothing fails verification.
 
-The three axes are the whole typing system: `--kind` is the question's shape,
-`--modality` the evidence source's shape, `--profile` the audience whose vocabulary is
-honest here. They decide the entrypoint's name, which data-gate card you must fill, and
-which headings the findings and the report carry — see
-[`.claude/skills/klein/references/inquiry-model.md`](../.claude/skills/klein/references/inquiry-model.md).
+The demo stops before the second half of the lifecycle, and says so: those stages need a
+person's judgment.
 
-**What just happened.** You created a schema-3 study directory and a branch. Studies
-run on `experiments/<id>` branches, never on `main`; the loop enforces it.
+## 2. Read a finished study
 
-**The shortcut for your own field (Klein 2.3).** This walkthrough types every flag so
-you see the whole contract. For a real study, start from the recipe for your domain —
-it fills the axes, metric, split and the 2.3 contract blocks, and writes a `prepare.py`
-and entrypoint that already smoke under `KLEIN_SMOKE=1`:
+Eight finished studies ship in `studies/`. Take the Hubble replication:
 
 ```bash
-uv run --no-sync klein new 17-my-blood-cells --recipe cv-classify \
-  --goal "Does a small CNN clear the measured floor over a pixel-linear baseline?"
-uv run --no-sync klein next --study studies/17-my-blood-cells
+klein map     --study studies/10-hubble-1929-replication     # 5 questions → 10 predictions → 13 runs → 18 claims
+klein status  --study studies/10-hubble-1929-replication
+klein verify  --study studies/10-hubble-1929-replication --no-receipt
 ```
 
-Recipes: `tabular-predict`, `cv-classify`, `dl-scaling`, `llm-eval`, `ds-causal`,
-`math-verify`. Every `{{…}}` a recipe leaves is a judgment that is yours — the gates
-refuse a study that still carries one — and `klein next` names the one next action
-from here to the tutorial. Studies 20-24 were built exactly this way.
+`--no-receipt` only reads. Without it, `verify` writes and commits a receipt — right for
+the owner of a study, wrong for a visitor.
 
----
+Then open its files in this order:
 
-## 2. What the scaffold contains
+1. `report/index.html` — the teaching report. Start here.
+2. `findings.md` — what was learned, as numbered *claims*.
+3. `referee_report.md` — what an independent reviewer made of it.
+4. `program.md` — the notebook: hypotheses, decisions, dead ends.
+5. `claims.lock` — every number in the findings, with the file and hash it came from.
 
-```bash
-ls studies/16-quickstart-walkthrough
-```
+## 3. Run your own study, with an agent
 
-```
-aux_metrics.tsv   models       program.md         results.tsv          study.yaml
-events.jsonl      playbook.md  report             runs                 study_state.json
-figures           prepare.py   research_plan.md   scouting_ledger.md   sweeps
-train.py
-```
+This is the intended way to work. Open the repository in your agent and state the
+question:
 
-| File | What it is for |
+> Run a Klein study: on `data/claims.csv`, does gradient boosting beat a GLM at predicting
+> claim frequency by more than the noise?
+
+The agent follows the written procedures stage by stage and **stops at each gate for your
+decision** — it shows you the contract, the data card, the method card, and asks. You can
+ask at any time: *"klein next"*, *"show me the map"*, *"explain headroom"*.
+
+| Agent | Setup |
 |---|---|
-| `study.yaml` | the machine contract: axes, tracks, metric, split policy, phases, predictions |
-| `prepare.py` | writes the prepared artifact; obtains partitions from the contract, never a literal seed |
-| `train.py` | the entrypoint, and the ONLY per-experiment mutable surface |
-| `program.md` | the living lab notebook: roster, questions, phase plan, dated decisions |
-| `playbook.md` | the rolling state of play: current best, ruled-out directions, next candidates |
-| `scouting_ledger.md` | everything looked at BEFORE the consult gate, so no prediction can claim a surprise it already knew |
-| `research_plan.md` | the plan the consult gate hashes |
-| `results.tsv` | the derived ledger — generated from the run manifests, never hand-edited |
-| `events.jsonl`, `study_state.json` | append-only, self-verifying audit state — also never hand-edited |
-| `runs/`, `models/`, `figures/`, `sweeps/`, `report/` | manifests, model blobs, figures, sweep sidecars, the tutorial |
+| Claude Code, in this repository | nothing — the `/klein` skill and the worker agents are wired |
+| Claude Code, in your own project | `/plugin install klein --marketplace Xiang-Shan/klein-auto-research` |
+| Any other agent | it reads [`AGENTS.md`](../AGENTS.md); in another repository run `klein skill install` first |
 
-`prepare.py` and `train.py` arrive as stubs that raise `NotImplementedError`. You write
-them.
+## 4. Run your own study, by hand
 
----
+Everything the agent does is a plain command. `klein next` always names the next one and
+says why, so you never need to remember the order.
 
-## 3. CONSULT — write the contract, then record Gate 0
-
-Fill in `study.yaml`: the research question with its prior, and the **predictions**,
-each with an arithmetic rule on a key the entrypoint will print. Register them now,
-before any evidence exists — that is the entire point.
-
-```yaml
-predictions:
-  - id: P1
-    track: primary
-    statement: "a logistic regression on the raw features cannot reach the known Bayes ceiling: more than one measured floor of distance is left"
-    rule: {key: gap_in_floors, op: ">", value: 1}
-    inconclusive_if: "minimum_delta is still 0, so train.py prints no gap_in_floors line"
-```
-
-Four were registered here: P1 on the anchor's distance to the ceiling, P2 on the lift
-the interaction buys, P3 on the boosted tree failing to beat it, P4 on the sealed run.
-Every threshold is an integer count of *measured floors* — a unit that does not exist
-yet, which is what keeps the numbers honest.
-
-Then fill the roster and the phase plan in `program.md`, disclose anything you already
-looked at in `scouting_ledger.md`, and record the gate:
+### The first half — what the demo did
 
 ```bash
-uv run --no-sync klein gate record consult \
-  --study studies/16-quickstart-walkthrough --acknowledged-by quickstart-reader
+klein new 30-my-question --recipe tabular-predict --data csv:data/my.csv --target outcome
+git switch -c experiments/30-my-question
+S=studies/30-my-question
+
+klein probe --study $S --note "what does the target look like?" -- python look.py   # optional, any time
+
+# Gate 0: replace every {{placeholder}} in study.yaml, research_plan.md and program.md
+# — the question, a prior belief, and predictions with rules — then:
+klein gate record consult --study $S --acknowledged-by "<your name>"
+
+# Gate 1: run prepare.py, audit the data, write data_card.md with a decision
+( cd $S && python prepare.py && python -m kleinlib.leakage data/prepared/prepared.csv --target outcome --study . )
+klein gate record data --study $S --acknowledged-by "<your name>"
+
+# Gate 2: write method_card.md (klein explain template:method-card-template.md)
+klein gate record method --study $S --acknowledged-by "<your name>"
+
+# Phase 0: measure the noise floor, paste the block it prints into study.yaml.
+# You write sweeps/noise_floor.py: it refits the baseline on ten re-drawn splits and
+# records each score (a working example: klein-demo/studies/01-demo/sweeps/noise_floor.py).
+( cd $S && python -u sweeps/noise_floor.py )
+klein noise-floor --study $S --recipe split-lottery --estimand marginal-resplit \
+  --sidecar sweeps/split_lottery.sidecar.tsv
+klein gate record consult --study $S --acknowledged-by "<your name>" \
+  --note "minimum_delta set from the measured noise floor"
+
+# The loop: one idea per run. Edit train.py, then:
+klein preflight --study $S
+klein run-one   --study $S --description "what this run tries, in one line" --tests P1
 ```
 
-```
-recorded gate consult
-```
+Recipes exist for six kinds of study (`klein new --help`); without `--recipe` you get
+templates to fill in. The procedure for each stage is one command away:
+`klein explain consult`, `klein explain data`, `klein explain method`.
 
-**What just happened.** The gate hashed `study.yaml`, `research_plan.md` and
-`program.md` and committed them. A prediction added later is now visible as a gate
-re-record with a reason. Protocol:
-[`.claude/skills/klein/references/consult-protocol.md`](../.claude/skills/klein/references/consult-protocol.md).
+### The second half — closing the study
 
----
-
-## 4. DATA — Gate 1, the GIGO guard
-
-Write `prepare.py`. Two rules matter more than the rest: read the seed from the
-contract (`data.split.seed`), and take partitions from `kleinlib.data.contract_split`.
-A literal seed in an evaluator is a BLOCKER — a study once measured the wrong rows for
-an entire ledger lane that way.
-
-```bash
-cd studies/16-quickstart-walkthrough
-uv run --locked python -u prepare.py
-uv run --locked python -m kleinlib.profile_fallback data/prepared/prepared.csv --target y
-uv run --locked python -m kleinlib.leakage data/prepared/prepared.csv --target y --study .
-cd ../..          # every klein verb below runs from the repo root
-```
-
-```
-rows: 20000  positives: 6009
-development: n=4000 positive_rate=0.3005 bayes_auc=0.851112
-final_test: n=4000 positive_rate=0.3005 bayes_auc=0.859075
-```
-
-```
-[OK]   split-reproduces: kind=stratified reproduces deterministically from study.yaml
-[OK]   duplicate-rows: no duplicate row content straddles partitions
-[OK]   metric-direction[primary]: val_auc: contract direction 'higher' matches the registry
-[OK]   constant-chance[primary]: val_auc=0.5000 for the constant predictor
-[OK]   shuffled-chance[primary]: val_auc=0.5070 for the label-shuffled predictor
-6/6 checks passed: clean
-```
-
-Copy [`.claude/skills/klein/assets/data-card-template.md`](../.claude/skills/klein/assets/data-card-template.md) to the study as
-`data_card.md`, fill the profile table by **value pattern** (never by dtype — a
-`Yes`/`No` column that pandas types as a string is exactly what this catches), paste
-the leakage lines above into the four-row audit, rank the issues, and write the
-decision box. Then:
+**The sealed run.** Each track reads the untouched data once. Rehearse first: the
+rehearsal spends nothing, and the sealed run is refused without a passing one on the
+same code.
 
 ```bash
-uv run --no-sync klein gate record data \
-  --study studies/16-quickstart-walkthrough --acknowledged-by quickstart-reader \
-  --note "in-silico scope accepted; carried into every claim"
+klein gate record phase --study $S --phase adaptive-1 --acknowledged-by "<your name>" --note "why the loop stops here"
+klein run-one --study $S --final-test --dry-run
+klein run-one --study $S --final-test --tests P3
 ```
 
-**What just happened.** The gate fingerprinted the prepared bytes and the realized
-partitions. Every later run prints a `split_fingerprint:` that the notary compares with
-this one. Protocol: [`.claude/skills/klein/references/data-gate-protocol.md`](../.claude/skills/klein/references/data-gate-protocol.md).
-
----
-
-## 5. METHOD — Gate 2, the triad
-
-Copy [`.claude/skills/klein/assets/method-card-template.md`](../.claude/skills/klein/assets/method-card-template.md) to `method_card.md` and
-write the five parts in order: intuition → math core → minimal implementation plan →
-when it pays → verified references. Assert the triad in the frontmatter; the gate
-refuses while a leg is false unless your `--note` names the missing one.
-
-```yaml
-refs_verified: true
-triad:
-  theory: true      # §2 has the notation table and a display equation
-  papers: true      # every row of references.yaml is verified: true
-  practice: true    # §3 names the runnable plan train.py will realize
-```
-
-Write `references.yaml` beside it. Each entry needs `verified: true`, who verified it
-and when — the two here were checked by resolving their DOIs to the publisher landing
-pages. An unverified reference is a liability, not a citation.
+**Synthesize.** Write `findings.md` with its seven sections
+(`klein explain template:findings-template.md`), then give every number a source and
+every claim a class and a strength:
 
 ```bash
-uv run --no-sync klein gate record method \
-  --study studies/16-quickstart-walkthrough --acknowledged-by quickstart-reader
+klein map     --study $S                       # which runs bear on which prediction; what is still open
+klein claims init   --study $S
+klein claims pin    --study $S results results.tsv
+klein claims number --study $S best_auc --value 0.912345 --art results --claim C1 --precision 6
+klein claims add    --study $S C1 --class empirical-description --strength confirmed \
+  --claim "…the sentence, as in findings.md…" --numbers best_auc --evidence E0002,E0005
+klein claims verify --study $S
 ```
 
-**What just happened.** Modeling was hard-blocked until all three gates were recorded.
-Protocol: [`.claude/skills/klein/references/method-gate-protocol.md`](../.claude/skills/klein/references/method-gate-protocol.md).
-
----
-
-## 6. Phase 0 — measure the keep bar, then preflight
-
-Before the gates were recorded, `klein preflight` said exactly why the loop was shut:
-
-```
-[FAIL] working tree: ?? studies/16-quickstart-walkthrough/prepare.py, train.py, …
-[FAIL] gate consult: status=pending
-[FAIL] gate data: status=pending
-[FAIL] gate method: status=pending
-[FAIL] prepared-data fingerprint: current=b2b44b65…; recorded=None
-summary: 21 checks, 5 failed
-```
-
-Now measure the floor. `sweeps/noise_floor.py` re-draws the train/development partition
-ten times at the contract's own proportion, refits the anchor rung, and writes a
-sidecar. The spread of those ten scores — not a number you like the look of — becomes
-`minimum_delta`.
+**Referee.** Hand the study to a reviewer in a *fresh context* — a different model, tool
+or person from whoever ran it. They write `referee_report.md`, whose first line is
+`Verdict: PASS`, `PASS-WITH-NOTES` or `FAIL`. Answer each note in `program.md`, then:
 
 ```bash
-cd studies/16-quickstart-walkthrough
-uv run --locked python sweeps/noise_floor.py
-cd ../..
-uv run --no-sync klein noise-floor --study studies/16-quickstart-walkthrough \
-  --track primary --sidecar studies/16-quickstart-walkthrough/sweeps/split_lottery.sidecar.tsv \
-  --recipe split-lottery --estimand marginal-resplit
-uv run --no-sync klein sweep register split_lottery \
-  --study studies/16-quickstart-walkthrough \
-  --sidecar sweeps/split_lottery.sidecar.tsv --script sweeps/noise_floor.py
+klein gate record referee --study $S --acknowledged-by "<your name>"
+klein finalize --study $S
+klein verify   --study $S          # writes and commits the receipt
 ```
 
-```
-estimand=marginal-resplit  recipe=split-lottery  k=10  mean=0.787904  std=0.00733565
-suggested minimum_delta=0.0146713
+A `FAIL` cannot be recorded. Closing without a referee is allowed and disclosed:
+`klein finalize --no-referee --reason "…"` labels the study `unrefereed`.
 
-      minimum_delta: 0.0146713   # = max(2*std, range/2), std 0.00733565
-      noise_floor: {k: 10, std: 0.00733565, range: 0.023555, ...}
-next: edit study.yaml, then re-record the consult gate --note "..."
-```
-
-Paste that block into `study.yaml`. This study also declares a bound, which arms the
-detection-limit audit — the development partition's Bayes AUC, which `prepare.py`
-computed from the declared generating process:
-
-```yaml
-      bound:
-        ideal: 0.851112
-        on_infeasible: ack
-```
-
-Re-record the consult gate with a reason, commit the fixed machinery, and preflight:
+**The teaching report.** Write the seven sections under `report/sections/`
+(`klein explain tutorial`), then:
 
 ```bash
-uv run --no-sync klein gate record consult --study studies/16-quickstart-walkthrough \
-  --acknowledged-by quickstart-reader \
-  --note "minimum_delta set from the measured noise floor; metric.bound.ideal set to the development partition's Bayes AUC"
-git add studies/16-quickstart-walkthrough
-git commit -m "16-quickstart-walkthrough: the fixed machinery (prepare.py, train.py, references.yaml)"
-uv run --no-sync klein preflight --study studies/16-quickstart-walkthrough
+klein report build $S --title "30-my-question — what we learned"
+klein verify --study $S
 ```
 
-```
-[OK] git branch: current='experiments/16-quickstart-walkthrough'
-[OK] working tree: clean
-[OK] gate artifact hashes: match
-[OK] split fingerprint: current=a479c5f8…; recorded=a479c5f8…
-[OK] headroom: track 'primary': bound declared; no incumbent yet — audited at first keep
-summary: 21 checks, 0 failed
-```
-
-**What just happened.** The loop refuses a dirty tree, so the fixed machinery is
-committed before any experiment. `train.py`'s two candidate constants are committed
-parked at whichever rung you like — the first experiment's edit then really is a diff,
-and `run-one` refuses an unchanged surface. Protocols:
-[`.claude/skills/klein/references/sweep-rules.md`](../.claude/skills/klein/references/sweep-rules.md) and
-[`.claude/skills/klein/references/phase-ritual.md`](../.claude/skills/klein/references/phase-ritual.md).
-
----
-
-## 7. The loop — three candidate transactions
-
-The whole per-experiment diff is two constants:
-
-```python
-CANDIDATE = "logreg_raw"          # E0001: the anchor
-REFERENCE = None
-```
-
-The rest of `train.py` is fixed machinery, modelled on study 00's: it loads the prepared
-artifact, fits the candidate, and hands the predictions to `kleinlib.eval.evaluate(...)`,
-which prints the block the notary reads — `split_fingerprint`, `primary_metric`,
-`wall_seconds` — plus whatever you pass as `extra` (the `gap_in_floors` line that P1's
-rule keys on comes from there).
-
-Edit them, smoke-check off the loop, then hand the candidate to the notary:
-
-```bash
-cd studies/16-quickstart-walkthrough
-KLEIN_SMOKE=1 uv run --locked python train.py       # the ONE sanctioned off-loop check
-cd ../..
-uv run --no-sync klein run-one --study studies/16-quickstart-walkthrough --track primary \
-  --description "anchor: logistic regression on the raw features" --tests P1
-```
-
-```
-split_fingerprint: 7fc80089…
-primary_metric:    0.789861
-bayes_auc: 0.851112
-gap_to_ideal: 0.061251
-gap_in_floors: 4.1749
-E0001: keep metric=0.789861 commit=9eb82ab0
-```
-
-Second candidate: the same linear model, handed the generating process's own product
-term, with the anchor named as the reference so both are refitted on the same rows
-inside one run.
-
-```bash
-uv run --no-sync klein run-one --study studies/16-quickstart-walkthrough --track primary \
-  --description "the DGP's own interaction term, handed to the linear model" --tests P2
-```
-
-```
-gap_in_floors: 0.0157
-reference_auc: 0.789861
-delta_in_floors: 4.1592
-E0002: keep metric=0.850882 commit=90841279
-```
-
-The third candidate — a boosted tree told none of the true terms — was refused before
-it could run:
-
-```
-klein: error: track 'primary': headroom (0.850882 - 0.851112) / 0.0146713 = 0.016 < 1
-— no keep is arithmetically possible on this frontier (not even a perfect score clears
-minimum_delta); register awareness first: klein headroom ack ...
-```
-
-That is not advice, it is arithmetic: the whole distance left to the ceiling is smaller
-than the floor a keep must clear. Spending the run anyway is allowed — the prediction it
-adjudicates is about *failing* to clear a floor — but the closed door goes on the
-record first.
-
-```bash
-uv run --no-sync klein headroom ack --study studies/16-quickstart-walkthrough --track primary \
-  --acknowledged-by quickstart-reader \
-  --note "run-anyway: the door is closed — E0003 cannot become the incumbent, and is spent only to adjudicate P3"
-uv run --no-sync klein run-one --study studies/16-quickstart-walkthrough --track primary \
-  --description "a boosted tree, told none of the true terms" --tests P3
-```
-
-```
-delta_in_floors: -0.4488
-E0003: discard metric=0.844297 commit=af643378
-train.py restored to pre-candidate base f75b0d1a (= E0002's kept config); candidate
-stays resolvable at af643378
-```
-
-Look at what the loop wrote:
-
-```bash
-cat studies/16-quickstart-walkthrough/results.tsv
-uv run --no-sync klein status --study studies/16-quickstart-walkthrough
-```
-
-```
-E0001  primary  0.789861  keep     9eb82ab0  anchor: logistic regression on the raw features
-E0002  primary  0.850882  keep     90841279  the DGP's own interaction term; frontier improvement over 0.789861
-E0003  primary  0.844297  discard  af643378  a boosted tree; did not improve frontier by minimum_delta=0.0146713
-```
-
-```
-experiments: 3 (keep=2 discard=1 measured=0 crash=0)
-final holdout: primary=0/1
-predictions: 3 supported, 0 refuted, 0 inconclusive, 1 open
-evidence use: 0.50 (1/2 cited)
-```
-
-Each row's `manifest.json` carries what the derived table cannot: `base_commit`,
-`candidate_commit`, `code_patch_hash`, the four `fingerprints` (data, split,
-split_partition, environment), `decision_reason`, and every printed metric.
-
-**What just happened.** Three transactions, each committed before execution, each
-dispositioned by arithmetic on the contract you declared. The discard is evidence and
-stays resolvable in git. Record your reasoning in `program.md` as you go — `evidence
-use: 0.50` above is Klein telling you a run has not been mentioned again yet.
-
----
-
-## 8. The sealed run
-
-Each track gets one look at the held-out partition. Rehearse it first; the dry-run
-spends nothing and is mandatory.
-
-```bash
-uv run --no-sync klein gate record phase --study studies/16-quickstart-walkthrough \
-  --phase adaptive-1 --acknowledged-by quickstart-reader \
-  --note "3 of 3 experiments spent; frontier E0002; door closed at h=0.016"
-uv run --no-sync klein run-one --study studies/16-quickstart-walkthrough --track primary \
-  --final-test --dry-run
-uv run --no-sync klein run-one --study studies/16-quickstart-walkthrough --track primary \
-  --final-test --tests P4
-```
-
-```
-sealed dry-run OK: primary rehearsed on development data; nothing spent
-```
-
-```
-bayes_auc: 0.859075
-gap_in_floors: -0.0108
-delta_in_floors: 3.9335
-E0004: sealed (recorded as discard — confirmation evidence, excluded from the adaptive
-frontier) metric=0.859233 commit=9c0676c6
-```
-
-**What just happened.** The sealed score is a hair *above* that partition's Bayes
-ceiling. Nothing broke: the ceiling is the AUC of the true probabilities on one finite
-sample, and a fitted score can order those particular rows marginally better by luck.
-The two are indistinguishable — a hundredth of one measured floor apart. That is why
-the floor, and not the sign of a delta, decides anything.
-
----
-
-## 9. SYNTHESIZE — findings, then the claims lock
-
-Write `findings.md` from
-[`.claude/skills/klein/assets/findings-template.md`](../.claude/skills/klein/assets/findings-template.md) with its seven sections: ① verdicts
-carrying claim ids, ② the predictions copied from the ledger, ③ surprises, ④ advice,
-⑤ the profile's implications section, ⑥ literature, ⑦ next. Then build the machine
-surface underneath it.
-
-```bash
-uv run --no-sync klein claims init --study studies/16-quickstart-walkthrough
-uv run --no-sync klein claims pin --study studies/16-quickstart-walkthrough results results.tsv
-uv run --no-sync klein claims pin --study studies/16-quickstart-walkthrough aux aux_metrics.tsv
-uv run --no-sync klein claims pin --study studies/16-quickstart-walkthrough contract study.yaml
-uv run --no-sync klein claims pin --study studies/16-quickstart-walkthrough split_lottery sweeps/split_lottery.sidecar.tsv
-uv run --no-sync klein claims pin --study studies/16-quickstart-walkthrough data_card data_card.md
-uv run --no-sync klein claims number --study studies/16-quickstart-walkthrough anchor_auc \
-  --value 0.789861 --art results --claim C1 --precision 6
-# ... one `claims number` per headline value (fourteen here), then one `claims add`
-# per **[Cn]** line in findings.md:
-uv run --no-sync klein claims add --study studies/16-quickstart-walkthrough C3 \
-  --class research-discipline --strength exploratory \
-  --claim "Measure the floor before interpreting any delta: the split-lottery sweep put minimum_delta at 0.0146713, and the whole distance from the interaction rung to the ceiling is smaller than that, so every further development run on this track was arithmetically incapable of a keep" \
-  --numbers minimum_delta,floor_k,floor_std --evidence sweep:split_lottery,E0002
-uv run --no-sync klein claims verify --study studies/16-quickstart-walkthrough
-```
-
-```
-[OK] claims artifacts: 5 pinned artifacts hash as recorded
-[OK] claims presence: every claim id resolves in findings.md
-[OK] claims numbers: every pinned value is found in its artifact
-[OK] claims append-only: no claim or number removed or mutated across git history
-summary: 7 checks, 0 failed
-```
-
-**What just happened.** Every headline number now has a home in a hashed artifact and
-every claim a class, a strength and evidence that resolves. `confirmed` needs the evidence
-kinds the track's `confirmation.require` names, and a confirmed claim resting on one
-kind alone is flagged. Protocols:
-[`.claude/skills/klein/references/synthesis-protocol.md`](../.claude/skills/klein/references/synthesis-protocol.md) and
-[`.claude/skills/klein/references/claims-protocol.md`](../.claude/skills/klein/references/claims-protocol.md).
-
----
-
-## 10. REFEREE, finalize, receipt
-
-Gate 3 runs in a **fresh context, on a different model or tool or person** than the
-experimenter. Hand it the study directory and nothing else; it reads `findings.md`
-before `program.md`, runs the mechanical verifiers, applies the ten-check rubric, and
-writes `referee_report.md` whose first two lines are machine-read:
-
-```
-Verdict: PASS-WITH-NOTES
-Referee: quickstart-referee (Claude Code, claude-opus-5) · fresh context · independent-of-experimenter: no
-```
-
-Answer each note with a dated line in `program.md`, then:
-
-```bash
-uv run --no-sync klein verify --study studies/16-quickstart-walkthrough --numbers --evidence-use
-uv run --no-sync klein gate record referee --study studies/16-quickstart-walkthrough \
-  --acknowledged-by quickstart-reader
-uv run --no-sync klein finalize --study studies/16-quickstart-walkthrough
-uv run --no-sync klein verify --study studies/16-quickstart-walkthrough
-```
-
-```
-finalized: confirmed
-```
-
-```
-[OK] headroom: h = (0.850882 - 0.851112) / 0.0146713 = 0.016 < 1 — infeasible,
-     acknowledged by quickstart-reader at 2026-09-06T07:02:14Z: run-anyway: ...
-[OK] evidence use: evidence_use_rate 1.00 — all 3 non-keep run(s) and sweeps cited
-[OK] convergent evidence: 1 confirmed claim(s) cite two or more evidence kinds
-[OK] findings numbers: all 29 scanned numerals trace to 11 pinned source(s)
-summary: 33 checks, 0 failed
-```
-
-A `FAIL` verdict cannot be recorded. If you close a study without a referee at all,
-`klein finalize --no-referee --reason "..."` records the reason and labels the study
-`unrefereed` forever. Protocol:
-[`.claude/skills/klein/references/referee-protocol.md`](../.claude/skills/klein/references/referee-protocol.md).
-
----
-
-## 11. TUTORIAL — the teaching artifact
-
-The tutor writes seven HTML fragments; the builder does deterministic assembly.
-
-```bash
-ls studies/16-quickstart-walkthrough/report/sections
-uv run --no-sync python .claude/skills/klein/scripts/build_tutorial.py \
-  studies/16-quickstart-walkthrough --title "16-quickstart-walkthrough — a known truth, end to end"
-uv run --no-sync klein verify --study studies/16-quickstart-walkthrough
-```
-
-```
-01-question.html  02-method.html  03-data.html  04-journey.html
-05-findings.html  06-coding-advice.html  07-next-steps.html
-```
-
-```
-[build_tutorial] wrote <repo>/studies/16-quickstart-walkthrough/report/index.html
-(110,960 bytes, 0 inlined figure(s))
-```
-
-```
-[OK] tutorial numbers: all 25 rendered numerals trace to a pinned source
-summary: 34 checks, 0 failed
-```
-
-Math is authored as LaTeX in empty `data-math` attributes and typeset to SVG at build
-time; the executed `train.py` is included by reference with the run that executed it
-named (`<pre data-code="train.py" data-run="E0002">` — the final keep — read at that
-run's candidate commit, with a provenance line; a bare include of a mutable-surface
-file is refused, because the file on disk cannot say which run it was); `<!--EVIDENCE-->`
-becomes the claim totals and the referee's verdict read from `claims.lock` and
-`study_state.json`; `<!--LEDGER-->` becomes the results table; figures are
-base64-inlined, each with a `data-caption`. The acceptance guard fails the build on any
-external URL. Protocol:
-[`.claude/skills/klein/references/tutorial-spec.md`](../.claude/skills/klein/references/tutorial-spec.md).
-
----
-
-## 12. Optional — the generation layer
-
-Everything above audits the *verification* half of research. The opt-in generation
-layer records the other half: what you committed to **before** the evidence existed.
-It is schema-3 only, and a study that does not opt in is untouched by it.
-
-Opt in on a **fresh** study, before the consult gate — a commitment registered after
-seeing what it was supposed to constrain constrains nothing.
-
-```bash
-uv run --no-sync klein new 17-generation-demo \
-  --kind predict --modality tabular --profile generic \
-  --goal "Repeat the known-truth ladder with the generation layer switched on: does every run carry an admission receipt filed before it ran?" \
-  --domain synthetic --target y --task-type classification --family linear \
-  --audience "A reader who wants to see the opt-in generation layer on a real study." \
-  --metric val_auc --goal-direction higher \
-  --data "synthetic:prepare.py" --split-kind stratified --split-seed 20260906 \
-  --track primary --max-run-seconds 60
-git switch -c experiments/17-generation-demo
-git add studies/17-generation-demo
-git commit -m "17-generation-demo: scaffold"
-uv run --no-sync klein generation init --study studies/17-generation-demo \
-  --actor quickstart-reader --tool "Claude Code" --model "claude-opus-5" \
-  --session "quickstart-walkthrough"
-```
-
-```
-generation enabled: G0001 anchored at core sequence 1, manifest 4a02f511…,
-0 capability/ies declared
-```
-
-(`init` needs a clean tree — commit the scaffold first. Ten capabilities can be
-declared here; with none, you get the admission discipline alone.)
-
-Then set the study up exactly as steps 3–6, and file one admission receipt before every
-`run-one`:
-
-```bash
-uv run --no-sync klein generation check --study studies/17-generation-demo \
-  --action run --track primary --tests P1 --actor quickstart-reader \
-  --tool "Claude Code" --model "claude-opus-5" --session "quickstart-walkthrough"
-uv run --no-sync klein run-one --study studies/17-generation-demo --track primary \
-  --description "anchor: logistic regression on the raw features" --tests P1
-```
-
-```
-G0002 admitted: run on primary — object 6d828549…
-```
-
-The receipt binds the intended action to the exact bytes of the mutable surface:
-
-```json
-  "intended_action": {"kind": "run", "tests": ["P1"], "hypothesis_id": null},
-  "surface_files": [["train.py", "6b20cfb1…"]],
-  "verdict": "admitted"
-```
-
-If the check refuses, the refusal itself is written, hashed and committed — a refusal is
-evidence. Afterwards, the layer audits itself into a **separate** receipt, and the label
-needs both audits passing at the same HEAD:
-
-```bash
-uv run --no-sync klein generation verify --study studies/17-generation-demo
-uv run --no-sync klein verify --study studies/17-generation-demo
-uv run --no-sync klein generation label --study studies/17-generation-demo \
-  --actor quickstart-reader --tool "Claude Code" --model "claude-opus-5" \
-  --session "quickstart-walkthrough"
-```
-
-```
-[PASS] generation manifest — opt-in anchored at core sequence 1 before the consult gate
-[PASS] generation anchors — every anchor resolves against the core chain
-[PASS] generation admission — E0001: admitted
-[PASS] generation replay — every receipt was consumed by at most one run
-summary: 9 checks, 0 failed, 0 warned
-receipt: generation/verify_receipt.json
-```
-
-```
-label issued: generation-verified @ 4a6572fd (rung local-order)
-add this line to findings.md: Generation label: generation-verified @ 4a6572fd
-```
-
-**What just happened.** Chronology came from three local witnesses — the extension's
-own hash chain, its anchors into the core chain, and git ancestry — never a clock. The
-layer records, hashes and computes arithmetic on rows you wrote; it never proposes,
-ranks, selects, schedules or retries. Protocol:
-[`.claude/skills/klein/references/generation-protocol.md`](../.claude/skills/klein/references/generation-protocol.md).
-
----
+The result is one self-contained `report/index.html` that opens offline, with figures
+inlined, the code of a named run included, and every number traced to its source.
 
 ## Where to go next
 
-- **[`AGENTS.md`](../AGENTS.md)** — the canonical operating manual: the lifecycle, the stage map, the
-  inquiry model, the experiment-loop contract, schema discipline, and the war stories
-  behind every guard you met above. Read this one next.
-- **[`.claude/skills/klein/SKILL.md`](../.claude/skills/klein/SKILL.md)** — the stage router and the hard rules, for driving
-  Klein from Claude Code; the same table works by hand.
-- **The shipped studies table in [`README.md`](../README.md)** — finished studies across the axes —
-  predict, replicate and optimize; tabular, text and no data at all — plus the frozen
-  schema-2 exhibits. Read
-  [`studies/00-known-truth-quickstart`](../studies/00-known-truth-quickstart/) first; it is the study this walk-through is
-  modelled on, and its `program.md` shows how those decisions were actually reasoned.
-- **[`CONTRIBUTING.md`](../CONTRIBUTING.md)** — how to add a study, a protocol or a capability, and what the
-  test suite will hold you to.
+| You want to | Read |
+|---|---|
+| Know what a word means | `klein explain <word>` — [glossary](../.claude/skills/klein/references/glossary.md) |
+| See every command | [`cli.md`](cli.md) |
+| Understand the rules of the loop | [`AGENTS.md`](../AGENTS.md) — the operating manual |
+| Put Klein inside another product | [`embedding.md`](embedding.md) |
+| Know why it is built this way | [`design/klein-3-design.md`](design/klein-3-design.md) |
+| Record commitments before each action as well | the optional generation layer — `klein explain generation` |
+| Find an older study | [`studies/ARCHIVE.md`](../studies/ARCHIVE.md) |

@@ -91,8 +91,10 @@ from ..contract import normalize_tracks, registered_predictions
 from ..errors import WorkflowError
 from ..manifest import load_manifests
 from ..primitives import canonical_json, sha256_bytes, sha256_file
+from ..resources import asset_path
 from ..transaction import git_blob, relative
 from . import custody as gc
+from ._common import _fail, _pass, _warn
 from .chronology import run_started_events
 from .envelope import GENERATION_SCHEMA
 from .expert import _plain, joined
@@ -214,7 +216,7 @@ def read_benchmark_file(study_dir: Path) -> dict[str, Any]:
     if not path.is_file():
         raise WorkflowError(
             f"{BENCHMARK_NAME} does not exist — author it first "
-            "(`.claude/skills/klein/assets/benchmark-template.yaml`)"
+            "(`.claude/skills/klein/assets/generation/benchmark-template.yaml`)"
         )
     try:
         value = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -280,23 +282,16 @@ def bundle_bytes(path: Path) -> bytes:
 
 
 def packaged_schema(repo: Path | None) -> Path | None:
-    """The shipped ``benchmark-submission.schema.json``, if this install carries it.
+    """The shipped ``benchmark-submission.schema.json`` (``assets/generation/``), if any.
 
-    Looked for in the study's own repository first — a study vendored into a
-    foreign repo may carry its own copy of the skill tree — and then beside the
-    Klein source this process is running from.  A wheel install has neither, and
-    the custodian is then told to place the participant-facing schema in the
-    study by hand rather than having one invented for them.
+    Resolved through :func:`kleinlib.resources.asset_path`: the study's own
+    repository first — a study vendored into a foreign repo may carry its own copy
+    of the skill tree — then the installed package's ``_skill``, then the checkout
+    Klein runs from.  Only when none carries it is the custodian told to place the
+    participant-facing schema in the study by hand rather than having one invented
+    for them.
     """
-    roots: list[Path] = []
-    if repo is not None:
-        roots.append(repo)
-    roots.append(Path(__file__).resolve().parents[2])
-    for root in roots:
-        candidate = root / ".claude" / "skills" / "klein" / "assets" / SCHEMA_NAME
-        if candidate.is_file():
-            return candidate
-    return None
+    return asset_path(f"generation/{SCHEMA_NAME}", repo)
 
 
 def commitment_of(salt: bytes, payload: bytes) -> str:
@@ -1038,18 +1033,6 @@ CEILING_CHECK = "benchmark ceiling"
 #: precision are exact rationals over small integers, so the only honest source
 #: of a gap is the scorer's own print precision — six decimals costs 5e-7.
 PRINT_TOLERANCE = 1e-6
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
 
 
 def benchmark_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:

@@ -125,9 +125,14 @@ def _run(args: argparse.Namespace) -> int:
         print("  block keys outside tolerance: " + ", ".join(record["mismatched_keys"]))
     if not record.get("environment_match", True):
         print(
-            "  environment fingerprint differs from the original run — compare device, "
-            "library versions and thread counts before reading the difference"
+            "  this machine is not the one that ran it (the record holds both environments: "
+            "platform, machine, python, uv.lock)"
         )
+        if not record["reproduced"]:
+            print(
+                "  an iterative solver can move in its last digits across CPUs: read the "
+                "difference against the resolution the metric's contract declares"
+            )
     print(f"  record: {record['record']}")
     return 0 if record["reproduced"] else 1
 

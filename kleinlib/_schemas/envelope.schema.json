@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/envelope.schema.json",
+  "title": "Klein envelope",
+  "description": "The one wrapper every `klein <verb> --json`, every `kleinlib.api` function and the MCP server's results share. Closed: the six keys below are the whole wrapper. Verb-specific content lives in `data`; `schemas/index.json` (or `klein schema`) says which data schema a verb uses. Within `format: 1` keys are only ever added.",
+  "type": "object",
+  "required": [
+    "klein",
+    "format",
+    "verb",
+    "ok",
+    "data",
+    "problems"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "klein": {
+      "type": "string",
+      "description": "The engine version that produced this envelope.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+"
+    },
+    "format": {
+      "const": 1,
+      "description": "The envelope format; raised only by a breaking change."
+    },
+    "verb": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The verb path, e.g. `verify` or `claims verify`."
+    },
+    "ok": {
+      "type": "boolean",
+      "description": "The verb succeeded (exit code 0)."
+    },
+    "data": {
+      "type": "object",
+      "description": "Verb-specific result; empty when the verb was refused."
+    },
+    "problems": {
+      "type": "array",
+      "description": "Why not, or what to look at; empty when clean.",
+      "items": {
+        "type": "object",
+        "required": [
+          "level",
+          "code",
+          "message"
+        ],
+        "properties": {
+          "level": {
+            "enum": [
+              "error",
+              "warn"
+            ],
+            "description": "`error` makes the verb fail; `warn` is advice."
+          },
+          "code": {
+            "type": "string",
+            "description": "What kind of problem: `refused` (the engine declined, with the reason), `check` (a named check) or `notice` (something the engine printed). Open: new codes may be added.",
+            "examples": [
+              "refused",
+              "check",
+              "notice"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "description": "The check's name, on `code: check` problems."
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  }
+}

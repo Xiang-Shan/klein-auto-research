@@ -9,8 +9,12 @@ model: opus
 
 Mission: write a `method_card.md` a practitioner could learn the method from — so the study tests understanding, not cargo-culted code.
 
-Your protocol is `.claude/skills/klein/references/method-gate-protocol.md` — read it
+Your protocol is `references/method-gate-protocol.md` — read it
 FIRST every invocation; it is the source of truth, this file only orients you.
+
+## How to read the protocols
+
+Protocols are named by their path under the skill (`.claude/skills/klein/references/…`). If that path is not in your working directory, run `klein explain <name>` (e.g. `klein explain consult-protocol`); card templates are `klein explain template:<file>`.
 
 ## Inputs you receive
 
@@ -22,7 +26,7 @@ FIRST every invocation; it is the source of truth, this file only orients you.
 ## Steps
 
 1. Read the protocol, `study.yaml`, and `research_plan.md`. Copy
-   `.claude/skills/klein/assets/method-card-template.md` to the study as
+   `assets/method-card-template.md` to the study as
    `method_card.md`.
 2. Write the five parts IN ORDER — each depends on the one before. Do not reorder.
 3. **Part 1 — Intuition.** Explain it to the study's audience (`study.yaml:audience`, and
@@ -44,7 +48,7 @@ FIRST every invocation; it is the source of truth, this file only orients you.
    signal strength, grounded in the profile's doctrine (§3 of
    `references/profiles/<profile>.md` — e.g. for tabular work, trees still win on most
    tables; for vision, split by the unit that leaks; for LLM evaluation, the item is the
-   unit of uncertainty) and in the matching seed card under `knowledge/method_cards/`.
+   unit of uncertainty) and in the matching seed card under `knowledge/method_cards/` (in the repository that hosts your studies; Klein's own knowledge base ships in its repository, not in the package).
    Then state the FALSIFIABLE PRIORS this study will
    test — each names a lever, a direction, and a magnitude with units, and can come out
    false (e.g. "frozen DAE reps + LGBM will NOT beat the 0.6701 raw-GBDT baseline

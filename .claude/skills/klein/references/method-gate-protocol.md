@@ -38,7 +38,7 @@ On a study whose generation manifest declares `expertise`, this section also NAM
 baseline implementation and the fixture the reproduction obligation will run —
 `domain_card.md`'s `baseline.implementation` and `baseline.fixture`, whose existence
 and hashes are pinned by `klein generation expert lock`
-(`references/expert-protocol.md`). The card chooses from the locked
+(`references/generation/expert-protocol.md`). The card chooses from the locked
 `method_shortlist[]`; a method outside it is a decision to record in `program.md`.
 Then state the **falsifiable priors** this study will test — the specific, checkable
 predictions the card commits to. Mirror them into `study.yaml:predictions_to_falsify`.
@@ -75,7 +75,7 @@ Verify EACH reference — do not cite from memory:
 - **On an `expertise`-enabled study each verified row additionally carries `record_id`
   and `verification_level`**, mirroring a write-once record under
   `knowledge/references/<id>.json` (`klein generation reference record`;
-  `references/reference-protocol.md`). `refs_verified: true` then means every row is
+  `references/generation/reference-protocol.md`). `refs_verified: true` then means every row is
   verified AND every row has a record: a bare `verified: true` is insufficient, and a
   row without a resolvable `record_id` FAILs `expert references`.
 
@@ -102,13 +102,13 @@ With `data_card.md` = GO and `method_card.md` complete, the hard-block lifts and
 experiment loop can begin only after an acknowledgement is recorded:
 
 ```bash
-uv run --locked klein gate record method --study studies/NN-slug \
+klein gate record method --study studies/NN-slug \
   --acknowledged-by <actor>
 ```
 
 If METHOD is deliberately abbreviated or skipped, use `klein gate override method`
-with a non-empty reason and actor. Also note it in `program.md`; a prose-only v1
-fast-path does not satisfy v2 preflight.
+with a non-empty reason and actor. Also note it in `program.md`; a prose-only
+fast-path does not satisfy preflight.
 
 ## The triad contract
 

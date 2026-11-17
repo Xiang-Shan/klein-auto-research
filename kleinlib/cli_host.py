@@ -10,8 +10,9 @@ edits ``references.yaml`` in the working tree for the person to review and commi
 from __future__ import annotations
 
 import argparse
-import json
 from pathlib import Path
+
+from .api import emit
 
 
 def register(subparsers: argparse._SubParsersAction) -> None:
@@ -36,8 +37,8 @@ def register(subparsers: argparse._SubParsersAction) -> None:
 
     mcp = subparsers.add_parser(
         "mcp",
-        help="serve read-only Klein tools over MCP stdio (next, status, doctor, preflight, verify, "
-        "predictions, claims_verify, explain)",
+        help="serve read-only Klein tools over MCP stdio (list_studies, next, status, map, doctor, "
+        "preflight, verify, predictions, claims_verify, explain)",
     )
     mcp.add_argument("--root", type=Path, default=Path("."), help="repository root holding studies/")
     mcp.set_defaults(handler=_mcp)
@@ -56,15 +57,13 @@ def _refs_verify(args: argparse.Namespace) -> int:
     from .refs_net import verify_references
 
     results, recorded = verify_references(args.study, keys=args.key, record=args.record)
-    if args.json:
-        print(json.dumps([r.__dict__ for r in results] + [{"recorded": recorded}], indent=2))
-    else:
-        for result in results:
-            print(f"[{'ok' if result.ok else 'FAIL'}] {result.key}: {result.message}")
-        failed = sum(not r.ok for r in results)
-        print(f"summary: {len(results)} references, {failed} failed" + (f", recorded {len(recorded)}" if args.record else ""))
-        if recorded:
-            print("references.yaml edited — review the diff and commit it with the method card")
+    emit({"references": [r.__dict__ for r in results], "recorded": recorded})
+    for result in results:
+        print(f"[{'ok' if result.ok else 'FAIL'}] {result.key}: {result.message}")
+    failed = sum(not r.ok for r in results)
+    print(f"summary: {len(results)} references, {failed} failed" + (f", recorded {len(recorded)}" if args.record else ""))
+    if recorded:
+        print("references.yaml edited — review the diff and commit it with the method card")
     return 1 if any(not r.ok for r in results) else 0
 
 

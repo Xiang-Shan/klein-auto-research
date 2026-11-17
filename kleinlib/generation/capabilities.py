@@ -10,7 +10,7 @@ Two registries have to agree and neither may derive the other:
 DECLARE, and this module is what the spine can RUN.  ``manifest.py`` cannot
 import this module (``registry`` types against ``admission``/``verify``, which
 read the manifest), so the agreement is a checked invariant rather than a
-computed one: ``kleinlib/tests/test_generation_registry.py`` asserts
+computed one: ``kleinlib/tests/generation/test_generation_registry.py`` asserts
 ``set(load()) == set(SUPPORTED_CAPABILITIES)``.  Adding a name to one list and
 forgetting the other fails the suite immediately.
 

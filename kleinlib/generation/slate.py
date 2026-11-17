@@ -7,7 +7,7 @@ capability does not run that ritual, propose a candidate, or rank one: it
 ``<study>#Hn`` id, binds a run to the hypothesis it was admitted for, and at
 phase end **computes** the Brier score of the forecasts the driver typed.
 Arithmetic on authored rows, and the module is grep-guarded for exactly that in
-``kleinlib/tests/test_generation_slate.py``.
+``kleinlib/tests/generation/test_generation_slate.py``.
 
 Three properties are worth stating outright, because each closes a way of making
 a calibration number look better than the work was:
@@ -169,7 +169,7 @@ def read_slate_file(study_dir: Path, phase: str) -> dict[str, Any]:
     if not path.is_file():
         raise WorkflowError(
             f"{path.relative_to(study_dir).as_posix()} does not exist — author the slate "
-            "first (`.claude/skills/klein/assets/slate-template.yaml`)"
+            "first (`.claude/skills/klein/assets/generation/slate-template.yaml`)"
         )
     try:
         value = yaml.safe_load(path.read_text(encoding="utf-8"))

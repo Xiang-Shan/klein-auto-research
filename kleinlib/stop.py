@@ -42,7 +42,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from .contract import load_contract, normalize_tracks, schema_version
+from .contract import load_contract, normalize_tracks
 from .errors import WorkflowError
 from .events import append_event
 from .manifest import load_manifests
@@ -66,13 +66,7 @@ _NEUTRAL = frozenset({"crash"})
 
 
 def stop_spec(contract: Mapping[str, Any]) -> dict[str, Any] | None:
-    """The validated ``stop:`` block, or None when the study declared none.
-
-    Schema-3 only: a schema-2 study never negotiated a stop rule mid-flight and
-    is not going to start now.
-    """
-    if schema_version(contract) < 3:
-        return None
+    """The validated ``stop:`` block, or None when the study declared none."""
     block = contract.get("stop")
     if not isinstance(block, Mapping):
         return None

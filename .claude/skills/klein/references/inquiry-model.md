@@ -1,4 +1,4 @@
-# The inquiry model — what a Klein study IS (schema 3)
+# The inquiry model — what a Klein study IS
 
 Klein 1.x was a disciplined experiment loop: a `train.py` that improves a metric under
 a notary. Klein 2.0 keeps that loop and puts it inside a larger unit — **the inquiry**.
@@ -25,7 +25,7 @@ in the machine surface is hand-edited; nothing in the human surface is trusted w
 the machine surface behind it.
 
 **The evidence-design artifact supplements these five, on a study that asks for it.** A
-schema-3 study that opted into the generation layer with `--capability design` locks one
+study that opted into the generation layer with `--capability design` locks one
 `evidence_design.yaml` before the DATA gate, giving each object the fields it needs to
 say what a number MEANS rather than only what it was: the Question gains an estimand, a
 population, units, a measurement process, identification assumptions and an intended
@@ -36,7 +36,7 @@ acquisition ledger; the Claim gains a named warrant; the Decision gains a typed
 continuation with its predecessor and successor. **The id grammar below does not change
 and neither does any engine rule** — the artifact adds vocabulary a stranger can review,
 and the generation layer's `design` family checks only that it was locked first and has
-not moved since (`references/generation-protocol.md`, "Evidence design"). A study that
+not moved since (`references/generation/generation-protocol.md`, "Evidence design"). A study that
 does not opt in is untouched by all of it.
 
 **The Decision object is typed, and one of its types links two studies.** A decision is
@@ -49,7 +49,7 @@ with reasons, the concrete changed resource or assumption, unit-bearing estimate
 actual costs, and the condition that would close it — and **a pivot links a predecessor
 and a successor contract**, pinning both `study.yaml` hashes and the exposure the
 successor inherits. A successor id restores no blindness
-(`references/escalation-protocol.md`). Like every generation record, `<study>#Dn` is a
+(`references/generation/escalation-protocol.md`). Like every generation record, `<study>#Dn` is a
 sidecar id resolved by the extension: it is cited in prose, and reaches `claims.lock`
 only through an `art:` alias — see "Generation records" below.
 
@@ -80,6 +80,15 @@ CONFIRMS them in its summary — they are never a seventh interview question.
 | `replicate` | does reported result R reproduce | registered | the original's reported value, compared once | `[sealed]` | confirmed |
 | `discover` | what structure or hypotheses exist | registered (frontier for screening) | none — a discovery is a hypothesis, not a result | `[]` | exploratory; promotion needs a follow-up `test` study that cites it |
 | `optimize` | find an object that maximizes F, judged by a verifier | frontier | independent re-verification of the pinned artifact | `[verify]` | confirmed |
+
+**The sealed look is rehearsed, whatever "sealed" means for the kind.** `klein run-one
+--final-test --dry-run` runs the real entrypoint with `KLEIN_SEALED_DRYRUN=1`; the
+entrypoint must then use development evidence only and print `sealed_dryrun: 1`, and
+the notary refuses the sealed run until the track's latest rehearsal has passed on the
+same code. A row partition gets both from `kleinlib.data.load_partition`. An entrypoint
+with no row partition — a simulator drawing a fresh seed block, a search, a
+verifier-only construction — calls `kleinlib.data.sealed_dryrun()` once and, when it
+returns True, takes its development seeds, cells or instances instead of the sealed ones.
 
 Rules that follow from the table:
 
@@ -134,7 +143,7 @@ Rules that follow from the table:
 `klein claims verify` resolves every id a claim cites; an id that resolves nowhere fails
 the study.
 
-### Generation records (schema 3, opt-in)
+### Generation records (opt-in)
 
 A study that opted into the generation layer carries a second family of ids. They are
 **sidecar ids, resolved by `klein generation verify`** — the claims law does not know
@@ -143,11 +152,11 @@ them. They are always written fully qualified.
 
 | Form | Resolves to |
 |---|---|
-| `<study>#Hn` | one row of a locked hypothesis slate: its statement, track, forecast `p_success`, provenance, axis scores and `success_P` (`references/generation-protocol.md`, "Slates and calibration"). Permanent and never recycled; an admitted run binds to it through the receipt, never through prose. |
-| `<study>#Sn` | one surprise receipt: a violating segment of a registered discovery cell, with its pinned table (`references/surprise-protocol.md`). A **bare `S#` is a scouting-ledger entry**, not this. |
-| `<study>#Dn` | one escalation decision: the trigger it answers, the rung, the rungs skipped with reasons, the changed resource, its costs, and the condition that would close it (`references/escalation-protocol.md`). A pivot additionally links a predecessor and a successor contract. |
-| `knowledge/objects/<sha256>.json` | a promoted claim or method card, addressed by its own content hash rather than a `<study>#…` id, with its `promote` / `contest` / `resolve` transactions on `knowledge/events.jsonl` (`references/knowledge-protocol.md`) |
-| `generation/objects/<sha256>.json` | any other generation record with no id grammar of its own — an admission receipt, a benchmark commitment or reveal, a custody attestation — cited by its object sha (`references/planted-truth-protocol.md`) |
+| `<study>#Hn` | one row of a locked hypothesis slate: its statement, track, forecast `p_success`, provenance, axis scores and `success_P` (`references/generation/generation-protocol.md`, "Slates and calibration"). Permanent and never recycled; an admitted run binds to it through the receipt, never through prose. |
+| `<study>#Sn` | one surprise receipt: a violating segment of a registered discovery cell, with its pinned table (`references/generation/surprise-protocol.md`). A **bare `S#` is a scouting-ledger entry**, not this. |
+| `<study>#Dn` | one escalation decision: the trigger it answers, the rung, the rungs skipped with reasons, the changed resource, its costs, and the condition that would close it (`references/generation/escalation-protocol.md`). A pivot additionally links a predecessor and a successor contract. |
+| `knowledge/objects/<sha256>.json` | a promoted claim or method card, addressed by its own content hash rather than a `<study>#…` id, with its `promote` / `contest` / `resolve` transactions on `knowledge/events.jsonl` (`references/generation/knowledge-protocol.md`) |
+| `generation/objects/<sha256>.json` | any other generation record with no id grammar of its own — an admission receipt, a benchmark commitment or reveal, a custody attestation — cited by its object sha (`references/generation/planted-truth-protocol.md`) |
 
 An `Sn` is exploratory by construction: `klein generation verify` FAILs a `confirmed`
 claim that cites a discovery cell's table or names a receipt, and the confirmation is a
@@ -176,7 +185,7 @@ Beyond the six-axis interview, the consultant confirms:
 - `optimize`: the verifier (command, exactness, tolerance), the external incumbent with
   its source, and the vocabulary rule (found / matched / improved; never proved).
 
-## Per-kind verify rules (schema 3)
+## Per-kind verify rules
 
 `klein verify` applies the general checks to every study and adds, by kind:
 frontier kinds — headroom disclosed, incumbent chain monotone; registered kinds — every
@@ -198,17 +207,17 @@ is needed for a loop whose experiments happen outside the machine.
 
 | Study | kind | modality | mode | What the model made explicit |
 |---|---|---|---|---|
-| 03 noisy-rosenbrock | simulate | simulation | (schema 2) | known-truth lab; claims are in-silico |
-| 05 freMTPL2 gap forensics | predict | tabular | frontier | the gap needed two tracks to get two sealed numbers |
-| 06 hurricane return levels | estimate | tabular | (schema 2, hand-bent) | an estimate with CI, no incumbent — registered mode in disguise |
-| 07 iris 90 years | predict + control | tabular | frontier | headroom found by hand → the headroom law |
-| 08 iris rematch | test | tabular | (schema 2, hand-bent) | 21 challengers, 0 keeps at h = 1.015 |
-| 09 iris first lesson | test + simulate lane | tabular + simulation | (schema 2, hand-bent) | the 42-cell map lived beside the ledger → registered mode; `claims.lock` → the claims law; E1 → contract-driven splits |
 | 00 known-truth quickstart | predict | tabular (synthetic) | frontier | the headroom law shown against a KNOWN ideal |
-| 10 Hubble 1929 | replicate + estimate | tabular (24 rows) | registered | a prospective lock is not blindness, and says so |
+| 10 Hubble 1929 | replicate + estimate + simulate lanes | tabular (24 rows) | registered | a prospective lock is not blindness, and says so; one study kind, per-track overrides |
 | 11 exact-verifier construction | optimize | none | frontier | the checker is never the searcher |
 | 12 insurance claims frequency | predict | tabular | frontier | one profile, not the front door |
-| 13 char-LM fixed budget | predict | text | frontier | matched compute in steps; the training script never grades itself |
+| 20 LLM chain-of-thought contamination | test | text | registered | the item is the unit of uncertainty; a fresh sealed block as the contamination control |
+| 21 BloodMNIST CNN | predict | image | frontier | an index split of items, and a near-duplicate audit that blocked the gate |
+| 22 CNN data scaling | estimate | image | registered | seed-array cells and a fitted exponent with an interval; a sealed extrapolation |
+| 23 LaLonde causal replication | replicate + estimate lanes | tabular | registered | the lanes ARE the design: an experiment, then two observational comparison groups |
+
+The earlier exhibits (03, 05–09, 13, 15, 24) left the tree in 3.0 and are indexed in
+`studies/ARCHIVE.md`.
 
 ## Anti-patterns the model forbids
 

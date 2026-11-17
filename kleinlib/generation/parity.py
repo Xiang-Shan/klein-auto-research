@@ -97,6 +97,7 @@ from ..manifest import load_manifests
 from ..primitives import canonical_json, sha256_bytes, sha256_file
 from ..transaction import git_blob, relative
 from . import calibration, stats
+from ._common import _fail, _pass, _warn
 from .chronology import run_started_events
 from .envelope import GENERATION_SCHEMA
 from .expert import _plain, joined, latest, roster_experimenter, same_actor
@@ -208,7 +209,7 @@ def read_parity_file(study_dir: Path) -> dict[str, Any]:
     if not path.is_file():
         raise WorkflowError(
             f"{PARITY_NAME} does not exist — author it first "
-            "(`.claude/skills/klein/assets/parity-template.yaml`)"
+            "(`.claude/skills/klein/assets/generation/parity-template.yaml`)"
         )
     try:
         value = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -1005,18 +1006,6 @@ LOCK_CHECK = "parity lock"
 BIND_CHECK = "parity bind"
 CELL_CHECK = "parity cell"
 ASSESS_CHECK = "parity assessment"
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
 
 
 def _sequence(event: Mapping[str, Any]) -> int:

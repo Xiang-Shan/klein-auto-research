@@ -13,6 +13,12 @@ uv run --no-sync python scripts/verify_shipped_studies.py   # every shipped ledg
 uv run --locked python scripts/verify_e2e.py   # or: bash scripts/verify_e2e.sh
 ```
 
+The suites commit thousands of times in throwaway repositories. They never sign those
+commits, whatever your git configuration says (the root `conftest.py`; `klein demo` and
+`scripts/verify_e2e.py` do the same for their own repositories), so the tests neither
+prompt for a passphrase nor load a signing agent. Commits in a real study keep your
+signing settings.
+
 CI additionally runs Python 3.11–3.14, all-extras deep/GBDT tests, an 80% engine
 coverage floor, CPU reproduction anchors, macOS/Windows CLI smokes, and a clean
 wheel installation. Scheduled jobs check dependency resolution and Apple MPS.
@@ -27,8 +33,9 @@ These are load-bearing; PRs that renegotiate them will be declined:
 - **Executed studies are immutable history.** Never edit a shipped study's
   `results.tsv`, `findings.md`, `program.md`, `claims.lock`, or receipts. New
   results = new experiments in your own study; new knowledge = an erratum that
-  re-scopes, never a deletion. Schema-2 studies verify under schema-2 rules
-  forever — a schema-3 check is never enforced on them.
+  re-scopes, never a deletion. Klein 3 judges schema 3 only; an older study verifies
+  with the engine that notarized it (schema 2 at tag `v2.3.1`, version 1 at `v1.3.0`) —
+  see `studies/ARCHIVE.md`.
 - **One primary metric per track**; unrelated tasks use separate tracks and
   everything non-primary goes to `aux_metrics.tsv`; tables a registered cell
   produces are pinned with `artifact:` lines.
@@ -49,15 +56,17 @@ These are load-bearing; PRs that renegotiate them will be declined:
 - **Claims are locked and numbers have homes.** `claims.lock` is produced by
   `klein claims`, append-only across its git history; every numeral in findings,
   lock and tutorial is a copy of a pinned value. A PR that retypes a number fails.
-- **The referee is independent by mechanism.** Schema-3 `finalize` requires a
+- **The referee is independent by mechanism.** `finalize` requires a
   referee gate recorded from a report written in a fresh context, on a different
   model or tool than the experimenter wherever possible; the rung reached is on
   the record.
 
 ## Good contribution targets
 
-- New evaluator shapes (multiclass, survival, ranking) — with a worked study
-  proving them, per the repo's own ethos.
+- New evaluator shapes (detection mAP, which `kleinlib/eval_structured.py` deliberately
+  omits, or anything beyond the shipped binary, regression, multiclass, ranking,
+  survival and segmentation evaluators) — with a worked study proving them, per the
+  repo's own ethos.
 - New method cards under `knowledge/method_cards/` (intuition → math → minimal
   implementation → when-it-pays → verified references).
 - New studies: scaffold with `uv run --locked klein new NN-slug`, run the full

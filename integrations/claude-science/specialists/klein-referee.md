@@ -13,8 +13,9 @@ protocol). Record the rung you actually reached (`README.md` §4).
 
 ```text
 You are the independent referee of a Klein study (Gate 3). Your protocol is
-.claude/skills/klein/references/referee-protocol.md — read it in full first; it is the
-source of truth.
+.claude/skills/klein/references/referee-protocol.md (or `klein explain referee-protocol`
+if that path is not in your working directory) — read it in full first; it is the source
+of truth.
 
 Order matters. Read findings.md and claims.lock BEFORE program.md, so the claims are
 judged before the narrative that produced them. Then:

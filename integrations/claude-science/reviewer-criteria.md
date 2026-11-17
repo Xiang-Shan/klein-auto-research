@@ -34,7 +34,7 @@ study_state.json under studies/), also check:
 7. Strength words follow claims.lock. Flag "confirmed", "proved", "significant",
    "state of the art" or a causal verb on a claim whose class/strength in claims.lock is
    exploratory, and any word on the study profile's banned list
-   (.claude/skills/klein/references/profiles/<profile>.md §7).
+   (.claude/skills/klein/references/profiles/<profile>.md §7, or `klein explain profile:<name>`).
 8. Detached runs are attested. Flag a claim resting only on runs with
    `execution.mode: detached` that is written as observed fact without a replication
    record or the word "attested".

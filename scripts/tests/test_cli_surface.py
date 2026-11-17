@@ -13,11 +13,11 @@ from kleinlib.workflow import Check, WorkflowError
 def study(tmp_path: Path) -> Path:
     path = tmp_path / "study"
     path.mkdir()
-    (path / "study.yaml").write_text("goal: fixture\n", encoding="utf-8")
+    (path / "study.yaml").write_text("schema_version: 3\ngoal: fixture\n", encoding="utf-8")
     return path
 
 
-def test_cli_new_builds_v2_study(tmp_path: Path, capsys) -> None:
+def test_cli_new_builds_a_study(tmp_path: Path, capsys) -> None:
     rc = cli.main(
         [
             "new",
@@ -57,8 +57,6 @@ def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
         assert verb in top
 
     for argv, attr, expected in (
-        (["new", "x", "--schema-version", "2"], "schema_version", 2),
-        (["new", "x"], "schema_version", 3),
         (["new", "x", "--kind", "optimize"], "kind", "optimize"),
         (["new", "x", "--modality", "graph"], "modality", "graph"),
         (["new", "x", "--profile", "math"], "profile", "math"),
@@ -68,8 +66,8 @@ def test_cli_help_advertises_every_verb_and_the_schema_3_flags(capsys) -> None:
         (["new", "x", "--split-seed", "7"], "split_seed", 7),
         (["verify", "--require-local"], "require_local", True),
         # E9: the numbers law, the evidence-use checks and the receipt.  Absent
-        # means "the default for this study's schema", so a schema-2 study keeps
-        # printing byte-identical output; only an explicit flag changes it.
+        # means "the default for this study's schema"; only an explicit flag
+        # changes it.
         (["verify"], "numbers", None),
         (["verify"], "claims", None),
         (["verify"], "evidence_use", None),
@@ -179,25 +177,6 @@ def test_cli_run_status_recover_finalize_and_verify(monkeypatch, study: Path, ca
     }
 
 
-def test_cli_verify_reports_v1_errata_without_rewriting(monkeypatch, tmp_path: Path, capsys) -> None:
-    legacy = tmp_path / "legacy"
-    legacy.mkdir()
-    (legacy / "study.yaml").write_text("goal: legacy\n", encoding="utf-8")
-    ledger = legacy / "results.tsv"
-    ledger.write_text(
-        "experiment\tprimary_metric\tstatus\tcommit\tdescription\n"
-        "1\t0.5\tkeep\tabc1234\tbaseline\n",
-        encoding="utf-8",
-    )
-    before = ledger.read_bytes()
-    monkeypatch.setattr(cli, "resolve_study", lambda _path: legacy)
-    assert cli.main(["verify", "--study", str(legacy)]) == 0
-    out = capsys.readouterr().out
-    assert "deprecated v1 adapter" in out
-    assert "create a new v2 study" in out
-    assert ledger.read_bytes() == before
-
-
 def test_cli_doctor_help_and_text_and_json_smoke(capsys) -> None:
     with pytest.raises(SystemExit) as excinfo:
         cli.main(["doctor", "--help"])
@@ -214,7 +193,8 @@ def test_cli_doctor_help_and_text_and_json_smoke(capsys) -> None:
 
     assert cli.main(["doctor", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
-    assert "ok" in payload and "checks" in payload
+    assert payload["verb"] == "doctor" and payload["format"] == 1
+    assert "ok" in payload["data"] and "checks" in payload["data"]
 
 
 def test_cli_crash_exit_and_workflow_error(monkeypatch, study: Path, capsys) -> None:
@@ -253,7 +233,7 @@ def test_cli_claims_verbs_are_registered_with_help(capsys) -> None:
 
     flags = sub.choices["verify"].format_help()
     assert "--numbers" in flags and "--strict" in flags
-    assert "--from-legacy" in sub.choices["init"].format_help()
+    assert "--from-legacy" not in sub.choices["init"].format_help()  # lock schema 1 left in 3.0
     for flag in ("--value", "--art", "--claim", "--precision", "--note"):
         assert flag in sub.choices["number"].format_help(), flag
     for flag in ("--class", "--strength", "--claim", "--numbers", "--evidence"):

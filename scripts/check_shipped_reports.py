@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focused acceptance on the twelve SHIPPED tutorials, measured in a real browser.
+"""Focused acceptance on the SHIPPED tutorials, measured in a real browser.
 
 ``check_generated_tutorial_network.py`` proves a *freshly generated* tutorial
 starts zero HTTP(S) requests.  This script asks the complementary question the
@@ -23,14 +23,14 @@ Five checks per report:
    markup declares ``width``/``height``, they equal the natural size.
 5. ``print``    — one report is printed to PDF and its text re-read.
 
-Two kinds of report are shipped history, measured and reported but labelled
-``LEGACY`` and never able to fail the run: a schema-2 or v1 study (03, 05-09),
-and a schema-3 report built before the layout generation this check asserts
+A report built before the layout generation this check asserts is shipped history,
+measured and reported but labelled ``LEGACY`` and never able to fail the run
 (``build_tutorial.py`` stamps ``<meta name="generator" content="klein
 build_tutorial layout-N">``; a page without the tag predates the phone/print
-guarantees).  Only a current-generation schema-3 report's FAIL sets the exit
-code, so a stylesheet fix never turns the reports shipped before it red — the
-evidence record still carries every measurement.
+guarantees).  Only a current-generation report's FAIL sets the exit code, so a
+stylesheet fix never turns the reports shipped before it red — the evidence
+record still carries every measurement.  (Every shipped study is schema 3; the
+engine reads nothing older.)
 
 Measurement mechanism -- why an iframe wrapper
 ----------------------------------------------
@@ -48,7 +48,7 @@ websocket client.
 Resizing the ``<iframe>`` element (rather than launching one Chrome per width)
 re-evaluates the report's media queries against the frame's viewport, which is
 what a narrower phone would do -- one browser per report instead of four, which
-is what keeps a twelve-report run inside a few minutes.
+is what keeps a whole-corpus run inside a few minutes.
 
 Known browser defect (macOS): ``Google Chrome 152 --headless=new`` on macOS
 never returns from ``--dump-dom`` when the page contains ANY ``<iframe>`` --
@@ -64,7 +64,7 @@ Usage::
 
     uv run --locked python scripts/check_shipped_reports.py
     uv run --locked python scripts/check_shipped_reports.py \\
-        --studies 15-iris-90years-relaunch --evidence shipped-reports-evidence.json
+        --studies 00-known-truth-quickstart --evidence shipped-reports-evidence.json
 
 Exit code is 1 if any schema-3 report fails a check, 2 on a usage error (e.g. an
 unknown ``--studies`` name, or a browser that cannot be found), 0 otherwise.
@@ -99,7 +99,7 @@ DEFAULT_WIDTHS = (1440, 768, 390, 320)
 # tall and nothing is ever swallowed, so asserting there only adds noise.  The
 # measurement still runs at every width and lands in the evidence record.
 NAV_REVEAL_WIDTHS = (390, 320)
-DEFAULT_PRINT_STUDY = "15-iris-90years-relaunch"
+DEFAULT_PRINT_STUDY = "00-known-truth-quickstart"
 
 # Elements allowed to scroll horizontally INSIDE themselves.  A wide code block,
 # a wide ledger, a wide equation and the nav's own wrap are deliberate local
@@ -112,7 +112,6 @@ OVERFLOW_TOLERANCE_PX = 1
 
 # Top-level (column-0) key only -- nested contract keys are indented, so this
 # never matches inside a mapping.  Same idiom as verify_shipped_studies.py.
-SCHEMA_VERSION_RE = re.compile(r"^schema_version:\s*(\d+)", re.MULTILINE)
 RESULT_RE = re.compile(r'<pre id="result">([^<]*)</pre>')
 FIRST_CODE_BLOCK_RE = re.compile(r'<pre class="klein-code"[^>]*>(.*?)</pre>', re.DOTALL)
 TAG_RE = re.compile(r"<[^>]*>")
@@ -272,12 +271,6 @@ def discover_reports() -> list[Path]:
     )
 
 
-def schema_version(contract_text: str) -> int | None:
-    """The contract's top-level schema_version, or None when the key is absent (v1)."""
-    match = SCHEMA_VERSION_RE.search(contract_text)
-    return int(match.group(1)) if match else None
-
-
 #: The layout generation the current builder stamps into a page head
 #: (``build_tutorial.py`` ``LAYOUT_GENERATION``); a page without it, or with an
 #: older number, was built before the phone/print guarantees existed.
@@ -291,19 +284,14 @@ def layout_generation(report_html: str) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def legacy_reason(version: int | None, report_html: str = "") -> str | None:
+def legacy_reason(report_html: str = "") -> str | None:
     """Why a report is measured but never failed, or None when it is enforced.
 
-    Two kinds of history: a schema-2 or v1 STUDY (never rebuilt, its layout is
-    whatever its builder emitted), and a schema-3 report BUILT BEFORE the layout
-    generation this check asserts (the stylesheet fix landed after the page).
-    Both are measured and their numbers land in the evidence; neither can fail
-    the run, so a CSS change never turns the reports shipped before it red.
+    A report BUILT BEFORE the layout generation this check asserts (the
+    stylesheet fix landed after the page) is measured and its numbers land in
+    the evidence, but it cannot fail the run, so a CSS change never turns the
+    reports shipped before it red.
     """
-    if version is None:
-        return "schema v1 study"
-    if version < 3:
-        return f"schema {version} study"
     built_at = layout_generation(report_html)
     if built_at is None:
         return f"built before layout generation {LAYOUT_GENERATION} (no generator tag)"
@@ -312,8 +300,8 @@ def legacy_reason(version: int | None, report_html: str = "") -> str | None:
     return None
 
 
-def is_legacy(version: int | None, report_html: str = "") -> bool:
-    return legacy_reason(version, report_html) is not None
+def is_legacy(report_html: str = "") -> bool:
+    return legacy_reason(report_html) is not None
 
 
 def _repo_relative(path: Path) -> str:
@@ -519,8 +507,11 @@ def longest_code_line(report_html: str) -> str | None:
 
 
 def _squash(text: str) -> str:
-    """Whitespace-insensitive comparison: pdftotext re-spaces what it lays out."""
-    return " ".join(text.split())
+    """Whitespace-free comparison: pdftotext re-spaces what it lays out, and the
+    print stylesheet wraps a long code line (``pre-wrap``) at a bracket or paren
+    where the source had no space, so the wrap point is a line break the original
+    never had. Printed-but-wrapped is the guarantee; only CLIPPED text must fail."""
+    return "".join(text.split())
 
 
 def pdf_page_count(pdf_bytes: bytes) -> int:
@@ -783,7 +774,7 @@ def main(argv: list[str] | None = None) -> int:
         "--studies",
         nargs="+",
         metavar="SLUG",
-        help="restrict to these studies (directory name, e.g. 15-iris-90years-relaunch, or studies/<name>)",
+        help="restrict to these studies (directory name, e.g. 00-known-truth-quickstart, or studies/<name>)",
     )
     parser.add_argument("--chrome", help="Chrome/Chromium executable (auto-detected by default)")
     parser.add_argument(
@@ -883,7 +874,6 @@ def main(argv: list[str] | None = None) -> int:
 
         for study in selected:
             reason = legacy_reason(
-                schema_version((study / "study.yaml").read_text(encoding="utf-8")),
                 (study / "report" / "index.html").read_text(encoding="utf-8", errors="replace"),
             )
             legacy = reason is not None

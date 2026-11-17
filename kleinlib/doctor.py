@@ -68,6 +68,7 @@ def run_doctor(study_dir: Path | None = None, *, host: str | None = None) -> dic
         _probe_renderer(),
         _probe_device(),
         _probe_data_hub(),
+        _probe_plugins(),
     ]
     if study_dir is not None:
         checks.extend(_probe_study_source(Path(study_dir)))
@@ -94,6 +95,18 @@ def format_report(report: dict[str, Any]) -> str:
 # --------------------------------------------------------------------------
 # Individual probes
 # --------------------------------------------------------------------------
+
+
+def _probe_plugins() -> dict[str, Any]:
+    """Which plug-ins loaded, and any that failed (a failure never breaks a core verb)."""
+    from .plugins import load_errors, loaded_plugins
+
+    errors = load_errors()
+    loaded = ", ".join(loaded_plugins()) or "none"
+    if errors:
+        failed = "; ".join(f"{name}: {reason}" for name, reason in sorted(errors.items()))
+        return {"name": "plug-ins", "ok": False, "message": f"loaded: {loaded}; FAILED to load — {failed}"}
+    return {"name": "plug-ins", "ok": True, "message": f"loaded: {loaded}"}
 
 
 def _probe_python() -> dict[str, Any]:

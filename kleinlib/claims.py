@@ -10,15 +10,9 @@ ceilings, the seven-check claims law, and the numbers law.
 (``Cn`` -> class, strength, sentence, numbers[], evidence[], errata[]) and an
 ``errata`` registry.
 
-**Lock schema 1** is what studies 07, 08 and 09 hand-built before the engine
-produced locks: a NUMBERS ledger whose top-level ``claims`` map is what schema 2
-calls ``numbers``.  It is recognised by the ABSENCE of ``lock_schema``, verified
-under the reduced schema-1 rules the protocol lists (artifact hashes, numbers in
-their artifacts, claim ids present in findings, append-only history, ``git_head``
-resolvable) and NEVER rewritten.  Its quirks are real and load-bearing: artifact
-paths are repo-relative, ``art`` and ``artifact`` both occur, entries may be
-scalars (``"klein_version": "1.2.0"``), values may be strings or nested
-mappings, and ``claim`` may be ``"floor"``/``"contract"`` instead of a ``Cn``.
+**Lock schema 1** — a hand-built numbers ledger with no ``lock_schema`` key, used by
+the archived studies 07–09 — is not read by this engine: it verifies at tag
+``v2.3.1`` (``studies/ARCHIVE.md``), and every verb here refuses it with that pointer.
 
 Nothing here reaches the network — a ``ref:`` citation resolves against
 ``references.yaml``, and DOI liveness stays the referee's job.
@@ -65,7 +59,7 @@ __all__ = [
 #: The lock, study-relative.
 LOCK_NAME = "claims.lock"
 
-#: The shape this engine writes.  A lock without the key is schema 1.
+#: The shape this engine reads and writes.
 LOCK_SCHEMA = 2
 
 #: The five classes and the strongest strength each may ever carry
@@ -172,6 +166,9 @@ def lock_path(study_dir: Path) -> Path:
 
 
 def load_lock(study_dir: Path) -> dict[str, Any]:
+    """The study's lock.  Every claims verb reads it through here, so this is
+    also where a study of a schema this engine does not judge is refused."""
+    _require_judged_study(study_dir)
     path = lock_path(study_dir)
     if not path.is_file():
         raise WorkflowError(f"{LOCK_NAME} not found under {study_dir}")
@@ -189,10 +186,18 @@ def _parse_lock(text: str, where: str) -> dict[str, Any]:
 
 
 def detect_lock_schema(lock: Mapping[str, Any]) -> int:
-    """2 when the lock declares ``lock_schema``; 1 (the legacy ledger) otherwise."""
+    """The lock's schema — 2, the one this engine reads and writes.
+
+    A lock with no ``lock_schema`` is a hand-built schema-1 ledger (the archived
+    studies 07–09).  It is never rewritten and is not judged here: it verifies
+    with the engine that read it, at tag ``v2.3.1`` (``studies/ARCHIVE.md``).
+    """
     raw = lock.get("lock_schema")
     if raw is None:
-        return 1
+        raise WorkflowError(
+            "this claims.lock is a lock schema 1 ledger; Klein 3 reads lock schema "
+            f"{LOCK_SCHEMA} only — it verifies at tag v2.3.1 (commit 217cd46; studies/ARCHIVE.md)"
+        )
     try:
         return int(raw)
     except (TypeError, ValueError) as exc:
@@ -215,17 +220,13 @@ def write_lock(study_dir: Path, lock: Mapping[str, Any]) -> Path:
 
 
 def numbers_map(lock: Mapping[str, Any], schema: int | None = None) -> dict[str, Any]:
-    """The numbers ledger — schema 1 keeps it under ``claims``, schema 2 under ``numbers``."""
-    schema = detect_lock_schema(lock) if schema is None else schema
-    raw = lock.get("claims" if schema == 1 else "numbers")
+    """The numbers ledger: ``{alias: entry}``."""
+    raw = lock.get("numbers")
     return dict(raw) if isinstance(raw, Mapping) else {}
 
 
 def claims_map(lock: Mapping[str, Any], schema: int | None = None) -> dict[str, Any]:
-    """The ``Cn`` claim registry — empty for schema 1, which has no claim entries."""
-    schema = detect_lock_schema(lock) if schema is None else schema
-    if schema == 1:
-        return {}
+    """The ``Cn`` claim registry: ``{claim id: entry}``."""
     raw = lock.get("claims")
     return dict(raw) if isinstance(raw, Mapping) else {}
 
@@ -333,7 +334,7 @@ def _repo_root(study_dir: Path) -> Path | None:
 
 
 def _resolve_artifact(study_dir: Path, rel: str, repo: Path | None) -> Path | None:
-    """Study-relative first, then repo-relative (lock schema 1 pinned repo paths)."""
+    """Study-relative first, then repo-relative."""
     candidate = study_dir / rel
     if candidate.is_file():
         return candidate
@@ -351,10 +352,10 @@ def _resolve_artifact(study_dir: Path, rel: str, repo: Path | None) -> Path | No
 
 def _check_shape(lock: Mapping[str, Any], schema: int) -> list[Problem]:
     problems: list[Problem] = []
-    if schema not in (1, 2):
+    if schema != LOCK_SCHEMA:
         return [_fail(f"unknown lock_schema {schema} — this engine writes schema {LOCK_SCHEMA}")]
-    if not (lock.get("study_id") or lock.get("study")):
-        problems.append(_fail("missing study id ('study_id', or 'study' on lock schema 1)"))
+    if not lock.get("study_id"):
+        problems.append(_fail("missing 'study_id'"))
     if not isinstance(lock.get("git_head"), str) or not lock.get("git_head"):
         problems.append(_fail("missing or non-string 'git_head'"))
     if not isinstance(lock.get("law"), str) or not lock.get("law"):
@@ -376,24 +377,18 @@ def _check_shape(lock: Mapping[str, Any], schema: int) -> list[Problem]:
         if not isinstance(meta.get("sha256"), str):
             problems.append(_fail(f"artifact {alias!r}: missing 'sha256'"))
 
-    numbers = lock.get("claims" if schema == 1 else "numbers")
+    numbers = lock.get("numbers")
     if not isinstance(numbers, Mapping):
-        problems.append(
-            _fail(f"'{'claims' if schema == 1 else 'numbers'}' must be a mapping of alias -> entry")
-        )
+        problems.append(_fail("'numbers' must be a mapping of alias -> entry"))
         numbers = {}
     for alias, entry in numbers.items():
         if not isinstance(entry, Mapping):
-            if schema == 1:
-                # 07 pins "klein_version": "1.2.0" as a bare scalar.
-                problems.append(_warn(f"number {alias!r}: schema-1 scalar entry, not machine-checked"))
-            else:
-                problems.append(_fail(f"number {alias!r}: entry must be a mapping"))
+            problems.append(_fail(f"number {alias!r}: entry must be a mapping"))
             continue
         art = _art_alias(entry)
         if art is not None and art not in artifacts:
             problems.append(_fail(f"number {alias!r}: 'art' {art!r} is not a pinned alias"))
-        if schema == 2 and "value" not in entry:
+        if "value" not in entry:
             problems.append(_fail(f"number {alias!r}: missing 'value'"))
         precision = entry.get("precision", DEFAULT_PRECISION)
         if not isinstance(precision, int) or isinstance(precision, bool) or precision < 0:
@@ -413,9 +408,6 @@ def _check_shape(lock: Mapping[str, Any], schema: int) -> list[Problem]:
         klass = entry.get("class")
         if klass is not None and klass not in CLAIM_CLASSES:
             problems.append(_fail(f"number {alias!r}: unknown class {klass!r}"))
-
-    if schema == 1:
-        return problems
 
     problems.extend(_check_shape_schema2(lock, numbers))
     return problems
@@ -552,27 +544,10 @@ def _check_presence(study_dir: Path, lock: Mapping[str, Any], schema: int) -> li
     findings = study_dir / "findings.md"
     if not findings.is_file():
         message = "findings.md is missing — claim ids cannot be located"
-        return [_fail(message) if schema >= 2 else _warn(message)]
+        return [_fail(message)]
     text = findings.read_text(encoding="utf-8", errors="replace")
     numbers = numbers_map(lock, schema)
     claims = claims_map(lock, schema)
-
-    if schema == 1:
-        # Schema 1 is a numbers ledger: the claim ids it names must exist in
-        # findings, but findings legitimately carries claim ids the ledger never
-        # pinned a number for, so the reverse direction does not apply.
-        for alias, entry in numbers.items():
-            if not isinstance(entry, Mapping):
-                continue
-            cid = entry.get("claim")
-            if isinstance(cid, str) and CLAIM_ID_RE.match(cid):
-                # 07 writes "**[C1]**", 08 writes "**C1 · …**", 09 writes
-                # "**[C1] · class · strength.**" — match the id, not one layout.
-                if not re.search(rf"\b{cid}\b", text):
-                    problems.append(
-                        _fail(f"number {alias!r}: claim {cid} does not appear in findings.md")
-                    )
-        return problems
 
     marked = set(FINDINGS_MARKER_RE.findall(text))
     for cid in claims:
@@ -726,8 +701,6 @@ def _resolve_cross_study(study_dir: Path, evidence: str, match: re.Match[str]) -
 
 
 def _check_evidence(study_dir: Path, lock: Mapping[str, Any], schema: int) -> list[Problem]:
-    if schema == 1:
-        return []
     claims = claims_map(lock, schema)
     if not claims:
         return [_warn("no claims to resolve evidence for")]
@@ -780,10 +753,8 @@ def _check_numbers(
             literals[alias] = None if text is None else text_numerals(text)
         return literals[alias]
 
-    # A derived quantity (a ratio, a row count, a sum) is a real and honest thing
-    # to pin, and lock schema 1 pins several — so a value the artifact does not
-    # spell out is a warning there and a failure once the engine writes the lock.
-    missing_level = _warn if schema == 1 else _fail
+    # A pinned value must be spelled out in the artifact it names.
+    missing_level = _fail
 
     for alias, entry in numbers.items():
         if not isinstance(entry, Mapping):
@@ -822,7 +793,7 @@ def _check_numbers(
                 )
             )
 
-    if sentences and schema >= 2:
+    if sentences:
         problems.extend(
             _check_claim_sentences(
                 lock, schema, numbers, identifier_aware=identifier_aware_numerals(study_dir)
@@ -1099,16 +1070,14 @@ def verify_lock(study_dir: Path, *, numbers: bool = False, strict: bool = False)
         _roll_up(
             "claims evidence",
             _check_evidence(study_dir, lock, schema),
-            "every cited evidence id resolves"
-            if schema >= 2
-            else f"{label} carries no evidence lists — not applicable",
+            "every cited evidence id resolves",
             strict=strict,
         ),
         _roll_up(
             "claims numbers",
             _check_numbers(study_dir, lock, schema, repo, sentences=numbers),
             "every pinned value is found in its artifact"
-            + (" and every claim numeral has an alias" if numbers and schema >= 2 else ""),
+            + (" and every claim numeral has an alias" if numbers else ""),
             strict=strict,
         ),
         _roll_up(
@@ -1128,40 +1097,22 @@ def verify_lock(study_dir: Path, *, numbers: bool = False, strict: bool = False)
 
 def claims_checks(
     study_dir: Path,
-    contract_schema: int,
     *,
     sentences: bool | None = None,
     strict: bool = False,
 ) -> list[Check]:
-    """The claims law as ``klein verify`` runs it: enforcing on schema 3, advisory below.
+    """The claims law as ``klein verify`` runs it.
 
     Returns ``[]`` when the study has no lock — the law starts at SYNTHESIZE.
-    A schema-2 study (07, 08, 09 and every study written before the engine grew
-    these verbs) NEVER retro-fails: its failures come back as ``ok=True`` with a
-    ``[WARN]`` message.
-
     ``sentences`` adds check 5's claim-sentence numeral scan (``klein verify
-    --claims``); ``None`` means the schema default — on for schema 3, off below
-    it, so a schema-2 study's verify output is unchanged unless it is asked for.
+    --claims``); ``None`` means on.
     """
     if not lock_path(study_dir).is_file():
         return []
-    enforcing = contract_schema >= 3
-    sentences = enforcing if sentences is None else sentences
     try:
-        checks = verify_lock(study_dir, numbers=sentences, strict=strict)
+        return verify_lock(study_dir, numbers=True if sentences is None else sentences, strict=strict)
     except WorkflowError as exc:
-        if enforcing:
-            return [Check("claims lock", False, str(exc))]
-        return [Check("claims lock", True, f"[WARN] advisory on schema {contract_schema}: {exc}")]
-    if enforcing:
-        return checks
-    return [
-        check
-        if check.ok
-        else Check(check.name, True, f"[WARN] advisory on schema {contract_schema}: {check.message}")
-        for check in checks
-    ]
+        return [Check("claims lock", False, str(exc))]
 
 
 # --------------------------------------------------------------------------
@@ -1214,39 +1165,29 @@ def _commit(study_dir: Path, message: str) -> None:
 
 
 def _require_schema2(lock: Mapping[str, Any], verb: str) -> None:
-    if detect_lock_schema(lock) == 1:
-        raise WorkflowError(
-            f"claims {verb}: this is a lock schema 1 ledger (studies 07-09) and is never "
-            "rewritten — `klein claims init --from-legacy` migrates it into schema 2 first"
-        )
+    """A lock this engine cannot read is refused before any verb writes to it."""
+    detect_lock_schema(lock)
 
 
-def init_lock(study_dir: Path, *, from_legacy: bool = False, commit: bool = True) -> dict[str, Any]:
-    """Write the skeleton lock: claims from findings' ``**[Cn]**`` lines, numbers empty.
+def _require_judged_study(study_dir: Path) -> None:
+    """Refuse a study of a schema this engine does not judge, as every other verb does.
 
-    With ``from_legacy`` the study's existing lock schema 1 ledger is migrated
-    into schema 2 — its numbers keep their aliases, values, arts and claim ids
-    (so the append-only check reads straight through the migration), the classes
-    it recorded per number become the claims' classes, and the whole original map
-    is preserved verbatim under ``legacy`` so nothing is ever removed.
+    A directory with no ``study.yaml`` at all (a lock checked on its own) passes.
     """
+    if (study_dir / "study.yaml").is_file():
+        load_contract(study_dir)
+
+
+def init_lock(study_dir: Path, *, commit: bool = True) -> dict[str, Any]:
+    """Write the skeleton lock: claims from findings' ``**[Cn]**`` lines, numbers empty."""
     from . import __version__
 
+    _require_judged_study(study_dir)
     path = lock_path(study_dir)
-    legacy: dict[str, Any] | None = None
-    if from_legacy:
-        if not path.is_file():
-            raise WorkflowError(f"claims init --from-legacy: no {LOCK_NAME} to migrate")
-        legacy = load_lock(study_dir)
-        if detect_lock_schema(legacy) != 1:
-            raise WorkflowError(
-                f"claims init --from-legacy: {LOCK_NAME} is already lock schema "
-                f"{detect_lock_schema(legacy)}"
-            )
-    elif path.is_file():
+    if path.is_file():
         raise WorkflowError(
             f"{LOCK_NAME} already exists — `init` writes the skeleton once; use pin/number/"
-            "add/erratum afterwards (or --from-legacy to migrate a schema-1 ledger)"
+            "add/erratum afterwards"
         )
 
     sentences = _findings_claims(study_dir)
@@ -1263,32 +1204,6 @@ def init_lock(study_dir: Path, *, from_legacy: bool = False, commit: bool = True
         "errata": {},
     }
     classes: dict[str, str] = {}
-    if legacy is not None:
-        lock["law"] = legacy.get("law", DEFAULT_LAW)
-        lock["git_head"] = legacy.get("git_head") or lock["git_head"]
-        lock["legacy"] = {"lock_schema": 1, "claims": legacy.get("claims", {})}
-        study_prefix = f"studies/{study_dir.name}/"
-        for alias, meta in (legacy.get("artifacts") or {}).items():
-            if not isinstance(meta, Mapping):
-                continue
-            rel = str(meta.get("path", ""))
-            if rel.startswith(study_prefix):
-                rel = rel[len(study_prefix) :]
-            lock["artifacts"][alias] = {"path": rel, "sha256": meta.get("sha256")}
-        for alias, entry in numbers_map(legacy, 1).items():
-            migrated = _migrate_number(entry)
-            lock["numbers"][alias] = migrated
-            cid = migrated.get("claim")
-            klass = entry.get("class") if isinstance(entry, Mapping) else None
-            if isinstance(cid, str) and CLAIM_ID_RE.match(cid) and isinstance(klass, str):
-                classes.setdefault(cid, klass)
-        # A migrated number may name a claim findings never marked up: keep the
-        # claim rather than lose the pointer, with a placeholder to be replaced.
-        for migrated in lock["numbers"].values():
-            cid = migrated.get("claim")
-            if isinstance(cid, str) and CLAIM_ID_RE.match(cid):
-                sentences.setdefault(cid, f"(sentence for {cid} — copy it from findings.md)")
-
     for cid, sentence in sentences.items():
         aliases = sorted(
             alias
@@ -1309,37 +1224,6 @@ def init_lock(study_dir: Path, *, from_legacy: bool = False, commit: bool = True
     return lock
 
 
-def _migrate_number(entry: Any) -> dict[str, Any]:
-    """One schema-1 ledger entry as a schema-2 ``numbers`` entry, losing nothing."""
-    if not isinstance(entry, Mapping):
-        return {"value": entry, "migrated_from": "lock schema 1 scalar entry"}
-    migrated: dict[str, Any] = {}
-    if "value" in entry:
-        migrated["value"] = entry["value"]
-    else:
-        # 07's `ladder` / `crash_rung` / `rq_verdicts`: the whole mapping IS the value.
-        migrated["value"] = {
-            key: value
-            for key, value in entry.items()
-            if key not in {"art", "artifact", "claim", "class", "note", "erratum"}
-        }
-        migrated["migrated_from"] = "lock schema 1 entry without a 'value' key"
-    art = _art_alias(entry)
-    if art is not None:
-        migrated["art"] = art
-    for field in ("claim", "note"):
-        if field in entry:
-            migrated[field] = entry[field]
-    extras = {
-        key: value
-        for key, value in entry.items()
-        if key not in {"value", "art", "artifact", "claim", "class", "note"}
-    }
-    if extras and "value" in entry:
-        migrated["legacy_fields"] = extras
-    return migrated
-
-
 def pin_artifact(study_dir: Path, alias: str, rel_path: str, *, commit: bool = True) -> dict[str, Any]:
     """Pin one artifact by alias: study-relative POSIX path + sha256 of its bytes."""
     lock = load_lock(study_dir)
@@ -1354,6 +1238,14 @@ def pin_artifact(study_dir: Path, alias: str, rel_path: str, *, commit: bool = T
         posix = target.resolve().relative_to(study_dir.resolve()).as_posix()
     except ValueError as exc:
         raise WorkflowError(f"claims pin: {rel_path} escapes the study directory") from exc
+    from .probe import is_probe_path
+
+    if is_probe_path(posix):
+        raise WorkflowError(
+            f"claims pin: {posix} is a probe's output — a probe is a lead, never evidence "
+            "(references/exploration-protocol.md). Register what it suggested as a prediction "
+            "and pin the table of the run that tested it"
+        )
     artifacts = lock.setdefault("artifacts", {})
     entry = {"path": posix, "sha256": sha256_file(target)}
     artifacts[alias] = entry

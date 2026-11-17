@@ -42,7 +42,7 @@ Fragment contract
     (``git show``), so the page shows the cell the notary executed rather than
     the working tree. A missing manifest, key, object or git FAILS the build.
   - a bare include of a file in the mutable surface (``entrypoint.mutable``;
-    ``train.py`` below schema 3) FAILS: run-one RESTORES that surface, so the
+    ``train.py`` by default) FAILS: run-one RESTORES that surface, so the
     file on disk is the template, not any run's cell. Add ``data-run`` for the
     executed source, or ``data-role="template"`` to label it as the template.
   - anything outside the mutable surface (a verifier, ``lib/``, an analysis
@@ -407,11 +407,9 @@ def mutable_surface(meta: dict[str, Any]) -> tuple[str, ...]:
     """The study-relative files ONE candidate may change.
 
     COPIED from ``kleinlib.contract.mutable_surface``, never imported: the skill
-    directory must stay portable to a checkout that carries no kleinlib. Schema 2
-    has exactly one mutable file by construction and forever.
+    directory must stay portable to a checkout that carries no kleinlib. Defaults
+    to ``train.py`` when the contract declares no ``entrypoint.mutable``.
     """
-    if (meta.get("schema_version") or 0) < 3:
-        return ("train.py",)
     declared = tuple(str(item) for item in (meta.get("mutable") or []))
     return declared or ("train.py",)
 
@@ -602,10 +600,9 @@ def ledger_key(tracks: list[tuple[str | None, str, str | None]]) -> str:
 def build_ledger(study_dir: Path, meta: dict[str, Any] | None = None) -> str:
     """Auto-generate the experiment ledger table from results.tsv.
 
-    Track and Kind are shown only when the study actually records them: a
-    schema-2 results.tsv has no ``track`` column, and a v1 study has no run
-    manifests to read ``evaluation_kind`` from. An empty column would read as
-    missing data rather than as a schema that never had the field.
+    Track and Kind are shown only when the study actually records them (a
+    ``track`` column, run manifests carrying ``evaluation_kind``). An empty
+    column would read as missing data rather than as a field never recorded.
     """
     path = study_dir / "results.tsv"
     if not path.exists():
@@ -703,14 +700,12 @@ def build_evidence(study_dir: Path) -> str:
     operation on them — counting. Everything else is a verbatim string, and a
     record the study never wrote says so by name instead of being guessed at.
     """
-    meta = load_study_meta(study_dir)
-    schema = meta.get("schema_version") or 0
     rows: list[tuple[str, str]] = []
 
     lock = _read_json(study_dir / "claims.lock")
     claims = lock.get("claims") if isinstance(lock, dict) else None
     if lock is None or (lock.get("lock_schema") or 0) < 2 or not isinstance(claims, dict):
-        rows.append(("claims.lock", "not recorded (schema 2)" if schema < 3 else "not recorded"))
+        rows.append(("claims.lock", "not recorded"))
     else:
         entries = [v for v in claims.values() if isinstance(v, dict)]
         total = len(entries)
@@ -762,7 +757,7 @@ def build_evidence(study_dir: Path) -> str:
             reason = html.escape(str(referee.get("reason") or "no reason recorded"))
             rows.append(("referee", f"unrefereed (finalized with --no-referee: {reason})"))
         elif not isinstance(referee, dict):
-            rows.append(("referee", "not recorded (schema 2)" if schema < 3 else "not recorded"))
+            rows.append(("referee", "not recorded"))
         else:
             independent = "yes" if referee.get("independent_of_experimenter") else "no"
             rows.append(
@@ -1531,7 +1526,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "       In a foreign repo: uv add "
             '"klein-auto-research @ git+https://github.com/Xiang-Shan/'
-            'klein-auto-research@v2.0.0"',
+            'klein-auto-research@v3.0.0"',
             file=sys.stderr,
         )
         print("       Or directly:       uv add pygments ziamath latex2mathml", file=sys.stderr)

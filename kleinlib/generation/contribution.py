@@ -44,6 +44,7 @@ from typing import TYPE_CHECKING, Any
 
 from ..errors import WorkflowError
 from ..primitives import canonical_json, sha256_bytes
+from ._common import _fail, _pass, _warn
 from .envelope import GENERATION_SCHEMA
 from .expert import joined
 from .ledger import read_object
@@ -223,18 +224,6 @@ def record_problems(
 
 LEDGER_CHECK = "contribution ledger"
 COVERAGE_CHECK = "contribution coverage"
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
 
 
 def contribution_family(ctx: FamilyContext) -> tuple[list[Check], dict[str, Any]]:

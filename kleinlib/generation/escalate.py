@@ -72,6 +72,7 @@ from ..manifest import load_manifests
 from ..primitives import sha256_bytes, sha256_file
 from ..stop import consecutive_discards
 from ..transaction import git_blob, relative
+from ._common import _fail, _pass, _warn
 from .chronology import (
     gate_events,
     introducing_commit,
@@ -1096,18 +1097,6 @@ RECEIPT_CHECK = "escalation receipts"
 COST_CHECK = "escalation costs"
 PIVOT_CHECK = "escalation pivot"
 PREDECESSOR_CHECK = "escalation predecessor"
-
-
-def _fail(name: str, detail: str) -> Check:
-    return Check(name, "FAIL", detail)
-
-
-def _pass(name: str, detail: str) -> Check:
-    return Check(name, "PASS", detail)
-
-
-def _warn(name: str, detail: str) -> Check:
-    return Check(name, "WARN", detail)
 
 
 def _lock_order_problems(

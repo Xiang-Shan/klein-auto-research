@@ -15,6 +15,12 @@ simulator, or on nothing but a verifier — and it always closes the loop with m
 insights (`findings.md` + `claims.lock`), an independent referee's verdict, and a
 self-contained teaching tutorial (`report/index.html`).
 
+The aim of a study is that the researcher ends up **understanding more than the agent
+that ran it**, and a stranger can check why. Three habits serve it: *explore on the
+record* (`klein probe`), *read the study as a map* (`klein map`), *trust only what the
+notary witnessed* (`klein run-one`). Every term used here is defined once, in
+`.claude/skills/klein/references/glossary.md` (`klein explain <term>`).
+
 ## The study lifecycle
 
 Every study moves through seven stages, in order, past four gates:
@@ -96,7 +102,8 @@ this same table routed as the `/klein` skill.)
 
 | Stage | Protocol (source of truth) | Key outputs | Helper |
 |---|---|---|---|
-| scaffold | `references/defaults-and-scaffolding.md` | study dir + templates, typed by kind / modality / profile | `klein new` |
+| scaffold | `references/defaults-and-scaffolding.md` | study dir + templates, typed by kind / modality / profile | `klein new` (`klein demo` runs a tiny study live) |
+| EXPLORE (any time, incl. before Gate 0) | `references/exploration-protocol.md` | `probes.jsonl` — looks on the record, never claim evidence | `klein probe -- <command>` |
 | CONSULT | `references/consult-protocol.md` + `references/inquiry-model.md` | study.yaml (predictions with rules), research_plan.md, program.md, scouting_ledger.md | `klein doctor --study` |
 | DATA | `references/data-gate-protocol.md` + `references/data-sources.md` | data_card.md (modality-typed go/no-go) | `python -m kleinlib.profile_fallback`, `python -m kleinlib.leakage` |
 | METHOD | `references/method-gate-protocol.md` | method_card.md, references.yaml, the verifier script | `klein refs verify` (network: resolves every DOI / arXiv id, title match) |
@@ -104,15 +111,16 @@ this same table routed as the `/klein` skill.)
 | SWEEP | `references/sweep-rules.md` | trials → sidecar TSV, one winner transaction; measurement sweeps registered as `sweep:<name>` | `kleinlib.sweep.SweepRunner`, `klein sweep register` |
 | REPLICATE (any time after a run) | `references/replication-protocol.md` | `runs/E####/replications/<ts>.json` | `klein replicate E#### [--verify-only \| --replay]` |
 | MODEL CALLS (studies that query a model) | `references/model-calls-protocol.md` | `calls/E####-NNN.jsonl.gz`, `manifest.usage` | `kleinlib.calls.CallLedger`; `klein replicate --replay` |
-| SYNTHESIZE | `references/synthesis-protocol.md` + `references/claims-protocol.md` | findings.md, claims.lock | `.claude/skills/klein/scripts/summarize_results.py`, `klein predict list`, `klein claims …` |
+| SYNTHESIZE | `references/synthesis-protocol.md` + `references/claims-protocol.md` | findings.md, claims.lock | `klein summarize`, `klein map`, `klein predict list`, `klein claims …` |
 | REFEREE | `references/referee-protocol.md` | referee_report.md | `klein verify --numbers --evidence-use`, `klein claims verify`, then `klein gate record referee`; `klein finalize` after |
-| TUTORIAL | `references/tutorial-spec.md` + `references/profiles/<profile>.md` | report/index.html | `.claude/skills/klein/scripts/build_tutorial.py`, `figures/make_figures.py` |
-| status / next / verify (any time) | — | results_summary.md, progress.svg, verify_receipt.json | `klein next` (the one next action, read-only), `klein status [--json]`, `klein verify`, `summarize_results.py` |
-| host bridges (any time) | `integrations/claude-science/` | — (read-only; derivatives only) | `klein mcp` (read-only MCP server over stdio), `klein doctor --host <host>`, `klein notebook E####` (a run as a reading-copy `.ipynb`) |
+| TUTORIAL | `references/tutorial-spec.md` + `references/profiles/<profile>.md` | report/index.html | `klein report build`, the study's `figures/make_figures.py` |
+| status / next / map / verify (any time) | `references/glossary.md` | verify_receipt.json | `klein next` (the one next action, read-only), `klein status`, `klein map [--html]` (question → predictions → evidence → claims, and what is open), `klein verify`, `klein explain <term or stage>` |
+| host bridges (any time) | `docs/embedding.md`, `integrations/claude-science/` | — (read-only; derivatives only) | `klein <verb> --json` (one versioned envelope), `kleinlib.api`, `klein mcp` (read-only MCP server over stdio), `klein doctor --host <host>`, `klein notebook E####` |
 
-(`references/…` paths above live under `.claude/skills/klein/`; a bare `scripts/…`
-path means the repo root. Every helper is a plain CLI:
-`uv run --locked python <path> --help`.)
+(`references/…` paths above live under `.claude/skills/klein/`. They also ship inside
+the installed package: `klein explain <stage>` prints a protocol from any directory,
+and `klein skill install` copies the skill and the worker agents into a repository.
+Every verb is documented by `klein <verb> --help` and listed in `docs/cli.md`.)
 
 ## The inquiry model, in one paragraph
 
@@ -203,7 +211,16 @@ The standing rules around those layers:
 - `KLEIN_SMOKE=1 python <entrypoint>` is the ONE sanctioned off-loop smoke check;
   `run-one` force-clears the flag in its child so ambient smoke can never suppress
   real evidence. `klein run-one --final-test --dry-run` is the ONE sanctioned
-  rehearsal of a sealed run: it spends nothing and is mandatory before the real one.
+  rehearsal of a sealed run: it spends nothing, and the notary refuses the real one
+  unless the track's latest rehearsal passed — same command, same mutable surface and
+  scripts, a judgeable metric, within the time the sealed run is allowed
+  (`kleinlib/rehearsal.py` says what the rule covers and what it does not).
+- **Looking is done on the record.** `klein probe -- <command>` is the ONE sanctioned
+  way to look at data or behaviour outside a run — before the gates or after: bounded,
+  logged, hash-chained in `probes.jsonl`, fenced from the sealed partition
+  (`KLEIN_PROBE=1`), and never evidence for a claim. What a probe suggests is
+  registered as a prediction and decided by a run (`references/exploration-protocol.md`).
+  The consult gate records how many probes preceded it.
 - The ONE sanctioned escape-hatch is the sweep protocol
   (`references/sweep-rules.md`): every trial to a sidecar TSV, exactly one winner
   transaction, winner config snapshotted into the surface, winner model stored
@@ -236,19 +253,23 @@ The standing rules around those layers:
   needs BOTH that receipt and the core `klein verify` receipt passing at the same HEAD.
   The core never depends on it: a study that does not opt in is untouched, no core verb,
   receipt or disposition changes, and the layer never proposes, ranks, selects,
-  schedules or retries. `.claude/skills/klein/references/generation-protocol.md`.
-- Schema-2 studies (03, 05–09) keep verifying under schema-2 rules forever; none of
-  the schema-3 checks are enforced on them. Version-1 studies are readable at tag
-  `v1.3.0`. Nothing ever notarized is rewritten.
+  schedules or retries. `.claude/skills/klein/references/generation/generation-protocol.md`.
+- **One schema, and nothing notarized is ever rewritten.** Klein 3 reads and judges
+  schema 3 only. An older study is never re-judged by newer rules: it verifies with
+  the engine that notarized it — schema 2 at tag `v2.3.1`, version 1 at `v1.3.0` — and
+  every verb says so instead of guessing. Studies that left the tree are indexed in
+  `studies/ARCHIVE.md`, with their claim ids, so citations keep resolving.
 
 ## Schema discipline
 
 - The results schema lives ONLY in `kleinlib/schema.py`. Templates, docs, and
   scripts POINT there; none of them restate the column list.
-- `schema_version` selects the rule set: 2 (frozen) or 3 (Klein 2.0). A missing
-  `schema_version` is v1, readable only at tag `v1.3.0`. Registries that docs may
-  name: `KNOWN_PROFILES`, `KNOWN_MODALITIES`, `MODALITY_CARD_SECTIONS`,
-  `VALID_STATUSES`, `EVALUATOR_PRINTED_KEYS`.
+- `schema_version: 3` is the one study schema (`kleinlib.contract.SCHEMA_VERSION`).
+  The three axes of the inquiry model live in ONE registry, `kleinlib/inquiry.py`:
+  kinds are closed (a kind changes judging); modalities and profiles are open, and a
+  plug-in may register more (`kleinlib/plugins.py`). Registries that docs may name:
+  `KNOWN_PROFILES`, `KNOWN_MODALITIES`, `MODALITY_CARD_SECTIONS`, `VALID_STATUSES`,
+  `EVALUATOR_PRINTED_KEYS`.
 - Track metrics carry their own name, direction, minimum delta, guardrails, optional
   bound, exactness, external incumbent, and verifier. `keep` means a frontier
   improvement on that track satisfying those guardrails; `measured` is a registered
@@ -266,26 +287,13 @@ The standing rules around those layers:
 
 ## War stories (why the guards exist)
 
-- pandas string-dtype broke `dtype == "object"` checks and silently skipped
-  categorical handling → all dtype checks are value-pattern checks now.
-- On Apple-silicon MPS, DataLoader + TensorDataset silently collapsed predictions
-  to a constant → torch loops use streamed index-shuffle batches, and evaluators
-  reject non-finite or near-constant predictions.
-- A 4-column vs 5-column schema drift between two docs corrupted `results.tsv`
-  appends → the schema is single-sourced in `kleinlib/schema.py` and drift-tested.
-- class-weight reweighting ruined calibration on weak-signal insurance data → the
-  insurance profile's doctrine: `class_weight=None` + isotonic + threshold tuning.
-- torch + LightGBM in one process SIGSEGV on macOS arm64 → two-stage process
-  isolation; the runner preserves the subprocess status.
-- A declared guardrail that was never printed dispositioned a healthy run `discard`
-  → every evaluator prints `wall_seconds`; preflight checks guardrail visibility.
-- A measured floor larger than the incumbent's whole distance to perfection put the
-  keep bar below zero and nobody noticed for a study → `metric.bound` + headroom.
-- An evaluator hardcoded a retired split seed and a whole ledger lane measured the
-  wrong partition; the lock's numeral scan caught it a study later → contract-driven
-  splits with a printed fingerprint the notary checks; errata re-scope.
-- A study's only sealed access was spent by a crash before any data was read →
-  the sealed dry-run, mandatory before every real sealed run.
+Every guard above was paid for by a failure that actually happened — a dtype check
+that silently skipped categoricals, a device that collapsed predictions to a constant,
+a guardrail that was never printed, a keep bar below zero, an evaluator that measured
+the wrong partition, a sealed access spent by a crash. The stories, each with the guard
+it produced, are in `.claude/skills/klein/references/war-stories.md`
+(`klein explain war-stories`); the lessons that generalize are promoted in
+`knowledge/research-discipline.md`.
 
 ## Worker roles (optional parallelization)
 
@@ -318,7 +326,12 @@ protocols always spell out both paths.
   Jules, Zed, …): you are already set — ask for "a Klein study on `<your data>`,
   following the stage map in AGENTS.md".
 - **Claude Code**: the `/klein` skill routes the same stages; `CLAUDE.md` imports
-  this manual.
+  this manual. In any other project, install Klein as a plug-in
+  (`/plugin install klein --marketplace Xiang-Shan/klein-auto-research`): it brings the
+  skill, the eight worker agents, a `klein` launcher and the read-only MCP server.
+- **A host product** (an agentic BI or notebook product embedding Klein): three
+  equivalent seams, one envelope — `kleinlib.api` in Python, `klein <verb> --json` on
+  the command line, `klein mcp` for reading (`docs/embedding.md`).
 - **Claude Science**: the kit in `integrations/claude-science/` — import the skill
   from GitHub, install the engine (PyPI wheel, or uv with `UV_PROJECT_ENVIRONMENT`),
   add the `klein-researcher` Specialist and the Reviewer criteria, wire `klein mcp`
@@ -341,8 +354,8 @@ protocols always spell out both paths.
 - **No agent at all**: follow the stage map by hand — each protocol is a
   human-readable runbook and each helper is a plain CLI.
 
-This matrix is re-verified at each release — live driver smokes and official-doc
-citations are filed under `docs/reviews/`.
+This matrix is re-verified at each release; which rows were exercised live is recorded
+in that release's `CHANGELOG.md` entry.
 
 ## Run commands
 
@@ -350,26 +363,14 @@ citations are filed under `docs/reviews/`.
   `uv run --locked pytest`), never bare `python`. CI may use `uv run --no-sync`
   immediately after a successful `uv sync --locked` to prove it is not mutating the
   environment. `klein doctor` reports what this machine can run without fetching.
-- The opt-in generation layer adds one verb group, `klein generation
-  init|check|verify|label|status|recover`, plus one sub-group per declared capability
-  (`generation expert lock|amend|bind|repair|review` and `generation reference record`
-  for `expertise`; `generation slate lock|amend|score|show` for `slates`; `generation
-  design lock` for `design`; `generation premortem record|respond` for `premortem`;
-  `generation parity lock|amend|bind|assess|show` for `parity`; `generation
-  contribution record|show` for `contribution`; `generation escalate
-  lock|record|close|pivot|show` for `escalation`; `generation knowledge
-  promote|contest|resolve|query|decide|show` for `knowledge`; `generation surprise
-  register|record|show` for `surprise`; `generation benchmark
-  commit|submit|reveal|retire|show` for `benchmark`), plus `generation custody attest`,
-  which belongs to no capability and any generation-enabled study may record. It is
-  schema-3 only and writes
-  nothing outside `<study>/generation/` except the human artifacts a capability names —
-  `domain_card.md`, `slates/<phase>.yaml`, `evidence_design.yaml`,
-  `premortem/<phase>.yaml`, `parity.yaml`, `ai_value.jsonl`, `escalation_plan.yaml`,
-  `discovery_cells.yaml`, `benchmark.yaml`, the copied
-  `benchmark-submission.schema.json` and `submissions/<arm>.json` at the study root,
-  and repo-level `knowledge/references/<id>.json`, `knowledge/objects/<sha256>.json`
-  and `knowledge/events.jsonl`.
+- The opt-in generation layer is a plug-in (`kleinlib/generation/`, loaded through
+  `kleinlib/plugins.py`). It adds one verb group, `klein generation
+  init|check|verify|label|status|recover`, one sub-group per declared capability
+  (`expert`, `reference`, `slate`, `design`, `premortem`, `parity`, `contribution`,
+  `escalate`, `knowledge`, `surprise`, `benchmark`) and `generation custody attest`;
+  every sub-verb is listed in `docs/cli.md`. It writes nothing outside
+  `<study>/generation/` except the human artifacts a capability names
+  (`references/generation/generation-protocol.md` lists them).
 - `uv sync --locked` to set up; extras compose and must be named together:
   `uv sync --locked --extra gbdt --extra deep` (naming only some extras removes
   the others from the environment). `KLEIN_OFFLINE=1` refuses every network data

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/text.schema.json",
+  "title": "Text fallback data",
+  "description": "The `data` of a verb with no structured output: whatever it printed, as one string. A verb that fails before printing has an empty `data` instead.",
+  "type": "object",
+  "properties": {
+    "text": {
+      "type": "string",
+      "description": "Everything the verb wrote to standard output."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "text"
+    ]
+  }
+}

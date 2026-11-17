@@ -124,18 +124,43 @@ TOOLS: list[dict[str, Any]] = [
     },
     {
         "name": "explain",
-        "description": "Return a stage's protocol (the source of truth) as markdown. Topics: "
-        + ", ".join(sorted(STAGE_PROTOCOLS)),
+        "description": "Return a protocol (the source of truth) or a glossary term as markdown. "
+        "A stage name (" + ", ".join(sorted(STAGE_PROTOCOLS)) + "), a protocol name, "
+        "`profile:<name>`, or a term such as `gate`, `notary`, `headroom`. An empty topic lists "
+        "everything that can be explained.",
         "inputSchema": {
             "type": "object",
-            "properties": {"topic": {"type": "string", "enum": sorted(STAGE_PROTOCOLS)}},
-            "required": ["topic"],
+            "properties": {"topic": {"type": "string"}},
             "additionalProperties": False,
         },
+    },
+    {
+        "name": "map",
+        "description": "The study's evidence graph: questions, predictions, runs, claims and "
+        "decisions as nodes; which run tests which prediction and supports which claim as edges; "
+        "`open` (what must be resolved before closing) and `leads` (where a follow-up would start).",
+        "inputSchema": _STUDY,
     },
 ]
 for _tool in TOOLS:
     _tool["annotations"] = {"readOnlyHint": True, "destructiveHint": False, "openWorldHint": False}
+
+def _plugin_tools() -> dict[str, tuple[dict[str, Any], Any]]:
+    from .plugins import mcp_tools
+
+    return {name: entry for name, entry in mcp_tools().items() if name not in _CORE_TOOL_NAMES}
+
+
+def all_tools() -> list[dict[str, Any]]:
+    """The core tools plus any a plug-in registered — every one annotated read-only."""
+    extra = [
+        {**definition, "annotations": dict(TOOLS[0]["annotations"])}
+        for definition, _handler in _plugin_tools().values()
+    ]
+    return [*TOOLS, *extra]
+
+
+_CORE_TOOL_NAMES = frozenset(tool["name"] for tool in TOOLS)
 
 INSTRUCTIONS = (
     "Klein keeps a notarized research ledger. These tools only read it. Start with `next` for a "
@@ -241,29 +266,42 @@ class KleinMCP:
 
     def claims_verify(self, args: Mapping[str, Any]) -> tuple[str, Any]:
         from .claims import claims_checks
-        from .contract import load_contract, schema_version
+        from .contract import load_contract
 
         study = self.study(args.get("study"))
-        result = _checks(claims_checks(study, schema_version(load_contract(study))))
+        load_contract(study)  # refuses a study this engine does not judge
+        result = _checks(claims_checks(study))
         if not result["checks"]:
             return "no claims.lock yet — the claims law starts at SYNTHESIZE", result
         return _checks_text(result), result
 
     def explain(self, args: Mapping[str, Any]) -> tuple[str, Any]:
-        topic = str(args.get("topic") or "")
-        if topic not in STAGE_PROTOCOLS:
-            raise WorkflowError(f"unknown topic {topic!r}; one of: {', '.join(sorted(STAGE_PROTOCOLS))}")
-        path = self.root / ".claude" / "skills" / "klein" / "references" / STAGE_PROTOCOLS[topic]
-        if not path.is_file():
-            raise WorkflowError(f"{path} not found — run the server with --root at a Klein repository")
-        text = path.read_text(encoding="utf-8")
-        return text, {"topic": topic, "path": str(path.relative_to(self.root))}
+        from .resources import explain_topic
+
+        # The host repository's own copy of a protocol wins; otherwise the text
+        # comes from the installed package, so `explain` works with no checkout.
+        result = explain_topic(str(args.get("topic") or ""), self.root)
+        return result["text"], {key: value for key, value in result.items() if key != "text"}
+
+    def map(self, args: Mapping[str, Any]) -> tuple[str, Any]:
+        from .study_map import build_map, format_map
+
+        data = build_map(self.study(args.get("study")))
+        return format_map(data), data
 
     # ------------------------------------------------------------- dispatch
     def call(self, name: str, arguments: Mapping[str, Any]) -> dict[str, Any]:
         handler: Callable[[Mapping[str, Any]], tuple[str, Any]] | None = (
             getattr(self, name, None) if name in {t["name"] for t in TOOLS} else None
         )
+        if handler is None and name in _plugin_tools():
+            # A plug-in's read-only tool: called with the server root and the arguments.
+            plugged = _plugin_tools()[name][1]
+            root = self.root
+
+            def handler(arguments: Mapping[str, Any]) -> tuple[str, Any]:
+                return plugged(root, arguments)
+
         if handler is None:
             return {"content": [{"type": "text", "text": f"unknown tool {name!r}"}], "isError": True}
         try:
@@ -308,7 +346,7 @@ class KleinMCP:
         if method == "ping":
             return ok({})
         if method == "tools/list":
-            return ok({"tools": TOOLS})
+            return ok({"tools": all_tools()})
         if method == "tools/call":
             name = params.get("name")
             if not isinstance(name, str):

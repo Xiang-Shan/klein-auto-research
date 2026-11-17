@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/map.schema.json",
+  "title": "klein map",
+  "description": "The study as an evidence graph: question to predictions to evidence to claims to decisions, and what is still open (`kleinlib.study_map.build_map`). A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "study": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "kind": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "modality": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "profile": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "label": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "`confirmed` or `exploratory` once finalized; null before."
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "question": {
+          "type": "integer"
+        },
+        "run": {
+          "type": "integer"
+        },
+        "probe": {
+          "type": "integer"
+        },
+        "prediction": {
+          "type": "integer"
+        },
+        "claim": {
+          "type": "integer"
+        },
+        "decision": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "question",
+        "run",
+        "probe",
+        "prediction",
+        "claim",
+        "decision"
+      ],
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "label"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "question",
+              "run",
+              "probe",
+              "prediction",
+              "claim",
+              "decision"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "prior": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "question nodes"
+          },
+          "track": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "run and prediction nodes"
+          },
+          "disposition": {
+            "enum": [
+              "keep",
+              "discard",
+              "measured",
+              "crash",
+              null
+            ],
+            "description": "run nodes"
+          },
+          "metric": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "run nodes"
+          },
+          "metric_name": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "run nodes"
+          },
+          "sealed": {
+            "type": "boolean",
+            "description": "run nodes: a sealed final-test run"
+          },
+          "verdict": {
+            "enum": [
+              "supported",
+              "refuted",
+              "inconclusive",
+              "open",
+              null
+            ],
+            "description": "prediction nodes"
+          },
+          "rule": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "prediction nodes"
+          },
+          "strength": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "claim nodes"
+          },
+          "claim_class": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "claim nodes"
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "claim nodes"
+          },
+          "errata": {
+            "type": "array",
+            "description": "claim nodes"
+          },
+          "date": {
+            "type": "string",
+            "description": "decision nodes"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "e.g. supports, answers, predicts, decides, or a prediction verdict. Open."
+          }
+        },
+        "required": [
+          "from",
+          "to",
+          "type"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "open": {
+      "type": "array",
+      "description": "Items that must be resolved before the study can close honestly.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "message"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "leads": {
+      "type": "array",
+      "description": "Legitimate final states that say where a follow-up would start.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "id",
+          "message"
+        ],
+        "additionalProperties": true
+      }
+    },
+    "html": {
+      "type": "string",
+      "description": "Only with `klein map --html`: the path of the page written."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "study",
+      "goal",
+      "kind",
+      "modality",
+      "profile",
+      "status",
+      "label",
+      "gates",
+      "tracks",
+      "counts",
+      "nodes",
+      "edges",
+      "open",
+      "leads"
+    ]
+  }
+}

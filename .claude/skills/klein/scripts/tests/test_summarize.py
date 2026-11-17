@@ -68,7 +68,7 @@ class TestMetricDetection:
         assert summarize_module.infer_goal("val_logloss", None) == "lower"
         assert summarize_module.infer_goal("log_loss", None) == "lower"
 
-    def test_primary_direction_is_required_without_v1_override(
+    def test_primary_direction_is_required(
         self, summarize_module, tmp_path
     ):
         path = write_tsv(tmp_path, CANONICAL)
@@ -144,7 +144,7 @@ class TestSummary:
         )
         (tmp_path / "study.yaml").write_text(
             (
-                "schema_version: 2\n"
+                "schema_version: 3\n"
                 "tracks:\n"
                 "  severity:\n"
                 "    metric: {name: mean_pinball, goal: lower, minimum_delta: 0.0}\n"
@@ -171,7 +171,7 @@ class TestSummary:
         )
         path = write_tsv(tmp_path, content)
         (tmp_path / "study.yaml").write_text(
-            "schema_version: 2\ntracks:\n  primary:\n"
+            "schema_version: 3\ntracks:\n  primary:\n"
             "    metric: {name: val_auc, goal: higher, minimum_delta: 0.0}\n",
             encoding="utf-8",
         )
@@ -198,7 +198,7 @@ class TestSummary:
         )
         (tmp_path / "study.yaml").write_text(
             (
-                "schema_version: 2\n"
+                "schema_version: 3\n"
                 "tracks:\n"
                 "  primary:\n"
                 "    metric:\n"
@@ -229,7 +229,7 @@ class TestSummary:
         )
         (tmp_path / "study.yaml").write_text(
             (
-                "schema_version: 2\n"
+                "schema_version: 3\n"
                 "tracks:\n"
                 "  primary:\n"
                 "    metric: {name: val_auc, goal: higher, minimum_delta: 0.0}\n"
@@ -267,7 +267,7 @@ class TestSummary:
         )
         (tmp_path / "study.yaml").write_text(
             (
-                "schema_version: 2\n"
+                "schema_version: 3\n"
                 "tracks:\n"
                 "  a: {metric: {name: score_a, goal: higher}}\n"
                 "  b: {metric: {name: score_b, goal: lower}}\n"
@@ -287,7 +287,7 @@ class TestSummary:
         )
         (tmp_path / "study.yaml").write_text(
             (
-                "schema_version: 2\n"
+                "schema_version: 3\n"
                 "tracks:\n"
                 "  main: {metric: {name: score, goal: higher}}\n"
             ),

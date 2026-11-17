@@ -16,9 +16,8 @@ Features
 
 - Header-based TSV parsing (never positional) — a results.tsv with reordered
   columns parses identically to the canonical order.
-- higher/lower goal support read from ``study.yaml``. A missing/ambiguous direction
-  is an error; ``--goal`` exists only as an explicitly warned v1 compatibility
-  override.
+- higher/lower goal read from the track's ``metric.goal`` in ``study.yaml``
+  (schema 3 only). A missing/ambiguous direction is an error.
 - ``results_summary.md`` (frontier + keep/discard/crash counts) and
   ``progress.svg`` (stdlib SVG line/scatter plot).
 - Aux panels: ``--aux <metric> [--aux-goal higher|lower]`` renders a top-10
@@ -26,9 +25,9 @@ Features
   format: experiment / metric / value), alongside the primary metric. Two
   panels — ``val_brier`` (lower) and ``val_lift_top10`` (higher) — render
   automatically whenever the sidecar exists and carries those metrics.
-- Phase telemetry: schema-v2 studies get it from ``runs/E####/manifest.json``
+- Phase telemetry: a study gets it from ``runs/E####/manifest.json``
   (each manifest names its ``phase`` and ``wall_seconds``) measured against the
-  contract's ``budget_seconds``/``max_experiments``. Legacy v1: when a
+  contract's ``budget_seconds``/``max_experiments``. Without run manifests: when a
   ``study.yaml`` with a ``phases:`` block (each
   phase: ``id``, ``budget_h``, and an experiment range) sits next to
   results.tsv, and ``wall_seconds`` rows exist in the aux sidecar, a
@@ -123,13 +122,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("results_path", type=Path, help="Path to results.tsv")
     parser.add_argument("--metric-col", help="Metric column name. Defaults to auto-detect.")
     parser.add_argument(
-        "--goal",
-        choices=("higher", "lower"),
-        help="Deprecated v1-only override. V2 direction comes from study.yaml.",
-    )
-    parser.add_argument(
         "--track",
-        help="V2 research track. Required when study.yaml declares multiple tracks.",
+        help="Research track. Required when study.yaml declares multiple tracks.",
     )
     parser.add_argument("--title", help="Optional plot title override.")
     parser.add_argument("--summary-out", type=Path, help="Output markdown path.")
@@ -191,9 +185,8 @@ def _configured_primary_contract(
     study_yaml_path: Path,
     *,
     requested_track: str | None,
-    v1_goal_override: str | None,
-) -> tuple[int, str | None, str | None, str]:
-    """Return ``(version, track, metric_name, goal)`` without guessing direction."""
+) -> tuple[str, str, str]:
+    """Return ``(track, metric_name, goal)`` from a schema-3 contract, never guessing."""
     data: object = None
     if study_yaml_path.is_file() and yaml is not None:
         try:
@@ -201,65 +194,39 @@ def _configured_primary_contract(
         except Exception as exc:
             raise ValueError(f"could not parse metric direction from {study_yaml_path}: {exc}") from exc
     if not isinstance(data, dict):
-        if v1_goal_override:
-            print(
-                "[WARN] --goal is a deprecated v1 compatibility override; add metric.goal to study.yaml",
-                file=sys.stderr,
-            )
-            return 1, None, None, v1_goal_override
         raise ValueError(
             f"metric direction unavailable: {study_yaml_path} is missing or unreadable; refusing to guess"
         )
-    try:
-        version = int(data.get("schema_version", 1))
-    except (TypeError, ValueError) as exc:
-        raise ValueError("study.yaml schema_version is invalid") from exc
-    if version not in {1, 2}:
-        raise ValueError(f"unsupported study.yaml schema_version: {version}")
-    if version == 2:
-        if v1_goal_override:
-            raise ValueError("--goal cannot override a schema-v2 track contract")
-        raw_tracks = data.get("tracks")
-        tracks: dict[str, dict[str, object]] = {}
-        if isinstance(raw_tracks, dict):
-            tracks = {str(k): dict(v) for k, v in raw_tracks.items() if isinstance(v, dict)}
-        elif isinstance(raw_tracks, list):
-            for item in raw_tracks:
-                if isinstance(item, dict) and item.get("id"):
-                    tracks[str(item["id"])] = dict(item)
-        if requested_track is None:
-            if len(tracks) != 1:
-                raise ValueError(
-                    f"study declares {len(tracks)} tracks; pass --track to avoid a misleading global frontier"
-                )
-            requested_track = next(iter(tracks))
-        if requested_track not in tracks:
-            raise ValueError(f"unknown track {requested_track!r}; choose one of {sorted(tracks)}")
-        metric = tracks[requested_track].get("metric")
-        if not isinstance(metric, dict):
-            raise ValueError(f"track {requested_track!r} has no metric contract")
-        goal = metric.get("goal")
-        name = metric.get("name")
-        if goal not in {"higher", "lower"} or not isinstance(name, str) or not name:
-            raise ValueError(f"track {requested_track!r} metric name/goal is unavailable")
-        return version, requested_track, name, str(goal)
-
-    if requested_track is not None:
-        raise ValueError("--track is available only for schema-v2 studies")
-    metric = data.get("metric")
-    configured_goal = metric.get("goal") if isinstance(metric, dict) else None
-    configured_name = metric.get("name") if isinstance(metric, dict) else None
-    if v1_goal_override:
-        print(
-            "[WARN] --goal is a deprecated v1 compatibility override; prefer metric.goal in study.yaml",
-            file=sys.stderr,
-        )
-        return version, None, str(configured_name) if configured_name else None, v1_goal_override
-    if configured_goal not in {"higher", "lower"}:
+    version = data.get("schema_version")
+    if version != 3:
         raise ValueError(
-            f"metric direction unavailable in {study_yaml_path}; refusing to infer it from the metric name"
+            f"{study_yaml_path} declares schema_version {version!r}; this summarizer reads "
+            "schema_version: 3 studies only (older studies verify at tag v1.3.0, or v2.3.1 = commit 217cd46)"
         )
-    return version, None, str(configured_name) if configured_name else None, str(configured_goal)
+    raw_tracks = data.get("tracks")
+    tracks: dict[str, dict[str, object]] = {}
+    if isinstance(raw_tracks, dict):
+        tracks = {str(k): dict(v) for k, v in raw_tracks.items() if isinstance(v, dict)}
+    elif isinstance(raw_tracks, list):
+        for item in raw_tracks:
+            if isinstance(item, dict) and item.get("id"):
+                tracks[str(item["id"])] = dict(item)
+    if requested_track is None:
+        if len(tracks) != 1:
+            raise ValueError(
+                f"study declares {len(tracks)} tracks; pass --track to avoid a misleading global frontier"
+            )
+        requested_track = next(iter(tracks))
+    if requested_track not in tracks:
+        raise ValueError(f"unknown track {requested_track!r}; choose one of {sorted(tracks)}")
+    metric = tracks[requested_track].get("metric")
+    if not isinstance(metric, dict):
+        raise ValueError(f"track {requested_track!r} has no metric contract")
+    goal = metric.get("goal")
+    name = metric.get("name")
+    if goal not in {"higher", "lower"} or not isinstance(name, str) or not name:
+        raise ValueError(f"track {requested_track!r} metric name/goal is unavailable")
+    return requested_track, name, str(goal)
 
 
 def maybe_float(value: str | None) -> float | None:
@@ -443,7 +410,7 @@ def build_aux_section(
 #
 # A flat `min`/`max` directly on the phase (instead of nested under
 # `experiments`/`experiment_range`/`range`) is also accepted.
-# NOTE: `min_experiments`/`max_experiments` (v1 study.yaml phases) are
+# NOTE: `min_experiments`/`max_experiments` (a phase's stop-rule counts) are
 # COUNT bounds for the phase stop rule, not ID ranges — they are deliberately
 # ignored here. A phase without an explicit ID range gets no telemetry row.
 
@@ -978,21 +945,13 @@ def main(argv: list[str] | None = None) -> int:
         fieldnames = reader.fieldnames
 
     study_yaml_path = args.study_yaml or results_path.with_name("study.yaml")
-    version, track, configured_metric, goal = _configured_primary_contract(
+    track, configured_metric, goal = _configured_primary_contract(
         study_yaml_path,
         requested_track=args.track,
-        v1_goal_override=args.goal,
     )
-    if version >= 2:
-        metric_col = pick_metric_column(fieldnames, args.metric_col or "primary_metric")
-    else:
-        requested_metric_col = args.metric_col
-        if requested_metric_col is None and configured_metric in fieldnames:
-            requested_metric_col = configured_metric
-        metric_col = pick_metric_column(fieldnames, requested_metric_col)
+    metric_col = pick_metric_column(fieldnames, args.metric_col or "primary_metric")
     _, rows = read_results(results_path, metric_col)
-    if version >= 2:
-        rows = [row for row in rows if (row.raw.get("track") or "").strip() == track]
+    rows = [row for row in rows if (row.raw.get("track") or "").strip() == track]
 
     # Aux panels — degrade gracefully when the sidecar is missing/unreadable.
     aux_path = args.aux_path or results_path.with_name("aux_metrics.tsv")

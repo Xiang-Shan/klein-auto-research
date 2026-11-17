@@ -3,7 +3,7 @@
 Pure functions over plain lists of ``(p, y)`` pairs.  Nothing here reads a file,
 touches git, or knows what a slate is: the arithmetic is separated from the
 bookkeeping so it can be hand-checked against a textbook on three numbers
-(``kleinlib/tests/test_generation_slate.py`` does exactly that).
+(``kleinlib/tests/generation/test_generation_slate.py`` does exactly that).
 
 **This module scores forecasts; it never produces, ranks or selects them.**  It
 has no notion of a candidate, and every ``p`` it sees was typed by the driver

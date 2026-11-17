@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/skill-path.schema.json",
+  "title": "klein skill path",
+  "description": "Where the skill and the worker agents resolve from on this machine. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "skill": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agents": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "skill",
+      "agents"
+    ]
+  }
+}

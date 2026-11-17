@@ -44,6 +44,7 @@ import yaml
 
 from ..errors import WorkflowError
 from ..primitives import sha256_bytes, sha256_file
+from ..resources import skill_root
 from .envelope import GENERATION_SCHEMA
 
 __all__ = [
@@ -119,7 +120,7 @@ CAPABILITY_DEPENDENCIES: dict[str, tuple[str, ...]] = {
 
 #: Where the SPINE's protocol lives, relative to the skill root.  Hashing it
 #: pins WHICH rules a receipt was taken under.
-SPINE_PROTOCOL = "references/generation-protocol.md"
+SPINE_PROTOCOL = "references/generation/generation-protocol.md"
 
 #: The protocol file each capability's rules are written in, if it has one of
 #: its own.  ``slates`` and ``design`` are documented inside the spine protocol
@@ -128,14 +129,14 @@ SPINE_PROTOCOL = "references/generation-protocol.md"
 #: capability was actually taken under — pinning only the spine's file left the
 #: nine documents that decide almost everything unhashed.
 CAPABILITY_PROTOCOLS: dict[str, str] = {
-    "expertise": "references/expert-protocol.md",
-    "premortem": "references/premortem-protocol.md",
-    "parity": "references/expert-parity-protocol.md",
-    "contribution": "references/expert-parity-protocol.md",
-    "surprise": "references/surprise-protocol.md",
-    "escalation": "references/escalation-protocol.md",
-    "knowledge": "references/knowledge-protocol.md",
-    "benchmark": "references/planted-truth-protocol.md",
+    "expertise": "references/generation/expert-protocol.md",
+    "premortem": "references/generation/premortem-protocol.md",
+    "parity": "references/generation/expert-parity-protocol.md",
+    "contribution": "references/generation/expert-parity-protocol.md",
+    "surprise": "references/generation/surprise-protocol.md",
+    "escalation": "references/generation/escalation-protocol.md",
+    "knowledge": "references/generation/knowledge-protocol.md",
+    "benchmark": "references/generation/planted-truth-protocol.md",
 }
 
 #: Kept as the spine's own single-element view, for readers that want "the
@@ -152,9 +153,11 @@ def protocol_keys(capabilities: Sequence[str] = ()) -> tuple[str, ...]:
             keys.append(key)
     return tuple(keys)
 
-#: The skill directory, relative to the study's REPOSITORY root.  When Klein is
-#: installed as a dependency of a foreign repo the directory is absent; the hash
-#: is then recorded as null and drift simply cannot be observed (a WARN, never a
+#: The skill directory in a checkout, relative to a REPOSITORY root.  The protocol
+#: files themselves are resolved through :func:`kleinlib.resources.skill_root`
+#: (the repository's own copy first, then the package's ``_skill``), so a wheel
+#: install hashes the same files a checkout does.  Only when no skill tree exists
+#: anywhere is a hash recorded as null and drift unobservable (a WARN, never a
 #: FAIL — see :mod:`kleinlib.generation.verify`).
 SKILL_ROOT = ".claude/skills/klein"
 
@@ -213,10 +216,16 @@ def capability_problems(capabilities: Sequence[str]) -> list[str]:
 def protocol_hashes(
     repo_root: Path | None, capabilities: Sequence[str] = ()
 ) -> dict[str, str | None]:
-    """sha256 of each protocol file, or null when the skill tree is absent."""
+    """sha256 of each protocol file, or null when the skill tree is absent.
+
+    Keys stay the skill-relative paths (``references/generation/<name>.md``); the
+    files are found by :func:`kleinlib.resources.skill_root` — the host repository's
+    copy first, then the packaged one — so this works from an installed wheel too.
+    """
+    root = skill_root(repo_root)
     hashes: dict[str, str | None] = {}
     for key in protocol_keys(capabilities):
-        path = None if repo_root is None else repo_root / SKILL_ROOT / key
+        path = None if root is None else root / key
         hashes[key] = sha256_file(path) if path is not None and path.is_file() else None
     return hashes
 

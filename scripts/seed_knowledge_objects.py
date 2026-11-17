@@ -2,7 +2,7 @@
 """One-off: seed ``knowledge/objects/`` from the markdown that is already there.
 
 `knowledge/` has carried typed claim citations since v1 — ``(supports
-09-iris-first-lesson#C3)`` in the prose, and an optional ``claims:`` list in the
+21-bloodmnist-cnn#C3)`` in the prose, and an optional ``claims:`` list in the
 frontmatter.  Those citations already say which claims the framework's durable
 lessons lean on; this script turns each of them into a store object so a later
 study's ``klein generation knowledge query`` can find them.
@@ -59,7 +59,6 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from kleinlib.claims import (  # noqa: E402
     claims_map,
-    detect_lock_schema,
     load_lock,
     verify_lock,
 )
@@ -165,13 +164,7 @@ def main(argv: list[str] | None = None) -> int:
                 skipped.append(f"{doc.name}: {study_name}#{claim_id} — lock does not verify")
                 continue
             lock = load_lock(study_dir)
-            schema = detect_lock_schema(lock)
-            if schema < 2:
-                # A schema-1 lock's `claims` map IS its numbers ledger: it has no
-                # claim sentences to promote, only pinned values.
-                skipped.append(f"{doc.name}: {study_name}#{claim_id} — lock schema 1")
-                continue
-            entry = claims_map(lock, schema).get(claim_id)
+            entry = claims_map(lock).get(claim_id)
             if not isinstance(entry, dict):
                 skipped.append(f"{doc.name}: {study_name}#{claim_id} — not in the lock")
                 continue

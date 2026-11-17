@@ -102,7 +102,7 @@ differs can be read. The worktree it re-runs in is prepared before the clock sta
 
 ## Long sessions
 
-Keep a laptop awake with the stdlib tool (`caffeinate -i uv run --locked klein
+Keep a laptop awake with the stdlib tool (`caffeinate -i klein
 run-one ...` on macOS); after any interruption, `klein recover` reconciles the
 transaction that was in flight. A run that outlives the driving session is still
 notarized — the candidate was committed before it started.

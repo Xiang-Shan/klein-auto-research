@@ -1,0 +1,18 @@
+#!/bin/sh
+# `klein`, run from this copy of the repository.
+#
+# When Klein is installed as a Claude Code plug-in this directory is on the
+# agent's PATH, so `klein …` works in any project with no separate install: the
+# engine runs from the plug-in's own checkout, locked to its own uv.lock, and the
+# interpreter it uses (with kleinlib importable) is first on PATH for the study
+# entrypoints it launches. Needs `uv` (https://docs.astral.sh/uv/).
+#
+# If you installed Klein yourself (`pip install klein-auto-research`), that
+# `klein` is used instead whenever it comes first on PATH.
+set -eu
+root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+if ! command -v uv >/dev/null 2>&1; then
+  echo "klein: this launcher needs uv (https://docs.astral.sh/uv/), or install Klein directly: pip install klein-auto-research" >&2
+  exit 127
+fi
+exec uv run --quiet --project "$root" --locked klein "$@"

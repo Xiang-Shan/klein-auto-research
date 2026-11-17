@@ -24,17 +24,21 @@ This kit wires the two together. Nothing here changes what the engine checks.
 **The skill.** Import the Klein skill from GitHub (Settings → Skills → import from a
 repository): `https://github.com/Xiang-Shan/klein-auto-research`, path
 `.claude/skills/klein`. It carries every protocol as plain markdown; the Specialists below
-point at it.
+point at it. Once the engine below is installed, `klein skill install` copies the same skill
+(and the worker agents) into a repository, and `klein explain <topic>` prints any protocol,
+profile or template from any directory (`klein explain consult-protocol`, `klein explain
+manual` for `AGENTS.md`).
 
 **The engine (`klein` CLI, `kleinlib`).** It is pure Python (a `py3-none-any` wheel; every
 dependency ships wheels). Claude Science's pip installs only prebuilt wheels from PyPI, so:
 
 1. **From PyPI** (once a release is published there):
-   `pip install "klein-auto-research==2.3.*"` into a task environment — ask Claude to create
+   `pip install "klein-auto-research==3.0.*"` into a task environment — ask Claude to create
    a `klein` environment so the install persists across sessions. Add `[deep]` for torch
    recipes (or install torch with conda from the `pytorch` channel).
 2. **From a clone, with uv** (works today): grant the repository folder *Read & write*, and
-   run the CLI with a shell command — `uv run --locked klein next --study studies/NN-slug`.
+   run the CLI with a shell command — `uv run --locked klein next --study studies/NN-slug`
+   (from the clone, `klein` is not on PATH until you activate its environment).
    On Linux a uv environment inside a granted folder can be read-only to Claude; point uv at
    a writable one: `export UV_PROJECT_ENVIRONMENT=$HOME/.cache/klein-venv` before
    `uv sync --locked`.
@@ -58,7 +62,8 @@ Paste into the project's custom instructions so every session starts in the disc
 
 ```text
 This project runs Klein studies. Before any work, read AGENTS.md at the repository root
-(the canonical manual) and .claude/skills/klein/SKILL.md. Use `klein next --study
+(the canonical manual; `klein explain manual`) and .claude/skills/klein/SKILL.md (`klein
+explain skill`). Use `klein next --study
 studies/<id>` to find the one next action and follow it. Never hand-edit runs/,
 study_state.json, events.jsonl, claims.lock or verify_receipt.json — they are receipts.
 Every experiment is ONE `klein run-one` invocation; never run the entrypoint yourself
@@ -78,15 +83,15 @@ The REFEREE stage happens in a different session or tool, never in this one.
 | EXPERIMENT | `klein preflight`, `klein run-one` | shell commands; GPU work via `remote-compute.md` |
 | SYNTHESIZE | `klein claims apply claims.yaml` | the Reviewer with `reviewer-criteria.md` as a pre-referee pass |
 | REFEREE | `klein verify --numbers --evidence-use`, `klein claims verify`, `klein gate record referee` | `specialists/klein-referee.md` in **Claude Code or another session** (see below) |
-| TUTORIAL | `build_tutorial.py` | `report/index.html` saved as an HTML artifact |
-| any time | `klein next`, `klein status --json` | a read-only MCP connector: `klein mcp` (below) |
+| TUTORIAL | `klein report build <study_dir>` | `report/index.html` saved as an HTML artifact |
+| any time | `klein next`, `klein status --json`, `klein map`; looking at data: `klein probe --study S --note "…" -- <command>` | a read-only MCP connector: `klein mcp` (below); the kernel for the probe's command |
 
 ### `klein mcp` as a Local command connector
 
 `klein mcp` (built in — the engine's stdlib only, no extra to install) is a stdio MCP server
 exposing **read-only** tools —
 `list_studies`, `next`, `status`, `doctor`, `preflight`, `verify` (no receipt written),
-`predictions`, `claims_verify`, `explain`. Add it under Settings → Connectors → custom connector →
+`predictions`, `claims_verify`, `explain`, `map`. Add it under Settings → Connectors → custom connector →
 *Local command*:
 
 ```text
@@ -125,6 +130,6 @@ Record the rung honestly with `klein gate record referee --acknowledged-by … -
   per submit; `remote-compute.md` shows the wrapper that puts `job_result/` there.
 - **Artifacts live in `~/.claude-science`**, not in git. The study's evidence is the git
   history; artifacts are the reading copies (`artifacts.md`).
-- A live Claude Science smoke of this kit is recorded under `docs/reviews/` only when one
-  has been run by a person with a Claude Science seat; the driver matrix says which rows
-  were exercised live.
+- A live Claude Science smoke of this kit is recorded in `CHANGELOG.md` only when one has
+  been run by a person with a Claude Science seat; the driver matrix says which rows were
+  exercised live.

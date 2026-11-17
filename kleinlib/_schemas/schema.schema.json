@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/schema.schema.json",
+  "title": "klein schema",
+  "description": "A schema by name (`name`, `schema`) or, with no name, the list of schemas and the verb index (`schemas`, `verbs`). A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "schema": {
+      "type": "object",
+      "description": "A JSON Schema (draft 2020-12)."
+    },
+    "schemas": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Every schema name, `envelope` included."
+    },
+    "verbs": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Verb path to the name of its data schema; `*` is the default."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "anyOf": [
+      {
+        "required": [
+          "name",
+          "schema"
+        ]
+      },
+      {
+        "required": [
+          "schemas",
+          "verbs"
+        ]
+      }
+    ]
+  }
+}

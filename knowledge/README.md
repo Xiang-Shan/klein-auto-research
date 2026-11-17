@@ -58,7 +58,7 @@ list the IDs a doc leans on. Everything stays greppable:
 `grep -rn "#C[0-9]" knowledge/`. Two lines citing claims that refute each other is
 a contradiction to surface in prose, never to keep silently.
 
-**Objects and events (opt-in, schema 3).** A study that declares the `knowledge`
+**Objects and events (opt-in).** A study that declares the `knowledge`
 capability of the generation layer files each promotion additionally as a machine
 record: a write-once object under `knowledge/objects/<sha256>.json` carrying the
 claim's class, strength, scope, tags and evidence roots copied verbatim from its
@@ -69,7 +69,7 @@ the one that was earned — and its retrieval is deterministic so a consultation
 be replayed. **The markdown in this directory stays the human surface; no verb
 ever rewrites a line of it**, the typed claim citations above remain required, and
 a promoted line on an enabled study simply names its object id as well
-(`.claude/skills/klein/references/knowledge-protocol.md`).
+(`.claude/skills/klein/references/generation/knowledge-protocol.md`).
 
 Promotion can continue outward: a finding that belongs in a personal topic vault
 (the author's harness registers note vaults with Q&A and concept-page skills; any

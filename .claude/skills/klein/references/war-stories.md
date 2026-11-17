@@ -1,8 +1,8 @@
 # War stories — why the guards exist
 
-Nine failures — four from the ancestor campaign, one earned live by study 01, one by
-study 05, one by study 07, and two by study 09 — each of which cost real time and each of which hardened into a guard you
-now inherit for free. Read them once; they explain rules that otherwise look like
+Eleven failures — four from the ancestor campaign, one earned live by study 01, one by
+study 05, one by study 07, two by study 09, and two by study 23 — each of which cost
+real time and each of which hardened into a guard you now inherit for free. Read them once; they explain rules that otherwise look like
 paranoia.
 
 ## 1. The string-dtype boolean (→ value-pattern check)
@@ -81,7 +81,7 @@ runtimes, one process, no fix by ordering.
 SKILL.md sanctions): a torch-only child subprocess fits the net and dumps CPU-numpy
 `.pkl` caches (never imports lightgbm); the parent imports lightgbm FIRST, loads the
 caches, and runs the GBDT head (torch bound passively, never operated). Run the launcher
-through `klein run-one` (or `scripts/run_with_log.py` for v1): it enforces unbuffered
+through `klein run-one`: it enforces unbuffered
 output, process-group timeout, and the real child exit status without a masking tee
 pipeline. Prove isolation preserved determinism with one
 bit-exact rerun (study 01: E3 = sweep trial 2 = 0.668271). Pattern: `main()`
@@ -157,10 +157,49 @@ bug with its only confirmation.
 
 **The guard.** `klein run-one --final-test --dry-run` executes the sealed entrypoint
 with `KLEIN_SEALED_DRYRUN=1`: the partition helper substitutes development data, the
-child prints `sealed_dryrun: 1`, and nothing is spent — no id, no commit, no manifest,
-no row, no seal. It is mandatory before every real sealed run (the experimenter
-prompt refuses to proceed without its log). See `inquiry-model.md` on what "sealed"
-means per kind.
+child prints `sealed_dryrun: 1`, and nothing is spent — no id, no manifest, no row,
+no seal; the rehearsal leaves its log and one `sealed_dryrun` event. It is mandatory
+before every real sealed run (story 11 is how "mandatory" became mechanical). See
+`inquiry-model.md` on what "sealed" means per kind.
+
+## 10. The exact metric that was exact on one machine (→ a stated cross-machine tolerance)
+
+**The failure.** Study 23 declared its treatment-effect metric `exactness: exact`:
+fixed rows, an unpenalized logit, closed-form weighting. On the machine that ran it,
+every replication matched to the last bit. The weekly job replicated the same run on
+a different CPU and failed — by 0.0018 dollars on an estimate
+of 3,038, six parts in ten million. The logit is fitted by an iterative solver, and
+an iterative solver's last digits belong to the CPU and the BLAS build. Nothing was
+wrong with the study; the word "exact" had been read as a promise about hardware.
+And the failure message told the reader to compare "library versions and thread
+counts", which no record holds.
+
+**The guard.** `exact` means bit-identical *on the machine that ran it*, and that is
+what tolerance 0 asserts there. A replication on another machine states its tolerance
+— the resolution the contract declares in `exactness_note` — with `--tolerance`, and
+the record carries `tolerance_source: "--tolerance"` so nobody mistakes the two.
+The message now names what the record does hold. A failed replication stays on the
+record: the red run is evidence that the estimate moved by less than a fifth of a
+cent across machines, well inside the cent the study declared.
+
+## 11. The rehearsal that timed out and still counted (→ the notary checks the rehearsal)
+
+**The failure.** Story 9's guard was a rule in a protocol: rehearse before the sealed
+run. Study 23 rehearsed its `att` track, the rehearsal hit the time limit (exit 124)
+after printing its acknowledgement, and by the rule `klein next` applied the track
+counted as rehearsed. The researcher rehearsed again and the second one passed — by
+diligence, not by mechanism. A rule that a careful person follows and a hurried agent does not is not
+yet a guard; and a rehearsal of an earlier version of the code rehearses nothing.
+
+**The guard.** `klein run-one --final-test` refuses unless the track's latest
+rehearsal exited 0, did not time out, printed its acknowledgement and a metric the
+notary can judge, ran the same command over the same mutable surface and the same
+scripts that command names, byte for byte, and took no longer than the sealed run is
+allowed (the rehearsal's event records the digests and the time). The refusal prints
+the command to run. There is no flag to skip it: a rehearsal spends nothing. What the
+guard does not reach is written at the top of `kleinlib/rehearsal.py`: library code
+the command does not name, a declared verifier, a detached host, and a forged or
+truncated event chain.
 
 ## The meta-lesson
 
@@ -168,7 +207,8 @@ Every one of these failed SILENTLY — a wrong number that looked plausible, not
 (story 5 is the loud-but-mute variant: a crash below Python that erased its own
 evidence; story 6 the plausible-but-wrong verdict: a healthy run scored discard by
 bookkeeping; story 8 the wrong-partition number that looked exactly right; story 9
-the crash that spent an irreplaceable look).
+the crash that spent an irreplaceable look; story 10 the red light that was a wrong
+question; story 11 the rule that held only while someone was careful).
 That is the expensive kind. The guards all convert a silent lie into a loud failure:
 inspect values (not dtypes), raise on collapsed preds, single-source the schema, weigh
 calibration beside rank. When a guard fires, thank it — it just saved a campaign.

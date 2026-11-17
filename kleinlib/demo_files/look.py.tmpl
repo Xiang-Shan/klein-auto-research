@@ -1,0 +1,17 @@
+"""A look at the training table, on the record (klein probe X0001).
+
+Reads TRAIN rows only: under `klein probe` the sealed partition comes back empty,
+and nothing here is evidence -- it is a lead that may earn a prediction.
+"""
+
+import numpy as np
+
+from kleinlib.data import contract_split
+
+X_train, _dev, _sealed, y_train, _y_dev, _y_sealed = contract_split(".")
+benign = float(np.mean(y_train == 1))
+print(f"train rows: {len(X_train)}  features: {X_train.shape[1]}")
+print(f"class balance: {benign:.1%} benign (1), {1 - benign:.1%} malignant (0)")
+corr = X_train.apply(lambda column: np.corrcoef(column, y_train)[0, 1])
+for name, value in corr.reindex(corr.abs().sort_values(ascending=False).index)[:3].items():
+    print(f"top correlation with target: {name} r={value:+.3f}")
