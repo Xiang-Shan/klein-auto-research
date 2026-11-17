@@ -36,7 +36,7 @@ import yaml
 from test_generation_expert import _reference, _set_experimenter, _write_card
 from test_generation_slate import BANNED_FUNCTION_PREFIXES
 from test_generation_spine import _bump, _gates, _gen, _receipt, _scaffold
-from test_workflow_v3 import commit_all, git, metric_command
+from test_workflow_v3 import commit_all, git, metric_command, rehearse
 
 from kleinlib.errors import WorkflowError
 from kleinlib.generation import contribution as gc
@@ -604,12 +604,14 @@ def _seal(
     argv = ["check", "--study", str(study), "--action", "sealed", "--track", track]
     if requested:
         argv += ["--tests", *requested]
+    command = _cell_command(_CELL["table"])
+    rehearse(study, track=track, command=command)
     _gen(*argv)
     return run_one(
         study,
         track=track,
         final_test=True,
-        command=_cell_command(_CELL["table"]),
+        command=command,
         tests=list(PRED.values()) if tests is None else list(tests),
         echo=False,
     )
@@ -717,6 +719,7 @@ def test_v15_a_frontier_seal_before_the_bind_fails_the_parity_family(parity_stud
     repo, study = parity_study
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "acknowledge the adaptive phase")
+    rehearse(study, track="primary", command=metric_command(0.6))
     assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 2
     run_one(
         study,
@@ -868,6 +871,7 @@ def test_a_sealed_run_on_another_track_cannot_be_assessed(bound_study, capsys) -
     assert _gen("parity", "assess", "--study", str(study), "--run", "E0003") == 2
 
     _bump(study, "a frontier seal after the bind")
+    rehearse(study, track="primary", command=metric_command(0.6))
     assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 0
     other = run_one(
         study, track="primary", final_test=True, command=metric_command(0.6), echo=False
@@ -893,6 +897,7 @@ def test_the_outcome_is_the_comparison_cells_never_the_last_assessment(bound_stu
     assert _capability(study, "parity")["outcome"] == "refuted"
 
     _bump(study, "a frontier seal after the bind")
+    rehearse(study, track="primary", command=metric_command(0.6))
     assert _gen("check", "--study", str(study), "--action", "sealed", "--track", "primary") == 0
     run_one(study, track="primary", final_test=True, command=metric_command(0.6), echo=False)
 

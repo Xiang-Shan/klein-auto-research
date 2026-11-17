@@ -88,7 +88,8 @@ acknowledged before more runs are spent.
 
 ### sealed data / final test
 The part of the data nobody looks at while developing. It is read once per track, by one
-run, to confirm the result. A rehearsal (`--dry-run`) is mandatory first.
+run, to confirm the result. A rehearsal (`--dry-run`) comes first, and the sealed run is
+refused unless the latest rehearsal passed on the same code.
 
 ### replication
 Re-running a recorded run from its saved code to check that it reproduces.

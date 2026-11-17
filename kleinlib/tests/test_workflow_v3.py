@@ -23,6 +23,7 @@ from kleinlib.workflow import (
     load_state,
     record_gate,
     run_one,
+    sealed_dry_run,
 )
 
 
@@ -133,14 +134,16 @@ def metric_command(
     mapping is accepted for readability at the call site; only its values are
     printed.
     """
-    check = ""
+    # A rehearsal (`klein run-one --final-test --dry-run`) runs the SAME command with
+    # KLEIN_SEALED_DRYRUN=1 and KLEIN_EXPERIMENT_ID=DRYRUN: like a real entrypoint (which
+    # gets this from kleinlib.data.load_partition) it acknowledges the flag, and it skips
+    # the experiment-id assert, which only a real run can satisfy.
+    check = "import os; dry = os.environ.get('KLEIN_SEALED_DRYRUN') == '1'; "
+    check += "print('sealed_dryrun: 1') if dry else None; "
     if expected_kind:
-        check = (
-            "import os; "
-            f"assert os.environ['KLEIN_EVALUATION_KIND'] == {expected_kind!r}; "
-        )
+        check += f"assert os.environ['KLEIN_EVALUATION_KIND'] == {expected_kind!r}; "
     if expected_experiment:
-        check += f"assert os.environ['KLEIN_EXPERIMENT_ID'] == {expected_experiment!r}; "
+        check += f"assert dry or os.environ['KLEIN_EXPERIMENT_ID'] == {expected_experiment!r}; "
     if expected_track:
         check += f"assert os.environ['KLEIN_TRACK'] == {expected_track!r}; "
     lines = [
@@ -158,6 +161,15 @@ def metric_command(
     for key, number in (extra or {}).items():
         lines.append(f"print('{key}: {number}')")
     return [sys.executable, "-c", check + "; ".join(lines)]
+
+
+def rehearse(
+    study: Path, track: str | None = None, command: Sequence[str] | None = None
+) -> None:
+    """Perform the mandatory sealed-run rehearsal for real, with the command the sealed
+    run will use (`sealed_dry_run` files its own state commit, so the tree stays clean)."""
+    code = sealed_dry_run(study, track=track, command=command, echo=False)
+    assert code == 0, f"rehearsal failed with exit code {code}"
 
 
 def test_v3_fixture_scaffolds_a_typed_inquiry(ready_study_v3) -> None:

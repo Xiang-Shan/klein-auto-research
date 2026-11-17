@@ -36,11 +36,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from ..contract import mutable_surface
 from ..errors import WorkflowError
 from ..manifest import load_manifests
-from ..primitives import canonical_json, sha256_bytes
-from ..transaction import git_blob, relative
+from ..rehearsal import surface_digest, surface_digest_at
+from ..transaction import relative
 from .chronology import (
     core_tip,
     introducing_commit,
@@ -107,32 +106,8 @@ RECEIPT_INPUT_SLOTS: tuple[str, ...] = (
 # --------------------------------------------------------------------------
 
 
-def _digest(entries: Sequence[Sequence[Any]]) -> str:
-    return sha256_bytes(canonical_json([list(entry) for entry in entries]).encode())
-
-
-def surface_digest(study_dir: Path, contract: Mapping[str, Any]) -> tuple[str, list[list[Any]]]:
-    """The mutable surface AS ON DISK: ``(digest, [[path, sha256|null], …])``.
-
-    Sorted by path; a declared file that does not exist hashes as null, so
-    "the file was deleted" and "the file was empty" are different digests.
-    """
-    entries: list[list[Any]] = []
-    for name in sorted(mutable_surface(contract)):
-        path = study_dir / name
-        entries.append([name, sha256_bytes(path.read_bytes()) if path.is_file() else None])
-    return _digest(entries), entries
-
-
-def surface_digest_at(
-    repo: Path, study_dir: Path, contract: Mapping[str, Any], commit: str
-) -> tuple[str, list[list[Any]]]:
-    """The same digest, read out of a commit rather than the working tree."""
-    entries: list[list[Any]] = []
-    for name in sorted(mutable_surface(contract)):
-        blob = git_blob(repo, commit, relative(repo, study_dir / name))
-        entries.append([name, sha256_bytes(blob) if blob is not None else None])
-    return _digest(entries), entries
+# The digest is core's (the sealed-run rehearsal rule uses the same one); this
+# layer re-exports it so every admission receipt and the notary agree on the bytes.
 
 
 # --------------------------------------------------------------------------

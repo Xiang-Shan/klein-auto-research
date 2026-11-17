@@ -140,6 +140,32 @@ reader needs.
 **One list of verbs.** The verb list was hand-kept in five places and one had drifted.
 `docs/cli.md` is generated from the parser and a test fails when it is stale.
 
+**"Mandatory" means the notary refuses.** The sealed-run rehearsal was a rule in a
+protocol, and a rehearsal that timed out still counted as done. It is now one function
+(`kleinlib/rehearsal.py`) that the notary and `klein next` both call: the track's latest
+rehearsal passed, on the same command and the same mutable surface, or the sealed run
+does not start. It covers the surface and the command, not library code, and says so.
+There is no bypass flag, because a rehearsal spends nothing.
+
+**"Exact" is a claim about a machine.** An exact metric replicates bit for bit where it
+ran. Across CPUs an iterative solver moves in its last digits, so a cross-machine
+replication states its tolerance — the resolution the contract declares — and the
+record says which rule decided. The tolerance ladder itself did not move.
+
+**Schemas describe; they do not gate.** `kleinlib/_schemas/` holds a JSON Schema for the
+envelope and for each structured verb's `data`, and `klein schema` prints them. The
+engine depends on no validator; the test suite does, and validates real output. Within
+`format: 1` keys are only added.
+
+**Three check types stay three.** The verify receipt, the generation receipt and the
+claims law each carry their own record shape (`ok/message`, `status/detail`,
+`level/message`), and those shapes are frozen in committed receipts. Merging them would
+change receipt bytes to save a few lines, so they were left alone on purpose.
+
+**Throwaway repositories never sign.** The test suite, the demo and the end-to-end proof
+commit thousands of times; they switch signing off for their own repositories. A real
+study keeps the researcher's signing settings — signed evidence is theirs to choose.
+
 ## 4. What was removed, and where it lives
 
 | Removed from the tree | Where it is |
@@ -149,13 +175,16 @@ reader needs.
 | Datasets used only by archived studies (hurricane, tinyshakespeare) | commit `217cd46` |
 | `docs/reviews/`, the schema 2→3 migration note | commit `217cd46` |
 | `kleinlib/cli_generation.py` | split into `kleinlib/generation/cli/` |
+| Generation-layer protocols and templates in `references/` and `assets/` | `references/generation/`, `assets/generation/` |
 
 ## 5. What did not change
 
 No rule a kept study was judged under moved. The eight exhibits verify with the same
 checks, the same passes and the same warnings as under 2.3.1, and CI re-verifies them on
 every push. The notary's transaction, the event chain, the manifests, the claims law and
-the referee gate are untouched.
+the referee gate are untouched. The one new refusal — a sealed run without a matching
+rehearsal — applies to runs that have not happened yet; every exhibit's seal is spent,
+and each had a clean rehearsal on record before it was.
 
 ## 6. Positioning
 

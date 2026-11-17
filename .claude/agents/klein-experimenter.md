@@ -102,8 +102,9 @@ you stopped at one.
   `--final-test`; it is confirmation evidence and does not extend the frontier.
   **The sealed dry-run is mandatory first**: `klein run-one --final-test --dry-run`
   rehearses the sealed entrypoint on development data and spends nothing (war story
-  9 — study 09's (archived — `studies/ARCHIVE.md`) only seal was consumed by a crash before any data was read). Do not
-  run `--final-test` without the dry-run's log in hand.
+  9 — study 09's (archived — `studies/ARCHIVE.md`) only seal was consumed by a crash before any data was read). The
+  notary refuses `--final-test` unless the track's latest rehearsal passed on the same
+  command and the same mutable surface, so rehearse again after any edit.
 - A printed `split_fingerprint:` that differs from the DATA-gate fingerprint crashes
   the run by design (war story 8) — fix the partition source, never the fingerprint.
 - Headroom (`h < 1`) and the `stop:` rule refuse further development runs until the

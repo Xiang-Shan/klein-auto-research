@@ -136,6 +136,7 @@ from .primitives import (
     sha256_file,
     utc_now,
 )
+from .rehearsal import rehearsal_problem, surface_digest
 from .runner import run_logged
 from .schema import (
     AUTO_PRINTED_METRIC_KEYS,
@@ -639,9 +640,12 @@ def sealed_dry_run(
     read (war story 9).  This is the fix and it is mandatory before every real
     sealed run: the child runs with ``KLEIN_SEALED_DRYRUN=1``, which makes
     :func:`kleinlib.data.load_partition` hand back the DEVELOPMENT partition and
-    print ``sealed_dryrun: 1``.  No experiment id is allocated, no commit made,
-    no manifest or results row written, and the seal is untouched — the only
-    traces are a log under ``sweeps/`` and a ``sealed_dryrun`` event.
+    print ``sealed_dryrun: 1``.  No experiment id is allocated, no manifest or
+    results row written, and the seal is untouched — the traces are a log under
+    ``sweeps/`` and one ``sealed_dryrun`` event, filed in one state commit.  The
+    event records the digest of the mutable surface the rehearsal executed: the
+    real sealed run is refused unless its latest rehearsal passed on the same
+    surface and command (:mod:`kleinlib.rehearsal`, war story 11).
 
     Exit 0 when the child exited 0 AND printed the acknowledgement;
     :data:`SEALED_DRYRUN_UNACKNOWLEDGED` when it exited 0 without it — an
@@ -679,6 +683,8 @@ def sealed_dry_run(
             or tuple(entrypoint_spec(contract)["command"])
         )
         untracked_before = _untracked_study_files(study_dir)
+        # What is about to be executed, hashed BEFORE the child can touch it.
+        rehearsed_surface = surface_digest(study_dir, contract)[0]
         process = run_subprocess(
             cmd,
             cwd=study_dir,
@@ -710,6 +716,7 @@ def sealed_dry_run(
             timed_out=process.timed_out,
             acknowledged=acknowledged,
             wall_seconds=process.wall_seconds,
+            surface_digest=rehearsed_surface,
         )
         # The rehearsal runs the REAL entrypoint (KLEIN_SMOKE is force-cleared),
         # so its evaluator appends DRYRUN-keyed rows to aux_metrics.tsv. Those
@@ -1409,6 +1416,16 @@ def run_one(
                 raise WorkflowError(
                     f"sealed final test is allowed only in final phase {final_phase_id!r}; "
                     f"current phase is {phase_id!r}"
+                )
+            # The one look is rehearsed first, and the rehearsal must be OF THIS RUN:
+            # the track's latest one passed, on the same command and the same
+            # mutable surface. Before any id, commit or seal — a refusal spends nothing.
+            unrehearsed = rehearsal_problem(study_dir, contract, track, command=command)
+            if unrehearsed:
+                raise WorkflowError(
+                    f"sealed final test for track {track!r} is not rehearsed: {unrehearsed}. "
+                    f"Rehearse it first (it spends nothing): klein run-one --study "
+                    f"{study_dir} --track {track} --final-test --dry-run"
                 )
         elif phase_id == final_phase_id:
             raise WorkflowError(

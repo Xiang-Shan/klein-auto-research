@@ -6,7 +6,7 @@ All notable changes to Klein Auto Research. Format follows
 command line, the JSON envelope or the ledger formats means a major version. Releases
 before 2.0 are in [`docs/history/CHANGELOG-1.x.md`](docs/history/CHANGELOG-1.x.md).
 
-## [3.0.0] — 2026-11-16
+## [3.0.0] — 2026-11-17
 
 **From a notary to a research instrument.** The kernel's judgment is unchanged — the
 eight shipped exhibits verify with the same checks, passes and warnings as under 2.3.1.
@@ -18,7 +18,8 @@ three new verbs for exploring and understanding a study. The rationale is
 ### Breaking
 
 - **The engine reads and judges schema 3 only.** A schema-2 or version-1 study is refused
-  once, by every verb, with the tag where it still verifies (`v2.3.1`, `v1.3.0`).
+  once, by every verb, with the tag and the commit where it still verifies (`v2.3.1` =
+  `217cd46`, `v1.3.0` = `9f87a01`).
   Nothing notarized was rewritten. `klein new --schema-version` and
   `scaffold_study(schema_version=2)` are gone; lock schema 1 ledgers are no longer
   written to or migrated (`klein claims init --from-legacy` remains readable history at
@@ -34,6 +35,16 @@ three new verbs for exploring and understanding a study. The rationale is
 - **Nine studies left the working tree** (03, 05, 06, 07, 08, 09, 13, 15, 24) with the two
   datasets only they used. They are indexed, with their claim ids, in
   `studies/ARCHIVE.md` / `studies/archive.yaml`, and recoverable from commit `217cd46`.
+- **A sealed run requires its rehearsal.** `klein run-one --final-test` is refused unless
+  the track's latest `--dry-run` rehearsal exited 0, did not time out, printed its
+  acknowledgement, and ran the same command over the same mutable surface (the
+  `sealed_dryrun` event now records the surface digest). The rule is one function,
+  `kleinlib/rehearsal.py`, shared by the notary and `klein next`; there is no bypass
+  flag. A study mid-flight rehearses once more. Until now the rehearsal was mandatory
+  by protocol only, and one that timed out counted as done (war story 11).
+- **The generation layer's protocols and templates moved** to `references/generation/`
+  and `assets/generation/`. `klein explain <name>` is unchanged; a generation manifest
+  written before the move reports a protocol-hash drift warning.
 - `kleinlib/cli_generation.py` is now the package `kleinlib/generation/cli/`; the wheel
   no longer ships `kleinlib/tests` or `kleinlib/_profiles` (profiles are under
   `kleinlib/_skill/references/profiles`).
@@ -59,8 +70,12 @@ three new verbs for exploring and understanding a study. The rationale is
   scripts from wherever Klein is installed.
 - **`--json` on every verb** and **`kleinlib.api`**, a stable Python surface returning the
   same envelope and never printing (engine notices come back as `warn` problems); it
-  includes `sealed_dry_run`, the mandatory rehearsal. `klein next` adds `stage_id` (a closed vocabulary),
+  includes `sealed_dry_run`, the rehearsal a sealed run requires. `klein next` adds `stage_id` (a closed vocabulary),
   `argv` (the command as a runnable list, when complete) and `explain`.
+- **JSON Schemas** for the envelope and for each structured verb's `data`
+  (`kleinlib/_schemas/`, draft 2020-12), printed by **`klein schema [name]`** and
+  validated against real output in the test suite. The engine itself depends on no
+  validator. Within `format: 1` keys are only ever added.
 - **A plug-in seam** (`kleinlib/plugins.py`, entry-point group `klein.plugins`): a plug-in
   may add verbs, audience profiles, evidence modalities and read-only MCP tools — never
   anything that changes how a run is judged. The generation layer is loaded through it.
@@ -79,7 +94,15 @@ three new verbs for exploring and understanding a study. The rationale is
 ### Changed
 
 - The opt-in generation layer's commands are split one module per capability; its tests
-  live in `kleinlib/tests/generation/`.
+  live in `kleinlib/tests/generation/`. Its protocol hashes and benchmark schema resolve
+  through `kleinlib/resources.py`, so they work from an installed wheel.
+- Every core verb is a handler function; the 250-line dispatch chain in `kleinlib/cli.py`
+  is gone. `kleinlib.calls` uses the one `canonical_json`.
+- **Throwaway repositories never sign.** The test suite (root `conftest.py`), `klein demo`
+  and `scripts/verify_e2e.py` switch commit signing off for their own repositories:
+  under `commit.gpgsign = true` the suite called the signer once per commit. A real
+  study keeps the researcher's signing settings.
+- The weekly workflow also runs when a pull request changes it.
 - `AGENTS.md`: exploration is a sanctioned off-loop path; the verb list and the war
   stories point at their single sources.
 - CI: the package job proves the installed wheel is self-sufficient (explain, skill
@@ -105,6 +128,18 @@ three new verbs for exploring and understanding a study. The rationale is
   unparseable `klein doctor` read as "skip"; the answer is now printed and a parse error
   fails the step.
 
+- **CI, Windows:** a step that walks the parser was a bash heredoc run under PowerShell;
+  it failed and skipped the full Windows suite behind it.
+- **The weekly job, red on `main` since 2.3.0:** study 23's replication was asserted
+  bit-identical on a different CPU, where an iterative logit moves 6e-7 relative; the job
+  now states the tolerance the study's contract declares (one cent). The MPS canary asked
+  for a runner image GitHub retired on 2026-11-02.
+- `replication-protocol.md` gave the tolerance ladder in the wrong order (`exact` is
+  checked before `minimum_delta`), and it and the replicate message told the reader to
+  compare fields no record holds.
+- `klein next` suggested a command that split in two when the study path held a space.
+- `klein demo`'s interpreter shim could not work on Windows.
+
 ### Known limitations
 
 - Every study still runs the whole lifecycle; a declared quick-look tier is the next
@@ -113,12 +148,18 @@ three new verbs for exploring and understanding a study. The rationale is
   itself, or a simulator that picks its own sealed seeds, is recorded, not stopped.
 - A plug-in is installed code in the same process: Klein prevents shadowing and undoes a
   failed plug-in, but cannot sandbox one.
-- `klein run-one --final-test` does not yet require a recorded rehearsal mechanically;
-  the rehearsal is mandatory by protocol.
+- The rehearsal rule covers the command and the mutable surface, not library code
+  outside it (`lib/`, `prepare.py`): a change there between rehearsal and sealed run is
+  visible in git, not refused.
+- An `exact` metric replicates bit for bit on the machine that ran it; across machines a
+  replication states its tolerance (`--tolerance`). The engine does not yet record enough
+  of the environment (CPU, BLAS, threads) to explain a cross-machine difference.
 - `bin/klein` (the plug-in launcher) is a POSIX shell script and needs `uv`.
 - Recipes do not yet scaffold the Phase 0 noise-floor script; `klein demo` leaves a
   working example.
-- Which hosts were exercised live for this release: Claude Code (this repository and
+- What ran for this release: GitHub CI on Linux (Python 3.11–3.14, the torch + GBDT
+  suite with the coverage floor, the exhibits, the wheel), macOS and Windows (end to end;
+  the full suite on Windows). Hosts exercised live: Claude Code (this repository and
   `claude plugin validate`). The Claude Science kit is documented against that product's
   published documentation and was not re-run.
 

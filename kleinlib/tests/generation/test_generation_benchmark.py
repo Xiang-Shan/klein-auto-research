@@ -47,7 +47,7 @@ from test_generation_parity import (
     _write_pipeline_files,
 )
 from test_generation_spine import _bump, _gates, _gen, _receipt, _scaffold
-from test_workflow_v3 import commit_all, git, metric_command
+from test_workflow_v3 import commit_all, git, metric_command, rehearse
 
 from kleinlib.generation import benchmark as gb
 from kleinlib.generation import custody as gcu
@@ -530,6 +530,8 @@ def _cell_command(table: str, metrics: dict[str, Any]) -> list[str]:
 def _seal(repo: Path, study: Path, table: str, metrics: dict[str, Any]) -> dict[str, Any]:
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "acknowledge the adaptive phase")
+    command = _cell_command(table, metrics)
+    rehearse(study, track="scoring", command=command)
     assert (
         _gen(
             "check",
@@ -549,7 +551,7 @@ def _seal(repo: Path, study: Path, table: str, metrics: dict[str, Any]) -> dict[
         study,
         track="scoring",
         final_test=True,
-        command=_cell_command(table, metrics),
+        command=command,
         tests=["P5", "P6"],
         echo=False,
     )
@@ -925,12 +927,15 @@ def test_the_track_gets_exactly_one_sealed_look_and_the_core_enforces_it(scored)
     from kleinlib.errors import WorkflowError
 
     honest = _honest_score()
-    with pytest.raises(WorkflowError):
+    command = _cell_command(_table(honest["rows"]), honest["arms"])
+    # Rehearsed, so the refusal below can only be the one-look rule, not the rehearsal rule.
+    rehearse(study, track="scoring", command=command)
+    with pytest.raises(WorkflowError, match="already been accessed"):
         run_one(
             study,
             track="scoring",
             final_test=True,
-            command=_cell_command(_table(honest["rows"]), honest["arms"]),
+            command=command,
             echo=False,
         )
 

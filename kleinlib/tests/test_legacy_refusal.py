@@ -190,3 +190,36 @@ def test_every_study_left_in_the_tree_is_schema_three() -> None:
     assert len(studies) >= 8
     for study in studies:
         assert load_contract(study)["schema_version"] == 3, study.name
+
+
+def _git(*args: str) -> tuple[int, str]:
+    import subprocess
+
+    result = subprocess.run(["git", *args], cwd=REPO_ROOT, text=True, capture_output=True, check=False)
+    return result.returncode, result.stdout.strip()
+
+
+def test_the_refusal_names_a_commit_as_well_as_a_tag() -> None:
+    # A tag may not have been fetched (or pushed yet); a commit on main always resolves.
+    from kleinlib.contract import LEGACY_ENGINE_COMMITS
+
+    assert set(LEGACY_ENGINE_COMMITS) == set(LEGACY_ENGINE_TAGS)
+    for version, commit in LEGACY_ENGINE_COMMITS.items():
+        assert commit in unsupported_schema_message(version)
+    index = yaml.safe_load((REPO_ROOT / "studies" / "archive.yaml").read_text(encoding="utf-8"))
+    assert index["archive_commit"].startswith(LEGACY_ENGINE_COMMITS[2])
+
+
+def test_the_legacy_commits_are_the_ones_the_tags_name() -> None:
+    from kleinlib.contract import LEGACY_ENGINE_COMMITS
+
+    code, shallow = _git("rev-parse", "--is-shallow-repository")
+    if code != 0 or shallow == "true":
+        pytest.skip("needs a full git history")
+    for version, commit in LEGACY_ENGINE_COMMITS.items():
+        code, full = _git("rev-parse", "--verify", "--quiet", f"{commit}^{{commit}}")
+        assert code == 0, f"commit {commit} (schema {version}) is not in this repository"
+        tag = LEGACY_ENGINE_TAGS[version]
+        code, tagged = _git("rev-parse", "--verify", "--quiet", f"refs/tags/{tag}^{{commit}}")
+        if code == 0:  # the tag is here: it must be the same engine
+            assert tagged == full, f"{tag} points at {tagged}, the message names {full}"

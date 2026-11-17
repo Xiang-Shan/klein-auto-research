@@ -43,7 +43,14 @@ from kleinlib.replicate import (
     tolerance_ladder,
 )
 from kleinlib.transaction import detached_worktree
-from kleinlib.workflow import finalize, load_contract, load_state, record_gate, run_one
+from kleinlib.workflow import (
+    finalize,
+    load_contract,
+    load_state,
+    record_gate,
+    run_one,
+    sealed_dry_run,
+)
 
 TRAIN = """\
 import json
@@ -64,6 +71,8 @@ Path({marker!r}).write_text(
     ),
     encoding="utf-8",
 )
+if os.environ.get("KLEIN_SEALED_DRYRUN") == "1":
+    print("sealed_dryrun: 1")  # what kleinlib.data.load_partition prints in a rehearsal
 Path("models").mkdir(exist_ok=True)
 Path("models/best.json").write_text(json.dumps({{"score": 0.7}}), encoding="utf-8")
 print("artifact:          models/best.json")
@@ -351,6 +360,7 @@ def test_a_sealed_run_is_refused(replicable) -> None:
     repo, study, _value, _marker, _manifest = replicable
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "ack phase")
+    assert sealed_dry_run(study, command=[sys.executable, "-u", "train.py"], echo=False) == 0
     sealed = run_one(
         study,
         description="confirmation",
@@ -602,6 +612,7 @@ def sealed_study(replicable):
     repo, study, value_file, marker, manifest = replicable
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "ack phase")
+    assert sealed_dry_run(study, command=[sys.executable, "-u", "train.py"], echo=False) == 0
     run_one(
         study,
         description="confirmation",

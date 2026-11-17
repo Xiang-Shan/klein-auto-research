@@ -201,7 +201,7 @@ def _configured_primary_contract(
     if version != 3:
         raise ValueError(
             f"{study_yaml_path} declares schema_version {version!r}; this summarizer reads "
-            "schema_version: 3 studies only (older studies verify at tags v1.3.0 / v2.3.1)"
+            "schema_version: 3 studies only (older studies verify at tag v1.3.0, or v2.3.1 = commit 217cd46)"
         )
     raw_tracks = data.get("tracks")
     tracks: dict[str, dict[str, object]] = {}

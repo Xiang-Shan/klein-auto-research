@@ -503,6 +503,11 @@ jobs:
           # An installed Klein is self-sufficient: no checkout, any directory.
           "$venv/bin/klein" explain gate | grep -q "checkpoint"
           "$venv/bin/klein" explain consult | grep -q "Gate 0"
+          # The opt-in layer's protocols live in a subfolder and resolve by name; the
+          # envelope's JSON Schema ships as package data.
+          "$venv/bin/klein" explain generation-protocol | grep -qi "generation"
+          test -s "$pkg/_skill/references/generation/generation-protocol.md"
+          "$venv/bin/klein" schema envelope | "$venv/bin/python" -c "import json,sys; s=json.load(sys.stdin); assert s['properties']['format']['const'] == 1, s"
           "$venv/bin/klein" skill install --target "$RUNNER_TEMP/wheel-studies"
           test -s "$RUNNER_TEMP/wheel-studies/.claude/skills/klein/SKILL.md"
           test -s "$RUNNER_TEMP/wheel-studies/.claude/agents/klein-referee.md"

@@ -148,8 +148,9 @@ templates to fill in. The procedure for each stage is one command away:
 
 ### The second half — closing the study
 
-**The sealed run.** Each track reads the untouched data once. Rehearse first; the
-rehearsal spends nothing and is mandatory.
+**The sealed run.** Each track reads the untouched data once. Rehearse first: the
+rehearsal spends nothing, and the sealed run is refused without a passing one on the
+same code.
 
 ```bash
 klein gate record phase --study $S --phase adaptive-1 --acknowledged-by "<your name>" --note "why the loop stops here"

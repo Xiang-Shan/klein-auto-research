@@ -29,6 +29,7 @@ __all__ = [
     "ENTRYPOINT_KEYS",
     "IDENTIFIER_RE",
     "KNOWN_KINDS",
+    "LEGACY_ENGINE_COMMITS",
     "LEGACY_ENGINE_TAGS",
     "MODELING_GATES",
     "PLACEHOLDER_RE",
@@ -73,6 +74,11 @@ SCHEMA_VERSION = 3
 #: at the release tag below (``studies/ARCHIVE.md``).
 SUPPORTED_SCHEMA_VERSIONS: frozenset[int] = frozenset({SCHEMA_VERSION})
 LEGACY_ENGINE_TAGS: dict[int, str] = {1: "v1.3.0", 2: "v2.3.1"}
+#: The same engines by commit: a pointer that resolves in any clone, tag fetched or not.
+LEGACY_ENGINE_COMMITS: dict[int, str] = {
+    1: "9f87a01",
+    2: "217cd46",
+}
 
 STUDY_ID_RE = re.compile(r"^\d{2}-[a-z0-9][a-z0-9-]*$")
 IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
@@ -225,7 +231,7 @@ def unsupported_schema_message(version: int) -> str | None:
         return (
             f"this study is schema {version}; Klein 3 reads schema {SCHEMA_VERSION} only. "
             f"Nothing is lost: verify it with the engine that judged it, at tag {tag} "
-            "(see studies/ARCHIVE.md)"
+            f"(commit {LEGACY_ENGINE_COMMITS[version]}; see studies/ARCHIVE.md)"
         )
     return (
         f"schema_version must be {SCHEMA_VERSION} (got {version}); "

@@ -196,7 +196,7 @@ def detect_lock_schema(lock: Mapping[str, Any]) -> int:
     if raw is None:
         raise WorkflowError(
             "this claims.lock is a lock schema 1 ledger; Klein 3 reads lock schema "
-            f"{LOCK_SCHEMA} only — it verifies at tag v2.3.1 (studies/ARCHIVE.md)"
+            f"{LOCK_SCHEMA} only — it verifies at tag v2.3.1 (commit 217cd46; studies/ARCHIVE.md)"
         )
     try:
         return int(raw)

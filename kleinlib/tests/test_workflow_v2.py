@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 import yaml
+from test_workflow_v3 import rehearse
 
 import kleinlib.workflow as workflow
 from kleinlib import cli
@@ -61,14 +62,16 @@ def metric_command(
     expected_experiment: str | None = None,
     expected_track: str | None = None,
 ) -> list[str]:
-    check = ""
+    # A rehearsal (`klein run-one --final-test --dry-run`) runs the SAME command with
+    # KLEIN_SEALED_DRYRUN=1 and KLEIN_EXPERIMENT_ID=DRYRUN: like a real entrypoint (which
+    # gets this from kleinlib.data.load_partition) it acknowledges the flag, and it skips
+    # the experiment-id assert, which only a real run can satisfy.
+    check = "import os; dry = os.environ.get('KLEIN_SEALED_DRYRUN') == '1'; "
+    check += "print('sealed_dryrun: 1') if dry else None; "
     if expected_kind:
-        check = (
-            "import os; "
-            f"assert os.environ['KLEIN_EVALUATION_KIND'] == {expected_kind!r}; "
-        )
+        check += f"assert os.environ['KLEIN_EVALUATION_KIND'] == {expected_kind!r}; "
     if expected_experiment:
-        check += f"assert os.environ['KLEIN_EXPERIMENT_ID'] == {expected_experiment!r}; "
+        check += f"assert dry or os.environ['KLEIN_EXPERIMENT_ID'] == {expected_experiment!r}; "
     if expected_track:
         check += f"assert os.environ['KLEIN_TRACK'] == {expected_track!r}; "
     return [
@@ -351,6 +354,7 @@ def test_run_transactions_keep_discard_crash_and_seal(ready_study) -> None:
         note="adaptive phase reviewed",
     )
     commit_all(repo, "acknowledge adaptive phase")
+    rehearse(study, command=metric_command(0.69, expected_kind="final_test"))
     final = run_one(
         study,
         description="confirmation",
@@ -426,6 +430,7 @@ def test_cli_labels_the_sealed_confirmation(ready_study, capsys) -> None:
     run_one(study, description="baseline", command=metric_command(0.7), echo=False)
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "ack phase")
+    rehearse(study, command=metric_command(0.69, expected_kind="final_test"))
     capsys.readouterr()
     assert cli.main([
         "run-one", "--study", str(study), "--final-test", "--quiet",
@@ -508,10 +513,18 @@ def test_confirmation_run_is_capped_by_remaining_phase_budget(ready_study) -> No
     record_gate(study, "consult", acknowledged_by="tester")
     commit_all(repo, "enter bounded confirmation")
 
+    sleeper = [
+        sys.executable,
+        "-c",
+        "import os; "
+        "print('sealed_dryrun: 1') if os.environ.get('KLEIN_SEALED_DRYRUN') == '1' else None; "
+        "import time; time.sleep(1)",
+    ]
+    rehearse(study, command=sleeper)  # the rehearsal gets the contract's full budget
     result = run_one(
         study,
         final_test=True,
-        command=[sys.executable, "-c", "import time; time.sleep(1)"],
+        command=sleeper,
         echo=False,
     )
     assert result["disposition"] == "crash"
@@ -875,6 +888,7 @@ def test_finalize_confirmed_after_one_sealed_run(ready_study) -> None:
     repo, study = ready_study
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "enter confirmation")
+    rehearse(study, command=metric_command(0.7, expected_kind="final_test"))
     run_one(
         study,
         final_test=True,
@@ -893,10 +907,18 @@ def test_crashed_sealed_run_does_not_confirm_findings(ready_study) -> None:
     repo, study = ready_study
     record_gate(study, "phase", phase="adaptive-1", acknowledged_by="tester")
     commit_all(repo, "enter confirmation")
+    # Rehearses cleanly (the flag is acknowledged), then crashes in the real sealed run.
+    crash_when_real = [
+        sys.executable,
+        "-c",
+        "import os, sys; dry = os.environ.get('KLEIN_SEALED_DRYRUN') == '1'; "
+        "print('sealed_dryrun: 1') if dry else None; sys.exit(0 if dry else 7)",
+    ]
+    rehearse(study, command=crash_when_real)
     crashed = run_one(
         study,
         final_test=True,
-        command=[sys.executable, "-c", "import sys; sys.exit(7)"],
+        command=crash_when_real,
         echo=False,
     )
     assert crashed["disposition"] == "crash"
@@ -1217,6 +1239,11 @@ def test_sealed_gate_passes_after_the_top_up(ready_study) -> None:
         study, "phase", phase="adaptive-1", acknowledged_by="tester", note="reviewed"
     )
     commit_all(repo, "acknowledge adaptive phase")
+    rehearse(
+        study,
+        track="gbdt",
+        command=metric_command(0.69, expected_kind="final_test", expected_track="gbdt"),
+    )
     final = run_one(
         study,
         track="gbdt",
@@ -1247,6 +1274,7 @@ def test_second_sealed_access_is_refused_from_the_ledger_even_if_state_is_wiped(
         study, "phase", phase="adaptive-1", acknowledged_by="tester", note="reviewed"
     )
     commit_all(repo, "acknowledge adaptive phase")
+    rehearse(study, command=metric_command(0.69, expected_kind="final_test"))
     final = run_one(
         study,
         final_test=True,

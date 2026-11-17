@@ -230,7 +230,10 @@ klein run-one --study studies/NN-slug --track <track> --final-test \
 
 The dry-run executes the sealed entrypoint on development data and spends nothing;
 study 09 (archived — `studies/ARCHIVE.md`) lost its only seal to a crash that ran
-before any data was read. The
+before any data was read. The notary enforces it: `--final-test` is refused unless the
+track's latest rehearsal exited 0, did not time out, printed `sealed_dryrun: 1`, and
+ran the same command over the same mutable surface — edit the surface after
+rehearsing and you rehearse again. The
 final-test result is evidence, not another adaptive frontier candidate. What "sealed"
 means per kind, and which records `confirmed` needs (`confirmation.require ⊆
 {sealed, replicate, verify}`), is in `references/inquiry-model.md`;

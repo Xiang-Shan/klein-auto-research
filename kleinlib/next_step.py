@@ -19,6 +19,7 @@ by the verb it points at.
 from __future__ import annotations
 
 import json
+import shlex
 import subprocess
 from collections.abc import Mapping
 from pathlib import Path
@@ -34,6 +35,7 @@ from .contract import (
     unsupported_schema_message,
 )
 from .errors import WorkflowError
+from .rehearsal import rehearsal_problem
 
 __all__ = ["format_next", "next_step", "status_data"]
 
@@ -172,8 +174,6 @@ def command_argv(command: str | None) -> list[str] | None:
     first = command.split("  #", 1)[0].strip()
     if any(mark in first for mark in ("…", "<", "...", "$(", "&&")):
         return None
-    import shlex
-
     try:
         return shlex.split(first)
     except ValueError:
@@ -198,7 +198,9 @@ def sealed_tracks(tracks: Mapping[str, Any], contract: Mapping[str, Any]) -> lis
 def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
     """The study's position and its single next action, as a JSON-able mapping."""
     study = Path(study_dir)
-    s = _rel(study)
+    # Quoted for a shell and for `command_argv`: a study under a path with a space
+    # (a home directory named `A B`) must come back as ONE argument, not two.
+    s = shlex.quote(_rel(study))
     done: list[str] = []
     notes: list[str] = []
     result: dict[str, Any] = {"study": study.name, "done": done, "notes": notes}
@@ -421,21 +423,20 @@ def next_step(study_dir: str | Path = ".") -> dict[str, Any]:
             str(m.get("track")) for m in manifests if m.get("evaluation_kind") == "final_test"
         }
         if current_phase == final_phase:
-            rehearsed = {
-                str(e.get("track"))
-                for e in _events(study)
-                if e.get("type") == "sealed_dryrun" and e.get("acknowledged")
-            }
+            events = _events(study)
             for name in sealed_tracks(tracks, contract):
                 if name in sealed_spent:
                     continue
-                if name not in rehearsed:
+                # The notary's own rule (kleinlib/rehearsal.py): the latest rehearsal
+                # passed, on the command and the mutable surface about to run.
+                unrehearsed = rehearsal_problem(study, contract, name, events=events)
+                if unrehearsed:
                     result["next"] = _action(
                         "EXPERIMENT · sealed",
                         f"rehearse track {name!r}'s one sealed look (spends nothing)",
                         f"klein run-one --study {s} --track {name} --final-test --dry-run",
                         ".claude/skills/klein/SKILL.md",
-                        "the dry run is mandatory before every real sealed run",
+                        f"the sealed run is refused until its rehearsal passes: {unrehearsed}",
                     )
                     return result
                 result["next"] = _action(
