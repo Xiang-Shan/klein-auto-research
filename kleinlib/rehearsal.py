@@ -25,9 +25,11 @@ What it does NOT cover, stated so nobody assumes it:
 * a declared verifier — the rehearsal runs the entrypoint, not the checker;
 * a detached host — the rehearsal runs here, a ``--detach`` run elsewhere;
 * tampering — the rule reads the study's event chain, which is tamper-evident,
-  not tamper-proof: a rehearsal event appended by hand, or a failed one cut from
-  the end of the chain and committed, satisfies it. The guard is against a hurried
-  honest run, not a forger; a referee reads the git history for the rest.
+  not tamper-proof: a rehearsal event appended by hand satisfies it. A failed
+  rehearsal cut from the end of the chain is noticed while its log is still on
+  disk (a log newer than the latest recorded rehearsal, named by no event);
+  deleting the log as well defeats that. The guard is against a hurried honest
+  run, not a forger; a referee reads the git history for the rest.
 """
 
 from __future__ import annotations
@@ -145,7 +147,8 @@ def rehearsal_problem(
     rehearsal replaces an earlier one: a pass followed by a failure is a failure,
     because the failure is the newer fact.
     """
-    event = latest_rehearsal(read_events(study_dir) if events is None else events, track)
+    chain = list(read_events(study_dir) if events is None else events)
+    event = latest_rehearsal(chain, track)
     if event is None:
         return "no rehearsal is on record"
     where = f"the latest rehearsal (event {event.get('sequence')})"
@@ -177,6 +180,23 @@ def rehearsal_problem(
     if event["command_files"] != digest:
         names = ", ".join(name for name, _sha in listed) or "the files its command named"
         return f"{where} ran an earlier version of {names} — a script the command names changed afterwards"
+    # Every rehearsal leaves a log and an event. A log NEWER than this track's latest
+    # event, that no event names, is a rehearsal the chain does not record — an
+    # interrupted one, or a failed one whose event was cut from the end of the chain.
+    # Either way the newest fact is missing, so rehearse again (which makes the
+    # recorded rehearsal the newest once more).
+    recorded = {str(e.get("log")) for e in chain if e.get("type") == "sealed_dryrun"}
+    latest_name = Path(str(event.get("log") or "")).name
+    unrecorded = sorted(
+        path.name
+        for path in (study_dir / "sweeps").glob("sealed_dryrun.*.log")
+        if f"sweeps/{path.name}" not in recorded and path.name > latest_name
+    )
+    if unrecorded:
+        return (
+            f"a later rehearsal left a log (sweeps/{unrecorded[-1]}) that no event records "
+            "— the event chain is missing its newest rehearsal"
+        )
     if budget_seconds is not None:
         took = float(event.get("wall_seconds") or 0.0)
         needed = took * max(int(runs), 1)

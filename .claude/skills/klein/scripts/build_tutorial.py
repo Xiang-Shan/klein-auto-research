@@ -750,12 +750,21 @@ def build_evidence(study_dir: Path) -> str:
         rows.append(("finalization", "not recorded"))
     else:
         rows.append(("label", html.escape(str(final.get("label") or "not recorded"))))
+        if final.get("rigor") == "quick":
+            # Beside the label, always — whether or not a referee was also recorded.
+            # A full study's finalization carries no `rigor`, so its rows are unchanged.
+            rows.append(("rigor", "quick look — claims capped at exploratory"))
         referee = final.get("referee")
         if isinstance(referee, dict) and referee.get("status") == "unrefereed":
             # `klein finalize --no-referee --reason` writes exactly this shape;
             # the reason is the study's own disclosure, so it is copied verbatim.
             reason = html.escape(str(referee.get("reason") or "no reason recorded"))
             rows.append(("referee", f"unrefereed (finalized with --no-referee: {reason})"))
+        elif isinstance(referee, dict) and referee.get("status") == "not-required":
+            # A quick look (`policy.rigor: quick`): `klein finalize` records exactly this.
+            rows.append(
+                ("referee", "quick look — claims capped at exploratory; not refereed (not required)")
+            )
         elif not isinstance(referee, dict):
             rows.append(("referee", "not recorded"))
         else:
@@ -1526,7 +1535,7 @@ def main(argv: list[str] | None = None) -> int:
         print(
             "       In a foreign repo: uv add "
             '"klein-auto-research @ git+https://github.com/Xiang-Shan/'
-            'klein-auto-research@v3.0.0"',
+            'klein-auto-research@v3.1.0"',
             file=sys.stderr,
         )
         print("       Or directly:       uv add pygments ziamath latex2mathml", file=sys.stderr)

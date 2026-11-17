@@ -420,6 +420,10 @@ def record_gate(
         raise WorkflowError("--acknowledged-by is required")
     with StudyLock(study_dir):
         state = load_state(study_dir, contract)
+        # The tier is a line in the contract; the record has the last word on it.
+        from .rigor import refuse_if_not_a_quick_look
+
+        refuse_if_not_a_quick_look(study_dir, contract, state, verb=f"gate {gate}")
         now = utc_now()
         if gate == "phase":
             if override_reason is not None:

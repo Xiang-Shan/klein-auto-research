@@ -638,6 +638,30 @@ def _normalize_tracks_argument(
     return parsed
 
 
+#: The one sentence a quick look's plan and notebook say about the tier
+#: (docs/design/klein-3.1-quick-look.md).
+QUICK_LOOK_NOTE = (
+    "This is a quick look (`policy.rigor: quick`): two gates (CONSULT, DATA), no sealed run, "
+    "claims capped at exploratory; `klein promote` to go further."
+)
+
+_QUICK_POLICY_ANCHOR = "# The declared entrypoint."
+
+
+def _quick_look_text(name: str, text: str) -> str:
+    """The quick-look variant of a rendered scaffold file; a full study never calls this."""
+    if name == "study.yaml":
+        block = "# Proportional rigor (Klein 3.1): a quick look.\npolicy:\n  rigor: quick\n\n"
+        if "\npolicy:\n" in text:  # merge into an existing block
+            return text.replace("\npolicy:\n", "\npolicy:\n  rigor: quick\n", 1)
+        return text.replace(_QUICK_POLICY_ANCHOR, block + _QUICK_POLICY_ANCHOR, 1)
+    if name == "program.md":
+        return text.replace("\nThis is the living lab notebook.", f"\n> {QUICK_LOOK_NOTE}\n\nThis is the living lab notebook.", 1)
+    if name == "research_plan.md":
+        return text.replace("\n## Question\n", f"\n> {QUICK_LOOK_NOTE}\n\n## Question\n", 1)
+    return text
+
+
 def scaffold_study(
     root: Path,
     slug: str,
@@ -666,6 +690,7 @@ def scaffold_study(
     profile_doc: str | None = None,
     audience: str | None = None,
     tracks: Sequence[str] | None = None,
+    rigor: str = "full",
 ) -> Path:
     """Write one study directory from the templates in THIS module.
 
@@ -676,6 +701,8 @@ def scaffold_study(
     """
     from .eval import get_metric_spec
 
+    if rigor not in {"full", "quick"}:
+        raise ValueError("rigor must be full or quick")
     if schema_version != SCHEMA_VERSION:
         raise ValueError(f"schema_version must be {SCHEMA_VERSION}: this engine writes one schema")
     if not STUDY_ID_RE.fullmatch(slug):
@@ -835,7 +862,10 @@ def scaffold_study(
     if spec_of_kind.requires_verifier:
         files["verify.py"] = VERIFY
     for name, template in files.items():
-        (study_dir / name).write_text(_render(template, values), encoding="utf-8")
+        text = _render(template, values)
+        if rigor == "quick":
+            text = _quick_look_text(name, text)
+        (study_dir / name).write_text(text, encoding="utf-8")
     (study_dir / "results.tsv").write_text("\t".join(V2_RESULTS_COLUMNS) + "\n", encoding="utf-8")
     (study_dir / "aux_metrics.tsv").write_text("experiment\tmetric\tvalue\n", encoding="utf-8")
     import yaml

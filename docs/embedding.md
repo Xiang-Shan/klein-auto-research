@@ -23,7 +23,7 @@ Every seam returns the same **envelope**:
 
 ```json
 {
-  "klein": "3.0.0",
+  "klein": "3.1.0",
   "format": 1,
   "verb": "verify",
   "ok": true,
@@ -74,7 +74,7 @@ klein map    --study studies/30-churn --json
 
 Verbs with structured results fill `data` (`next`, `status`, `map`, `verify`,
 `preflight`, `claims verify`, `predict list`, `run-one`, `gate`, `finalize`, `recover`,
-`probe`, `doctor`, `explain`, `schema`, `new`, `skill …`). Any other verb returns its printed text
+`probe`, `promote`, `doctor`, `explain`, `schema`, `new`, `skill …`). Any other verb returns its printed text
 as `data.text`. The full list of verbs is [`cli.md`](cli.md).
 
 ### 3. MCP — `klein mcp --root <project>`
@@ -190,10 +190,59 @@ Install plug-ins you trust, and note that a study typed with a plug-in's profile
 modality validates only where that plug-in is installed. `KLEIN_NO_PLUGINS=1` loads the
 built-ins only. Klein's own optional generation layer is loaded through this same seam.
 
+## A question in a BI product, end to end
+
+A person asks a quick question in the host. The host runs a **quick look**: a study that
+needs two gates, has no sealed run, and can claim `exploratory` at most. The steps, with
+what the host reads at each one:
+
+1. **Type the question.** The host (or its agent) turns the question into a goal, a kind,
+   a modality and a metric, and scaffolds the study:
+
+   ```bash
+   klein new 41-churn-look --root studies \
+       --goal "can plan and tenure predict who churned after the price change?" \
+       --kind predict --modality tabular --metric val_auc --goal-direction higher \
+       --data "csv:customers.csv" --rigor quick --json
+   ```
+
+   `--rigor quick` writes `policy: {rigor: quick}` into `study.yaml`. The rest of the
+   scaffold is the usual one.
+2. **Two gates.** Fill in `study.yaml` (with its registered predictions) and
+   `data_card.md`, show the person the contract, and record the two gates once they agree:
+   `klein gate record consult --study S --acknowledged-by NAME`, then
+   `klein gate record data --study S --acknowledged-by NAME`. There is no METHOD gate to record. `klein next --json`
+   names each step; `data.rigor` is `"quick"` and `data.next` is the one action to take.
+3. **One or more runs.** `klein run-one --study S --tests P1 --json` for each
+   measurement. The notary decides the prediction by its registered rule. A sealed run
+   (`--final-test`) is refused.
+4. **A claim, capped at `exploratory`.** Write `findings.md`, then add the claims with
+   `klein claims add --study S --strength exploratory …` (see `klein claims --help`).
+   A `confirmed` claim is refused.
+5. **Close it.** `klein finalize --study S --json` needs no referee and no
+   `--allow-exploratory`. The study closes as `exploratory`.
+6. **Show the person the answer with its tier.** Read it from the records, not from your
+   own wording:
+   - `klein status --study S --json`: `data.rigor` (`"quick"` or `"full"`) and
+     `data.finalization`, the closing record (its `label` is `"exploratory"`).
+   - `klein map --study S --json`: `data.rigor`, `data.label`, and the claim nodes in
+     `data.nodes` (`type: "claim"`), each with `strength`, `claim_class` and `evidence`;
+     `data.open` lists what is still unresolved. `klein map --html` is the same page as
+     one file.
+
+   Show `rigor` beside the claim, so a quick answer is never read as an established one.
+7. **"I want to rely on this."** Make this a button that runs
+   `klein promote --study S --reason TEXT --promoted-by NAME --json`. It is a recorded
+   amendment: `data.rigor` becomes `"full"`, and `data.next` is the command that
+   acknowledges CONSULT again. Then METHOD is required, the sealed look and the referee
+   apply, and the study continues as a full one. Nothing is re-run, and the earlier
+   claims stay `exploratory`. In Python it is `kleinlib.api.promote(study, reason=…,
+   promoted_by=…)`.
+
+The field names above are the ones in `kleinlib/_schemas/` (`klein schema status`,
+`klein schema map`, `klein schema next`, `klein schema promote`).
+
 ## What is not built yet
 
-A lighter "quick-look" tier for questions that do not need the full seven stages — the
-natural fit for many BI questions — is on the roadmap
-([`design/klein-3-design.md`](design/klein-3-design.md)). Today every study runs the
-whole lifecycle; a host can stop early, and the study then says so (`exploratory`,
-`unrefereed`).
+A host can stop a full study early, and the study then says so (`exploratory`,
+`unrefereed`); the quick look above is the way to ask for less on purpose.

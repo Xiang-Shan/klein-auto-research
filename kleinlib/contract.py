@@ -31,7 +31,9 @@ __all__ = [
     "KNOWN_KINDS",
     "LEGACY_ENGINE_COMMITS",
     "LEGACY_ENGINE_TAGS",
+    "KNOWN_TOP_LEVEL_KEYS",
     "MODELING_GATES",
+    "QUICK_GATES",
     "PLACEHOLDER_RE",
     "PRINTED_SCOPES",
     "PREDICTION_ID_RE",
@@ -50,6 +52,9 @@ __all__ = [
     "execution_modes",
     "policy",
     "printed_scope",
+    "misspelled_keys",
+    "required_gates",
+    "rigor",
     "seed_array",
     "load_contract",
     "mutable_surface",
@@ -1111,7 +1116,54 @@ POLICY_VALUES: dict[str, tuple[str, ...]] = {
     "realized_split": ("required", "advisory"),
     "noise_floor": ("required", "advisory"),
     "numerals": ("identifier-aware", "literal"),
+    # Klein 3.1 — proportional rigor (docs/design/klein-3.1-quick-look.md). `quick`
+    # asks for less (two gates, no sealed look, no referee) and may claim less
+    # (`exploratory` at most). An engine that does not know the key refuses the
+    # contract, so a quick study is never judged by rules it was not written for.
+    "rigor": ("quick", "full"),
 }
+
+#: Every top-level key this engine reads. A study may carry keys of its own (two
+#: exhibits do: its library reads them), so an unknown key is not an error — but one
+#: that is nearly a known key is almost always a typo, and a typo is silently
+#: ignored: `polcy: {rigor: quick}` would be judged at full rigor without a word.
+KNOWN_TOP_LEVEL_KEYS: frozenset[str] = frozenset(
+    {
+        "audience", "calls", "confirmation", "data", "deliverables", "domain", "entrypoint",
+        "family", "goal", "kind", "materiality", "max_run_seconds", "method_depth", "phases",
+        "policy", "predictions", "predictions_to_falsify", "profile", "profile_doc",
+        "research_questions", "schema_version", "stop", "study_id", "target", "task_type",
+        "tracks",
+    }
+)
+
+
+def misspelled_keys(contract: Mapping[str, Any]) -> list[tuple[str, str]]:
+    """``(key, the known key it nearly is)`` for each top-level near-miss."""
+    import difflib
+
+    found: list[tuple[str, str]] = []
+    for key in contract:
+        if not isinstance(key, str) or key in KNOWN_TOP_LEVEL_KEYS:
+            continue
+        close = difflib.get_close_matches(key, sorted(KNOWN_TOP_LEVEL_KEYS), n=1, cutoff=0.8)
+        if close:
+            found.append((key, close[0]))
+    return found
+
+
+#: The gates a QUICK study must pass before a run. METHOD is not among them.
+QUICK_GATES: tuple[str, ...] = ("consult", "data")
+
+
+def rigor(contract: Mapping[str, Any]) -> str:
+    """``"full"`` (every study before 3.1, and the default) or ``"quick"``."""
+    return policy(contract, "rigor")
+
+
+def required_gates(contract: Mapping[str, Any]) -> tuple[str, ...]:
+    """The gates that must be acknowledged before modeling, for this study's rigor."""
+    return QUICK_GATES if rigor(contract) == "quick" else MODELING_GATES
 
 
 def policy(contract: Mapping[str, Any], key: str) -> str:

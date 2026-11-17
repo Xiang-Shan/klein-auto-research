@@ -2,7 +2,7 @@
 
 ## Supported development line
 
-Security fixes target the current release line, 3.x (`3.0.0` in package
+Security fixes target the current release line, 3.x (`3.1.0` in package
 metadata — see `CHANGELOG.md`); "supported" means exactly that it receives
 security fixes. 2.3.x remains the engine that judges schema-2 studies (tag
 `v2.3.1`) and is maintained only for that purpose. The shipped studies are

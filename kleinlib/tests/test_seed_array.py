@@ -183,3 +183,43 @@ def test_aux_metrics_hold_the_array_not_the_last_seed(tmp_path: Path) -> None:
     assert rows["val_extra"] == pytest.approx(1.0)  # the mean of seeds 0, 1, 2 — not seed 2's 2.0
     assert rows["primary_metric_std"] == pytest.approx(0.01)
     assert rows["seeds_n"] == 3
+
+
+def test_seed_std_states_the_runs_own_seed_spread_as_the_tolerance(tmp_path: Path) -> None:
+    # Klein 3.1: `klein replicate --tolerance seed-std`. Across machines a seeded run
+    # moves by a small fraction of its seed-to-seed spread; the spread is recorded in
+    # the run's own manifest, so the tolerance is stated by name, not computed by hand.
+    from kleinlib.replicate import SEED_STD, replicate_run
+
+    study = _study(tmp_path, entry_extra="  seeds: [0, 1, 2]\n")
+    _touch(study, 1)
+    manifest = run_one(study, command=_seeded_command(), echo=False)
+    spread = manifest["metrics"]["primary_metric_std"]
+    assert spread > 0
+
+    record = replicate_run(study, "E0001", tolerance=SEED_STD, echo=False)
+
+    assert record["tolerance_source"] == "seed-std"
+    assert record["tolerance"] == pytest.approx(spread)
+    assert record["reproduced"] is True
+
+
+def test_seed_std_is_refused_for_a_run_with_no_seed_array(tmp_path: Path) -> None:
+    from kleinlib.replicate import SEED_STD, replicate_run
+
+    study = _study(tmp_path)
+    _touch(study, 1)
+    run_one(study, command=_seeded_command_single(), echo=False)
+    with pytest.raises(WorkflowError, match="needs a run made with a seed array"):
+        replicate_run(study, "E0001", tolerance=SEED_STD, echo=False)
+
+
+def test_the_replicate_command_line_accepts_a_number_or_seed_std() -> None:
+    import argparse
+
+    from kleinlib.cli_replicate import _tolerance
+
+    assert _tolerance("0.01") == 0.01
+    assert _tolerance("seed-std") == "seed-std"
+    with pytest.raises(argparse.ArgumentTypeError):
+        _tolerance("loose")

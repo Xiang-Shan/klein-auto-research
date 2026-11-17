@@ -35,6 +35,13 @@
         "null"
       ]
     },
+    "rigor": {
+      "enum": [
+        "full",
+        "quick"
+      ],
+      "description": "The study's declared rigor; `quick` is a quick look, shown beside the label."
+    },
     "label": {
       "type": [
         "string",

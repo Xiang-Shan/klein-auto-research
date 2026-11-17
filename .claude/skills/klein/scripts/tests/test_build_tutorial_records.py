@@ -177,6 +177,46 @@ def test_dependent_experimenter_renders_no(build_module, tmp_path):
     assert "independent of the experimenter: no" in page
 
 
+def test_quick_look_says_it_is_capped_and_not_refereed_because_none_is_required(build_module, tmp_path):
+    """`klein finalize` on a quick look records {status: not-required}; the evidence
+    block says so instead of "not recorded" or "unrefereed"."""
+    study = scaffold(tmp_path / "00-quick", fragments=with_evidence_marker())
+    (study / "study.yaml").write_text(STUDY_YAML, encoding="utf-8")
+    write_json(
+        study / "study_state.json",
+        {
+            "finalization": {
+                "label": "exploratory",
+                "rigor": "quick",
+                "referee": {"status": "not-required", "reason": "quick look"},
+            }
+        },
+    )
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert "quick look — claims capped at exploratory; not refereed (not required)" in page
+    assert "unrefereed" not in page
+
+
+def test_quick_look_with_a_recorded_referee_still_shows_the_rigor_row(build_module, tmp_path):
+    state = {"finalization": finalization()}
+    state["finalization"]["rigor"] = "quick"
+    study = scaffold(tmp_path / "00-quick-refereed", fragments=with_evidence_marker())
+    write_json(study / "study_state.json", state)
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert "<dt>rigor</dt><dd>quick look — claims capped at exploratory</dd>" in page
+    assert "independent of the experimenter" in page  # the referee row is still there
+
+
+def test_full_study_has_no_rigor_row(build_module, tmp_path):
+    study = scaffold(tmp_path / "00-full", fragments=with_evidence_marker())
+    write_json(study / "study_state.json", {"finalization": finalization()})
+    assert build_module.main([str(study)]) == 0
+    page = (study / "report" / "index.html").read_text(encoding="utf-8")
+    assert "<dt>rigor</dt>" not in page
+
+
 def test_unrefereed_study_copies_the_recorded_reason(build_module, tmp_path):
     """`klein finalize --no-referee --reason` writes {status, reason}; the reason
     is the study's own disclosure and is copied, never paraphrased."""

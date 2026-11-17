@@ -33,9 +33,12 @@ from .contract import (
     _guardrail_entries,
     _phase_ids,
     load_contract,
+    misspelled_keys,
     mutable_surface,
     normalize_tracks,
     prepared_data_path,
+    required_gates,
+    rigor,
     schema_version,
     split_fingerprint,
     validate_contract,
@@ -308,6 +311,19 @@ def preflight_checks(
     checks.append(Check("study contract", not contract_problems, "; ".join(contract_problems) or f"schema_version {version} contract valid"))
     if cost_advisory:
         checks.extend(_call_price_checks(contract))
+        # Preflight only, like the price advisory, and only when there is something
+        # to say: `klein verify` and every existing receipt keep their rows.
+        typos = misspelled_keys(contract)
+        if typos:
+            checks.append(
+                Check(
+                    "contract keys",
+                    True,
+                    "[WARN] "
+                    + "; ".join(f"`{key}` is not a contract key — did you mean `{known}`?" for key, known in typos)
+                    + " An unknown key is ignored, so a typo changes nothing and says nothing.",
+                )
+            )
     for track_name, track_spec in normalize_tracks(contract).items():
         metric = track_spec["metric"]
         floor = metric.get("noise_floor")
@@ -408,6 +424,7 @@ def preflight_checks(
     gates = state.get("gates", {})
     # The gates that block MODELING. The referee gate (Gate 3) is checked at
     # `finalize`, not here: a study cannot be refereed before it has run.
+    required = required_gates(contract)
     for gate in MODELING_GATES:
         entry = gates.get(gate, {}) if isinstance(gates, Mapping) else {}
         valid = (
@@ -417,6 +434,11 @@ def preflight_checks(
             and bool(entry.get("acknowledged_by"))
         )
         status = entry.get("status", "missing") if isinstance(entry, Mapping) else "invalid"
+        if gate not in required and not valid:
+            # Said, not skipped: a quick look does not need this gate, and the
+            # check says so on the record instead of disappearing.
+            checks.append(Check(f"gate {gate}", True, "not required (quick look)"))
+            continue
         checks.append(Check(f"gate {gate}", valid, f"status={status}"))
 
     artifact_problems = _artifact_hash_problems(study_dir, state)
@@ -1104,7 +1126,20 @@ def verify_study(
     checks += _probe_ledger_checks(study_dir, state)
     checks += _vocabulary_checks(study_dir, contract)
     # Gate 3 and the predictions ledger close a study.
-    checks += _referee_gate_checks(state)
+    checks += _referee_gate_checks(state, quick=rigor(contract) == "quick")
+    if rigor(contract) == "quick":
+        # Only a quick look gets this row: a full study's receipt keeps its rows.
+        from .rigor import quick_record_problems
+
+        contradictions = quick_record_problems(study_dir, contract, state)
+        checks.append(
+            Check(
+                "rigor",
+                not contradictions,
+                "; ".join(contradictions)
+                or "quick look: no sealed evidence spent, claims capped at exploratory",
+            )
+        )
     checks += _predictions_closure_checks(study_dir, contract, state)
     # The claims law (references/claims-protocol.md). Empty without a lock.
     checks += claims_checks(study_dir, sentences=want_claims, strict=strict)
@@ -1201,7 +1236,7 @@ def _probe_ledger_checks(study_dir: Path, state: Mapping[str, Any]) -> list[Chec
     ]
 
 
-def _referee_gate_checks(state: Mapping[str, Any]) -> list[Check]:
+def _referee_gate_checks(state: Mapping[str, Any], *, quick: bool = False) -> list[Check]:
     """Was the study reviewed by someone who did not run it?
 
     Before finalize an unrefereed study is a ``[WARN]``: REFEREE runs between SYNTHESIZE
@@ -1211,6 +1246,10 @@ def _referee_gate_checks(state: Mapping[str, Any]) -> list[Check]:
     nothing about it.
     """
     reviewed = referee_gate(state)
+    if reviewed is None and quick:
+        # Proportional rigor: a quick look claims `exploratory` at most and closes
+        # without Gate 3. Said on the record, like every other departure.
+        return [Check("referee gate", True, "not required (quick look: claims are capped at exploratory)")]
     if reviewed is not None:
         independence = "yes" if reviewed.get("independent_of_experimenter") else "no"
         return [
@@ -1793,6 +1832,8 @@ def verify_receipt(
         "timestamp": utc_now(),
         "schema": version,
         "study": state.get("study_id", study_dir.name),
+        # keyed only for a quick look: a full study's receipt keeps its exact shape
+        **({"rigor": "quick"} if rigor(contract) == "quick" else {}),
         "checks": [
             {"name": check.name, "ok": check.ok, "message": check.message}
             for check in checks

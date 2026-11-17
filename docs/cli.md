@@ -9,7 +9,7 @@ Every verb accepts `--help` (the full text) and `--json` (one versioned envelope
 | Verb | What it does | Options |
 |---|---|---|
 | `klein demo` | watch a real study run: scaffold, a probe, three gates, a measured bar, three notarized runs | `--dir` `--quiet` |
-| `klein new` | scaffold a study: a typed contract, templates and an empty ledger | `--root` `--goal` `--domain` `--target` `--task-type` `--recipe` `--runner` `--method-depth` `--family` `--kind` `--modality` `--profile` `--profile-doc` `--audience` `--track` `--metric` `--goal-direction` `--minimum-delta` `--data` `--prepared-path` `--split-kind` `--group-column` `--time-column` `--split-seed` `--max-run-seconds` |
+| `klein new` | scaffold a study: a typed contract, templates and an empty ledger | `--root` `--goal` `--domain` `--target` `--task-type` `--recipe` `--runner` `--rigor` `--method-depth` `--family` `--kind` `--modality` `--profile` `--profile-doc` `--audience` `--track` `--metric` `--goal-direction` `--minimum-delta` `--data` `--prepared-path` `--split-kind` `--group-column` `--time-column` `--split-seed` `--max-run-seconds` |
 | `klein doctor` | report environment and data-source readiness — never fetches, never mutates a study | `--study` `--host` `--strict` |
 | `klein explain` | print a protocol or a glossary term (run with no topic for the list) |  |
 | `klein skill …` | the protocols and worker agents that ship with Klein | |
@@ -32,6 +32,7 @@ Every verb accepts `--help` (the full text) and `--json` (one versioned envelope
 | `klein gate …` | record or explicitly override a gate | |
 | `klein gate record` | record a gate acknowledgement (artifact must exist, placeholder-free) | `--study` `--acknowledged-by` `--note` `--phase` |
 | `klein gate override` | proceed against a gate's conclusion, with a recorded reason | `--study` `--acknowledged-by` `--note` `--phase` `--reason` |
+| `klein promote` | lift a quick look to full rigor: a recorded amendment (re-acknowledge CONSULT, then METHOD) | `--study` `--reason` `--promoted-by` |
 | `klein headroom …` | acknowledge a keep-infeasible frontier (headroom h < 1) before spending transactions | |
 | `klein headroom ack` | register awareness that no keep is arithmetically possible on a track | `--study` `--track` `--acknowledged-by` `--note` |
 | `klein stop …` | acknowledge a fired stop rule (consecutive discards) before spending more | |

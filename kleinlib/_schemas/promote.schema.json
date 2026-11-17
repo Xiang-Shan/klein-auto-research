@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Xiang-Shan/klein-auto-research/schemas/v1/promote.schema.json",
+  "title": "klein promote",
+  "description": "A quick look lifted to full rigor. A refused verb returns an empty `data` object (the reason is in the envelope's `problems`); when `data` is not empty it carries the required keys.",
+  "type": "object",
+  "properties": {
+    "study": {
+      "type": "string",
+      "description": "The study directory."
+    },
+    "rigor": {
+      "enum": [
+        "full"
+      ],
+      "description": "The study's rigor after the promotion."
+    },
+    "event": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Sequence number of the `rigor_promoted` event in `events.jsonl`."
+    },
+    "next": {
+      "type": "string",
+      "description": "The next command: acknowledge the amended contract."
+    }
+  },
+  "additionalProperties": true,
+  "if": {
+    "minProperties": 1
+  },
+  "then": {
+    "required": [
+      "study",
+      "rigor"
+    ]
+  }
+}

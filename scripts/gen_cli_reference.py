@@ -29,7 +29,7 @@ Every verb accepts `--help` (the full text) and `--json` (one versioned envelope
 GROUPS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("Start", ("demo", "new", "doctor", "explain", "skill")),
     ("Look and plan", ("probe", "next", "status", "map")),
-    ("Gates", ("gate", "headroom", "stop")),
+    ("Gates", ("gate", "promote", "headroom", "stop")),
     ("Run", ("preflight", "noise-floor", "run-one", "job", "recover", "sweep", "replicate")),
     ("Close", ("summarize", "predict", "claims", "refs", "report", "finalize", "verify")),
     ("Hosts", ("mcp", "notebook", "schema")),

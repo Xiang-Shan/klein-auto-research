@@ -35,6 +35,14 @@ prepare/train entrypoints, derived ledger header, auxiliary sidecar, initial
 Flags fill matching placeholders; CONSULT fills the rest. To see the whole loop on a tiny
 study before scaffolding your own, run `klein demo`.
 
+### A quick look (`klein new --rigor quick`, Klein 3.1)
+
+`--rigor quick` writes `policy: {rigor: quick}` into the contract and a one-sentence note
+into `research_plan.md` and `program.md`; everything else is the same scaffold, and
+`--rigor full` (the default) writes no `policy` key. A recipe's own `policy:` keys are
+merged into the same block. A quick look needs the CONSULT and DATA gates only; lift it
+with `klein promote` (`references/consult-protocol.md` says when to choose it).
+
 ### Domain recipes (`klein new --recipe <id>`, Klein 2.3)
 
 A recipe is the same scaffold plus a domain overlay, and every explicit flag still wins:

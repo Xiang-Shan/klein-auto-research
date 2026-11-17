@@ -75,6 +75,7 @@ PUBLIC_SURFACE: dict[str, tuple[str, str]] = {
     "preflight_checks": ("kleinlib.checks", "preflight_checks"),
     "printed_values": ("kleinlib.decision", "printed_values"),
     "prepared_data_path": ("kleinlib.contract", "prepared_data_path"),
+    "promote_study": ("kleinlib.workflow", "promote_study"),
     "read_events": ("kleinlib.events", "read_events"),
     "reconcile_state": ("kleinlib.state", "reconcile_state"),
     "record_gate": ("kleinlib.state", "record_gate"),
