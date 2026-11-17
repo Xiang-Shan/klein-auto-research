@@ -133,7 +133,8 @@ three new verbs for exploring and understanding a study. The rationale is
 - **The weekly job, red on `main` since 2.3.0:** study 23's replication was asserted
   bit-identical on a different CPU, where an iterative logit moves 6e-7 relative; the job
   now states the tolerance the study's contract declares (one cent). The MPS canary asked
-  for a runner image GitHub retired on 2026-11-02.
+  for a runner image GitHub retired on 2026-11-02. Study 20's replay step never prepared
+  its data, which only showed once the steps before it passed.
 - `replication-protocol.md` gave the tolerance ladder in the wrong order (`exact` is
   checked before `minimum_delta`), and it and the replicate message told the reader to
   compare fields no record holds.

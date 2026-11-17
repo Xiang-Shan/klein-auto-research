@@ -125,6 +125,10 @@ jobs:
             uv run --no-sync klein replicate --study "$study" "$run" --quiet ${tolerance:+--tolerance "$tolerance"}
           done
           if [ -d studies/20-llm-cot-contamination ]; then
+            # Study 20's source is bundled, so it prepares offline; a replay re-runs on
+            # the SAME prepared input and refuses without it (this step never prepared
+            # it, and failed the first time anything before it passed).
+            ( cd studies/20-llm-cot-contamination && KLEIN_OFFLINE=1 uv run --no-sync python -u prepare.py )
             KLEIN_OFFLINE=1 uv run --no-sync klein replicate --study studies/20-llm-cot-contamination E0002 --replay --quiet
           fi
       - name: The checkout stays byte-clean
