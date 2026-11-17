@@ -32,6 +32,9 @@ What it does NOT cover, stated so nobody assumes it:
 
 from __future__ import annotations
 
+import os
+import shlex
+import subprocess
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -104,13 +107,15 @@ def command_files_digest(study_dir: Path, command: Sequence[str]) -> tuple[str, 
 
 
 def rehearsal_command(study_dir: Path, track: str, command: Sequence[str] | None = None) -> str:
-    """The exact rehearsal that would cover a sealed run of ``command`` (for messages)."""
-    import shlex
+    """The exact rehearsal that would cover a sealed run of ``command`` (for messages).
 
+    Quoted for the shell a person on this platform pastes it into: POSIX quoting
+    would wrap every Windows path in single quotes, which ``cmd`` does not read.
+    """
     parts = ["klein", "run-one", "--study", str(study_dir), "--track", track, "--final-test", "--dry-run"]
     if command:
         parts += ["--command", *command]
-    return shlex.join(parts)
+    return subprocess.list2cmdline(parts) if os.name == "nt" else shlex.join(parts)
 
 
 def latest_rehearsal(events: Iterable[Mapping[str, Any]], track: str) -> Mapping[str, Any] | None:
